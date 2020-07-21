@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -35,7 +38,7 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
@@ -47,6 +50,8 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.DBLatencyThresho
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
 
+import static org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags.LOGIC_ENDPOINT;
+
 /**
  * MultiScopesSpanListener includes the most segment to source(s) logic.
  *
@@ -54,18 +59,20 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener {
+public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
     private final List<SourceBuilder> entrySourceBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> exitSourceBuilders = new ArrayList<>(10);
     private final List<DatabaseSlowStatement> slowDatabaseAccesses = new ArrayList<>(10);
+    private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
+    private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
     private final TraceServiceModuleConfig config;
     private final NetworkAddressAliasCache networkAddressAliasCache;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     @Override
     public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.Local.equals(point);
     }
 
     /**
@@ -87,7 +94,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (span.getRefsCount() > 0) {
             for (int i = 0; i < span.getRefsCount(); i++) {
                 SegmentReference reference = span.getRefs(i);
-                SourceBuilder sourceBuilder = new SourceBuilder(namingLengthControl);
+                SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
 
                 if (StringUtil.isEmpty(reference.getParentEndpoint())) {
                     sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
@@ -100,6 +107,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 if (span.getSpanLayer().equals(SpanLayer.MQ) ||
                     config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
+                    sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
                 } else {
@@ -117,7 +125,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 entrySourceBuilders.add(sourceBuilder);
             }
         } else {
-            SourceBuilder sourceBuilder = new SourceBuilder(namingLengthControl);
+            SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
@@ -132,6 +140,8 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             setPublicAttrs(sourceBuilder, span);
             entrySourceBuilders.add(sourceBuilder);
         }
+
+        parseLogicEndpoints(span, segmentObject);
     }
 
     /**
@@ -144,7 +154,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             return;
         }
 
-        SourceBuilder sourceBuilder = new SourceBuilder(namingLengthControl);
+        SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
 
         final String networkAddress = span.getPeer();
         if (StringUtil.isEmpty(networkAddress)) {
@@ -253,6 +263,11 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     }
 
     @Override
+    public void parseLocal(final SpanObject span, final SegmentObject segmentObject) {
+        parseLogicEndpoints(span, segmentObject);
+    }
+
+    @Override
     public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
             sourceReceiver.receive(entrySourceBuilder.toAll());
@@ -276,7 +291,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
-            sourceReceiver.receive(exitSourceBuilder.toService());
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
 
             /*
@@ -287,32 +301,79 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceReceiver.receive(serviceInstanceRelation);
             }
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
+                sourceReceiver.receive(exitSourceBuilder.toServiceMeta());
                 sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
             }
         });
 
         slowDatabaseAccesses.forEach(sourceReceiver::receive);
+
+        logicEndpointBuilders.forEach(logicEndpointBuilder -> {
+            sourceReceiver.receive(logicEndpointBuilder.toEndpoint());
+        });
+    }
+
+    /**
+     * Logic endpoint could be represent through an entry span or local span. It has special meaning from API
+     * perspective. But it is an actual RPC call.
+     */
+    private void parseLogicEndpoints(final SpanObject span, final SegmentObject segmentObject) {
+        span.getTagsList().forEach(tag -> {
+            switch (tag.getKey()) {
+                case LOGIC_ENDPOINT:
+                    final JsonObject tagValue = gson.fromJson(tag.getValue(), JsonObject.class);
+                    final boolean isLocalSpan = SpanType.Local.equals(span.getSpanType());
+                    String logicEndpointName;
+                    int latency;
+                    boolean status;
+                    if (isLocalSpan && tagValue.has("logic-span") && tagValue.get("logic-span").getAsBoolean()) {
+                        logicEndpointName = span.getOperationName();
+                        latency = (int) (span.getEndTime() - span.getStartTime());
+                        status = !span.getIsError();
+                    } else if (tagValue.has("name") && tagValue.has("latency") && tagValue.has("status")) {
+                        logicEndpointName = tagValue.get("name").getAsString();
+                        latency = tagValue.get("latency").getAsInt();
+                        status = tagValue.get("status").getAsBoolean();
+                    } else {
+                        break;
+                    }
+                    SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
+                    sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
+                    sourceBuilder.setDestServiceName(segmentObject.getService());
+                    sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
+                    sourceBuilder.setDestEndpointName(logicEndpointName);
+                    sourceBuilder.setDestNodeType(NodeType.Normal);
+                    sourceBuilder.setDetectPoint(DetectPoint.SERVER);
+                    sourceBuilder.setLatency(latency);
+                    sourceBuilder.setStatus(status);
+                    sourceBuilder.setType(RequestType.LOGIC);
+                    sourceBuilder.setResponseCode(Const.NONE);
+                    logicEndpointBuilders.add(sourceBuilder);
+                default:
+                    break;
+            }
+        });
     }
 
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NetworkAddressAliasCache networkAddressAliasCache;
-        private final NamingLengthControl namingLengthControl;
+        private final NamingControl namingControl;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
                                                          .provider()
                                                          .getService(NetworkAddressAliasCache.class);
-            this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                    .provider()
-                                                    .getService(NamingLengthControl.class);
+            this.namingControl = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(NamingControl.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             return new MultiScopesAnalysisListener(
-                sourceReceiver, config, networkAddressAliasCache, namingLengthControl);
+                sourceReceiver, config, networkAddressAliasCache, namingControl);
         }
     }
 }

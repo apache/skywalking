@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>8.1.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -486,6 +486,7 @@
 
                         <!-- generated file from test agent plugin scenarios -->
                         <exclude>**/test/plugin/workspace/**</exclude>
+                        <exclude>**/test/jacoco/**</exclude>
 
                         <!-- TSL relevant files for e2e test -->
                         <exclude>**/*.crt</exclude>

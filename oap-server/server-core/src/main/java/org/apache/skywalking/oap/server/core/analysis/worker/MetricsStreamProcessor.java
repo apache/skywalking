@@ -36,9 +36,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.core.storage.model.INewModel;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -92,14 +93,14 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
      * @param stream             definition of the metrics class.
      * @param metricsClass       data type of the streaming calculation.
      */
-    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) {
+    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) throws StorageException {
         this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass);
     }
 
     @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder,
                        StreamDefinition stream,
-                       Class<? extends Metrics> metricsClass) {
+                       Class<? extends Metrics> metricsClass) throws StorageException {
         if (DisableRegister.INSTANCE.include(stream.getName())) {
             return;
         }
@@ -112,7 +113,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             throw new UnexpectedException("Create " + stream.getBuilder().getSimpleName() + " metrics DAO failure.", e);
         }
 
-        INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
+        ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
         DownSamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
                                                                     .provider()
                                                                     .getService(DownSamplingConfigService.class);

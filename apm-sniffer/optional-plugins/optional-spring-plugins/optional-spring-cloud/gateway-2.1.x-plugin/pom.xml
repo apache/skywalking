@@ -23,13 +23,13 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>optional-spring-cloud</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>apm-spring-cloud-gateway-2.x-plugin</artifactId>
+    <artifactId>apm-spring-cloud-gateway-2.1.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>gateway-2.x-plugin</name>
+    <name>gateway-2.1.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -42,6 +42,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
             <version>${spring-cloud-starter-gateway.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>0.8.11.RELEASE</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

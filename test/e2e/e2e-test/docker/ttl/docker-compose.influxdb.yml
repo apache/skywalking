@@ -34,12 +34,9 @@ services:
       service: oap
     environment:
       SW_STORAGE: influxdb
+      SW_STORAGE_ES_BULK_ACTIONS: 1
       SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 1
-      SW_CORE_RECORD_DATA_TTL: 7
-      SW_CORE_MINUTE_METRIC_DATA_TTL: 6000
-      SW_CORE_HOUR_METRIC_DATA_TTL: 100
-      SW_CORE_DAY_METRIC_DATA_TTL: 5
-      SW_CORE_MONTH_METRIC_DATA_TTL: 4
+      SW_STORAGE_ES_FLUSH_INTERVAL: 1
     depends_on:
       influxdb:
         condition: service_healthy

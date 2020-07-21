@@ -41,9 +41,8 @@ jobs:
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
-# TODO, PHP hasn't followed the v3 protocol
-#      - name: PHP
-#        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.PHPE2E
+      - name: PHP
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.PHPE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

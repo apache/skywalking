@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.receiver.trace.provider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -31,7 +33,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportServletHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportListServletHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportSingleServletHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserServiceImpl;
@@ -81,6 +84,12 @@ public class TraceModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        // load official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(CoreOALDefine.INSTANCE);
+
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()
                                                                               .getService(
@@ -99,7 +108,9 @@ public class TraceModuleProvider extends ModuleProvider {
             new TraceSegmentReportServiceHandler(getManager(), listenerManager(), moduleConfig));
 
         jettyHandlerRegister.addHandler(
-            new TraceSegmentReportServletHandler(getManager(), listenerManager(), moduleConfig));
+            new TraceSegmentReportListServletHandler(getManager(), listenerManager(), moduleConfig));
+        jettyHandlerRegister.addHandler(
+            new TraceSegmentReportSingleServletHandler(getManager(), listenerManager(), moduleConfig));
     }
 
     @Override

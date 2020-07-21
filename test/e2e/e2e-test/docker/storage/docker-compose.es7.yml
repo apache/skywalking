@@ -37,6 +37,8 @@ services:
       service: oap-es7
     environment:
       SW_STORAGE: elasticsearch7
+      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_TELEMETRY: prometheus
     depends_on:
       es:
         condition: service_healthy

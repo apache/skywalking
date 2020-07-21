@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 
 /**
  * Data column of all persistent entity.
@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 public @interface Column {
     /**
      * column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
-     * could be a keyword, then, the implementation will use {@link IModelOverride} to replace the column name.
+     * could be a keyword, then, the implementation will use {@link ModelManipulator} to replace the column name.
      */
     String columnName();
 
@@ -61,6 +61,10 @@ public @interface Column {
     /**
      * @return the length of this column, this is only for {@link String} column. The usage of this depends on the
      * storage implementation.
+     *
+     * Notice, different lengths may cause different types.
+     * Such as, over 16383 would make the type in MySQL to be MEDIUMTEXT, due to database varchar max=16383
+     *
      * @since 7.1.0
      */
     int length() default 200;

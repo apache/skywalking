@@ -188,7 +188,7 @@ as the version number, it will be changed in the test for every version.
 **Take following test cases as examples**
 * [dubbo-2.7.x with JVM-container](../../../test/plugin/scenarios/dubbo-2.7.x-scenario/configuration.yml)
 * [jetty with JVM-container](../../../test/plugin/scenarios/jetty-scenario/configuration.yml)
-* [gateway with runningMode](../../../test/plugin/scenarios/gateway-scenario/configuration.yml)
+* [gateway with runningMode](../../../test/plugin/scenarios/gateway-2.1.x-scenario/configuration.yml)
 * [canal with docker-compose](../../../test/plugin/scenarios/canal-scenario/configuration.yml)
 
 ### expectedData.yaml

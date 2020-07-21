@@ -406,7 +406,7 @@ public class ElasticSearchClient implements Client {
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 if (response.hasFailures()) {
-                    log.warn("Bulk [{}] executed with failures", executionId);
+                    log.warn("Bulk [{}] executed with failures:[{}]", executionId, response.buildFailureMessage());
                 } else {
                     log.info(
                         "Bulk execution id [{}] completed in {} milliseconds, size: {}", executionId, response.getTook()

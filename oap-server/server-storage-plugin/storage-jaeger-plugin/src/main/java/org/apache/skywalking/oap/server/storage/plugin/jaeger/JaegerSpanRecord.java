@@ -31,8 +31,10 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+@SuperDataset
 @Stream(name = JaegerSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.JAEGER_SPAN, builder = JaegerSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class JaegerSpanRecord extends Record {
     public static final String INDEX_NAME = "jaeger_span";

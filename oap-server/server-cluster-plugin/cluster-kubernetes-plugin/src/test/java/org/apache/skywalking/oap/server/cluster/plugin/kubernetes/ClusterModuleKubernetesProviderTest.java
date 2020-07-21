@@ -18,48 +18,53 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.junit.Before;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
 public class ClusterModuleKubernetesProviderTest {
 
-    private ClusterModuleKubernetesProvider provider;
+    private ClusterModuleKubernetesProvider provider = new ClusterModuleKubernetesProvider();
 
-    @Before
-    public void setUp() {
-        provider = new ClusterModuleKubernetesProvider();
+    @Test
+    public void name() {
+        assertEquals("kubernetes", provider.name());
     }
 
     @Test
-    public void assertName() {
-        assertThat(provider.name(), is("kubernetes"));
+    public void module() {
+        assertEquals(ClusterModule.class, provider.module());
     }
 
     @Test
-    public void assertModule() {
-        assertTrue(provider.module().isAssignableFrom(ClusterModule.class));
+    public void createConfigBeanIfAbsent() {
+        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
+        assertTrue(moduleConfig instanceof ClusterModuleKubernetesConfig);
     }
 
     @Test
-    public void assertCreateConfigBeanIfAbsent() {
-        assertTrue(ClusterModuleKubernetesConfig.class.isInstance(provider.createConfigBeanIfAbsent()));
-    }
-
-    @Test
-    public void assertPrepare() throws ServiceNotProvidedException {
+    public void prepare() throws Exception {
         provider.prepare();
-        ClusterRegister register = provider.getService(ClusterRegister.class);
-        ClusterNodesQuery query = provider.getService(ClusterNodesQuery.class);
-        assertSame(register, query);
-        assertTrue(KubernetesCoordinator.class.isInstance(register));
+    }
+
+    @Test
+    public void notifyAfterCompleted() {
+        provider.notifyAfterCompleted();
+    }
+
+    @Test
+    public void requiredModules() {
+        String[] modules = provider.requiredModules();
+        assertArrayEquals(new String[] {CoreModule.NAME}, modules);
     }
 }

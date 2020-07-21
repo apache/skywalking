@@ -47,7 +47,8 @@ public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
     public static final String ENHANCE_COMPATIBLE_METHOD = "pollForFetches";
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.consumer.KafkaConsumer";
     public static final String SUBSCRIBE_METHOD = "subscribe";
-    public static final String SUBSCRIBE_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerRebalanceListener";
+    public static final String SUBSCRIBE_INTERCEPT_TYPE_PATTERN = "java.util.regex.Pattern";
+    public static final String SUBSCRIBE_INTERCEPT_TYPE_NAME = "java.util.Collection";
     public static final String SUBSCRIBE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.kafka.SubscribeMethodInterceptor";
 
     @Override
@@ -89,7 +90,25 @@ public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(SUBSCRIBE_METHOD).and(takesArgumentWithType(1, SUBSCRIBE_INTERCEPT_TYPE));
+                    return named(SUBSCRIBE_METHOD)
+                      .and(takesArgumentWithType(0, SUBSCRIBE_INTERCEPT_TYPE_NAME));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return SUBSCRIBE_INTERCEPT_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(SUBSCRIBE_METHOD)
+                      .and(takesArgumentWithType(0, SUBSCRIBE_INTERCEPT_TYPE_PATTERN));
                 }
 
                 @Override

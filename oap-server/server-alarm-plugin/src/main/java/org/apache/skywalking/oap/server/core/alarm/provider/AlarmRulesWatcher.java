@@ -56,7 +56,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     @Override
     public void notify(ConfigChangeEvent value) {
-        if (value.getEventType() == EventType.DELETE) {
+        if (value.getEventType().equals(EventType.DELETE)) {
             settingsString = Const.EMPTY_STRING;
             notify(new Rules());
         } else {

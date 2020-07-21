@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
@@ -161,6 +164,93 @@ public class NotifyHandlerTest {
         assertEquals(DefaultScopeDefine.SERVICE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE, metaInAlarm.getScopeId());
+    }
+
+    @Test
+    public void testNotifyWithServiceRelationCatalog() {
+        prepareNotify();
+
+        String metricsName = "service-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inServiceRelationCatalog(0)).thenReturn(true);
+        final String serviceRelationId = IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
+            IDManager.ServiceID.buildId("from-service", true),
+            IDManager.ServiceID.buildId("dest-service", true)
+        ));
+        when(metadata.getId()).thenReturn(serviceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof ServiceRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("from-service to dest-service", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.SERVICE_RELATION, metaInAlarm.getScopeId());
+    }
+
+    @Test
+    public void testNotifyWithServiceInstanceRelationCatalog() {
+        prepareNotify();
+
+        String metricsName = "service-instance-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inServiceInstanceRelationCatalog(0)).thenReturn(true);
+        final String serviceInstanceRelationId = IDManager.ServiceInstanceID.buildRelationId(new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
+            IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("from-service", true), "from-service-instance"),
+            IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("dest-service", true), "dest-service-instance")
+        ));
+        when(metadata.getId()).thenReturn(serviceInstanceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof ServiceInstanceRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1_ZnJvbS1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1_ZGVzdC1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("from-service-instance of from-service to dest-service-instance of dest-service", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION, metaInAlarm.getScopeId());
+    }
+
+    @Test
+    public void testNotifyWithEndpointRelationCatalog() {
+        prepareNotify();
+
+        String metricsName = "endpoint-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inEndpointRelationCatalog(0)).thenReturn(true);
+        final String serviceInstanceRelationId = IDManager.EndpointID.buildRelationId(new IDManager.EndpointID.EndpointRelationDefine(
+            IDManager.ServiceID.buildId("from-service", true), "/source-path",
+            IDManager.ServiceID.buildId("dest-service", true), "/dest-path"
+        ));
+        when(metadata.getId()).thenReturn(serviceInstanceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof EndpointRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1_L3NvdXJjZS1wYXRo", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1_L2Rlc3QtcGF0aA==", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("/source-path in from-service to /dest-path in dest-service", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.ENDPOINT_RELATION, metaInAlarm.getScopeId());
     }
 
     private void prepareNotify() {

@@ -17,12 +17,14 @@ or providing commercial products including Apache SkyWalking.
 1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
+1. baidu 百度 https://www.baidu.com/
 1. Baixing.com 百姓网 http://www.baixing.com/
 1. bitauto 易车 http://bitauto.com
 1. hellobanma 斑马网络 https://www.hellobanma.com/
 1. bestsign. 上上签. https://www.bestsign.cn/page/
 1. Beike Finance 贝壳金服 https://www.bkjk.com/
 1. Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
+1. BoCloud 苏州博纳讯动软件有限公司. http://www.bocloud.com.cn/
 1. Cdlhyj.com 六合远教（成都）科技有限公司 http://www.cdlhyj.com
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. China Eastern Airlines 中国东方航空 http://www.ceair.com/
@@ -46,6 +48,7 @@ or providing commercial products including Apache SkyWalking.
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. DiDi 滴滴出行
+1. dxy.cn 丁香园  http://www.dxy.cn/
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
 1. Enmonster 怪兽充电 http://www.enmonster.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
@@ -64,6 +67,7 @@ or providing commercial products including Apache SkyWalking.
 1. Huawei
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
+1. hydee.cn 海典软件 http://www.hydee.cn/
 1. iBoxChain 盒子科技 https://www.iboxpay.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
 1. Inspur 浪潮集团
@@ -76,6 +80,7 @@ or providing commercial products including Apache SkyWalking.
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lenovo 联想
 1. liaofan168.com 了凡科技 http://www.liaofan168.com
+1. lianzhongyouche.com.cn 联众优车  https://www.lianzhongyouche.com.cn/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. lizhi.fm 荔枝FM https://www.lizhi.fm/

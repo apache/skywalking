@@ -19,14 +19,13 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.models.V1ObjectMeta;
-import io.kubernetes.client.models.V1OwnerReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1OwnerReference;
 import java.util.Optional;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 interface Fetcher extends Function<V1OwnerReference, Optional<V1ObjectMeta>> {
 

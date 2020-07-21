@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -44,14 +44,14 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 public class ManagementServiceReportPropertiesHandler extends JettyJsonHandler {
     private final SourceReceiver sourceReceiver;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
     private final Gson gson = new Gson();
 
     public ManagementServiceReportPropertiesHandler(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                .provider()
-                                                .getService(NamingLengthControl.class);
+        this.namingControl = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
     }
 
     @Override
@@ -64,8 +64,8 @@ public class ManagementServiceReportPropertiesHandler extends JettyJsonHandler {
         final InstanceProperties.Builder request = InstanceProperties.newBuilder();
         ProtoBufJsonUtils.fromJSON(getJsonBody(req), request);
 
-        final String serviceName = namingLengthControl.formatServiceName(request.getService());
-        final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+        final String serviceName = namingControl.formatServiceName(request.getService());
+        final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));

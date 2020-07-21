@@ -8,10 +8,6 @@ telemetry:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
-  so11y:
-    prometheusExporterEnabled: ${SW_TELEMETRY_SO11Y_PROMETHEUS_ENABLED:true}
-    prometheusExporterHost: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
-    prometheusExporterPort: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 ```
 
 but you can set one of `prometheus` or `so11y` to enable them, for more information, refer to the details below.
@@ -45,26 +41,70 @@ Provide the grafana dashboard settings. Check [SkyWalking Telemetry dashboard](g
 SkyWalking supports to collect telemetry data into OAP backend directly. Users could check them out through UI or
 GraphQL API then.
 
-Adding following configuration to enable `so11y`(self-observability) related modules.
+Adding following configuration to enable self-observability related modules.
+
+1. Setting up prometheus telemetry.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+    host: 127.0.0.1
+    port: 1543
+```.
+
+2. Setting up prometheus fetcher
 
 ```yaml
-receiver-so11y:
-  selector: ${SW_RECEIVER_SO11Y:default}
+prometheus-fetcher:
+  selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
-telemetry:
-  selector: ${SW_TELEMETRY:so11y}
-  # ... other configurations
-```
+    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:true}
+``` 
 
-Another example represents how to combine `promethues` and `so11y`. Adding some items in `so11y` to make it happen.
+3. Make sure `config/fetcher-prom-rules/self.yaml` exists. 
 
+Once you deploy an oap-server cluster, the target host should be replaced with a dedicated IP or hostname. For instances,
+there are three oap server in your cluster, their host is `service1`, `service2` and `service3` respectively. You should
+update each `self.yaml` to twist target host.
+
+service1: 
 ```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:so11y}
-  so11y:
-    prometheusExporterEnabled: true
-    prometheusExporterHost: 0.0.0.0
-    prometheusExporterPort: 1234
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - service1:1234
+  labels:
+    service: oap-server
+...
 ```
 
-Then prometheus exporter is listening on `0.0.0.0:1234`.
+service2: 
+```yaml
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - service2:1234
+  labels:
+    service: oap-server
+...
+```
+
+service3: 
+```yaml
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - service3:1234
+  labels:
+    service: oap-server
+...
+```

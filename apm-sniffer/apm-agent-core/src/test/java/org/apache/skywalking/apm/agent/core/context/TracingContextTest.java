@@ -18,15 +18,21 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TracingContextTest {
+    @Rule
+    public AgentServiceRule serviceRule = new AgentServiceRule();
+
     @BeforeClass
     public static void beforeClass() {
         Config.Agent.KEEP_TRACING = true;
@@ -35,6 +41,7 @@ public class TracingContextTest {
     @AfterClass
     public static void afterClass() {
         Config.Agent.KEEP_TRACING = false;
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test

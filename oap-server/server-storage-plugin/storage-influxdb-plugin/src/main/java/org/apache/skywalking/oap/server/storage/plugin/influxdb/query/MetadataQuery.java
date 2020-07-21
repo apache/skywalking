@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -59,14 +60,11 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
+@RequiredArgsConstructor
 @Slf4j
 public class MetadataQuery implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
     private final InfluxClient client;
-
-    public MetadataQuery(final InfluxClient client) {
-        this.client = client;
-    }
 
     @Override
     public List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException {

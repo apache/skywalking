@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
@@ -47,7 +48,7 @@ public class StorageModelsTest {
     }
 
     @Test
-    public void testStorageModels() {
+    public void testStorageModels() throws StorageException {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
                    new Storage("StorageModelsTest", DownSampling.Hour),

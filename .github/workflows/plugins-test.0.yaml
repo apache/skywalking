@@ -51,7 +51,8 @@ jobs:
           - { name: 'finagle-17.10.x-scenario', title: 'Finagle 17.10.0-20.1.0(19)' }
           - { name: 'finagle-6.25.x-scenario', title: 'Finagle 6.25.0-6.43.0 (18)' }
           - { name: 'finagle-6.44.x-scenario', title: 'Finagle 6.44.0-7.1.0 (4)' }
-          - { name: 'gateway-scenario', title: 'Spring-Cloud-Gateway 2.1.x (3)' }
+          - { name: 'gateway-2.1.x-scenario', title: 'Spring-Cloud-Gateway 2.1.x (7)' }
+          - { name: 'gateway-2.0.x-scenario', title: 'Spring-Cloud-Gateway 2.0.x (3)' }
           - { name: 'grpc-scenario', title: 'gRPC 1.6.0-1.25.0 (22)' }
           - { name: 'gson-scenario', title: 'Gson (7)' }
     steps:

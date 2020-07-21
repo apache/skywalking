@@ -38,7 +38,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE,
     builder = ServiceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {
+    "name",
+    "nodeType"
+})
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
@@ -69,6 +72,8 @@ public class ServiceTraffic extends Metrics {
     public void deserialize(final RemoteData remoteData) {
         setName(remoteData.getDataStrings(0));
         setNodeType(NodeType.valueOf(remoteData.getDataIntegers(0)));
+        // Time bucket is not a part of persistent, but still is required in the first time insert.
+        setTimeBucket(remoteData.getDataLongs(0));
     }
 
     @Override
@@ -76,6 +81,8 @@ public class ServiceTraffic extends Metrics {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(name);
         builder.addDataIntegers(nodeType.value());
+        // Time bucket is not a part of persistent, but still is required in the first time insert.
+        builder.addDataLongs(getTimeBucket());
         return builder;
     }
 

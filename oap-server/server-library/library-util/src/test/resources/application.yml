@@ -67,10 +67,6 @@ receiver-register:
 
 receiver-trace:
   default:
-    bufferPath: ${RECEIVER_BUFFER_PATH:../trace-buffer/}  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: ${RECEIVER_BUFFER_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
-    bufferDataMaxFileSize: ${RECEIVER_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
-    bufferFileCleanWhenRestart: ${RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 
 receiver-jvm:
   default:
@@ -80,10 +76,6 @@ receiver-profile:
 
 service-mesh:
   default:
-    bufferPath: ${SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: ${SERVICE_MESH_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
-    bufferDataMaxFileSize: ${SERVICE_MESH_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
-    bufferFileCleanWhenRestart: ${SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 
 istio-telemetry:
   default:

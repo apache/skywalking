@@ -89,6 +89,8 @@ receiver_zipkin:
     needAnalysis: true
 ```
 
+NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
+
 ## Jaeger receiver
 Jaeger receiver right now only works in `Tracing Mode`, and no analysis.
 Jaeger receiver provides extra gRPC host/port, if absent, sharing-server host/port will be used, then core gRPC host/port.
@@ -106,3 +108,5 @@ receiver_jaeger:
     gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 ``` 
+
+NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.

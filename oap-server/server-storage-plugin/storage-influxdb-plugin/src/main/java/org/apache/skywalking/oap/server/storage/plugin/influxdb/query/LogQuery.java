@@ -141,7 +141,7 @@ public class LogQuery implements ILogQueryDAO {
                     data.put(columns.get(i), value);
                 }
                 log.setContent((String) data.get(CONTENT));
-                log.setContentType(ContentType.instanceOf((int) data.get(CONTENT_TYPE)));
+                log.setContentType(ContentType.instanceOf(((Number) data.get(CONTENT_TYPE)).intValue()));
 
                 log.setEndpointId((String) data.get(ENDPOINT_ID));
                 log.setEndpointName((String) data.get(ENDPOINT_NAME));

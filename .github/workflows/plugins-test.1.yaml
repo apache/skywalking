@@ -38,6 +38,7 @@ jobs:
           - { name: 'httpclient-3.x-scenario', title: 'HttpClient 2.0-3.1 (5)' }
           - { name: 'httpclient-4.3.x-scenario', title: 'HttpClient 4.3.x-4.5.x (14)' }
           - { name: 'hystrix-scenario', title: 'Hystrix 1.4.20-1.5.12 (20)' }
+          - { name: 'influxdb-scenario', title: 'InfluxDB Java 2.5-2.17 (12)' }
           - { name: 'jdk-http-scenario', title: 'JDK http (1)' }
           - { name: 'jdk-threading-scenario', title: 'JDK Threading (1)' }
           - { name: 'jedis-scenario', title: 'Jedis 2.4.0-2.9.0 (18)' }

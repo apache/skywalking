@@ -119,7 +119,8 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
                             .reportInstanceProperties(InstanceProperties.newBuilder()
                                                                         .setService(Config.Agent.SERVICE_NAME)
                                                                         .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                                                                        .addAllProperties(OSUtil.buildOSInfo())
+                                                                        .addAllProperties(OSUtil.buildOSInfo(
+                                                                            Config.OsInfo.IPV4_LIST_SIZE))
                                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                                                         .build());
                         instancePropertiesSubmitted = true;

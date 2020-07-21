@@ -20,29 +20,35 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avg")
-@EqualsAndHashCode(of = {
-    "entityId",
-    "timeBucket"
-})
-public abstract class AvgFunction extends LongAvgMetrics implements AcceptableValue<Long> {
+@ToString
+public abstract class AvgFunction extends Metrics implements AcceptableValue<Long> {
+    protected static final String SUMMATION = "summation";
+    protected static final String COUNT = "count";
+    protected static final String VALUE = "value";
+
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
     private String entityId;
+
     /**
      * Service ID is required for sort query.
      */
@@ -50,6 +56,42 @@ public abstract class AvgFunction extends LongAvgMetrics implements AcceptableVa
     @Getter
     @Column(columnName = InstanceTraffic.SERVICE_ID)
     private String serviceId;
+
+    @Getter
+    @Setter
+    @Column(columnName = SUMMATION, storageOnly = true)
+    protected long summation;
+    @Getter
+    @Setter
+    @Column(columnName = COUNT, storageOnly = true)
+    protected long count;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    private long value;
+
+    @Entrance
+    public final void combine(@SourceFrom long summation, @ConstOne long count) {
+        this.summation += summation;
+        this.count += count;
+    }
+
+    @Override
+    public final void combine(Metrics metrics) {
+        AvgFunction longAvgMetrics = (AvgFunction) metrics;
+        combine(longAvgMetrics.summation, longAvgMetrics.count);
+    }
+
+    @Override
+    public final void calculate() {
+        long result = this.summation / this.count;
+        // The minimum of avg result is 1, that means once there's some data in a duration user can get "1" instead of
+        // "0".
+        if (result == 0 && this.summation > 0) {
+            result = 1;
+        }
+        this.value = result;
+    }
 
     @Override
     public Metrics toHour() {
@@ -148,5 +190,21 @@ public abstract class AvgFunction extends LongAvgMetrics implements AcceptableVa
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof AvgFunction))
+            return false;
+        AvgFunction function = (AvgFunction) o;
+        return Objects.equals(entityId, function.entityId) &&
+            getTimeBucket() == function.getTimeBucket();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

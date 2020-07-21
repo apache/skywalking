@@ -57,6 +57,6 @@ public class AlarmQuery implements GraphQLQueryResolver {
         }
 
         return getQueryService().getAlarm(
-            scopeId, keyword, paging, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+            scopeId, keyword, paging, duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec());
     }
 }

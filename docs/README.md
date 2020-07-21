@@ -64,7 +64,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Advanced features](en/setup/service-agent/java-agent/README.md#advanced-features).
       * [Plugin development guide](en/setup/service-agent/java-agent/README.md#plugin-development-guide).
       * [Agent plugin tests and performance tests](en/setup/service-agent/java-agent/README.md#test).
-    * [Other language agents](en/setup/README.md#language-agents-in-service) includes .NetCore, PHP, NodeJS, Go, which are maintained by volunteers.
+    * [Other language agents](en/setup/README.md#language-agents-in-service) includes Nginx LUA, Python, .NetCore, PHP, NodeJS, Go.
   * Service Mesh
     * [SkyWalking on Istio](en/setup/istio/README.md). Introduces how to use Istio Mixer bypass Adapter to work with SkyWalking.
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
@@ -77,6 +77,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Deploy in kubernetes](en/setup/backend/backend-k8s.md). Guides you to build and use SkyWalking image, and deploy in k8s.
       * [Choose storage](en/setup/backend/backend-storage.md). As we know, in default quick start, backend is running with H2 DB. But clearly, it doesn't fit the product env. In here, you could find what other choices do you have. Choose the one you like, we also welcome anyone to contribute new storage implementors.
       * [Set receivers](en/setup/backend/backend-receivers.md). You could choose receivers by your requirements, most receivers are harmless, at least our default receivers are. You would set and active all receivers provided.
+      * [Open fetchers](en/setup/backend/backend-fetcher.md). You could open different fetchers to read metrics from the target applications. These ones works like receivers, but in pulling mode, typically like Prometheus.
       * Do [trace sampling](en/setup/backend/trace-sampling.md) at backend. Trace sampling allows you to keep your metrics accurate, whilst only keeping some traces in storage based on rate.
       * Follow [slow DB statement threshold](en/setup/backend/slow-db-statement.md) config document to understand how to detect slow database statements (including SQL statements) in your system.
       * Official [OAL scripts](en/guides/backend-oal-scripts.md). As you known from our [OAL introduction](en/concepts-and-designs/oal.md), most of backend analysis capabilities based on the scripts. Here is the description of official scripts, which helps you to understand which metrics data are in process, also could be used in alarm.

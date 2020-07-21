@@ -154,10 +154,10 @@ public class TraceQuery implements ITraceQueryDAO {
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId((String) values.get(2));
-            basicTrace.setStart(String.valueOf((long) values.get(3)));
+            basicTrace.setStart(String.valueOf(values.get(3)));
             basicTrace.getEndpointNames().add((String) values.get(4));
-            basicTrace.setDuration((int) values.get(5));
-            basicTrace.setError(BooleanUtils.valueToBoolean((int) values.get(6)));
+            basicTrace.setDuration(((Number) values.get(5)).intValue());
+            basicTrace.setError(BooleanUtils.valueToBoolean(((Number) values.get(6)).intValue()));
             basicTrace.getTraceIds().add((String) values.get(7));
 
             traceBrief.getTraces().add(basicTrace);
@@ -197,11 +197,11 @@ public class TraceQuery implements ITraceQueryDAO {
             segmentRecord.setServiceId((String) values.get(3));
             segmentRecord.setServiceInstanceId((String) values.get(4));
             segmentRecord.setEndpointName((String) values.get(5));
-            segmentRecord.setStartTime((long) values.get(6));
-            segmentRecord.setEndTime((long) values.get(7));
-            segmentRecord.setLatency((int) values.get(8));
-            segmentRecord.setIsError((int) values.get(9));
-            segmentRecord.setVersion((int) values.get(11));
+            segmentRecord.setStartTime(((Number) values.get(6)).longValue());
+            segmentRecord.setEndTime(((Number) values.get(7)).longValue());
+            segmentRecord.setLatency(((Number) values.get(8)).intValue());
+            segmentRecord.setIsError(((Number) values.get(9)).intValue());
+            segmentRecord.setVersion(((Number) values.get(11)).intValue());
 
             String base64 = (String) values.get(10);
             if (!Strings.isNullOrEmpty(base64)) {

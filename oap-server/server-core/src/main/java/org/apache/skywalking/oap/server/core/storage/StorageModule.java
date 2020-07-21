@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -46,22 +47,23 @@ public class StorageModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {
-            IBatchDAO.class,
-            StorageDAO.class,
-            IHistoryDeleteDAO.class,
-            INetworkAddressAliasDAO.class,
-            ITopologyQueryDAO.class,
-            IMetricsQueryDAO.class,
-            ITraceQueryDAO.class,
-            IMetadataQueryDAO.class,
-            IAggregationQueryDAO.class,
-            IAlarmQueryDAO.class,
-            ITopNRecordsQueryDAO.class,
-            ILogQueryDAO.class,
-            IProfileTaskQueryDAO.class,
-            IProfileTaskLogQueryDAO.class,
-            IProfileThreadSnapshotQueryDAO.class
+        return new Class[]{
+                IBatchDAO.class,
+                StorageDAO.class,
+                IHistoryDeleteDAO.class,
+                INetworkAddressAliasDAO.class,
+                ITopologyQueryDAO.class,
+                IMetricsQueryDAO.class,
+                ITraceQueryDAO.class,
+                IMetadataQueryDAO.class,
+                IAggregationQueryDAO.class,
+                IAlarmQueryDAO.class,
+                ITopNRecordsQueryDAO.class,
+                ILogQueryDAO.class,
+                IProfileTaskQueryDAO.class,
+                IProfileTaskLogQueryDAO.class,
+                IProfileThreadSnapshotQueryDAO.class,
+                UITemplateManagementDAO.class
         };
     }
 }

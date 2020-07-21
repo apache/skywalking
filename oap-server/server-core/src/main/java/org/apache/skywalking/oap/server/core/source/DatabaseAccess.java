@@ -24,8 +24,9 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
-@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
+@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class DatabaseAccess extends Source {
 

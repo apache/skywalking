@@ -134,10 +134,10 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
                           .endpointName((String) values.get(3))
                           .startTime(((Number) values.get(4)).longValue())
                           .createTime(((Number) values.get(5)).longValue())
-                          .duration((int) values.get(6))
-                          .minDurationThreshold((int) values.get(7))
-                          .dumpPeriod((int) values.get(8))
-                          .maxSamplingCount((int) values.get(9))
+                          .duration(((Number) values.get(6)).intValue())
+                          .minDurationThreshold(((Number) values.get(7)).intValue())
+                          .dumpPeriod(((Number) values.get(8)).intValue())
+                          .maxSamplingCount(((Number) values.get(9)).intValue())
                           .build();
     }
 

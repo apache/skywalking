@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -43,10 +43,11 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
 public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, SegmentListener {
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     private final Segment segment = new Segment();
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
+    private String serviceName = Const.EMPTY_STRING;
     private String serviceId = Const.EMPTY_STRING;
     private String endpointId = Const.EMPTY_STRING;
     private String endpointName = Const.EMPTY_STRING;
@@ -67,8 +68,9 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         }
 
         if (StringUtil.isEmpty(serviceId)) {
+            serviceName = namingControl.formatServiceName(segmentObject.getService());
             serviceId = IDManager.ServiceID.buildId(
-                namingLengthControl.formatServiceName(segmentObject.getService()),
+                serviceName,
                 NodeType.Normal
             );
         }
@@ -79,7 +81,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setServiceId(serviceId);
         segment.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
             serviceId,
-            namingLengthControl.formatInstanceName(segmentObject.getServiceInstance())
+            namingControl.formatInstanceName(segmentObject.getServiceInstance())
         ));
         segment.setLatency(duration);
         segment.setStartTime(startTimestamp);
@@ -89,7 +91,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setDataBinary(segmentObject.toByteArray());
         segment.setVersion(3);
 
-        endpointName = namingLengthControl.formatEndpointName(span.getOperationName());
+        endpointName = namingControl.formatEndpointName(serviceName, span.getOperationName());
         endpointId = IDManager.EndpointID.buildId(
             serviceId,
             endpointName
@@ -100,8 +102,9 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     @Override
     public void parseEntry(SpanObject span, SegmentObject segmentObject) {
         if (StringUtil.isEmpty(serviceId)) {
+            serviceName = namingControl.formatServiceName(segmentObject.getService());
             serviceId = IDManager.ServiceID.buildId(
-                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanLayer()));
+                serviceName, NodeType.Normal);
         }
 
         endpointId = IDManager.EndpointID.buildId(
@@ -109,7 +112,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             span.getOperationName()
         );
 
-        endpointName = namingLengthControl.formatEndpointName(span.getOperationName());
+        endpointName = namingControl.formatEndpointName(serviceName, span.getOperationName());
         endpointId = IDManager.EndpointID.buildId(
             serviceId,
             endpointName
@@ -169,19 +172,19 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final TraceSegmentSampler sampler;
-        private final NamingLengthControl namingLengthControl;
+        private final NamingControl namingControl;
 
         public Factory(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.sampler = new TraceSegmentSampler(config.getSampleRate());
-            this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                    .provider()
-                                                    .getService(NamingLengthControl.class);
+            this.namingControl = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(NamingControl.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new SegmentAnalysisListener(sourceReceiver, sampler, namingLengthControl);
+            return new SegmentAnalysisListener(sourceReceiver, sampler, namingControl);
         }
     }
 }

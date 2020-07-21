@@ -80,7 +80,7 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
                 @Override
                 public boolean isOverrideArgs() {
-                    return false;
+                    return true;
                 }
             }
         };

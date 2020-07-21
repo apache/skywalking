@@ -26,18 +26,18 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class InfluxTableInstaller extends ModelInstaller {
 
-    public InfluxTableInstaller(ModuleManager moduleManager) {
-        super(moduleManager);
+    public InfluxTableInstaller(Client client, ModuleManager moduleManager) {
+        super(client, moduleManager);
     }
 
     @Override
-    protected boolean isExists(final Client client, final Model model) throws StorageException {
+    protected boolean isExists(final Model model) throws StorageException {
         TableMetaInfo.addModel(model);
         return true;
     }
 
     @Override
-    protected void createTable(final Client client, final Model model) throws StorageException {
+    protected void createTable(final Model model) throws StorageException {
         // Automatically create table
     }
 }

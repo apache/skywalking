@@ -25,4 +25,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class PrometheusFetcherConfig extends ModuleConfig {
     private boolean active;
 
+    private final String rulePath = "fetcher-prom-rules";
+
 }

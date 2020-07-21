@@ -1,5 +1,5 @@
 public org.apache.skywalking.oap.server.core.analysis.metrics.Metrics toHour() {
-org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics metrics = new org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics();
+${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 <#list fieldsFromSource as field>
     <#if field.columnName == "time_bucket">
         metrics.setTimeBucket(toTimeBucketInHour());
