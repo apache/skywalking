@@ -92,7 +92,7 @@ public enum CustomizeConfiguration {
                 addContextMethodConfiguration(configuration);
             }
         } catch (Exception e) {
-            logger.error("CustomizeConfiguration loadForAgent fail", e);
+            logger.error("CustomizeConfiguration loadForConfiguration fail", e);
         } finally {
             LOAD_FOR_CONFIGURATION.set(true);
         }
