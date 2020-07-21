@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class ElasticsearchPluginConfig implements PluginConfig {
+public class ElasticsearchPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = ElasticsearchPluginConfig.class)
         public static class Elasticsearch {
             /**
              * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.

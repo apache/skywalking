@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.influxdb;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class InfluxDBPluginConfig implements PluginConfig {
+public class InfluxDBPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = InfluxDBPluginConfig.class)
         public static class InfluxDB {
             /**
              * If set to true, the parameters of the InfluxQL would be collected.

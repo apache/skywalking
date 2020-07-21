@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.spring.transaction;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class SpringTXPluginConfig implements PluginConfig {
+public class SpringTXPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = SpringTXPluginConfig.class)
         public static class SpringTransaction {
 
             /**

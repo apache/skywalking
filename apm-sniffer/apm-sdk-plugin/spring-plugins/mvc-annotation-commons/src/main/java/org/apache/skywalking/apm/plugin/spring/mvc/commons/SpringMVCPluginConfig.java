@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class SpringMVCPluginConfig implements PluginConfig {
+public class SpringMVCPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = SpringMVCPluginConfig.class)
         public static class SpringMVC {
             /**
              * If true, the fully qualified method name will be used as the endpoint name instead of the request URL,
@@ -36,6 +37,7 @@ public class SpringMVCPluginConfig implements PluginConfig {
             public static boolean COLLECT_HTTP_PARAMS = false;
         }
 
+        @PluginConfig(root = SpringMVCPluginConfig.class)
         public static class Http {
             /**
              * When either {@link Plugin.SpringMVC#COLLECT_HTTP_PARAMS} is enabled, how many characters to keep and send

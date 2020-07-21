@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.light4j;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class Light4JPluginConfig implements PluginConfig {
+public class Light4JPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = Light4JPluginConfig.class)
         public static class Light4J {
             /**
              * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,

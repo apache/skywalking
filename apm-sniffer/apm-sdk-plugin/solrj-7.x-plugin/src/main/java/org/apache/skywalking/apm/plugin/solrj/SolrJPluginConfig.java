@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.solrj;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class SolrJPluginConfig implements PluginConfig {
+public class SolrJPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = SolrJPluginConfig.class)
         public static class SolrJ {
             /**
              * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,

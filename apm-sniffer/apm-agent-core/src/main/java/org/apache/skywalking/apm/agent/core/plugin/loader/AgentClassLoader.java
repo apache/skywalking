@@ -109,14 +109,7 @@ public class AgentClassLoader extends ClassLoader {
                     }
                     data = baos.toByteArray();
                 }
-                final Class<?> loadedClass = defineClass(name, data, 0, data.length);
-                if (PluginConfig.class.isAssignableFrom(loadedClass)) {
-                    // Set up the plugin config when loaded by class loader at the first time.
-                    // Agent class loader just loaded limited classes in the plugin jar(s), so the cost of this
-                    // isAssignableFrom would be also very limited.
-                    SnifferConfigInitializer.initializeConfig(loadedClass);
-                }
-                return loadedClass;
+                return processLoadedClass(defineClass(name, data, 0, data.length));
             } catch (IOException e) {
                 logger.error(e, "find class fail.");
             }
@@ -162,6 +155,18 @@ public class AgentClassLoader extends ClassLoader {
                 return iterator.next();
             }
         };
+    }
+
+    private Class<?> processLoadedClass(Class<?> loadedClass) {
+        final PluginConfig pluginConfig = loadedClass.getAnnotation(PluginConfig.class);
+        if (pluginConfig != null) {
+            // Set up the plugin config when loaded by class loader at the first time.
+            // Agent class loader just loaded limited classes in the plugin jar(s), so the cost of this
+            // isAssignableFrom would be also very limited.
+            SnifferConfigInitializer.initializeConfig(pluginConfig.root());
+        }
+
+        return loadedClass;
     }
 
     private List<Jar> getAllJars() {

@@ -22,8 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class CustomizePluginConfig implements PluginConfig {
+public class CustomizePluginConfig {
     public static class Plugin {
+        @PluginConfig(root = CustomizePluginConfig.class)
         public static class Customize {
             /**
              * Custom enhancement class configuration file path, recommended to use an absolute path.

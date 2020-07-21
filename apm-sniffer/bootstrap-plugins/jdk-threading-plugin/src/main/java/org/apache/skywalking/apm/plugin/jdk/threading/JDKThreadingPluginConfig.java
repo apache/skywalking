@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.jdk.threading;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class JDKThreadingPluginConfig implements PluginConfig {
+public class JDKThreadingPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = JDKThreadingPluginConfig.class)
         public static class JdkThreading {
 
             /**

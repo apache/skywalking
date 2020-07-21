@@ -18,11 +18,22 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * ConfigInitializationService provides the config class which should host all parameters originally from agent setup.
  * {@link org.apache.skywalking.apm.agent.core.conf.Config} provides the core level config, all plugins could implement
  * this interface to have the same capability about initializing config from agent.config, system properties and system
  * environment variables.
  */
-public interface PluginConfig {
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PluginConfig {
+    /**
+     * @return Class as the root to do config initialization.
+     */
+    Class<?> root();
 }

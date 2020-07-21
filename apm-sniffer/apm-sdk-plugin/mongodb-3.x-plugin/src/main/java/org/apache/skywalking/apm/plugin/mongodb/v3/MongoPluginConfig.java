@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.mongodb.v3;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class MongoPluginConfig implements PluginConfig {
+public class MongoPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = MongoPluginConfig.class)
         public static class MongoDB {
             /**
              * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not

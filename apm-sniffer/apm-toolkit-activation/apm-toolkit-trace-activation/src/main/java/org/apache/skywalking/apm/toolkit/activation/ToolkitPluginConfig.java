@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.toolkit.activation;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class ToolkitPluginConfig implements PluginConfig {
+public class ToolkitPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = ToolkitPluginConfig.class)
         public static class Toolkit {
             /**
              * If true, the fully qualified method name will be used as the operation name instead of the given

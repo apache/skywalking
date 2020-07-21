@@ -20,8 +20,9 @@ package org.apache.skywalking.apm.plugin.jdbc;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class JDBCPluginConfig implements PluginConfig {
+public class JDBCPluginConfig {
     public static class Plugin {
+        @PluginConfig(root = JDBCPluginConfig.class)
         public static class MySQL {
             /**
              * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
@@ -37,6 +38,7 @@ public class JDBCPluginConfig implements PluginConfig {
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
         }
 
+        @PluginConfig(root = JDBCPluginConfig.class)
         public static class POSTGRESQL {
             /**
              * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
