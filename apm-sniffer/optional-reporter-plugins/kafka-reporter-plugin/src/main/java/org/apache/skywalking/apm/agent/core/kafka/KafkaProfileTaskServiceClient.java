@@ -45,7 +45,7 @@ public class KafkaProfileTaskServiceClient extends ProfileTaskChannelService {
 
     @Override
     public void prepare() {
-        topic = Config.Collector.Kafka.TOPIC_PROFILING;
+        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING;
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 

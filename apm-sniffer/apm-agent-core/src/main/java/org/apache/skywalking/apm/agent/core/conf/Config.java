@@ -153,24 +153,6 @@ public class Config {
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
 
-        public static class Kafka {
-
-            /**
-             * <B>bootstrap.servers</B>: A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
-             * This list should be in the form host1:port1,host2:port2,...
-             */
-            public static String BOOTSTRAP_SERVERS = "localhost:9092";
-
-            public static String TOPIC_METRICS = "skywalking-metrics";
-
-            public static String TOPIC_PROFILING = "skywalking-profilings";
-
-            public static String TOPIC_SEGMENT = "skywalking-segments";
-
-            public static String TOPIC_MANAGEMENT = "skywalking-managements";
-
-            public static Map<String, String> CONSUMER_CONFIG = new HashMap<>();
-        }
     }
 
     public static class Profile {

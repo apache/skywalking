@@ -75,7 +75,7 @@ public class KafkaJVMServiceSender implements JVMServiceSender {
     @Override
     public void prepare() {
         queue = new LinkedBlockingQueue<>(Config.Jvm.BUFFER_SIZE);
-        topic = Config.Collector.Kafka.TOPIC_METRICS;
+        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS;
     }
 
     @Override

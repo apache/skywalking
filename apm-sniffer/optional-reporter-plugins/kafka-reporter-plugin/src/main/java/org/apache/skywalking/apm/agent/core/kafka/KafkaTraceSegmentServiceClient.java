@@ -24,7 +24,6 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -42,7 +41,7 @@ public class KafkaTraceSegmentServiceClient implements BootService, TracingConte
 
     @Override
     public void prepare() {
-        topic = Config.Collector.Kafka.TOPIC_SEGMENT;
+        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_SEGMENT;
     }
 
     @Override

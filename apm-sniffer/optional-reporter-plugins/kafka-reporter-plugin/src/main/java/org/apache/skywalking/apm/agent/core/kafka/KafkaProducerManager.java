@@ -33,7 +33,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 
 /**
  *  Configuring, initializing and holding a KafkaProducer instance for reporters.
@@ -46,15 +45,15 @@ public class KafkaProducerManager implements BootService, Runnable {
     @Override
     public void prepare() throws Throwable {
         Properties properties = new Properties();
-        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Config.Collector.Kafka.BOOTSTRAP_SERVERS);
-        Config.Collector.Kafka.CONSUMER_CONFIG.forEach((k, v) -> properties.setProperty(k, v));
+        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
+        KafkaReporterPluginConfig.Plugin.Kafka.CONSUMER_CONFIG.forEach((k, v) -> properties.setProperty(k, v));
 
         AdminClient adminClient = AdminClient.create(properties);
         DescribeTopicsResult topicsResult = adminClient.describeTopics(Arrays.asList(
-            Config.Collector.Kafka.TOPIC_MANAGEMENT,
-            Config.Collector.Kafka.TOPIC_METRICS,
-            Config.Collector.Kafka.TOPIC_PROFILING,
-            Config.Collector.Kafka.TOPIC_SEGMENT
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_SEGMENT
         ));
         Set<String> topics = topicsResult.values().entrySet().stream()
                                          .map(entry -> {

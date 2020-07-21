@@ -60,7 +60,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void prepare() {
-        topic = Config.Collector.Kafka.TOPIC_MANAGEMENT;
+        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT;
 
         SERVICE_INSTANCE_PROPERTIES = new ArrayList<>();
         for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
