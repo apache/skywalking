@@ -41,8 +41,3 @@ management:
         request:
           autotime:
             enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: info,health
-      base-path: /
