@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,16 +57,44 @@ public enum CustomizeConfiguration {
 
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
+    private final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
 
     /**
-     * The load method is resolver configuration file, and parse it to kernel.
+     * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+     * And using Map CONTEXT for avoiding classloader isolation issue.
      */
-    public void load() {
+    private final Map<String, Map<String, Object>> CONTEXT_METHOD_CONFIGURATIONS = new HashMap<>();
+    private final Map<String, ElementMatcher> CONTEXT_ENHANCE_CLASSES = new HashMap<>();
+    private final AtomicBoolean LOAD_FOR_CONFIGURATION = new AtomicBoolean(false);
+
+    /**
+     * The loadForEnhance method is resolver configuration file, and parse it
+     */
+    public void loadForEnhance() {
         try {
-            parse(resolver());
+            for (Map<String, Object> configuration : resolver()) {
+                addContextEnhanceClass(configuration);
+            }
         } catch (Exception e) {
-            logger.error("CustomizeConfiguration load fail", e);
+            logger.error("CustomizeConfiguration loadForAgent fail", e);
+        }
+    }
+
+    /**
+     * The loadForConfiguration method is resolver configuration file, and parse it
+     */
+    public synchronized void loadForConfiguration() {
+        if(LOAD_FOR_CONFIGURATION.get()){
+           return;
+        }
+        try {
+            for (Map<String, Object> configuration : resolver()) {
+                addContextMethodConfiguration(configuration);
+            }
+        } catch (Exception e) {
+            logger.error("CustomizeConfiguration loadForAgent fail", e);
+        } finally {
+            LOAD_FOR_CONFIGURATION.set(true);
         }
     }
 
@@ -234,29 +263,6 @@ public enum CustomizeConfiguration {
     }
 
     /**
-     * Put the plugin configuration into the kernel according to the configuration.
-     *
-     * @param configurations is a bridge resolver method and parse method, mainly used for decoupling.
-     */
-    private void parse(List<Map<String, Object>> configurations) {
-        init();
-        for (Map<String, Object> configuration : configurations) {
-            addContextMethodConfiguration(configuration);
-            addContextEnhanceClass(configuration);
-        }
-    }
-
-    /**
-     * In order to avoid the judgment of the useless null pointer exception.
-     */
-    private void init() {
-        CustomizePluginConfig.Plugin.Customize.CONTEXT.put(
-            Constants.CONTEXT_METHOD_CONFIGURATIONS, new HashMap<String, Map<String, Object>>());
-        CustomizePluginConfig.Plugin.Customize.CONTEXT.put(
-            Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<String, ElementMatcher>());
-    }
-
-    /**
      * The configuration of each method is put into the kernel.
      *
      * @param configuration {@link MethodConfiguration}.
@@ -272,8 +278,7 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, Object>> getMethodConfigurations() {
-        return (Map<String, Map<String, Object>>) CustomizePluginConfig.Plugin.Customize.CONTEXT.get(
-            Constants.CONTEXT_METHOD_CONFIGURATIONS);
+        return CONTEXT_METHOD_CONFIGURATIONS;
     }
 
     /**
@@ -341,11 +346,13 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private HashMap<String, ElementMatcher> getEnhanceClasses() {
-        return (HashMap<String, ElementMatcher>) CustomizePluginConfig.Plugin.Customize.CONTEXT.get(
-            Constants.CONTEXT_ENHANCE_CLASSES);
+        return (HashMap<String, ElementMatcher>) CONTEXT_ENHANCE_CLASSES;
     }
 
     public Map<String, Object> getConfiguration(Method method) {
+        if(!LOAD_FOR_CONFIGURATION.get()){
+            loadForConfiguration();
+        }
         return getMethodConfigurations().get(MethodUtil.generateOperationName(method));
     }
 }

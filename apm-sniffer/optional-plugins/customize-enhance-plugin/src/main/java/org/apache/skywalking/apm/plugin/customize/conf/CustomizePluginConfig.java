@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.customize.conf;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
 public class CustomizePluginConfig {
@@ -30,12 +28,6 @@ public class CustomizePluginConfig {
              * Custom enhancement class configuration file path, recommended to use an absolute path.
              */
             public static String ENHANCE_FILE = "";
-
-            /**
-             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
-             * And using Map CONTEXT for avoiding classloader isolation issue.
-             */
-            public static Map<String, Object> CONTEXT = new HashMap<>();
         }
     }
 }
