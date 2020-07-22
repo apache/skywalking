@@ -58,7 +58,7 @@ public class RunningRule {
     private final OP op;
     private final int countThreshold;
     private final int silencePeriod;
-    private final Map<String, String> labels;
+    private final Map<String,String> labels;
     private final Map<MetaInAlarm, Window> windows;
     private volatile MetricsValueType valueType;
     private final List<String> includeNames;

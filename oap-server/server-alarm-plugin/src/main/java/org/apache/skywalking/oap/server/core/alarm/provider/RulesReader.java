@@ -20,11 +20,8 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
+
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.yaml.snakeyaml.Yaml;
 
