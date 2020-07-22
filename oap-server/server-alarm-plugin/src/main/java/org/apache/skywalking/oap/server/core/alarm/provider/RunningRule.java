@@ -58,6 +58,7 @@ public class RunningRule {
     private final OP op;
     private final int countThreshold;
     private final int silencePeriod;
+    private final Map<String,String> labels;
     private final Map<MetaInAlarm, Window> windows;
     private volatile MetricsValueType valueType;
     private final List<String> includeNames;
@@ -80,6 +81,8 @@ public class RunningRule {
 
         this.countThreshold = alarmRule.getCount();
         this.silencePeriod = alarmRule.getSilencePeriod();
+
+        this.labels = alarmRule.getLabels();
 
         this.includeNames = alarmRule.getIncludeNames();
         this.excludeNames = alarmRule.getExcludeNames();
@@ -192,6 +195,7 @@ public class RunningRule {
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
                 alarmMessage.setRuleName(this.ruleName);
+                alarmMessage.setLabels(this.labels);
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
