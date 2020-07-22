@@ -64,7 +64,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        jettyServer = new JettyServer(config.getHost(), config.getPort(), config.getContextPath());
+        jettyServer = new JettyServer(config.getHost(), config.getPort(), config.getContextPath(), null);
         jettyServer.initialize();
 
         jettyServer.addHandler(new SpanV1JettyHandler(config, getManager()));

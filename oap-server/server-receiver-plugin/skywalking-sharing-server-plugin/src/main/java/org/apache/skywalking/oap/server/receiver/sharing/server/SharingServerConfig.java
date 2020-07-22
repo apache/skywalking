@@ -31,6 +31,12 @@ public class SharingServerConfig extends ModuleConfig {
      */
     private int restPort;
     private String restContextPath;
+    private int jettyMinThreads = 1;
+    private int jettyMaxThreads = 200;
+    private long jettyIdleTimeOut = 30000;
+    private int jettyAcceptorPriorityDelta = 0;
+    private int jettyAcceptQueueSize = 0;
+
     private String gRPCHost;
     /**
      * Only setting the real port(not 0) makes the gRPC server online.

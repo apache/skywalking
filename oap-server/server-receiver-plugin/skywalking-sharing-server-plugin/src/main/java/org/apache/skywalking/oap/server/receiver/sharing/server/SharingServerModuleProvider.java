@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
 
 public class SharingServerModuleProvider extends ModuleProvider {
 
@@ -67,26 +68,38 @@ public class SharingServerModuleProvider extends ModuleProvider {
 
     @Override
     public void prepare() {
-        if (config.getRestPort() != 0) {
-            jettyServer = new JettyServer(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost(), config
-                .getRestPort(), config.getRestContextPath());
-            jettyServer.initialize();
+        JettyServerConfig jettyServerConfig = JettyServerConfig.builder()
+                                                               .host(config.getRestHost()).port(config.getRestPort())
+                                                               .contextPath(config.getRestContextPath())
+                                                               .jettyMinThreads(config.getJettyMinThreads())
+                                                               .jettyMaxThreads(config.getJettyMaxThreads())
+                                                               .jettyAcceptQueueSize(config.getJettyAcceptQueueSize())
+                                                               .jettyAcceptorPriorityDelta(config.getJettyAcceptorPriorityDelta())
+                                                               .jettyIdleTimeOut(config.getJettyIdleTimeOut()).build();
 
-            this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
-        } else {
-            this.receiverJettyHandlerRegister = new ReceiverJettyHandlerRegister();
-            this.registerServiceImplementation(JettyHandlerRegister.class, receiverJettyHandlerRegister);
+        if (config.getRestPort() != 0) {
+            jettyServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
+            jettyServerConfig.setPort(config.getRestPort());
+            jettyServerConfig.setContextPath(config.getRestContextPath());
         }
+        jettyServer = new JettyServer(jettyServerConfig);
+        jettyServer.initialize();
+
+        this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
 
         if (config.getGRPCPort() != 0) {
             if (config.isGRPCSslEnabled()) {
-                grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
-                                            config.getGRPCPort(),
-                                            Paths.get(config.getGRPCSslCertChainPath()).toFile(),
-                                            Paths.get(config.getGRPCSslKeyPath()).toFile());
+                grpcServer = new GRPCServer(
+                    Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                    config.getGRPCPort(),
+                    Paths.get(config.getGRPCSslCertChainPath()).toFile(),
+                    Paths.get(config.getGRPCSslKeyPath()).toFile()
+                );
             } else {
-                grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
-                                            config.getGRPCPort());
+                grpcServer = new GRPCServer(
+                    Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                    config.getGRPCPort()
+                );
             }
             if (config.getMaxMessageSize() > 0) {
                 grpcServer.setMaxMessageSize(config.getMaxMessageSize());

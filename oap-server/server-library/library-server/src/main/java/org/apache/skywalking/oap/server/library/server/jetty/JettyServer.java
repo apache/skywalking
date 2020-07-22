@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
-import java.net.InetSocketAddress;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,19 +37,23 @@ public class JettyServer implements Server {
     private final String host;
     private final int port;
     private final String contextPath;
-    private final int selectorNum;
     private org.eclipse.jetty.server.Server server;
     private ServletContextHandler servletContextHandler;
+    private JettyServerConfig jettyServerConfig;
 
-    public JettyServer(String host, int port, String contextPath) {
-        this(host, port, contextPath, -1);
+    public JettyServer(JettyServerConfig config) {
+        this(config.getHost(), config.getPort(), config.getContextPath(), config);
     }
 
-    public JettyServer(String host, int port, String contextPath, int selectorNum) {
+    public JettyServer(String host, int port, String contextPath, JettyServerConfig config) {
         this.host = host;
         this.port = port;
         this.contextPath = contextPath;
-        this.selectorNum = selectorNum;
+        this.jettyServerConfig = Objects.isNull(config) ? JettyServerConfig.builder()
+                                                                           .host(host)
+                                                                           .port(port)
+                                                                           .contextPath(contextPath)
+                                                                           .build() : config;
     }
 
     @Override
@@ -62,7 +68,19 @@ public class JettyServer implements Server {
 
     @Override
     public void initialize() {
-        server = new org.eclipse.jetty.server.Server(new InetSocketAddress(host, port));
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        threadPool.setMinThreads(jettyServerConfig.getJettyMinThreads());
+        threadPool.setMaxThreads(jettyServerConfig.getJettyMaxThreads());
+
+        server = new org.eclipse.jetty.server.Server(threadPool);
+
+        ServerConnector connector = new ServerConnector(server);
+        connector.setHost(host);
+        connector.setPort(port);
+        connector.setIdleTimeout(jettyServerConfig.getJettyIdleTimeOut());
+        connector.setAcceptorPriorityDelta(jettyServerConfig.getJettyAcceptorPriorityDelta());
+        connector.setAcceptQueueSize(jettyServerConfig.getJettyAcceptQueueSize());
+        server.setConnectors(new Connector[] {connector});
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(contextPath);
@@ -98,8 +116,9 @@ public class JettyServer implements Server {
                                                                                               .getServletMappings() != null) {
                     for (ServletMapping servletMapping : servletContextHandler.getServletHandler()
                                                                               .getServletMappings()) {
-                        logger.debug("jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping
-                            .getServletName());
+                        logger.debug(
+                            "jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping
+                                .getServletName());
                     }
                 }
             }

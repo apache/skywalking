@@ -160,6 +160,11 @@ receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
     authentication: ${SW_AUTHENTICATION:""}
+    jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
 receiver-register:
   selector: ${SW_RECEIVER_REGISTER:default}
   default:
