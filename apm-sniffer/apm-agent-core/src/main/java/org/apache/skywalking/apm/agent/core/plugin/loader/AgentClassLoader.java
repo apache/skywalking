@@ -173,7 +173,7 @@ public class AgentClassLoader extends ClassLoader {
         if (allJars == null) {
             jarScanLock.lock();
             try {
-                if (allJars == null){
+                if (allJars == null) {
                     allJars = doGetJars();
                 }
             } finally {
@@ -184,7 +184,7 @@ public class AgentClassLoader extends ClassLoader {
         return allJars;
     }
 
-    private LinkedList<Jar> doGetJars(){
+    private LinkedList<Jar> doGetJars() {
         LinkedList<Jar> jars = new LinkedList<>();
         for (File path : classpath) {
             if (path.exists() && path.isDirectory()) {
