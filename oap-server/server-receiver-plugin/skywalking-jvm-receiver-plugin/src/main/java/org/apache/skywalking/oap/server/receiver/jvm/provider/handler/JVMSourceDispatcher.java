@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.Memory;
 import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
+import org.apache.skywalking.apm.network.language.agent.v3.Thread;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMThread;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
@@ -61,6 +63,8 @@ public class JVMSourceDispatcher {
             service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getMemoryPoolList());
         this.sendToGCMetricProcess(
             service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getGcList());
+        this.sendToThreadMetricProcess(
+                service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getThread());
     }
 
     private void sendToCpuMetricProcess(String service,
@@ -172,5 +176,23 @@ public class JVMSourceDispatcher {
             serviceInstanceJVMMemoryPool.setTimeBucket(timeBucket);
             sourceReceiver.receive(serviceInstanceJVMMemoryPool);
         });
+    }
+
+    private void sendToThreadMetricProcess(String service,
+            String serviceId,
+            String serviceInstance,
+            String serviceInstanceId,
+            long timeBucket,
+            Thread thread) {
+        ServiceInstanceJVMThread serviceInstanceJVMThread = new ServiceInstanceJVMThread();
+        serviceInstanceJVMThread.setId(serviceInstanceId);
+        serviceInstanceJVMThread.setName(service);
+        serviceInstanceJVMThread.setServiceId(serviceId);
+        serviceInstanceJVMThread.setServiceName(serviceInstance);
+        serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
+        serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
+        serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());
+        serviceInstanceJVMThread.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceInstanceJVMThread);
     }
 }
