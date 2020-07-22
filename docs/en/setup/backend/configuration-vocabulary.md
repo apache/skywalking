@@ -37,7 +37,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | hostPort|hosts and ports of Zookeeper Cluster|SW_CLUSTER_ZK_HOST_PORT| localhost:2181|
 | - | - | baseSleepTimeMs|The period of Zookeeper client between two retries. Unit is ms.|SW_CLUSTER_ZK_SLEEP_TIME|1000|
 | - | - | maxRetries| The max retry time of re-trying.|SW_CLUSTER_ZK_MAX_RETRIES|3|
-| - | - | enableACL| Open ACL by using `schema` and `expression`|enableACL| false|
+| - | - | enableACL| Open ACL by using `schema` and `expression`|SW_ZK_ENABLE_ACL| false|
 | - | - | schema | schema for the authorization|SW_ZK_SCHEMA|digest|
 | - | - | expression | expression for the authorization|SW_ZK_EXPRESSION|skywalking:skywalking|
 | - | - | internalComHost| The hostname registered in the Zookeeper for the internal communication of OAP cluster.| - | -|
