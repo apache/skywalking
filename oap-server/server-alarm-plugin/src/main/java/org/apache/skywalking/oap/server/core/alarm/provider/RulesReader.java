@@ -20,10 +20,8 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.yaml.snakeyaml.Yaml;
 
@@ -70,6 +68,7 @@ public class RulesReader {
                         alarmRule.setPeriod((Integer) settings.getOrDefault("period", 1));
                         alarmRule.setCount((Integer) settings.getOrDefault("count", 1));
                         alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", -1));
+                        alarmRule.setLabels((HashMap) settings.getOrDefault("labels", new HashMap<>(0)));
                         alarmRule.setMessage((String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                             .getAlarmRuleName()));
 

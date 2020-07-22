@@ -326,6 +326,45 @@ public class RunningRuleTest {
         Assert.assertEquals(0, runningRule.check().size());
     }
 
+
+    @Test
+    public void testLabels() {
+        AlarmRule alarmRule = new AlarmRule();
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setMetricsName("endpoint_percent");
+        alarmRule.setOp("<");
+        alarmRule.setThreshold("75");
+        alarmRule.setCount(3);
+        alarmRule.setPeriod(15);
+        alarmRule.addLabel("severity", "warning");
+        alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
+
+        RunningRule runningRule = new RunningRule(alarmRule);
+
+        long timeInPeriod1 = 201808301434L;
+        long timeInPeriod2 = 201808301436L;
+        long timeInPeriod3 = 201808301438L;
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+
+        // check at 201808301440
+        List<AlarmMessage> alarmMessages = runningRule.check();
+        Assert.assertEquals(0, alarmMessages.size());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
+        // check at 201808301441
+        alarmMessages = runningRule.check();
+        Assert.assertEquals(0, alarmMessages.size());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
+        // check at 201808301442
+        alarmMessages = runningRule.check();
+        Assert.assertEquals(1, alarmMessages.size());
+        Assert.assertEquals("Successful rate of endpoint Service_123 is lower than 75%", alarmMessages.get(0)
+            .getAlarmMessage());
+        Assert.assertEquals("warning", alarmMessages.get(0).getLabels().get("severity"));
+    }
+
     private MetaInAlarm getMetaInAlarm(int id) {
         return new MetaInAlarm() {
             @Override
