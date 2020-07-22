@@ -26,16 +26,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-dubbo-2.7.x-plugin</artifactId>
+    <artifactId>apm-elastic-job-3.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>dubbo-2.7.x-plugin</name>
+    <name>elastic-job-3.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version>3.0.0-alpha-SNAPSHOT</version>
-        <elasticjob.version>2.7.0</elasticjob.version>
+        <elasticjob.version>3.0.0-alpha-SNAPSHOT</elasticjob.version>
     </properties>
 
     <dependencies>
