@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +48,15 @@ public class AlarmRule {
     private int period;
     private int count;
     private int silencePeriod;
+    private Map<String,String> labels;
     private String message;
+
+    public void addLabel(String tag,String value){
+        if (labels == null) {
+            labels = new HashMap<>();
+        }
+        labels.put(tag,value);
+    }
 
     @Override
     public boolean equals(final Object o) {

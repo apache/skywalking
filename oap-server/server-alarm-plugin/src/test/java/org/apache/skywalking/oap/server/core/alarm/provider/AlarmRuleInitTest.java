@@ -36,6 +36,7 @@ public class AlarmRuleInitTest {
         Assert.assertEquals("endpoint_percent_rule", ruleList.get(0).getAlarmRuleName());
         Assert.assertEquals(0, ruleList.get(0).getIncludeNames().size());
         Assert.assertEquals(0, ruleList.get(0).getExcludeNames().size());
+        Assert.assertEquals("warning", ruleList.get(0).getLabels().get("severity"));
         Assert.assertEquals("Successful rate of endpoint {name} is lower than 75%", ruleList.get(0).getMessage());
 
         Assert.assertEquals("service_b", ruleList.get(1).getIncludeNames().get(1));
