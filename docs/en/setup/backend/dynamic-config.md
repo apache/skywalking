@@ -103,3 +103,41 @@ configuration:
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
 ```
+
+## Dynamic Configuration Kuberbetes Configmap Implementation
+
+[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
+
+```yaml
+configuration:
+  selector: ${SW_CONFIGURATION:k8s-configmap}
+  # [example] (../../../../oap-server/server-configuration/configuration-k8s-configmap/src/test/resources/skywalking-dynamic-configmap.example.yaml)
+  k8s-configmap:
+      # Sync period in seconds. Defaults to 60 seconds.
+      period: ${SW_CONFIG_CONFIGMAP_PERIOD:60}
+      # Which namespace is confiigmap deployed in.
+      namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+      # Labelselector is used to locate specific configmap
+      labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+```
+## Dynamic Configuration Nacos Implementation
+
+[Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+
+```yaml
+configuration:
+  selector: ${SW_CONFIGURATION:nacos}
+  nacos:
+    # Nacos Server Host
+    serverAddr: ${SW_CONFIG_NACOS_SERVER_ADDR:127.0.0.1}
+    # Nacos Server Port
+    port: ${SW_CONFIG_NACOS_SERVER_PORT:8848}
+    # Nacos Configuration Group
+    group: ${SW_CONFIG_NACOS_SERVER_GROUP:skywalking}
+    # Nacos Configuration namespace
+    namespace: ${SW_CONFIG_NACOS_SERVER_NAMESPACE:}
+    # Unit seconds, sync period. Default fetch every 60 seconds.
+    period: ${SW_CONFIG_NACOS_PERIOD:60}
+    # the name of current cluster, set the name if you want to upstream system known.
+    clusterName: ${SW_CONFIG_NACOS_CLUSTER_NAME:default}
+```
