@@ -74,7 +74,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | indexReplicasNumber | Replicas number of new indexes | SW_STORAGE_ES_INDEX_REPLICAS_NUMBER | 0 |
 | - | - | bulkActions| Bulk size of the batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 1000|
 | - | - | flushInterval| Period of flush, no matter `bulkActions` reached or not. Unit is second.| SW_STORAGE_ES_FLUSH_INTERVAL | 10|
-| - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | 2 |
+| - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
 | - | - | resultWindowMaxSize | The max size of dataset when OAP loading cache, such as network alias. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
 | - | - | metadataQueryMaxSize | The max size of metadata per query. | SW_STORAGE_ES_QUERY_MAX_SIZE | 5000 |
 | - | - | segmentQueryMaxSize | The max size of trace segments per query. | SW_STORAGE_ES_QUERY_SEGMENT_SIZE | 200|
@@ -95,7 +95,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | indexReplicasNumber | Replicas number of new indexes | SW_STORAGE_ES_INDEX_REPLICAS_NUMBER | 0 |
 | - | - | bulkActions| Bulk size of the batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 1000|
 | - | - | flushInterval| Period of flush, no matter `bulkActions` reached or not. Unit is second.| SW_STORAGE_ES_FLUSH_INTERVAL | 10|
-| - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | 2 |
+| - | - | concurrentRequests| The number of concurrent requests allowed to be executed. |SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
 | - | - | resultWindowMaxSize | The max size of dataset when OAP loading cache, such as network alias. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
 | - | - | metadataQueryMaxSize | The max size of metadata per query. | SW_STORAGE_ES_QUERY_MAX_SIZE | 5000 |
 | - | - | segmentQueryMaxSize | The max size of trace segments per query. | SW_STORAGE_ES_QUERY_SEGMENT_SIZE | 200|
@@ -190,7 +190,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | etcd| clusterName| Service name used for SkyWalking cluster. |SW_CONFIG_ETCD_CLUSTER_NAME|default|
 | - | - | serverAddr| hosts and ports used of etcd cluster.| SW_CONFIG_ETCD_SERVER_ADDR|localhost:2379|
 | - | - | group |Additional prefix of the configuration key| SW_CONFIG_ETCD_GROUP | skywalking|
-| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 |
+| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 
 | - | consul | hostPort| hosts and ports used of Consul cluster.| SW_CONFIG_CONSUL_HOST_AND_PORTS|localhost:8500|
 | - | - | aclToken| ALC Token of Consul. Empty string means `without ALC token`.| SW_CONFIG_CONSUL_ACL_TOKEN | - |
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_CONSUL_PERIOD | 60 |
@@ -201,9 +201,9 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | port | Nacos Server Port | SW_CONFIG_NACOS_SERVER_PORT | 8848 |
 | - | - | group | Nacos Configuration namespace | SW_CONFIG_NACOS_SERVER_NAMESPACE | - |
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 |
-| - | exporter | grpc | targetHost | The host of target grpc server for receiving export data. | SW_EXPORTER_GRPC_HOST | 127.0.0.1 |
-| - | - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
-| - | health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
+| exporter | grpc | targetHost | The host of target grpc server for receiving export data. | SW_EXPORTER_GRPC_HOST | 127.0.0.1 |
+| - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
+| health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
 
 ## Notice
 ¹ System Environment Variable name could be declared and changed in the application.yml. The names listed here,
