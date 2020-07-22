@@ -22,7 +22,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -74,13 +73,8 @@ public class MongoDBCollectionMethodInterceptorTest {
     })
     @Before
     public void setUp() throws Exception {
-
         interceptor = new MongoDBCollectionMethodInterceptor();
-
-        Config.Plugin.MongoDB.TRACE_PARAM = true;
-
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:27017");
-
     }
 
     @Test
