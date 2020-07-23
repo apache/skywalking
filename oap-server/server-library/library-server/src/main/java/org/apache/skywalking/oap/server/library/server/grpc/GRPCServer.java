@@ -107,7 +107,7 @@ public class GRPCServer implements Server {
         ExecutorService executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection)
-                                               .maxMessageSize(maxMessageSize)
+                                               .maxInboundMessageSize(maxMessageSize)
                                                .executor(executor);
         logger.info("Server started, host {} listening on {}", host, port);
     }
