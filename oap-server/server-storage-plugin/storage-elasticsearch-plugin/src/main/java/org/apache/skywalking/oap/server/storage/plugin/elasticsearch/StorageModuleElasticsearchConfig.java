@@ -46,8 +46,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int flushInterval = 10;
     @Setter
     private int concurrentRequests = 2;
-    @Setter
-    private int syncBulkActions = 3;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
      */

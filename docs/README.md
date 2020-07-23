@@ -70,6 +70,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
   * [Backend, UI and CLI setup document](en/setup/backend/backend-ui-setup.md).
     * [Backend setup document](en/setup/backend/backend-setup.md).
+      * [Configuration Vocabulary](en/setup/backend/configuration-vocabulary.md). Configuration Vocabulary lists all available configurations provided by `application.yml`.
       * [Overriding settings](en/setup/backend/backend-setting-override.md) in application.yml is supported.
       * [IP and port setting](en/setup/backend/backend-ip-port.md). Introduces how IP and port set can be used.
       * [Backend init mode startup](en/setup/backend/backend-init-mode.md). How to init the environment and exit graciously. Read this before you try to start a new cluster.
