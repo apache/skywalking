@@ -48,14 +48,14 @@ public class AlarmRule {
     private int period;
     private int count;
     private int silencePeriod;
-    private Map<String,String> labels;
+    private Map<String, String> labels;
     private String message;
 
-    public void addLabel(String tag,String value){
+    public void addLabel(String tag, String value) {
         if (labels == null) {
             labels = new HashMap<>();
         }
-        labels.put(tag,value);
+        labels.put(tag, value);
     }
 
     @Override
