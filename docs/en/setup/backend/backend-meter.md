@@ -15,7 +15,7 @@ are located at `$CLASSPATH/meter-receive-config`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring.yaml).
+A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring-sleuth.yaml).
 If you're using Spring sleuth, you could use [Spring Sleuth Setup](spring-sleuth-setup.md).
 
 ### Meters configure

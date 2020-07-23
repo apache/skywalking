@@ -36,20 +36,28 @@ receiver-meter:
   default:
 ```
 
-2. Configure the meter config file, It already has the [spring sleuth meter config](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring.yaml).
+2. Configure the meter config file, It already has the [spring sleuth meter config](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring-sleuth.yaml).
 If you also has some customized meter at the agent side, please read [meter document](backend-meter.md#meters-configure) to configure meter.
 
 ## Add UI dashboard
 
 1. Open the dashboard view, click `edit` button to edit the templates.
 
-![Click edit button](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-1.png)
+    ![Click edit button](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-1.png)
 
 1. Create a new template. Template type: `Standard` -> Template Configuration: `Spring` -> Input the Template Name.
 
-![Create template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-2.png)
+    ![Create template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-2.png)
 
 1. Click `view` button, Finally get the spring sleuth dashboard.
 
-![Save template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-3.png)
-![Spring Sleuth Dashboard](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-4.png)
+    ![Save template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-3.png)
+    ![Spring Sleuth Dashboard](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-4.png)
+
+## Supported meter
+
+Supported 3 types information: Application, System, JVM.
+
+1. Application: HTTP request count and duration, JDBC max/idle/active connection count.
+1. System: CPU system/process usage, OS System load.
+1. JVM: GC pause count and duration, Memory max/used/committed size, Thread peak/live/daemon count, Classes loaded/unloaded count.
