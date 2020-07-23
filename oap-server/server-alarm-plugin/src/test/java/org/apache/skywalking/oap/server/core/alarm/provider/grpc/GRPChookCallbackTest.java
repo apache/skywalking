@@ -73,7 +73,7 @@ public class GRPChookCallbackTest {
         alarmMessage.setAlarmMessage("message");
         alarmMessage.setRuleName("mock_rule");
         alarmMessage.setStartTime(System.currentTimeMillis());
-
+        alarmMessage.addLabel("severity", "warning");
         alarmMessageList = Lists.newArrayList(alarmMessage);
     }
 }

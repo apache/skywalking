@@ -35,6 +35,7 @@ message AlarmMessage {
     string ruleName = 6;
     string alarmMessage = 7;
     int64 startTime = 8;
+    map<string, string> labels = 9;
 }
 
 message Response {
