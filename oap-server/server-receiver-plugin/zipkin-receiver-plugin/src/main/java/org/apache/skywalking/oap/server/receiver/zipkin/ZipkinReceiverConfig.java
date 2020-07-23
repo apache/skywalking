@@ -31,5 +31,4 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private int expireTime = 20;
     private int maxCacheSize = 1_000_000;
     private boolean needAnalysis = false;
-    private boolean registerZipkinEndpoint = true;
 }

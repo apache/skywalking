@@ -25,7 +25,6 @@ import com.mongodb.operation.FindOperation;
 import com.mongodb.operation.WriteOperation;
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -39,6 +38,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
@@ -81,7 +81,7 @@ public class MongoDBOperationExecutorInterceptorTest {
 
         interceptor = new MongoDBOperationExecutorInterceptor();
 
-        Config.Plugin.MongoDB.TRACE_PARAM = true;
+        MongoPluginConfig.Plugin.MongoDB.TRACE_PARAM = true;
 
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:27017");
 
@@ -110,7 +110,8 @@ public class MongoDBOperationExecutorInterceptorTest {
     @Test
     public void testInterceptWithException() throws Throwable {
         interceptor.beforeMethod(enhancedInstance, getMethod(), arguments, argumentTypes, null);
-        interceptor.handleMethodException(enhancedInstance, getMethod(), arguments, argumentTypes, new RuntimeException());
+        interceptor.handleMethodException(
+            enhancedInstance, getMethod(), arguments, argumentTypes, new RuntimeException());
         interceptor.afterMethod(enhancedInstance, getMethod(), arguments, argumentTypes, null);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
