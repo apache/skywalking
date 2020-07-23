@@ -80,12 +80,12 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                                                       entry.getValue().get();
                                                       return null;
                                                   } catch (InterruptedException | ExecutionException e) {
-                                                      e.printStackTrace();
                                                   }
                                                   return entry.getKey();
                                               })
                                               .filter(Objects::nonNull)
-                                              .collect(Collectors.toSet());
+                                              .collect(Collectors.toSet()); // fixme
+
         if (!missedTopics.isEmpty()) {
             log.info("Topics" + missedTopics.toString() + " not exist.");
             List<NewTopic> newTopicList = missedTopics.stream()
