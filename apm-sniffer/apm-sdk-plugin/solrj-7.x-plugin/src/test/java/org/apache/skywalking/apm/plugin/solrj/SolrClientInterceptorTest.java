@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.solrj;
 import com.google.common.collect.Lists;
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -104,9 +103,6 @@ public class SolrClientInterceptorTest {
         header = new NamedList<Object>();
         header.add("status", 0);
         header.add("QTime", 5);
-
-        //        Config.Plugin.SolrJ.TRACE_STATEMENT = true;
-        //        Config.Plugin.SolrJ.TRACE_OPS_PARAMS = true;
     }
 
     @Test
@@ -143,10 +139,10 @@ public class SolrClientInterceptorTest {
 
         AbstractTracingSpan span = spans.get(0);
         int pox = 0;
-        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
             SpanAssert.assertTag(span, ++pox, "100");
         }
-        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++pox, "-1");
         }
         spanCommonAssert(span, pox, "solrJ/collection/update/ADD");
@@ -155,7 +151,8 @@ public class SolrClientInterceptorTest {
     @Test
     public void testUpdateWithCommit() throws Throwable {
         final boolean softCommit = false;
-        AbstractUpdateRequest request = (new UpdateRequest()).setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true, false);
+        AbstractUpdateRequest request = (new UpdateRequest()).setAction(
+            AbstractUpdateRequest.ACTION.COMMIT, true, true, false);
         arguments = new Object[] {
             request,
             null,
@@ -172,7 +169,7 @@ public class SolrClientInterceptorTest {
 
         int start = 0;
         AbstractTracingSpan span = spans.get(0);
-        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++start, String.valueOf(softCommit));
         }
         spanCommonAssert(span, start, "solrJ/collection/update/COMMIT");
@@ -181,7 +178,8 @@ public class SolrClientInterceptorTest {
     @Test
     public void testUpdateWithOptimize() throws Throwable {
         final int maxSegments = 1;
-        AbstractUpdateRequest request = (new UpdateRequest()).setAction(AbstractUpdateRequest.ACTION.OPTIMIZE, false, true, maxSegments);
+        AbstractUpdateRequest request = (new UpdateRequest()).setAction(
+            AbstractUpdateRequest.ACTION.OPTIMIZE, false, true, maxSegments);
         arguments = new Object[] {
             request,
             null,
@@ -198,7 +196,7 @@ public class SolrClientInterceptorTest {
 
         AbstractTracingSpan span = spans.get(0);
         int start = 0;
-        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++start, String.valueOf(maxSegments));
         }
         spanCommonAssert(span, start, "solrJ/collection/update/OPTIMIZE");
@@ -312,7 +310,10 @@ public class SolrClientInterceptorTest {
         response.add("responseHeader", header);
 
         interceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, null);
-        interceptor.handleMethodException(enhancedInstance, method, arguments, argumentType, new SolrException(SolrException.ErrorCode.SERVER_ERROR, "for test", new Exception()));
+        interceptor.handleMethodException(
+            enhancedInstance, method, arguments, argumentType,
+            new SolrException(SolrException.ErrorCode.SERVER_ERROR, "for test", new Exception())
+        );
         interceptor.afterMethod(enhancedInstance, method, arguments, argumentType, response);
 
         List<TraceSegment> segments = segmentStorage.getTraceSegments();
@@ -332,7 +333,7 @@ public class SolrClientInterceptorTest {
         SpanAssert.assertTag(span, 2, qt);
 
         int start = 3;
-        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
             start++;
         }
         SpanAssert.assertTag(span, start++, "5");
@@ -361,10 +362,10 @@ public class SolrClientInterceptorTest {
         SpanAssert.assertTag(span, 0, "Solr");
 
         int start = 0;
-        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
             SpanAssert.assertTag(span, ++start, statement);
         }
-        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++start, "-1");
         }
 
