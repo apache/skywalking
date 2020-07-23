@@ -174,22 +174,7 @@ public class AgentClassLoader extends ClassLoader {
             jarScanLock.lock();
             try {
                 if (allJars == null) {
-                    allJars = new LinkedList<>();
-                    for (File path : classpath) {
-                        if (path.exists() && path.isDirectory()) {
-                            String[] jarFileNames = path.list((dir, name) -> name.endsWith(".jar"));
-                            for (String fileName : jarFileNames) {
-                                try {
-                                    File file = new File(path, fileName);
-                                    Jar jar = new Jar(new JarFile(file), file);
-                                    allJars.add(jar);
-                                    logger.info("{} loaded.", file.toString());
-                                } catch (IOException e) {
-                                    logger.error(e, "{} jar file can't be resolved", fileName);
-                                }
-                            }
-                        }
-                    }
+                    allJars = doGetJars();
                 }
             } finally {
                 jarScanLock.unlock();
@@ -197,6 +182,26 @@ public class AgentClassLoader extends ClassLoader {
         }
 
         return allJars;
+    }
+
+    private LinkedList<Jar> doGetJars() {
+        LinkedList<Jar> jars = new LinkedList<>();
+        for (File path : classpath) {
+            if (path.exists() && path.isDirectory()) {
+                String[] jarFileNames = path.list((dir, name) -> name.endsWith(".jar"));
+                for (String fileName : jarFileNames) {
+                    try {
+                        File file = new File(path, fileName);
+                        Jar jar = new Jar(new JarFile(file), file);
+                        jars.add(jar);
+                        logger.info("{} loaded.", file.toString());
+                    } catch (IOException e) {
+                        logger.error(e, "{} jar file can't be resolved", fileName);
+                    }
+                }
+            }
+        }
+        return jars;
     }
 
     @RequiredArgsConstructor
