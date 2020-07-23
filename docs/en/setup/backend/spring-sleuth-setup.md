@@ -43,16 +43,16 @@ If you also has some customized meter at the agent side, please read [meter docu
 
 1. Open the dashboard view, click `edit` button to edit the templates.
 
-    ![Click edit button](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-1.png)
+    ![Click edit button](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-01.png)
 
 1. Create a new template. Template type: `Standard` -> Template Configuration: `Spring` -> Input the Template Name.
 
-    ![Create template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-2.png)
+    ![Create template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-02.png)
 
 1. Click `view` button, Finally get the spring sleuth dashboard.
 
-    ![Save template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-3.png)
-    ![Spring Sleuth Dashboard](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-4.png)
+    ![Save template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-03.png)
+    ![Spring Sleuth Dashboard](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-04.png)
 
 ## Supported meter
 
