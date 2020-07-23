@@ -68,6 +68,9 @@ service by some network(RPC) protocol, such as gRPC, HTTPRestful.
 The receivers have many different module names, you could
 read **Set receivers** document in the [link list](#advanced-feature-document-link-list).
 
+## Configuration Vocabulary
+All available configurations in `application.yml` could be found in [Configuration Vocabulary](configuration-vocabulary.md). 
+
 ## Advanced feature document link list
 After understand the setting file structure, you could choose your interesting feature document.
 We recommend you to read the feature documents in our following order.
