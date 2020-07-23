@@ -41,13 +41,13 @@ public class AlarmMessage {
     private String ruleName;
     private String alarmMessage;
     private long startTime;
-    private Map<String,String> labels;
+    private Map<String, String> labels;
 
-    public void addLabel(String tag,String value){
+    public void addLabel(String tag, String value) {
         if (this.labels == null) {
             this.labels = new HashMap<>();
         }
-        this.labels.put(tag,value);
+        this.labels.put(tag, value);
     }
 
     private static class NoAlarm extends AlarmMessage {

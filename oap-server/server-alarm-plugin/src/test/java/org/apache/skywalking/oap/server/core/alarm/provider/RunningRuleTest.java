@@ -326,7 +326,6 @@ public class RunningRuleTest {
         Assert.assertEquals(0, runningRule.check().size());
     }
 
-
     @Test
     public void testLabels() {
         AlarmRule alarmRule = new AlarmRule();
