@@ -69,18 +69,18 @@ public class SharingServerModuleProvider extends ModuleProvider {
     @Override
     public void prepare() {
         JettyServerConfig jettyServerConfig = JettyServerConfig.builder()
-                                                               .host(config.getRestHost()).port(config.getRestPort())
-                                                               .contextPath(config.getRestContextPath())
+                                                               .host(config.getHost()).port(config.getPort())
+                                                               .contextPath(config.getContextPath())
                                                                .jettyMinThreads(config.getJettyMinThreads())
                                                                .jettyMaxThreads(config.getJettyMaxThreads())
                                                                .jettyAcceptQueueSize(config.getJettyAcceptQueueSize())
                                                                .jettyAcceptorPriorityDelta(config.getJettyAcceptorPriorityDelta())
                                                                .jettyIdleTimeOut(config.getJettyIdleTimeOut()).build();
 
-        if (config.getRestPort() != 0) {
-            jettyServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
-            jettyServerConfig.setPort(config.getRestPort());
-            jettyServerConfig.setContextPath(config.getRestContextPath());
+        if (config.getPort() != 0) {
+            jettyServerConfig.setHost(Strings.isBlank(config.getHost()) ? "0.0.0.0" : config.getHost());
+            jettyServerConfig.setPort(config.getPort());
+            jettyServerConfig.setContextPath(config.getContextPath());
         }
         jettyServer = new JettyServer(jettyServerConfig);
         jettyServer.initialize();

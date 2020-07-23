@@ -159,6 +159,9 @@ storage:
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
+    host: ${SW_RECEIVER_JETTY_HOST:0.0.0.0}
+    port: ${SW_RECEIVER_JETTY_PORT:12801}
+    contextPath: ${SW_RECEIVER_JETTY_CONTEXT_PATH:/}
     authentication: ${SW_AUTHENTICATION:""}
     jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
     jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
