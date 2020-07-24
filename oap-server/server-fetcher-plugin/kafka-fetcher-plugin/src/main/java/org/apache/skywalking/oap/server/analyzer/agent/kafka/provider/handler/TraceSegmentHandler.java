@@ -64,12 +64,12 @@ public class TraceSegmentHandler implements KafkaHandler {
         histogram = metricsCreator.createHistogramMetric("trace_in_latency",
                                                          "The process latency of trace data",
                                                          new MetricsTag.Keys("protocol"),
-                                                         new MetricsTag.Values("kafka-consumer")
+                                                         new MetricsTag.Values("kafka-fetcher")
         );
         errorCounter = metricsCreator.createCounter("trace_analysis_error_count",
                                                     "The error number of trace analysis",
                                                     new MetricsTag.Keys("protocol"),
-                                                    new MetricsTag.Values("kafka-consumer")
+                                                    new MetricsTag.Values("kafka-fetcher")
         );
     }
 
@@ -78,7 +78,11 @@ public class TraceSegmentHandler implements KafkaHandler {
         try {
             SegmentObject segment = SegmentObject.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
-                log.debug("receive segment");
+                log.debug(
+                    "Fetched tracing segment[{}] from service instance[{}].",
+                    segment.getTraceSegmentId(),
+                    segment.getServiceInstance()
+                );
             }
 
             HistogramMetrics.Timer timer = histogram.createTimer();
@@ -100,13 +104,9 @@ public class TraceSegmentHandler implements KafkaHandler {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         if (traceModuleConfig.isTraceAnalysis()) {
             listenerManager.add(new MultiScopesAnalysisListener.Factory(moduleManager));
-            listenerManager
-                .add(new NetworkAddressAliasMappingListener.Factory(moduleManager));
+            listenerManager.add(new NetworkAddressAliasMappingListener.Factory(moduleManager));
         }
-        listenerManager.add(new SegmentAnalysisListener.Factory(
-            moduleManager,
-            traceModuleConfig
-        ));
+        listenerManager.add(new SegmentAnalysisListener.Factory(moduleManager, traceModuleConfig));
         return listenerManager;
     }
 

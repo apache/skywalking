@@ -53,7 +53,7 @@ public class JVMMetricsHandler implements KafkaHandler {
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                    "receive the jvm metrics from service instance, name: {}, instance: {}",
+                    "Fetched JVM metrics from service[{}] instance[{}] reported.",
                     metrics.getService(),
                     metrics.getServiceInstance()
                 );

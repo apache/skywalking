@@ -84,7 +84,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                                                   return entry.getKey();
                                               })
                                               .filter(Objects::nonNull)
-                                              .collect(Collectors.toSet()); // fixme
+                                              .collect(Collectors.toSet());
 
         if (!missedTopics.isEmpty()) {
             log.info("Topics" + missedTopics.toString() + " not exist.");
@@ -108,10 +108,6 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             isSharding = false;
         }
         consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
-    }
-
-    public boolean isSharding() {
-        return isSharding;
     }
 
     public void register(KafkaHandler handler) {

@@ -77,6 +77,14 @@ public class ManagementHandler implements KafkaHandler {
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
         serviceInstanceUpdate.setName(instanceName);
 
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "Service[{}] instance[{}] registered.",
+                serviceName,
+                instanceName
+            );
+        }
+
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
         request.getPropertiesList().forEach(prop -> {
@@ -97,6 +105,14 @@ public class ManagementHandler implements KafkaHandler {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         final String serviceName = namingLengthControl.formatServiceName(request.getService());
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "A ping of Service[{}] instance[{}].",
+                serviceName,
+                instanceName
+            );
+        }
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));

@@ -25,7 +25,7 @@ Generic placeholders are defined as follows:
 
  * `<duration>`: a duration This will parse a textual representation of a duration. The formats accepted are based on 
                  the ISO-8601 duration format `PnDTnHnMn.nS` with days considered to be exactly 24 hours.
- * `<labelname>`: a string matching the regular expression [a-zA-Z_][a-zA-Z0-9_]*
+ * `<labelname>`: a string matching the regular expression \[a-zA-Z_\]\[a-zA-Z0-9_\]*
  * `<labelvalue>`: a string of unicode characters
  * `<host>`: a valid string consisting of a hostname or IP followed by an optional port number
  * `<path>`: a valid URL path

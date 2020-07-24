@@ -51,10 +51,19 @@ public class KafkaFetcherConfig extends ModuleConfig {
      */
     private boolean isSharding = false;
 
+    /**
+     * If true, create the Kafka topic when it does not exist.
+     */
     private boolean createTopicIfNotExist = true;
 
+    /**
+     * The number of partitions for the topic being created.
+     */
     private int partitions = 1;
 
+    /**
+     * The replication factor for each partition in the topic being created.
+     */
     private int replicationFactor = 1;
 
     private String topicNameOfMetrics = "skywalking-metrics";
