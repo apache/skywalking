@@ -64,6 +64,15 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_SLA
     };
 
+    public static String INSTANCE_JVM_THREAD_LIVE_COUNT = "instance_jvm_thread_live_count";
+    public static String INSTANCE_JVM_THREAD_DAEMON_COUNT = "instance_jvm_thread_daemon_count";
+    public static String INSTANCE_JVM_THREAD_PEAK_COUNT = "instance_jvm_thread_peak_count";
+    public static String [] ALL_INSTANCE_JVM_METRICS = {
+        INSTANCE_JVM_THREAD_DAEMON_COUNT,
+        INSTANCE_JVM_THREAD_DAEMON_COUNT,
+        INSTANCE_JVM_THREAD_PEAK_COUNT
+    };
+
     public static String SERVICE_RELATION_CLIENT_CPM = "service_relation_client_cpm";
     public static String SERVICE_RELATION_SERVER_CPM = "service_relation_server_cpm";
     public static String SERVICE_RELATION_CLIENT_CALL_SLA = "service_relation_client_call_sla";

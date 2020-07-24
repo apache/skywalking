@@ -52,7 +52,7 @@ ORACLE:
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#,Node.js,PHP
+  languages: Java,C#,Node.js,PHP,Python
 Motan:
   id: 8
   languages: Java
@@ -421,6 +421,9 @@ PyMysql:
   languages: Python
 Django:
   id: 7004
+  languages: Python
+Tornado:
+  id: 7005
   languages: Python
 
 

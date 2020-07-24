@@ -43,7 +43,7 @@ public class CustomizeInstrumentationLoader implements InstrumentationLoader {
     @Override
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
         List<AbstractClassEnhancePluginDefine> instrumentations = new ArrayList<AbstractClassEnhancePluginDefine>();
-        CustomizeConfiguration.INSTANCE.load();
+        CustomizeConfiguration.INSTANCE.loadForEnhance();
         Set<String> enhanceClasses = CustomizeConfiguration.INSTANCE.getInstrumentations();
         try {
             for (String enhanceClass : enhanceClasses) {
