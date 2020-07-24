@@ -25,7 +25,6 @@ import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
 import org.testcontainers.containers.DockerComposeContainer;
 
-
 @Slf4j
 @SkyWalkingE2E
 public class KafkaE2E extends SkyWalkingTestAdapter {
