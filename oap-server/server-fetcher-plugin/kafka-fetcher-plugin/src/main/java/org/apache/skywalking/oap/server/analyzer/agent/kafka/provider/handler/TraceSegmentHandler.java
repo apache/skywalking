@@ -40,6 +40,9 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+/**
+ * A handler deserializes the message of the tracing segment data and pushes it to downstream.
+ */
 @Slf4j
 public class TraceSegmentHandler implements KafkaHandler {
 
@@ -79,7 +82,7 @@ public class TraceSegmentHandler implements KafkaHandler {
             SegmentObject segment = SegmentObject.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(
-                    "Fetched tracing segment[{}] from service instance[{}].",
+                    "Fetched a tracing segment[{}] from service instance[{}].",
                     segment.getTraceSegmentId(),
                     segment.getServiceInstance()
                 );

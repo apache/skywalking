@@ -43,7 +43,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * Instance registering properties and Instance pinging reporter.
+ * A service management data(Instance registering properties and Instance pinging) reporter.
  */
 @OverrideImplementor(ServiceManagementClient.class)
 public class KafkaServiceManagementServiceClient implements BootService, Runnable {

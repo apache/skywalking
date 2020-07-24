@@ -48,7 +48,7 @@ public class ProfileTaskHandler implements KafkaHandler {
             ThreadSnapshot snapshot = ThreadSnapshot.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(
-                    "Fetched an thread snapshot[{}] from task[{}] reported",
+                    "Fetched a thread snapshot[{}] from task[{}] reported",
                     snapshot.getTraceSegmentId(),
                     snapshot.getTaskId()
                 );

@@ -87,6 +87,9 @@ public class KafkaProducerManager implements BootService, Runnable {
 
     }
 
+    /**
+     * Get the KafkaProducer instance to send data to Kafka broker.
+     */
     public final KafkaProducer<String, Bytes> getProducer() {
         return producer;
     }

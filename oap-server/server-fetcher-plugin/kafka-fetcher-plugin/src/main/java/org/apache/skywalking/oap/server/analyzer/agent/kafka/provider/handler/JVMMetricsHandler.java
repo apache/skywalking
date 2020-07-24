@@ -30,6 +30,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.receiver.jvm.JVMSourceDispatcher;
 
+/**
+ * A handler deserializes the message of JVM Metrics and pushes it to downstream.
+ */
 @Slf4j
 public class JVMMetricsHandler implements KafkaHandler {
 

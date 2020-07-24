@@ -38,7 +38,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class ManagementHandlerTest {
+public class ServiceManagementHandlerTest {
     private static final String TOPIC_NAME = "skywalking-managements";
 
     private static final String SERVICE = "MOCK_SERVER";
@@ -76,7 +76,7 @@ public class ManagementHandlerTest {
                 });
             }
         };
-        handler = new ManagementHandler(manager, config);
+        handler = new ServiceManagementHandler(manager, config);
     }
 
     @Test

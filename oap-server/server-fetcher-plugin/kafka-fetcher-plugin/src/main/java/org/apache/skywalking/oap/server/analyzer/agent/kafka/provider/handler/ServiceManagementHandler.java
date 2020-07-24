@@ -41,15 +41,18 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 
+/**
+ * A handler deserializes the message of Service Management and pushes it to downstream.
+ */
 @Slf4j
-public class ManagementHandler implements KafkaHandler {
+public class ServiceManagementHandler implements KafkaHandler {
 
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingLengthControl;
 
     private final KafkaFetcherConfig config;
 
-    public ManagementHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
+    public ServiceManagementHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()

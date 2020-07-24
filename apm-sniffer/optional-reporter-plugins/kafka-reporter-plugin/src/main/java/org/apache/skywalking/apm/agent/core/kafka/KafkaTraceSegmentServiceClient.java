@@ -32,6 +32,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
+/**
+ *  A tracing segment data reporter.
+ */
 @OverrideImplementor(TraceSegmentServiceClient.class)
 public class KafkaTraceSegmentServiceClient implements BootService, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
@@ -61,6 +64,9 @@ public class KafkaTraceSegmentServiceClient implements BootService, TracingConte
 
     @Override
     public void afterFinished(final TraceSegment traceSegment) {
+        if (logger.isDebugEnable()) {
+
+        }
         if (traceSegment.isIgnore()) {
             logger.debug("Trace[TraceId={}] is ignored.", traceSegment.getTraceSegmentId());
             return;

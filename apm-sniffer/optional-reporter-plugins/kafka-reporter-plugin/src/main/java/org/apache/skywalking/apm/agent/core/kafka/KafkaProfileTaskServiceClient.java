@@ -36,6 +36,10 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
+/**
+ * To transport profiling tasks between OAP Server and agent with gRPC. This is why we still have to configure gRPC.
+ * But to report the tracing profile snapshot data by Kafka Producer.
+ */
 @OverrideImplementor(ProfileTaskChannelService.class)
 public class KafkaProfileTaskServiceClient extends ProfileTaskChannelService {
     private static final ILog logger = LogManager.getLogger(KafkaProfileTaskServiceClient.class);
@@ -74,6 +78,9 @@ public class KafkaProfileTaskServiceClient extends ProfileTaskChannelService {
         }
     }
 
+    /**
+     * To report tracing thread snapshot data by Kafka Producer.
+     */
     private class SnapshotSender implements Runnable {
 
         @Override
