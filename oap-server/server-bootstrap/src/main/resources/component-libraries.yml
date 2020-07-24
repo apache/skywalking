@@ -422,6 +422,9 @@ PyMysql:
 Django:
   id: 7004
   languages: Python
+Tornado:
+  id: 7005
+  languages: Python
 
 
 # PHP components
