@@ -165,7 +165,6 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | - | 4M(based on Netty) |
 | prometheus-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | active | Activate the Prometheus fetcher. | SW_PROMETHEUS_FETCHER_ACTIVE | false |
-
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
 | - | - | groupId | A unique string that identifies the consumer group this consumer belongs to.| - | skywalking-consumer |
@@ -174,12 +173,10 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | createTopicIfNotExist | If true, create the Kafka topic when it does not exist. | - | true |
 | - | - | partitions | The number of partitions for the topic being created. | - | -1 |
 | - | - | replicationFactor | The replication factor for each partition in the topic being created. | - | -1 |
-
 | - | - | topicNameOfMetrics | Specifying Kafka topic name for Metrics data. | - | skywalking-metrics |
 | - | - | topicNameOfProfiling | Specifying Kafka topic name for Profiling data. | - | skywalking-metrics |
 | - | - | topicNameOfTracingSegments | Specifying Kafka topic name for Tracing data. | - | skywalking-metrics |
 | - | - | topicNameOfManagements | Specifying Kafka topic name for service instance reporting and registering. | - | skywalking-metrics |
-
 | query | graphql | - | GraphQL query implementation | - |
 | - | - | path | Root path of GraphQL query and mutation. | SW_QUERY_GRAPHQL_PATH | /graphql|
 | alarm | default | - | Read [alarm doc](backend-alarm.md) for more details. | - |
