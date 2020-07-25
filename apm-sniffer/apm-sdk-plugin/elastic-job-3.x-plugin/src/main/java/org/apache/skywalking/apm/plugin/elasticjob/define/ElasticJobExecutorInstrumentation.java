@@ -16,55 +16,55 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.esjob.define;
+package org.apache.skywalking.apm.plugin.elasticjob.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static net.bytebuddy.matcher.ElementMatchers.*;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link JobExecutorInstrumentation} presents that skywalking intercepts {@link com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor}.
- */
-public class JobExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    private static final String ENHANCE_CLASS = "com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor";
-
-    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.esjob.JobExecutorInterceptor";
-
+public class ElasticJobExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutor";
+    
+    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutorInterceptor";
+    
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-
+    
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return takesArgumentWithType(2, "com.dangdang.ddframe.job.event.type.JobExecutionEvent");
+        return new InstanceMethodsInterceptPoint[]{
+                new InstanceMethodsInterceptPoint() {
+                    
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("process").and(takesArguments(3))
+                                .and(takesArgument(0, named("org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts")))
+                                .and(takesArgument(1, int.class))
+                                .and(takesArgument(2, named("org.apache.shardingsphere.elasticjob.tracing.event.JobExecutionEvent")));
+                    }
+                    
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return JOB_EXECUTOR_INTERCEPTOR_CLASS;
+                    }
+                    
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
                 }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return JOB_EXECUTOR_INTERCEPTOR_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
         };
     }
-
+    
     @Override
     protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
