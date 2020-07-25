@@ -90,6 +90,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
@@ -199,9 +200,19 @@ public class CoreModuleProvider extends ModuleProvider {
         }
         grpcServer.initialize();
 
-        jettyServer = new JettyServer(
-                moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath(), moduleConfig
-                .getJettySelectors());
+        JettyServerConfig jettyServerConfig = JettyServerConfig.builder()
+                                                               .host(moduleConfig.getRestHost())
+                                                               .port(moduleConfig.getRestPort())
+                                                               .contextPath(moduleConfig.getRestContextPath())
+                                                               .jettyIdleTimeOut(moduleConfig.getRestIdleTimeOut())
+                                                               .jettyAcceptorPriorityDelta(
+                                                                   moduleConfig.getRestAcceptorPriorityDelta())
+                                                               .jettyMinThreads(moduleConfig.getRestMinThreads())
+                                                               .jettyMaxThreads(moduleConfig.getRestMaxThreads())
+                                                               .jettyAcceptQueueSize(
+                                                                   moduleConfig.getRestAcceptQueueSize())
+                                                               .build();
+        jettyServer = new JettyServer(jettyServerConfig);
         jettyServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
