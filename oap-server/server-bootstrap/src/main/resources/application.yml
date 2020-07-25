@@ -210,6 +210,10 @@ prometheus-fetcher:
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:-}
+  default:
+
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}
   default:
