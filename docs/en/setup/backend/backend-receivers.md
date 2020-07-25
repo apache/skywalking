@@ -51,6 +51,11 @@ receiver_zipkin:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 
 receiver-profile:
   selector: ${SW_RECEIVER_PROFILE:default}
@@ -96,6 +101,11 @@ receiver_zipkin:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 ```
 
 2. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
@@ -110,6 +120,11 @@ receiver_zipkin:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
     needAnalysis: true    
 ```
 

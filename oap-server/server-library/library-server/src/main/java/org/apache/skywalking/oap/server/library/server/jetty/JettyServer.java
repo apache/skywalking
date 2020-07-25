@@ -34,31 +34,17 @@ public class JettyServer implements Server {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
 
-    private final String host;
-    private final int port;
-    private final String contextPath;
     private org.eclipse.jetty.server.Server server;
     private ServletContextHandler servletContextHandler;
     private JettyServerConfig jettyServerConfig;
 
     public JettyServer(JettyServerConfig config) {
-        this(config.getHost(), config.getPort(), config.getContextPath(), config);
-    }
-
-    public JettyServer(String host, int port, String contextPath, JettyServerConfig config) {
-        this.host = host;
-        this.port = port;
-        this.contextPath = contextPath;
-        this.jettyServerConfig = Objects.isNull(config) ? JettyServerConfig.builder()
-                                                                           .host(host)
-                                                                           .port(port)
-                                                                           .contextPath(contextPath)
-                                                                           .build() : config;
+        this.jettyServerConfig = config;
     }
 
     @Override
     public String hostPort() {
-        return host + ":" + port;
+        return jettyServerConfig.getHost() + ":" + jettyServerConfig.getPort();
     }
 
     @Override
@@ -75,22 +61,25 @@ public class JettyServer implements Server {
         server = new org.eclipse.jetty.server.Server(threadPool);
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setHost(host);
-        connector.setPort(port);
+        connector.setHost(jettyServerConfig.getHost());
+        connector.setPort(jettyServerConfig.getPort());
         connector.setIdleTimeout(jettyServerConfig.getJettyIdleTimeOut());
         connector.setAcceptorPriorityDelta(jettyServerConfig.getJettyAcceptorPriorityDelta());
         connector.setAcceptQueueSize(jettyServerConfig.getJettyAcceptQueueSize());
         server.setConnectors(new Connector[] {connector});
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-        servletContextHandler.setContextPath(contextPath);
-        logger.info("http server root context path: {}", contextPath);
+        servletContextHandler.setContextPath(jettyServerConfig.getContextPath());
+        logger.info("http server root context path: {}", jettyServerConfig.getContextPath());
 
         server.setHandler(servletContextHandler);
     }
 
     public void addHandler(JettyHandler handler) {
-        logger.info("Bind handler {} into jetty server {}:{}", handler.getClass().getSimpleName(), host, port);
+        logger.info(
+            "Bind handler {} into jetty server {}:{}",
+            handler.getClass().getSimpleName(), jettyServerConfig.getHost(), jettyServerConfig.getPort()
+        );
 
         ServletHolder servletHolder = new ServletHolder();
         servletHolder.setServlet(handler);
@@ -109,7 +98,7 @@ public class JettyServer implements Server {
 
     @Override
     public void start() throws ServerException {
-        logger.info("start server, host: {}, port: {}", host, port);
+        logger.info("start server, host: {}, port: {}", jettyServerConfig.getHost(), jettyServerConfig.getPort());
         try {
             if (logger.isDebugEnabled()) {
                 if (servletContextHandler.getServletHandler() != null && servletContextHandler.getServletHandler()
@@ -136,11 +125,12 @@ public class JettyServer implements Server {
         if (o == null || getClass() != o.getClass())
             return false;
         JettyServer that = (JettyServer) o;
-        return port == that.port && Objects.equals(host, that.host);
+        return jettyServerConfig.getPort() == that.jettyServerConfig.getPort() && Objects.equals(
+            jettyServerConfig.getHost(), that.jettyServerConfig.getHost());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(host, port);
+        return Objects.hash(jettyServerConfig.getHost(), jettyServerConfig.getPort());
     }
 }

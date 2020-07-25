@@ -57,6 +57,11 @@ core:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
+    restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
+    restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
+    restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
+    restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
@@ -217,6 +222,11 @@ receiver_zipkin:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 
 receiver_jaeger:
   selector: ${SW_RECEIVER_JAEGER:-}

@@ -74,18 +74,23 @@ public class SharingServerModuleProvider extends ModuleProvider {
                                                                .jettyMinThreads(config.getJettyMinThreads())
                                                                .jettyMaxThreads(config.getJettyMaxThreads())
                                                                .jettyAcceptQueueSize(config.getJettyAcceptQueueSize())
-                                                               .jettyAcceptorPriorityDelta(config.getJettyAcceptorPriorityDelta())
+                                                               .jettyAcceptorPriorityDelta(
+                                                                   config.getJettyAcceptorPriorityDelta())
                                                                .jettyIdleTimeOut(config.getJettyIdleTimeOut()).build();
 
         if (config.getPort() != 0) {
             jettyServerConfig.setHost(Strings.isBlank(config.getHost()) ? "0.0.0.0" : config.getHost());
             jettyServerConfig.setPort(config.getPort());
             jettyServerConfig.setContextPath(config.getContextPath());
-        }
-        jettyServer = new JettyServer(jettyServerConfig);
-        jettyServer.initialize();
 
-        this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
+            jettyServer = new JettyServer(jettyServerConfig);
+            jettyServer.initialize();
+
+            this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
+        } else {
+            this.receiverJettyHandlerRegister = new ReceiverJettyHandlerRegister();
+            this.registerServiceImplementation(JettyHandlerRegister.class, receiverJettyHandlerRegister);
+        }
 
         if (config.getGRPCPort() != 0) {
             if (config.isGRPCSslEnabled()) {
