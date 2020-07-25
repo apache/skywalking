@@ -107,6 +107,7 @@ public class GRPCCallback implements AlarmCallback {
             builder.setRuleName(message.getRuleName());
             builder.setAlarmMessage(message.getAlarmMessage());
             builder.setStartTime(message.getStartTime());
+            builder.putAllLabels(message.getLabels());
 
             streamObserver.onNext(builder.build());
         });
