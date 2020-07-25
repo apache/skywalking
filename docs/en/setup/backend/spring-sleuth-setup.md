@@ -52,12 +52,12 @@ If you also has some customized meter at the agent side, please read [meter docu
 1. Click `view` button, Finally get the spring sleuth dashboard.
 
     ![Save template](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-03.png)
-    ![Spring Sleuth Dashboard](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200723-04.png)
+    ![Spring Sleuth Dashboard](http://skywalking.apache.org/screenshots/8.0.0/spring-sleuth-setup-ui-20200725-04.png)
 
 ## Supported meter
 
 Supported 3 types information: Application, System, JVM.
 
-1. Application: HTTP request count and duration, JDBC max/idle/active connection count.
-1. System: CPU system/process usage, OS System load.
+1. Application: HTTP request count and duration, JDBC max/idle/active connection count, Tomcat session active/reject count.
+1. System: CPU system/process usage, OS System load, OS Process file count.
 1. JVM: GC pause count and duration, Memory max/used/committed size, Thread peak/live/daemon count, Classes loaded/unloaded count.

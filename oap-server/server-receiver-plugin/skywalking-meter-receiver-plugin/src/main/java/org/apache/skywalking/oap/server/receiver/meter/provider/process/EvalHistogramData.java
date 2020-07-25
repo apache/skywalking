@@ -50,51 +50,6 @@ public class EvalHistogramData extends EvalData<EvalData> {
     }
 
     @Override
-    public EvalHistogramData multiply(double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalHistogramData multiply(EvalData data) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalHistogramData add(double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalData scale(Integer value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalHistogramData add(EvalData data) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalData minus(double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalData minus(EvalData value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalData divide(double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EvalData divide(EvalData value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public EvalHistogramData irate(String range) {
         return windowCalculate(Window.CalculateType.IRATE, range);
     }

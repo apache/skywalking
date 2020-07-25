@@ -68,11 +68,11 @@ public class Window {
                 return sum - i._2;
             case RATE:
                 i = increase(sum, id, Duration.parse(range).toMillis());
-                double rateVal = (sum - i._2) / ((now - i._1) / 1000);
+                double rateVal = (sum - i._2) / ((now - i._1) / 1000.0);
                 return Objects.equals(rateVal, Double.NaN) ? 0d : rateVal;
             case IRATE:
                 i = increase(sum, id, 0);
-                double iRateVal = (sum - i._2) / ((now - i._1) / 1000);
+                double iRateVal = (sum - i._2) / ((now - i._1) / 1000.0);
                 return Objects.equals(iRateVal, Double.NaN) ? 0d : iRateVal;
             default:
                 return sum;

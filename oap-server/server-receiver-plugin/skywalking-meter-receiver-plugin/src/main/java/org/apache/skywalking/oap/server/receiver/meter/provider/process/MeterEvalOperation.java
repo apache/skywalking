@@ -26,61 +26,85 @@ public interface MeterEvalOperation<FROM extends EvalData> {
     /**
      * Add value to meter
      */
-    EvalData add(double value);
+    default EvalData add(double value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Add from eval data
      */
-    EvalData add(FROM data);
+    default EvalData add(FROM data) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Minus from value
      */
-    EvalData minus(double value);
+    default EvalData minus(double value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Subtract from eval data
      */
-    EvalData minus(FROM data);
+    default EvalData minus(FROM data) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Multiply by value
      */
-    EvalData multiply(double value);
+    default EvalData multiply(double value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Multiply from eval data
      */
-    EvalData multiply(FROM data);
+    default EvalData multiply(FROM data) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Divide from value
      */
-    EvalData divide(double value);
+    default EvalData divide(double value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Mean from eval data
      */
-    EvalData divide(FROM data);
+    default EvalData divide(FROM data) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Scale the meter value.
      */
-    EvalData scale(Integer value);
+    default EvalData scale(Integer value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * IRate value from time range
      */
-    EvalData irate(String range);
+    default EvalData irate(String range) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Rate value from time range
      */
-    EvalData rate(String range);
+    default EvalData rate(String range) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Get increase value from time range
      */
-    EvalData increase(String range);
+    default EvalData increase(String range) {
+        throw new UnsupportedOperationException();
+    }
 
 }

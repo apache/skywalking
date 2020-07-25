@@ -131,11 +131,11 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
 
     public static String METER_JVM_MEMORY_MAX = "meter_jvm_memory_max";
     public static String METER_JVM_THREADS_LIVE = "meter_jvm_threads_live";
-    public static String METER_PROCESS_START_TIME = "meter_process_start_time";
+    public static String METER_PROCESS_FILES_MAX = "meter_process_files_max";
     public static String[] SIMPLE_MICROMETER_METERS = {
         METER_JVM_MEMORY_MAX,
         METER_JVM_THREADS_LIVE,
-        METER_PROCESS_START_TIME
+        METER_PROCESS_FILES_MAX
     };
 
 }

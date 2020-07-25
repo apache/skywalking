@@ -122,3 +122,33 @@ meters:
     meter:
       operation: avg
       value: meter["system_load_average_1m"]
+  - name: tomcat_sessions_active_current
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_active_current"]
+  - name: tomcat_sessions_active_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_active_max"]
+  - name: tomcat_sessions_rejected
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_rejected"].increase("PT1M")
+  - name: process_files_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_files_max"]
+  - name: process_files_open
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_files_open"]
