@@ -7,6 +7,8 @@
    </dependency>
 ```
 
+If you're using Spring sleuth, you could use [Spring Sleuth Setup](./../../backend/spring-sleuth-setup.md).
+
 * `Counter` API represents a single monotonically increasing counter, automatic collect data and report to backend.
 ```java
 import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
