@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.Receiver2AnalysisBridge;
@@ -64,7 +65,19 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        jettyServer = new JettyServer(config.getHost(), config.getPort(), config.getContextPath());
+        JettyServerConfig jettyServerConfig = JettyServerConfig.builder()
+                                                               .host(config.getHost())
+                                                               .port(config.getPort())
+                                                               .contextPath(config.getContextPath())
+                                                               .jettyIdleTimeOut(config.getJettyIdleTimeOut())
+                                                               .jettyAcceptorPriorityDelta(
+                                                                   config.getJettyAcceptorPriorityDelta())
+                                                               .jettyMinThreads(config.getJettyMinThreads())
+                                                               .jettyMaxThreads(config.getJettyMaxThreads())
+                                                               .jettyAcceptQueueSize(config.getJettyAcceptQueueSize())
+                                                               .build();
+
+        jettyServer = new JettyServer(jettyServerConfig);
         jettyServer.initialize();
 
         jettyServer.addHandler(new SpanV1JettyHandler(config, getManager()));
