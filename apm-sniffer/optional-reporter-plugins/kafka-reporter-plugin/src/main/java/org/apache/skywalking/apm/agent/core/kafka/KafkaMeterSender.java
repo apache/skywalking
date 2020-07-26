@@ -39,7 +39,7 @@ public class KafkaMeterSender extends MeterSender {
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS;
+        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METER;
     }
 
     @Override

@@ -40,6 +40,8 @@ public class KafkaReporterPluginConfig {
 
             public static String TOPIC_MANAGEMENT = "skywalking-managements";
 
+            public static String TOPIC_METER = "skywalking-meters";
+
             public static Map<String, String> CONSUMER_CONFIG = new HashMap<>();
         }
     }
