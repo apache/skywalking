@@ -18,11 +18,15 @@
 
 package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags.HTTP;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -69,34 +73,34 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         span.prepareForAsync();
         ContextManager.stopSpan(span);
 
-        objInst.setSkyWalkingDynamicField(span);
+        exchange.getAttributes().put("SKYWALING_SPAN", span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
-
         return ((Mono) ret).doFinally(s -> {
-            try {
-                Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-                if (pathPattern != null) {
-                    span.setOperationName(((PathPattern) pathPattern).getPatternString());
-                }
-                HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-                // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
-                if (httpStatus != null) {
-                    Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
-                    if (httpStatus.isError()) {
-                        span.errorOccurred();
+            AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
+            if (span != null) {
+                try {
+                    Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+                    if (pathPattern != null) {
+                        span.setOperationName(((PathPattern) pathPattern).getPatternString());
                     }
+                    HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+                    // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
+                    if (httpStatus != null) {
+                        Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                        if (httpStatus.isError()) {
+                            span.errorOccurred();
+                        }
+                    }
+                } finally {
+                    span.asyncFinish();
                 }
-            } finally {
-                span.asyncFinish();
             }
         });
-
     }
 
     @Override
