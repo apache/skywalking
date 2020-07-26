@@ -25,15 +25,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
-import org.apache.skywalking.oap.server.receiver.trace.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
-import org.apache.skywalking.oap.server.receiver.trace.parser.SegmentParserListenerManager;
-import org.apache.skywalking.oap.server.receiver.trace.parser.TraceAnalyzer;
-import org.apache.skywalking.oap.server.receiver.trace.parser.listener.MultiScopesAnalysisListener;
-import org.apache.skywalking.oap.server.receiver.trace.parser.listener.NetworkAddressAliasMappingListener;
-import org.apache.skywalking.oap.server.receiver.trace.parser.listener.SegmentAnalysisListener;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -46,33 +40,33 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class TraceSegmentHandler implements KafkaHandler {
 
-    private final ModuleManager moduleManager;
     private final KafkaFetcherConfig config;
+    private final ISegmentParserService segmentParserService;
 
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
-    private final TraceServiceModuleConfig traceModuleConfig;
-    private final SegmentParserListenerManager listenerManager;
 
     public TraceSegmentHandler(ModuleManager moduleManager,
                                KafkaFetcherConfig config) {
         this.config = config;
-        this.moduleManager = moduleManager;
-        this.traceModuleConfig = (TraceServiceModuleConfig) ((ModuleProvider) moduleManager
-            .find(TraceModule.NAME).provider()).createConfigBeanIfAbsent();
+        this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
+                                                 .provider()
+                                                 .getService(ISegmentParserService.class);
 
-        this.listenerManager = listenerManager(traceModuleConfig, moduleManager);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider().getService(MetricsCreator.class);
-        histogram = metricsCreator.createHistogramMetric("trace_in_latency",
-                                                         "The process latency of trace data",
-                                                         new MetricsTag.Keys("protocol"),
-                                                         new MetricsTag.Values("kafka-fetcher")
+
+        histogram = metricsCreator.createHistogramMetric(
+            "trace_in_latency",
+            "The process latency of trace data",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka-fetcher")
         );
-        errorCounter = metricsCreator.createCounter("trace_analysis_error_count",
-                                                    "The error number of trace analysis",
-                                                    new MetricsTag.Keys("protocol"),
-                                                    new MetricsTag.Values("kafka-fetcher")
+        errorCounter = metricsCreator.createCounter(
+            "trace_analysis_error_count",
+            "The error number of trace analysis",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka-fetcher")
         );
     }
 
@@ -90,8 +84,7 @@ public class TraceSegmentHandler implements KafkaHandler {
 
             HistogramMetrics.Timer timer = histogram.createTimer();
             try {
-                TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, traceModuleConfig);
-                traceAnalyzer.doAnalysis(segment);
+                segmentParserService.send(segment);
             } catch (Exception e) {
                 errorCounter.inc();
             } finally {
@@ -100,17 +93,6 @@ public class TraceSegmentHandler implements KafkaHandler {
         } catch (InvalidProtocolBufferException e) {
             log.error(e.getMessage(), e);
         }
-    }
-
-    private SegmentParserListenerManager listenerManager(
-        TraceServiceModuleConfig traceModuleConfig, ModuleManager moduleManager) {
-        SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
-        if (traceModuleConfig.isTraceAnalysis()) {
-            listenerManager.add(new MultiScopesAnalysisListener.Factory(moduleManager));
-            listenerManager.add(new NetworkAddressAliasMappingListener.Factory(moduleManager));
-        }
-        listenerManager.add(new SegmentAnalysisListener.Factory(moduleManager, traceModuleConfig));
-        return listenerManager;
     }
 
     @Override
