@@ -88,7 +88,7 @@ is also needed due to the `bucket`, `sum` and `count` of histogram are counters.
 
 ## Kafka Fetcher
 
-Kafka Fetcher will pull message from Kafka Broker(s) what is the Agent delivered(Currently, we only support Java Agent.) They include JVM Metrics data, Tracing Segment, and Service/Instance properties. Of course, we can also consume and process these data in other applications. Kafka Fetcher can work with GRPC Receiver at same time. It contains JVM-Receiver, Trace-Receiver etc.
+Kafka Fetcher pulls messages from Kafka Broker(s) what is the Agent delivered. Check the agent documentation about the details. Typically JTracing Segment, Service/Instance properties, and VM Metrics data are supported.  Kafka Fetcher can work with gRPC/HTTP Receivers at the same time for adopting different transport protocols.
 
 Kafka Fetcher is disabled in default, and we configure as following to enable.
 
@@ -125,4 +125,3 @@ kafka-fetcher:
       enable.auto.commit: true
       ...
 ```
-
