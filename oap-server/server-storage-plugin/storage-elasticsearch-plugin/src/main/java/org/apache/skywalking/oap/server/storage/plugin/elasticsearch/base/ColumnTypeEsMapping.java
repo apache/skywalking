@@ -23,6 +23,8 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
+import java.util.Map;
+
 public class ColumnTypeEsMapping implements DataTypeMapping {
 
     @Override
@@ -40,6 +42,8 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
         } else if (byte[].class.equals(type)) {
             return "binary";
         } else if (JsonObject.class.equals(type)) {
+            return "text";
+        } else if (Map.class.equals(type)) {
             return "text";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
