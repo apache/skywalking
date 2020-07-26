@@ -102,7 +102,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 # Who Uses SkyWalking?
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.
 
-<img src="http://skywalking.apache.org/assets/users-20191216.png"/>
+<img src="http://skywalking.apache.org/assets/users-20200726.png"/>
 
 The [PoweredBy](docs/powered-by.md) page includes more users of the project.
 Users are encouraged to add themselves to there.

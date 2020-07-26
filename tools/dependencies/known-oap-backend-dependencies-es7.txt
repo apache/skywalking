@@ -43,6 +43,7 @@ failureaccess-1.0.1.jar
 freemarker-2.3.28.jar
 graphql-java-8.0.jar
 graphql-java-tools-5.2.3.jar
+groovy-3.0.3.jar
 grpc-api-1.26.0.jar
 grpc-context-1.26.0.jar
 grpc-core-1.26.0.jar

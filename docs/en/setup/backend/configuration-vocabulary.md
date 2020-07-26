@@ -7,6 +7,11 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report|SW_CORE_REST_HOST|0.0.0.0|
 | - | - | restPort | Binding port of restful service | SW_CORE_REST_PORT|12800|
 | - | - | restContextPath| Web context path of restful service| SW_CORE_REST_CONTEXT_PATH|/|
+| - | - | restMinThreads| Min threads number of restful service| SW_CORE_REST_JETTY_MIN_THREADS|1|
+| - | - | restMaxThreads| Max threads number of restful service| SW_CORE_REST_JETTY_MAX_THREADS|200|
+| - | - | restIdleTimeOut| Connector idle timeout in milliseconds of restful service| SW_CORE_REST_JETTY_IDLE_TIMEOUT|30000|
+| - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of restful service| SW_CORE_REST_JETTY_DELTA|0|
+| - | - | restAcceptQueueSize| ServerSocketChannel backlog  of restful service| SW_CORE_REST_JETTY_QUEUE_SIZE|0|
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes|SW_CORE_GRPC_HOST|0.0.0.0|
 | - | - | gRPCPort| Binding port of gRPC service | SW_CORE_GRPC_PORT|11800|
 | - | - | gRPCSslEnabled| Activate SSL for gRPC service | SW_CORE_GRPC_SSL_ENABLED|false|
