@@ -151,10 +151,10 @@ rocketMQ-consumer:
   languages: Java
 kafka-producer:
   id: 40
-  languages: Java
+  languages: Java,Python
 kafka-consumer:
   id: 41
-  languages: Java
+  languages: Java,Python
 mongodb-driver:
   id: 42
   languages: Java
@@ -307,6 +307,9 @@ brpc-java:
   languages: Java
 GraphQL:
   id: 92
+  languages: Java
+spring-annotation:
+  id: 93
   languages: Java
 
 # .NET/.NET Core components

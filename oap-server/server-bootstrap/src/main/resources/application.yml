@@ -57,6 +57,11 @@ core:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
+    restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
+    restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
+    restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
+    restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
@@ -156,7 +161,14 @@ storage:
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
+    host: ${SW_RECEIVER_JETTY_HOST:0.0.0.0}
+    contextPath: ${SW_RECEIVER_JETTY_CONTEXT_PATH:/}
     authentication: ${SW_AUTHENTICATION:""}
+    jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
 receiver-register:
   selector: ${SW_RECEIVER_REGISTER:default}
   default:
@@ -198,6 +210,10 @@ prometheus-fetcher:
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:-}
+  default:
+
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}
   default:
@@ -210,6 +226,11 @@ receiver_zipkin:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 
 receiver_jaeger:
   selector: ${SW_RECEIVER_JAEGER:-}
