@@ -102,7 +102,7 @@ kafka-fetcher:
 `skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, and `skywalking-managements` are required by `kafka-fetcher`.
 If they are not exist, Kafka Fetcher will create them in default. Also, you can create them by self before OAP server started.
 
-If the OAP server automatically creates topics, you can also modify the number of partitions and replications of the topic created by default through the following configuration:
+Why using the OAP server automatical creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:
 
 ```yaml
 kafka-fetcher:
