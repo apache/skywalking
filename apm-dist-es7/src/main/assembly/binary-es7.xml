@@ -57,6 +57,7 @@
                 <include>oal/dotnet-agent.oal</include>
                 <include>oal/envoy.oal</include>
                 <include>fetcher-prom-rules/self.yaml</include>
+                <include>meter-receive-config/spring-sleuth.yaml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>
