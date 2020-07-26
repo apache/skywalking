@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.slf4j.Logger;
@@ -32,8 +31,6 @@ import java.util.List;
 public class AlarmStandardPersistence implements AlarmCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(AlarmStandardPersistence.class);
-
-    private Gson gson = new Gson();
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
@@ -50,7 +47,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setAlarmMessage(message.getAlarmMessage());
             record.setStartTime(message.getStartTime());
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
-            record.setLabels(gson.toJson(message.getLabels()));
+            record.setLabels(message.getLabels());
 
             RecordStreamProcessor.getInstance().in(record);
         });

@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -49,6 +51,8 @@ public class AlarmRecord extends Record {
     public static final String ALARM_MESSAGE = "alarm_message";
     public static final String LABELS = "labels";
 
+    private static final Gson GSON = new Gson();
+
     @Override
     public String id() {
         return getTimeBucket() + Const.ID_CONNECTOR + scope + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
@@ -67,7 +71,7 @@ public class AlarmRecord extends Record {
     @Column(columnName = ALARM_MESSAGE, matchQuery = true)
     private String alarmMessage;
     @Column(columnName = LABELS, matchQuery = true)
-    private String labels;
+    private Map<String, String> labels;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
 
@@ -82,6 +86,11 @@ public class AlarmRecord extends Record {
             map.put(START_TIME, storageData.getStartTime());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             map.put(LABELS, storageData.getLabels());
+            if (storageData.getLabels() != null) {
+                map.put(LABELS, GSON.toJson(storageData.getLabels()));
+            } else {
+                map.put(LABELS, Const.EMPTY_STRING);
+            }
             return map;
         }
 
@@ -95,7 +104,10 @@ public class AlarmRecord extends Record {
             record.setAlarmMessage((String) dbMap.get(ALARM_MESSAGE));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            record.setLabels((String) dbMap.get(LABELS));
+            final String labelsString = (String) dbMap.get(LABELS);
+            if (StringUtil.isNotEmpty(labelsString)) {
+                record.setLabels(GSON.fromJson(labelsString, Map.class));
+            }
             return record;
         }
     }
