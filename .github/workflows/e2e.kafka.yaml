@@ -48,7 +48,7 @@ jobs:
         with:
           name: logs
           path: logs
-  proling:
+  profile:
     name: Kafka(profiling)
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -62,6 +62,25 @@ jobs:
         run: cp -R dist test/e2e/
       - name: Kafka Profiling
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaProfilingE2E
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: logs
+          path: logs
+  meter:
+    name: Kafka(meter)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Compile and Build
+        run: make docker
+      - name: Copy dist package
+        run: cp -R dist test/e2e/
+      - name: Kafka Profiling
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaMeterE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
