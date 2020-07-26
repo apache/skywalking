@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -28,7 +29,6 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
-import org.apache.skywalking.oap.server.receiver.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.Receiver2AnalysisBridge;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.Zipkin2SkyWalkingTransfer;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV1JettyHandler;

@@ -26,15 +26,8 @@ public class RemoteInstance implements Comparable<RemoteInstance> {
 
     private final Address address;
 
-    private final String serverId;
-
     public RemoteInstance(Address address) {
-        this(address, null);
-    }
-
-    public RemoteInstance(Address address, String serverId) {
         this.address = address;
-        this.serverId = serverId;
     }
 
     @Override

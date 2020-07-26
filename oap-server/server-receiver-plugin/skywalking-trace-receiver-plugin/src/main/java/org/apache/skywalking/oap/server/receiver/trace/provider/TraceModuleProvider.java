@@ -65,13 +65,10 @@ public class TraceModuleProvider extends ModuleProvider {
                                                                 .provider()
                                                                 .getService(JettyHandlerRegister.class);
 
-        grpcHandlerRegister.addHandler(
-            new TraceSegmentReportServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(getManager()));
 
-        jettyHandlerRegister.addHandler(
-            new TraceSegmentReportListServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(
-            new TraceSegmentReportSingleServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new TraceSegmentReportListServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new TraceSegmentReportSingleServletHandler(getManager()));
     }
 
     @Override

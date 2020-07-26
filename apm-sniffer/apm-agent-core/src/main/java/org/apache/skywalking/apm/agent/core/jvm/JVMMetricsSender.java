@@ -22,6 +22,7 @@ import io.grpc.Channel;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.commands.CommandService;
@@ -39,8 +40,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricReportServic
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
 @DefaultImplementor
-public class JVMServiceGRPCSender implements JVMServiceSender, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(JVMServiceGRPCSender.class);
+public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListener {
+    private static final ILog logger = LogManager.getLogger(JVMMetricsSender.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile JVMMetricReportServiceGrpc.JVMMetricReportServiceBlockingStub stub = null;
@@ -48,17 +49,16 @@ public class JVMServiceGRPCSender implements JVMServiceSender, GRPCChannelListen
     private LinkedBlockingQueue<JVMMetric> queue;
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
         queue = new LinkedBlockingQueue<>(Config.Jvm.BUFFER_SIZE);
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
     @Override
-    public void boot() throws Throwable {
+    public void boot() {
 
     }
 
-    @Override
     public void offer(JVMMetric metric) {
         // drop last message and re-deliver
         if (!queue.offer(metric)) {
@@ -98,12 +98,12 @@ public class JVMServiceGRPCSender implements JVMServiceSender, GRPCChannelListen
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
 
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
 
     }
 }

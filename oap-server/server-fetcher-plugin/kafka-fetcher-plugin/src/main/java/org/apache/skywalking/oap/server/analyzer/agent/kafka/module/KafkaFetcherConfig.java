@@ -66,6 +66,8 @@ public class KafkaFetcherConfig extends ModuleConfig {
      */
     private int replicationFactor = 1;
 
+    private String configPath = "meter-receive-config";
+
     private String topicNameOfMetrics = "skywalking-metrics";
 
     private String topicNameOfProfiling = "skywalking-profilings";
@@ -73,4 +75,6 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private String topicNameOfTracingSegments = "skywalking-segments";
 
     private String topicNameOfManagements = "skywalking-managements";
+
+    private String topicNameOfMeters = "skywalking-meters";
 }

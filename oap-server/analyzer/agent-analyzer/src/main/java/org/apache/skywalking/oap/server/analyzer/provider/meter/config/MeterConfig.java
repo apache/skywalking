@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.config;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
 import lombok.Data;
 

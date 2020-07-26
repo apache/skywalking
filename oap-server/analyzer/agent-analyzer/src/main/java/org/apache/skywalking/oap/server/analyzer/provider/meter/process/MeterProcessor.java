@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;

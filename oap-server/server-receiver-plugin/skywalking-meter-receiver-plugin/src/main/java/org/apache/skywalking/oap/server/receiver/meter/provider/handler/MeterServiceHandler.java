@@ -23,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.receiver.meter.provider.process.MeterProcessContext;
-import org.apache.skywalking.oap.server.receiver.meter.provider.process.MeterProcessor;
 
 /**
  * Meter protocol receiver, collect and process the meters.

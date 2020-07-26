@@ -16,13 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.jvm;
+package org.apache.skywalking.e2e.kafka;
 
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
+import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
+import org.apache.skywalking.e2e.annotation.DockerCompose;
+import org.apache.skywalking.e2e.base.SkyWalkingE2E;
+import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.meter.MeterE2E;
+import org.testcontainers.containers.DockerComposeContainer;
 
-public interface JVMServiceSender extends BootService, Runnable {
+@SkyWalkingE2E
+public class KafkaMeterE2E extends MeterE2E {
 
-    void offer(JVMMetric metric);
+    @SuppressWarnings("unused")
+    @DockerCompose("docker/kafka/docker-compose.meter.yml")
+    protected DockerComposeContainer<?> justForSideEffects;
+
+    @SuppressWarnings("unused")
+    @ContainerHostAndPort(name = "provider-kafka", port = 9090)
+    private HostAndPort serviceHostPort;
 
 }

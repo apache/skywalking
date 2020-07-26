@@ -33,8 +33,8 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogra
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.meter.provider.MeterReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.meter.provider.config.MeterConfig;
-import org.apache.skywalking.oap.server.receiver.meter.provider.config.MeterConfigs;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;

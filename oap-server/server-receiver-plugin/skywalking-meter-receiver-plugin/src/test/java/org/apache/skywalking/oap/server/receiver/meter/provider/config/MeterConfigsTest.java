@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.meter.provider.config;
 
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.meter.provider.MeterReceiverConfig;

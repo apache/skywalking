@@ -16,18 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import groovy.lang.GroovyShell;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.Scope;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
-import org.apache.skywalking.oap.server.receiver.meter.provider.config.MeterConfig;
-import org.apache.skywalking.oap.server.receiver.meter.provider.config.Scope;
 
 import java.util.Map;
 import java.util.StringJoiner;

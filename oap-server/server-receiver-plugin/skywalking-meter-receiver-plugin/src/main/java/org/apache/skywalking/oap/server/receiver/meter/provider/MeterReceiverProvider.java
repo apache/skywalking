@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.meter.provider;
 
+import java.util.List;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -26,13 +30,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.meter.module.MeterReceiverModule;
-import org.apache.skywalking.oap.server.receiver.meter.provider.config.MeterConfig;
-import org.apache.skywalking.oap.server.receiver.meter.provider.config.MeterConfigs;
 import org.apache.skywalking.oap.server.receiver.meter.provider.handler.MeterServiceHandler;
-import org.apache.skywalking.oap.server.receiver.meter.provider.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
-
-import java.util.List;
 
 public class MeterReceiverProvider extends ModuleProvider {
 
@@ -66,16 +65,16 @@ public class MeterReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException, ModuleStartException {
+    public void start() throws ServiceNotProvidedException {
         processContext = new MeterProcessContext(meterConfigs, getManager());
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
-            .provider()
-            .getService(GRPCHandlerRegister.class);
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new MeterServiceHandler(processContext));
     }
 
     @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
         processContext.initMeters();
     }
 

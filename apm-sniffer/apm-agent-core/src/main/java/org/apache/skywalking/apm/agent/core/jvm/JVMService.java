@@ -45,11 +45,11 @@ public class JVMService implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(JVMService.class);
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
-    private JVMServiceSender sender;
+    private JVMMetricsSender sender;
 
     @Override
     public void prepare() throws Throwable {
-        sender = ServiceManager.INSTANCE.findService(JVMServiceGRPCSender.class);
+        sender = ServiceManager.INSTANCE.findService(JVMMetricsSender.class);
     }
 
     @Override

@@ -23,10 +23,13 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandler
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JVMMetricsHandler;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.MeterServiceHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ProfileTaskHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ServiceManagementHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.TraceSegmentHandler;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -38,6 +41,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class KafkaFetcherProvider extends ModuleProvider {
     private KafkaFetcherConfig config;
     private KafkaFetcherHandlerRegister handlerRegister;
+
+    private MeterProcessContext processContext;
 
     public KafkaFetcherProvider() {
         config = new KafkaFetcherConfig();
@@ -61,6 +66,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         handlerRegister = new KafkaFetcherHandlerRegister(config);
+        processContext = new MeterProcessContext(MeterConfigs.loadConfig(config.getConfigPath()), getManager());
     }
 
     @Override
@@ -69,12 +75,13 @@ public class KafkaFetcherProvider extends ModuleProvider {
         handlerRegister.register(new ServiceManagementHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentHandler(getManager(), config));
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
+        handlerRegister.register(new MeterServiceHandler(processContext, config));
         handlerRegister.start();
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+        processContext.initMeters();
     }
 
     @Override

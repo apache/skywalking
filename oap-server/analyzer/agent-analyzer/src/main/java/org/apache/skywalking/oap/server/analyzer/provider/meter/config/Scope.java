@@ -16,30 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.config;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
-
-import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @Data
-public class MeterDataConfig {
+public class Scope {
 
     /**
-     * Build meter operation name.
-     * @see MeterFunction
+     * Scope type
      */
-    private String operation;
+    private ScopeType type;
 
     /**
-     * Value expression of meter.
+     * Endpoint filter expression. If using {@link ScopeType#ENDPOINT} need this.
      */
-    private String value;
-
-    /**
-     * If the function support percentile, need to provide this config.
-     */
-    private List<Integer> percentile;
-
+    private String endpoint;
 }
