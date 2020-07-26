@@ -1,6 +1,6 @@
 # How to enable Kafka Reporter
 
-The Kafka reporter plugin support to report Tracing, JVM Metric data, Instance Properties, and Profiling to Kafka Broker, which is disabled in default. We move the jar of the plugin from `optional-reporter-plugins` to `reporter-plugins` for activating.
+The Kafka reporter plugin support report traces, JVM metrics, Instance Properties, and profiled snapshots to Kafka cluster, which is disabled in default. Move the jar of the plugin from `optional-reporter-plugins` to `reporter-plugins` for activating.
 
 Notice, currently, the agent still needs to configure GRPC receiver for delivering the task of profiling. In other words, the following configure cannot be omitted.
 
