@@ -85,7 +85,6 @@ public class AlarmRecord extends Record {
             map.put(ALARM_MESSAGE, storageData.getAlarmMessage());
             map.put(START_TIME, storageData.getStartTime());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(LABELS, storageData.getLabels());
             if (storageData.getLabels() != null) {
                 map.put(LABELS, GSON.toJson(storageData.getLabels()));
             } else {
