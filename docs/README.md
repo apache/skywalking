@@ -7,7 +7,7 @@ From here you can learn all about **SkyWalking**’s architecture, how to deploy
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). You'll find the the most important core ideas about SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 
-- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course.
+- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways of the observability.
 
 - [UI Introduction](en/ui/README.md). Introduce the UI usage and features. 
 
@@ -56,6 +56,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
 * [Setup](en/setup/README.md).
   * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
+    * All available [agents](en/setup/README.md#language-agents-in-service) for different languages.
     * [Java agent](en/setup/service-agent/java-agent/README.md). Introduces how to install the java agent to your service, without changing any code.
       * [Supported middleware, framework and library](en/setup/service-agent/java-agent/Supported-list.md).
       * [Agent Configuration Properties](en/setup/service-agent/java-agent/README.md#table-of-agent-configuration-properties).
