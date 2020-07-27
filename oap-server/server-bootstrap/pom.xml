@@ -121,6 +121,11 @@
             <artifactId>opencensus-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-meter-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
@@ -248,6 +253,7 @@
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>meter-receive-config/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

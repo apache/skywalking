@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.e2e;
 
+import org.apache.skywalking.apm.meter.micrometer.SkywalkingMeterRegistry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -30,4 +32,10 @@ public class Service0Application {
     public static void main(String[] args) {
         SpringApplication.run(Service0Application.class, args);
     }
+
+    @Bean
+    SkywalkingMeterRegistry skywalkingMeterRegistry() {
+        return new SkywalkingMeterRegistry();
+    }
+
 }

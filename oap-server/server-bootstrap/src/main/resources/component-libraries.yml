@@ -187,10 +187,10 @@ RabbitMQ:
   languages: Java
 rabbitmq-producer:
   id: 52
-  languages: Java
+  languages: Java,Python
 rabbitmq-consumer:
   id: 53
-  languages: Java
+  languages: Java,Python
 Canal:
   id: 54
   languages: Java
@@ -307,6 +307,9 @@ brpc-java:
   languages: Java
 GraphQL:
   id: 92
+  languages: Java
+spring-annotation:
+  id: 93
   languages: Java
 
 # .NET/.NET Core components
