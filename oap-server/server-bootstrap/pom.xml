@@ -68,6 +68,11 @@
             <artifactId>cluster-etcd-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-nacos-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- cluster module -->
 
         <!-- receiver module -->
@@ -114,6 +119,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>opencensus-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-meter-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->
@@ -200,6 +210,11 @@
             <artifactId>configuration-k8s-configmap</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-nacos</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -238,6 +253,7 @@
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>meter-receive-config/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

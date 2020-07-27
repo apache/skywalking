@@ -36,6 +36,7 @@
         <module>configuration-etcd</module>
         <module>configuration-consul</module>
         <module>configuration-k8s-configmap</module>
+        <module>configuration-nacos</module>
     </modules>
 
 </project>
