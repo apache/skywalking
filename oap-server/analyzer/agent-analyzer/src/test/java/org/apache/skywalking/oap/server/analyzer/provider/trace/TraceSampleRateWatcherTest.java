@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
 import java.util.Optional;
 import java.util.Set;
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
@@ -37,7 +36,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class TraceSampleRateWatcherTest {
     private AnalyzerModuleProvider provider;
-    private AnalyzerModuleConfig config;
 
     @Before
     public void init() {
@@ -69,25 +67,29 @@ public class TraceSampleRateWatcherTest {
     @Test
     public void testNotify() {
         TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
-        ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.MODIFY);
+        ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "8000", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value1);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 8000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "8000");
 
-        ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.DELETE);
+        ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "8000", ConfigChangeWatcher.EventType.DELETE);
 
         traceSampleRateWatcher.notify(value2);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
 
-        ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent("500", ConfigChangeWatcher.EventType.ADD);
+        ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "500", ConfigChangeWatcher.EventType.ADD);
 
         traceSampleRateWatcher.notify(value3);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
         Assert.assertEquals(traceSampleRateWatcher.value(), "500");
 
-        ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent("abc", ConfigChangeWatcher.EventType.MODIFY);
+        ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "abc", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value4);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
