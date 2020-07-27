@@ -81,6 +81,7 @@
 * [Hystrix: Latency and Fault Tolerance for Distributed Systems](https://github.com/Netflix/Hystrix) 1.4.20 -> 1.5.12
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
+  * [Apache Elastic Job](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
 * OpenTracing community supported
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON

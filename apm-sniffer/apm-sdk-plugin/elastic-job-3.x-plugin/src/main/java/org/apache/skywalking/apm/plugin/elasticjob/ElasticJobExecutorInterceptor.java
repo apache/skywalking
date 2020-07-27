@@ -37,6 +37,7 @@ public class ElasticJobExecutorInterceptor implements InstanceMethodsAroundInter
         Integer item = (Integer) allArguments[1];
         String operateName = ComponentsDefine.ELASTIC_JOB.getName() + "/" + shardingContexts.getJobName();
         AbstractSpan span = ContextManager.createEntrySpan(operateName, new ContextCarrier());
+        span.setComponent(ComponentsDefine.ELASTIC_JOB);
         span.tag("item", item == null ? "" : String.valueOf(item));
         span.tag("shardingTotalCount", Integer.toString(shardingContexts.getShardingTotalCount()));
         span.tag("taskId", shardingContexts.getTaskId());

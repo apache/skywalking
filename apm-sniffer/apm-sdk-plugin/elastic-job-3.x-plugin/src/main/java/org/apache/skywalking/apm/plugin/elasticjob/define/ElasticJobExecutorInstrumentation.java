@@ -32,7 +32,7 @@ public class ElasticJobExecutorInstrumentation extends ClassInstanceMethodsEnhan
     
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutor";
     
-    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.shardingsphere.elasticjob.executor.ElasticJobExecutorInterceptor";
+    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticjob.ElasticJobExecutorInterceptor";
     
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
