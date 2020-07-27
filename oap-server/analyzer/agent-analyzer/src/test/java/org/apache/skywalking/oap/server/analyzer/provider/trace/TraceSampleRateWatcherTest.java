@@ -105,7 +105,7 @@ public class TraceSampleRateWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("receiver-trace.default.sampleRate", "9000"));
+            table.add(new ConfigTable.ConfigItem("analyzer.default.sampleRate", "9000"));
             return Optional.of(table);
         }
     }
