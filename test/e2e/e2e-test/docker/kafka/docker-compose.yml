@@ -16,19 +16,6 @@
 version: '2.1'
 
 services:
-  oap:
-    extends:
-      file: ../base-compose.yml
-      service: oap
-    environment:
-      SW_KAFKA_FETCHER: default
-      SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
-    depends_on:
-      broker-a:
-        condition: service_healthy
-      broker-b:
-        condition: service_healthy
-
   ui:
     extends:
       file: ../base-compose.yml
@@ -37,7 +24,7 @@ services:
       oap:
         condition: service_healthy
 
-  provider_kafka: 
+  provider_kafka:
     build:
       context: ../../../
       dockerfile: e2e-test/docker/kafka/Dockerfile.provider
@@ -82,7 +69,7 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
-      
+
   broker-a:
     image: bitnami/kafka:2.4.1
     hostname: broker-a

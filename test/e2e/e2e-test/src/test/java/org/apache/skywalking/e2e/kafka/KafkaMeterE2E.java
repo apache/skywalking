@@ -29,7 +29,10 @@ import org.testcontainers.containers.DockerComposeContainer;
 public class KafkaMeterE2E extends MeterE2E {
 
     @SuppressWarnings("unused")
-    @DockerCompose("docker/kafka/docker-compose.yml")
+    @DockerCompose({
+        "docker/kafka/docker-compose.yml",
+        "docker/kafka/docker-compose.meter.yml"
+    })
     protected DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
