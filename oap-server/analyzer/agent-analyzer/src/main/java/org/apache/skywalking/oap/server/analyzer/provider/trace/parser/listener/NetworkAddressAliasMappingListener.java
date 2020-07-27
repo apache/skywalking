@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 
 /**
  * NetworkAddressAliasMappingListener use the propagated data in the segment reference, set up the alias relationship
@@ -45,7 +45,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceM
 @RequiredArgsConstructor
 public class NetworkAddressAliasMappingListener implements EntryAnalysisListener {
     private final SourceReceiver sourceReceiver;
-    private final AnalyzerServiceModuleConfig config;
+    private final AnalyzerModuleConfig config;
     private final NamingControl namingControl;
 
     @Override
@@ -107,7 +107,7 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
         }
 
         @Override
-        public AnalysisListener create(ModuleManager moduleManager, AnalyzerServiceModuleConfig config) {
+        public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             return new NetworkAddressAliasMappingListener(sourceReceiver, config, namingControl);
         }
     }

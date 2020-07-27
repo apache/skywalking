@@ -16,36 +16,35 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider;
+package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
+import java.util.Optional;
+import java.util.Set;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
-import org.apache.skywalking.oap.server.receiver.trace.TraceSampleRateWatcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
-import java.util.Set;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TraceSampleRateWatcherTest {
-    private TraceModuleProvider traceModuleProvider;
+    private AnalyzerModuleProvider provider;
 
     @Before
     public void init() {
-        traceModuleProvider = new TraceModuleProvider();
+        provider = new AnalyzerModuleProvider();
     }
 
     @Test
     public void testInit() {
-        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(traceModuleProvider);
+        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
     }
@@ -54,7 +53,7 @@ public class TraceSampleRateWatcherTest {
     public void testDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        TraceSampleRateWatcher watcher = new TraceSampleRateWatcher(traceModuleProvider);
+        TraceSampleRateWatcher watcher = new TraceSampleRateWatcher(provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
@@ -62,31 +61,35 @@ public class TraceSampleRateWatcherTest {
             Thread.sleep(2000);
         }
         assertThat(watcher.getSampleRate(), is(9000));
-        assertThat(traceModuleProvider.getModuleConfig().getSampleRate(), is(10000));
+        assertThat(provider.getModuleConfig().getSampleRate(), is(10000));
     }
 
     @Test
     public void testNotify() {
-        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(traceModuleProvider);
-        ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.MODIFY);
+        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
+        ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "8000", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value1);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 8000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "8000");
 
-        ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.DELETE);
+        ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "8000", ConfigChangeWatcher.EventType.DELETE);
 
         traceSampleRateWatcher.notify(value2);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
 
-        ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent("500", ConfigChangeWatcher.EventType.ADD);
+        ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "500", ConfigChangeWatcher.EventType.ADD);
 
         traceSampleRateWatcher.notify(value3);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
         Assert.assertEquals(traceSampleRateWatcher.value(), "500");
 
-        ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent("abc", ConfigChangeWatcher.EventType.MODIFY);
+        ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
+            "abc", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value4);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
@@ -102,7 +105,7 @@ public class TraceSampleRateWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("receiver-trace.default.sampleRate", "9000"));
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.sampleRate", "9000"));
             return Optional.of(table);
         }
     }

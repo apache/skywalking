@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
@@ -61,7 +62,7 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
     }
 
     private int getDefaultValue() {
-        return ((AnalyzerServiceModuleConfig) this.getProvider().createConfigBeanIfAbsent()).getSampleRate();
+        return ((AnalyzerModuleConfig) this.getProvider().createConfigBeanIfAbsent()).getSampleRate();
     }
 
     public int getSampleRate() {

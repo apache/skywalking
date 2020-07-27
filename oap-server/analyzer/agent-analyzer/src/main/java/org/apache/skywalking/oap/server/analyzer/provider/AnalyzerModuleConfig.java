@@ -16,15 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.trace;
+package org.apache.skywalking.oap.server.analyzer.provider;
 
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-public class AnalyzerServiceModuleConfig extends ModuleConfig {
+public class AnalyzerModuleConfig extends ModuleConfig {
     /**
      * The sample rate precision is 1/10000. 10000 means 100% sample in default.
      */

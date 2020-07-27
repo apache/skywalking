@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
+import java.util.List;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
@@ -34,7 +35,7 @@ public interface KafkaHandler {
      * Currently, we have to specify the handler working for a partition.
      * The partition id is configured in {@link KafkaFetcherConfig}.
      */
-    TopicPartition getTopicPartition();
+    List<TopicPartition> getTopicPartitions();
 
     /**
      * a topic of Kafka is handled.

@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
+import com.google.common.collect.Lists;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -74,7 +76,12 @@ public class ProfileTaskHandler implements KafkaHandler {
     }
 
     @Override
-    public TopicPartition getTopicPartition() {
-        return new TopicPartition(getTopic(), config.getServerId());
+    public List<TopicPartition> getTopicPartitions() {
+        String[] partitions = config.getConsumePartitions().split("\\s*,\\s*");
+        List<TopicPartition> topicPartitions = Lists.newArrayList();
+        for (final String partition : partitions) {
+            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
+        }
+        return topicPartitions;
     }
 }

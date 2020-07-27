@@ -47,7 +47,7 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
@@ -66,7 +66,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
     private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
-    private final AnalyzerServiceModuleConfig config;
+    private final AnalyzerModuleConfig config;
     private final NetworkAddressAliasCache networkAddressAliasCache;
     private final NamingControl namingControl;
 
@@ -371,7 +371,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         }
 
         @Override
-        public AnalysisListener create(ModuleManager moduleManager, AnalyzerServiceModuleConfig config) {
+        public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             return new MultiScopesAnalysisListener(
                 sourceReceiver, config, networkAddressAliasCache, namingControl);
         }

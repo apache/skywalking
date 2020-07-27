@@ -16,11 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
-
-import org.junit.Test;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import java.util.function.Consumer;
+import org.junit.Test;
 
 public class MeterEvalOperationTest {
 

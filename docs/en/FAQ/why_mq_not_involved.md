@@ -22,5 +22,9 @@ we could consider adding a better dynamic trace sampling mechanism at the backen
 when throughput goes over the threshold, active the sampling rate to 100%->10% step by step, 
 which means you could get the OAP and ES 3 times more powerful than usual, just ignore the traces at hot time.
 
+### Is MQ transport acceptable even there are several side effects?
+Even MQ transport is not recommended from the production perspective, SkyWalking still has optional plugins named
+`kafka-reporter` and `kafka-fetcher` for this feature since 8.1.0. 
+
 ### How about MQ metrics data exporter?
 I would say, it is already available there. Exporter module with gRPC default mechanism is there. It is easy to provide a new implementor of that module.

@@ -158,6 +158,12 @@ storage:
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 
+agent-analyzer:
+  selector: ${SW_ANALYZER:default}
+  default:
+    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
@@ -176,8 +182,6 @@ receiver-register:
 receiver-trace:
   selector: ${SW_RECEIVER_TRACE:default}
   default:
-    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
-    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 
 receiver-jvm:
   selector: ${SW_RECEIVER_JVM:default}

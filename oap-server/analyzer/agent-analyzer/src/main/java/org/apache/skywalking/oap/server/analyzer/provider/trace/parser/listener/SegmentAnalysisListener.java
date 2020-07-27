@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 
 /**
  * SegmentSpanListener forwards the segment raw data to the persistence layer with the query required conditions.
@@ -174,7 +174,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         private final TraceSegmentSampler sampler;
         private final NamingControl namingControl;
 
-        public Factory(ModuleManager moduleManager, AnalyzerServiceModuleConfig config) {
+        public Factory(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.sampler = new TraceSegmentSampler(config.getTraceSampleRateWatcher());
             this.namingControl = moduleManager.find(CoreModule.NAME)
@@ -183,7 +183,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         }
 
         @Override
-        public AnalysisListener create(ModuleManager moduleManager, AnalyzerServiceModuleConfig config) {
+        public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             return new SegmentAnalysisListener(sourceReceiver, sampler, namingControl);
         }
     }

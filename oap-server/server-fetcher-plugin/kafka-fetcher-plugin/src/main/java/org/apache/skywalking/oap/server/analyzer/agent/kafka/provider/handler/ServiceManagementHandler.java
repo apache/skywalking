@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
@@ -130,8 +131,13 @@ public class ServiceManagementHandler implements KafkaHandler {
     }
 
     @Override
-    public TopicPartition getTopicPartition() {
-        return new TopicPartition(getTopic(), config.getServerId());
+    public List<TopicPartition> getTopicPartitions() {
+        String[] partitions = config.getConsumePartitions().split("\\s*,\\s*");
+        List<TopicPartition> topicPartitions = Lists.newArrayList();
+        for (final String partition : partitions) {
+            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
+        }
+        return topicPartitions;
     }
 
 }
