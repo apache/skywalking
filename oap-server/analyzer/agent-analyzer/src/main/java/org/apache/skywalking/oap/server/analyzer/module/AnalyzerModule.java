@@ -22,7 +22,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentP
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 public class AnalyzerModule extends ModuleDefine {
-    public static final String NAME = "analyzer";
+    public static final String NAME = "agent-analyzer";
 
     public AnalyzerModule() {
         super(NAME);

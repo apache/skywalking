@@ -97,6 +97,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    consumePartitions: ""
 ```
 
 `skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements` and `skywalking-meters` topics are required by `kafka-fetcher`.
@@ -111,9 +112,10 @@ kafka-fetcher:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
     partitions: 1
     replicationFactor: 1
+    consumePartitions: ""
 ```
 
-In the cluster mode, it should be noted that the number of topic partitions is the same as that of OAP servers. In other words, each OAP can only subscribe the specified partition. Therefore, the 'serverId' must be configured to specify which partition to consume.
+In cluster mode, all topics have the same number of partitions. Then we have to set `"isSharding"` to `"true"` and assign the partitions to consume for OAP server. The OAP server can use commas to separate multiple partitions.
 
 Kafka Fetcher allows to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
 ```yaml
@@ -121,6 +123,8 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    isSharding: true
+    consumePartitions: 1, 3, 5
     kafkaConsumerConfig:
       enable.auto.commit: true
       ...
