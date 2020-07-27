@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
@@ -26,10 +25,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -40,7 +39,6 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 
 /**
  * A handler deserializes the message of Service Management and pushes it to downstream.

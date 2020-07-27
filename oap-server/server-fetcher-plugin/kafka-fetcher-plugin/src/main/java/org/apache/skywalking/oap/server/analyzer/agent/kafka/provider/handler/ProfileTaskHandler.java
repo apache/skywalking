@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- *
+ * A handler deserializes the message of profiling snapshot and pushes it to downstream.
  */
 @Slf4j
 public class ProfileTaskHandler implements KafkaHandler {

@@ -28,6 +28,9 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcher
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
 
+/**
+ * A handler deserializes the message of meter system data and pushes it to downstream.
+ */
 @Slf4j
 public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServiceImplBase implements KafkaHandler {
     private KafkaFetcherConfig config;

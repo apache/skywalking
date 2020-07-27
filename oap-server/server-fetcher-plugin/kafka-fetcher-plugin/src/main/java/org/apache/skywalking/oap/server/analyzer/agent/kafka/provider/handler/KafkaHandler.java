@@ -21,22 +21,19 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 
 /**
- * A Handler for dealing Message reported by agent.
- * It is binding to a topic of Kafka, and deserialize.
+ * A Handler for dealing Message reported by agent. It is binding to a topic of Kafka, and deserialize.
  */
 public interface KafkaHandler {
 
     /**
-     * Which partition(s) of the topic is handled in cluster mode.
-     * Currently, we have to specify the handler working for partition(s).
+     * Which partition(s) of the topic is handled in cluster mode. Currently, we have to specify the handler working for
+     * partition(s).
      */
     default List<TopicPartition> getTopicPartitions() {
         if (StringUtil.isEmpty(getConsumePartitions())) {
@@ -54,7 +51,6 @@ public interface KafkaHandler {
      *
      */
     String getConsumePartitions();
-
 
     /**
      * A topic of Kafka is handled.

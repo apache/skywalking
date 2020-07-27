@@ -18,12 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.common.collect.Lists;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
@@ -37,7 +34,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
- * A handler deserializes the message of the tracing segment data and pushes it to downstream.
+ * A handler deserializes the message of the trace segment data and pushes it to downstream.
  */
 @Slf4j
 public class TraceSegmentHandler implements KafkaHandler {
