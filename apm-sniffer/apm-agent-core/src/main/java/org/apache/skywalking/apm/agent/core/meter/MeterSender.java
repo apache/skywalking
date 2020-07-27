@@ -61,7 +61,7 @@ public class MeterSender implements BootService, GRPCChannelListener {
     }
 
     public void send(Map<MeterId, MeterTransformer> meterMap, MeterService meterService) {
-        if (status != GRPCChannelStatus.CONNECTED) {
+        if (status == GRPCChannelStatus.CONNECTED) {
             StreamObserver<MeterData> reportStreamObserver = null;
             final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
             try {
