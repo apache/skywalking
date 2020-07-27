@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
+import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 
 /**
@@ -31,14 +35,29 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcher
 public interface KafkaHandler {
 
     /**
-     * Which one partition of the topic is handled in cluster mode.
-     * Currently, we have to specify the handler working for a partition.
-     * The partition id is configured in {@link KafkaFetcherConfig}.
+     * Which partition(s) of the topic is handled in cluster mode.
+     * Currently, we have to specify the handler working for partition(s).
      */
-    List<TopicPartition> getTopicPartitions();
+    default List<TopicPartition> getTopicPartitions() {
+        if (StringUtil.isEmpty(getConsumePartitions())) {
+            return Collections.EMPTY_LIST;
+        }
+
+        List<TopicPartition> topicPartitions = Lists.newArrayList();
+        for (final String partition : getConsumePartitions().trim().split("\\s*,\\s*")) {
+            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
+        }
+        return topicPartitions;
+    }
 
     /**
-     * a topic of Kafka is handled.
+     *
+     */
+    String getConsumePartitions();
+
+
+    /**
+     * A topic of Kafka is handled.
      */
     String getTopic();
 

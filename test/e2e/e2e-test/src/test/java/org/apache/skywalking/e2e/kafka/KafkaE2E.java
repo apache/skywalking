@@ -21,13 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
-import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.simple.SimpleE2E;
 import org.testcontainers.containers.DockerComposeContainer;
 
 @Slf4j
 @SkyWalkingE2E
-public class KafkaE2E extends SkyWalkingTestAdapter {
+public class KafkaE2E extends SimpleE2E {
 
     @SuppressWarnings("unused")
     @DockerCompose({
@@ -38,6 +38,6 @@ public class KafkaE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider_kafka", port = 9090)
-    private HostAndPort serviceHostPort;
+    protected HostAndPort serviceHostPort;
 
 }

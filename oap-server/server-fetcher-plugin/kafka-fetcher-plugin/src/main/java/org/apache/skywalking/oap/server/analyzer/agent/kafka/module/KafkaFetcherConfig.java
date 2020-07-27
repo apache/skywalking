@@ -66,6 +66,8 @@ public class KafkaFetcherConfig extends ModuleConfig {
      */
     private int replicationFactor = 1;
 
+    private boolean enableMeterSystem = false;
+
     private String configPath = "meter-receive-config";
 
     private String topicNameOfMetrics = "skywalking-metrics";

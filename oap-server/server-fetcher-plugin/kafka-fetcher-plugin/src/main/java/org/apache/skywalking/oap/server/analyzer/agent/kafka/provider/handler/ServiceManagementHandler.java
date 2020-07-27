@@ -131,13 +131,7 @@ public class ServiceManagementHandler implements KafkaHandler {
     }
 
     @Override
-    public List<TopicPartition> getTopicPartitions() {
-        String[] partitions = config.getConsumePartitions().split("\\s*,\\s*");
-        List<TopicPartition> topicPartitions = Lists.newArrayList();
-        for (final String partition : partitions) {
-            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
-        }
-        return topicPartitions;
+    public String getConsumePartitions() {
+        return config.getConsumePartitions();
     }
-
 }

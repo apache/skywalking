@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.e2e.kafka;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
@@ -25,6 +26,7 @@ import org.apache.skywalking.e2e.common.HostAndPort;
 import org.apache.skywalking.e2e.meter.MeterE2E;
 import org.testcontainers.containers.DockerComposeContainer;
 
+@Slf4j
 @SkyWalkingE2E
 public class KafkaMeterE2E extends MeterE2E {
 
@@ -36,7 +38,7 @@ public class KafkaMeterE2E extends MeterE2E {
     protected DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "provider-kafka", port = 9090)
-    private HostAndPort serviceHostPort;
+    @ContainerHostAndPort(name = "provider_kafka", port = 9090)
+    protected HostAndPort serviceHostPort;
 
 }

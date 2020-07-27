@@ -18,12 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.common.collect.Lists;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
@@ -56,17 +53,12 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
     }
 
     @Override
-    public List<TopicPartition> getTopicPartitions() {
-        String[] partitions = config.getConsumePartitions().split("\\s*,\\s*");
-        List<TopicPartition> topicPartitions = Lists.newArrayList();
-        for (final String partition : partitions) {
-            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
-        }
-        return topicPartitions;
+    public String getTopic() {
+        return config.getTopicNameOfMeters();
     }
 
     @Override
-    public String getTopic() {
-        return config.getTopicNameOfMeters();
+    public String getConsumePartitions() {
+        return config.getConsumePartitions();
     }
 }

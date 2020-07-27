@@ -66,7 +66,9 @@ public class KafkaFetcherProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         handlerRegister = new KafkaFetcherHandlerRegister(config);
-        processContext = new MeterProcessContext(MeterConfigs.loadConfig(config.getConfigPath()), getManager());
+        if (config.isEnableMeterSystem()) {
+            processContext = new MeterProcessContext(MeterConfigs.loadConfig(config.getConfigPath()), getManager());
+        }
     }
 
     @Override
@@ -75,13 +77,18 @@ public class KafkaFetcherProvider extends ModuleProvider {
         handlerRegister.register(new ServiceManagementHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentHandler(getManager(), config));
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
-        handlerRegister.register(new MeterServiceHandler(processContext, config));
+
+        if (config.isEnableMeterSystem()) {
+            handlerRegister.register(new MeterServiceHandler(processContext, config));
+        }
         handlerRegister.start();
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-        processContext.initMeters();
+        if (config.isEnableMeterSystem()) {
+            processContext.initMeters();
+        }
     }
 
     @Override

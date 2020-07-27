@@ -33,12 +33,12 @@ public class KafkaProfileE2E extends ProfileE2E {
     @SuppressWarnings("unused")
     @DockerCompose({
         "docker/kafka/docker-compose.yml",
-        "docker/kafka/docker-compose.profiling.yml"
+        "docker/kafka/docker-compose.base.yml"
     })
     protected DockerComposeContainer<?> compose;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider_kafka", port = 9090)
-    private HostAndPort serviceHostPort;
+    protected HostAndPort serviceHostPort;
 
 }

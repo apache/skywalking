@@ -20,12 +20,14 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
 import com.google.common.collect.Lists;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.provider.jvm.JVMSourceDispatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -81,12 +83,7 @@ public class JVMMetricsHandler implements KafkaHandler {
     }
 
     @Override
-    public List<TopicPartition> getTopicPartitions() {
-        String[] partitions = config.getConsumePartitions().split("\\s*,\\s*");
-        List<TopicPartition> topicPartitions = Lists.newArrayList();
-        for (final String partition : partitions) {
-            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
-        }
-        return topicPartitions;
+    public String getConsumePartitions() {
+        return config.getConsumePartitions();
     }
 }

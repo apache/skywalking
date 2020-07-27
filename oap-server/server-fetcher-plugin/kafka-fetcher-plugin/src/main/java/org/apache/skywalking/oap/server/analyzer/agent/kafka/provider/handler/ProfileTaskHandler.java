@@ -18,19 +18,16 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.common.collect.Lists;
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 
 /**
  *
@@ -76,12 +73,7 @@ public class ProfileTaskHandler implements KafkaHandler {
     }
 
     @Override
-    public List<TopicPartition> getTopicPartitions() {
-        String[] partitions = config.getConsumePartitions().split("\\s*,\\s*");
-        List<TopicPartition> topicPartitions = Lists.newArrayList();
-        for (final String partition : partitions) {
-            topicPartitions.add(new TopicPartition(getTopic(), Integer.parseInt(partition)));
-        }
-        return topicPartitions;
+    public String getConsumePartitions() {
+        return config.getConsumePartitions();
     }
 }
