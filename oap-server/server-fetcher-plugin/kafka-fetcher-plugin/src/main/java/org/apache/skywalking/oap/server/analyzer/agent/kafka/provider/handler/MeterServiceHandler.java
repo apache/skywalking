@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
@@ -32,7 +31,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterPro
  * A handler deserializes the message of meter system data and pushes it to downstream.
  */
 @Slf4j
-public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServiceImplBase implements KafkaHandler {
+public class MeterServiceHandler implements KafkaHandler {
     private KafkaFetcherConfig config;
     private MeterProcessContext processContext;
 
