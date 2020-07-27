@@ -187,10 +187,10 @@ RabbitMQ:
   languages: Java
 rabbitmq-producer:
   id: 52
-  languages: Java
+  languages: Java,Python
 rabbitmq-consumer:
   id: 53
-  languages: Java
+  languages: Java,Python
 Canal:
   id: 54
   languages: Java
