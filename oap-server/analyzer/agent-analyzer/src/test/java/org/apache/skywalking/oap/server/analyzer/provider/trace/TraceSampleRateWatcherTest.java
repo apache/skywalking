@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider;
+package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
@@ -31,25 +31,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
-import java.util.Set;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TraceSampleRateWatcherTest {
-    private AnalyzerModuleProvider analyzerModuleProvider;
+    private AnalyzerModuleProvider provider;
     private AnalyzerModuleConfig config;
 
     @Before
     public void init() {
-        analyzerModuleProvider = new AnalyzerModuleProvider();
+        provider = new AnalyzerModuleProvider();
     }
 
     @Test
     public void testInit() {
-        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(analyzerModuleProvider);
+        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
     }
@@ -58,7 +55,7 @@ public class TraceSampleRateWatcherTest {
     public void testDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new MockConfigWatcherRegister(3);
 
-        TraceSampleRateWatcher watcher = new TraceSampleRateWatcher(analyzerModuleProvider);
+        TraceSampleRateWatcher watcher = new TraceSampleRateWatcher(provider);
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
@@ -66,12 +63,12 @@ public class TraceSampleRateWatcherTest {
             Thread.sleep(2000);
         }
         assertThat(watcher.getSampleRate(), is(9000));
-        assertThat(analyzerModuleProvider.getModuleConfig().getSampleRate(), is(10000));
+        assertThat(provider.getModuleConfig().getSampleRate(), is(10000));
     }
 
     @Test
     public void testNotify() {
-        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(analyzerModuleProvider);
+        TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value1);

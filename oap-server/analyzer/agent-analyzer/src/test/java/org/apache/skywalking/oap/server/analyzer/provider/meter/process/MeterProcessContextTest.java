@@ -16,20 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.receiver.meter.provider.MeterReceiverConfig;
+import java.util.List;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -38,10 +36,11 @@ import static org.mockito.Mockito.verify;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 public class MeterProcessContextTest extends MeterBaseTest {
+    private static final String CONFIG_PATH = "meter-receive-config";
 
     @Test
     public void testInitMeter() throws ModuleStartException {
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(new MeterReceiverConfig().getConfigPath());
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
         final MeterProcessContext context = new MeterProcessContext(meterConfigs, moduleManager);
 
         context.initMeters();
@@ -51,7 +50,7 @@ public class MeterProcessContextTest extends MeterBaseTest {
 
     @Test
     public void testCreateNewProcessor() throws ModuleStartException {
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(new MeterReceiverConfig().getConfigPath());
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
         final MeterProcessContext context = new MeterProcessContext(meterConfigs, moduleManager);
 
         final MeterProcessor processor = context.createProcessor();

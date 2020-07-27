@@ -73,7 +73,7 @@ public class TraceSegmentReportServletHandlerTest {
             "}";
 
         final TraceSegmentReportSingleServletHandler singleServletHandler =
-            new TraceSegmentReportSingleServletHandler(moduleManager, null, null);
+            new TraceSegmentReportSingleServletHandler(moduleManager);
 
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(singleJson)));
         final List<SegmentObject> segmentObjects = singleServletHandler.parseSegments(request);
@@ -95,7 +95,7 @@ public class TraceSegmentReportServletHandlerTest {
             "}]";
 
         final TraceSegmentReportListServletHandler singleServletHandler =
-            new TraceSegmentReportListServletHandler(moduleManager, null, null);
+            new TraceSegmentReportListServletHandler(moduleManager);
 
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(listJson)));
         final List<SegmentObject> segmentObjects = singleServletHandler.parseSegments(request);

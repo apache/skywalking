@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;

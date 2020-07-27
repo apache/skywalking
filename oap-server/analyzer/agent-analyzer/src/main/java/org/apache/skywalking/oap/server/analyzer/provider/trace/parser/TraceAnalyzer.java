@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EntryAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.ExitAnalysisListener;
@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 public class TraceAnalyzer {
     private final ModuleManager moduleManager;
     private final SegmentParserListenerManager listenerManager;
-    private final AnalyzerServiceModuleConfig config;
+    private final AnalyzerModuleConfig config;
     private List<AnalysisListener> analysisListeners = new ArrayList<>();
 
     public void doAnalysis(SegmentObject segmentObject) {

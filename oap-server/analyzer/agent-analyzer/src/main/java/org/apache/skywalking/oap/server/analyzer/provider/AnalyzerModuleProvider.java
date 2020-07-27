@@ -22,7 +22,6 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserListenerManager;
@@ -42,9 +41,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
-public class AnalyzerProvider extends ModuleProvider {
+public class AnalyzerModuleProvider extends ModuleProvider {
     @Getter
-    private final AnalyzerServiceModuleConfig moduleConfig;
+    private final AnalyzerModuleConfig moduleConfig;
     @Getter
     private DBLatencyThresholdsAndWatcher thresholds;
     @Getter
@@ -54,8 +53,8 @@ public class AnalyzerProvider extends ModuleProvider {
     @Getter
     private TraceSampleRateWatcher traceSampleRateWatcher;
 
-    public AnalyzerProvider() {
-        this.moduleConfig = new AnalyzerServiceModuleConfig();
+    public AnalyzerModuleProvider() {
+        this.moduleConfig = new AnalyzerModuleConfig();
     }
 
     @Override

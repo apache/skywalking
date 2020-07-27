@@ -42,9 +42,9 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private String groupId = "skywalking-consumer";
 
     /**
-     * It equals to PartitionId if isSharding is true.
+     * Which PartitionId(s) of the topics are consumed by the OAP server if isSharding is true.
      */
-    private Integer serverId = -1;
+    private String consumePartitions = "";
 
     /**
      * isSharding was true when OAP Server in cluster.

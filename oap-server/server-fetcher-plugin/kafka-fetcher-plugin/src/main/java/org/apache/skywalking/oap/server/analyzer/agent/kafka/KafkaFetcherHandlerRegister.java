@@ -41,6 +41,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.KafkaHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
@@ -102,7 +103,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             }
         }
 
-        if (config.isSharding() && config.getServerId() > 0) {
+        if (config.isSharding() && StringUtil.isNotEmpty(config.getConsumePartitions())) {
             isSharding = true;
         } else {
             isSharding = false;
@@ -112,7 +113,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
 
     public void register(KafkaHandler handler) {
         builder.put(handler.getTopic(), handler);
-        topicPartitions.add(handler.getTopicPartition());
+        topicPartitions.addAll(handler.getTopicPartitions());
     }
 
     public void start() {

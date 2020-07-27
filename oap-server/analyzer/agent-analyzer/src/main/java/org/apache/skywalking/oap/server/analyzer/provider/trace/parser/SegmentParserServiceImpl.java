@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 
 /**
  * The open service to the receivers.
@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.AnalyzerServiceM
 @RequiredArgsConstructor
 public class SegmentParserServiceImpl implements ISegmentParserService {
     private final ModuleManager moduleManager;
-    private final AnalyzerServiceModuleConfig config;
+    private final AnalyzerModuleConfig config;
     @Setter
     private SegmentParserListenerManager listenerManager;
 

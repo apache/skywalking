@@ -16,14 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
@@ -32,20 +36,15 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgFunction
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.meter.provider.MeterReceiverConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import java.util.HashMap;
-import java.util.List;
-
 import static org.mockito.Mockito.when;
 
 public abstract class MeterBaseTest {
+    private static final String CONFIG_PATH = "meter-receive-config";
 
     @Mock
     protected CoreModuleProvider moduleProvider;
@@ -81,7 +80,7 @@ public abstract class MeterBaseTest {
         Whitebox.setInternalState(meterSystem, "functionRegister", map);
 
         // load context
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(new MeterReceiverConfig().getConfigPath());
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
         final MeterProcessContext context = new MeterProcessContext(meterConfigs, moduleManager);
 
         // create process and read meters

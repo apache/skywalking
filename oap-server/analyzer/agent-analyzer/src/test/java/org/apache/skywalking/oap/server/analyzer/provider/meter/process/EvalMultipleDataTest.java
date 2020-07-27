@@ -16,16 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.meter.provider.process;
+package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import io.vavr.Function2;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class EvalMultipleDataTest extends EvalDataBaseTest {
 
