@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -78,7 +78,7 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
 
     @Override
     public final void calculate() {
-        List<String> keys = count.sortedKeys(Comparator.naturalOrder());
+        Set<String> keys = count.keys();
         for (String key : keys) {
             Long s = summation.get(key);
             if (Objects.isNull(s)) {
