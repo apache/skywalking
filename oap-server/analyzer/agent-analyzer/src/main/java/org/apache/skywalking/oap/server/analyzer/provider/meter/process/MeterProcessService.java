@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Management all of the meter builders.
@@ -39,7 +39,9 @@ public class MeterProcessService implements IMeterProcessService {
 
     public void start(List<MeterConfig> meterBuilders) {
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        this.meterBuilders = meterBuilders.stream().map(c -> new MeterBuilder(c, meterSystem)).collect(Collectors.toList());
+        this.meterBuilders = meterBuilders.stream()
+                                          .map(c -> new MeterBuilder(c, meterSystem))
+                                          .collect(Collectors.toList());
     }
 
     /**
