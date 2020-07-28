@@ -24,11 +24,13 @@ services:
       SW_KAFKA_FETCHER: default
       SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
       SW_KAFKA_FETCHER_PARTITIONS: 2
+      SW_KAFKA_FETCHER_PARTITIONS_FACTOR: 1
     depends_on:
       broker-a:
         condition: service_healthy
       broker-b:
         condition: service_healthy
+
   ui:
     extends:
       file: ../base-compose.yml
