@@ -51,7 +51,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
 
-    private static final String TOPIC_KEY_REGISTER = "register";
+    private static final String TOPIC_KEY_REGISTER = "register-";
 
     private ScheduledFuture<?> heartbeatFuture;
     private KafkaProducer<String, Bytes> producer;
@@ -83,7 +83,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
             new DefaultNamedThreadFactory("ServiceManagementClientKafkaProducer")
         ).scheduleAtFixedRate(new RunnableWithExceptionProtection(
             this,
-            t -> logger.error("", t)
+            t -> logger.error("unexpected exception.", t)
         ), 0, Config.Collector.HEARTBEAT_PERIOD, TimeUnit.SECONDS);
 
         InstanceProperties instance = InstanceProperties.newBuilder()
@@ -93,7 +93,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
                                                             Config.OsInfo.IPV4_LIST_SIZE))
                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                                         .build();
-        producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER, Bytes.wrap(instance.toByteArray())));
+        producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(), Bytes.wrap(instance.toByteArray())));
         producer.flush();
     }
 

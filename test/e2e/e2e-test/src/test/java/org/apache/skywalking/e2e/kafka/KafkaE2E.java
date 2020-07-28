@@ -103,27 +103,31 @@ public class KafkaE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     void services() throws Exception {
-        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+        try {
+            List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
-        LOGGER.info("services: {}", services);
+            services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
+            LOGGER.info("services: {}", services);
 
-        load("expected/simple/services.yml").as(ServicesMatcher.class).verify(services);
+            load("expected/simple/services.yml").as(ServicesMatcher.class).verify(services);
 
-        for (final Service service : services) {
-            LOGGER.info("verifying service instances: {}", service);
+            for (final Service service : services) {
+                LOGGER.info("verifying service instances: {}", service);
 
-            verifyServiceMetrics(service);
+                verifyServiceMetrics(service);
 
-            final Instances instances = verifyServiceInstances(service);
+                final Instances instances = verifyServiceInstances(service);
 
-            verifyInstancesMetrics(instances);
+                verifyInstancesMetrics(instances);
 
-            verifyInstancesJVMMetrics(instances);
+                verifyInstancesJVMMetrics(instances);
 
-            final Endpoints endpoints = verifyServiceEndpoints(service);
+                final Endpoints endpoints = verifyServiceEndpoints(service);
 
-            verifyEndpointsMetrics(endpoints);
+                verifyEndpointsMetrics(endpoints);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -31,10 +31,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 public class KafkaProfileE2E extends ProfileE2E {
 
     @SuppressWarnings("unused")
-    @DockerCompose({
-        "docker/kafka/docker-compose.yml",
-        "docker/kafka/docker-compose.base.yml"
-    })
+    @DockerCompose("docker/kafka/docker-compose.base.yml")
     protected DockerComposeContainer<?> compose;
 
     @SuppressWarnings("unused")

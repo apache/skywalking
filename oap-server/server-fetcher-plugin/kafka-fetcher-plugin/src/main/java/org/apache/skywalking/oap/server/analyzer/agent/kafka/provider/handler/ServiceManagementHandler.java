@@ -62,7 +62,7 @@ public class ServiceManagementHandler implements KafkaHandler {
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
         try {
-            if (record.key().startsWith("register")) {
+            if (record.key().startsWith("register-")) {
                 serviceReportProperties(InstanceProperties.parseFrom(record.value().get()));
             } else {
                 keepAlive(InstancePingPkg.parseFrom(record.value().get()));
