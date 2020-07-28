@@ -61,7 +61,7 @@ jobs:
       - name: Copy dist package
         run: cp -R dist test/e2e/
       - name: Kafka Profiling
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaProfilingE2E
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaProfileE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
@@ -79,7 +79,7 @@ jobs:
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
-      - name: Kafka Profiling
+      - name: Kafka Meter System
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaMeterE2E
       - uses: actions/upload-artifact@v1
         if: failure()

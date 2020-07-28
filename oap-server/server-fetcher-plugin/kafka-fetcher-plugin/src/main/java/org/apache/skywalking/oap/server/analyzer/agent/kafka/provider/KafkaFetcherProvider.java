@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandlerRegister;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
@@ -28,6 +29,7 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.Pr
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ServiceManagementHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.TraceSegmentHandler;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -39,10 +41,11 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 
 @Slf4j
 public class KafkaFetcherProvider extends ModuleProvider {
-    private KafkaFetcherConfig config;
     private KafkaFetcherHandlerRegister handlerRegister;
+    private KafkaFetcherConfig config;
 
     private MeterProcessContext processContext;
+    private List<MeterConfig> meterConfigs;
 
     public KafkaFetcherProvider() {
         config = new KafkaFetcherConfig();
@@ -67,7 +70,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         handlerRegister = new KafkaFetcherHandlerRegister(config);
         if (config.isEnableMeterSystem()) {
-            processContext = new MeterProcessContext(MeterConfigs.loadConfig(config.getConfigPath()), getManager());
+            meterConfigs = MeterConfigs.loadConfig(config.getConfigPath());
         }
     }
 
@@ -79,6 +82,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
 
         if (config.isEnableMeterSystem()) {
+            processContext = new MeterProcessContext(meterConfigs, getManager());
             handlerRegister.register(new MeterServiceHandler(processContext, config));
         }
         handlerRegister.start();
