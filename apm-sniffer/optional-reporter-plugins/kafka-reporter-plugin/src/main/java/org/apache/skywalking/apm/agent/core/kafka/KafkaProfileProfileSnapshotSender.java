@@ -40,7 +40,7 @@ public class KafkaProfileProfileSnapshotSender extends ProfileSnapshotSender {
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METER;
+        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING;
     }
 
     @Override
