@@ -24,6 +24,8 @@ services:
       SW_RECEIVER_METER: default
       SW_KAFKA_FETCHER: default
       SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
+      SW_KAFKA_FETCHER_PARTITIONS: 2
+      SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM: true
     depends_on:
       broker-a:
         condition: service_healthy

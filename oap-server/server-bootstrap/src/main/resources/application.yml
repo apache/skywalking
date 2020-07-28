@@ -224,7 +224,6 @@ kafka-fetcher:
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
 
-
 receiver-meter:
   selector: ${SW_RECEIVER_METER:-}
   default:
