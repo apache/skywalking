@@ -73,4 +73,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private int maxSlowSQLLength = 2000;
+
+    @Getter
+    private final String configPath = "meter-receive-config";
 }

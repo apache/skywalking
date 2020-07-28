@@ -28,11 +28,16 @@ import java.util.stream.Collectors;
 /**
  * Management all of the meter builders.
  */
-public class MeterProcessContext {
+public class MeterProcessService implements IMeterProcessService {
 
-    private final List<MeterBuilder> meterBuilders;
+    private List<MeterBuilder> meterBuilders;
+    private final ModuleManager manager;
 
-    public MeterProcessContext(List<MeterConfig> meterBuilders, ModuleManager manager) {
+    public MeterProcessService(ModuleManager manager) {
+        this.manager = manager;
+    }
+
+    public void start(List<MeterConfig> meterBuilders) {
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
         this.meterBuilders = meterBuilders.stream().map(c -> new MeterBuilder(c, meterSystem)).collect(Collectors.toList());
     }
@@ -54,7 +59,7 @@ public class MeterProcessContext {
     /**
      * Getting enabled builders.
      */
-    List<MeterBuilder> enabledBuilders() {
+    public List<MeterBuilder> enabledBuilders() {
         return meterBuilders.stream().filter(MeterBuilder::hasInit).collect(Collectors.toList());
     }
 

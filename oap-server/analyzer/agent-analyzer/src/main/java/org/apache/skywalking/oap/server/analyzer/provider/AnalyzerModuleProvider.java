@@ -18,8 +18,13 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
+import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
@@ -53,6 +58,10 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     @Getter
     private TraceSampleRateWatcher traceSampleRateWatcher;
 
+    private List<MeterConfig> meterConfigs;
+    @Getter
+    private MeterProcessService processService;
+
     public AnalyzerModuleProvider() {
         this.moduleConfig = new AnalyzerModuleConfig();
     }
@@ -73,7 +82,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public void prepare() throws ServiceNotProvidedException {
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         thresholds = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
 
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
@@ -86,6 +95,10 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
+
+        meterConfigs = MeterConfigs.loadConfig(moduleConfig.getConfigPath());
+        processService = new MeterProcessService(getManager());
+        this.registerServiceImplementation(IMeterProcessService.class, processService);
     }
 
     @Override
@@ -105,6 +118,8 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         dynamicConfigurationService.registerConfigChangeWatcher(traceSampleRateWatcher);
 
         segmentParserService.setListenerManager(listenerManager());
+
+        processService.start(meterConfigs);
     }
 
     @Override

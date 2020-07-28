@@ -24,8 +24,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * A handler deserializes the message of meter system data and pushes it to downstream.
@@ -33,11 +35,11 @@ import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterPro
 @Slf4j
 public class MeterServiceHandler implements KafkaHandler {
     private KafkaFetcherConfig config;
-    private MeterProcessContext processContext;
+    private IMeterProcessService processContext;
 
-    public MeterServiceHandler(MeterProcessContext processContext, KafkaFetcherConfig config) {
+    public MeterServiceHandler(ModuleManager manager, KafkaFetcherConfig config) {
         this.config = config;
-        this.processContext = processContext;
+        this.processContext = manager.find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
     }
 
     @Override

@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessContext;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 
@@ -33,15 +33,15 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 @Slf4j
 public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServiceImplBase implements GRPCHandler {
 
-    private final MeterProcessContext processContext;
+    private final IMeterProcessService processService;
 
-    public MeterServiceHandler(MeterProcessContext processContext) {
-        this.processContext = processContext;
+    public MeterServiceHandler(IMeterProcessService processService) {
+        this.processService = processService;
     }
 
     @Override
     public StreamObserver<MeterData> collect(StreamObserver<Commands> responseObserver) {
-        final MeterProcessor processor = processContext.createProcessor();
+        final MeterProcessor processor = processService.createProcessor();
         return new StreamObserver<MeterData>() {
             @Override
             public void onNext(MeterData meterData) {

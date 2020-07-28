@@ -41,19 +41,21 @@ public class MeterProcessContextTest extends MeterBaseTest {
     @Test
     public void testInitMeter() throws ModuleStartException {
         List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
-        final MeterProcessContext context = new MeterProcessContext(meterConfigs, moduleManager);
+        final MeterProcessService service = new MeterProcessService(moduleManager);
+        service.start(meterConfigs);
 
-        context.initMeters();
+        service.initMeters();
         verify(meterSystem, times(3)).create(any(), any(), any());
-        Assert.assertEquals(3, context.enabledBuilders().size());
+        Assert.assertEquals(3, service.enabledBuilders().size());
     }
 
     @Test
     public void testCreateNewProcessor() throws ModuleStartException {
         List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
-        final MeterProcessContext context = new MeterProcessContext(meterConfigs, moduleManager);
+        final MeterProcessService service = new MeterProcessService(moduleManager);
+        service.start(meterConfigs);
 
-        final MeterProcessor processor = context.createProcessor();
-        Assert.assertEquals(context, Whitebox.getInternalState(processor, "context"));
+        final MeterProcessor processor = service.createProcessor();
+        Assert.assertEquals(service, Whitebox.getInternalState(processor, "processService"));
     }
 }

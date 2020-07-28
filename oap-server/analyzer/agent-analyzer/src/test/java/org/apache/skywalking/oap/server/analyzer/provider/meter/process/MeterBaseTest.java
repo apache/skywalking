@@ -81,10 +81,11 @@ public abstract class MeterBaseTest {
 
         // load context
         List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
-        final MeterProcessContext context = new MeterProcessContext(meterConfigs, moduleManager);
+        final MeterProcessService service = new MeterProcessService(moduleManager);
+        service.start(meterConfigs);
 
         // create process and read meters
-        processor = context.createProcessor();
+        processor = service.createProcessor();
 
         timestamp = System.currentTimeMillis();
         // single value

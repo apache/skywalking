@@ -50,7 +50,8 @@ public class MeterBuilderTest extends MeterBaseTest {
             values.add(invocationOnMock.getArgumentAt(0, AcceptableValue.class));
             return null;
         }).when(meterSystem).doStreamingCalculation(any());
-        final MeterProcessContext context = (MeterProcessContext) Whitebox.getInternalState(processor, "context");
+
+        final MeterProcessService context = (MeterProcessService) Whitebox.getInternalState(processor, "processService");
         context.enabledBuilders().stream().peek(b -> doCallRealMethod().when(b).buildAndSend(any(), any()));
         context.initMeters();
 

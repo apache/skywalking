@@ -67,7 +67,7 @@ public class MeterProcessorTest extends MeterBaseTest {
     @Test
     public void testProcess() {
         // each builder has build and send
-        MeterProcessContext context = (MeterProcessContext) Whitebox.getInternalState(processor, "context");
+        MeterProcessService context = (MeterProcessService) Whitebox.getInternalState(processor, "processService");
         List<MeterBuilder> builders = context.enabledBuilders().stream().map(Mockito::spy)
             .peek(builder -> doNothing().when(builder).buildAndSend(any(), any())).collect(Collectors.toList());
         Whitebox.setInternalState(context, "meterBuilders", builders);

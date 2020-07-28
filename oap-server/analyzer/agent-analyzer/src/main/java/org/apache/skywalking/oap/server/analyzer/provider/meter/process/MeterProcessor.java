@@ -41,7 +41,7 @@ public class MeterProcessor {
     /**
      * Process context.
      */
-    private final MeterProcessContext context;
+    private final MeterProcessService processService;
 
     /**
      * All of meters has been read. Using it to process groovy script.
@@ -63,8 +63,8 @@ public class MeterProcessor {
      */
     private Long timestamp;
 
-    public MeterProcessor(MeterProcessContext context) {
-        this.context = context;
+    public MeterProcessor(MeterProcessService processService) {
+        this.processService = processService;
     }
 
     public void read(MeterData data) {
@@ -107,7 +107,7 @@ public class MeterProcessor {
         }
 
         // Get all meter builders.
-        final List<MeterBuilder> enabledBuilders = context.enabledBuilders();
+        final List<MeterBuilder> enabledBuilders = processService.enabledBuilders();
         if (CollectionUtils.isEmpty(enabledBuilders)) {
             return;
         }
