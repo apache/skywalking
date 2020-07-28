@@ -102,7 +102,7 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
 
     @Order(1)
     @RetryableTest
-    public void traces() throws Exception {
+    void traces() throws Exception {
         final ResponseEntity<String> response = sendRequest(false);
 
         LOGGER.info("response: {}", response);
@@ -120,7 +120,7 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
 
     @Order(2)
     @RetryableTest
-    public void services() throws Exception {
+    void services() throws Exception {
         final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
         LOGGER.info("services: {}", services);
@@ -138,7 +138,7 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
 
     @Test
     @Order(3)
-    public void createProfileTask() throws Exception {
+    void createProfileTask() throws Exception {
         final ProfileTaskCreationRequest creationRequest = ProfileTaskCreationRequest.builder()
                                                                                      .serviceId("ZTJlLXByb2ZpbGUtc2VydmljZQ==.1")
                                                                                      .endpointName("/profile/{name}")

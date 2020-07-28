@@ -77,6 +77,7 @@ public class KafkaE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @DockerCompose({
+        "docker/kafka/docker-compose.yml",
         "docker/kafka/docker-compose.base.yml"
     })
     protected DockerComposeContainer<?> compose;

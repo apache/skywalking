@@ -62,7 +62,7 @@ public class MeterE2E extends SkyWalkingTestAdapter {
     protected HostAndPort serviceHostPort;
 
     @BeforeAll
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         queryClient(swWebappHostPort);
 
         trafficController(serviceHostPort, "/users");
@@ -74,7 +74,7 @@ public class MeterE2E extends SkyWalkingTestAdapter {
     }
 
     @RetryableTest
-    public void meters() throws Exception {
+    void meters() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
         services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
