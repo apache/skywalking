@@ -16,16 +16,31 @@
 version: '2.1'
 
 services:
+  influxdb:
+    image: influxdb:1.7.9
+    expose:
+      - 8086
+    networks:
+      - e2e
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/8086"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
   oap:
     extends:
       file: ../base-compose.yml
       service: oap
     environment:
+      SW_STORAGRE: influxdb
       SW_KAFKA_FETCHER: default
       SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
       SW_KAFKA_FETCHER_PARTITIONS: 2
       SW_KAFKA_FETCHER_PARTITIONS_FACTOR: 1
     depends_on:
+      influxdb:
+        condition: service_healthy
       broker-a:
         condition: service_healthy
       broker-b:
