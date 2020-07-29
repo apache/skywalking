@@ -47,7 +47,7 @@ public class KafkaProducerManager implements BootService, Runnable {
         Properties properties = new Properties();
         properties.setProperty(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
-        KafkaReporterPluginConfig.Plugin.Kafka.CONSUMER_CONFIG.forEach((k, v) -> properties.setProperty(k, v));
+        KafkaReporterPluginConfig.Plugin.Kafka.PRODUCER_CONFIG.forEach((k, v) -> properties.setProperty(k, v));
 
         AdminClient adminClient = AdminClient.create(properties);
         DescribeTopicsResult topicsResult = adminClient.describeTopics(Arrays.asList(
