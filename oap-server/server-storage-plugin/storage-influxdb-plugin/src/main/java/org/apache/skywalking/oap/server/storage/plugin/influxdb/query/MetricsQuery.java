@@ -175,40 +175,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
 
-        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
-        labels.forEach(label -> {
-            MetricsValues labelValue = new MetricsValues();
-            labelValue.setLabel(label);
-
-            labeledValues.put(label, labelValue);
-        });
-
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        Map<String, DataTable> idMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(series)) {
             series.get(0).getValues().forEach(values -> {
                 final String id = (String) values.get(1);
                 DataTable multipleValues = new DataTable(5);
                 multipleValues.toObject((String) values.get(2));
-
-                labels.forEach(label -> {
-                    Long data = multipleValues.get(label);
-                    if (data == null) {
-                        data = (long) defaultValue;
-                    }
-                    final IntValues intValues = labeledValues.get(label).getValues();
-                    KVInt kv = new KVInt();
-                    kv.setId(id);
-                    kv.setValue(data);
-                    intValues.addKVInt(kv);
-                });
+                idMap.put(id, multipleValues);
             });
         }
-
-        return Util.sortValues(
-            new ArrayList<>(labeledValues.values()),
-            ids,
-            defaultValue
-        );
+        return Util.composeLabelValue(condition, labels, ids, idMap);
     }
 
     @Override

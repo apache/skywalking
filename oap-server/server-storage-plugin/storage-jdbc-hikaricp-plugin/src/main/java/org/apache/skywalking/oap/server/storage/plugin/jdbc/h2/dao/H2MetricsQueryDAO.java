@@ -162,16 +162,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         }
         sql.append(")");
 
-        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
-        labels.forEach(label -> {
-            MetricsValues labelValue = new MetricsValues();
-            labelValue.setLabel(label);
-
-            labeledValues.put(label, labelValue);
-        });
-
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-
+        Map<String, DataTable> idMap = new HashMap<>();
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection, sql.toString(), parameters.toArray(new Object[0]))) {
@@ -181,28 +172,13 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     DataTable multipleValues = new DataTable(5);
                     multipleValues.toObject(resultSet.getString(valueColumnName));
 
-                    labels.forEach(label -> {
-                        Long data = multipleValues.get(label);
-                        if (data == null) {
-                            data = (long) defaultValue;
-                        }
-                        final IntValues values = labeledValues.get(label).getValues();
-                        KVInt kv = new KVInt();
-                        kv.setId(id);
-                        kv.setValue(data);
-                        values.addKVInt(kv);
-                    });
+                   idMap.put(id, multipleValues);
                 }
             }
         } catch (SQLException e) {
             throw new IOException(e);
         }
-
-        return Util.sortValues(
-            new ArrayList<>(labeledValues.values()),
-            ids,
-            defaultValue
-        );
+        return Util.composeLabelValue(condition, labels, ids, idMap);
     }
 
     @Override

@@ -18,8 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import io.vavr.Tuple;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
@@ -27,6 +33,11 @@ import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.DAO;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Query metrics values in different ways.
@@ -75,6 +86,46 @@ public interface IMetricsQueryDAO extends DAO {
                 metricsValues.setValues(sortValues(metricsValues.getValues(), expectedOrder, defaultValue));
             }
             return origin;
+        }
+
+        /**
+         * Compose the multiple metric result based on conditions.
+         */
+        public static List<MetricsValues> composeLabelValue(final MetricsCondition condition,
+            final List<String> labels,
+            final List<String> ids,
+            final Map<String, DataTable> idMap) {
+            List<String> allLabels;
+            if (Objects.isNull(labels) || labels.size() < 1) {
+                allLabels = idMap.values().stream()
+                    .flatMap(dataTable -> dataTable.keys().stream())
+                    .distinct().collect(Collectors.toList());
+            } else {
+                allLabels = labels;
+            }
+            final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+            return allLabels.stream()
+                .flatMap(label -> ids.stream()
+                    .map(id -> Tuple.of(
+                        label,
+                        id,
+                        Optional.ofNullable(idMap.getOrDefault(id, new DataTable()).get(label)).orElse(0L))))
+                .collect(groupingBy(t -> t._1, mapping(t -> {
+                    KVInt kv = new KVInt();
+                    kv.setId(t._2);
+                    kv.setValue(t._3);
+                    return kv;
+                }, toList())))
+                .entrySet().stream()
+                .map(entry -> {
+                    MetricsValues labelValue = new MetricsValues();
+                    labelValue.setLabel(entry.getKey());
+                    IntValues values = new IntValues();
+                    entry.getValue().forEach(values::addKVInt);
+                    labelValue.setValues(sortValues(values, ids, defaultValue));
+                    return labelValue;
+                })
+                .collect(toList());
         }
     }
 }

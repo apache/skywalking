@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -92,6 +93,10 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         List<Long> values = new ArrayList<>(collect.size());
         collect.forEach(key -> values.add(data.get(key)));
         return values;
+    }
+
+    public Set<String> keys() {
+        return data.keySet();
     }
 
     public boolean hasData() {
