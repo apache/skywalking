@@ -50,9 +50,13 @@ public final class DockerComposeFile {
 
     public List<String> getServiceExposedPorts(String serviceName) {
         Map<String, Object> service = services.get(serviceName);
-        List<String> ports = (List<String>) service.get("expose");
-        if (ports == null) {
-            ports = new LinkedList<>();
+        List tmp = (List) service.get("expose");
+        if (tmp == null) {
+            return new LinkedList<>();
+        }
+        List<String> ports = new LinkedList<>();
+        for (Object item: tmp) {
+            ports.add(item.toString());
         }
         return ports;
     }
