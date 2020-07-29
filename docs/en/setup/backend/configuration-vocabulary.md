@@ -63,6 +63,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | Nacos| serviceName| Service name used for SkyWalking cluster. |SW_SERVICE_NAME|SkyWalking_OAP_Cluster|
 | - | - | hostPort| hosts and ports used of Nacos cluster.| SW_CLUSTER_NACOS_HOST_PORT|localhost:8848|
 | - | - | namespace| Namespace used by SkyWalking node coordination.| SW_CLUSTER_NACOS_NAMESPACE|public|
+| - | - | internalComHost| The hostname registered in the Nacos for the internal communication of OAP cluster.| - | -|
+| - | - | internalComPort| The port registered in the Nacos for the internal communication of OAP cluster.| - | -1|
 | storage|elasticsearch| - | ElasticSearch 6 storage implementation | - | - |
 | - | - | nameSpace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
