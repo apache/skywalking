@@ -118,7 +118,8 @@ public class PrometheusMetricConverter {
                             return true;
                         }
                         return rule._3.getLabelFilter().stream()
-                            .allMatch(matchRule -> matchRule.getOptions().contains(metric.getLabels().get(matchRule.getKey())));
+                            .allMatch(matchRule -> matchRule.getOptions().stream()
+                                .anyMatch(metric.getLabels().get(matchRule.getKey())::matches));
                     })
                     .map(rule -> Tuple.of(rule._1, rule._2, rule._3, metric))
             )

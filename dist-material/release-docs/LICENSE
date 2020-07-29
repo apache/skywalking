@@ -308,6 +308,7 @@ The text of each license is the standard Apache 2.0 license.
     kubernetes-client 8.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
+    nacos 1.3.1: https://github.com/alibaba/nacos, Apache 2.0
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
@@ -444,6 +445,7 @@ Apache 2.0 licenses
 ========================================
 echarts	4.1.0:	https://github.com/apache/incubator-echarts	Apache-2.0
 Material Icons 3.0.1 https://github.com/google/material-design-icons Apache-2.0
+groovy             3.0.3 https://github.com/apache/groovy Apache-2.0
 
 ========================================
 BSD licenses
