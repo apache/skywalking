@@ -92,6 +92,12 @@ cluster:
   # other configurations
 ```
 
+Same as Zookeeper coordinator,
+in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+The following setting are provided to set the host and port manually, based on your own LAN env.
+- internalComHost, the host registered and other oap node use this to communicate with current node.
+- internalComPort, the port registered and other oap node use this to communicate with current node.
+
 ## Nacos
 Set the **cluster/selector** to **nacos** in the yml to enable.
 
@@ -100,3 +106,9 @@ cluster:
   selector: ${SW_CLUSTER:nacos}
   # other configurations
 ```
+
+Same as Zookeeper coordinator,
+in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+The following setting are provided to set the host and port manually, based on your own LAN env.
+- internalComHost, the host registered and other oap node use this to communicate with current node.
+- internalComPort, the port registered and other oap node use this to communicate with current node.
