@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
