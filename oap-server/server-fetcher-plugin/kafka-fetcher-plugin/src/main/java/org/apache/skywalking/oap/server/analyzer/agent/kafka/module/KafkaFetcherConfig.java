@@ -59,12 +59,12 @@ public class KafkaFetcherConfig extends ModuleConfig {
     /**
      * The number of partitions for the topic being created.
      */
-    private int partitions = 1;
+    private int partitions = 3;
 
     /**
      * The replication factor for each partition in the topic being created.
      */
-    private int replicationFactor = 1;
+    private int replicationFactor = 2;
 
     private boolean enableMeterSystem = false;
 

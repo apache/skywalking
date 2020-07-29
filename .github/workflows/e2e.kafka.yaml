@@ -27,6 +27,7 @@ on:
 env:
   SKIP_TEST: true
   SW_AGENT_JDK_VERSION: 8
+  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   Kafka:
