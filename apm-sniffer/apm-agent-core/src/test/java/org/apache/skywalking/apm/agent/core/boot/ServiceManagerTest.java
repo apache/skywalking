@@ -107,7 +107,7 @@ public class ServiceManagerTest {
         assertNotNull(service);
 
         List<GRPCChannelListener> listeners = getFieldValue(service, "listeners");
-        assertEquals(listeners.size(), 6);
+        assertEquals(listeners.size(), 7);
     }
 
     private void assertSamplingService(SamplingService service) {

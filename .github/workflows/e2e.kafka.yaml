@@ -52,6 +52,8 @@ jobs:
     name: Kafka(profiling)
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      SW_STORAGE: influxdb
     steps:
       - uses: actions/checkout@v2
         with:
