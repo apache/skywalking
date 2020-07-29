@@ -33,7 +33,7 @@ services:
       file: ../base-compose.yml
       service: oap
     environment:
-      SW_STORAGRE: influxdb
+      SW_STORAGE: ${SW_STORAGE}
       SW_KAFKA_FETCHER: default
       SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
       SW_KAFKA_FETCHER_PARTITIONS: 2
