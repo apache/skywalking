@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -157,7 +156,7 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
         this.serviceId = entity.serviceId();
         this.summation.append(value);
         DataTable c = new DataTable();
-        value.sortedKeys(Comparator.naturalOrder()).forEach(key -> c.put(key, 1L));
+        value.keys().forEach(key -> c.put(key, 1L));
         this.count.append(c);
     }
 
