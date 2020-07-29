@@ -61,7 +61,9 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
 
                 if (logger.isDebugEnable()) {
                     logger.debug(
-                        "sending, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(), buffer.size());
+                        "JVM metrics reporting, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(),
+                        buffer.size()
+                    );
                 }
 
                 producer.send(new ProducerRecord<>(

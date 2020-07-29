@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.Pr
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ServiceManagementHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.TraceSegmentHandler;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -39,6 +40,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class KafkaFetcherProvider extends ModuleProvider {
     private KafkaFetcherHandlerRegister handlerRegister;
     private KafkaFetcherConfig config;
+
+    private IMeterProcessService processService;
 
     public KafkaFetcherProvider() {
         config = new KafkaFetcherConfig();
@@ -72,6 +75,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
 
         if (config.isEnableMeterSystem()) {
+            processService = getManager().find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
             handlerRegister.register(new MeterServiceHandler(getManager(), config));
         }
         handlerRegister.start();
@@ -79,7 +83,9 @@ public class KafkaFetcherProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+        if (config.isEnableMeterSystem()) {
+            processService.initMeters();
+        }
     }
 
     @Override

@@ -124,7 +124,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
-        processService.initMeters();
+
     }
 
     @Override

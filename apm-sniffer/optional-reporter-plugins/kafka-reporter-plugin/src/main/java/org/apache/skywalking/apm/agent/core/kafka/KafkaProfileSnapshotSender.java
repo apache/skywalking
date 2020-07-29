@@ -24,6 +24,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.profile.ProfileSnapshotSender;
 import org.apache.skywalking.apm.agent.core.profile.TracingThreadSnapshot;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
@@ -33,7 +35,8 @@ import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
  * to report the tracing profile snapshot data by Kafka Producer.
  */
 @OverrideImplementor(ProfileSnapshotSender.class)
-public class KafkaProfileProfileSnapshotSender extends ProfileSnapshotSender {
+public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
+    private static final ILog logger = LogManager.getLogger(ProfileSnapshotSender.class);
 
     private String topic;
     private KafkaProducer<String, Bytes> producer;
@@ -52,7 +55,17 @@ public class KafkaProfileProfileSnapshotSender extends ProfileSnapshotSender {
     public void send(final List<TracingThreadSnapshot> buffer) {
         for (TracingThreadSnapshot snapshot : buffer) {
             final ThreadSnapshot object = snapshot.transform();
-            producer.send(new ProducerRecord<>(topic, object.getTraceSegmentId(), Bytes.wrap(object.toByteArray())));
+            if (logger.isDebugEnable()) {
+                logger.debug("Thread snapshot reporting, topic: {}, taskId: {}, sequence:{}, traceId: {}",
+                             object.getTaskId(), object.getSequence(), object.getTraceSegmentId()
+                );
+            }
+
+            producer.send(new ProducerRecord<>(
+                topic,
+                object.getTaskId() + object.getSequence(),
+                Bytes.wrap(object.toByteArray())
+            ));
         }
     }
 

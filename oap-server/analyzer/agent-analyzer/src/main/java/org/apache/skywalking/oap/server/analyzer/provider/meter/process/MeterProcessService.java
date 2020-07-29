@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -32,6 +33,8 @@ public class MeterProcessService implements IMeterProcessService {
 
     private List<MeterBuilder> meterBuilders;
     private final ModuleManager manager;
+
+    private volatile boolean started = false;
 
     public MeterProcessService(ModuleManager manager) {
         this.manager = manager;
@@ -54,8 +57,11 @@ public class MeterProcessService implements IMeterProcessService {
     /**
      * Init all meters.
      */
-    public void initMeters() {
-        meterBuilders.stream().forEach(MeterBuilder::initMeter);
+    public synchronized void initMeters() {
+        if (!started) {
+            meterBuilders.stream().forEach(MeterBuilder::initMeter);
+            started = true;
+        }
     }
 
     /**

@@ -65,13 +65,13 @@ public class KafkaTraceSegmentServiceClient implements BootService, TracingConte
     @Override
     public void afterFinished(final TraceSegment traceSegment) {
         if (logger.isDebugEnable()) {
-
+            logger.debug("Trace segment reporting, traceId: {}", traceSegment.getTraceSegmentId());
         }
+
         if (traceSegment.isIgnore()) {
             logger.debug("Trace[TraceId={}] is ignored.", traceSegment.getTraceSegmentId());
             return;
         }
-
         SegmentObject upstreamSegment = traceSegment.transform();
         ProducerRecord<String, Bytes> record = new ProducerRecord<>(
             topic,

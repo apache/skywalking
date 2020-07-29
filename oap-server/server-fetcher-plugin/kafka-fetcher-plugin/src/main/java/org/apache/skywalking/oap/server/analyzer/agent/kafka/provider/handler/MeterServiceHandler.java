@@ -35,11 +35,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 @Slf4j
 public class MeterServiceHandler implements KafkaHandler {
     private KafkaFetcherConfig config;
-    private IMeterProcessService processContext;
+    private IMeterProcessService processService;
 
     public MeterServiceHandler(ModuleManager manager, KafkaFetcherConfig config) {
         this.config = config;
-        this.processContext = manager.find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
+        this.processService = manager.find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class MeterServiceHandler implements KafkaHandler {
         try {
             MeterData meterData = MeterData.parseFrom(record.value().get());
 
-            MeterProcessor processor = processContext.createProcessor();
+            MeterProcessor processor = processService.createProcessor();
             processor.read(meterData);
             processor.process();
 
