@@ -24,12 +24,14 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 import org.apache.skywalking.apm.agent.core.meter.MeterSender;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
 
 /**
  * A report to send JVM Metrics data to Kafka Broker.
@@ -52,13 +54,15 @@ public class KafkaMeterSender extends MeterSender {
     }
 
     public void send(Map<MeterId, MeterTransformer> meterMap, MeterService meterService) {
+        MeterDataCollection.Builder builder = MeterDataCollection.newBuilder();
         transform(meterMap, meterData -> {
             if (logger.isDebugEnable()) {
                 logger.debug("Meter data reporting, instance: {}", meterData.getServiceInstance());
             }
-            producer.send(
-                new ProducerRecord<>(topic, meterData.getServiceInstance(), Bytes.wrap(meterData.toByteArray())));
+            builder.addMeterData(meterData);
         });
+        producer.send(
+            new ProducerRecord<>(topic, Config.Agent.INSTANCE_NAME, Bytes.wrap(builder.build().toByteArray())));
 
         producer.flush();
     }
