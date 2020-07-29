@@ -44,6 +44,8 @@ jobs:
         run: cp -R dist test/e2e/
       - name: Kafka
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
@@ -65,6 +67,8 @@ jobs:
         run: cp -R dist test/e2e/
       - name: Kafka Profiling
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaProfileE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
@@ -84,6 +88,8 @@ jobs:
         run: cp -R dist test/e2e/
       - name: Kafka Meter System
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaMeterE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
