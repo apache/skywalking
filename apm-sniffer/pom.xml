@@ -36,6 +36,7 @@
         <module>apm-test-tools</module>
         <module>bootstrap-plugins</module>
         <module>optional-plugins</module>
+        <module>optional-reporter-plugins</module>
     </modules>
 
     <properties>

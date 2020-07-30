@@ -44,7 +44,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     private volatile Address selfAddress;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
-        ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+                         ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
         this.config = config;
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
@@ -62,11 +62,11 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
                                                                                                     .id(UUID.randomUUID()
                                                                                                             .toString())
                                                                                                     .address(remoteInstance
-                                                                                                        .getAddress()
-                                                                                                        .getHost())
+                                                                                                                 .getAddress()
+                                                                                                                 .getHost())
                                                                                                     .port(remoteInstance
-                                                                                                        .getAddress()
-                                                                                                        .getPort())
+                                                                                                              .getAddress()
+                                                                                                              .getPort())
                                                                                                     .payload(remoteInstance)
                                                                                                     .build();
 

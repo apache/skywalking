@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.meter.provider.config;
 
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.receiver.meter.provider.MeterReceiverConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,10 +29,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MeterConfigsTest {
+    private static final String CONFIG_PATH = "meter-receive-config";
 
     @Test
     public void testLoadConfig() throws ModuleStartException {
-        final List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(new MeterReceiverConfig().getConfigPath());
+        final List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
 
         Assert.assertEquals(3, meterConfigs.size());
 
