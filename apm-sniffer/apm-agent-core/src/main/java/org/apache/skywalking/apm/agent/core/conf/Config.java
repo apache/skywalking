@@ -152,6 +152,7 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
+
     }
 
     public static class Profile {

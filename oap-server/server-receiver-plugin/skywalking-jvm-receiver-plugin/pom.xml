@@ -31,6 +31,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>agent-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-sharing-server-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

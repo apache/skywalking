@@ -1,3 +1,4 @@
+
 # Choose receiver
 Receiver is a concept in SkyWalking backend. All modules, which are responsible for receiving telemetry
 or tracing data from other being monitored system, are all being called **Receiver**. If you are looking for the pull mode,
@@ -13,7 +14,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
-1. **receiver-oc**. See [details](#oc-receiver).
+1. **receiver-oc**. See [details](#opencensus-receiver).
 1. **receiver-meter**. See [details](backend-meter.md).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
@@ -25,8 +26,6 @@ receiver-register:
 receiver-trace:
   selector: ${SW_RECEIVER_TRACE:default}
   default:
-    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
-    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 
 receiver-jvm:
   selector: ${SW_RECEIVER_JVM:default}

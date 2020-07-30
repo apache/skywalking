@@ -2,9 +2,21 @@
 Meter receiver is accepting the metrics of [meter protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto) format into the [Meter System](./../../concepts-and-designs/meter.md).
 
 ## Module define
+```yaml
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
   default:
+
+```
+
+In Kafka Fetcher, we need to follow the configuration to enable it.  
+```yaml
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:default}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:true}
+```
 
 ## Configuration file
 Meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
