@@ -158,6 +158,12 @@ storage:
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 
+agent-analyzer:
+  selector: ${SW_AGENT_ANALYZER:default}
+  default:
+    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
@@ -176,8 +182,6 @@ receiver-register:
 receiver-trace:
   selector: ${SW_RECEIVER_TRACE:default}
   default:
-    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
-    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 
 receiver-jvm:
   selector: ${SW_RECEIVER_JVM:default}
@@ -210,10 +214,20 @@ prometheus-fetcher:
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:-}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
+    replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
+    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
+    consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+
 receiver-meter:
   selector: ${SW_RECEIVER_METER:-}
   default:
-
+  
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}
   default:

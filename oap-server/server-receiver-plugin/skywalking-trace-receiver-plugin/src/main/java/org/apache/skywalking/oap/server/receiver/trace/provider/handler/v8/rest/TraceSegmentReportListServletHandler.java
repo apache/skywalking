@@ -21,18 +21,15 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 /**
  * Parsing segments from list json
@@ -41,8 +38,8 @@ public class TraceSegmentReportListServletHandler extends TraceSegmentReportBase
 
     private final Gson gson = new Gson();
 
-    public TraceSegmentReportListServletHandler(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
-        super(moduleManager, listenerManager, config);
+    public TraceSegmentReportListServletHandler(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override

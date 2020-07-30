@@ -38,8 +38,9 @@
             <artifactId>vavr</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>agent-analyzer</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
