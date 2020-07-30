@@ -174,6 +174,10 @@ Now, we have the following known bootstrap plugins.
     * If you want to forward MicroMeter/Spring Sleuth metrics to Meter System, use [SkyWalking MicroMeter Register](Application-toolkit-micrometer.md).
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
 * If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
+
+## Advanced Reporters
+The advanced report provides an alternative way to submit the agent collected data to the backend. All of them are in the `optional-reporter-plugins` folder, move the one you needed into the `reporter-plugins` folder for the activation. **Notice, don't try to activate multiple reporters, that could cause unexpected fatal errors.**
+
 * Use Kafka to transport the traces, JVM metrics, instance properties, and profiled snapshots to the backend. Read the [How to enable Kafka Reporter](How-to-enable-kafka-reporter.md) for more details.
 
 ## Plugin Development Guide
