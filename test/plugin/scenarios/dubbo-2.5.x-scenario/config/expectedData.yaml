@@ -67,4 +67,4 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/dubbo-2.5.x-scenario/case/dubbo'}
       - {key: http.method, value: GET}
-      skipAnalysis: 'false2'
+      skipAnalysis: 'false'
