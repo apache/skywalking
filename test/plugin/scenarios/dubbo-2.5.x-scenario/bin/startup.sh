@@ -16,9 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-home="$(
-  cd "$(dirname $0)"
-  pwd
-)"
+home="$(cd "$(dirname $0)"; pwd)"
 
 java -jar ${agent_opts} ${home}/../libs/dubbo-2.5.x-scenario.jar &
