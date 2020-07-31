@@ -78,6 +78,7 @@ public class AlarmQueryEs7DAO extends EsDAO implements IAlarmQueryDAO {
             message.setStartTime(alarmRecord.getStartTime());
             message.setScope(Scope.Finder.valueOf(alarmRecord.getScope()));
             message.setScopeId(alarmRecord.getScope());
+            message.setLabels(alarmRecord.getLabels());
             alarms.getMsgs().add(message);
         }
         return alarms;

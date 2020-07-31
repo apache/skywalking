@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import com.google.gson.Gson;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
@@ -32,11 +34,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
 
     private JDBCHikariCPClient client;
+
+    private static final Gson GSON = new Gson();
 
     public MySQLAlarmQueryDAO(JDBCHikariCPClient client) {
         this.client = client;
@@ -86,6 +91,10 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
                     message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
                     message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
+                    final String labelsString = resultSet.getString(AlarmRecord.LABELS);
+                    if (StringUtil.isNotEmpty(labelsString)) {
+                        message.setLabels(GSON.fromJson(labelsString, Map.class));
+                    }
 
                     alarms.getMsgs().add(message);
                 }

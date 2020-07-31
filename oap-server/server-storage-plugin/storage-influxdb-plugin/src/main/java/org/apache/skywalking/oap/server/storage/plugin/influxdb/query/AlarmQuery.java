@@ -20,8 +20,12 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
@@ -44,6 +48,8 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 public class AlarmQuery implements IAlarmQueryDAO {
     private final InfluxClient client;
 
+    private static final Gson GSON = new Gson();
+
     public AlarmQuery(InfluxClient client) {
         this.client = client;
     }
@@ -57,6 +63,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
             .column(AlarmRecord.ID0)
             .column(AlarmRecord.ALARM_MESSAGE)
             .column(AlarmRecord.SCOPE)
+            .column(AlarmRecord.LABELS)
             .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
             .where();
         if (startTB > 0 && endTB > 0) {
@@ -108,6 +115,10 @@ public class AlarmQuery implements IAlarmQueryDAO {
                   message.setMessage((String) values.get(3));
                   message.setScope(scope);
                   message.setScopeId(sid);
+                  final String labelsString = (String) values.get(5);
+                  if (StringUtil.isNotEmpty(labelsString)) {
+                    message.setLabels(GSON.fromJson(labelsString, Map.class));
+                  }
 
                   alarms.getMsgs().add(message);
               });

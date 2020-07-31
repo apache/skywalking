@@ -22,6 +22,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
+import java.util.Map;
+
 @Getter
 @Setter
 public class AlarmMessage {
@@ -30,4 +32,5 @@ public class AlarmMessage {
     private String id;
     private String message;
     private Long startTime;
+    private Map<String, String> labels;
 }
