@@ -68,7 +68,6 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         final String host = requestURL.getHost();
         final int port = requestURL.getPort();
 
-        boolean needCollectAddress;
         boolean needCollectArguments;
         int argumentsLengthThreshold;
         if (isConsumer) {
@@ -84,7 +83,6 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
                     invocation.getAttachments().remove(next.getHeadKey());
                 }
             }
-            needCollectAddress = DubboPluginConfig.Plugin.Dubbo.COLLECT_CONSUMER_ADDRESS;
             needCollectArguments = DubboPluginConfig.Plugin.Dubbo.COLLECT_CONSUMER_ARGUMENTS;
             argumentsLengthThreshold = DubboPluginConfig.Plugin.Dubbo.CONSUMER_ARGUMENTS_LENGTH_THRESHOLD;
         } else {
@@ -96,13 +94,12 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             }
 
             span = ContextManager.createEntrySpan(generateOperationName(requestURL, invocation), contextCarrier);
-            needCollectAddress = DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_ADDRESS;
+            collectAddress(DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_ADDRESS, span, rpcContext);
             needCollectArguments = DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_ARGUMENTS;
             argumentsLengthThreshold = DubboPluginConfig.Plugin.Dubbo.PROVIDER_ARGUMENTS_LENGTH_THRESHOLD;
         }
 
         Tags.URL.set(span, generateRequestURL(requestURL, invocation));
-        collectAddress(needCollectAddress, span, rpcContext);
         collectArguments(needCollectArguments, argumentsLengthThreshold, span, invocation);
         span.setComponent(ComponentsDefine.DUBBO);
         SpanLayer.asRPCFramework(span);

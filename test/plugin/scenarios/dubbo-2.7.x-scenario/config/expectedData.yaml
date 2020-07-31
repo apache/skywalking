@@ -55,8 +55,6 @@ segmentItems:
             peer: localhost:20080
             tags:
               - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)'}
-              - {key: remote_address, value: not null}
-              - {key: local_address, value: not null}
               - {key: arguments, value: helloWorld}
             skipAnalysis: 'false'
           - operationName: /dubbo-2.7.x-scenario/case/dubbo

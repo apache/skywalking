@@ -27,8 +27,6 @@ public class DubboPluginConfig {
         @PluginConfig(root = DubboPluginConfig.class)
         public static class Dubbo {
 
-            public static boolean COLLECT_CONSUMER_ADDRESS = false;
-
             public static boolean COLLECT_CONSUMER_ARGUMENTS = false;
 
             public static int CONSUMER_ARGUMENTS_LENGTH_THRESHOLD = 256;
