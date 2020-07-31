@@ -22,7 +22,7 @@ set WEBAPP_HOME=%~dp0%..
 set JARPATH=%WEBAPP_HOME%\webapp
 set WEBAPP_LOG_DIR=%WEBAPP_HOME%\logs
 
-if exist "%WEBAPP_LOG_DIR%" (
+if not exist "%WEBAPP_LOG_DIR%" (
     mkdir "%WEBAPP_LOG_DIR%"
 )
 
