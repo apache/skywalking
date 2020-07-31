@@ -195,7 +195,14 @@ public class InfluxClient implements Client {
     /**
      * Convert to InfluxDB {@link TimeInterval}.
      */
-    public static TimeInterval timeInterval(long timeBucket) {
+    public static TimeInterval timeIntervalTS(long timestamp) {
+        return ti(timestamp, "ms");
+    }
+
+    /**
+     * Convert to InfluxDB {@link TimeInterval}.
+     */
+    public static TimeInterval timeIntervalTB(long timeBucket) {
         return ti(TimeBucket.getTimestamp(timeBucket), "ms");
     }
 }
