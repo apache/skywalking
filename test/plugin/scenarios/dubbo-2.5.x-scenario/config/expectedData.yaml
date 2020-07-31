@@ -43,7 +43,7 @@
        operationId: 0
        parentSpanId: 0
        spanId: 1
-       spanLayer: not null
+       spanLayer: RPCFramework
        startTime: nq 0
        endTime: nq 0
        componentId: 3
