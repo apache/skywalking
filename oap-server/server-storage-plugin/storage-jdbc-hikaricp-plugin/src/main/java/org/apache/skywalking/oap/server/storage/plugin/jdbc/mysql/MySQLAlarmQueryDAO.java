@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.elasticsearch.common.Strings;
 
 import java.io.IOException;
@@ -47,23 +48,30 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
         long endTB) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
-        sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
-        sql.append(" 1=1 ");
+        sql.append("from ").append(AlarmRecord.INDEX_NAME);
+
+        StringBuilder whereSql = new StringBuilder();
+        String and = " and ";
         if (Objects.nonNull(scopeId)) {
-            sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
-            parameters.add(scopeId.intValue());
+            whereSql.append(and).append(AlarmRecord.SCOPE).append(" = ?");
+            parameters.add(scopeId);
         }
         if (startTB != 0 && endTB != 0) {
-            sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
+            whereSql.append(and).append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
-            sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
+            whereSql.append(and).append(AlarmRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endTB);
         }
 
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like concat('%',?,'%') ");
+            whereSql.append(and).append(AlarmRecord.ALARM_MESSAGE).append(" like concat('%',?,'%') ");
             parameters.add(keyword);
         }
+        if (CollectionUtils.isNotEmpty(parameters)) {
+            whereSql.delete(1, and.length() + 1);
+            sql.append(" where ").append(whereSql);
+        }
+
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
 
         Alarms alarms = new Alarms();
