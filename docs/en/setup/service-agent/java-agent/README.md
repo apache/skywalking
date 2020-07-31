@@ -135,7 +135,7 @@ property key | Description | Default |
 `correlation.element_max_number`|Max element count of the correlation context.|`3`|
 `correlation.value_max_length`|Max value length of correlation context element.|`128`|
 `plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
-`plugin.kafka.consumer_config`| Kafka producer configuration. |
+`plugin.kafka.producer_config`| Kafka producer configuration. | |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
