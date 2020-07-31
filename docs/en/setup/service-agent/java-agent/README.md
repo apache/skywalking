@@ -135,7 +135,13 @@ property key | Description | Default |
 `correlation.element_max_number`|Max element count of the correlation context.|`3`|
 `correlation.value_max_length`|Max value length of correlation context element.|`128`|
 `plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
-`plugin.kafka.consumer_config`| Kafka producer configuration. |
+`plugin.kafka.consumer_config`| Kafka producer configuration. ||
+`plugin.dubbo.collect_consumer_address`| Dubbo consumer collect `remote_address` and `local_address` in RPC call. |`false`| 
+`plugin.dubbo.collect_consumer_arguments`| Dubbo consumer collect `arguments` in RPC call. |`false`| 
+`plugin.dubbo.consumer_arguments_length_threshold`| When `plugin.dubbo.collect_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
+`plugin.dubbo.collect_provider_address`| Dubbo provider collect `remote_address` and `local_address` in RPC call. |`false`| 
+`plugin.dubbo.collect_provider_arguments`| Dubbo provider collect `arguments` in RPC call. |`false`| 
+`plugin.dubbo.consumer_provider_length_threshold`| When `plugin.dubbo.provider_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.

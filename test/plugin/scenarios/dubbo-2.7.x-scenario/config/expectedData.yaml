@@ -19,7 +19,7 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
-    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
+    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -32,6 +32,9 @@ segmentItems:
       peer: ''
       tags:
       - {key: url, value: not null}
+      - {key: remote_address, value: not null}
+      - {key: local_address, value: not null}
+      - {key: arguments, value: helloWorld}
       refs:
       - {parentEndpoint: /dubbo-2.7.x-scenario/case/dubbo, networkAddress: 'localhost:20080',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
@@ -39,7 +42,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
+    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)
       operationId: 0
       parentSpanId: 0
       spanId: 1
@@ -51,7 +54,10 @@ segmentItems:
       spanType: Exit
       peer: localhost:20080
       tags:
-      - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()'}
+      - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)'}
+      - {key: remote_address, value: not null}
+      - {key: local_address, value: not null}
+      - {key: arguments, value: helloWorld}
       skipAnalysis: 'false'
     - operationName: /dubbo-2.7.x-scenario/case/dubbo
       operationId: 0
