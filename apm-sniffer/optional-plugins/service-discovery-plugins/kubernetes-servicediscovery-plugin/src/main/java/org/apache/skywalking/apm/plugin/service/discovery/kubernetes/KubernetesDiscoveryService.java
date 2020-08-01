@@ -28,14 +28,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.boot.Address;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.discovery.DefaultDiscoveryService;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscovery.Kubernetes.PORT_NAME;
+import static org.apache.skywalking.apm.plugin.service.discovery.kubernetes.KubernetesServiceDiscoveryPluginConfig.Plugin.KubernetesService.LABEL_SELECTOR;
+import static org.apache.skywalking.apm.plugin.service.discovery.kubernetes.KubernetesServiceDiscoveryPluginConfig.Plugin.KubernetesService.NAMESPACE;
+import static org.apache.skywalking.apm.plugin.service.discovery.kubernetes.KubernetesServiceDiscoveryPluginConfig.Plugin.KubernetesService.PORT_NAME;
 
 @OverrideImplementor(DefaultDiscoveryService.class)
 public class KubernetesDiscoveryService extends DefaultDiscoveryService {
@@ -46,10 +47,8 @@ public class KubernetesDiscoveryService extends DefaultDiscoveryService {
 
     @Override
     public void prepare() throws Throwable {
-        String namespace = Config.Collector.ServiceDiscovery.Kubernetes.NAMESPACE;
-        String labelSelector = Config.Collector.ServiceDiscovery.Kubernetes.LABEL_SELECTOR;
-        if (StringUtil.isEmpty(namespace) || StringUtil.isEmpty(labelSelector)) {
-            throw new PluginException("namespace and labelSelector is required in kubernetes service discovery plugin");
+        if (StringUtil.isEmpty(NAMESPACE) || StringUtil.isEmpty(LABEL_SELECTOR) || StringUtil.isEmpty(PORT_NAME)) {
+            throw new PluginException("namespace,labelSelector or portName is required in kubernetes service discovery plugin");
         }
         informer = new NamespacedEndpointsListInformer();
         informer.boot();
@@ -77,18 +76,14 @@ public class KubernetesDiscoveryService extends DefaultDiscoveryService {
             LOG.warn("cannot get addresses from the subset of kubernetes endpoints");
             return Collections.emptyList();
         }
-
         Optional<Integer> port = ports.stream()
                                       .filter(item -> Objects.nonNull(item.getName()))
                                       .filter(item -> item.getName().equalsIgnoreCase(PORT_NAME))
                                       .map(V1EndpointPort::getPort)
                                       .filter(Objects::nonNull)
                                       .findFirst();
-        return port.map(integer -> addresses.stream()
-                                            .map(item -> new Address(item.getIp(), integer))
-                                            .collect(Collectors.toList()))
+        return port.map(p -> addresses.stream().map(item -> new Address(item.getIp(), p)).collect(Collectors.toList()))
                    .orElseGet(Collections::emptyList);
-
     }
 
 }

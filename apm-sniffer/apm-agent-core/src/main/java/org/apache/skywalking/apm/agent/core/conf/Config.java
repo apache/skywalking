@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ClassCacheMode;
 import org.apache.skywalking.apm.util.Length;
 
-
 /**
  * This is the core config in sniffer agent.
  */

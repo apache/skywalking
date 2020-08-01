@@ -31,14 +31,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscovery.Kubernetes.LABEL_SELECTOR;
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscovery.Kubernetes.NAMESPACE;
+import static org.apache.skywalking.apm.plugin.service.discovery.kubernetes.KubernetesServiceDiscoveryPluginConfig.Plugin.KubernetesService.LABEL_SELECTOR;
+import static org.apache.skywalking.apm.plugin.service.discovery.kubernetes.KubernetesServiceDiscoveryPluginConfig.Plugin.KubernetesService.NAMESPACE;
 
 public class NamespacedEndpointsListInformer {
 
@@ -48,12 +47,6 @@ public class NamespacedEndpointsListInformer {
 
     private SharedInformerFactory factory;
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
-        Thread thread = new Thread(r, "SKYWALKING_KUBERNETES_SERVICE_DISCOVERY_INFORMER");
-        thread.setDaemon(true);
-        return thread;
-    });
-
     void boot() {
         try {
             doStartPodInformer(NAMESPACE, LABEL_SELECTOR);
@@ -62,13 +55,25 @@ public class NamespacedEndpointsListInformer {
         }
     }
 
-    private void doStartPodInformer(final String namespace, final String labelSelector) throws IOException {
+    void shutdown() {
+        factory.stopAllRegisteredInformers();
+    }
 
+    Optional<V1EndpointSubset> getV1EndpointSubset() {
+        List<V1Endpoints> endpointsList = endpointsLister.list();
+        List<V1EndpointSubset> subsets = endpointsList.size() == 1 ? endpointsList.get(0).getSubsets() : null;
+        return Objects.nonNull(subsets) && subsets.size() == 1 ? Optional.of(subsets.get(0)) : Optional.empty();
+    }
+
+    private void doStartPodInformer(final String namespace, final String labelSelector) throws IOException {
         ApiClient apiClient = Config.defaultClient();
         apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
         CoreV1Api coreV1Api = new CoreV1Api(apiClient);
-        factory = new SharedInformerFactory(executorService);
-
+        factory = new SharedInformerFactory(Executors.newCachedThreadPool(r -> {
+            Thread thread = new Thread(r);
+            thread.setName("KUBERNETES SERVICE DISCOVERY THREAD");
+            return thread;
+        }));
         SharedIndexInformer<V1Endpoints> endpointsSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedEndpointsCall(
                 namespace, null, null, null, null,
@@ -79,27 +84,5 @@ public class NamespacedEndpointsListInformer {
         );
         factory.startAllRegisteredInformers();
         endpointsLister = new Lister<>(endpointsSharedIndexInformer.getIndexer());
-
-    }
-
-    Optional<V1EndpointSubset> getV1EndpointSubset() {
-        List<V1Endpoints> endpointsList = endpointsLister.list();
-
-        V1Endpoints v1Endpoints = endpointsList.size() == 1 ? endpointsList.get(0) : null;
-
-        return Optional.ofNullable(getV1EndpointSubset(v1Endpoints));
-
-    }
-
-    private V1EndpointSubset getV1EndpointSubset(final V1Endpoints v1Endpoints) {
-        if (v1Endpoints == null) {
-            return null;
-        }
-        List<V1EndpointSubset> subsets = v1Endpoints.getSubsets();
-        return Objects.nonNull(subsets) && subsets.size() == 1 ? subsets.get(0) : null;
-    }
-
-    void shutdown() {
-        factory.stopAllRegisteredInformers();
     }
 }

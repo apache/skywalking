@@ -22,16 +22,13 @@
     <parent>
         <artifactId>service-discovery-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>kubernetes-servicediscovery-plugin</artifactId>
     <properties>
         <kubernetes.version>8.0.0</kubernetes.version>
     </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>io.kubernetes</groupId>
@@ -39,8 +36,6 @@
             <version>${kubernetes.version}</version>
         </dependency>
     </dependencies>
-
-
     <build>
         <plugins>
             <plugin>
@@ -53,20 +48,14 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-
+                            <minimizeJar>true</minimizeJar>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google.gson</pattern>
+                                    <shadedPattern>shaded.com.google.gson</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
-                                <filter>
-                                    <artifact>spark-streaming-twitter_2.10:spark-streaming-twitter_2.10</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </filter>
-                                <filter>
-                                    <artifact>twitter4j-stream:twitter4j-stream</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
@@ -80,9 +69,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
-
 </project>

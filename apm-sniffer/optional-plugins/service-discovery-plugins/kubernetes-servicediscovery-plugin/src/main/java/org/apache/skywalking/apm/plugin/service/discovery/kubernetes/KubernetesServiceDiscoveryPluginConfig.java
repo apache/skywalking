@@ -16,19 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.boot;
+package org.apache.skywalking.apm.plugin.service.discovery.kubernetes;
 
-import java.util.List;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-/**
- * declare service discovery interface
- */
-public interface DiscoveryService extends BootService {
-    /**
-     * query remote oap receiver addresses
-     *
-     * @return receiver addresses
-     */
-    List<Address> queryRemoteAddresses();
-
+public class KubernetesServiceDiscoveryPluginConfig {
+    public static class Plugin {
+        @PluginConfig(root = KubernetesServiceDiscoveryPluginConfig.class)
+        public static class KubernetesService {
+            /**
+             * which namespace is the receiver running
+             */
+            public static String NAMESPACE = "default";
+            /**
+             * oap receiver kubernetes service label selector
+             */
+            public static String LABEL_SELECTOR = "";
+            /**
+             * oap receiver grpc port name define in kubernetes service
+             */
+            public static String PORT_NAME = "";
+        }
+    }
 }

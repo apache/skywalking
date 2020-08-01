@@ -37,7 +37,6 @@ public class DefaultDiscoveryService implements DiscoveryService {
     @Override
     public void prepare() throws Throwable {
         String backendService = Config.Collector.BACKEND_SERVICE;
-
         if (backendService.trim().length() == 0) {
             throw new PluginException("static backendService config is required in static service discovery plugin");
         }
@@ -45,22 +44,18 @@ public class DefaultDiscoveryService implements DiscoveryService {
             String[] remotes = item.split(":");
             return new Address(remotes[0], Integer.parseInt(remotes[1]));
         }).collect(Collectors.toList());
-
     }
 
     @Override
     public void boot() throws Throwable {
-
     }
 
     @Override
     public void onComplete() throws Throwable {
-
     }
 
     @Override
     public void shutdown() throws Throwable {
-
     }
 
     @Override

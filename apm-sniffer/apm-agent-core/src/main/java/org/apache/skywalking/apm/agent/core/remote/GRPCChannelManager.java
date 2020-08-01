@@ -49,7 +49,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private volatile boolean reconnect = true;
     private final Random random = new Random();
     private final List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<>());
-    private volatile int selectedIdx = -1;
+    private volatile Address selectedAddress = null;
     private volatile int reconnectCount = 0;
 
     @Override
@@ -90,18 +90,13 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void run() {
         logger.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
-            List<Address> grpcServers = ServiceManager.INSTANCE.findService(DefaultDiscoveryService.class)
-                                                               .queryRemoteAddresses();
+            List<Address> grpcServers = ServiceManager.INSTANCE.findService(DefaultDiscoveryService.class).queryRemoteAddresses();
             logger.info("running server addresses:{}", Joiner.on(",").join(grpcServers));
             if (grpcServers.size() > 0) {
-                Address server = null;
+                Address server = selectAddress(grpcServers);
                 try {
-                    int index = Math.abs(random.nextInt()) % grpcServers.size();
-                    if (index != selectedIdx) {
-                        selectedIdx = index;
-
-                        server = grpcServers.get(index);
-
+                    if (selectedAddress == null || !selectedAddress.equals(server)) {
+                        selectedAddress = server;
                         if (managedChannel != null) {
                             managedChannel.shutdownNow();
                         }
@@ -135,6 +130,11 @@ public class GRPCChannelManager implements BootService, Runnable {
                 Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL
             );
         }
+    }
+
+    private Address selectAddress(List<Address> grpcServers) {
+        int index = Math.abs(random.nextInt()) % grpcServers.size();
+        return grpcServers.get(index);
     }
 
     public void addChannelListener(GRPCChannelListener listener) {

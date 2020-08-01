@@ -184,10 +184,6 @@ public class SnifferConfigInitializer {
                 AGENT_SETTINGS.put(realKey, prop.getValue());
             }
         }
-
-        if (!properties.isEmpty()) {
-            ConfigInitializer.initialize(properties, Config.class);
-        }
     }
 
     /**
