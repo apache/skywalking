@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mariadb.v2;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -26,11 +26,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-
-import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.jdbc.mariadb.v2.Constants.SQL_PARAMETERS;
 
@@ -45,13 +44,13 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             return;
         }
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject
-                .getStatementName()), connectInfo.getDatabasePeer());
+            .getStatementName()), connectInfo.getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
         Tags.DB_STATEMENT.set(span, cacheObject.getSql());
         span.setComponent(connectInfo.getComponent());
 
-        if (Config.Plugin.MARIADB.TRACE_SQL_PARAMETERS) {
+        if (JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS) {
             final Object[] parameters = cacheObject.getParameters();
             if (parameters != null && parameters.length > 0) {
                 int maxIndex = cacheObject.getMaxIndex();
@@ -87,9 +86,9 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String getParameterString(Object[] parameters, int maxIndex) {
         return new PreparedStatementParameterBuilder()
-                .setParameters(parameters)
-                .setMaxIndex(maxIndex)
-                .setMaxLength(Config.Plugin.MARIADB.SQL_PARAMETERS_MAX_LENGTH)
-                .build();
+            .setParameters(parameters)
+            .setMaxIndex(maxIndex)
+            .setMaxLength(JDBCPluginConfig.Plugin.MARIADB.SQL_PARAMETERS_MAX_LENGTH)
+            .build();
     }
 }

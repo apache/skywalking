@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.metric.promethues.operation;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -41,4 +42,6 @@ public class MetricSource {
     private final String range;
 
     private final int scale;
+
+    private final List<String> groupBy;
 }

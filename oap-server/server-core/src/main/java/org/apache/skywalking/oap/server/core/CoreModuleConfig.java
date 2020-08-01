@@ -30,8 +30,13 @@ public class CoreModuleConfig extends ModuleConfig {
     private String nameSpace;
     private String restHost;
     private int restPort;
-    private int jettySelectors = 1;
     private String restContextPath;
+    private int restMinThreads = 1;
+    private int restMaxThreads = 200;
+    private long restIdleTimeOut = 30000;
+    private int restAcceptorPriorityDelta = 0;
+    private int restAcceptQueueSize = 0;
+
     private String gRPCHost;
     private int gRPCPort;
     private boolean gRPCSslEnabled = false;

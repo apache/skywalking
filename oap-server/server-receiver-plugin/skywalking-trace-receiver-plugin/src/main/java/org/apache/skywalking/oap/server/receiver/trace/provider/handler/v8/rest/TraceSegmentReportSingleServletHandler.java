@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -35,8 +33,8 @@ import java.util.List;
  */
 public class TraceSegmentReportSingleServletHandler extends TraceSegmentReportBaseServletHandler {
 
-    public TraceSegmentReportSingleServletHandler(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
-        super(moduleManager, listenerManager, config);
+    public TraceSegmentReportSingleServletHandler(ModuleManager moduleManager) {
+        super(moduleManager);
     }
 
     @Override

@@ -28,6 +28,7 @@ public class PrometheusMetric {
     private CounterFunction counterFunction;
     private String range;
     private List<LabelMatchRule> labelFilter;
+    private List<String> groupBy;
     private Relabel relabel;
     private int scale = 0;
 }

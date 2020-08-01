@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,6 +29,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>server-core</module>
+        <module>analyzer</module>
         <module>server-receiver-plugin</module>
         <module>server-cluster-plugin</module>
         <module>server-storage-plugin</module>
@@ -79,6 +80,7 @@
         <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.4.0</apollo.version>
+        <nacos.version>1.3.1</nacos.version>
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
         <curator.version>4.0.1</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
@@ -90,10 +92,12 @@
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
         <vavr.version>0.10.3</vavr.version>
+        <groovy.version>3.0.3</groovy.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
-
+        <kafka-clients.version>2.4.1</kafka-clients.version>
+        <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
     <dependencies>
@@ -379,13 +383,16 @@
                 <artifactId>simpleclient</artifactId>
                 <version>${simpleclient.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.ctrip.framework.apollo</groupId>
                 <artifactId>apollo-client</artifactId>
                 <version>${apollo.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.mousio</groupId>
                 <artifactId>etcd4j</artifactId>
@@ -506,6 +513,11 @@
                 <groupId>io.vavr</groupId>
                 <artifactId>vavr</artifactId>
                 <version>${vavr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
