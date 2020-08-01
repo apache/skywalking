@@ -69,7 +69,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
                                                           .getService(MetricsCreator.class);
         aggregationCounter = metricsCreator.createCounter(
             "metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "min")
+            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "minute")
         );
     }
 

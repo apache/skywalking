@@ -7,7 +7,7 @@ From here you can learn all about **SkyWalking**’s architecture, how to deploy
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). You'll find the the most important core ideas about SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 
-- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course.
+- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways of the observability.
 
 - [UI Introduction](en/ui/README.md). Introduce the UI usage and features. 
 
@@ -56,12 +56,13 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
 * [Setup](en/setup/README.md).
   * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
+    * All available [agents](en/setup/README.md#language-agents-in-service) for different languages.
     * [Java agent](en/setup/service-agent/java-agent/README.md). Introduces how to install the java agent to your service, without changing any code.
       * [Supported middleware, framework and library](en/setup/service-agent/java-agent/Supported-list.md).
       * [Agent Configuration Properties](en/setup/service-agent/java-agent/README.md#table-of-agent-configuration-properties).
       * [Optional plugins](en/setup/service-agent/java-agent/README.md#optional-plugins).
       * [Bootstrap/JVM class plugin](en/setup/service-agent/java-agent/README.md#bootstrap-class-plugins).
-      * [Advanced features](en/setup/service-agent/java-agent/README.md#advanced-features).
+      * [Advanced reporters](en/setup/service-agent/java-agent/README.md#advanced-reporters).
       * [Plugin development guide](en/setup/service-agent/java-agent/README.md#plugin-development-guide).
       * [Agent plugin tests and performance tests](en/setup/service-agent/java-agent/README.md#test).
     * [Other language agents](en/setup/README.md#language-agents-in-service) includes Nginx LUA, Python, .NetCore, PHP, NodeJS, Go.
@@ -70,6 +71,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
   * [Backend, UI and CLI setup document](en/setup/backend/backend-ui-setup.md).
     * [Backend setup document](en/setup/backend/backend-setup.md).
+      * [Configuration Vocabulary](en/setup/backend/configuration-vocabulary.md). Configuration Vocabulary lists all available configurations provided by `application.yml`.
       * [Overriding settings](en/setup/backend/backend-setting-override.md) in application.yml is supported.
       * [IP and port setting](en/setup/backend/backend-ip-port.md). Introduces how IP and port set can be used.
       * [Backend init mode startup](en/setup/backend/backend-init-mode.md). How to init the environment and exit graciously. Read this before you try to start a new cluster.

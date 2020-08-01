@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
+import java.net.InetSocketAddress;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -48,13 +50,10 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.TRANSPORT_CLIENT;
-import static org.junit.Assert.assertThat;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -116,7 +115,7 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         when(deleteRequest.index()).thenReturn("endpoint");
         when(deleteRequest.type()).thenReturn("deleteType");
 
-        when(deleteIndexRequest.indices()).thenReturn(new String[]{"endpoint"});
+        when(deleteIndexRequest.indices()).thenReturn(new String[] {"endpoint"});
 
         interceptor = new TransportActionNodeProxyExecuteMethodsInterceptor();
     }
@@ -153,7 +152,11 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         };
 
         objInst1.setSkyWalkingDynamicField(123);
-        Object[] allArguments = new Object[]{null, null, objInst1};
+        Object[] allArguments = new Object[] {
+            null,
+            null,
+            objInst1
+        };
 
         interceptor.onConstruct(objInst2, allArguments);
         assertThat(objInst1.getSkyWalkingDynamicField(), is(objInst2.getSkyWalkingDynamicField()));
@@ -196,7 +199,10 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
 
     private AbstractTracingSpan getSpan(ActionRequest actionRequest) throws Throwable {
         TRACE_DSL = true;
-        Object[] allArguments = new Object[]{discoveryNode, actionRequest};
+        Object[] allArguments = new Object[] {
+            discoveryNode,
+            actionRequest
+        };
 
         interceptor.beforeMethod(enhancedInstance, null, allArguments, null, null);
         interceptor.afterMethod(enhancedInstance, null, allArguments, null, null);

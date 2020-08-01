@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mariadb.v2;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -27,9 +27,10 @@ import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInterceptor;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
@@ -40,8 +41,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.lang.reflect.Method;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -73,7 +72,7 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
 
     @Before
     public void setUp() {
-        Config.Plugin.MARIADB.TRACE_SQL_PARAMETERS = true;
+        JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS = true;
         preparedStatementSetterInterceptor = new JDBCPreparedStatementSetterInterceptor();
         serviceMethodInterceptor = new PreparedStatementExecuteMethodsInterceptor();
 
@@ -88,11 +87,19 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
 
     @Test
     public void testExecutePreparedStatement() throws Throwable {
-        preparedStatementSetterInterceptor.beforeMethod(objectInstance, method, new Object[]{1, "abcd"}, null, null);
-        preparedStatementSetterInterceptor.beforeMethod(objectInstance, method, new Object[]{2, "efgh"}, null, null);
+        preparedStatementSetterInterceptor.beforeMethod(
+            objectInstance, method, new Object[] {
+                1,
+                "abcd"
+            }, null, null);
+        preparedStatementSetterInterceptor.beforeMethod(
+            objectInstance, method, new Object[] {
+                2,
+                "efgh"
+            }, null, null);
 
-        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[]{SQL}, null, null);
-        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[]{SQL}, null, null);
+        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {SQL}, null, null);
+        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {SQL}, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);

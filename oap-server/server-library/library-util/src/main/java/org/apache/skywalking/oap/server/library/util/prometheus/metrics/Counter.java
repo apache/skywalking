@@ -32,8 +32,8 @@ public class Counter extends Metric {
     private double value;
 
     @lombok.Builder
-    public Counter(String name, @Singular Map<String, String> labels, double value) {
-        super(name, labels);
+    public Counter(String name, @Singular Map<String, String> labels, double value, long timestamp) {
+        super(name, labels, timestamp);
         this.value = value;
     }
 

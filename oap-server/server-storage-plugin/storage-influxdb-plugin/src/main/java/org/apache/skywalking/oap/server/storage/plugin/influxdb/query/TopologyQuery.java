@@ -194,8 +194,8 @@ public class TopologyQuery implements ITopologyQueryDAO {
             .as(ServiceInstanceRelationClientSideMetrics.COMPONENT_ID)
             .from(measurement)
             .where()
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+            .and(gte(InfluxClient.TIME, InfluxClient.timeIntervalTB(startTB)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeIntervalTB(endTB)));
 
         if (!serviceIds.isEmpty()) {
             WhereNested whereNested = subQuery.andNested();
@@ -223,8 +223,8 @@ public class TopologyQuery implements ITopologyQueryDAO {
             .as(ServiceInstanceRelationClientSideMetrics.COMPONENT_ID)
             .from(measurement)
             .where()
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+            .and(gte(InfluxClient.TIME, InfluxClient.timeIntervalTB(startTB)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeIntervalTB(endTB)));
 
         StringBuilder builder = new StringBuilder("((");
         builder.append(sourceCName).append("='").append(sourceServiceId)

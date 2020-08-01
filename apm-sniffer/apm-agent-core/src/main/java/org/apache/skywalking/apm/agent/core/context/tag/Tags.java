@@ -83,6 +83,8 @@ public final class Tags {
         public static final StringTag PARAMS = new StringTag(11, "http.params", true);
     }
 
+    public static final StringTag LOGIC_ENDPOINT = new StringTag(12, "x-le");
+
     /**
      * Creates a {@code StringTag} with the given key and cache it, if it's created before, simply return it without
      * creating a new one.

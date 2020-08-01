@@ -11,6 +11,13 @@ SkyWalking is the first open source project introducing this ALS based solution 
 
 You need three steps to open ALS.
 1. Open envoyAccessLogService in istio by [enabling **envoyAccessLogService** in ProxyConfig](https://istio.io/docs/reference/config/istio.mesh.v1alpha1/#ProxyConfig).
+
+    Upper istio 1.6.0, if istio installed by demo profile, you can open ALS ues command:
+    ```
+    istioctl manifest apply --set profile=demo --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.skywalking.svc:11800 --set meshConfig.enableEnvoyAccessLogService=true
+    ```
+    Note:Skywalking oap service is at skywalking namespace, and the port of gRPC service is 11800
+    
 2. Open SkyWalking [envoy receiver](../backend/backend-receivers.md).
 3. Active ALS k8s-mesh analysis
 ```yaml
@@ -21,3 +28,5 @@ envoy-metric:
 Note multiple value，please use `,` symbol split
 
 Notice, only use this when envoy under Istio controlled, also in k8s env. The OAP requires the read right to k8s API server for all pods IPs.
+
+You can use `kubectl logs ${You-OAP-Pod} | grep "K8sALSServiceMeshHTTPAnalysis"` to ensure OAP ALS k8s-mesh analysis has been active.

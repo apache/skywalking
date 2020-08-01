@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.telemetry.api;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -25,6 +27,8 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * project, and plan to move to openmetrics APIs after it is ready.
  */
 public interface MetricsCreator extends Service {
+
+    String HEALTH_METRIC_PREFIX = "health_check_";
     /**
      * Create a counter type metrics instance.
      */
@@ -42,4 +46,30 @@ public interface MetricsCreator extends Service {
      */
     HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys,
         MetricsTag.Values tagValues, double... buckets);
+
+    /**
+     * Create a Health Check gauge.
+     */
+    default HealthCheckMetrics createHealthCheckerGauge(String name, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Require non-null or empty metric name");
+        return new HealthCheckMetrics(createGauge(Strings.lenientFormat("%s%s", HEALTH_METRIC_PREFIX, name),
+            Strings.lenientFormat("%s health check", name),
+            tagKeys, tagValues));
+    }
+
+    /**
+     * Find out whether it's a health check metric.
+     */
+    default boolean isHealthCheckerMetrics(String name) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Require non-null or empty metric name");
+        return name.startsWith(HEALTH_METRIC_PREFIX);
+    }
+
+    /**
+     * Extract the raw module name
+     */
+    default String extractModuleName(String metricName) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(metricName), "Require non-null or empty metric name");
+        return metricName.replace(HEALTH_METRIC_PREFIX, "");
+    }
 }

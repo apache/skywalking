@@ -27,21 +27,26 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * JDBC Client uses HikariCP connection management lib to execute SQL.
  */
-public class JDBCHikariCPClient implements Client {
+public class JDBCHikariCPClient implements Client, HealthCheckable {
     private static final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
 
+    private final HikariConfig hikariConfig;
+    private final DelegatedHealthChecker healthChecker;
     private HikariDataSource dataSource;
-    private HikariConfig hikariConfig;
 
     public JDBCHikariCPClient(Properties properties) {
         hikariConfig = new HikariConfig(properties);
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -78,7 +83,9 @@ public class JDBCHikariCPClient implements Client {
         logger.debug("execute aql: {}", sql);
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
+            healthChecker.health();
         } catch (SQLException e) {
+            healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
     }
@@ -92,6 +99,7 @@ public class JDBCHikariCPClient implements Client {
             setStatementParam(statement, params);
             result = statement.execute();
             statement.closeOnCompletion();
+            healthChecker.health();
         } catch (SQLException e) {
             if (statement != null) {
                 try {
@@ -99,6 +107,7 @@ public class JDBCHikariCPClient implements Client {
                 } catch (SQLException e1) {
                 }
             }
+            healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
 
@@ -114,6 +123,7 @@ public class JDBCHikariCPClient implements Client {
             setStatementParam(statement, params);
             rs = statement.executeQuery();
             statement.closeOnCompletion();
+            healthChecker.health();
         } catch (SQLException e) {
             if (statement != null) {
                 try {
@@ -121,6 +131,7 @@ public class JDBCHikariCPClient implements Client {
                 } catch (SQLException e1) {
                 }
             }
+            healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
 
@@ -145,5 +156,9 @@ public class JDBCHikariCPClient implements Client {
                 }
             }
         }
+    }
+
+    @Override public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }
