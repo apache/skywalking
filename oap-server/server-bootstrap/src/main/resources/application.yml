@@ -41,6 +41,11 @@ cluster:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
     hostPort: ${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
+  nacos:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
+    # Nacos Configuration namespace
+    namespace: ${SW_CLUSTER_NACOS_NAMESPACE:"public"}
 
 core:
   selector: ${SW_CORE:default}
@@ -52,6 +57,11 @@ core:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
+    restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
+    restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
+    restAcceptorPriorityDelta: ${SW_CORE_REST_JETTY_DELTA:0}
+    restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
@@ -61,13 +71,12 @@ core:
     downsampling:
       - Hour
       - Day
-      - Month
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
     dataKeeperExecutePeriod: ${SW_CORE_DATA_KEEPER_EXECUTE_PERIOD:5} # How often the data keeper executor runs periodically, unit is minute
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:3} # Unit is day
     metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
-    # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
+    # Cache metrics data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
     topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10} # top_n record worker report cycle, unit is minute
@@ -92,10 +101,9 @@ storage:
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # The index shards number is for store metrics data rather than basic segment record
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} # Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the bulk every 1000 requests
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
@@ -114,10 +122,9 @@ storage:
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # The index shards number is for store metrics data rather than basic segment record
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} # Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the bulk every 1000 requests
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
@@ -151,10 +158,23 @@ storage:
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 
+agent-analyzer:
+  selector: ${SW_AGENT_ANALYZER:default}
+  default:
+    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
+    host: ${SW_RECEIVER_JETTY_HOST:0.0.0.0}
+    contextPath: ${SW_RECEIVER_JETTY_CONTEXT_PATH:/}
     authentication: ${SW_AUTHENTICATION:""}
+    jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
 receiver-register:
   selector: ${SW_RECEIVER_REGISTER:default}
   default:
@@ -162,8 +182,6 @@ receiver-register:
 receiver-trace:
   selector: ${SW_RECEIVER_TRACE:default}
   default:
-    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
-    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 
 receiver-jvm:
   selector: ${SW_RECEIVER_JVM:default}
@@ -196,6 +214,20 @@ prometheus-fetcher:
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:-}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
+    replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
+    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
+    consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:-}
+  default:
+  
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}
   default:
@@ -208,6 +240,11 @@ receiver_zipkin:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 
 receiver_jaeger:
   selector: ${SW_RECEIVER_JAEGER:-}
@@ -261,9 +298,24 @@ configuration:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
     hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}
     # Sync period in seconds. Defaults to 60 seconds.
-    period: ${SW_CONFIG_CONSUL_PERIOD:1}
+    period: ${SW_CONFIG_CONSUL_PERIOD:60}
     # Consul aclToken
     aclToken: ${SW_CONFIG_CONSUL_ACL_TOKEN:""}
+  k8s-configmap:
+    period: ${SW_CONFIG_CONFIGMAP_PERIOD:60}
+    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+  nacos:
+    # Nacos Server Host
+    serverAddr: ${SW_CONFIG_NACOS_SERVER_ADDR:127.0.0.1}
+    # Nacos Server Port
+    port: ${SW_CONFIG_NACOS_SERVER_PORT:8848}
+    # Nacos Configuration Group
+    group: ${SW_CONFIG_NACOS_SERVER_GROUP:skywalking}
+    # Nacos Configuration namespace
+    namespace: ${SW_CONFIG_NACOS_SERVER_NAMESPACE:}
+    # Unit seconds, sync period. Default fetch every 60 seconds.
+    period: ${SW_CONFIG_NACOS_PERIOD:60}
 
 exporter:
   selector: ${SW_EXPORTER:-}

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -27,11 +27,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-
-import java.lang.reflect.Method;
 
 /**
  * {@link PreparedStatementExecuteMethodsInterceptor} create the exit span when the client call the interceptor
@@ -46,14 +45,15 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
                                    Class<?>[] argumentsTypes, MethodInterceptResult result) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
-        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo
+        AbstractSpan span = ContextManager.createExitSpan(
+            buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo
                 .getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
         Tags.DB_STATEMENT.set(span, cacheObject.getSql());
         span.setComponent(connectInfo.getComponent());
 
-        if (Config.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS) {
+        if (JDBCPluginConfig.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS) {
             final Object[] parameters = cacheObject.getParameters();
             if (parameters != null && parameters.length > 0) {
                 int maxIndex = cacheObject.getMaxIndex();
@@ -90,9 +90,9 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String getParameterString(Object[] parameters, int maxIndex) {
         return new PreparedStatementParameterBuilder()
-                .setParameters(parameters)
-                .setMaxIndex(maxIndex)
-                .setMaxLength(Config.Plugin.POSTGRESQL.SQL_PARAMETERS_MAX_LENGTH)
-                .build();
+            .setParameters(parameters)
+            .setMaxIndex(maxIndex)
+            .setMaxLength(JDBCPluginConfig.Plugin.POSTGRESQL.SQL_PARAMETERS_MAX_LENGTH)
+            .build();
     }
 }

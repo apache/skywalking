@@ -74,6 +74,10 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNR
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UITemplateManagementEsDAO;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * The storage provider for ElasticSearch 6.
@@ -181,6 +185,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
             StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);

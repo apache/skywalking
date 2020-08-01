@@ -6,12 +6,12 @@ Right now, SkyWalking supports following dynamic configurations.
 
 | Config Key | Value Description | Value Format Example |
 |:----:|:----:|:----:|
-|receiver-trace.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `applciation.yml`. | default:200,mongodb:50|
-|receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
+|agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `applciation.yml`. | default:200,mongodb:50|
+|agent-analyzer.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
 |alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
 |core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
-|receiver-trace.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `applciation.yml`. | 10000 |
+|agent-analyzer.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `applciation.yml`. | 10000 |
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -102,4 +102,42 @@ configuration:
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
+```
+
+## Dynamic Configuration Kuberbetes Configmap Implementation
+
+[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
+
+```yaml
+configuration:
+  selector: ${SW_CONFIGURATION:k8s-configmap}
+  # [example] (../../../../oap-server/server-configuration/configuration-k8s-configmap/src/test/resources/skywalking-dynamic-configmap.example.yaml)
+  k8s-configmap:
+      # Sync period in seconds. Defaults to 60 seconds.
+      period: ${SW_CONFIG_CONFIGMAP_PERIOD:60}
+      # Which namespace is confiigmap deployed in.
+      namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+      # Labelselector is used to locate specific configmap
+      labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+```
+## Dynamic Configuration Nacos Implementation
+
+[Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+
+```yaml
+configuration:
+  selector: ${SW_CONFIGURATION:nacos}
+  nacos:
+    # Nacos Server Host
+    serverAddr: ${SW_CONFIG_NACOS_SERVER_ADDR:127.0.0.1}
+    # Nacos Server Port
+    port: ${SW_CONFIG_NACOS_SERVER_PORT:8848}
+    # Nacos Configuration Group
+    group: ${SW_CONFIG_NACOS_SERVER_GROUP:skywalking}
+    # Nacos Configuration namespace
+    namespace: ${SW_CONFIG_NACOS_SERVER_NAMESPACE:}
+    # Unit seconds, sync period. Default fetch every 60 seconds.
+    period: ${SW_CONFIG_NACOS_PERIOD:60}
+    # the name of current cluster, set the name if you want to upstream system known.
+    clusterName: ${SW_CONFIG_NACOS_CLUSTER_NAME:default}
 ```

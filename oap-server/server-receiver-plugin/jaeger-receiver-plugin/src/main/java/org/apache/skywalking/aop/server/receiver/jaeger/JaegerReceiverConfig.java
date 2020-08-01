@@ -29,7 +29,6 @@ public class JaegerReceiverConfig extends ModuleConfig {
     private int gRPCPort = -1;
     private int maxConcurrentCallsPerConnection;
     private int maxMessageSize;
-    private boolean registerJaegerEndpoint = true;
     private int gRPCThreadPoolSize;
     private int gRPCThreadPoolQueueSize;
 }

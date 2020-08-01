@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -66,6 +66,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>cluster-etcd-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-nacos-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cluster module -->
@@ -116,12 +121,22 @@
             <artifactId>opencensus-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-meter-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>prometheus-fetcher-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>kafka-fetcher-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- fetcher module -->
@@ -195,6 +210,16 @@
             <artifactId>configuration-consul</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-k8s-configmap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-nacos</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -233,6 +258,7 @@
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>meter-receive-config/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
