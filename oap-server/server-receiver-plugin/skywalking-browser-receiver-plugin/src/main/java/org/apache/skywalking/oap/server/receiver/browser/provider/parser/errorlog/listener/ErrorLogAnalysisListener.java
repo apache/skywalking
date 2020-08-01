@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider;
+package org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.BrowserErrorLogDecorator;
 
-public class BrowserServiceModuleConfig extends ModuleConfig {
+/**
+ * ErrorLogAnalysisListener represents the callback when OAP does the browser error log analysis.
+ */
+public interface ErrorLogAnalysisListener {
 
     /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
+     * The last step of the analysis process. Typically, the implementations forward the analysis results to the source
+     * receiver.
      */
-    @Setter
-    @Getter
-    private int sampleRate = 10000;
+    void build();
+
+    void parse(BrowserErrorLogDecorator decorator);
 }

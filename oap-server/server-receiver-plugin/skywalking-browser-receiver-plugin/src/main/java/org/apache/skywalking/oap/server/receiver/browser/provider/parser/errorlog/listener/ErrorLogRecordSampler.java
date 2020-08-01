@@ -15,18 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider;
+package org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
 
-public class BrowserServiceModuleConfig extends ModuleConfig {
+/**
+ * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
+ * ignored
+ */
+@RequiredArgsConstructor
+public class ErrorLogRecordSampler {
+
+    private final int sampleRate;
 
     /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
+     * through {@link BrowserErrorLog#getUniqueId()} hash code.
      */
-    @Setter
-    @Getter
-    private int sampleRate = 10000;
+    public boolean shouldSample(int hashCode) {
+        return hashCode % 10000 < sampleRate;
+    }
+
 }

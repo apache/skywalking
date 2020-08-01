@@ -50,11 +50,11 @@ public final class SkyWalkingExtension implements BeforeAllCallback, AfterAllCal
 
     @Override
     public void beforeAll(final ExtensionContext context) throws Exception {
-        SkyWalkingAnnotations.init(context.getRequiredTestInstance());
+//        SkyWalkingAnnotations.init(context.getRequiredTestInstance());
     }
 
     @Override
     public void afterAll(final ExtensionContext context) {
-        SkyWalkingAnnotations.destroy(context.getRequiredTestInstance());
+//        SkyWalkingAnnotations.destroy(context.getRequiredTestInstance());
     }
 }

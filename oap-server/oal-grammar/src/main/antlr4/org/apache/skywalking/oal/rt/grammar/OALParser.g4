@@ -54,7 +54,9 @@ source
       SRC_SERVICE_RELATION | SRC_SERVICE_INSTANCE_RELATION | SRC_ENDPOINT_RELATION |
       SRC_SERVICE_INSTANCE_JVM_CPU | SRC_SERVICE_INSTANCE_JVM_MEMORY | SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL | SRC_SERVICE_INSTANCE_JVM_GC |// JVM source of service instance
       SRC_SERVICE_INSTANCE_CLR_CPU | SRC_SERVICE_INSTANCE_CLR_GC | SRC_SERVICE_INSTANCE_CLR_THREAD |
-      SRC_ENVOY_INSTANCE_METRIC
+      SRC_ENVOY_INSTANCE_METRIC |
+      SRC_BROWSER_APP_PERF | SRC_BROWSER_APP_PAGE_PERF | SRC_BROWSER_APP_SINGLE_VERSION_PERF |
+      SRC_BROWSER_APP_TRAFFIC | SRC_BROWSER_APP_PAGE_TRAFFIC | SRC_BROWSER_APP_SINGLE_VERSION_TRAFFIC
     ;
 
 disableSource
@@ -88,7 +90,7 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch
     ;
 
 booleanMatch
@@ -113,6 +115,10 @@ greaterEqualMatch
 
 lessEqualMatch
     :  conditionAttribute LESS_EQUAL numberConditionValue
+    ;
+
+notEqualMatch
+    : conditionAttribute NOT_EQUAL (enumConditionValue | numberConditionValue | stringConditionValue | booleanConditionValue)
     ;
 
 conditionAttribute

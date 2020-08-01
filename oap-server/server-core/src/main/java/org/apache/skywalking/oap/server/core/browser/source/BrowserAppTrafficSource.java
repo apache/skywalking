@@ -15,18 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider;
+package org.apache.skywalking.oap.server.core.browser.source;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
+import org.apache.skywalking.oap.server.core.source.Source;
 
-public class BrowserServiceModuleConfig extends ModuleConfig {
+/**
+ * From js client reported access traffic
+ */
+public abstract class BrowserAppTrafficSource extends Source {
 
-    /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
-     */
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    protected String name;
+
     @Setter
     @Getter
-    private int sampleRate = 10000;
+    protected NodeType nodeType;
+
+    @Getter
+    private final int count = 1;
+
+    @Setter
+    @Getter
+    private BrowserAppTrafficCategory trafficCategory;
+
+    @Setter
+    @Getter
+    private BrowserErrorCategory errorCategory;
 }

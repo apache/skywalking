@@ -17,16 +17,19 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
-public class BrowserServiceModuleConfig extends ModuleConfig {
+/**
+ * Browser OAL script includes the metrics related to browser only.
+ */
+public class BrowserOALDefine extends OALDefine {
 
-    /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
-     */
-    @Setter
-    @Getter
-    private int sampleRate = 10000;
+    public static final BrowserOALDefine INSTANCE = new BrowserOALDefine();
+
+    private BrowserOALDefine() {
+        super(
+            "oal/browser.oal",
+            "org.apache.skywalking.oap.server.core.browser.source"
+        );
+    }
 }

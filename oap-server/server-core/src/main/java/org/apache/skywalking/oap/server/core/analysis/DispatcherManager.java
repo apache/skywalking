@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -80,7 +81,8 @@ public class DispatcherManager implements DispatcherDetectorListener {
 
     @Override
     public void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException {
-        if (!aClass.isInterface() && SourceDispatcher.class.isAssignableFrom(aClass)) {
+        if (!aClass.isInterface() && !Modifier.isAbstract(
+            aClass.getModifiers()) && SourceDispatcher.class.isAssignableFrom(aClass)) {
             Type[] genericInterfaces = aClass.getGenericInterfaces();
             for (Type genericInterface : genericInterfaces) {
                 ParameterizedType anInterface = (ParameterizedType) genericInterface;

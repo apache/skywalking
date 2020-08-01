@@ -68,6 +68,15 @@ public class DefaultScopeDefine {
     public static final int NETWORK_ADDRESS_ALIAS = 31;
     public static final int UI_TEMPLATE = 32;
 
+    // browser
+    public static final int BROWSER_ERROR_LOG = 33;
+    public static final int BROWSER_APP_PERF = 34;
+    public static final int BROWSER_APP_PAGE_PERF = 35;
+    public static final int BROWSER_APP_SINGLE_VERSION_PERF = 36;
+    public static final int BROWSER_APP_TRAFFIC = 37;
+    public static final int BROWSER_APP_SINGLE_VERSION_TRAFFIC = 38;
+    public static final int BROWSER_APP_PAGE_TRAFFIC = 39;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */

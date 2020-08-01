@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider;
+package org.apache.skywalking.oap.server.core.browser.source;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-public class BrowserServiceModuleConfig extends ModuleConfig {
+public enum BrowserAppTrafficCategory {
 
     /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
+     * From the BrowserPerfData.
      */
-    @Setter
-    @Getter
-    private int sampleRate = 10000;
+    NORMAL,
+    /**
+     * From the BrowserErrorLog and BrowserErrorLog#firstReportedError = true.
+     */
+    FIRST_ERROR,
+    /**
+     * From the BrowserErrorLog and BrowserErrorLog#firstReportedError = false.
+     */
+    ERROR
 }

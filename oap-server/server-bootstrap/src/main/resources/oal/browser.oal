@@ -1,0 +1,57 @@
+/*
+* Licensed to the Apache Software Foundation (ASF) under one or more
+* contributor license agreements.  See the NOTICE file distributed with
+* this work for additional information regarding copyright ownership.
+* The ASF licenses this file to You under the Apache License, Version 2.0
+* (the "License"); you may not use this file except in compliance with
+* the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*/
+// browser app
+browser_app_pv = from(BrowserAppTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
+browser_app_error_rate = from(BrowserAppTraffic.trafficCategory).filter(trafficCategory != BrowserAppTrafficCategory.ERROR).er();
+browser_app_error_sum = from(BrowserAppTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
+
+// browser app single version
+browser_app_single_version_pv = from(BrowserAppSingleVersionTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
+browser_app_single_version_error_rate = from(BrowserAppSingleVersionTraffic.trafficCategory).filter(trafficCategory != BrowserAppTrafficCategory.ERROR).er();
+browser_app_single_version_error_sum = from(BrowserAppSingleVersionTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
+
+// browser app page
+browser_app_page_pv = from(BrowserAppPageTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
+browser_app_page_error_rate = from(BrowserAppPageTraffic.trafficCategory).filter(trafficCategory != BrowserAppTrafficCategory.ERROR).er();
+browser_app_page_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
+
+// browser performance metrics
+browser_app_page_ajax_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.AJAX).sum();
+browser_app_page_resource_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.RESOURCE).sum();
+browser_app_page_vue_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.VUE).sum();
+browser_app_page_promise_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.PROMISE).sum();
+browser_app_page_js_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.JS).sum();
+browser_app_page_unknown_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.UNKNOWN).sum();
+
+browser_app_page_redirect_avg = from(BrowserAppPagePerf.redirectTime).longAvg();
+browser_app_page_dns_avg = from(BrowserAppPagePerf.dnsTime).longAvg();
+browser_app_page_req_avg = from(BrowserAppPagePerf.reqTime).longAvg();
+browser_app_page_dom_analysis_avg = from(BrowserAppPagePerf.domAnalysisTime).longAvg();
+browser_app_page_dom_ready_avg = from(BrowserAppPagePerf.domReadyTime).longAvg();
+browser_app_page_blank_avg = from(BrowserAppPagePerf.blankTime).longAvg();
+
+browser_app_page_redirect_percentile = from(BrowserAppPagePerf.redirectTime).percentile(10);
+browser_app_page_dns_percentile = from(BrowserAppPagePerf.dnsTime).percentile(10);
+browser_app_page_req_percentile = from(BrowserAppPagePerf.reqTime).percentile(10);
+browser_app_page_dom_analysis_percentile = from(BrowserAppPagePerf.domAnalysisTime).percentile(10);
+browser_app_page_dom_ready_percentile = from(BrowserAppPagePerf.domReadyTime).percentile(10);
+browser_app_page_blank_percentile = from(BrowserAppPagePerf.blankTime).percentile(10);
+
+// Disable unnecessary hard core stream, targeting @Stream#name
+/////////
+//disable(browser_error_log);

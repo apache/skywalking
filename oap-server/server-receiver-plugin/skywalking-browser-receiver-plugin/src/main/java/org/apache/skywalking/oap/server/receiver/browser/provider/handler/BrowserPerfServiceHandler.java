@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider.handler.v8;
+package org.apache.skywalking.oap.server.receiver.browser.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +26,10 @@ import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfServiceGrp
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.ErrorLogAnalyzer;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.ErrorLogParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataAnalyzer;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataParserListenerManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -37,18 +41,25 @@ public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPer
 
     private final ModuleManager moduleManager;
     private final BrowserServiceModuleConfig config;
+    private final PerfDataParserListenerManager perfDataListenerManager;
+    private final ErrorLogParserListenerManager errorLogListenerManager;
 
     // performance
-    private HistogramMetrics perfHistogram;
-    private CounterMetrics perfErrorCounter;
+    private final HistogramMetrics perfHistogram;
+    private final CounterMetrics perfErrorCounter;
 
     // error log
-    private HistogramMetrics errorLogHistogram;
-    private CounterMetrics logErrorCounter;
+    private final HistogramMetrics errorLogHistogram;
+    private final CounterMetrics logErrorCounter;
 
-    public BrowserPerfServiceHandler(ModuleManager moduleManager, BrowserServiceModuleConfig config) {
+    public BrowserPerfServiceHandler(ModuleManager moduleManager,
+                                     BrowserServiceModuleConfig config,
+                                     PerfDataParserListenerManager perfDataListenerManager,
+                                     ErrorLogParserListenerManager errorLogListenerManager) {
         this.moduleManager = moduleManager;
         this.config = config;
+        this.perfDataListenerManager = perfDataListenerManager;
+        this.errorLogListenerManager = errorLogListenerManager;
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
@@ -82,7 +93,8 @@ public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPer
         }
         HistogramMetrics.Timer timer = perfHistogram.createTimer();
         try {
-            // TODO performance data analysis
+            PerfDataAnalyzer analyzer = new PerfDataAnalyzer(moduleManager, perfDataListenerManager, config);
+            analyzer.doAnalysis(request);
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             perfErrorCounter.inc();
@@ -104,7 +116,8 @@ public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPer
 
                 HistogramMetrics.Timer timer = errorLogHistogram.createTimer();
                 try {
-                    // TODO error log analysis
+                    ErrorLogAnalyzer analyzer = new ErrorLogAnalyzer(moduleManager, errorLogListenerManager, config);
+                    analyzer.doAnalysis(browserErrorLog);
                 } catch (Throwable e) {
                     log.error(e.getMessage(), e);
                     logErrorCounter.inc();

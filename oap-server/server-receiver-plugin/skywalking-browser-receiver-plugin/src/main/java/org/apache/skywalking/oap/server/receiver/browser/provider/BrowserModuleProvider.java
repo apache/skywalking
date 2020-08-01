@@ -19,22 +19,26 @@ package org.apache.skywalking.oap.server.receiver.browser.provider;
 
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.browser.module.BrowserModule;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.BrowserPerfServiceHandler;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.ErrorLogParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogRecordListener;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.MultiScopesErrorLogAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.MultiScopesPerfDataAnalysisListener;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class BrowserModuleProvider extends ModuleProvider {
 
-    private final BrowserServiceModuleConfig moduleConfig;
-
-    public BrowserModuleProvider() {
-        this.moduleConfig = new BrowserServiceModuleConfig();
-    }
+    private final BrowserServiceModuleConfig moduleConfig = new BrowserServiceModuleConfig();
 
     @Override
     public String name() {
@@ -58,7 +62,18 @@ public class BrowserModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        // load browser analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(BrowserOALDefine.INSTANCE);
 
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider().getService(GRPCHandlerRegister.class);
+
+        grpcHandlerRegister.addHandler(
+            new BrowserPerfServiceHandler(
+                getManager(), moduleConfig, perfDataListenerManager(), errorLogListenerManager()));
     }
 
     @Override
@@ -74,5 +89,20 @@ public class BrowserModuleProvider extends ModuleProvider {
             SharingServerModule.NAME,
             ConfigurationModule.NAME
         };
+    }
+
+    private PerfDataParserListenerManager perfDataListenerManager() {
+        PerfDataParserListenerManager listenerManager = new PerfDataParserListenerManager();
+        listenerManager.add(new MultiScopesPerfDataAnalysisListener.Factory(getManager(), moduleConfig));
+
+        return listenerManager;
+    }
+
+    private ErrorLogParserListenerManager errorLogListenerManager() {
+        ErrorLogParserListenerManager listenerManager = new ErrorLogParserListenerManager();
+        listenerManager.add(new MultiScopesErrorLogAnalysisListener.Factory(getManager(), moduleConfig));
+        listenerManager.add(new ErrorLogRecordListener.Factory(getManager(), moduleConfig));
+
+        return listenerManager;
     }
 }

@@ -119,6 +119,11 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
+    public void enterNotEqualMatch(final OALParser.NotEqualMatchContext ctx) {
+        conditionExpression.setExpressionType("notEqualMatch");
+    }
+
+    @Override
     public void enterGreaterMatch(OALParser.GreaterMatchContext ctx) {
         conditionExpression.setExpressionType("greaterMatch");
     }
