@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
@@ -278,5 +279,18 @@ public class Config {
          * Max value length of each element.
          */
         public static int VALUE_MAX_LENGTH = 128;
+    }
+
+    /**
+     * Commons config API for get config property value for the key.
+     * @param key - config key
+     * @param defaultValue -  default value for the key
+     * @return the value in this property list with the specified key value.
+     */
+    public static String getProperty(final String key, final String defaultValue) {
+        if (SnifferConfigInitializer.AGENT_SETTINGS == null) {//safe for invoke before init
+            return defaultValue;
+        }
+        return SnifferConfigInitializer.AGENT_SETTINGS.getProperty(key, defaultValue);
     }
 }

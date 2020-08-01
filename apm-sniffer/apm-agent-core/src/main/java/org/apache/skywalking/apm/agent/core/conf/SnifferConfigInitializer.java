@@ -44,7 +44,7 @@ public class SnifferConfigInitializer {
     private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
     private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static final String ENV_KEY_PREFIX = "skywalking.";
-    private static Properties AGENT_SETTINGS;
+    static Properties AGENT_SETTINGS;
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
