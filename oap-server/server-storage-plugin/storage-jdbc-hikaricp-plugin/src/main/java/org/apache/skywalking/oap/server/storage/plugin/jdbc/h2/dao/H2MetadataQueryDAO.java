@@ -202,13 +202,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
                                                      String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
         sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
-        condition.add(minuteTimeBucket);
+        condition.add(startTimestamp);
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         condition.add(serviceId);
 

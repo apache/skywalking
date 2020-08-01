@@ -181,14 +181,12 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<ServiceInstance> getServiceInstances(final long startTimestamp,
                                                      final long endTimestamp,
                                                      final String serviceId) throws IOException {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-
         SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
             .fromSubQuery(client.getDatabase())
             .column(ID_COLUMN).column(NAME).column(InstanceTraffic.PROPERTIES)
             .from(InstanceTraffic.INDEX_NAME)
             .where()
-            .and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket))
+            .and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, startTimestamp))
             .and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId))
             .groupBy(TagName.NAME, TagName.SERVICE_ID);
 

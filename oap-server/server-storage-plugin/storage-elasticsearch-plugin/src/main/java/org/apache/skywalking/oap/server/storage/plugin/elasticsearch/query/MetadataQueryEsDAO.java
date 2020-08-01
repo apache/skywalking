@@ -180,10 +180,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
-
         boolQueryBuilder.must()
-                        .add(QueryBuilders.rangeQuery(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(minuteTimeBucket));
+                        .add(QueryBuilders.rangeQuery(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(startTimestamp));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(InstanceTraffic.SERVICE_ID, serviceId));
 
         sourceBuilder.query(boolQueryBuilder);
