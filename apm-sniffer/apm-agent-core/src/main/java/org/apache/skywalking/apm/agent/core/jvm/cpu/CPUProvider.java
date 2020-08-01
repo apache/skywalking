@@ -30,10 +30,11 @@ public enum CPUProvider {
     CPUProvider() {
         int processorNum = ProcessorUtil.getNumberOfProcessors();
         try {
-            this.cpuMetricsAccessor = (CPUMetricsAccessor) CPUProvider.class.getClassLoader()
-                                                                            .loadClass("org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor")
-                                                                            .getConstructor(int.class)
-                                                                            .newInstance(processorNum);
+            //-Dskywalking.cpu_provider=org.apache.skywalking.apm.agent.core.jvm.cpu.JmxCpuAccessor
+            final String cpuAccessorCls = System.getProperty("skywalking.cpu_provider",
+                "org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor");
+            this.cpuMetricsAccessor = (CPUMetricsAccessor) CPUProvider.class.getClassLoader().loadClass(cpuAccessorCls)
+                    .getConstructor(int.class).newInstance(processorNum);
         } catch (Exception e) {
             this.cpuMetricsAccessor = new NoSupportedCPUAccessor(processorNum);
             ILog logger = LogManager.getLogger(CPUProvider.class);
