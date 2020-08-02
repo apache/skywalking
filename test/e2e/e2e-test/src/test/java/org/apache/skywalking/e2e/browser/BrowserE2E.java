@@ -22,7 +22,6 @@ import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +31,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfServiceGrpc;
 import org.apache.skywalking.apm.network.language.agent.v3.ErrorCategory;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
+import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.base.TrafficController;
@@ -40,9 +40,24 @@ import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
+import org.apache.skywalking.e2e.service.endpoint.Endpoint;
+import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
+import org.apache.skywalking.e2e.service.endpoint.Endpoints;
+import org.apache.skywalking.e2e.service.endpoint.EndpointsMatcher;
+import org.apache.skywalking.e2e.service.instance.Instance;
+import org.apache.skywalking.e2e.service.instance.Instances;
+import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
+import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.testcontainers.containers.DockerComposeContainer;
 
+import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.ALL_BROWSER_METRICS;
+import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.ALL_BROWSER_PAGE_METRICS;
+import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.ALL_BROWSER_PAGE_MULTIPLE_LINEAR_METRICS;
+import static org.apache.skywalking.e2e.metrics.BrowserMetricsQuery.ALL_BROWSER_SINGLE_VERSION_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
@@ -56,16 +71,19 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
 
     private static final String BROWSER_SINGLE_VERSION_NAME = "v1.0.0";
 
-//    @DockerCompose("docker/browser/docker-compose.yml")
-//    private DockerComposeContainer<?> justForSideEffects;
+    @SuppressWarnings("unused")
+    @DockerCompose({
+        "docker/browser/docker-compose.${SW_STORAGE}.yml",
+    })
+    private DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "ui", port = 12800)
-    private HostAndPort swWebappHostPort = HostAndPort.builder().host("127.0.0.1").port(12800).build();
+    @ContainerHostAndPort(name = "oap", port = 12800)
+    private HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "oap", port = 11800)
-    private HostAndPort oapHostPort = HostAndPort.builder().host("127.0.0.1").port(11800).build();
+    private HostAndPort oapHostPort;
 
     private BrowserPerfServiceGrpc.BrowserPerfServiceStub browserPerfServiceStub;
 
@@ -92,7 +110,8 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     public void verifyBrowserData() throws Exception {
-        final List<Service> services = graphql.browserServices(new ServicesQuery().start(startTime).end(now()));
+        final List<Service> services = graphql.browserServices(
+            new ServicesQuery().start(startTime).end(now()));
         LOGGER.info("services: {}", services);
 
         load("expected/browser/services.yml").as(ServicesMatcher.class).verify(services);
@@ -100,13 +119,57 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
         for (Service service : services) {
             LOGGER.info("verifying service version: {}", service);
             // browser metrics
-            //            verifyBrowserMetrics(service);
+            verifyBrowserMetrics(service);
 
             // browser single version
-            //            verifyBrowserSingleVersion(service);
+            verifyBrowserSingleVersion(service);
 
             // browser page path
-            //            verifyBrowserPagePath(service);
+            verifyBrowserPagePath(service);
+        }
+    }
+
+    private void verifyBrowserMetrics(final Service service) throws Exception {
+        for (String metricName : ALL_BROWSER_METRICS) {
+            verifyMetrics(graphql, metricName, service.getKey(), startTime);
+        }
+    }
+
+    private void verifyBrowserSingleVersion(final Service service) throws Exception {
+        Instances instances = graphql.instances(
+            new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
+        );
+        LOGGER.info("instances: {}", instances);
+        load("expected/browser/version.yml").as(InstancesMatcher.class).verify(instances);
+        // service version metrics
+        for (Instance instance : instances.getInstances()) {
+            verifyBrowserSingleVersionMetrics(instance);
+        }
+    }
+
+    private void verifyBrowserSingleVersionMetrics(Instance instance) throws Exception {
+        for (String metricName : ALL_BROWSER_SINGLE_VERSION_METRICS) {
+            verifyMetrics(graphql, metricName, instance.getKey(), startTime);
+        }
+    }
+
+    private void verifyBrowserPagePath(final Service service) throws Exception {
+        Endpoints endpoints = graphql.endpoints(new EndpointQuery().serviceId(String.valueOf(service.getKey())));
+        LOGGER.info("endpoints: {}", endpoints);
+        load("expected/browser/page-path.yml").as(EndpointsMatcher.class).verify(endpoints);
+        // service page metrics
+        for (Endpoint endpoint : endpoints.getEndpoints()) {
+            verifyBrowserPagePathMetrics(endpoint);
+        }
+    }
+
+    private void verifyBrowserPagePathMetrics(Endpoint endpoint) throws Exception {
+        for (String metricName : ALL_BROWSER_PAGE_METRICS) {
+            verifyMetrics(graphql, metricName, endpoint.getKey(), startTime);
+        }
+
+        for (String metricName : ALL_BROWSER_PAGE_MULTIPLE_LINEAR_METRICS) {
+            verifyPercentileMetrics(graphql, metricName, endpoint.getKey(), startTime);
         }
     }
 
@@ -119,17 +182,16 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
 
     private boolean sendBrowserData() {
         try {
-            Random random = new Random();
             BrowserPerfData.Builder builder = BrowserPerfData.newBuilder()
                                                              .setService(BROWSER_NAME)
                                                              .setServiceVersion(BROWSER_SINGLE_VERSION_NAME)
                                                              .setPagePath("/e2e-browser")
-                                                             .setRedirectTime(random.nextInt(10))
-                                                             .setDnsTime(random.nextInt(10))
-                                                             .setReqTime(random.nextInt(10))
-                                                             .setDomAnalysisTime(random.nextInt(10))
-                                                             .setDomReadyTime(random.nextInt(10))
-                                                             .setBlankTime(random.nextInt(10));
+                                                             .setRedirectTime(10)
+                                                             .setDnsTime(10)
+                                                             .setReqTime(10)
+                                                             .setDomAnalysisTime(10)
+                                                             .setDomReadyTime(10)
+                                                             .setBlankTime(10);
 
             sendBrowserPerfData(builder.build());
 

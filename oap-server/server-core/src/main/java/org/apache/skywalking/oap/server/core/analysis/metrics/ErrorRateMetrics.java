@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppTrafficCategory;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -33,7 +34,7 @@ public abstract class ErrorRateMetrics extends Metrics implements IntValueHolder
 
     protected static final String TOTAL = "total";
     protected static final String MATCH = "match";
-    protected static final String PERCENTAGE = "percentage";
+    protected static final String VALUE = "value";
 
     @Setter
     @Getter
@@ -47,12 +48,12 @@ public abstract class ErrorRateMetrics extends Metrics implements IntValueHolder
 
     @Setter
     @Getter
-    @Column(columnName = PERCENTAGE)
-    private int percentage;
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    private int value;
 
     @Override
     public int getValue() {
-        return percentage;
+        return value;
     }
 
     @Entrance
@@ -60,8 +61,10 @@ public abstract class ErrorRateMetrics extends Metrics implements IntValueHolder
         switch (category) {
             case NORMAL:
                 total++;
+                break;
             case FIRST_ERROR:
                 match++;
+                break;
         }
     }
 
@@ -74,7 +77,7 @@ public abstract class ErrorRateMetrics extends Metrics implements IntValueHolder
     @Override
     public void calculate() {
         if (total > 0) {
-            percentage = (int) (match * 10000 / total);
+            value = (int) (match * 10000 / total);
         }
     }
 }

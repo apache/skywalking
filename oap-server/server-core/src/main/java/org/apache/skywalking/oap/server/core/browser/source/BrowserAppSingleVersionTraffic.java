@@ -24,9 +24,9 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.BROWSER_APP_SINGLE_VERSION_TRAFFIC;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
-@ScopeDeclaration(id = BROWSER_APP_SINGLE_VERSION_TRAFFIC, name = "BrowserAppSingleVersionTraffic", catalog = SERVICE_CATALOG_NAME)
+@ScopeDeclaration(id = BROWSER_APP_SINGLE_VERSION_TRAFFIC, name = "BrowserAppSingleVersionTraffic", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class BrowserAppSingleVersionTraffic extends BrowserAppTrafficSource {
 

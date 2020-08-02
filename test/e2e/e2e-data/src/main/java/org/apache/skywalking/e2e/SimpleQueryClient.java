@@ -108,7 +108,7 @@ public class SimpleQueryClient {
     }
 
     private List<Service> services(final ServicesQuery query, String gql) throws Exception {
-        final URL queryFileUrl = Resources.getResource("services.gql");
+        final URL queryFileUrl = Resources.getResource(gql);
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream()
                                             .filter(it -> !it.startsWith("#"))

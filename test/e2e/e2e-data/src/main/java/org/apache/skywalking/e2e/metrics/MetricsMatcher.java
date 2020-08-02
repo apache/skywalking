@@ -70,6 +70,13 @@ public class MetricsMatcher {
     public static void verifyPercentileMetrics(final SimpleQueryClient queryClient,
                                                final String metricName,
                                                final String id,
+                                               final LocalDateTime minutesAgo) throws Exception {
+        verifyPercentileMetrics(queryClient, metricName, id, minutesAgo, 0, null);
+    }
+
+    public static void verifyPercentileMetrics(final SimpleQueryClient queryClient,
+                                               final String metricName,
+                                               final String id,
                                                final LocalDateTime minutesAgo,
                                                final long retryInterval,
                                                final Runnable generateTraffic) throws Exception {

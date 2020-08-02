@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,10 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-#
 
-server:
-  port: 8080
-  servlet:
-    context-path: /apm-toolkit-trace-scenario
+FROM adoptopenjdk/openjdk8:alpine
+
+WORKDIR /h2
+
+VOLUME /h2/data
+
+ADD https://repo.maven.apache.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar /h2
+
+CMD ["sh", "-c", "java -cp /h2/*.jar org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 1521 -ifNotExists -baseDir /h2/data"]

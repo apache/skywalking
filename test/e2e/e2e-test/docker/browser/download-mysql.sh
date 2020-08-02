@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,10 +12,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-#
 
-server:
-  port: 8080
-  servlet:
-    context-path: /apm-toolkit-trace-scenario
+set -ex
+
+SW_HOME=/skywalking
+MYSQL_URL="https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
+MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
+
+curl -L -o "${SW_HOME}/oap-libs/${MYSQL_DRIVER}" ${MYSQL_URL}
+if [[ $? -ne 0 ]]; then
+    echo "Fail to download ${MYSQL_DRIVER}."
+    exit 1
+fi

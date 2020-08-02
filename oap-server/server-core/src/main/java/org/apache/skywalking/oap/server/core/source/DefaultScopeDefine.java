@@ -70,13 +70,13 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_JVM_THREAD = 33;
 
     // browser
-    public static final int BROWSER_ERROR_LOG = 33;
-    public static final int BROWSER_APP_PERF = 34;
-    public static final int BROWSER_APP_PAGE_PERF = 35;
-    public static final int BROWSER_APP_SINGLE_VERSION_PERF = 36;
-    public static final int BROWSER_APP_TRAFFIC = 37;
-    public static final int BROWSER_APP_SINGLE_VERSION_TRAFFIC = 38;
-    public static final int BROWSER_APP_PAGE_TRAFFIC = 39;
+    public static final int BROWSER_ERROR_LOG = 34;
+    public static final int BROWSER_APP_PERF = 35;
+    public static final int BROWSER_APP_PAGE_PERF = 36;
+    public static final int BROWSER_APP_SINGLE_VERSION_PERF = 37;
+    public static final int BROWSER_APP_TRAFFIC = 38;
+    public static final int BROWSER_APP_SINGLE_VERSION_TRAFFIC = 39;
+    public static final int BROWSER_APP_PAGE_TRAFFIC = 40;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

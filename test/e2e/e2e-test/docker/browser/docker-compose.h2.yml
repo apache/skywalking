@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,10 +12,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-#
 
-server:
-  port: 8080
-  servlet:
-    context-path: /apm-toolkit-trace-scenario
+version: '2.1'
+
+services:
+  h2db:
+    build:
+      context: .
+      dockerfile: Dockerfile.h2
+    networks:
+      - e2e
+    expose:
+      - 1521
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 1521"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
+    extends:
+      file: ../base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: h2
+      SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db
+    depends_on:
+      h2db:
+        condition: service_healthy
+
+networks:
+  e2e:
