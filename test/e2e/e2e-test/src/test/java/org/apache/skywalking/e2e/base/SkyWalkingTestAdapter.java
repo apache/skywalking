@@ -29,7 +29,7 @@ import org.springframework.web.client.RestTemplate;
 
 public abstract class SkyWalkingTestAdapter {
     protected final RestTemplate restTemplate = new RestTemplate();
-    protected final LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
+    protected final LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(30);
 
     protected Map<String, String> trafficData = ImmutableMap.of("name", "SkyWalking");
 
