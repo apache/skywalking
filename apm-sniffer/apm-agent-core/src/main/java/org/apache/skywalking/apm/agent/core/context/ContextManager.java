@@ -39,12 +39,12 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.OPERATION_N
  */
 public class ContextManager implements BootService {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
-    private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
     private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
     private static ContextManagerExtendService EXTEND_SERVICE;
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
-        AbstractTracerContext context = CONTEXT.get();
+        final RuntimeContext runtimeContext = getRuntimeContext();
+        AbstractTracerContext context = runtimeContext.getTracerContext();
         if (context == null) {
             if (StringUtil.isEmpty(operationName)) {
                 if (logger.isDebugEnable()) {
@@ -58,20 +58,22 @@ public class ContextManager implements BootService {
                 context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
 
             }
-            CONTEXT.set(context);
+            runtimeContext.setTracerContext(context);
         }
         return context;
     }
 
     private static AbstractTracerContext get() {
-        return CONTEXT.get();
+        final RuntimeContext runtimeContext = RUNTIME_CONTEXT.get();
+        return runtimeContext == null ? null : runtimeContext.getTracerContext();
     }
 
     /**
      * @return the first global trace id if needEnhance. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
-        AbstractTracerContext segment = CONTEXT.get();
+        final RuntimeContext rtContext = RUNTIME_CONTEXT.get();
+        final AbstractTracerContext segment = rtContext == null ? null : rtContext.getTracerContext();
         if (segment == null) {
             return "N/A";
         } else {
@@ -178,7 +180,6 @@ public class ContextManager implements BootService {
 
     private static void stopSpan(AbstractSpan span, final AbstractTracerContext context) {
         if (context.stopSpan(span)) {
-            CONTEXT.remove();
             RUNTIME_CONTEXT.remove();
         }
     }

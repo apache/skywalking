@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.skywalking.apm.agent.core.conf.RuntimeContextConfiguration;
 
 /**
@@ -33,6 +34,7 @@ import org.apache.skywalking.apm.agent.core.conf.RuntimeContextConfiguration;
 public class RuntimeContext {
     private final ThreadLocal<RuntimeContext> contextThreadLocal;
     private Map<Object, Object> context = new ConcurrentHashMap<>(0);
+    private AbstractTracerContext tracerContext;
 
     public RuntimeContext(ThreadLocal<RuntimeContext> contextThreadLocal) {
         this.contextThreadLocal = contextThreadLocal;
@@ -78,4 +80,13 @@ public class RuntimeContext {
             ContextManager.getRuntimeContext().put(runtimeContextItem.getKey(), runtimeContextItem.getValue());
         }
     }
+
+    public AbstractTracerContext getTracerContext() {
+        return tracerContext;
+    }
+
+    void setTracerContext(AbstractTracerContext tracerContext) {
+      this.tracerContext = tracerContext;
+    }
+
 }
