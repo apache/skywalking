@@ -269,7 +269,7 @@ public class PrometheusMetricConverter {
             instanceTraffic.setName(entity.getInstanceName());
             instanceTraffic.setServiceId(entity.serviceId());
             instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-            instanceTraffic.setLastPingTimestamp(System.currentTimeMillis());
+            instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             MetricsStreamProcessor.getInstance().in(instanceTraffic);
         }
         if (!Strings.isNullOrEmpty(entity.getEndpointName())) {
