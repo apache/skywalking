@@ -121,7 +121,7 @@ In cluster mode, all topics have the same number of partitions. Then we have to 
 Kafka Fetcher allows to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
 ```yaml
 kafka-fetcher:
-  selector: ${SW_KAFKA_FETCHER:-}
+  selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
