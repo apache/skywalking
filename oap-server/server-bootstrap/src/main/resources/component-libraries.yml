@@ -491,5 +491,6 @@ Component-Server-Mappings:
   rest-high-level-client: Elasticsearch
   mariadb-jdbc: Mariadb
   Mysqli: Mysql
+  influxdb-java: InfluxDB
   Predis: Redis
   PyMysql: Mysql
