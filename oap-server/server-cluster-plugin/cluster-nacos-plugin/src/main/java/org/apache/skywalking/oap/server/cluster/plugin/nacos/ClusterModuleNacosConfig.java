@@ -32,4 +32,10 @@ public class ClusterModuleNacosConfig extends ModuleConfig {
     @Setter
     @Getter
     private String namespace = "public";
+    @Setter
+    @Getter
+    private String internalComHost;
+    @Setter
+    @Getter
+    private int internalComPort = -1;
 }
