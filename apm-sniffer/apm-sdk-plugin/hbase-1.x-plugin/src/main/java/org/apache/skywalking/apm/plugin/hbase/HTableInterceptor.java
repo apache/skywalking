@@ -21,6 +21,9 @@ package org.apache.skywalking.apm.plugin.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.OperationWithAttributes;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -31,10 +34,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,10 +50,44 @@ public class HTableInterceptor implements InstanceMethodsAroundInterceptor, Inst
     private static final String HBASE_DB_TYPE = "hbase";
 
     @Override
+    @SuppressWarnings("unchecked, rawtypes")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        AbstractSpan span = ContextManager.createExitSpan(PREFIX_OPERATION_NAME + method.getName(),
-                (String) objInst.getSkyWalkingDynamicField());
+        boolean canTracingServer = false;
+        List<OperationWithAttributes> operations = null;
+        OperationWithAttributes operation = null;
+        if (allArguments != null && allArguments.length > 0) {
+            if (allArguments[0] instanceof List) {
+                List list = (List) allArguments[0];
+                if (!CollectionUtil.isEmpty(list) && list.get(0) instanceof OperationWithAttributes) {
+                    operations = list;
+                    canTracingServer = true;
+                }
+            } else if (allArguments[0] instanceof OperationWithAttributes) {
+                operation = (OperationWithAttributes) allArguments[0];
+                canTracingServer = true;
+            }
+        }
+        AbstractSpan span;
+        if (canTracingServer) {
+            ContextCarrier contextCarrier = new ContextCarrier();
+            span = ContextManager.createExitSpan(PREFIX_OPERATION_NAME + method.getName(),
+                    contextCarrier, (String) objInst.getSkyWalkingDynamicField());
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                if (operation != null) {
+                    operation.setAttribute(next.getHeadKey(), next.getHeadValue().getBytes());
+                } else {
+                    for (OperationWithAttributes o : operations) {
+                        o.setAttribute(next.getHeadKey(), next.getHeadValue().getBytes());
+                    }
+                }
+            }
+        } else {
+            span = ContextManager.createExitSpan(PREFIX_OPERATION_NAME + method.getName(),
+                    (String) objInst.getSkyWalkingDynamicField());
+        }
         span.setComponent(ComponentsDefine.HBASE);
         Tags.DB_TYPE.set(span, HBASE_DB_TYPE);
         Tags.DB_INSTANCE.set(span, ((HTable) objInst).getName().getNameAsString());

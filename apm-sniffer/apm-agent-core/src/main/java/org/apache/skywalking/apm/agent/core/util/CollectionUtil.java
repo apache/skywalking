@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.util;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,5 +35,10 @@ public final class CollectionUtil {
                   .stream()
                   .map(entry -> entry.getKey() + "=" + Arrays.toString(entry.getValue()))
                   .collect(Collectors.joining("\n"));
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
     }
 }
