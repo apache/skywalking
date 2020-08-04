@@ -117,6 +117,7 @@ segmentItems:
       tags:
       - {key: http.method, value: POST}
       - {key: url, value: 'http://localhost:8080/feign-scenario/create/'}
+      - {key: http.params, value: '{"id": "1", "userName": "test"}'}
       skipAnalysis: 'false'
     - operationName: /feign-scenario/get/{id}
       operationId: 0
@@ -147,6 +148,7 @@ segmentItems:
       tags:
       - {key: http.method, value: PUT}
       - {key: url, value: 'http://localhost:8080/feign-scenario/update/1'}
+      - {key: http.params, value: '{"id": "1", "userName": "testA"}'}
       skipAnalysis: 'false'
     - operationName: /feign-scenario/delete/{id}
       operationId: 0

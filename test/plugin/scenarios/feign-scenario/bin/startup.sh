@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/feign-scenario.jar &
+java -jar ${agent_opts} "-Dskywalking.plugin.feign.trace_params=true" ${home}/../libs/feign-scenario.jar &
