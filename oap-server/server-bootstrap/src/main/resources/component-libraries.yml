@@ -311,6 +311,9 @@ GraphQL:
 spring-annotation:
   id: 93
   languages: Java
+Hbase:
+  id: 94
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
