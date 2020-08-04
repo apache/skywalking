@@ -89,6 +89,8 @@ public enum NodeType {
                 return MQ;
             case 5:
                 return Cache;
+            case 6:
+                return Browser;
             case 10:
                 return User;
             case 11:
