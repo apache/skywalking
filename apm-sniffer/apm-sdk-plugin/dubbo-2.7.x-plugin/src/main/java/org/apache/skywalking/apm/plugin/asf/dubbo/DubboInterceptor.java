@@ -43,8 +43,6 @@ import java.lang.reflect.Method;
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String REMOTE_ADDRESS = "remote_address";
-    public static final String LOCAL_ADDRESS = "local_address";
     public static final String ARGUMENTS = "arguments";
 
     /**
@@ -94,9 +92,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             }
 
             span = ContextManager.createEntrySpan(generateOperationName(requestURL, invocation), contextCarrier);
-            if (DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_REMOTE_ADDRESS) {
-                span.setPeer(rpcContext.getRemoteAddressString());
-            }
+            span.setPeer(rpcContext.getRemoteAddressString());
             needCollectArguments = DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_ARGUMENTS;
             argumentsLengthThreshold = DubboPluginConfig.Plugin.Dubbo.PROVIDER_ARGUMENTS_LENGTH_THRESHOLD;
         }

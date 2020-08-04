@@ -18,5 +18,5 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -Dskywalking.plugin.dubbo.collect_provider_remote_address=true -Dskywalking.plugin.dubbo.collect_consumer_arguments=true \
--Dskywalking.plugin.dubbo.collect_provider_arguments=true -jar ${agent_opts} ${home}/../libs/dubbo-2.7.x-scenario.jar &
+java -Dskywalking.plugin.dubbo.collect_consumer_arguments=true \
+-Dskywalking.plugin.dubbo.collect_provider_ arguments=true -jar ${agent_opts} ${home}/../libs/dubbo-2.7.x-scenario.jar &
