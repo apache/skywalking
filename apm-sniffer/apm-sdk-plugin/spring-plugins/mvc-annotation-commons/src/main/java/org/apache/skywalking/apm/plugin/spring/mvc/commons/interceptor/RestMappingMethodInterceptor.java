@@ -36,7 +36,7 @@ import java.lang.reflect.Method;
 public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
-        return ParsePathUtil.recursiveParseMethodAnnotaion(method, m -> {
+        return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
             String requestURL = null;
             GetMapping getMapping = AnnotationUtils.getAnnotation(m, GetMapping.class);
             PostMapping postMapping = AnnotationUtils.getAnnotation(m, PostMapping.class);

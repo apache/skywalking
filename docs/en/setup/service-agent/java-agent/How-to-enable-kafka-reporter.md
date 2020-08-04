@@ -15,4 +15,4 @@ plugin.kafka.producer_config[delivery.timeout.ms]=12000
 
 Kafka reporter plugin support to customize all configurations of listed in [here](http://kafka.apache.org/24/documentation.html#producerconfigs).
 
-After you activated the Kafka reporter, you need to open [Kafka fetcher](../../backend/backend-fetcher.md#kafka-fetcher) at the OAP side.
+Before you activated the Kafka reporter, you have to make sure that [Kafka fetcher](../../backend/backend-fetcher.md#kafka-fetcher) has been opened in service.
