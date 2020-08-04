@@ -31,7 +31,7 @@ public class DubboPluginConfig {
 
             public static int CONSUMER_ARGUMENTS_LENGTH_THRESHOLD = 256;
 
-            public static boolean COLLECT_PROVIDER_ADDRESS = false;
+            public static boolean COLLECT_PROVIDER_REMOTE_ADDRESS = false;
 
             public static boolean COLLECT_PROVIDER_ARGUMENTS = false;
 

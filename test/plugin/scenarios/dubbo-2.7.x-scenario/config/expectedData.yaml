@@ -29,11 +29,9 @@ segmentItems:
             componentId: 3
             isError: false
             spanType: Entry
-            peer: ''
+            peer: not null
             tags:
               - {key: url, value: not null}
-              - {key: remote_address, value: not null}
-              - {key: local_address, value: not null}
               - {key: arguments, value: helloWorld}
             refs:
               - {parentEndpoint: /dubbo-2.7.x-scenario/case/dubbo, networkAddress: 'localhost:20080',

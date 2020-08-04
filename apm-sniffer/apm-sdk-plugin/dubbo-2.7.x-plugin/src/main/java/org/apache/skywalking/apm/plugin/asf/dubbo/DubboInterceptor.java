@@ -94,7 +94,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             }
 
             span = ContextManager.createEntrySpan(generateOperationName(requestURL, invocation), contextCarrier);
-            collectAddress(DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_ADDRESS, span, rpcContext);
+            if (DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_REMOTE_ADDRESS) {
+                span.setPeer(rpcContext.getRemoteAddressString());
+            }
             needCollectArguments = DubboPluginConfig.Plugin.Dubbo.COLLECT_PROVIDER_ARGUMENTS;
             argumentsLengthThreshold = DubboPluginConfig.Plugin.Dubbo.PROVIDER_ARGUMENTS_LENGTH_THRESHOLD;
         }
@@ -166,13 +168,6 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         requestURL.append(":" + url.getPort() + "/");
         requestURL.append(generateOperationName(url, invocation));
         return requestURL.toString();
-    }
-
-    private void collectAddress(boolean needCollectAddress, AbstractSpan span, RpcContext rpcContext) {
-        if (needCollectAddress) {
-            span.tag(REMOTE_ADDRESS, rpcContext.getRemoteAddressString());
-            span.tag(LOCAL_ADDRESS, rpcContext.getLocalAddressString());
-        }
     }
 
     private void collectArguments(boolean needCollectArguments, int argumentsLengthThreshold, AbstractSpan span, Invocation invocation) {
