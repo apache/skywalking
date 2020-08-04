@@ -496,3 +496,4 @@ Component-Server-Mappings:
   Mysqli: Mysql
   Predis: Redis
   PyMysql: Mysql
+  Hbase: Hbase
