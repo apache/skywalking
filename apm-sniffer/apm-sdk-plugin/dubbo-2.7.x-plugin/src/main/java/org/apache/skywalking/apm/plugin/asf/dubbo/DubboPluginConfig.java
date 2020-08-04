@@ -16,8 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.dubbo.services;
+package org.apache.skywalking.apm.plugin.asf.dubbo;
 
-public interface GreetService {
-    String doBusiness(String s);
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
+
+public class DubboPluginConfig {
+
+    public static class Plugin {
+
+        @PluginConfig(root = DubboPluginConfig.class)
+        public static class Dubbo {
+
+            public static boolean COLLECT_CONSUMER_ARGUMENTS = false;
+
+            public static int CONSUMER_ARGUMENTS_LENGTH_THRESHOLD = 256;
+
+            public static boolean COLLECT_PROVIDER_ARGUMENTS = false;
+
+            public static int PROVIDER_ARGUMENTS_LENGTH_THRESHOLD = 256;
+        }
+    }
 }
