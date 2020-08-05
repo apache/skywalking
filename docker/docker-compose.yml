@@ -46,10 +46,10 @@ services:
       SW_TELEMETRY: prometheus
     healthcheck:
       test: ["CMD", "./bin/swctl", "ch"]
-      interval: 1m30s
+      interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 40s
   ui:
     image: skywalking/ui:${TAG}
     container_name: ui
