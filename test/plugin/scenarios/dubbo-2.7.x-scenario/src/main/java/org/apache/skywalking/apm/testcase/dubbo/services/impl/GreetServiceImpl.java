@@ -21,9 +21,9 @@ package org.apache.skywalking.apm.testcase.dubbo.services.impl;
 import org.apache.skywalking.apm.testcase.dubbo.services.GreetService;
 
 public class GreetServiceImpl implements GreetService {
-
+    
     @Override
-    public String doBusiness() {
-        return "{name:'helloWorld'}";
+    public String doBusiness(String s) {
+        return "{name:'" + s + "'}";
     }
 }

@@ -127,6 +127,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                 while ((mf = p.parse(now)) != null) {
                                     result.addAll(mf.getMetrics().stream()
                                         .peek(metric -> {
+                                            if (Objects.isNull(sc.getLabels())) {
+                                                return;
+                                            }
                                             Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
                                             extraLabels.put("instance", url);
                                             extraLabels.forEach((key, value) -> {
