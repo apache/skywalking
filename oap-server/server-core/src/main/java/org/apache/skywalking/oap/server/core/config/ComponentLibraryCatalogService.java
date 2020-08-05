@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +64,7 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
     @Override
     public String getServerNameBasedOnComponent(int componentId) {
         Integer serverComponentId = componentId2ServerId.get(componentId);
-        return serverComponentId == null ? Const.UNKNOWN : getComponentName(serverComponentId);
+        return serverComponentId == null ? getComponentName(componentId) : getComponentName(serverComponentId);
     }
 
     private void init() throws InitialComponentCatalogException {
@@ -96,10 +95,12 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
 
             nameMapping.forEach((name, serverName) -> {
                 if (!componentName2Id.containsKey(name)) {
-                    throw new InitialComponentCatalogException("Component name [" + name + "] in Component-Server-Mappings doesn't exist in component define. ");
+                    throw new InitialComponentCatalogException(
+                        "Component name [" + name + "] in Component-Server-Mappings doesn't exist in component define. ");
                 }
                 if (!componentName2Id.containsKey(serverName)) {
-                    throw new InitialComponentCatalogException("Server componentId name [" + serverName + "] in Component-Server-Mappings doesn't exist in component define. ");
+                    throw new InitialComponentCatalogException(
+                        "Server componentId name [" + serverName + "] in Component-Server-Mappings doesn't exist in component define. ");
                 }
 
                 componentId2ServerId.put(componentName2Id.get(name), componentName2Id.get(serverName));

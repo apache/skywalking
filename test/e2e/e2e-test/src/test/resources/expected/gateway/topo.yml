@@ -28,7 +28,7 @@ nodes:
     type: H2
   - id: not null
     name: "gateway:80"
-    type: Unknown
+    type: not null
 calls:
   - id: not null
     source: ${User[0]}
