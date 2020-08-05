@@ -18,6 +18,7 @@ OALLexer.tokens
 .vscode 
 .checkstyle
 .externalToolBuilders
+*.log
 /test/plugin/dist
 /test/plugin/workspace
 /test/jacoco/classes
