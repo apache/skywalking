@@ -46,7 +46,7 @@ import java.util.Properties;
 public class HTableInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final ILog logger = LogManager.getLogger(HTableInterceptor.class);
-    private static final String PREFIX_OPERATION_NAME = "/Htable/";
+    private static final String PREFIX_OPERATION_NAME = "/HTable/";
     private static final String HBASE_DB_TYPE = "hbase";
 
     @Override
@@ -123,7 +123,7 @@ public class HTableInterceptor implements InstanceMethodsAroundInterceptor, Inst
                 }
             }
         } catch (Exception e) {
-            logger.error("HtableInterceptor onConstruct error", e);
+            logger.error("HTableInterceptor onConstruct error", e);
         }
     }
 }

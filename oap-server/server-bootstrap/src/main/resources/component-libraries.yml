@@ -311,7 +311,7 @@ GraphQL:
 spring-annotation:
   id: 93
   languages: Java
-Hbase:
+HBase:
   id: 94
   languages: Java
 
@@ -497,4 +497,4 @@ Component-Server-Mappings:
   influxdb-java: InfluxDB
   Predis: Redis
   PyMysql: Mysql
-  Hbase: Hbase
+  Hase: HBase

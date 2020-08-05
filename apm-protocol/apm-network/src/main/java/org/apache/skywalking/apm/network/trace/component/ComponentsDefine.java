@@ -169,5 +169,5 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_ANNOTATION = new OfficialComponent(93, "spring-annotation");
 
-    public static final OfficialComponent HBASE = new OfficialComponent(94, "Hbase");
+    public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
 }

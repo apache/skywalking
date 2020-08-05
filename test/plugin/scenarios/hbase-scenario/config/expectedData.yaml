@@ -19,7 +19,7 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
-    - operationName: /Htable/put
+    - operationName: /HTable/put
       operationId: 0
       parentSpanId: 0
       spanId: 1
@@ -34,7 +34,7 @@ segmentItems:
       tags:
       - {key: db.type, value: hbase}
       - {key: db.instance, value: test_table}
-    - operationName: /Htable/getScanner
+    - operationName: /HTable/getScanner
       operationId: 0
       parentSpanId: 0
       spanId: 2
@@ -49,7 +49,7 @@ segmentItems:
       tags:
       - {key: db.type, value: hbase}
       - {key: db.instance, value: test_table}
-    - operationName: /Htable/get
+    - operationName: /HTable/get
       operationId: 0
       parentSpanId: 0
       spanId: 3
@@ -64,7 +64,7 @@ segmentItems:
       tags:
       - {key: db.type, value: hbase}
       - {key: db.instance, value: test_table}
-    - operationName: /Htable/delete
+    - operationName: /HTable/delete
       operationId: 0
       parentSpanId: 0
       spanId: 4

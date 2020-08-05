@@ -35,7 +35,7 @@ import java.io.IOException;
 @Controller
 @RequestMapping("/case")
 @PropertySource("classpath:application.properties")
-public class HbaseController {
+public class HBaseController {
 
     @Value("${hbase.servers:localhost}")
     private String address;
