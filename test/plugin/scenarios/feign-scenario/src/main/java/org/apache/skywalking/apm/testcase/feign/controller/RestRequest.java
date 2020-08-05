@@ -48,7 +48,6 @@ public interface RestRequest {
     @Body("{userName}")
     User modifyUser(@Param("id") int id, @Param("userName") String userName);
 
-
     @RequestLine("DELETE /delete/{id}")
     void deleteUser(@Param("id") int id);
 
