@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 java -jar ${agent_opts} -Dskywalking.plugin.feign.collect_request_body=true \
--Dskywalking.plugin.feign.supported_content_types_prefix=application/json,text/plain ${home}/../libs/feign-scenario.jar &
+-Dskywalking.plugin.feign.supported_content_types_prefix=application/json ${home}/../libs/feign-scenario.jar &
