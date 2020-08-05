@@ -497,4 +497,4 @@ Component-Server-Mappings:
   influxdb-java: InfluxDB
   Predis: Redis
   PyMysql: Mysql
-  Hase: HBase
+  HBase: HBase
