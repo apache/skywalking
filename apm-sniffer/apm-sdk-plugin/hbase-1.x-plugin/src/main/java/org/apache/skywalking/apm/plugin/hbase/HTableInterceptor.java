@@ -45,7 +45,6 @@ import java.util.Properties;
 
 public class HTableInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(HTableInterceptor.class);
     private static final String PREFIX_OPERATION_NAME = "/HTable/";
     private static final String HBASE_DB_TYPE = "hbase";
 
@@ -111,19 +110,15 @@ public class HTableInterceptor implements InstanceMethodsAroundInterceptor, Inst
 
     @Override
     @SuppressWarnings("rawtypes")
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        try {
-            Configuration connection = ((ClusterConnection) allArguments[1]).getConfiguration();
-            Field field = connection.getClass().getDeclaredField("overlay");
-            field.setAccessible(true);
-            Properties properties = (Properties) field.get(connection);
-            for (Map.Entry entry : properties.entrySet()) {
-                if ("hbase.zookeeper.quorum".equals(entry.getKey())) {
-                    objInst.setSkyWalkingDynamicField(entry.getValue().toString());
-                }
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
+        Configuration connection = ((ClusterConnection) allArguments[1]).getConfiguration();
+        Field field = connection.getClass().getDeclaredField("overlay");
+        field.setAccessible(true);
+        Properties properties = (Properties) field.get(connection);
+        for (Map.Entry entry : properties.entrySet()) {
+            if ("hbase.zookeeper.quorum".equals(entry.getKey())) {
+                objInst.setSkyWalkingDynamicField(entry.getValue().toString());
             }
-        } catch (Exception e) {
-            logger.error("HTableInterceptor onConstruct error", e);
         }
     }
 }
