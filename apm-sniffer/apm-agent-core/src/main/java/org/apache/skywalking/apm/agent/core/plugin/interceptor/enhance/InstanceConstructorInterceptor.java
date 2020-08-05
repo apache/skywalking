@@ -27,5 +27,5 @@ public interface InstanceConstructorInterceptor {
     /**
      * Called after the origin constructor invocation.
      */
-    void onConstruct(EnhancedInstance objInst, Object[] allArguments);
+    void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable;
 }
