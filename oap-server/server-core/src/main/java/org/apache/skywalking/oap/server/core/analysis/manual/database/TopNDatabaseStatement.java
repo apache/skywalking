@@ -21,23 +21,28 @@ package org.apache.skywalking.oap.server.core.analysis.manual.database;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
 @Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
 public class TopNDatabaseStatement extends TopN {
-
     public static final String INDEX_NAME = "top_n_database_statement";
 
     @Setter
     private String id;
+    @Getter
+    @Setter
+    @Column(columnName = STATEMENT, length = 2000, lengthEnvVariable = "SW_SLOW_DB_THRESHOLD", storageOnly = true)
+    private String statement;
 
     @Override
     public String id() {
