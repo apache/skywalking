@@ -62,7 +62,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Agent Configuration Properties](en/setup/service-agent/java-agent/README.md#table-of-agent-configuration-properties).
       * [Optional plugins](en/setup/service-agent/java-agent/README.md#optional-plugins).
       * [Bootstrap/JVM class plugin](en/setup/service-agent/java-agent/README.md#bootstrap-class-plugins).
-      * [Advanced features](en/setup/service-agent/java-agent/README.md#advanced-features).
+      * [Advanced reporters](en/setup/service-agent/java-agent/README.md#advanced-reporters).
       * [Plugin development guide](en/setup/service-agent/java-agent/README.md#plugin-development-guide).
       * [Agent plugin tests and performance tests](en/setup/service-agent/java-agent/README.md#test).
     * [Other language agents](en/setup/README.md#language-agents-in-service) includes Nginx LUA, Python, .NetCore, PHP, NodeJS, Go.
