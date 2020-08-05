@@ -25,16 +25,21 @@ public class FeignPluginConfig {
         @PluginConfig(root = FeignPluginConfig.class)
         public static class Feign {
             /**
-             * This config item controls that whether the Feign plugin should collect the parameters of the request.
+             * This config item controls that whether the Feign plugin should collect the http body of the request.
              */
-            public static boolean TRACE_PARAMS = false;
+            public static boolean COLLECT_REQUEST_BODY = false;
 
             /**
-             * When either {@link Plugin.Feign#TRACE_PARAMS} is enabled, how many characters to keep and send to the OAP
-             * backend, use negative values to keep and send the complete parameters, NB. this config item is added for
-             * the sake of performance
+             * When either {@link Plugin.Feign#COLLECT_REQUEST_BODY} is enabled, how many characters to keep and send to the OAP
+             * backend, use negative values to keep and send the complete body.
              */
             public static int FILTER_LENGTH_LIMIT = 1024;
+
+            /**
+             * When either {@link Plugin.Feign#COLLECT_REQUEST_BODY} is enabled and content-type start with SUPPORTED_CONTENT_TYPES_PREFIX, collect the body of the request
+             */
+            public static String SUPPORTED_CONTENT_TYPES_PREFIX = "application/json";
         }
     }
 }
+

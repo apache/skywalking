@@ -43,6 +43,12 @@ public interface RestRequest {
     @Body("%7B\"id\": \"{id}\", \"userName\": \"{userName}\"%7D")
     User updateUser(@Param("id") int id, @Param("userName") String userName);
 
+    @RequestLine("PUT /modify/{id}")
+    @Headers("Content-Type: text/plain")
+    @Body("{userName}")
+    User modifyUser(@Param("id") int id, @Param("userName") String userName);
+
+
     @RequestLine("DELETE /delete/{id}")
     void deleteUser(@Param("id") int id);
 

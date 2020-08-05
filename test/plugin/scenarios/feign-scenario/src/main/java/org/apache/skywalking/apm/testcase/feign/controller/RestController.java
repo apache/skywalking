@@ -64,6 +64,14 @@ public class RestController {
         return ResponseEntity.ok(currentUser);
     }
 
+    @PutMapping(value = "/modify/{id}")
+    @ResponseBody
+    public ResponseEntity<User> modify(@PathVariable("id") int id,
+                                           @RequestBody String userName) throws InterruptedException {
+        User currentUser = new User(id, userName);
+        return ResponseEntity.ok(currentUser);
+    }
+
     @DeleteMapping(value = "/delete/{id}")
     @ResponseBody
     public ResponseEntity<User> deleteUser(@PathVariable("id") int id) throws InterruptedException {
