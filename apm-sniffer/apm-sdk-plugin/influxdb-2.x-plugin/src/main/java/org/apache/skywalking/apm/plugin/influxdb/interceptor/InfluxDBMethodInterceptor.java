@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.influxdb.interceptor;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -27,12 +27,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.influxdb.InfluxDBPluginConfig;
 import org.apache.skywalking.apm.plugin.influxdb.define.Constants;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
-
-import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.influxdb.define.Constants.DB_TYPE;
 
@@ -40,7 +39,7 @@ public class InfluxDBMethodInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         String methodName = method.getName();
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan("InfluxDB/" + methodName, peer);
@@ -48,7 +47,7 @@ public class InfluxDBMethodInterceptor implements InstanceMethodsAroundIntercept
         SpanLayer.asDB(span);
         Tags.DB_TYPE.set(span, DB_TYPE);
 
-        if (allArguments.length <= 0 || !Config.Plugin.InfluxDB.TRACE_INFLUXQL) {
+        if (allArguments.length <= 0 || !InfluxDBPluginConfig.Plugin.InfluxDB.TRACE_INFLUXQL) {
             return;
         }
 
@@ -85,14 +84,14 @@ public class InfluxDBMethodInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

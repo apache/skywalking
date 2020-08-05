@@ -52,7 +52,7 @@ ORACLE:
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#,Node.js,PHP
+  languages: Java,C#,Node.js,PHP,Python
 Motan:
   id: 8
   languages: Java
@@ -151,10 +151,10 @@ rocketMQ-consumer:
   languages: Java
 kafka-producer:
   id: 40
-  languages: Java
+  languages: Java,Python
 kafka-consumer:
   id: 41
-  languages: Java
+  languages: Java,Python
 mongodb-driver:
   id: 42
   languages: Java
@@ -187,10 +187,10 @@ RabbitMQ:
   languages: Java
 rabbitmq-producer:
   id: 52
-  languages: Java
+  languages: Java,Python
 rabbitmq-consumer:
   id: 53
-  languages: Java
+  languages: Java,Python
 Canal:
   id: 54
   languages: Java
@@ -308,6 +308,9 @@ brpc-java:
 GraphQL:
   id: 92
   languages: Java
+spring-annotation:
+  id: 93
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -422,6 +425,9 @@ PyMysql:
 Django:
   id: 7004
   languages: Python
+Tornado:
+  id: 7005
+  languages: Python
 
 
 # PHP components
@@ -485,5 +491,6 @@ Component-Server-Mappings:
   rest-high-level-client: Elasticsearch
   mariadb-jdbc: Mariadb
   Mysqli: Mysql
+  influxdb-java: InfluxDB
   Predis: Redis
   PyMysql: Mysql

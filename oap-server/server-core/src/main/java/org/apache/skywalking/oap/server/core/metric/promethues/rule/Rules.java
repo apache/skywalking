@@ -44,6 +44,7 @@ public class Rules {
             throw new ModuleStartException("Load fetcher rules failed", e);
         }
         return Arrays.stream(rules)
+            .filter(File::isFile)
             .map(f -> {
                 try (Reader r = new FileReader(f)) {
                     Rule rule = new Yaml().loadAs(r, Rule.class);

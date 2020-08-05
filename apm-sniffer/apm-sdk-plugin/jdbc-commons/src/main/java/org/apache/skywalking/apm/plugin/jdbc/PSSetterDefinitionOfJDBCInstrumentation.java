@@ -18,13 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.jdbc;
 
+import java.util.Set;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
-
-import java.util.Set;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.none;
@@ -42,7 +40,7 @@ public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsI
     public ElementMatcher<MethodDescription> getMethodsMatcher() {
         ElementMatcher.Junction<MethodDescription> matcher = none();
 
-        if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS || Config.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS || Config.Plugin.MARIADB.TRACE_SQL_PARAMETERS) {
+        if (JDBCPluginConfig.Plugin.MySQL.TRACE_SQL_PARAMETERS || JDBCPluginConfig.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS || JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS) {
             final Set<String> setters = ignorable ? PS_IGNORABLE_SETTERS : PS_SETTERS;
             for (String setter : setters) {
                 matcher = matcher.or(named(setter));

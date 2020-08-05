@@ -25,7 +25,7 @@ Generic placeholders are defined as follows:
 
  * `<duration>`: a duration This will parse a textual representation of a duration. The formats accepted are based on 
                  the ISO-8601 duration format `PnDTnHnMn.nS` with days considered to be exactly 24 hours.
- * `<labelname>`: a string matching the regular expression [a-zA-Z_][a-zA-Z0-9_]*
+ * `<labelname>`: a string matching the regular expression \[a-zA-Z_\]\[a-zA-Z0-9_\]*
  * `<labelvalue>`: a string of unicode characters
  * `<host>`: a valid string consisting of a hostname or IP followed by an optional port number
  * `<path>`: a valid URL path
@@ -85,3 +85,51 @@ that adds the procedure from raw data to minute rate.
 
 When you specify `avgHistogram` and `avgHistogramPercentile`, the source should be the type of `histogram`. A counterFunction
 is also needed due to the `bucket`, `sum` and `count` of histogram are counters.
+
+## Kafka Fetcher
+
+Kafka Fetcher pulls messages from Kafka Broker(s) what is the Agent delivered. Check the agent documentation about the details. Typically Tracing Segments, Service/Instance properties, JVM Metrics, and Meter system data are supported.  Kafka Fetcher can work with gRPC/HTTP Receivers at the same time for adopting different transport protocols.
+
+Kafka Fetcher is disabled in default, and we configure as following to enable.
+
+```yaml
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:default}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+```
+
+`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements` and `skywalking-meters` topics are required by `kafka-fetcher`.
+If they do not exist, Kafka Fetcher will create them in default. Also, you can create them by yourself before the OAP server started.
+
+When using the OAP server automatical creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:
+
+```yaml
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:default}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
+    replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
+    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
+    consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+```
+
+In cluster mode, all topics have the same number of partitions. Then we have to set `"isSharding"` to `"true"` and assign the partitions to consume for OAP server. The OAP server can use commas to separate multiple partitions.
+
+Kafka Fetcher allows to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
+```yaml
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:default}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
+    replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
+    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
+    consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    kafkaConsumerConfig:
+      enable.auto.commit: true
+      ...
+```

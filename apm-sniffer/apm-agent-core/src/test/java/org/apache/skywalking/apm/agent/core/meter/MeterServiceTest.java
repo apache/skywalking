@@ -67,6 +67,8 @@ public class MeterServiceTest {
     private MeterService registryService = new MeterService();
     private List<MeterData> upstreamMeters;
 
+    private MeterSender sender = new MeterSender();
+
     private MeterReportServiceGrpc.MeterReportServiceImplBase serviceImplBase = new MeterReportServiceGrpc.MeterReportServiceImplBase() {
         @Override
         public StreamObserver<MeterData> collect(final StreamObserver<Commands> responseObserver) {
@@ -104,11 +106,14 @@ public class MeterServiceTest {
 
     @Before
     public void setUp() throws Throwable {
+        spy(sender);
         spy(registryService);
 
         Whitebox.setInternalState(
-            registryService, "meterReportServiceStub", MeterReportServiceGrpc.newStub(grpcServerRule.getChannel()));
-        Whitebox.setInternalState(registryService, "status", GRPCChannelStatus.CONNECTED);
+            sender, "meterReportServiceStub", MeterReportServiceGrpc.newStub(grpcServerRule.getChannel()));
+        Whitebox.setInternalState(sender, "status", GRPCChannelStatus.CONNECTED);
+
+        Whitebox.setInternalState(registryService, "sender", sender);
 
         upstreamMeters = new ArrayList<>();
     }
