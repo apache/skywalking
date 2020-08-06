@@ -16,25 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.define;
+package org.apache.skywalking.apm.plugin.spring.kafka.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * intercept kafkaTemplate.buildCallback translation callback
- */
-public class KafkaTemplateInstrumentation extends AbstractKafkaTemplateInstrumentation {
-
-    private static final String ENHANCE_CLASS = "org.springframework.kafka.core.KafkaTemplate";
-    private static final String ENHANCE_METHOD = "buildCallback";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.KafkaTemplateCallbackInterceptor";
+public class ListenerConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -43,16 +38,31 @@ public class KafkaTemplateInstrumentation extends AbstractKafkaTemplateInstrumen
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("pollAndInvoke").and(takesArguments(0));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return "org.apache.skywalking.apm.plugin.spring.kafka.PollAndInvokeMethodInterceptor";
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }, new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("invokeListener").and(takesArguments(1));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.spring.kafka.InvokeListenerMethodInterceptor";
                 }
 
                 @Override
@@ -64,7 +74,7 @@ public class KafkaTemplateInstrumentation extends AbstractKafkaTemplateInstrumen
     }
 
     @Override
-    protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+    public ClassMatch enhanceClass() {
+        return byName("org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer");
     }
 }
