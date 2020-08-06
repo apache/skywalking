@@ -379,7 +379,7 @@ and could make very unexpected result or side effect.
 The config could provide different behaviours based on the configurations. SkyWalking plugin mechanism provides the configuration
 injection and initialization system in the agent core.
 
-Every plugin could declare more or more classes to represent the config by using `@PluginConfig` annotation. The agent core
+Every plugin could declare one or more classes to represent the config by using `@PluginConfig` annotation. The agent core
 could initialize this class' static field though System environments, System properties, and `agent.config` static file.
 
 The `#root()` method in the `@PluginConfig` annotation requires to declare the root class for the initialization process.
