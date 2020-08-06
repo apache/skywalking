@@ -45,6 +45,8 @@ import static org.hamcrest.core.Is.is;
 @RequiredArgsConstructor
 public class MetricsQueryUtilTest {
 
+    private static final int DEFAULT_VALUE = -1;
+
     private static final String MODULE_NAME = "meter-test";
 
     private final List<String> queryConditionLabels;
@@ -60,6 +62,13 @@ public class MetricsQueryUtilTest {
         return Arrays.asList(new Object[][] {
             {
                 asList("200", "400"),
+                asList("202007291425", "202007291426"),
+                of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":8}]}}]"
+            },
+            {
+                asList("400", "200"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
                 "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
@@ -84,14 +93,14 @@ public class MetricsQueryUtilTest {
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
                 "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
                     "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":8}]}}," +
-                    "{\"label\":\"500\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":0},{\"id\":\"202007291426\",\"value\":0}]}}]"
+                    "{\"label\":\"500\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":" + DEFAULT_VALUE + "},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + "}]}}]"
             },
             {
                 asList("200", "400"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":0}]}}," +
-                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":0}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + "}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + "}]}}]"
             },
         });
     }
@@ -99,7 +108,7 @@ public class MetricsQueryUtilTest {
     @Before
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            MODULE_NAME, "value", LABELED_VALUE, Function.None, 0
+            MODULE_NAME, "value", LABELED_VALUE, Function.None, DEFAULT_VALUE
         );
     }
 

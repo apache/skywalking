@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
-import io.vavr.Tuple;
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,8 +37,6 @@ import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -104,28 +104,37 @@ public interface IMetricsQueryDAO extends DAO {
                 allLabels = labels;
             }
             final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-            return allLabels.stream()
-                .flatMap(label -> ids.stream()
-                    .map(id -> Tuple.of(
-                        label,
-                        id,
-                        Optional.ofNullable(idMap.getOrDefault(id, new DataTable()).get(label)).orElse(0L))))
-                .collect(groupingBy(t -> t._1, mapping(t -> {
-                    KVInt kv = new KVInt();
-                    kv.setId(t._2);
-                    kv.setValue(t._3);
-                    return kv;
-                }, toList())))
-                .entrySet().stream()
-                .map(entry -> {
-                    MetricsValues labelValue = new MetricsValues();
-                    labelValue.setLabel(entry.getKey());
-                    IntValues values = new IntValues();
-                    entry.getValue().forEach(values::addKVInt);
-                    labelValue.setValues(sortValues(values, ids, defaultValue));
-                    return labelValue;
-                })
+            List<LabeledValue> labeledValues = Sets.newTreeSet(allLabels).stream()
+                .flatMap(label -> ids.stream().map(id ->
+                    new LabeledValue(label, id, Optional.ofNullable(
+                        idMap.getOrDefault(id, new DataTable()).get(label)).orElse((long) defaultValue))))
                 .collect(toList());
+            MetricsValues current = new MetricsValues();
+            List<MetricsValues> result = new ArrayList<>();
+            for (LabeledValue each : labeledValues) {
+                if (!Strings.isNullOrEmpty(current.getLabel()) && each.label.equals(current.getLabel())) {
+                    current.getValues().addKVInt(each.kv);
+                } else {
+                    current = new MetricsValues();
+                    current.setLabel(each.label);
+                    current.getValues().addKVInt(each.kv);
+                    result.add(current);
+                }
+            }
+            return result;
+        }
+    }
+
+    class LabeledValue {
+        private final String label;
+        private final KVInt kv;
+
+        public LabeledValue(String label, String id, long value) {
+            this.label = label;
+            KVInt kv = new KVInt();
+            kv.setId(id);
+            kv.setValue(value);
+            this.kv = kv;
         }
     }
 }

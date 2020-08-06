@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -139,7 +138,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         });
 
         SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
-        Map<String, DataTable> idMap = new LinkedHashMap<>();
+        Map<String, DataTable> idMap = new HashMap<>();
         SearchHit[] hits = response.getHits().getHits();
         for (SearchHit hit : hits) {
             idMap.put(hit.getId(), new DataTable((String) hit.getSourceAsMap().getOrDefault(valueColumnName, "")));
