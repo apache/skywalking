@@ -133,7 +133,7 @@ property key | Description | Default |
 `plugin.http.http_params_length_threshold`| When `COLLECT_HTTP_PARAMS` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added for the sake of performance.  | `1024` |
 `plugin.feign.collect_request_body`| This config item controls that whether the Feign plugin should collect the http body of the request. | `false` |
 `plugin.feign.filter_length_limit`| When `COLLECT_REQUEST_BODY` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete body.  | `1024` |
-`plugin.feign.supported_content_types_prefix`| When `COLLECT_REQUEST_BODY` is enabled and content-type start with SUPPORTED_CONTENT_TYPES_PREFIX, collect the body of the request , multiple paths should be separated by `,`  | `1024` |
+`plugin.feign.supported_content_types_prefix`| When `COLLECT_REQUEST_BODY` is enabled and content-type start with SUPPORTED_CONTENT_TYPES_PREFIX, collect the body of the request , multiple paths should be separated by `,`  | `application/json,text/` |
 `plugin.influxdb.trace_influxql`|If true, trace all the influxql(query and write) in InfluxDB access, default is true.|`true`|
 `correlation.element_max_number`|Max element count of the correlation context.|`3`|
 `correlation.value_max_length`|Max value length of correlation context element.|`128`|

@@ -185,6 +185,7 @@ segmentItems:
       tags:
         - {key: http.method, value: PUT}
         - {key: url, value: 'http://localhost:8080/feign-scenario/modify/1'}
+        - {key: http.body, value: testA}
       skipAnalysis: 'false'
     - operationName: /feign-scenario/delete/{id}
       operationId: 0

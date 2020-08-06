@@ -38,7 +38,7 @@ public class FeignPluginConfig {
             /**
              * When either {@link Plugin.Feign#COLLECT_REQUEST_BODY} is enabled and content-type start with SUPPORTED_CONTENT_TYPES_PREFIX, collect the body of the request
              */
-            public static String SUPPORTED_CONTENT_TYPES_PREFIX = "application/json";
+            public static String SUPPORTED_CONTENT_TYPES_PREFIX = "application/json,text/";
         }
     }
 }
