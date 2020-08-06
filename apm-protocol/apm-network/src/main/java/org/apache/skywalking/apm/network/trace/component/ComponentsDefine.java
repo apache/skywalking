@@ -168,4 +168,8 @@ public class ComponentsDefine {
     public static final OfficialComponent GRAPHQL = new OfficialComponent(92, "GraphQL");
 
     public static final OfficialComponent SPRING_ANNOTATION = new OfficialComponent(93, "spring-annotation");
+
+    public static final OfficialComponent THRIFT_SERVER = new OfficialComponent(94, "thrift-server");
+
+    public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(95, "thrift-client");
 }
