@@ -169,7 +169,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_ANNOTATION = new OfficialComponent(93, "spring-annotation");
 
-    public static final OfficialComponent THRIFT_SERVER = new OfficialComponent(94, "thrift-server");
+    public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
 
-    public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(95, "thrift-client");
+    public static final OfficialComponent THRIFT_SERVER = new OfficialComponent(95, "thrift-server");
+
+    public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(96, "thrift-client");
 }
