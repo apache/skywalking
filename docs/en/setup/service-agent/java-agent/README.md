@@ -134,7 +134,12 @@ property key | Description | Default |
 `plugin.influxdb.trace_influxql`|If true, trace all the influxql(query and write) in InfluxDB access, default is true.|`true`|
 `correlation.element_max_number`|Max element count of the correlation context.|`3`|
 `correlation.value_max_length`|Max value length of correlation context element.|`128`|
+`plugin.dubbo.collect_consumer_arguments`| Apache Dubbo consumer collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
+`plugin.dubbo.consumer_arguments_length_threshold`| When `plugin.dubbo.collect_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
+`plugin.dubbo.collect_provider_arguments`| Apache Dubbo provider collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
+`plugin.dubbo.consumer_provider_length_threshold`| When `plugin.dubbo.provider_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
 `plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
+`plugin.kafka.consumer_config`| Kafka producer configuration. ||
 `plugin.kafka.producer_config`| Kafka producer configuration. Read [producer configure](http://kafka.apache.org/24/documentation.html#producerconfigs) to get more details. Check [Kafka report doc](How-to-enable-kafka-reporter.md) for more details and examples. | |
 `plugin.kafka.topic_meter` | Specify which Kafka topic name for Meter System data to report to. | `skywalking_meters` |
 `plugin.kafka.topic_metrics` | Specify which Kafka topic name for JVM metrics data to report to. | `skywalking_metrics` |

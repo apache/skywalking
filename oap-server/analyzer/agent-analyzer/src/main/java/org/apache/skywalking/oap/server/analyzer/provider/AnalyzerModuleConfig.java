@@ -68,7 +68,9 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Getter
     private boolean traceAnalysis = true;
     /**
-     * Slow Sql string length can't beyond this limit
+     * Slow Sql string length can't beyond this limit. This value should be as same as the length annotation at the
+     * {@code org.apache.skywalking.oap.server.core.analysis.manual.database.TopNDatabaseStatement#statement}. And share
+     * the system env name, SW_SLOW_DB_THRESHOLD
      */
     @Setter
     @Getter
