@@ -210,7 +210,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
                     if (StringUtil.isEmpty(sqlStatement)) {
-                        statement.setStatement("[No statement]/" + sourceBuilder.getDestEndpointName());
+                        statement.setStatement("[No statement]/" + span.getOperationName());
                     } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
                         statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
                     } else {
