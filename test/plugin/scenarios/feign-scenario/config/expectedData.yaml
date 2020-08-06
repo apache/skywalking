@@ -82,6 +82,27 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
+      - operationName: /feign-scenario/modify/1
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: Http
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 1
+        isError: false
+        spanType: Entry
+        peer: ''
+        tags:
+          - {key: url, value: 'http://localhost:8080/feign-scenario/modify/1'}
+          - {key: http.method, value: PUT}
+        refs:
+          - {parentEndpoint: /feign-scenario/case/feign-scenario, networkAddress: 'localhost:8080',
+             refType: CrossProcess, parentSpanId: 4, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                                                       null, parentService: feign-scenario, traceId: not null}
+        skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
     - operationName: /feign-scenario/delete/1
       operationId: 0
       parentSpanId: -1
@@ -98,7 +119,7 @@ segmentItems:
       - {key: http.method, value: DELETE}
       refs:
       - {parentEndpoint: /feign-scenario/case/feign-scenario, networkAddress: 'localhost:8080',
-        refType: CrossProcess, parentSpanId: 4, parentTraceSegmentId: not null, parentServiceInstance: not
+        refType: CrossProcess, parentSpanId: 5, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: feign-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -117,6 +138,7 @@ segmentItems:
       tags:
       - {key: http.method, value: POST}
       - {key: url, value: 'http://localhost:8080/feign-scenario/create/'}
+      - {key: http.body, value: '{"id": "1", "userName": "test"}'}
       skipAnalysis: 'false'
     - operationName: /feign-scenario/get/{id}
       operationId: 0
@@ -147,11 +169,28 @@ segmentItems:
       tags:
       - {key: http.method, value: PUT}
       - {key: url, value: 'http://localhost:8080/feign-scenario/update/1'}
+      - {key: http.body, value: '{"id": "1", "userName": "testA"}'}
+      skipAnalysis: 'false'
+    - operationName: /feign-scenario/modify/{id}
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 11
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      tags:
+        - {key: http.method, value: PUT}
+        - {key: url, value: 'http://localhost:8080/feign-scenario/modify/1'}
+        - {key: http.body, value: testA}
       skipAnalysis: 'false'
     - operationName: /feign-scenario/delete/{id}
       operationId: 0
       parentSpanId: 0
-      spanId: 4
+      spanId: 5
       spanLayer: Http
       startTime: nq 0
       endTime: nq 0
