@@ -52,6 +52,7 @@ services:
       SW_STORAGE: elasticsearch
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap1,destfile=/jacoco/oap1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     volumes:
       - ./gateways.yml:/skywalking/config/gateways.yml
     depends_on:
@@ -69,6 +70,7 @@ services:
       SW_STORAGE: elasticsearch
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap2,destfile=/jacoco/oap2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     volumes:
       - ./gateways.yml:/skywalking/config/gateways.yml
     depends_on:
