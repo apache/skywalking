@@ -171,5 +171,5 @@ public class ComponentsDefine {
 
     public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
 
-    public static final OfficialComponent SPRING_KAFKA = new OfficialComponent(95, "spring-kafka");
+    public static final OfficialComponent SPRING_KAFKA_CONSUMER = new OfficialComponent(95, "spring-kafka-consumer");
 }

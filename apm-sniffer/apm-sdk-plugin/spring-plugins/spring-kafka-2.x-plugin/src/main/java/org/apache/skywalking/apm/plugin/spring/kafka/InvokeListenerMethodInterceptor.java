@@ -36,7 +36,7 @@ public class InvokeListenerMethodInterceptor implements InstanceMethodsAroundInt
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         AbstractSpan span = ContextManager.createLocalSpan(SPRING_KAFKA_INVOKE_LISTENER_OPERATION_NAME);
-        span.setComponent(ComponentsDefine.SPRING_KAFKA);
+        span.setComponent(ComponentsDefine.SPRING_KAFKA_CONSUMER);
         span.setLayer(SpanLayer.MQ);
     }
 
