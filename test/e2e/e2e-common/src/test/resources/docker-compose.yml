@@ -13,38 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 version: '2.1'
 
 services:
   oap:
-    extends:
-      file: ../../base-compose.yml
-      service: oap
+    image: skywalking/oap:latest
+    expose:
+      - 11800
+      - 12800
+      - 5005
+    networks:
+      - e2e
+    restart: on-failure
     environment:
-      SW_AUTHENTICATION: test-token
-      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
-      SW_TELEMETRY: prometheus
-
-  ui:
-    extends:
-      file: ../../base-compose.yml
-      service: ui
-    depends_on:
-      oap:
-        condition: service_healthy
-
-  provider:
-    extends:
-      file: ../../base-compose.yml
-      service: provider
-    environment:
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_STORAGE_ES_CLUSTER_NODES: es:9200
+      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
+      SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
       JAVA_OPTS: >-
-        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
-        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.authentication=test-token
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap,destfile=/jacoco/oap.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
-    depends_on:
-      oap:
-        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -zn 127.0.0.1 11800"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
 networks:
-  e2e:
+  e2e: {}
