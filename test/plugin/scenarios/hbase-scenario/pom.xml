@@ -32,6 +32,7 @@
         <log4j.version>2.6.2</log4j.version>
         <spring.version>4.3.8.RELEASE</spring.version>
         <spring-boot-version>1.5.2.RELEASE</spring-boot-version>
+        <compiler.version>1.8</compiler.version>
     </properties>
 
     <name>skywalking-hbase-scenario</name>
