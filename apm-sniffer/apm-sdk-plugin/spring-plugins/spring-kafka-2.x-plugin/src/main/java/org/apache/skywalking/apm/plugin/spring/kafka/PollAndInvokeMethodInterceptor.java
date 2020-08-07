@@ -39,8 +39,13 @@ public class PollAndInvokeMethodInterceptor implements InstanceMethodsAroundInte
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         SpringKafkaContext context = (SpringKafkaContext) ContextManager.getRuntimeContext().get(Constants.SPRING_KAFKA_FLAG);
+        if (context == null) {
+            return ret;
+        }
         if (context.getNeedStop()) {
             ContextManager.stopSpan();
+        } else {
+            ContextManager.getRuntimeContext().remove(Constants.SPRING_KAFKA_FLAG);
         }
         return ret;
     }
