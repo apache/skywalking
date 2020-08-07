@@ -59,7 +59,7 @@ public class CaseController {
 
     @PostConstruct
     private void setUp() {
-        topicName = "test";
+        topicName = "spring_test";
         setUpProvider();
         setUpConsumer();
     }

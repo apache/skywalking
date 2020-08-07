@@ -36,7 +36,7 @@ segmentItems:
       - {key: http.method, value: HEAD}
   - segmentId: not null
     spans:
-    - operationName: Kafka/test/Producer
+    - operationName: Kafka/spring_test/Producer
       operationId: 0
       parentSpanId: 0
       spanId: 1
@@ -50,7 +50,7 @@ segmentItems:
       skipAnalysis: false
       tags:
       - {key: mq.broker, value: not null}
-      - {key: mq.topic, value: test}
+      - {key: mq.topic, value: spring_test}
     - operationName: /case/spring-kafka-case
       operationId: 0
       parentSpanId: -1
@@ -81,7 +81,7 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: mq.topic, value: test}
+      - {key: mq.topic, value: spring_test}
       refs:
       - {parentEndpoint: /case/spring-kafka-case, networkAddress: '', refType: CrossThread,
         parentSpanId: 1, parentTraceSegmentId: not null,
@@ -105,7 +105,7 @@ segmentItems:
       - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-consumer-ping'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpoint: 'Kafka/test/Consumer/grop:test', networkAddress: 'not null',
+      - {parentEndpoint: 'Kafka/spring_test/Consumer/grop:test', networkAddress: 'not null',
         refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: spring-kafka-scenario,
         traceId: not null}
@@ -138,7 +138,7 @@ segmentItems:
       spanType: Local
       peer: ''
       skipAnalysis: false
-    - operationName: Kafka/test/Consumer/grop:test
+    - operationName: Kafka/spring_test/Consumer/grop:test
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -152,7 +152,7 @@ segmentItems:
       skipAnalysis: false
       tags:
       - {key: mq.broker, value: 'kafka-server:9092'}
-      - {key: mq.topic, value: test}
+      - {key: mq.topic, value: spring_test}
       refs:
       - {parentEndpoint: /case/spring-kafka-case, networkAddress: 'kafka-server:9092',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
