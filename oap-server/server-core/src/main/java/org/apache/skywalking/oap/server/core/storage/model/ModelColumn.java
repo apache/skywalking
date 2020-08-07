@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import com.google.gson.JsonObject;
 import java.lang.reflect.Type;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -43,15 +42,7 @@ public class ModelColumn {
         this.type = type;
         this.genericType = genericType;
         this.matchQuery = matchQuery;
-
-        /*
-         * Only accept length in the String/JsonObject definition.
-         */
-        if (type.equals(String.class) || type.equals(JsonObject.class)) {
-            this.length = length;
-        } else {
-            this.length = 0;
-        }
+        this.length = length;
         /*
          * byte[] and {@link IntKeyLongValueHashMap} could never be query.
          */

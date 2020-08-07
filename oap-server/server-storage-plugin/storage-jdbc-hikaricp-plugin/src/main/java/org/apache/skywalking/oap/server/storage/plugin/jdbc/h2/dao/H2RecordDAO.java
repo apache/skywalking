@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -33,7 +36,17 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
 
     public H2RecordDAO(JDBCHikariCPClient h2Client, StorageBuilder<Record> storageBuilder) {
         this.h2Client = h2Client;
-        this.storageBuilder = storageBuilder;
+        try {
+            if (SegmentRecord.class.equals(
+                storageBuilder.getClass().getMethod("map2Data", Map.class).getReturnType())
+            ) {
+                this.storageBuilder = new H2SegmentRecordBuilder();
+            } else {
+                this.storageBuilder = storageBuilder;
+            }
+        } catch (NoSuchMethodException e) {
+            throw new UnexpectedException("Can't find the SegmentRecord$Builder.map2Data method.");
+        }
     }
 
     @Override

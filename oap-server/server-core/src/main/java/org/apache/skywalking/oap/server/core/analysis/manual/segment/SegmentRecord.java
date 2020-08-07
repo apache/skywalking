@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -112,7 +111,14 @@ public class SegmentRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TAGS)
-    private List<String> tags = new ArrayList<>();
+    private List<String> tags;
+    /**
+     * Tags raw data is a duplicate field of {@link #tags}. Some storage don't support array values in a single column.
+     * Then, those implementations could use this raw data to generate necessary data structures.
+     */
+    @Setter
+    @Getter
+    private List<SpanTag> tagsRawData;
 
     @Override
     public String id() {

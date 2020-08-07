@@ -141,7 +141,7 @@ public class H2StorageProvider extends ModuleProvider {
         try {
             h2Client.connect();
 
-            H2TableInstaller installer = new H2TableInstaller(h2Client, getManager());
+            H2TableInstaller installer = new H2TableInstaller(h2Client, getManager(), config.getMaxSizeOfArrayColumn());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
