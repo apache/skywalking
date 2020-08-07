@@ -18,22 +18,25 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 
 /**
  * SegmentSpanListener forwards the segment raw data to the persistence layer with the query required conditions.
@@ -44,6 +47,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
     private final NamingControl namingControl;
+    private final List<String> searchableTagKeys;
 
     private final Segment segment = new Segment();
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
@@ -96,7 +100,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             serviceId,
             endpointName
         );
-
     }
 
     @Override
@@ -144,9 +147,19 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             if (!isError && span.getIsError()) {
                 isError = true;
             }
+
+            appendSearchableTags(span);
         });
         final long accurateDuration = endTimestamp - startTimestamp;
         duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
+    }
+
+    private void appendSearchableTags(SpanObject span) {
+        span.getTagsList().forEach(tag -> {
+            if (searchableTagKeys.contains(tag.getKey())) {
+                segment.getTags().add(new SpanTag(tag.getKey(), tag.getValue()));
+            }
+        });
     }
 
     @Override
@@ -184,7 +197,12 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
-            return new SegmentAnalysisListener(sourceReceiver, sampler, namingControl);
+            return new SegmentAnalysisListener(
+                sourceReceiver,
+                sampler,
+                namingControl,
+                Arrays.asList(config.getSearchableTagKeys().split(Const.COMMA))
+            );
         }
     }
 }

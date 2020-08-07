@@ -16,29 +16,43 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.input;
+package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
-import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.type.TraceState;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Getter
 @Setter
-public class TraceQueryCondition {
-    private String serviceId;
-    private String serviceInstanceId;
-    private String traceId;
-    private String endpointName;
-    private String endpointId;
-    private Duration queryDuration;
-    private int minTraceDuration;
-    private int maxTraceDuration;
-    private TraceState traceState;
-    private QueryOrder queryOrder;
-    private Pagination paging;
-    private List<SpanTag> tags;
+public class SpanTag {
+    private String key;
+    private String value;
+
+    public SpanTag() {
+    }
+
+    public SpanTag(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return key + "=" + value;
+    }
+
+    public static class Util {
+        public static List<String> toStringList(List<SpanTag> list) {
+            if (CollectionUtils.isEmpty(list)) {
+                return Collections.emptyList();
+            }
+            List<String> result = new ArrayList<>(list.size());
+            list.forEach(e -> result.add(e.toString()));
+            return result;
+        }
+    }
 }
+
