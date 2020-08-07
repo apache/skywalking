@@ -110,7 +110,6 @@ public class CaseController {
     @RequestMapping("/spring-kafka-consumer-ping")
     @ResponseBody
     public String springKafkaConsumerPing() {
-        kafkaTemplate.send(topicName, "key", "helloWorld");
         return SUCCESS;
     }
 
