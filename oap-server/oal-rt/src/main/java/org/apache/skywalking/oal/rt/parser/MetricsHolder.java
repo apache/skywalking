@@ -45,11 +45,9 @@ public class MetricsHolder {
         }
     }
 
-    public static Class<? extends Metrics> find(
-        String functionName) {
+    public static Class<? extends Metrics> find(String functionName) {
         String func = functionName;
-        Class<? extends Metrics> metricsClass = REGISTER.get(
-            func);
+        Class<? extends Metrics> metricsClass = REGISTER.get(func);
         if (metricsClass == null) {
             throw new IllegalArgumentException("Can't find metrics, " + func);
         }

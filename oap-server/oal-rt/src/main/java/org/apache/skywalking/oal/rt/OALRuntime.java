@@ -53,6 +53,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
+import org.apache.skywalking.oal.rt.parser.FilterMatchers;
 import org.apache.skywalking.oal.rt.parser.MetricsHolder;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
@@ -148,6 +149,12 @@ public class OALRuntime implements OALEngine {
             MetricsHolder.init();
         } catch (IOException e) {
             throw new ModuleStartException("load metrics functions error.", e);
+        }
+
+        try {
+            FilterMatchers.INSTANCE.init();
+        } catch (IOException e) {
+            throw new ModuleStartException("failed to load filter matchers.", e);
         }
 
         try {

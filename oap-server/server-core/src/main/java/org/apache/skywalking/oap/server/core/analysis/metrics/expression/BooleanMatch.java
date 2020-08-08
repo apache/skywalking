@@ -20,37 +20,13 @@ package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
-@FilterMatcher
-public class GreaterEqualMatch {
-    public boolean match(int left, int right) {
-        return left >= right;
+@FilterMatcher(type = boolean.class)
+public class BooleanMatch {
+    public boolean match(Boolean left, Boolean right) {
+        return left == right;
     }
 
-    public boolean match(long left, long right) {
-        return left >= right;
-    }
-
-    public boolean match(float left, float right) {
-        return left >= right;
-    }
-
-    public boolean match(double left, double right) {
-        return left >= right;
-    }
-
-    public boolean match(Integer left, Integer right) {
-        return left >= right;
-    }
-
-    public boolean match(Long left, Long right) {
-        return left >= right;
-    }
-
-    public boolean match(Float left, Float right) {
-        return left >= right;
-    }
-
-    public boolean match(Double left, Double right) {
-        return left >= right;
+    public boolean match(boolean left, boolean right) {
+        return left == right;
     }
 }
