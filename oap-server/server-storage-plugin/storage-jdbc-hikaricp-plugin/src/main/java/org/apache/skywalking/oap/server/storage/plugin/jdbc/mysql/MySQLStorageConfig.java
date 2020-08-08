@@ -32,7 +32,7 @@ public final class MySQLStorageConfig extends ModuleConfig {
      *
      * @since 8.2.0
      */
-    private int maxSizeOfArrayColumn = 14;
+    private int maxSizeOfArrayColumn = 20;
     /**
      * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getNumOfSearchableValuesPerTag()}
      *

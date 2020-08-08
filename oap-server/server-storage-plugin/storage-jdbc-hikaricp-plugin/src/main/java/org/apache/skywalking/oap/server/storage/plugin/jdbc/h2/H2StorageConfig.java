@@ -31,8 +31,8 @@ public class H2StorageConfig extends ModuleConfig {
     private String password = "";
     private int metadataQueryMaxSize = 5000;
     /**
-     * Some entities, such as trace segment, include the logic column with multiple values. Some storage support this kind
-     * of data structure, but H2 doesn't.
+     * Some entities, such as trace segment, include the logic column with multiple values. Some storage support this
+     * kind of data structure, but H2 doesn't.
      *
      * In the H2, we use multiple physical columns to host the values, such as,
      *
@@ -49,10 +49,10 @@ public class H2StorageConfig extends ModuleConfig {
      *
      * @since 8.2.0
      */
-    private int maxSizeOfArrayColumn = 14;
+    private int maxSizeOfArrayColumn = 20;
     /**
-     * In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such as
-     * multiple HTTP exit spans all have their own `http.method` tag.
+     * In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such
+     * as multiple HTTP exit spans all have their own `http.method` tag.
      *
      * This configuration set the limitation of max num of values for the same tag key.
      *
