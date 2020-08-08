@@ -70,6 +70,8 @@
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
     * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
+  * HBase
+    * [hbase-client](https://github.com/apache/hbase) HTable 1.x
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination

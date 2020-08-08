@@ -20,15 +20,17 @@ package org.apache.skywalking.e2e;
 
 import com.google.common.base.Strings;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +101,9 @@ public final class SkyWalkingAnnotations {
             ? (System.getenv("GITHUB_WORKSPACE") + "/logs") : "/tmp/skywalking/logs";
     private static final Path LOG_DIR = Paths.get(LOG_DIR_ENV);
 
+    private static final List<String> REMOTE_SERVICE_NAMES = new LinkedList<>();
+    private static final int REMOTE_DEBUG_PORT = 5005;
+
     static {
         LOGGER.info("IDENTIFIER={}", IDENTIFIER);
         LOGGER.info("LOG_DIR={}", LOG_DIR);
@@ -164,6 +169,17 @@ public final class SkyWalkingAnnotations {
                 field.set(testClass, HostAndPort.builder().host(host).port(port).build());
             }
         }
+        if (!IS_CI) {
+            File portFile = new File("remote_real_port");
+            portFile.createNewFile();
+            FileWriter fileWriter = new FileWriter(portFile.getName());
+            for (String service : REMOTE_SERVICE_NAMES) {
+                fileWriter.write(String.format("%s-%s:%s\n", service, compose.getServiceHost(service, REMOTE_DEBUG_PORT),
+                        compose.getServicePort(service, REMOTE_DEBUG_PORT)));
+            }
+            fileWriter.flush();
+            fileWriter.close();
+        }
     }
 
     private static Optional<DockerComposeContainer<?>> initDockerComposeField(final Object testClass) throws Exception {
@@ -185,6 +201,25 @@ public final class SkyWalkingAnnotations {
         final List<File> files = Stream.of(dockerCompose.value()).map(Envs::resolve)
                                        .map(File::new).collect(Collectors.toList());
         final DockerComposeContainer<?> compose = new DockerComposeContainer<>(IDENTIFIER, files);
+
+        if (!IS_CI) {
+            files.forEach(file -> {
+                try {
+                    DockerComposeFile dockerComposeFile = DockerComposeFile.getAllConfigInfo(
+                            file.getAbsolutePath());
+                    LOGGER.info(file.getAbsolutePath());
+                    dockerComposeFile.getServices().forEach(
+                            (service, ignored) -> {
+                                if (dockerComposeFile.isExposedPort(service, REMOTE_DEBUG_PORT)) {
+                                    REMOTE_SERVICE_NAMES.add(service);
+                                    compose.withExposedService(service, REMOTE_DEBUG_PORT, Wait.forListeningPort());
+                                }
+                            });
+                } catch (IOException | InterruptedException e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            });
+        }
 
         for (final Field field : fields) {
             if (field.isAnnotationPresent(ContainerHost.class) && field.isAnnotationPresent(ContainerPort.class)) {
