@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -104,15 +103,17 @@ public interface IMetricsQueryDAO extends DAO {
                 allLabels = labels;
             }
             final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-            List<LabeledValue> labeledValues = Sets.newTreeSet(allLabels).stream()
+            List<LabeledValue> labeledValues = new TreeSet<>(allLabels).stream()
                 .flatMap(label -> ids.stream().map(id ->
-                    new LabeledValue(label, id, Optional.ofNullable(
-                        idMap.getOrDefault(id, new DataTable()).get(label)).orElse((long) defaultValue))))
+                    new LabeledValue(
+                        label,
+                        id,
+                        Optional.ofNullable(idMap.getOrDefault(id, new DataTable()).get(label)).orElse((long) defaultValue))))
                 .collect(toList());
             MetricsValues current = new MetricsValues();
             List<MetricsValues> result = new ArrayList<>();
             for (LabeledValue each : labeledValues) {
-                if (!Strings.isNullOrEmpty(current.getLabel()) && each.label.equals(current.getLabel())) {
+                if (Objects.equals(current.getLabel(), each.label)) {
                     current.getValues().addKVInt(each.kv);
                 } else {
                     current = new MetricsValues();
