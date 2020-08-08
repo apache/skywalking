@@ -14,147 +14,118 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-- serviceName: spring-kafka-scenario
-  segmentSize: nq 0
-  segments:
-  - segmentId: not null
-    spans:
-    - operationName: /case/healthCheck
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: not null
-      endTime: not null
-      componentId: 14
-      isError: false
-      spanType: Entry
-      peer: ''
-      skipAnalysis: false
-      tags:
-      - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/healthCheck'}
-      - {key: http.method, value: HEAD}
-  - segmentId: not null
-    spans:
-    - operationName: Kafka/spring_test/Producer
-      operationId: 0
-      parentSpanId: 0
-      spanId: 1
-      spanLayer: MQ
-      startTime: not null
-      endTime: not null
-      componentId: 40
-      isError: false
-      spanType: Exit
-      peer: not null
-      skipAnalysis: false
-      tags:
-      - {key: mq.broker, value: not null}
-      - {key: mq.topic, value: spring_test}
-    - operationName: /case/spring-kafka-case
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: not null
-      endTime: not null
-      componentId: 14
-      isError: false
-      spanType: Entry
-      peer: ''
-      skipAnalysis: false
-      tags:
-      - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-case'}
-      - {key: http.method, value: GET}
-  - segmentId: not null
-    spans:
-    - operationName: Kafka/Producer/Callback
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: MQ
-      startTime: not null
-      endTime: not null
-      componentId: 40
-      isError: false
-      spanType: Local
-      peer: ''
-      skipAnalysis: false
-      tags:
-      - {key: mq.topic, value: spring_test}
-      refs:
-      - {parentEndpoint: /case/spring-kafka-case, networkAddress: '', refType: CrossThread,
-        parentSpanId: 1, parentTraceSegmentId: not null,
-        parentServiceInstance: not null, parentService: not null,
-        traceId: not null}
-  - segmentId: not null
-    spans:
-    - operationName: /case/spring-kafka-consumer-ping
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: not null
-      endTime: not null
-      componentId: 14
-      isError: false
-      spanType: Entry
-      peer: ''
-      skipAnalysis: false
-      tags:
-      - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-consumer-ping'}
-      - {key: http.method, value: GET}
-      refs:
-      - {parentEndpoint: 'Kafka/spring_test/Consumer/grop:test', networkAddress: 'not null',
-        refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: not null,
-        parentServiceInstance: not null, parentService: spring-kafka-scenario,
-        traceId: not null}
-  - segmentId: not null
-    spans:
-    - operationName: /spring-kafka-scenario/case/spring-kafka-consumer-ping
-      operationId: 0
-      parentSpanId: 1
-      spanId: 2
-      spanLayer: Http
-      startTime: not null
-      endTime: not null
-      componentId: 12
-      isError: false
-      spanType: Exit
-      peer: localhost:8080
-      skipAnalysis: false
-      tags:
-      - {key: http.method, value: GET}
-      - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-consumer-ping'}
-    - operationName: /spring-kafka/invokeListener
-      operationId: 0
-      parentSpanId: 0
-      spanId: 1
-      spanLayer: MQ
-      startTime: not null
-      endTime: not null
-      componentId: 95
-      isError: false
-      spanType: Local
-      peer: ''
-      skipAnalysis: false
-    - operationName: Kafka/spring_test/Consumer/grop:test
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: MQ
-      startTime: not null
-      endTime: not null
-      componentId: 41
-      isError: false
-      spanType: Entry
-      peer: ''
-      skipAnalysis: false
-      tags:
-      - {key: mq.broker, value: 'kafka-server:9092'}
-      - {key: mq.topic, value: spring_test}
-      refs:
-      - {parentEndpoint: /case/spring-kafka-case, networkAddress: 'kafka-server:9092',
-        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
-        parentServiceInstance: not null, parentService: spring-kafka-scenario,
-        traceId: not null}
+  - serviceName: spring-kafka-scenario
+    segmentSize: nq 0
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: Kafka/spring_test/Producer
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: MQ
+            startTime: not null
+            endTime: not null
+            componentId: 40
+            isError: false
+            spanType: Exit
+            peer: kafka-server:9092
+            skipAnalysis: false
+            tags:
+              - {key: mq.broker, value: 'kafka-server:9092'}
+              - {key: mq.topic, value: spring_test}
+          - operationName: /case/spring-kafka-case
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 14
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-case'}
+              - {key: http.method, value: GET}
+      - segmentId: not null
+        spans:
+          - operationName: Kafka/Producer/Callback
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: MQ
+            startTime: not null
+            endTime: not null
+            componentId: 40
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: mq.topic, value: spring_test}
+            refs:
+              - {parentEndpoint: /case/spring-kafka-case, networkAddress: '', refType: CrossThread,
+                 parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: spring-kafka-scenario,
+                 traceId: not null}
+      - segmentId: not null
+        spans:
+          - operationName: /case/spring-kafka-consumer-ping
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 14
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-consumer-ping'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpoint: 'Kafka/spring_test/Consumer/grop:spring_test', networkAddress: 'localhost:8080',
+                 refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: spring-kafka-scenario,
+                 traceId: not null}
+      - segmentId: not null
+        spans:
+          - operationName: /spring-kafka-scenario/case/spring-kafka-consumer-ping
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/spring-kafka-scenario/case/spring-kafka-consumer-ping'}
+          - operationName: Kafka/spring_test/Consumer/grop:spring_test
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: MQ
+            startTime: not null
+            endTime: not null
+            componentId: 41
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: mq.broker, value: 'kafka-server:9092'}
+              - {key: mq.topic, value: spring_test}
+            refs:
+              - {parentEndpoint: /case/spring-kafka-case, networkAddress: 'kafka-server:9092',
+                 refType: CrossProcess, parentSpanId: not null, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: spring-kafka-scenario,
+                 traceId: not null}

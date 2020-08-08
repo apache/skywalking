@@ -44,7 +44,6 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
             ContextSnapshot snapshot = getSnapshot(cache);
             RecordMetadata metadata = (RecordMetadata) allArguments[0];
             AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
-            SpanLayer.asMQ(activeSpan);
             activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
             activeSpan.setLayer(SpanLayer.MQ);
             if (metadata != null) {

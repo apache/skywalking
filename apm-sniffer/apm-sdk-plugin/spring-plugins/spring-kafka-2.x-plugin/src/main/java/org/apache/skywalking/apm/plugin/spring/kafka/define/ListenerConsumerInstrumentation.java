@@ -54,21 +54,6 @@ public class ListenerConsumerInstrumentation extends ClassInstanceMethodsEnhance
                 public boolean isOverrideArgs() {
                     return false;
                 }
-            }, new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("invokeListener").and(takesArguments(1));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.kafka.InvokeListenerMethodInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
             }
         };
     }
