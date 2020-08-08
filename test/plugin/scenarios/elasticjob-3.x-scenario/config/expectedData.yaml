@@ -19,20 +19,35 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
+    - operationName: /elasticjob-3.x-scenario/case/ping
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 12
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      skipAnalysis: false
+      tags:
+        - {key: http.method, value: GET}
+        - {key: url, value: 'http://localhost:8080/elasticjob-3.x-scenario/case/ping'}
     - operationName: ElasticJob/simpleJob
       operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Unknown
-      startTime: nq 0
-      endTime: nq 0
+      startTime: not null
+      endTime: not null
       componentId: 24
       isError: false
       spanType: Entry
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: item, value: '0'}
-      - {key: shardingTotalCount, value: '1'}
-      - {key: taskId, value: not null}
-      - {key: shardingItemParameters, value: '{0=Beijing}'}
+        - {key: item, value: '0'}
+        - {key: shardingTotalCount, value: '1'}
+        - {key: taskId, value: not null}
+        - {key: shardingItemParameters, value: '{0=Beijing}'}

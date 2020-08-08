@@ -24,7 +24,7 @@ logging:
 
 elasticjob:
   regCenter:
-    serverLists: ${zookeeper.host}:2181
+    serverLists: ${zookeeper.host:localhost}:2181
     namespace: elasticjob-lite-springboot
   jobs:
     simpleJob:

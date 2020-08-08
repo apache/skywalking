@@ -18,12 +18,16 @@
 
 package org.apache.skywalking.apm.testcase.elasticjob.job;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.shardingsphere.elasticjob.api.ShardingContext;
 import org.apache.shardingsphere.elasticjob.simple.job.SimpleJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -31,10 +35,18 @@ import java.util.Date;
 public class DemoSimpleJob implements SimpleJob {
     
     private final Logger logger = LoggerFactory.getLogger(DemoSimpleJob.class);
+    OkHttpClient client = new OkHttpClient.Builder().build();
     
     @Override
     public void execute(ShardingContext shardingContext) {
         logger.info("Elastic Job Item: {} | Time: {} | Thread: {} | {}",
                 shardingContext.getShardingItem(), new SimpleDateFormat("HH:mm:ss").format(new Date()), Thread.currentThread().getId(), "SIMPLE");
+        Request request = new Request.Builder().url("http://localhost:8080/elasticjob-3.x-scenario/case/ping").build();
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+        }
+        response.body().close();
     }
 }

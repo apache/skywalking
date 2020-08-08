@@ -38,4 +38,9 @@ public class CaseController {
         return SUCCESS;
     }
 
+    @RequestMapping("/ping")
+    @ResponseBody
+    public String ping() throws Exception {
+        return SUCCESS;
+    }
 }
