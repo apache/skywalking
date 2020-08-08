@@ -59,4 +59,13 @@ public final class Yamls {
             }
         };
     }
+
+    public static AsTypeBuilder load(final StringBuilder content) {
+        return new AsTypeBuilder() {
+            @Override
+            public <T> T as(final Class<T> klass) {
+                return new Yaml().loadAs(content.toString(), klass);
+            }
+        };
+    }
 }
