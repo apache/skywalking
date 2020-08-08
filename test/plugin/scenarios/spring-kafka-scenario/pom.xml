@@ -28,7 +28,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>2.4.8.RELEASE</test.framework.version>
+        <test.framework.version>2.2.9.RELEASE</test.framework.version>
         <log4j.version>2.6.2</log4j.version>
         <spring-boot-version>2.1.9.RELEASE</spring-boot-version>
         <kafka-version>2.0.1</kafka-version>
@@ -39,16 +39,22 @@
     <name>skywalking-spring-kafka-scenario</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring-context-version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-context</artifactId>-->
+<!--            <version>${spring-context-version}</version>-->
+<!--        </dependency>-->
         <!-- Spring Boot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
