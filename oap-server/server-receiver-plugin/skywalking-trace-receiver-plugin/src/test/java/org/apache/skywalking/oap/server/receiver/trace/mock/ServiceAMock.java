@@ -65,6 +65,7 @@ class ServiceAMock {
         span.setIsError(false);
         span.addTags(KeyStringValuePair.newBuilder().setKey("http.method").setValue("get").build());
         span.addTags(KeyStringValuePair.newBuilder().setKey("status_code").setValue("404").build());
+        span.addTags(KeyStringValuePair.newBuilder().setKey("status_code").setValue("200").build());
         return span;
     }
 

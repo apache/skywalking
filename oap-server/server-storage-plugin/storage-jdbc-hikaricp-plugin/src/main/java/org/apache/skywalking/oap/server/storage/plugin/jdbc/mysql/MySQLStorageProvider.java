@@ -96,13 +96,25 @@ public class MySQLStorageProvider extends ModuleProvider {
         mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
-        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(mysqlClient));
+        this.registerServiceImplementation(
+            StorageDAO.class,
+            new H2StorageDAO(
+                getManager(), mysqlClient, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag())
+        );
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(mysqlClient));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(mysqlClient));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new MySQLTraceQueryDAO(mysqlClient));
+        this.registerServiceImplementation(
+            ITraceQueryDAO.class,
+            new MySQLTraceQueryDAO(
+                getManager(),
+                mysqlClient,
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()
+            )
+        );
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
@@ -125,7 +137,7 @@ public class MySQLStorageProvider extends ModuleProvider {
             mysqlClient.connect();
 
             MySQLTableInstaller installer = new MySQLTableInstaller(
-                mysqlClient, getManager(), config.getMaxSizeOfArrayColumn()
+                mysqlClient, getManager(), config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag()
             );
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {

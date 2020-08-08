@@ -89,6 +89,8 @@ core:
     instanceNameMaxLength: ${SW_INSTANCE_NAME_MAX_LENGTH:70}
     # The max length of service + endpoint names should be less than 240
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
+    # Define the set of span tag keys, which should be searchable through the GraphQL.
+    searchableTagKeys: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -138,6 +140,8 @@ storage:
     url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
     user: ${SW_STORAGE_H2_USER:sa}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:14}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
   mysql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
@@ -148,6 +152,8 @@ storage:
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:14}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
   influxdb:
     # InfluxDB configuration
     url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
@@ -163,7 +169,6 @@ agent-analyzer:
   default:
     sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
     slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
-    searchableTagKeys: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
 
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
@@ -228,7 +233,7 @@ kafka-fetcher:
 receiver-meter:
   selector: ${SW_RECEIVER_METER:-}
   default:
-  
+
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}
   default:

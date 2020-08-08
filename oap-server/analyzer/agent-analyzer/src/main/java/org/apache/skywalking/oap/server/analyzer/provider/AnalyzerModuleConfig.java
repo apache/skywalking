@@ -77,15 +77,6 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Getter
     private int maxSlowSQLLength = 2000;
 
-    /**
-     * Define the set of span tag keys, which should be searchable through the GraphQL.
-     *
-     * @since 8.2.0
-     */
-    @Setter
-    @Getter
-    private String searchableTagKeys = SpanTags.DEFAULT_SEARCHABLE_TAG_KEYS;
-
     @Getter
     private final String configPath = "meter-receive-config";
 }

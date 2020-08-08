@@ -48,10 +48,15 @@ public class H2TableInstaller extends ModelInstaller {
     public static final String ID_COLUMN = "id";
 
     protected final int maxSizeOfArrayColumn;
+    protected final int numOfSearchableValuesPerTag;
 
-    public H2TableInstaller(Client client, ModuleManager moduleManager, int maxSizeOfArrayColumn) {
+    public H2TableInstaller(Client client,
+                            ModuleManager moduleManager,
+                            int maxSizeOfArrayColumn,
+                            int numOfSearchableValuesPerTag) {
         super(client, moduleManager);
         this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
+        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
     }
 
     @Override

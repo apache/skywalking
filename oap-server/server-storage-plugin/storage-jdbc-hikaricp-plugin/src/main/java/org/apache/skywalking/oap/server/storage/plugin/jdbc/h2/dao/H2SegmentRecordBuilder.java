@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import joptsimple.internal.Strings;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -50,6 +51,20 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.segment.Segm
  * this maps the tags into multiple columns.
  */
 public class H2SegmentRecordBuilder implements StorageBuilder<Record> {
+    private int numOfSearchableValuesPerTag;
+    private final List<String> searchTagKeys;
+
+    public H2SegmentRecordBuilder(final int maxSizeOfArrayColumn,
+                                  final int numOfSearchableValuesPerTag,
+                                  final List<String> searchTagKeys) {
+        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
+        final int maxNumOfTags = maxSizeOfArrayColumn / numOfSearchableValuesPerTag;
+        if (searchTagKeys.size() > maxNumOfTags) {
+            this.searchTagKeys = searchTagKeys.subList(0, maxNumOfTags);
+        } else {
+            this.searchTagKeys = searchTagKeys;
+        }
+    }
 
     @Override
     public Map<String, Object> data2Map(Record record) {
@@ -77,7 +92,33 @@ public class H2SegmentRecordBuilder implements StorageBuilder<Record> {
             map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
         }
         map.put(VERSION, storageData.getVersion());
-        map.put(TAGS, storageData.getTags());
+        storageData.getTagsRawData().forEach(spanTag -> {
+            final int index = searchTagKeys.indexOf(spanTag.getKey());
+            boolean shouldAdd = true;
+            int tagIdx = 0;
+            final String tagExpression = spanTag.toString();
+            for (int i = 0; i < numOfSearchableValuesPerTag; i++) {
+                tagIdx = index * numOfSearchableValuesPerTag + i;
+                final String previousValue = (String) map.get(TAGS + "_" + tagIdx);
+                if (previousValue == null) {
+                    // Still have at least one available slot, add directly.
+                    shouldAdd = true;
+                    break;
+                }
+                // If value is duplicated with added one, ignore.
+                if (previousValue.equals(tagExpression)) {
+                    shouldAdd = false;
+                    break;
+                }
+                // Reach the end of tag
+                if (i == numOfSearchableValuesPerTag - 1) {
+                    shouldAdd = false;
+                }
+            }
+            if (shouldAdd) {
+                map.put(TAGS + "_" + tagIdx, tagExpression);
+            }
+        });
         return map;
     }
 

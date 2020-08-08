@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser;
 
-import org.apache.skywalking.oap.server.core.Const;
-
 /**
  * Reserved keys of the span. The backend analysis the metrics according the existed tags.
  */
@@ -48,21 +46,4 @@ public class SpanTags {
      * </pre>
      */
     public static final String LOGIC_ENDPOINT = "x-le";
-
-    /**
-     * SkyWalking Java Agent provides the recommended tag keys for other language agents or SDKs. This field declare the
-     * recommended keys should be searchable. User could override this through {@link
-     * org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig#setSearchableTagKeys(String)} or the
-     * system environment variable defined in the application.yml.
-     */
-    public static final String DEFAULT_SEARCHABLE_TAG_KEYS = String.join(
-        Const.COMMA,
-        "http.method",
-        "status_code",
-        "db.type",
-        "db.instance",
-        "mq.queue",
-        "mq.topic",
-        "mq.broker"
-        );
 }

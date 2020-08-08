@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -186,9 +187,14 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         private final SourceReceiver sourceReceiver;
         private final TraceSegmentSampler sampler;
         private final NamingControl namingControl;
+        private final List<String> searchTagKeys;
 
         public Factory(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+            final ConfigService configService = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(ConfigService.class);
+            this.searchTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
             this.sampler = new TraceSegmentSampler(config.getTraceSampleRateWatcher());
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
@@ -201,7 +207,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 sourceReceiver,
                 sampler,
                 namingControl,
-                Arrays.asList(config.getSearchableTagKeys().split(Const.COMMA))
+                searchTagKeys
             );
         }
     }

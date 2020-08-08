@@ -36,7 +36,7 @@ public class ModelColumnTest {
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
-        Assert.assertEquals(0, column.getLength());
+        Assert.assertEquals(200, column.getLength());
 
         column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class, true,
                                  false, true, 200

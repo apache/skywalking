@@ -109,39 +109,53 @@ public class H2StorageProvider extends ModuleProvider {
         h2Client = new JDBCHikariCPClient(settings);
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));
-        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
+        this.registerServiceImplementation(
+            StorageDAO.class,
+            new H2StorageDAO(
+                getManager(), h2Client, config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag())
+        );
 
         this.registerServiceImplementation(
-                INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(h2Client));
+            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(h2Client));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(h2Client));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(h2Client));
         this.registerServiceImplementation(
-                IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client, config.getMetadataQueryMaxSize()));
+            ITraceQueryDAO.class, new H2TraceQueryDAO(
+                getManager(),
+                h2Client,
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()
+            ));
+        this.registerServiceImplementation(
+            IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client));
         this.registerServiceImplementation(
-                IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
+            IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(h2Client));
         this.registerServiceImplementation(ILogQueryDAO.class, new H2LogQueryDAO(h2Client));
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(h2Client));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(h2Client));
         this.registerServiceImplementation(
-                IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(h2Client));
+            IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(h2Client));
         this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(h2Client));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_h2", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
+            "storage_h2", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         h2Client.registerChecker(healthChecker);
         try {
             h2Client.connect();
 
-            H2TableInstaller installer = new H2TableInstaller(h2Client, getManager(), config.getMaxSizeOfArrayColumn());
+            H2TableInstaller installer = new H2TableInstaller(
+                h2Client, getManager(), config.getMaxSizeOfArrayColumn(), config.getNumOfSearchableValuesPerTag());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
@@ -155,6 +169,6 @@ public class H2StorageProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[] {CoreModule.NAME};
     }
 }
