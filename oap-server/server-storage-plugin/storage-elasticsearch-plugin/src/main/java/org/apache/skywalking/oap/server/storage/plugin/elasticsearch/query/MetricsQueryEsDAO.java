@@ -138,42 +138,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         });
 
         SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
-        Map<String, Map<String, Object>> idMap = toMap(response);
-
-        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
-        labels.forEach(label -> {
-            MetricsValues labelValue = new MetricsValues();
-            labelValue.setLabel(label);
-
-            labeledValues.put(label, labelValue);
-        });
-
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-        for (String id : ids) {
-            if (idMap.containsKey(id)) {
-                Map<String, Object> source = idMap.get(id);
-                DataTable multipleValues = new DataTable((String) source.getOrDefault(valueColumnName, ""));
-
-                labels.forEach(label -> {
-                    final IntValues values = labeledValues.get(label).getValues();
-                    Long data = multipleValues.get(label);
-                    if (data == null) {
-                        data = (long) defaultValue;
-                    }
-                    KVInt kv = new KVInt();
-                    kv.setId(id);
-                    kv.setValue(data);
-                    values.addKVInt(kv);
-                });
-            }
-
+        Map<String, DataTable> idMap = new HashMap<>();
+        SearchHit[] hits = response.getHits().getHits();
+        for (SearchHit hit : hits) {
+            idMap.put(hit.getId(), new DataTable((String) hit.getSourceAsMap().getOrDefault(valueColumnName, "")));
         }
-
-        return Util.sortValues(
-            new ArrayList<>(labeledValues.values()),
-            ids,
-            defaultValue
-        );
+        return Util.composeLabelValue(condition, labels, ids, idMap);
     }
 
     @Override
