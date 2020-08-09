@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -52,6 +53,10 @@ public class RecordDAO implements IRecordDAO {
         TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
             request.addFieldAsTag(field, tag);
         });
+
+        if (record instanceof SegmentRecord) {
+            request.tags(((SegmentRecord) record).getTagsRawData());
+        }
         return request;
     }
 }

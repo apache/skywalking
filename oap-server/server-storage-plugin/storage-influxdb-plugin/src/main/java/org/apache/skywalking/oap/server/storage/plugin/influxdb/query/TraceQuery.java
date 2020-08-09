@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -40,6 +41,7 @@ import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
+import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.Clause;
 
@@ -122,6 +124,13 @@ public class TraceQuery implements ITraceQueryDAO {
             case SUCCESS:
                 recallQuery.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
+        }
+        if (Objects.nonNull(tags) && !tags.isEmpty()) {
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
+            for (final SpanTag tag : tags) {
+                nested.or(eq(tag.getKey(), tag.getValue()));
+            }
+            nested.close();
         }
 
         WhereQueryImpl<SelectQueryImpl> countQuery = select()

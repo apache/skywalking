@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import com.google.common.collect.Maps;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -65,6 +68,15 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
 
     public InfluxInsertRequest addFieldAsTag(String fieldName, String tagName) {
         builder.tag(tagName, String.valueOf(fields.get(fieldName)));
+        return this;
+    }
+
+    public InfluxInsertRequest tags(List<SpanTag> tags) {
+        if (!Objects.isNull(tags) && !tags.isEmpty()) {
+            for (final SpanTag tag : tags) {
+                builder.addField(tag.getKey(), tag.getValue());
+            }
+        }
         return this;
     }
 
