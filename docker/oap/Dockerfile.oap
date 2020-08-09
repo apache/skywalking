@@ -16,6 +16,8 @@
 
 ARG JAVA_VERSION=8
 
+FROM apache/skywalking-base:8.1.0-es6 AS cli
+
 FROM adoptopenjdk/openjdk$JAVA_VERSION:alpine
 
 ENV JAVA_OPTS=" -Xms256M " \
@@ -31,9 +33,12 @@ RUN set -ex; \
     rm -rf "$DIST_NAME.tar.gz"; \
     rm -rf "$DIST_NAME/config/log4j2.xml"; \
     rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent"; \
+    mkdir "$DIST_NAME/bin"; \
     mv "$DIST_NAME" skywalking;
 
 WORKDIR skywalking
+
+COPY --from=cli /skywalking/bin/swctl ./bin
 
 COPY log4j2.xml config/
 COPY docker-entrypoint.sh .

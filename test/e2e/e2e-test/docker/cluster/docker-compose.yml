@@ -38,6 +38,7 @@ services:
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider1,destfile=/jacoco/provider1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=provider1
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
       oap1:
         condition: service_healthy
@@ -52,6 +53,7 @@ services:
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider2,destfile=/jacoco/provider2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=provider2
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
       oap2:
         condition: service_healthy
@@ -67,6 +69,7 @@ services:
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/consumer,destfile=/jacoco/consumer.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=consumer
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
       oap1:
         condition: service_healthy
