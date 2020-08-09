@@ -81,6 +81,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActiveShardCount;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -345,6 +346,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     private SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
                                     String... indexNames) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexNames);
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
         searchRequest.types(TYPE);
         searchRequest.source(searchSourceBuilder);
         try {

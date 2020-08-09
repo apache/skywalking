@@ -124,7 +124,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        String[] indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        String[] indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
         SearchResponse response = getClient().search(indices, sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();

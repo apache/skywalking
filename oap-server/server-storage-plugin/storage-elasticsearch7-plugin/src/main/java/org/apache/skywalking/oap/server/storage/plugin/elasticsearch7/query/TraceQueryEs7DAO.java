@@ -116,7 +116,7 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        String[] indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        String[] indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
         SearchResponse response = getClient().search(indices, sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();

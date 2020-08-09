@@ -30,18 +30,18 @@ public class TimeSeriesUtilsTestCase {
 
     @Test
     public void queryIndices() {
-        String[] indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        String[] indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 5);
-        indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
+        indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 1);
-        indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
+        indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
         Assert.assertEquals(indices.length, 1);
         TimeSeriesUtils.setDAY_STEP(2);
-        indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 3);
-        indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
+        indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 1);
-        indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
+        indices = TimeSeriesUtils.queryIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
         Assert.assertEquals(indices.length, 1);
 
     }

@@ -59,16 +59,28 @@ public class TimeSeriesUtils {
     /**
      * @return split index name based on time bucket.
      */
-    public static String[] traceQueryIndices(String indexName, long startSecondTB, long endSecondTB) {
-        long startDay = compressTimeBucket(startSecondTB / 1000000, DAY_STEP);
-        long endDay = compressTimeBucket(endSecondTB / 1000000, DAY_STEP);
+    public static String[] queryIndices(String indexName, long startTimeBucket, long endTimeBucket) {
+        if (startTimeBucket == 0 || endTimeBucket == 0) {
+            return new String[] {indexName};
+        }
+        long startDay = compressTimeBucket(convert2DayTimeBucket(startTimeBucket), DAY_STEP);
+        long endDay = compressTimeBucket(convert2DayTimeBucket(endTimeBucket), DAY_STEP);
         DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startDay + "");
         DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endDay + "");
 
         int steps = Math.max((Days.daysBetween(startDateTime, endDateTime).getDays()) / DAY_STEP, 0);
         return IntStream.rangeClosed(0, steps)
-                        .mapToObj(step -> indexName + Const.LINE + startDateTime.plusDays(Math.toIntExact(DAY_STEP * step)).toString(TIME_BUCKET_FORMATTER))
+                        .mapToObj(
+                            step -> indexName + Const.LINE + startDateTime.plusDays(Math.toIntExact(DAY_STEP * step))
+                                                                          .toString(TIME_BUCKET_FORMATTER))
                         .toArray(String[]::new);
+    }
+
+    private static long convert2DayTimeBucket(long timeBucket) {
+        while (timeBucket > 99999999) {
+            timeBucket /= 10;
+        }
+        return timeBucket;
     }
 
     /**
