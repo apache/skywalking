@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.jvm.cpu;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.ProcessorUtil;
@@ -29,10 +30,8 @@ public enum CPUProvider {
 
     CPUProvider() {
         int processorNum = ProcessorUtil.getNumberOfProcessors();
+        final String cpuAccessorCls = Config.Agent.CPU_ACCESSOR_SPI;
         try {
-            //-Dskywalking.cpu_provider=org.apache.skywalking.apm.agent.core.jvm.cpu.JmxCpuAccessor
-            final String cpuAccessorCls = System.getProperty("skywalking.cpu_provider",
-                "org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor");
             this.cpuMetricsAccessor = (CPUMetricsAccessor) CPUProvider.class.getClassLoader().loadClass(cpuAccessorCls)
                     .getConstructor(int.class).newInstance(processorNum);
         } catch (Exception e) {

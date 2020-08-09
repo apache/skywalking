@@ -121,6 +121,8 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+        
+        public static String CPU_ACCESSOR_SPI = "org.apache.skywalking.apm.agent.core.jvm.cpu.JmxCpuAccessor";
 
     }
 
