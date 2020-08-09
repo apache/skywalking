@@ -45,6 +45,7 @@ public class CaseController {
         User user = request.getById(1);
         logger.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
         request.updateUser(1, "testA");
+        request.modifyUser(1, "testA");
         request.deleteUser(1);
         return "success";
     }

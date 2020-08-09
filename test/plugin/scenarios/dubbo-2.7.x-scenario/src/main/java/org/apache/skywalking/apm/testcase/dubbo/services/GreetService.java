@@ -19,5 +19,5 @@
 package org.apache.skywalking.apm.testcase.dubbo.services;
 
 public interface GreetService {
-    String doBusiness();
+    String doBusiness(String s);
 }
