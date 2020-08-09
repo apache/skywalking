@@ -26,10 +26,19 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 
+@SuppressWarnings("UnstableApiUsage")
 public class MetricsHolder {
-    private static Map<String, Class<? extends Metrics>> REGISTER = new HashMap<>();
+    private static final Map<String, Class<? extends Metrics>> REGISTER = new HashMap<>();
 
-    public static void init() throws IOException {
+    static {
+        try {
+            init();
+        } catch (IOException e) {
+            throw new RuntimeException("load metrics functions error.", e);
+        }
+    }
+
+    private static void init() throws IOException {
         ClassPath classpath = ClassPath.from(MetricsHolder.class.getClassLoader());
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {
@@ -46,10 +55,9 @@ public class MetricsHolder {
     }
 
     public static Class<? extends Metrics> find(String functionName) {
-        String func = functionName;
-        Class<? extends Metrics> metricsClass = REGISTER.get(func);
+        Class<? extends Metrics> metricsClass = REGISTER.get(functionName);
         if (metricsClass == null) {
-            throw new IllegalArgumentException("Can't find metrics, " + func);
+            throw new IllegalArgumentException("Can't find metrics, " + functionName);
         }
         return metricsClass;
     }

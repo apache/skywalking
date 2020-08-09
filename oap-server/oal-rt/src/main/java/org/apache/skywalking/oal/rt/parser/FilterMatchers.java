@@ -32,9 +32,17 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 public enum FilterMatchers {
     INSTANCE;
 
+    FilterMatchers() {
+        try {
+            init();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final Map<String, MatcherInfo> matchersKeyedByType = new HashMap<>();
 
-    public void init() throws IOException {
+    private void init() throws IOException {
         final ClassPath classpath = ClassPath.from(FilterMatchers.class.getClassLoader());
         final Set<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {

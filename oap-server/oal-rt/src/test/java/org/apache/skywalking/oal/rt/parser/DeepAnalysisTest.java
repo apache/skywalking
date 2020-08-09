@@ -41,9 +41,6 @@ public class DeepAnalysisTest {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.scan();
-
-        MetricsHolder.init();
-        FilterMatchers.INSTANCE.init();
     }
 
     @AfterClass

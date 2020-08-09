@@ -146,18 +146,6 @@ public class OALRuntime implements OALEngine {
         Reader read;
 
         try {
-            MetricsHolder.init();
-        } catch (IOException e) {
-            throw new ModuleStartException("load metrics functions error.", e);
-        }
-
-        try {
-            FilterMatchers.INSTANCE.init();
-        } catch (IOException e) {
-            throw new ModuleStartException("failed to load filter matchers.", e);
-        }
-
-        try {
             read = ResourceUtils.read(oalDefine.getConfigFile());
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Can't locate " + oalDefine.getConfigFile(), e);

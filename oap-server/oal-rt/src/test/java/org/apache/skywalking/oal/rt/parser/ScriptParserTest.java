@@ -34,9 +34,6 @@ public class ScriptParserTest {
 
     @BeforeClass
     public static void init() throws IOException, StorageException {
-        MetricsHolder.init();
-        FilterMatchers.INSTANCE.init();
-
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.scan();
