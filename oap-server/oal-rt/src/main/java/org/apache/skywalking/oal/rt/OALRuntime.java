@@ -53,8 +53,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
-import org.apache.skywalking.oal.rt.parser.FilterMatchers;
-import org.apache.skywalking.oal.rt.parser.MetricsHolder;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
