@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * Used to calculate error rate, browser related metrics only.
  */
-@MetricsFunction(functionName = "er")
+@MetricsFunction(functionName = "errorRate")
 public abstract class ErrorRateMetrics extends Metrics implements IntValueHolder {
 
     protected static final String TOTAL = "total";

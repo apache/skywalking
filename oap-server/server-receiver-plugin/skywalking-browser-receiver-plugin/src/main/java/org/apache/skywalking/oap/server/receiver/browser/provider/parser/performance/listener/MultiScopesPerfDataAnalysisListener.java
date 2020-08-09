@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserService
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.BrowserPerfDataDecorator;
 
 /**
- *
+ * Browser traffic and page Performance related metrics.
  */
 @Slf4j
 public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisListener {
@@ -50,9 +50,7 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         sourceReceiver.receive(sourceBuilder.toBrowserAppSingleVersionTraffic());
         sourceReceiver.receive(sourceBuilder.toBrowserAppPageTraffic());
 
-        // performance
-        sourceReceiver.receive(sourceBuilder.toBrowserAppPerf());
-        sourceReceiver.receive(sourceBuilder.toBrowserAppSingleVersionPerf());
+        // performance (currently only page performance data is analyzed)
         sourceReceiver.receive(sourceBuilder.toBrowserAppPagePerf());
     }
 

@@ -31,6 +31,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.BrowserErrorLogDecorator;
 
+/**
+ * ErrorLogRecordListener forwards the error log raw data to the persistence layer with the query required conditions.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class ErrorLogRecordListener implements ErrorLogAnalysisListener {

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider.jvm;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.CPU;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
@@ -38,11 +39,9 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMThread;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class JVMSourceDispatcher {
-    private static final Logger logger = LoggerFactory.getLogger(JVMSourceDispatcher.class);
     private final SourceReceiver sourceReceiver;
 
     public JVMSourceDispatcher(ModuleManager moduleManager) {

@@ -25,6 +25,7 @@ public abstract class BrowserAppTrafficSourceDispatcher<SOURCE extends BrowserAp
 
     @Override
     public void dispatch(final SOURCE source) {
+        // filter error traffic
         if (!source.getTrafficCategory().equals(BrowserAppTrafficCategory.NORMAL)) {
             return;
         }

@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserService
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.BrowserErrorLogDecorator;
 
 /**
- *
+ * MultiScopesErrorLogAnalysisListener analysis error log, the kinds of error and error sum metrics.
  */
 public class MultiScopesErrorLogAnalysisListener implements ErrorLogAnalysisListener {
 

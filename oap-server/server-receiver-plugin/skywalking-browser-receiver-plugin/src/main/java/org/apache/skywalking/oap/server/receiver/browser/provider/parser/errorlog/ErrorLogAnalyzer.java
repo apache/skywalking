@@ -22,7 +22,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogAnalysisListener;
@@ -42,11 +41,9 @@ public class ErrorLogAnalyzer {
 
         try {
             BrowserErrorLogDecorator decorator = new BrowserErrorLogDecorator(errorLog);
-            if (decorator.getTime() == Const.NONE) {
-                // Use the server side current time, if the client side not set.
-                long nowMillis = System.currentTimeMillis();
-                decorator.setTime(nowMillis);
-            }
+            // Use the server side current time, if the client side not set.
+            long nowMillis = System.currentTimeMillis();
+            decorator.setTime(nowMillis);
 
             notifyListener(decorator);
 
