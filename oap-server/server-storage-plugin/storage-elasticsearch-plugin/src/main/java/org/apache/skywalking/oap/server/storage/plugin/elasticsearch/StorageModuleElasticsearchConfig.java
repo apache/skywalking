@@ -80,6 +80,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     @Getter
     private int dayStep = 1;
+    /**
+     * Since 8.2.0, the record day step is for record index rolling when the value of it is gt 0
+     */
+    @Getter
+    private int superDatasetDayStep = -1;
     @Setter
     private int resultWindowMaxSize = 10000;
     @Setter
