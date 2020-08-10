@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.SuperDatasetRangeElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -123,8 +123,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
-        SearchResponse response = SuperDatasetRangeElasticSearchClient.search(getClient(), SegmentRecord.TIME_BUCKET,
-                                                                              SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new TimeRangeIndexNameMaker(SegmentRecord.TIME_BUCKET, startSecondTB, endSecondTB), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().totalHits);
 
