@@ -114,11 +114,15 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         }
         if (config.getDayStep() > 1) {
             TimeSeriesUtils.setDAY_STEP(config.getDayStep());
+            TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(config.getDayStep());
+        }
+        if (config.getSuperDatasetDayStep() > 0) {
+            TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(config.getSuperDatasetDayStep());
         }
 
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
             MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
-                    10, readableContents -> {
+                10, readableContents -> {
                 final byte[] secretsFileContent = readableContents.get(0);
                 if (secretsFileContent == null) {
                     return;
@@ -146,47 +150,50 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         }
 
         elasticSearchClient = new ElasticSearchClient(
-                config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
-                .getTrustStorePass(), config.getUser(), config.getPassword(),
-                indexNameConverters(config.getNameSpace())
+            config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
+            .getTrustStorePass(), config.getUser(), config.getPassword(),
+            indexNameConverters(config.getNameSpace())
         );
 
         this.registerServiceImplementation(
-                IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
-                        .getFlushInterval(), config.getConcurrentRequests()));
+            IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
+                .getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
-                IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
+            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
-                INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config
-                        .getResultWindowMaxSize()));
+            INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config
+                .getResultWindowMaxSize()));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
-                ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient, config.getSegmentQueryMaxSize()));
+            ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient, config.getSegmentQueryMaxSize()));
         this.registerServiceImplementation(
-                IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config.getMetadataQueryMaxSize()));
+            IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
-                IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config
-                        .getProfileTaskQueryMaxSize()));
+            IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config
+                .getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(
-                IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(elasticSearchClient, config
-                        .getProfileTaskQueryMaxSize()));
+            IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(elasticSearchClient, config
+                .getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(
-                IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config
-                        .getProfileTaskQueryMaxSize()));
+            IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config
+                .getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(
-                UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient));
+            UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient));
     }
 
     @Override
     public void start() throws ModuleStartException {
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
+            "storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
@@ -204,7 +211,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[] {CoreModule.NAME};
     }
 
     public static List<IndexNameConverter> indexNameConverters(String namespace) {
