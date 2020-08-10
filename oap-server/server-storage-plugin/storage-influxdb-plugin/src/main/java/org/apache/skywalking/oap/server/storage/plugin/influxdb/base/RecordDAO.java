@@ -60,13 +60,13 @@ public class RecordDAO implements IRecordDAO {
             request.addFieldAsTag(field, tag);
         });
 
-        if (record instanceof SegmentRecord) {
+        if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
             Map<String, List<SpanTag>> collect = ((SegmentRecord) record).getTagsRawData()
                                                                          .stream()
                                                                          .collect(
                                                                              Collectors.groupingBy(SpanTag::getKey));
             collect.entrySet().forEach(e -> {
-                request.tag(e.getKey(), Joiner.on(" ").join(Sets.newHashSet(e.getValue())));
+                request.tag(e.getKey(), Joiner.on(" ").join(e.getValue().stream().collect(Collectors.toSet())));
             });
         }
         return request;
