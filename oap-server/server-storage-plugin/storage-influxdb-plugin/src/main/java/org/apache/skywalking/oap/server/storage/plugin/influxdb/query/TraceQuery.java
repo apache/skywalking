@@ -128,7 +128,7 @@ public class TraceQuery implements ITraceQueryDAO {
         if (Objects.nonNull(tags) && !tags.isEmpty()) {
             WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
             for (final SpanTag tag : tags) {
-                nested.or(eq(tag.getKey(), tag.getValue()));
+                nested.or(contains(tag.getKey(), tag.getValue()));
             }
             nested.close();
         }

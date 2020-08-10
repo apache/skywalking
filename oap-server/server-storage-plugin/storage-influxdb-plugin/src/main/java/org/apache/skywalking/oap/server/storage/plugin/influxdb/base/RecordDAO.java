@@ -19,10 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -55,7 +60,17 @@ public class RecordDAO implements IRecordDAO {
         });
 
         if (record instanceof SegmentRecord) {
-            request.tags(((SegmentRecord) record).getTagsRawData());
+            List<SpanTag> data = ((SegmentRecord) record).getTagsRawData();
+
+            Map<String, Set<SpanTag>> collect = ((SegmentRecord) record).getTagsRawData()
+                                                                        .stream()
+                                                                        .collect(Collectors.groupingBy(SpanTag::getKey,
+                                                                                                       Collectors.toSet()
+                                                                        ));
+            collect.entrySet().forEach(e -> {
+                String values = e.getValue().stream().map(SpanTag::getValue).collect(Collectors.joining(" "));
+                request.tag(e.getKey(), values);
+            });
         }
         return request;
     }

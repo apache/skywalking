@@ -80,6 +80,11 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
         return this;
     }
 
+    public InfluxInsertRequest tag(String key, String value) {
+        builder.tag(key, value);
+        return this;
+    }
+
     public Point getPoint() {
         return builder.build();
     }
