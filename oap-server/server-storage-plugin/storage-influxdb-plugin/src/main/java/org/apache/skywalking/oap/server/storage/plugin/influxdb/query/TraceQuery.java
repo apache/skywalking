@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -35,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
@@ -125,10 +125,10 @@ public class TraceQuery implements ITraceQueryDAO {
                 recallQuery.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
         }
-        if (Objects.nonNull(tags) && !tags.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(tags)) {
             WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
             for (final SpanTag tag : tags) {
-                nested.or(contains(tag.getKey(), tag.getValue()));
+                nested.and(contains(tag.getKey(), "'" + tag.getValue() + "'"));
             }
             nested.close();
         }

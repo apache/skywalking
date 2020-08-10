@@ -65,11 +65,11 @@ public class RecordDAO implements IRecordDAO {
                                                                          .collect(
                                                                              Collectors.groupingBy(SpanTag::getKey));
             collect.entrySet().forEach(e -> {
-                request.tag(e.getKey(), Joiner.on(" ")
+                request.tag(e.getKey(), "'" + Joiner.on("'")
                                               .join(e.getValue()
                                                      .stream()
                                                      .map(SpanTag::getValue)
-                                                     .collect(Collectors.toSet())));
+                                                     .collect(Collectors.toSet())) + "'");
             });
         }
         return request;
