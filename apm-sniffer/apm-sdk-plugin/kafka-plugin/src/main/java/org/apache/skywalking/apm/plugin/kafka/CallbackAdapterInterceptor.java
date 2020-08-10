@@ -45,8 +45,8 @@ public class CallbackAdapterInterceptor implements Callback {
     public void onCompletion(RecordMetadata metadata, Exception exception) {
         ContextSnapshot snapshot = callbackCache.getSnapshot();
         AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
+        SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
-        activeSpan.setLayer(SpanLayer.MQ);
         if (metadata != null) {
             Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
         }
