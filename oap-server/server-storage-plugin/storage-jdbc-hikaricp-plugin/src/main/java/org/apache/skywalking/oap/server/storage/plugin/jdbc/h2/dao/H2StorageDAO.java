@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -29,14 +30,14 @@ import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+@RequiredArgsConstructor
 public class H2StorageDAO implements StorageDAO {
-
-    private JDBCHikariCPClient h2Client;
-
-    public H2StorageDAO(JDBCHikariCPClient h2Client) {
-        this.h2Client = h2Client;
-    }
+    private final ModuleManager manager;
+    private final JDBCHikariCPClient h2Client;
+    private final int maxSizeOfArrayColumn;
+    private final int numOfSearchableValuesPerTag;
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
@@ -45,7 +46,7 @@ public class H2StorageDAO implements StorageDAO {
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new H2RecordDAO(h2Client, storageBuilder);
+        return new H2RecordDAO(manager, h2Client, storageBuilder, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
     }
 
     @Override
