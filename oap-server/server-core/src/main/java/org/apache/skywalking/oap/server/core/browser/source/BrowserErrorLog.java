@@ -24,6 +24,9 @@ import org.apache.skywalking.oap.server.core.source.Source;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.BROWSER_ERROR_LOG;
 
+/**
+ * Browser error log raw data
+ */
 @ScopeDeclaration(id = BROWSER_ERROR_LOG, name = "BrowserErrorLog")
 public class BrowserErrorLog extends Source {
 

@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.v3.ErrorCategory;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppPageTraffic;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppSingleVersionTraffic;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppTraffic;
@@ -41,10 +40,6 @@ class SourceBuilder {
     public void setService(final String service) {
         this.service = namingControl.formatServiceName(service);
     }
-
-    @Setter
-    @Getter
-    private NodeType serviceNodeType;
 
     @Getter
     private String serviceVersion;
@@ -82,7 +77,6 @@ class SourceBuilder {
 
     private void toBrowserAppTrafficSource(BrowserAppTrafficSource source) {
         source.setTimeBucket(timeBucket);
-        source.setNodeType(serviceNodeType);
         source.setTrafficCategory(trafficCategory);
         source.setErrorCategory(errorCategory);
     }

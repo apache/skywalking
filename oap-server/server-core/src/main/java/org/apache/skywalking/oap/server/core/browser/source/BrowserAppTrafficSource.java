@@ -26,25 +26,21 @@ import org.apache.skywalking.oap.server.core.source.Source;
 /**
  * From js client reported access traffic
  */
+@Setter
+@Getter
 public abstract class BrowserAppTrafficSource extends Source {
 
-    @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     protected String name;
 
-    @Setter
-    @Getter
-    protected NodeType nodeType;
+    protected final NodeType nodeType = NodeType.Browser;
 
-    @Getter
     private final int count = 1;
 
-    @Setter
-    @Getter
     private BrowserAppTrafficCategory trafficCategory;
 
-    @Setter
-    @Getter
+    /**
+     * if {@link #trafficCategory} is {@link BrowserAppTrafficCategory#NORMAL}, errorCategory is null.
+     */
     private BrowserErrorCategory errorCategory;
 }

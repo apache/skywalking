@@ -19,7 +19,6 @@ package org.apache.skywalking.oap.server.receiver.browser.provider.parser.perfor
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -58,7 +57,6 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
     public void parse(final BrowserPerfDataDecorator decorator) {
         sourceBuilder.setService(decorator.getService());
         sourceBuilder.setServiceVersion(decorator.getServiceVersion());
-        sourceBuilder.setServiceNodeType(NodeType.Browser);
         sourceBuilder.setPatePath(decorator.getPagePath());
 
         // time
@@ -68,10 +66,18 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         // performance related
         sourceBuilder.setRedirectTime(decorator.getRedirectTime());
         sourceBuilder.setDnsTime(decorator.getDnsTime());
-        sourceBuilder.setReqTime(decorator.getReqTime());
+        sourceBuilder.setTtfbTime(decorator.getTtfbTime());
+        sourceBuilder.setTcpTime(decorator.getTcpTime());
+        sourceBuilder.setTransTime(decorator.getTransTime());
         sourceBuilder.setDomAnalysisTime(decorator.getDomAnalysisTime());
+        sourceBuilder.setFptTime(decorator.getFptTime());
         sourceBuilder.setDomReadyTime(decorator.getDomReadyTime());
-        sourceBuilder.setBlankTime(decorator.getBlankTime());
+        sourceBuilder.setLoadPageTime(decorator.getLoadPageTime());
+        sourceBuilder.setResTime(decorator.getResTime());
+        sourceBuilder.setSslTime(decorator.getSslTime());
+        sourceBuilder.setTtlTime(decorator.getTtlTime());
+        sourceBuilder.setFirstPackTime(decorator.getFirstPackTime());
+        sourceBuilder.setFmpTime(decorator.getFmpTime());
     }
 
     public static class Factory implements PerfDataListenerFactory {

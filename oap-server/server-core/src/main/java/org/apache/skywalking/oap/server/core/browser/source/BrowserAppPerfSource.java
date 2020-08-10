@@ -22,30 +22,27 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.Source;
 
+/**
+ * Browser performance details
+ */
+@Setter
+@Getter
 public abstract class BrowserAppPerfSource extends Source {
 
-    @Getter
-    @Setter
     protected String name;
-    @Setter
-    @Getter
-    protected NodeType nodeType;
-    @Getter
-    @Setter
+    protected final NodeType nodeType = NodeType.Browser;
     private int redirectTime;
-    @Getter
-    @Setter
     private int dnsTime;
-    @Getter
-    @Setter
-    private int reqTime;
-    @Getter
-    @Setter
+    private int ttfbTime;
+    private int tcpTime;
+    private int transTime;
     private int domAnalysisTime;
-    @Getter
-    @Setter
+    private int fptTime;
     private int domReadyTime;
-    @Getter
-    @Setter
-    private int blankTime;
+    private int loadPageTime;
+    private int resTime;
+    private int sslTime;
+    private int ttlTime;
+    private int firstPackTime;
+    private int fmpTime;
 }

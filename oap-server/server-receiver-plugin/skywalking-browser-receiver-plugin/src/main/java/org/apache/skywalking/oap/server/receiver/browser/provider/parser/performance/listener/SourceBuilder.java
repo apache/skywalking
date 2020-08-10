@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.receiver.browser.provider.parser.perfor
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppPagePerf;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppPageTraffic;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppPerf;
@@ -47,10 +46,6 @@ class SourceBuilder {
     public void setService(final String service) {
         this.service = namingControl.formatServiceName(service);
     }
-
-    @Setter
-    @Getter
-    private NodeType serviceNodeType;
 
     @Getter
     private String serviceVersion;
@@ -82,16 +77,40 @@ class SourceBuilder {
     private int dnsTime;
     @Setter
     @Getter
-    private int reqTime;
+    private int ttfbTime;
+    @Setter
+    @Getter
+    private int tcpTime;
+    @Setter
+    @Getter
+    private int transTime;
     @Setter
     @Getter
     private int domAnalysisTime;
     @Setter
     @Getter
+    private int fptTime;
+    @Setter
+    @Getter
     private int domReadyTime;
     @Setter
     @Getter
-    private int blankTime;
+    private int loadPageTime;
+    @Setter
+    @Getter
+    private int resTime;
+    @Setter
+    @Getter
+    private int sslTime;
+    @Setter
+    @Getter
+    private int ttlTime;
+    @Setter
+    @Getter
+    private int firstPackTime;
+    @Setter
+    @Getter
+    private int fmpTime;
 
     private void toSource(Source source) {
         source.setTimeBucket(timeBucket);
@@ -99,7 +118,6 @@ class SourceBuilder {
 
     private void toBrowserAppTrafficSource(BrowserAppTrafficSource source) {
         toSource(source);
-        source.setNodeType(serviceNodeType);
         source.setTrafficCategory(BrowserAppTrafficCategory.NORMAL);
     }
 
@@ -137,13 +155,20 @@ class SourceBuilder {
 
     private void toBrowserAppPerfSource(BrowserAppPerfSource source) {
         toSource(source);
-        source.setNodeType(serviceNodeType);
         source.setRedirectTime(redirectTime);
         source.setDnsTime(dnsTime);
-        source.setReqTime(reqTime);
+        source.setTtfbTime(ttfbTime);
+        source.setTcpTime(tcpTime);
+        source.setTransTime(transTime);
         source.setDomAnalysisTime(domAnalysisTime);
+        source.setFptTime(fptTime);
         source.setDomReadyTime(domReadyTime);
-        source.setBlankTime(blankTime);
+        source.setLoadPageTime(loadPageTime);
+        source.setResTime(resTime);
+        source.setSslTime(sslTime);
+        source.setTtlTime(ttlTime);
+        source.setFirstPackTime(firstPackTime);
+        source.setFmpTime(fmpTime);
     }
 
     /**

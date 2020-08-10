@@ -188,10 +188,18 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
                                                              .setPagePath("/e2e-browser")
                                                              .setRedirectTime(10)
                                                              .setDnsTime(10)
-                                                             .setReqTime(10)
+                                                             .setTtfbTime(10)
+                                                             .setTcpTime(10)
+                                                             .setTransTime(10)
                                                              .setDomAnalysisTime(10)
+                                                             .setFptTime(10)
                                                              .setDomReadyTime(10)
-                                                             .setBlankTime(10);
+                                                             .setLoadPageTime(10)
+                                                             .setResTime(10)
+                                                             .setSslTime(10)
+                                                             .setTtlTime(10)
+                                                             .setFirstPackTime(10)
+                                                             .setFmpTime(10);
 
             sendBrowserPerfData(builder.build());
 

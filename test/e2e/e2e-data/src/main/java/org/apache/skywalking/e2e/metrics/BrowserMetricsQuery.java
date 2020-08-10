@@ -60,10 +60,18 @@ public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
 
     public static final String BROWSER_APP_PAGE_REDIRECT_AVG = "browser_app_page_redirect_avg";
     public static final String BROWSER_APP_PAGE_DNS_AVG = "browser_app_page_dns_avg";
-    public static final String BROWSER_APP_PAGE_REQ_AVG = "browser_app_page_req_avg";
+    public static final String BROWSER_APP_PAGE_TTFB_AVG = "browser_app_page_ttfb_avg";
+    public static final String BROWSER_APP_PAGE_TCP_AVG = "browser_app_page_tcp_avg";
+    public static final String BROWSER_APP_PAGE_TRANS_AVG = "browser_app_page_trans_avg";
     public static final String BROWSER_APP_PAGE_DOM_ANALYSIS_AVG = "browser_app_page_dom_analysis_avg";
+    public static final String BROWSER_APP_PAGE_FPT_AVG = "browser_app_page_fpt_avg";
     public static final String BROWSER_APP_PAGE_DOM_READY_AVG = "browser_app_page_dom_ready_avg";
-    public static final String BROWSER_APP_PAGE_BLANK_AVG = "browser_app_page_blank_avg";
+    public static final String BROWSER_APP_PAGE_LOAD_PAGE_AVG = "browser_app_page_load_page_avg";
+    public static final String BROWSER_APP_PAGE_RES_AVG = "browser_app_page_res_avg";
+    public static final String BROWSER_APP_PAGE_SSL_AVG = "browser_app_page_ssl_avg";
+    public static final String BROWSER_APP_PAGE_TTL_AVG = "browser_app_page_ttl_avg";
+    public static final String BROWSER_APP_PAGE_FIRST_PACK_AVG = "browser_app_page_first_pack_avg";
+    public static final String BROWSER_APP_PAGE_FMP_AVG = "browser_app_page_fmp_avg";
 
     public static final String[] ALL_BROWSER_PAGE_METRICS = {
         BROWSER_APP_PAGE_PV,
@@ -77,25 +85,49 @@ public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
         BROWSER_APP_PAGE_UNKNOWN_ERROR_SUM,
         BROWSER_APP_PAGE_REDIRECT_AVG,
         BROWSER_APP_PAGE_DNS_AVG,
-        BROWSER_APP_PAGE_REQ_AVG,
+        BROWSER_APP_PAGE_TTFB_AVG,
+        BROWSER_APP_PAGE_TCP_AVG,
+        BROWSER_APP_PAGE_TRANS_AVG,
         BROWSER_APP_PAGE_DOM_ANALYSIS_AVG,
+        BROWSER_APP_PAGE_FPT_AVG,
         BROWSER_APP_PAGE_DOM_READY_AVG,
-        BROWSER_APP_PAGE_BLANK_AVG
+        BROWSER_APP_PAGE_LOAD_PAGE_AVG,
+        BROWSER_APP_PAGE_RES_AVG,
+        BROWSER_APP_PAGE_SSL_AVG,
+        BROWSER_APP_PAGE_TTL_AVG,
+        BROWSER_APP_PAGE_FIRST_PACK_AVG,
+        BROWSER_APP_PAGE_FMP_AVG
     };
 
     public static final String BROWSER_APP_PAGE_REDIRECT_PERCENTILE = "browser_app_page_redirect_percentile";
     public static final String BROWSER_APP_PAGE_DNS_PERCENTILE = "browser_app_page_dns_percentile";
-    public static final String BROWSER_APP_PAGE_REQ_PERCENTILE = "browser_app_page_req_percentile";
+    public static final String BROWSER_APP_PAGE_TTFB_PERCENTILE = "browser_app_page_ttfb_percentile";
+    public static final String BROWSER_APP_PAGE_TCP_PERCENTILE = "browser_app_page_tcp_percentile";
+    public static final String BROWSER_APP_PAGE_TRANS_PERCENTILE = "browser_app_page_trans_percentile";
     public static final String BROWSER_APP_PAGE_DOM_ANALYSIS_PERCENTILE = "browser_app_page_dom_analysis_percentile";
+    public static final String BROWSER_APP_PAGE_FPT_PERCENTILE = "browser_app_page_fpt_percentile";
     public static final String BROWSER_APP_PAGE_DOM_READY_PERCENTILE = "browser_app_page_dom_ready_percentile";
-    public static final String BROWSER_APP_PAGE_BLANK_PERCENTILE = "browser_app_page_blank_percentile";
+    public static final String BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE = "browser_app_page_load_page_percentile";
+    public static final String BROWSER_APP_PAGE_RES_PERCENTILE = "browser_app_page_res_percentile";
+    public static final String BROWSER_APP_PAGE_SSL_PERCENTILE = "browser_app_page_ssl_percentile";
+    public static final String BROWSER_APP_PAGE_TTL_PERCENTILE = "browser_app_page_ttl_percentile";
+    public static final String BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE = "browser_app_page_first_pack_percentile";
+    public static final String BROWSER_APP_PAGE_FMP_PERCENTILE = "browser_app_page_fmp_percentile";
 
     public static final String[] ALL_BROWSER_PAGE_MULTIPLE_LINEAR_METRICS = {
         BROWSER_APP_PAGE_REDIRECT_PERCENTILE,
         BROWSER_APP_PAGE_DNS_PERCENTILE,
-        BROWSER_APP_PAGE_REQ_PERCENTILE,
+        BROWSER_APP_PAGE_TTFB_PERCENTILE,
+        BROWSER_APP_PAGE_TCP_PERCENTILE,
+        BROWSER_APP_PAGE_TRANS_PERCENTILE,
         BROWSER_APP_PAGE_DOM_ANALYSIS_PERCENTILE,
+        BROWSER_APP_PAGE_FPT_PERCENTILE,
         BROWSER_APP_PAGE_DOM_READY_PERCENTILE,
-        BROWSER_APP_PAGE_BLANK_PERCENTILE
+        BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE,
+        BROWSER_APP_PAGE_RES_PERCENTILE,
+        BROWSER_APP_PAGE_SSL_PERCENTILE,
+        BROWSER_APP_PAGE_TTL_PERCENTILE,
+        BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE,
+        BROWSER_APP_PAGE_FMP_PERCENTILE
     };
 }

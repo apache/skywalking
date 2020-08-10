@@ -51,20 +51,52 @@ public class BrowserPerfDataDecorator {
         return isOrigin ? browserPerfData.getDnsTime() : builder.getDnsTime();
     }
 
-    public int getReqTime() {
-        return isOrigin ? browserPerfData.getReqTime() : builder.getReqTime();
+    public int getTtfbTime() {
+        return isOrigin ? browserPerfData.getTtfbTime() : builder.getTtfbTime();
+    }
+
+    public int getTcpTime() {
+        return isOrigin ? browserPerfData.getTcpTime() : builder.getTcpTime();
+    }
+
+    public int getTransTime() {
+        return isOrigin ? browserPerfData.getTransTime() : builder.getTransTime();
     }
 
     public int getDomAnalysisTime() {
         return isOrigin ? browserPerfData.getDomAnalysisTime() : builder.getDomAnalysisTime();
     }
 
+    public int getFptTime() {
+        return isOrigin ? browserPerfData.getFptTime() : builder.getFptTime();
+    }
+
     public int getDomReadyTime() {
         return isOrigin ? browserPerfData.getDomReadyTime() : builder.getDomReadyTime();
     }
 
-    public int getBlankTime() {
-        return isOrigin ? browserPerfData.getBlankTime() : builder.getBlankTime();
+    public int getLoadPageTime() {
+        return isOrigin ? browserPerfData.getLoadPageTime() : builder.getLoadPageTime();
+    }
+
+    public int getResTime() {
+        return isOrigin ? browserPerfData.getResTime() : builder.getResTime();
+    }
+
+    public int getSslTime() {
+        return isOrigin ? browserPerfData.getSslTime() : builder.getSslTime();
+    }
+
+    public int getTtlTime() {
+        return isOrigin ? browserPerfData.getTtlTime() : builder.getTtlTime();
+    }
+
+    public int getFirstPackTime() {
+        return isOrigin ? browserPerfData.getFirstPackTime() : builder.getFirstPackTime();
+    }
+
+    public int getFmpTime() {
+        return isOrigin ? browserPerfData.getFmpTime() : builder.getFmpTime();
     }
 
     public void setTime(long time) {

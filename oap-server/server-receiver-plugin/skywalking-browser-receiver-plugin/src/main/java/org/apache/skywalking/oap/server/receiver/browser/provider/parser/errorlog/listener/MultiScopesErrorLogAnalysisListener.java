@@ -18,7 +18,6 @@
 package org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppTrafficCategory;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -52,7 +51,6 @@ public class MultiScopesErrorLogAnalysisListener implements ErrorLogAnalysisList
     public void parse(final BrowserErrorLogDecorator decorator) {
         sourceBuilder.setService(decorator.getService());
         sourceBuilder.setServiceVersion(decorator.getServiceVersion());
-        sourceBuilder.setServiceNodeType(NodeType.Browser);
         sourceBuilder.setPatePath(decorator.getPagePath());
 
         // time
