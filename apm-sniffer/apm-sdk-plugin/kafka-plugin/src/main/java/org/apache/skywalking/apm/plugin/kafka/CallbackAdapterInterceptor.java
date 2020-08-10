@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
@@ -44,6 +45,7 @@ public class CallbackAdapterInterceptor implements Callback {
     public void onCompletion(RecordMetadata metadata, Exception exception) {
         ContextSnapshot snapshot = callbackCache.getSnapshot();
         AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
+        SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
         if (metadata != null) {
             Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
