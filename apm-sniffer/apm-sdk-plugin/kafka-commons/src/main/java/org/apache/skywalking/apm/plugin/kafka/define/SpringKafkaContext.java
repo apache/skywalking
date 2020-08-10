@@ -27,12 +27,11 @@ public class SpringKafkaContext {
 
     private boolean needStop;
 
-    public boolean getNeedStop() {
+    public boolean isNeedStop() {
         return needStop;
     }
 
-    public void setNeedStop(Boolean needStop) {
+    public void setNeedStop(boolean needStop) {
         this.needStop = needStop;
     }
-
 }

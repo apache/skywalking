@@ -42,7 +42,7 @@ public class PollAndInvokeMethodInterceptor implements InstanceMethodsAroundInte
         if (context == null) {
             return ret;
         }
-        if (context.getNeedStop()) {
+        if (context.isNeedStop()) {
             ContextManager.stopSpan();
         } else {
             ContextManager.getRuntimeContext().remove(Constants.SPRING_KAFKA_FLAG);
