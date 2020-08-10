@@ -106,9 +106,8 @@ Such as, if dayStep == 11,
 1. data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
 1. data in [2000-01-12, 2000-01-22] will be merged into the index-20000112.
 
-superDatasetDayStep is an advanced parameter for es storage load balance.
-For the trace data storage system, open it would be improve es performance.If the value of superDatasetDayStep is above 0,
-the rolling strategy of the superdateset index(trace segment,zipkin or jaeger ...) would be affected. Otherwise, all indices would be rolling with the strategy of dayStep.   
+`storage/elasticsearch/superDatasetDayStep` override the `storage/elasticsearch/dayStep` if the value is positive.
+This would affect the record related entities, such as the trace segment. In some cases, the size of metrics is much less than the record(trace), this would help the shards balance in the ElasticSearch cluster.
  
 NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
 
