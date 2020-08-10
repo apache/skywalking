@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
