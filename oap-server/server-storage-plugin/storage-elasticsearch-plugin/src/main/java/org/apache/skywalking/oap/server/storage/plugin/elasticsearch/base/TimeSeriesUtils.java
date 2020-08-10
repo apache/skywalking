@@ -62,22 +62,20 @@ public class TimeSeriesUtils {
     }
 
     /**
-     * @return split index name based on time bucket.
+     * @return Concrete index name for super dataset index
      */
-    public static String[] queryIndices(String indexName, long startTimeBucket, long endTimeBucket) {
+    public static String[] querySuperDatasetIndices(String indexName, long startTimeBucket, long endTimeBucket) {
         if (startTimeBucket == 0 || endTimeBucket == 0) {
             return new String[] {indexName};
         }
-        long startDay = compressTimeBucket(convert2DayTimeBucket(startTimeBucket), DAY_STEP);
-        long endDay = compressTimeBucket(convert2DayTimeBucket(endTimeBucket), DAY_STEP);
+        long startDay = compressTimeBucket(convert2DayTimeBucket(startTimeBucket), SUPER_DATASET_DAY_STEP);
+        long endDay = compressTimeBucket(convert2DayTimeBucket(endTimeBucket), SUPER_DATASET_DAY_STEP);
         DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startDay + "");
         DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endDay + "");
 
-        int steps = Math.max((Days.daysBetween(startDateTime, endDateTime).getDays()) / DAY_STEP, 0);
+        int steps = Math.max((Days.daysBetween(startDateTime, endDateTime).getDays()) / SUPER_DATASET_DAY_STEP, 0);
         return IntStream.rangeClosed(0, steps)
-                        .mapToObj(
-                            step -> indexName + Const.LINE + startDateTime.plusDays(Math.toIntExact(DAY_STEP * step))
-                                                                          .toString(TIME_BUCKET_FORMATTER))
+                        .mapToObj(step -> indexName + Const.LINE + startDateTime.plusDays(Math.toIntExact(SUPER_DATASET_DAY_STEP * step)).toString(TIME_BUCKET_FORMATTER))
                         .toArray(String[]::new);
     }
 
