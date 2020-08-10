@@ -106,7 +106,7 @@ Such as, if dayStep == 11,
 1. data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
 1. data in [2000-01-12, 2000-01-22] will be merged into the index-20000112.
 
-superDatasetDayStep is a advanced parameter for es storage load balance.
+superDatasetDayStep is an advanced parameter for es storage load balance.
 For the trace data storage system, open it would be improve es performance.If the value of superDatasetDayStep is above 0,
 the rolling strategy of the superdateset index(trace segment,zipkin or jaeger ...) would be affected. Otherwise, all indices would be rolling with the strategy of dayStep.   
  
