@@ -18,12 +18,37 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.testcontainers.shaded.com.google.common.collect.Lists;
 
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils.compressTimeBucket;
+import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils.writeIndexName;
 
 public class TimeSeriesUtilsTest {
+
+    private Model superDatasetModel;
+    private Model normalRecordModel;
+    private Model normalMetricsModel;
+
+    @Before
+    public void prepare() {
+        superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(), Lists.newArrayList(),
+                                      0, DownSampling.Minute, true, true
+        );
+        normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(), Lists.newArrayList(),
+                                      0, DownSampling.Minute, true, false
+        );
+        normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(), Lists.newArrayList(),
+                                       0, DownSampling.Minute, false, false
+        );
+        TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
+        TimeSeriesUtils.setDAY_STEP(3);
+    }
+
     @Test
     public void testCompressTimeBucket() {
         Assert.assertEquals(20000101L, compressTimeBucket(20000105, 11));
@@ -33,4 +58,19 @@ public class TimeSeriesUtilsTest {
         Assert.assertEquals(20000123L, compressTimeBucket(20000123, 11));
         Assert.assertEquals(20000123L, compressTimeBucket(20000125, 11));
     }
+
+    @Test
+    public void testIndexRolling() {
+        long secondTimeBucket = 2020_0809_1010_59L;
+        long minuteTimeBucket = 2020_0809_1010L;
+        Assert.assertEquals("superDatasetModel-20200809", writeIndexName(superDatasetModel, secondTimeBucket));
+        Assert.assertEquals("normalRecordModel-20200807", writeIndexName(normalRecordModel, secondTimeBucket));
+        Assert.assertEquals("normalMetricsModel-20200807", writeIndexName(normalMetricsModel, minuteTimeBucket));
+        secondTimeBucket += 1000000;
+        minuteTimeBucket += 10000;
+        Assert.assertEquals("superDatasetModel-20200810", writeIndexName(superDatasetModel, secondTimeBucket));
+        Assert.assertEquals("normalRecordModel-20200810", writeIndexName(normalRecordModel, secondTimeBucket));
+        Assert.assertEquals("normalMetricsModel-20200810", writeIndexName(normalMetricsModel, minuteTimeBucket));
+    }
+
 }
