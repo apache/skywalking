@@ -58,7 +58,7 @@ Motan:
   languages: Java
 MongoDB:
   id: 9
-  languages: Java,C#,Node.js
+  languages: Java,C#,Node.js,Python
 Resin:
   id: 10
   languages: Java
@@ -310,6 +310,9 @@ GraphQL:
   languages: Java
 spring-annotation:
   id: 93
+  languages: Java
+HBase:
+  id: 94
   languages: Java
 
 # .NET/.NET Core components

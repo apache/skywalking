@@ -41,13 +41,18 @@ public class TimeSeriesUtils {
     private static final DateTime DAY_ONE = TIME_BUCKET_FORMATTER.parseDateTime("20000101");
     @Setter
     private static int DAY_STEP = 1;
+    @Setter
+    private static int SUPER_DATASET_DAY_STEP = 1;
 
     /**
      * @return formatted latest index name, based on current timestamp.
      */
     public static String latestWriteIndexName(Model model) {
         long timeBucket;
-        if (model.isRecord()) {
+        if (model.isRecord() && model.isSuperDataset()) {
+            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
+            return model.getName() + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
+        } else if (model.isRecord()) {
             timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
             return model.getName() + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
         } else {
@@ -89,7 +94,9 @@ public class TimeSeriesUtils {
     static String writeIndexName(Model model, long timeBucket) {
         final String modelName = model.getName();
 
-        if (model.isRecord()) {
+        if (model.isRecord() && model.isSuperDataset()) {
+            return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
+        } else if (model.isRecord()) {
             return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
         } else {
             switch (model.getDownsampling()) {
