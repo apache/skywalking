@@ -14,21 +14,22 @@
 # limitations under the License.
 
 nodes:
-  - id: 1
-    name: User
-    type: USER
-    serviceId: 1
-    serviceName: User
-    isReal: false
-  - id: 2
+  - id: not null
     name: not null
-    serviceId: 2
+    serviceId: cGhwLXNoYWRvdw==.1
+    serviceName: php-shadow
+    #type: USER
+    isReal: true
+  - id: not null
+    name: not null
+    serviceId: cGhw.1
     serviceName: php
-    type: not null
+    #type: USER
     isReal: true
 calls:
-  - id: 1_2
-    source: 1
+  - id: not null
+    source: not null
     detectPoints:
+      - CLIENT
       - SERVER
-    target: 2
+    target: not null

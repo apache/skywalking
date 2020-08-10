@@ -17,7 +17,6 @@ type: jvm
 entryService: http://localhost:8080/postgresql-scenario/case/postgres
 healthCheck: http://localhost:8080/postgresql-scenario/case/healthcheck
 startScript: ./bin/startup.sh
-framework: PostgreSQL
 environment:
   - POSTGRESQL_SERVER=postgresql-server:5432
   - POSTGRES_DB=postgres

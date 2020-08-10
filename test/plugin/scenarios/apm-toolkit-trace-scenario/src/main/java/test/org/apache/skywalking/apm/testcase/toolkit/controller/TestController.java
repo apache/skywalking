@@ -46,6 +46,7 @@ public class TestController {
 
     @RequestMapping("/tool-kit")
     public String toolKitCase() {
+        testService.testSetOperationName("tool-kit-set-operation-name");
         testService.testTag();
         testService.testInfo("testInfoParam");
         testService.testDebug();

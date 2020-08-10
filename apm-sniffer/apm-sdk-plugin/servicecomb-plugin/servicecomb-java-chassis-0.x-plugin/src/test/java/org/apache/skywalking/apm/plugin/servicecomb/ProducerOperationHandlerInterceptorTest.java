@@ -119,7 +119,7 @@ public class ProducerOperationHandlerInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertCombSpan(spans.get(0));
-        verify(invocation, times(2)).getContext();
+        verify(invocation, times(3)).getContext();
     }
 
     private void assertCombSpan(AbstractTracingSpan span) {

@@ -51,6 +51,12 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        /*
+         * If the intercepted method throws exception, the ret will be null
+         */
+        if (ret == null) {
+            return ret;
+        }
         Map<TopicPartition, List<ConsumerRecord<?, ?>>> records = (Map<TopicPartition, List<ConsumerRecord<?, ?>>>) ret;
         //
         // The entry span will only be created when the consumer received at least one message.
@@ -88,6 +94,12 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        /*
+         * The entry span is created in {@link #afterMethod}, but {@link #handleMethodException} is called before
+         * {@link #afterMethod}, before the creation of entry span, we can not ensure there is an active span
+         */
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 }

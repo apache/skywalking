@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/avro-scenario/case/avro-scenario
 healthCheck: http://localhost:8080/avro-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: avro-scenario
 environment:
 dependencies:

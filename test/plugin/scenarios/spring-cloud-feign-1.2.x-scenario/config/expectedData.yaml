@@ -53,8 +53,8 @@ segmentItems:
       refs:
       - {parentEndpoint: /spring-cloud-feign-1.2.x-scenario/case/spring-cloud-feign-1.2.x-scenario,
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
-        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
-          null, traceId: not null}
+        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: spring-cloud-feign-1.2.x-scenario,
+        traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

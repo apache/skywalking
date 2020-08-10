@@ -18,61 +18,84 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
-import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.BucketOrder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.Avg;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.Avg;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+/**
+ * {@link Avg} has package changes in ES 7, so have to rewrite the codes.
+ */
 public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
 
     public AggregationQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
-    protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
-        int topN, Order order) throws IOException {
+    @Override
+    public List<SelectedRecord> sortMetrics(final TopNCondition condition,
+                                            final String valueColumnName,
+                                            final Duration duration,
+                                            final List<KeyValue> additionalConditions) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        final RangeQueryBuilder queryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET)
+                                                            .lte(duration.getEndTimeBucket())
+                                                            .gte(duration.getStartTimeBucket());
 
         boolean asc = false;
-        if (order.equals(Order.ASC)) {
+        if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
 
-        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
-
-        sourceBuilder.aggregation(aggregationBuilder);
-
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
-
-        List<TopNEntity> topNEntities = new ArrayList<>();
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
-            TopNEntity topNEntity = new TopNEntity();
-            topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) value.getValue());
-            topNEntities.add(topNEntity);
+        if (additionalConditions != null && additionalConditions.size() > 0) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            additionalConditions.forEach(additionalCondition -> {
+                boolQuery.must()
+                         .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue()));
+            });
+            boolQuery.must().add(queryBuilder);
+            sourceBuilder.query(boolQuery);
+        } else {
+            sourceBuilder.query(queryBuilder);
         }
 
-        return topNEntities;
-    }
+        sourceBuilder.aggregation(
+            AggregationBuilders.terms(Metrics.ENTITY_ID)
+                               .field(Metrics.ENTITY_ID)
+                               .order(BucketOrder.aggregation(valueColumnName, asc))
+                               .size(condition.getTopN())
+                               .subAggregation(AggregationBuilders.avg(valueColumnName).field(valueColumnName))
+        );
 
-    protected TermsAggregationBuilder aggregationBuilder(final String valueCName, final int topN, final boolean asc) {
-        return AggregationBuilders.terms(Metrics.ENTITY_ID)
-                                  .field(Metrics.ENTITY_ID)
-                                  .order(BucketOrder.aggregation(valueCName, asc))
-                                  .size(topN)
-                                  .subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
+        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
+
+        List<SelectedRecord> topNList = new ArrayList<>();
+        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
+        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+            SelectedRecord record = new SelectedRecord();
+            record.setId(termsBucket.getKeyAsString());
+            Avg value = termsBucket.getAggregations().get(valueColumnName);
+            record.setValue(String.valueOf((long) value.getValue()));
+            topNList.add(record);
+        }
+
+        return topNList;
     }
 }

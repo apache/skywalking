@@ -49,4 +49,4 @@ The reason for generating multiple top-level trees is that original data can be 
     3. Calculate each node execution in parallel. For each node, the duration of the current node should minus the time consumed by all children.
 
 ## Profile data debug
-Please follow the [exporter tool](backend-profile-export.md#export-command-line-usage) to package profile data. Unzip the profile data and using [analyzer main function](../../../oap-server/server-tools/tool-profile-snapshot-bootstrap/src/test/java/org/apache/skywalking/oap/server/tool/profile/exporter/ProfileExportedAnalyze.java) to run it.
+Please follow the [exporter tool](backend-profile-export.md#export-command-line-usage) to package profile data. Unzip the profile data and using [analyzer main function](../../../oap-server/server-tools/profile-exporter/tool-profile-snapshot-bootstrap/src/test/java/org/apache/skywalking/oap/server/tool/profile/exporter/ProfileExportedAnalyze.java) to run it.

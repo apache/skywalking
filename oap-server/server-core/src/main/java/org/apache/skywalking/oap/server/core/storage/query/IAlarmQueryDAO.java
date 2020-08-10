@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.query.entity.Alarms;
+import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IAlarmQueryDAO extends DAO {

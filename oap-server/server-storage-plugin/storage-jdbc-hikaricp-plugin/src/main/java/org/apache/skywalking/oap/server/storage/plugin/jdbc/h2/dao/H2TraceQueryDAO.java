@@ -29,11 +29,11 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
-import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.entity.Span;
-import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
-import org.apache.skywalking.oap.server.core.query.entity.TraceState;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.Span;
+import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -82,7 +82,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like '%" + endpointName + "%'");
+            sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like concat('%',?,'%')");
+            parameters.add(endpointName);
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");

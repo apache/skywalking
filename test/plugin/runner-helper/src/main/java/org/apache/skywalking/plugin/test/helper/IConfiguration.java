@@ -19,6 +19,8 @@ package org.apache.skywalking.plugin.test.helper;
 
 import org.apache.skywalking.plugin.test.helper.vo.CaseConfiguration;
 
+import java.util.Map;
+
 public interface IConfiguration {
     String agentHome();
 
@@ -31,9 +33,6 @@ public interface IConfiguration {
     String scenarioName();
 
     String scenarioVersion();
-
-    @Deprecated
-    String testFramework();
 
     String healthCheck();
 
@@ -55,4 +54,11 @@ public interface IConfiguration {
 
     String outputDir();
 
+    String jacocoHome();
+
+    String debugMode();
+
+    Map<String, Object> toMap();
+
+    String extendEntryHeader();
 }

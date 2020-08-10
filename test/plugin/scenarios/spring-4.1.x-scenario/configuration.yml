@@ -19,4 +19,3 @@ entryService: http://localhost:8080/spring-4.1.x-scenario/case/resttemplate
 healthCheck: http://localhost:8080/spring-4.1.x-scenario/healthCheck
 runningMode: with_optional
 withPlugins: apm-spring-annotation-plugin-*.jar
-framework: spring

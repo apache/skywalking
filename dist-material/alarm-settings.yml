@@ -54,6 +54,20 @@ rules:
     count: 2
     silence-period: 5
     message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
+  database_access_resp_time_rule:
+    metrics-name: database_access_resp_time
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 2
+    message: Response time of database access {name} is more than 1000ms in 2 minutes of last 10 minutes
+  endpoint_relation_resp_time_rule:
+    metrics-name: endpoint_relation_resp_time
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 2
+    message: Response time of endpoint relation {name} is more than 1000ms in 2 minutes of last 10 minutes
 #  Active endpoint related metrics alarm will cost more memory than service and service instance metrics alarm.
 #  Because the number of endpoint is much more than service and instance.
 #

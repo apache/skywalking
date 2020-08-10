@@ -29,30 +29,17 @@ services:
       retries: 120
 
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_STORAGE=influxdb
-      - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
-      - SW_CORE_DATA_KEEPER_EXECUTE_PERIOD=1
-      - SW_CORE_RECORD_DATA_TTL=7
-      - SW_CORE_MINUTE_METRIC_DATA_TTL=6000
-      - SW_CORE_HOUR_METRIC_DATA_TTL=100
-      - SW_CORE_DAY_METRIC_DATA_TTL=5
-      - SW_CORE_MONTH_METRIC_DATA_TTL=4
-    restart: on-failure
+      SW_STORAGE: influxdb
+      SW_STORAGE_ES_BULK_ACTIONS: 1
+      SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 1
+      SW_STORAGE_ES_FLUSH_INTERVAL: 1
     depends_on:
       influxdb:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
 networks:
   e2e:

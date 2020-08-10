@@ -49,12 +49,6 @@ public class DockerComposeV2RunningGeneratorTest {
     }
 
     @Test
-    public void testGenerateDockerCompose() {
-        String runningScript = dockerComposeRunningGenerator.runningScript(configuration);
-        //        assertEquals(String.format("docker-compose -f %s/docker-compose.yml up", TARGET_DIR), runningScript);
-    }
-
-    @Test
     public void testGenerateAdditionalFile() throws GenerateFailedException {
         dockerComposeRunningGenerator.generateAdditionFiles(configuration);
         assertTrue(new File(TARGET_DIR, "docker-compose.yml").exists());

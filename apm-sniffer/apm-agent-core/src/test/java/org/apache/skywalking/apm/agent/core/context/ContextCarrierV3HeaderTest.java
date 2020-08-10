@@ -37,6 +37,8 @@ public class ContextCarrierV3HeaderTest {
                 next.setHeadValue("1-My40LjU=-MS4yLjM=-4-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue("dGVzdA==:dHJ1ZQ==");
+            } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
+                next.setHeadValue("1");
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -61,6 +63,8 @@ public class ContextCarrierV3HeaderTest {
 
         contextCarrier.getCorrelationContext().put("test", "true");
 
+        contextCarrier.getExtensionContext().deserialize("1");
+
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -73,6 +77,8 @@ public class ContextCarrierV3HeaderTest {
                  * "test:true"
                  */
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
+            } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("1", next.getHeadValue());
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -85,6 +91,8 @@ public class ContextCarrierV3HeaderTest {
                 Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
+            } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("1", next.getHeadValue());
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -109,16 +117,20 @@ public class ContextCarrierV3HeaderTest {
         contextCarrier.setParentEndpoint("/app");
 
         contextCarrier.getCorrelationContext().put("test", "true");
+        contextCarrier.getExtensionContext().deserialize("1");
 
         CarrierItem next = contextCarrier.items();
         String sw6HeaderValue = null;
         String correlationHeaderValue = null;
+        String extensionHeaderValue = null;
         while (next.hasNext()) {
             next = next.next();
             if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
                 sw6HeaderValue = next.getHeadValue();
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 correlationHeaderValue = next.getHeadValue();
+            } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
+                extensionHeaderValue = next.getHeadValue();
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -132,6 +144,8 @@ public class ContextCarrierV3HeaderTest {
                 next.setHeadValue(sw6HeaderValue);
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue(correlationHeaderValue);
+            } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
+                next.setHeadValue(extensionHeaderValue);
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -146,5 +160,6 @@ public class ContextCarrierV3HeaderTest {
         Assert.assertEquals(contextCarrier.getParentServiceInstance(), contextCarrier2.getParentServiceInstance());
         Assert.assertEquals(contextCarrier.getParentEndpoint(), contextCarrier2.getParentEndpoint());
         Assert.assertEquals(contextCarrier.getCorrelationContext(), contextCarrier2.getCorrelationContext());
+        Assert.assertEquals(contextCarrier.getExtensionContext(), contextCarrier2.getExtensionContext());
     }
 }

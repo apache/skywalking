@@ -16,22 +16,6 @@
 version: '2.1'
 
 services:
-  mysql:
-    image: mysql/mysql-server:8.0.13
-    networks:
-      - e2e
-    expose:
-      - 3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=root@1234
-      - MYSQL_DATABASE=swtest
-      - MYSQL_ROOT_HOST=%
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
   influxdb:
     image: influxdb:1.7.9
     expose:
@@ -45,62 +29,32 @@ services:
       retries: 120
 
   oap1:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_CLUSTER=zookeeper
-      - SW_CLUSTER_ZK_HOST_PORT=zk:2181
-      - SW_STORAGE=influxdb
-      - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
-      - SW_STORAGE_METABASE_TYPE=mysql
-      - SW_STORAGE_METABASE_URL=jdbc:mysql://mysql:3306/swtest
-    volumes:
-      - ./download-mysql.sh:/download-mysql.sh
-    restart: on-failure
-    entrypoint: ['bash', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: influxdb
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap1,destfile=/jacoco/oap1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
-      mysql:
-        condition: service_healthy
       zk:
         condition: service_healthy
       influxdb:
         condition: service_healthy
 
   oap2:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_CLUSTER=zookeeper
-      - SW_CLUSTER_ZK_HOST_PORT=zk:2181
-      - SW_STORAGE=influxdb
-      - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
-      - SW_STORAGE_METABASE_TYPE=mysql
-      - SW_STORAGE_METABASE_URL=jdbc:mysql://mysql:3306/swtest
-    volumes:
-      - ./download-mysql.sh:/download-mysql.sh
-    restart: on-failure
-    entrypoint: ['bash', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: influxdb
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap2,destfile=/jacoco/oap2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
-      mysql:
-        condition: service_healthy
       zk:
         condition: service_healthy
       influxdb:

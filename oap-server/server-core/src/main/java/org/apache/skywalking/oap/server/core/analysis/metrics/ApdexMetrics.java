@@ -49,18 +49,18 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Getter
     @Setter
     @Column(columnName = TOTAL_NUM, storageOnly = true)
-    private int totalNum;
+    private long totalNum;
     @Getter
     @Setter
     @Column(columnName = S_NUM, storageOnly = true)
-    private int sNum;
+    private long sNum;
     @Getter
     @Setter
     @Column(columnName = T_NUM, storageOnly = true)
-    private int tNum;
+    private long tNum;
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true, function = Function.Avg)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private int value;
 
     @Entrance
@@ -87,7 +87,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
 
     @Override
     public void calculate() {
-        value = (sNum * 10000 + tNum * 10000 / 2) / totalNum;
+        value = (int) ((sNum * 10000 + tNum * 10000 / 2) / totalNum);
     }
 
     @Override

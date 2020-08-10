@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLogOperationType;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;

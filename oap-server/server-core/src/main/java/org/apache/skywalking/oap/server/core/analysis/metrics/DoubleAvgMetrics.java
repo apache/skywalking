@@ -44,7 +44,7 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     private long count;
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true, function = Function.Avg)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private double value;
 
     @Entrance

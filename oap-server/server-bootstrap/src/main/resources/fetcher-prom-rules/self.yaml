@@ -1,0 +1,305 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - localhost:1234
+  labels:
+    service: oap-server
+metricsRules:
+  - name: instance_cpu_percentage
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      process_cpu_seconds_total:
+        counterFunction: RATE
+        range: PT1M
+        scale: 2
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_jvm_memory_bytes_used
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_memory_bytes_used:
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_jvm_young_gc_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_gc_collection_seconds_count:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: gc
+            options:
+              - "PS Scavenge"
+              - "Copy"
+              - "ParNew"
+              - "G1 Young Generation"
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_jvm_young_gc_time
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_gc_collection_seconds:
+        labelFilter:
+          - key: gc
+            options:
+              - "PS Scavenge"
+              - "Copy"
+              - "ParNew"
+              - "G1 Young Generation"
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_jvm_old_gc_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_gc_collection_seconds_count:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: gc
+            options:
+              - "PS MarkSweep"
+              - "MarkSweepCompact"
+              - "ConcurrentMarkSweep"
+              - "G1 Old Generation"
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_jvm_old_gc_time
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_gc_collection_seconds:
+        labelFilter:
+          - key: gc
+            options:
+              - "PS MarkSweep"
+              - "MarkSweepCompact"
+              - "ConcurrentMarkSweep"
+              - "G1 Old Generation"
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_trace_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      trace_in_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_trace_latency_percentile
+    scope: SERVICE_INSTANCE
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      trace_in_latency:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_trace_analysis_error_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      trace_analysis_error_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instanc
+  - name: instance_mesh_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      mesh_analysis_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_mesh_latency_percentile
+    scope: SERVICE_INSTANCE
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      mesh_analysis_latency:
+        counterFunction: INCREASE
+        range: PT10M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_mesh_analysis_error_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      mesh_analysis_error_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_metrics_first_aggregation
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      metrics_aggregation:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: dimensionality
+            options: ["minute"]
+          - key: level
+            options: ["1"]
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_metrics_second_aggregation
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      metrics_aggregation:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: dimensionality
+            options: ["minute"]
+          - key: level
+            options: ["2"]
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_persistence_execute_percentile
+    scope: SERVICE_INSTANCE
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      persistence_timer_bulk_execute_latency:
+        counterFunction: INCREASE
+        range: PT5M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_persistence_prepare_percentile
+    scope: SERVICE_INSTANCE
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      persistence_timer_bulk_prepare_latency:
+        counterFunction: INCREASE
+        range: PT5M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_persistence_error_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      persistence_timer_bulk_error_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_persistence_execute_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      persistence_timer_bulk_execute_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_persistence_prepare_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      persistence_timer_bulk_prepare_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance

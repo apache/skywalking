@@ -58,8 +58,8 @@ In this case, all input are requests of each endpoint, condition is `endpoint.st
 
 In this case, calls of each service. 
 
-- `thermodynamic`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map)
-> All_heatmap = from(All.latency).thermodynamic(100, 20);
+- `histogram`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map)
+> All_heatmap = from(All.latency).histogram(100, 20);
 
 In this case, thermodynamic heatmap of all incoming requests. 
 The parameter (1) is the precision of latency calculation, such as in above case, 113ms and 193ms are considered same in the 101-200ms group.

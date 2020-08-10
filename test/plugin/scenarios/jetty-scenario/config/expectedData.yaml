@@ -35,8 +35,8 @@ segmentItems:
       - {key: http.method, value: GET}
       refs:
       - {parentEndpoint: /jettyclient-case/case/jettyclient-case, networkAddress: 'localhost:18080',
-        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
-        parentServiceInstance: not null, parentService: not null, traceId: not null}
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: jettyclient-scenario, traceId: not null}
       skipAnalysis: 'false'
 - serviceName: jettyclient-scenario
   segmentSize: 2

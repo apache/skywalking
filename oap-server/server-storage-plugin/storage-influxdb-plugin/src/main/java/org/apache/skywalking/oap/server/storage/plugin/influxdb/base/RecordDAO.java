@@ -22,16 +22,15 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 
 public class RecordDAO implements IRecordDAO {
-    public static final String TAG_SERVICE_ID = "_service_id";
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
@@ -45,11 +44,14 @@ public class RecordDAO implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        final long timestamp = TimeBucket.getTimestamp(
-            record.getTimeBucket(), model.getDownsampling()) * PADDING_SIZE + SUFFIX.getAndIncrement();
+        final long timestamp = TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling())
+            * PADDING_SIZE + SUFFIX.getAndIncrement();
 
-        return new InfluxInsertRequest(model, record, storageBuilder)
-            .time(timestamp, TimeUnit.NANOSECONDS)
-            .addFieldAsTag(SegmentRecord.SERVICE_ID, TAG_SERVICE_ID);
+        final InfluxInsertRequest request = new InfluxInsertRequest(model, record, storageBuilder)
+            .time(timestamp, TimeUnit.NANOSECONDS);
+        TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
+            request.addFieldAsTag(field, tag);
+        });
+        return request;
     }
 }

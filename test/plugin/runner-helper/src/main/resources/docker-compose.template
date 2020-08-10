@@ -45,9 +45,12 @@ services:
             - SCENARIO_VERSION=${scenario_version}
             - SCENARIO_ENTRY_SERVICE=${entry_service}
             - SCENARIO_HEALTH_CHECK_URL=${health_check}
+            - SCENARIO_EXTEND_ENTRY_HEADER=${extend_entry_header}
+            - DEBUG_MODE=${debug_mode}
         volumes:
             - ${agent_home}:/usr/local/skywalking/scenario/agent
             - ${scenario_home}:/usr/local/skywalking/scenario
+            - ${jacoco_home}:/jacoco
         <#if depends_on??>
         depends_on:
         <#list depends_on as item>

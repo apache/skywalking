@@ -39,8 +39,11 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(
-                type.equals(NodeType.Normal));
+            return buildId(name, type.equals(NodeType.Normal));
+        }
+
+        public static String buildId(String name, boolean isNormal) {
+            return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(isNormal);
         }
 
         /**
@@ -157,11 +160,11 @@ public class IDManager {
         @EqualsAndHashCode
         public static class ServiceInstanceRelationDefine {
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceInstanceID#buildId(String, String)}
              */
             private final String sourceId;
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceInstanceID#buildId(String, String)}
              */
             private final String destId;
         }

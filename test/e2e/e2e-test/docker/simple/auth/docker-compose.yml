@@ -17,44 +17,31 @@ version: '2.1'
 
 services:
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
-    restart: on-failure
+    extends:
+      file: ../../base-compose.yml
+      service: oap
     environment:
-      - SW_AUTHENTICATION=test-token
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      SW_AUTHENTICATION: test-token
+      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_TELEMETRY: prometheus
 
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
-    environment:
-      - SW_OAP_ADDRESS=oap:12800
+    extends:
+      file: ../../base-compose.yml
+      service: ui
     depends_on:
       oap:
         condition: service_healthy
 
   provider:
-    build:
-      context: ../../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-    networks:
-      - e2e
-    expose:
-      - 9090
+    extends:
+      file: ../../base-compose.yml
+      service: provider
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap:11800
-      - SW_AGENT_PROPS=agent.authentication=test-token
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
+        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.authentication=test-token
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
       oap:
         condition: service_healthy

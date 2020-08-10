@@ -24,5 +24,5 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
  * Root Query Resolver.
  */
 public class Query implements GraphQLQueryResolver {
-    private String version = "6.0";
+    private String version = "8.0";
 }

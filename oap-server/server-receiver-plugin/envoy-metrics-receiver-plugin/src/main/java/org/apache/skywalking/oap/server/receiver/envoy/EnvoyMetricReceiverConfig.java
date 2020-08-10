@@ -23,9 +23,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
+    @Getter
+    private boolean acceptMetricsService = false;
     private String alsHTTPAnalysis;
 
     public List<String> getAlsHTTPAnalysis() {

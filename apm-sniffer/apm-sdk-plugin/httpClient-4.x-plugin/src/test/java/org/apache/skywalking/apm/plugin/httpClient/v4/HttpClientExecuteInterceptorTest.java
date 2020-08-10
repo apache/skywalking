@@ -133,7 +133,7 @@ public class HttpClientExecuteInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertHttpSpan(spans.get(0));
-        verify(request, times(2)).setHeader(anyString(), anyString());
+        verify(request, times(3)).setHeader(anyString(), anyString());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class HttpClientExecuteInterceptorTest {
 
         assertHttpSpan(spans.get(0));
         assertThat(SpanHelper.getErrorOccurred(spans.get(0)), is(true));
-        verify(request, times(2)).setHeader(anyString(), anyString());
+        verify(request, times(3)).setHeader(anyString(), anyString());
     }
 
     @Test
@@ -172,7 +172,7 @@ public class HttpClientExecuteInterceptorTest {
         assertHttpSpan(span);
         assertThat(SpanHelper.getErrorOccurred(span), is(true));
         assertHttpSpanErrorLog(SpanHelper.getLogs(span));
-        verify(request, times(2)).setHeader(anyString(), anyString());
+        verify(request, times(3)).setHeader(anyString(), anyString());
 
     }
 
@@ -202,7 +202,7 @@ public class HttpClientExecuteInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertHttpSpan(spans.get(0));
-        verify(request, times(2)).setHeader(anyString(), anyString());
+        verify(request, times(3)).setHeader(anyString(), anyString());
     }
 
     private void assertHttpSpanErrorLog(List<LogDataEntity> logs) {

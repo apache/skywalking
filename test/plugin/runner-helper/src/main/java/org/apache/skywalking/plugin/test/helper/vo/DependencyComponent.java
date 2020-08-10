@@ -17,8 +17,13 @@
 
 package org.apache.skywalking.plugin.test.helper.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Getter
+@Setter
 public class DependencyComponent {
     private String image;
     private String hostname;
@@ -31,92 +36,4 @@ public class DependencyComponent {
     private List<String> environment;
     private List<String> depends_on;
     private List<String> healthcheck;
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public List<String> getLinks() {
-        return links;
-    }
-
-    public void setLinks(List<String> links) {
-        this.links = links;
-    }
-
-    public List<String> getExpose() {
-        return expose;
-    }
-
-    public void setExpose(List<String> expose) {
-        this.expose = expose;
-    }
-
-    public List<String> getEntrypoint() {
-        return entrypoint;
-    }
-
-    public void setEntrypoint(List<String> entrypoint) {
-        this.entrypoint = entrypoint;
-    }
-
-    public List<String> getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(List<String> environment) {
-        this.environment = environment;
-    }
-
-    public List<String> getDepends_on() {
-        return depends_on;
-    }
-
-    public void setDepends_on(List<String> depends_on) {
-        this.depends_on = depends_on;
-    }
-
-    public List<String> getHealthcheck() {
-        return healthcheck;
-    }
-
-    public void setHealthcheck(List<String> healthcheck) {
-        this.healthcheck = healthcheck;
-    }
-
-    public List<String> getStartScript() {
-        return startScript;
-    }
-
-    public void setStartScript(List<String> startScript) {
-        this.startScript = startScript;
-    }
-
-    public boolean getRemoveOnExit() {
-        return removeOnExit;
-    }
-
-    public void setRemoveOnExit(final boolean removeOnExit) {
-        this.removeOnExit = removeOnExit;
-    }
 }

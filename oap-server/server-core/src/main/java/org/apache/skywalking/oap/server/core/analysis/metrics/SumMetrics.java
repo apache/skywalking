@@ -33,7 +33,7 @@ public abstract class SumMetrics extends Metrics implements LongValueHolder {
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true, function = Function.Sum)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
     private long value;
 
     @Entrance

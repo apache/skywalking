@@ -82,5 +82,22 @@
       </Loggers>
     </Configuration>
     ```
-
+* Support log4j2 AsyncAppender, For details: [Log4j2 AsyncAppender](https://logging.apache.org/log4j/2.x/manual/appenders.html)
+```xml
+    <Configuration>
+        <Appenders>
+            <Console name="Console" target="SYSTEM_OUT">
+                <PatternLayout pattern="%d [%traceId] %-5p %c{1}:%L - %m%n"/>
+            </Console>
+            <Async name="Async">
+                <AppenderRef ref="Console"/>
+            </Async>
+        </Appenders>
+        <Loggers>
+            <Root level="INFO">
+                <AppenderRef ref="Async"/>
+            </Root>
+        </Loggers>
+    </Configuration>
+```
 * When you use `-javaagent` to active the sky-walking tracer, log4j2 will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.

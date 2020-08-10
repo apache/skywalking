@@ -45,6 +45,8 @@ public class NacosCoordinatorTest {
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
     private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
 
+    private Address internalAddress = new Address("10.0.0.3", 1002, false);
+
     private static final String SERVICE_NAME = "test-service";
 
     @Before
@@ -91,6 +93,13 @@ public class NacosCoordinatorTest {
     @Test
     public void registerSelfRemote() throws NacosException {
         registerRemote(selfRemoteAddress);
+    }
+
+    @Test
+    public void registerRemoteUsingInternal() throws NacosException {
+        nacosConfig.setInternalComHost(internalAddress.getHost());
+        nacosConfig.setInternalComPort(internalAddress.getPort());
+        registerRemote(internalAddress);
     }
 
     private void validate(Address originArress, RemoteInstance instance) {

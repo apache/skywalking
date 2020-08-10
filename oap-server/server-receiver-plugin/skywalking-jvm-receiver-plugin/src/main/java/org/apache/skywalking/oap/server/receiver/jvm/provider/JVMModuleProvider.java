@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.jvm.module.JVMModule;
 import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMMetricReportServiceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
@@ -49,7 +51,13 @@ public class JVMModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() {
+    public void start() throws ModuleStartException {
+        // load official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(JVMOALDefine.INSTANCE);
+
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);

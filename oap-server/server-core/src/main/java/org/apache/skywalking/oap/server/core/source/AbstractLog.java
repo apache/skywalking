@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.query.entity.ContentType;
+import org.apache.skywalking.oap.server.core.query.type.ContentType;
 
 @Setter
 @Getter

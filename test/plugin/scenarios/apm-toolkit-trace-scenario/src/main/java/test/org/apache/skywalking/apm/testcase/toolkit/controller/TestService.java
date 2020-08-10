@@ -18,12 +18,12 @@
 
 package test.org.apache.skywalking.apm.testcase.toolkit.controller;
 
-import org.apache.skywalking.apm.toolkit.model.User;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
+import org.apache.skywalking.apm.toolkit.model.User;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.apache.skywalking.apm.toolkit.trace.CallableWrapper;
 import org.apache.skywalking.apm.toolkit.trace.RunnableWrapper;
@@ -78,6 +78,7 @@ public class TestService {
     public User testTagAnnotationReturnInfo(final String username, final Integer age) {
         return new User(username, age);
     }
+
     @Trace
     @Tag(key = "testTag", value = "arg[0]")
     public void testInfo(final String testInfoParam) {
@@ -94,6 +95,11 @@ public class TestService {
 
     public void asyncSupplier(Supplier<Boolean> supplier) {
         CompletableFuture.supplyAsync(SupplierWrapper.of(supplier));
+    }
+
+    @Trace
+    public void testSetOperationName(String operationName) {
+        ActiveSpan.setOperationName(operationName);
     }
 
 }

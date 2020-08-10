@@ -26,30 +26,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
+import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
+@Slf4j
 public class MetricsDAO implements IMetricsDAO {
-    public static final String TAG_ENTITY_ID = "_entity_id";
-    public static final String TAG_ENDPOINT_OWNER_SERVICE = "_service_id";
-    public static final String TAG_ENDPOINT_NAME = "_endpoint_name";
 
     private final StorageBuilder<Metrics> storageBuilder;
     private final InfluxClient client;
@@ -62,10 +59,13 @@ public class MetricsDAO implements IMetricsDAO {
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .regex("*::field")
+            .raw(ALL_FIELDS)
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
         QueryResult.Series series = client.queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
 
         if (series == null) {
             return Collections.emptyList();
@@ -73,10 +73,9 @@ public class MetricsDAO implements IMetricsDAO {
 
         final List<Metrics> metrics = Lists.newArrayList();
         List<String> columns = series.getColumns();
-        Map<String, String> storageAndColumnNames = Maps.newHashMap();
-        for (ModelColumn column : model.getColumns()) {
-            storageAndColumnNames.put(column.getColumnName().getStorageName(), column.getColumnName().getName());
-        }
+
+        TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
+        Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
 
         series.getValues().forEach(values -> {
             Map<String, Object> data = Maps.newHashMap();
@@ -87,7 +86,7 @@ public class MetricsDAO implements IMetricsDAO {
                     value = ((StorageDataComplexObject) value).toStorageData();
                 }
 
-                data.put(storageAndColumnNames.get(columns.get(i)), value);
+                data.put(storageAndColumnMap.get(columns.get(i)), value);
             }
             metrics.add(storageBuilder.map2Data(data));
 
@@ -99,16 +98,15 @@ public class MetricsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
-        if (metrics instanceof EndpointTraffic || metrics instanceof ServiceTraffic || metrics instanceof InstanceTraffic) {
-            return new InfluxInsertRequest(model, metrics, storageBuilder)
-                .time(timestamp, TimeUnit.MILLISECONDS)
-                .addFieldAsTag(EndpointTraffic.SERVICE_ID, TAG_ENDPOINT_OWNER_SERVICE)
-                .addFieldAsTag(EndpointTraffic.NAME, TAG_ENDPOINT_NAME);
-        } else {
-            return new InfluxInsertRequest(model, metrics, storageBuilder)
-                .time(timestamp, TimeUnit.MILLISECONDS)
-                .addFieldAsTag(Metrics.ENTITY_ID, TAG_ENTITY_ID);
-        }
+        TableMetaInfo tableMetaInfo = TableMetaInfo.get(model.getName());
+
+        final InfluxInsertRequest request = new InfluxInsertRequest(model, metrics, storageBuilder)
+            .time(timestamp, TimeUnit.MILLISECONDS);
+
+        tableMetaInfo.getStorageAndTagMap().forEach((field, tag) -> {
+            request.addFieldAsTag(field, tag);
+        });
+        return request;
     }
 
     @Override

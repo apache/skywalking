@@ -74,7 +74,7 @@ segmentItems:
       refs:
       - {parentEndpoint: SpringAsync, networkAddress: 'localhost:8080', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: spring-async-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -140,5 +140,5 @@ segmentItems:
       refs:
       - {parentEndpoint: /spring-async-scenario/case/spring-async, networkAddress: '',
         refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: spring-async-scenario, traceId: not null}
       skipAnalysis: 'false'

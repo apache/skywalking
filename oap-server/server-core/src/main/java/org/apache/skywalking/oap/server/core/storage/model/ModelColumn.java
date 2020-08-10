@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 
 @Getter
 public class ModelColumn {
@@ -51,7 +51,7 @@ public class ModelColumn {
         /*
          * byte[] and {@link IntKeyLongValueHashMap} could never be query.
          */
-        if (type.equals(byte[].class) || type.equals(IntKeyLongValueHashMap.class)) {
+        if (type.equals(byte[].class) || type.equals(DataTable.class)) {
             this.storageOnly = true;
         } else {
             if (storageOnly && isValue) {

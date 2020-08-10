@@ -41,62 +41,76 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
-    public StorageEsInstaller(ModuleManager moduleManager, final StorageModuleElasticsearchConfig config) {
-        super(moduleManager);
+    public StorageEsInstaller(Client client,
+                              ModuleManager moduleManager,
+                              final StorageModuleElasticsearchConfig config) {
+        super(client, moduleManager);
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
         this.config = config;
     }
 
     @Override
-    protected boolean isExists(Client client, Model model) throws StorageException {
+    protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
-            String timeSeriesIndexName = TimeSeriesUtils.latestWriteIndexName(model);
-            return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
+            if (model.isTimeSeries()) {
+                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(
+                    TimeSeriesUtils.latestWriteIndexName(model));
+            } else {
+                return esClient.isExistsIndex(model.getName());
+            }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
     }
 
     @Override
-    protected void createTable(Client client, Model model) throws StorageException {
+    protected void createTable(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
 
-        Map<String, Object> settings = createSetting(model.isRecord());
+        Map<String, Object> settings = createSetting(model);
         Map<String, Object> mapping = createMapping(model);
         log.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping
             .toString());
 
         try {
-            if (!esClient.isExistsTemplate(model.getName())) {
-                boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
-                log.info(
-                    "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+            String indexName;
+            if (!model.isTimeSeries()) {
+                indexName = model.getName();
+            } else {
+                if (!esClient.isExistsTemplate(model.getName())) {
+                    boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
+                    log.info(
+                        "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                    if (!isAcknowledged) {
+                        throw new StorageException("create " + model.getName() + " index template failure, ");
+                    }
+                }
+                indexName = TimeSeriesUtils.latestWriteIndexName(model);
+            }
+            if (!esClient.isExistsIndex(indexName)) {
+                boolean isAcknowledged = esClient.createIndex(indexName);
+                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
                 if (!isAcknowledged) {
-                    throw new StorageException("create " + model.getName() + " index template failure, ");
+                    throw new StorageException("create " + indexName + " time series index failure, ");
                 }
             }
-            String timeSeriesIndexName = TimeSeriesUtils.latestWriteIndexName(model);
-            if (!esClient.isExistsIndex(timeSeriesIndexName)) {
-                boolean isAcknowledged = esClient.createIndex(timeSeriesIndexName);
-                log.info("create {} index finished, isAcknowledged: {}", timeSeriesIndexName, isAcknowledged);
-                if (!isAcknowledged) {
-                    throw new StorageException("create " + timeSeriesIndexName + " time series index failure, ");
-                }
-            }
+
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
     }
 
-    protected Map<String, Object> createSetting(boolean record) {
+    protected Map<String, Object> createSetting(Model model) {
         Map<String, Object> setting = new HashMap<>();
-        setting.put("index.number_of_shards", config.getIndexShardsNumber());
+
         setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
-        setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10)
-                                                                .toString() : TimeValue.timeValueSeconds(
-            config.getFlushInterval())
-                                                                                       .toString());
+        setting.put("index.number_of_shards", model.isSuperDataset()
+            ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
+            : config.getIndexShardsNumber());
+        setting.put("index.refresh_interval", model.isRecord()
+            ? TimeValue.timeValueSeconds(10).toString()
+            : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);

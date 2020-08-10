@@ -29,6 +29,6 @@ VOLUME /services
 
 ADD e2e-service-consumer/target/e2e-service-consumer-1.0.0.jar /services/
 
-ENV SW_AGENT_PROPS=""
+ENV JAVA_OPTS=""
 
-CMD ["sh", "-c", "java -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,$SW_AGENT_PROPS -jar /services/e2e-service-consumer-1.0.0.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -jar /services/e2e-service-consumer-1.0.0.jar"]

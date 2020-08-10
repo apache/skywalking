@@ -33,7 +33,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /sofarpc-scenario/case/sofarpc, networkAddress: '127.0.0.1:12200',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: sofarpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

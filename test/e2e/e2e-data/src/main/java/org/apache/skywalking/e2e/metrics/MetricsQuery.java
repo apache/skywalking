@@ -64,6 +64,15 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_SLA
     };
 
+    public static String INSTANCE_JVM_THREAD_LIVE_COUNT = "instance_jvm_thread_live_count";
+    public static String INSTANCE_JVM_THREAD_DAEMON_COUNT = "instance_jvm_thread_daemon_count";
+    public static String INSTANCE_JVM_THREAD_PEAK_COUNT = "instance_jvm_thread_peak_count";
+    public static String [] ALL_INSTANCE_JVM_METRICS = {
+        INSTANCE_JVM_THREAD_DAEMON_COUNT,
+        INSTANCE_JVM_THREAD_DAEMON_COUNT,
+        INSTANCE_JVM_THREAD_PEAK_COUNT
+    };
+
     public static String SERVICE_RELATION_CLIENT_CPM = "service_relation_client_cpm";
     public static String SERVICE_RELATION_SERVER_CPM = "service_relation_server_cpm";
     public static String SERVICE_RELATION_CLIENT_CALL_SLA = "service_relation_client_call_sla";
@@ -96,7 +105,37 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_RELATION_SERVER_CPM
     };
 
+    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_instance_cpu_percentage";
+    public static String METER_INSTANCE_JVM_MEMORY_BYTES_USED = "meter_instance_jvm_memory_bytes_used";
+    public static String METER_INSTANCE_TRACE_COUNT = "meter_instance_trace_count";
+    public static String METER_INSTANCE_METRICS_FIRST_AGGREGATION = "meter_instance_metrics_first_aggregation";
+    public static String METER_INSTANCE_PERSISTENCE_PREPARE_COUNT = "meter_instance_persistence_prepare_count";
+    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT = "meter_instance_persistence_execute_count";
+
+    public static String[] ALL_SO11Y_LINER_METRICS = {
+        METER_INSTANCE_CPU_PERCENTAGE,
+        METER_INSTANCE_JVM_MEMORY_BYTES_USED,
+        METER_INSTANCE_TRACE_COUNT,
+        METER_INSTANCE_METRICS_FIRST_AGGREGATION,
+        METER_INSTANCE_PERSISTENCE_PREPARE_COUNT,
+        METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT 
+    };
+
+    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_instance_persistence_execute_percentile";
+
+    public static String[] ALL_SO11Y_LABELED_METRICS = {
+        METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE
+    };
     private String id;
     private String metricsName;
+
+    public static String METER_JVM_MEMORY_MAX = "meter_jvm_memory_max";
+    public static String METER_JVM_THREADS_LIVE = "meter_jvm_threads_live";
+    public static String METER_PROCESS_FILES_MAX = "meter_process_files_max";
+    public static String[] SIMPLE_MICROMETER_METERS = {
+        METER_JVM_MEMORY_MAX,
+        METER_JVM_THREADS_LIVE,
+        METER_PROCESS_FILES_MAX
+    };
 
 }

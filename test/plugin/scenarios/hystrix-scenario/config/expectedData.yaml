@@ -39,7 +39,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /case/hystrix-scenario, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: hystrix-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -57,7 +57,7 @@ segmentItems:
       refs:
       - {parentEndpoint: Hystrix/TestACommand/Execution, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: hystrix-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

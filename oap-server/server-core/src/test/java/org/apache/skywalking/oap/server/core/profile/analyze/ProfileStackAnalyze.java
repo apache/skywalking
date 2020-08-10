@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
+import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 
 import static org.junit.Assert.assertEquals;

@@ -22,7 +22,7 @@ import com.google.common.primitives.Ints;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 
 import java.io.IOException;

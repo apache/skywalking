@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 /**
  * Stream annotation represents a metadata definition. Include the key values of the distributed streaming calculation.
  * See {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link TopNStreamProcessor} and {@link
- * NoneStreamingProcessor} for more details.
+ * NoneStreamProcessor} for more details.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -55,7 +55,7 @@ public @interface Stream {
 
     /**
      * @return the stream processor type, see {@link MetricsStreamProcessor}, {@link RecordStreamProcessor},  {@link
-     * TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
+     * TopNStreamProcessor} and {@link NoneStreamProcessor} for more details.
      */
     Class<? extends StreamProcessor> processor();
 }

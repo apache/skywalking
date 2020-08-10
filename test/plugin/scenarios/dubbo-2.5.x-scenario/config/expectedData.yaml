@@ -35,7 +35,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /dubbo-2.5.x-scenario/case/dubbo, networkAddress: 'localhost:20080',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: dubbo-2.5.x-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

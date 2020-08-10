@@ -1,5 +1,5 @@
-private void do${metricsName}(org.apache.skywalking.oap.server.core.source.${sourceName} source) {
-org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics metrics = new org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics();
+private void do${metricsName}(${sourcePackage}${sourceName} source) {
+${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 
 <#if filterExpressions??>
     <#list filterExpressions as filterExpression>

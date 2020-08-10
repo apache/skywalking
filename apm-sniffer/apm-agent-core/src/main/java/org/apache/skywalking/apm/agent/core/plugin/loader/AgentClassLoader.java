@@ -34,6 +34,8 @@ import java.util.jar.JarFile;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
+import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
@@ -99,14 +101,15 @@ public class AgentClassLoader extends ClassLoader {
             try {
                 URL classFileUrl = new URL("jar:file:" + jar.sourceFile.getAbsolutePath() + "!/" + path);
                 byte[] data;
-                try (final BufferedInputStream is = new BufferedInputStream(classFileUrl.openStream()); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                try (final BufferedInputStream is = new BufferedInputStream(
+                    classFileUrl.openStream()); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     int ch;
                     while ((ch = is.read()) != -1) {
                         baos.write(ch);
                     }
                     data = baos.toByteArray();
                 }
-                return defineClass(name, data, 0, data.length);
+                return processLoadedClass(defineClass(name, data, 0, data.length));
             } catch (IOException e) {
                 logger.error(e, "find class fail.");
             }
@@ -154,27 +157,24 @@ public class AgentClassLoader extends ClassLoader {
         };
     }
 
+    private Class<?> processLoadedClass(Class<?> loadedClass) {
+        final PluginConfig pluginConfig = loadedClass.getAnnotation(PluginConfig.class);
+        if (pluginConfig != null) {
+            // Set up the plugin config when loaded by class loader at the first time.
+            // Agent class loader just loaded limited classes in the plugin jar(s), so the cost of this
+            // isAssignableFrom would be also very limited.
+            SnifferConfigInitializer.initializeConfig(pluginConfig.root());
+        }
+
+        return loadedClass;
+    }
+
     private List<Jar> getAllJars() {
         if (allJars == null) {
             jarScanLock.lock();
             try {
                 if (allJars == null) {
-                    allJars = new LinkedList<>();
-                    for (File path : classpath) {
-                        if (path.exists() && path.isDirectory()) {
-                            String[] jarFileNames = path.list((dir, name) -> name.endsWith(".jar"));
-                            for (String fileName : jarFileNames) {
-                                try {
-                                    File file = new File(path, fileName);
-                                    Jar jar = new Jar(new JarFile(file), file);
-                                    allJars.add(jar);
-                                    logger.info("{} loaded.", file.toString());
-                                } catch (IOException e) {
-                                    logger.error(e, "{} jar file can't be resolved", fileName);
-                                }
-                            }
-                        }
-                    }
+                    allJars = doGetJars();
                 }
             } finally {
                 jarScanLock.unlock();
@@ -182,6 +182,26 @@ public class AgentClassLoader extends ClassLoader {
         }
 
         return allJars;
+    }
+
+    private LinkedList<Jar> doGetJars() {
+        LinkedList<Jar> jars = new LinkedList<>();
+        for (File path : classpath) {
+            if (path.exists() && path.isDirectory()) {
+                String[] jarFileNames = path.list((dir, name) -> name.endsWith(".jar"));
+                for (String fileName : jarFileNames) {
+                    try {
+                        File file = new File(path, fileName);
+                        Jar jar = new Jar(new JarFile(file), file);
+                        jars.add(jar);
+                        logger.info("{} loaded.", file.toString());
+                    } catch (IOException e) {
+                        logger.error(e, "{} jar file can't be resolved", fileName);
+                    }
+                }
+            }
+        }
+        return jars;
     }
 
     @RequiredArgsConstructor

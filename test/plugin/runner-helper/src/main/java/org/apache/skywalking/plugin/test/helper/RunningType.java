@@ -18,5 +18,5 @@
 package org.apache.skywalking.plugin.test.helper;
 
 public enum RunningType {
-    Container, DockerCompose;
+    Container, DockerCompose
 }

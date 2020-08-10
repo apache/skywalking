@@ -35,7 +35,7 @@ public abstract class MaxLongMetrics extends Metrics implements LongValueHolder 
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     private long value;
 
     @Entrance

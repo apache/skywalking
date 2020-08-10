@@ -41,17 +41,10 @@ import org.springframework.web.util.pattern.PathPattern;
 import reactor.core.publisher.Mono;
 
 public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethodsAroundInterceptor {
-    private static final String DEFAULT_OPERATION_NAME = "WEBFLUX.handle";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-
-    }
-
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         EnhancedInstance instance = getInstance(allArguments[0]);
 
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
@@ -67,7 +60,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
             }
         }
 
-        AbstractSpan span = ContextManager.createEntrySpan(DEFAULT_OPERATION_NAME, carrier);
+        AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getURI().getPath(), carrier);
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
@@ -76,30 +69,39 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         span.prepareForAsync();
         ContextManager.stopSpan(span);
 
+        exchange.getAttributes().put("SKYWALING_SPAN", span);
+    }
+
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         return ((Mono) ret).doFinally(s -> {
-            try {
-                Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-                if (pathPattern != null) {
-                    span.setOperationName(((PathPattern) pathPattern).getPatternString());
-                }
-                HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-                // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
-                if (httpStatus != null) {
-                    Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
-                    if (httpStatus.isError()) {
-                        span.errorOccurred();
+            AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
+            if (span != null) {
+                try {
+                    Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+                    if (pathPattern != null) {
+                        span.setOperationName(((PathPattern) pathPattern).getPatternString());
                     }
+                    HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+                    // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
+                    if (httpStatus != null) {
+                        Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                        if (httpStatus.isError()) {
+                            span.errorOccurred();
+                        }
+                    }
+                } finally {
+                    span.asyncFinish();
                 }
-            } finally {
-                span.asyncFinish();
             }
         });
-
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
     }
 
     public static EnhancedInstance getInstance(Object o) {

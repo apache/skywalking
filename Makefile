@@ -58,18 +58,22 @@ DOCKER_TARGETS:=docker.oap docker.ui
 docker.all: $(DOCKER_TARGETS)
 
 ifeq ($(ES_VERSION),es7)
-docker.oap: $(SW_OUT)/apache-skywalking-apm-bin-es7.tar.gz
-docker.oap: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap
-docker.oap: $(SW_ROOT)/docker/oap-es7/docker-entrypoint.sh
-docker.oap: $(SW_ROOT)/docker/oap-es7/log4j2.xml
-		$(DOCKER_RULE)
+  DIST_NAME := apache-skywalking-apm-bin-es7
 else
-docker.oap: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
+  DIST_NAME := apache-skywalking-apm-bin
+endif
+
+ifneq ($(SW_OAP_JAVA_VERSION),)
+  BUILD_ARGS := $(BUILD_ARGS) --build-arg JAVA_VERSION=$(SW_OAP_JAVA_VERSION)
+endif
+
+BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST_NAME=$(DIST_NAME)
+
+docker.oap: $(SW_OUT)/$(DIST_NAME).tar.gz
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
 		$(DOCKER_RULE)
-endif
 
 docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui

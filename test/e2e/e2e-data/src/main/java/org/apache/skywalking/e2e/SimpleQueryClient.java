@@ -29,6 +29,10 @@ import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MultiMetricsData;
+import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsData;
+import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
+import org.apache.skywalking.e2e.metrics.ReadMetrics;
+import org.apache.skywalking.e2e.metrics.ReadMetricsData;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesData;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -52,7 +56,10 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SuppressWarnings("UnstableApiUsage")
+@Slf4j
 public class SimpleQueryClient {
     protected final RestTemplate restTemplate = new RestTemplate();
 
@@ -253,4 +260,55 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getMetrics();
     }
 
+    public ReadMetrics readMetrics(final ReadMetricsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("read-metrics.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{step}", query.step())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{metricsName}", query.metricsName())
+                                            .replace("{serviceName}", query.serviceName())
+                                            .replace("{instanceName}", query.instanceName());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<ReadMetricsData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<ReadMetricsData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getReadMetricsValues();
+    }
+
+    public List<ReadMetrics> readLabeledMetrics(final ReadMetricsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("read-labeled-metrics.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{step}", query.step())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{metricsName}", query.metricsName())
+                                            .replace("{serviceName}", query.serviceName())
+                                            .replace("{instanceName}", query.instanceName());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<ReadLabeledMetricsData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<ReadLabeledMetricsData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getReadLabeledMetricsValues();
+    }
 }

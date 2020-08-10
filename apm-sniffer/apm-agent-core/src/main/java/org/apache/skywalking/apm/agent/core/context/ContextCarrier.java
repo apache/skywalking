@@ -42,9 +42,11 @@ public class ContextCarrier implements Serializable {
     private String addressUsedAtClient;
 
     private CorrelationContext correlationContext = new CorrelationContext();
+    private ExtensionContext extensionContext = new ExtensionContext();
 
     public CarrierItem items() {
-        SW8CorrelationCarrierItem sw8CorrelationCarrierItem = new SW8CorrelationCarrierItem(correlationContext, null);
+        SW8ExtensionCarrierItem sw8ExtensionCarrierItem = new SW8ExtensionCarrierItem(extensionContext, null);
+        SW8CorrelationCarrierItem sw8CorrelationCarrierItem = new SW8CorrelationCarrierItem(correlationContext, sw8ExtensionCarrierItem);
         SW8CarrierItem sw8CarrierItem = new SW8CarrierItem(this, sw8CorrelationCarrierItem);
         return new CarrierItemHead(sw8CarrierItem);
     }

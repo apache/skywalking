@@ -17,14 +17,18 @@
 
 package org.apache.skywalking.plugin.test.helper.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter
 public class CaseConfiguration {
     private String type;
     private String entryService;
     private String healthCheck;
-    private String framework;
     private String hostname;
     private String startScript;
     private Map<String, DependencyComponent> dependencies;
@@ -33,100 +37,5 @@ public class CaseConfiguration {
     private List<String> depends_on;
     private String runningMode;
     private String withPlugins;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getEntryService() {
-        return entryService;
-    }
-
-    public void setEntryService(String entryService) {
-        this.entryService = entryService;
-    }
-
-    public String getHealthCheck() {
-        return healthCheck;
-    }
-
-    public void setHealthCheck(String healthCheck) {
-        this.healthCheck = healthCheck;
-    }
-
-    public String getFramework() {
-        return framework;
-    }
-
-    public void setFramework(String framework) {
-        this.framework = framework;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getStartScript() {
-        return startScript;
-    }
-
-    public void setStartScript(String startScript) {
-        this.startScript = startScript;
-    }
-
-    public Map<String, DependencyComponent> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(Map<String, DependencyComponent> dependencies) {
-        this.dependencies = dependencies;
-    }
-
-    public List<String> getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(List<String> environment) {
-        this.environment = environment;
-    }
-
-    public List<String> getExpose() {
-        return expose;
-    }
-
-    public void setExpose(List<String> expose) {
-        this.expose = expose;
-    }
-
-    public List<String> getDepends_on() {
-        return depends_on;
-    }
-
-    public void setDepends_on(List<String> depends_on) {
-        this.depends_on = depends_on;
-    }
-
-    public String getRunningMode() {
-        return runningMode;
-    }
-
-    public void setRunningMode(String runningMode) {
-        this.runningMode = runningMode;
-    }
-
-    public String getWithPlugins() {
-        return withPlugins;
-    }
-
-    public void setWithPlugins(String withPlugins) {
-        this.withPlugins = withPlugins;
-    }
+    private List<RequestHeader> extendEntryHeader;
 }

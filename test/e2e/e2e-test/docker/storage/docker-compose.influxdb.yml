@@ -29,24 +29,16 @@ services:
       retries: 120
 
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
-    restart: on-failure
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_STORAGE=influxdb
-      - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
+      SW_STORAGE: influxdb
+      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_TELEMETRY: prometheus
     depends_on:
       influxdb:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
 networks:
   e2e:

@@ -17,7 +17,6 @@ type: jvm
 entryService: http://localhost:8080/solrj-7.x-scenario/case/solrj
 healthCheck: http://localhost:8080/solrj-7.x-scenario/heathcheck
 startScript: ./bin/startup.sh
-framework: solrj
 runningMode: with_optional
 withPlugins: apm-gson-2.x-plugin-*.jar;apm-spring-cloud-gateway-2.x-plugin-*.jar
 environment:

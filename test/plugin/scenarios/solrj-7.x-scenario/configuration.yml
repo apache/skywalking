@@ -17,7 +17,6 @@ type: jvm
 entryService: http://localhost:8080/solrj-scenario/case/solrj
 healthCheck: http://localhost:8080/solrj-scenario/case/healthcheck
 startScript: ./bin/startup.sh
-framework: solrj
 environment:
   - SOLR_SERVER=solr-server:8983
 depends_on:
@@ -26,6 +25,7 @@ dependencies:
   solr-server:
     image: solr:${CASE_SERVER_IMAGE_VERSION}
     hostname: solr-server
+    removeOnExit: true
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate

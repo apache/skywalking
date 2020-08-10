@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/servicecomb/case
 healthCheck: http://localhost:8080/servicecomb/healthCheck
 startScript: ./bin/startup.sh
-framework: servicecomb-1.x-scenario
 environment:
 dependencies:

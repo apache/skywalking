@@ -35,6 +35,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -71,6 +73,11 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Profi
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UITemplateManagementEsDAO;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * The storage provider for ElasticSearch 6.
@@ -107,6 +114,10 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         }
         if (config.getDayStep() > 1) {
             TimeSeriesUtils.setDAY_STEP(config.getDayStep());
+            TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(config.getDayStep());
+        }
+        if (config.getSuperDatasetDayStep() > 0) {
+            TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(config.getSuperDatasetDayStep());
         }
 
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
@@ -172,16 +183,23 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config
                 .getProfileTaskQueryMaxSize()));
+        this.registerServiceImplementation(
+            UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient));
     }
 
     @Override
     public void start() throws ModuleStartException {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
+            "storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
+            StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
 
-            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config);
-            installer.install(elasticSearchClient);
-
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

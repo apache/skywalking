@@ -10,6 +10,7 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Maven compilation failure with `python2 not found` error](maven-compile-npm-failure.md)
 
 ## Runtime
+* [8.x+ upgrade](v8-version-upgrade.md)
 * [Why metrics indexes(ElasticSearch) in Hour and Day precisions stop update after upgrade to 7.x?](Hour-Day-Metrics-Stopping.md)
 * [6.x version upgrade](v6-version-upgrade.md)
 * [Why only traces in UI?](Why-have-traces-no-others.md)
@@ -23,3 +24,5 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [No data shown and backend replies with "Variable 'serviceId' has coerced Null value for NonNull type 'ID!'"](time-and-timezone.md)
 * [**Unexpected endpoint register** warning after 6.6.0](Unexpected-endpoint-register.md)
 * [Use the profile exporter tool if the profile analysis is not right](../guides/backend-profile-export.md)
+* [Compatible with other javaagent bytecode processing](Compatible-with-other-javaagent-bytecode-processing.md)
+* [**Java agent memory leak** when enhance `Worker thread` at use Thread Pool](Memory-leak-enhance-Worker-thread.md)

@@ -24,10 +24,10 @@ import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.entity.Span;
-import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
-import org.apache.skywalking.oap.server.core.query.entity.TraceState;
+import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.Span;
+import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 
 public class ProfileTraceDAO implements ITraceQueryDAO {

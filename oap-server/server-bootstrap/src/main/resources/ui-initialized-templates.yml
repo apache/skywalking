@@ -1,0 +1,1245 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "APM"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "name": "APM",
+          "type": "service",
+          "children": [
+            {
+              "name": "Global",
+              "children": [
+                {
+                  "width": 3,
+                  "title": "Services Load",
+                  "height": "300",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_cpm",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Slow Services",
+                  "height": "300",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_resp_time",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "Un-Health Services (Apdex)",
+                  "height": "300",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_apdex",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "aggregation": "/",
+                  "aggregationNum": "10000",
+                  "sortOrder": "ASC"
+                },
+                {
+                  "width": 3,
+                  "title": "Slow Endpoints",
+                  "height": "300",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_avg",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "unit": "ms"
+                },
+                {
+                  "width": "6",
+                  "title": "Global Response Latency",
+                  "height": "280",
+                  "entityType": "All",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "all_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0, 1, 2, 3, 4",
+                  "unit": "percentile in ms"
+                },
+                {
+                  "width": "6",
+                  "title": "Global Heatmap",
+                  "height": "280",
+                  "entityType": "All",
+                  "independentSelector": false,
+                  "metricType": "HEATMAP",
+                  "unit": "ms",
+                  "queryMetricType": "readHeatMap",
+                  "chartType": "ChartHeatmap",
+                  "metricName": "all_heatmap"
+                }
+              ]
+            },
+            {
+              "name": "Service",
+              "children": [
+                {
+                  "width": 3,
+                  "title": "Service Apdex",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_apdex",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "aggregation": "/",
+                  "aggregationNum": "10000"
+                },
+                {
+                  "width": 3,
+                  "title": "Service Avg Response Time",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_resp_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "Successful Rate",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_sla",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": 3,
+                  "title": "Service Load",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_cpm",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Service Apdex",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_apdex",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "aggregation": "/",
+                  "aggregationNum": "10000"
+                },
+                {
+                  "width": 3,
+                  "title": "Service Response Time Percentile",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "service_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0, 1, 2, 3, 4"
+                },
+                {
+                  "width": 3,
+                  "title": "Successful Rate",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_sla",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": 3,
+                  "title": "Service Load",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_cpm",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": "4",
+                  "title": "Service Instances Load",
+                  "height": "280",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_cpm",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": true,
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": "4",
+                  "title": "Slow Service Instance",
+                  "height": "280",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_resp_time",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": true,
+                  "unit": "ms"
+                },
+                {
+                  "width": "4",
+                  "title": "Service Instance Successful Rate",
+                  "height": "280",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_sla",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": true,
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100",
+                  "sortOrder": "ASC"
+                }
+              ]
+            },
+            {
+              "name": "Instance",
+              "children": [
+                {
+                  "width": "4",
+                  "title": "Service Instance Load",
+                  "height": "150",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_cpm",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": "4",
+                  "title": "Service Instance Successful Rate",
+                  "height": "150",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_sla",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": "4",
+                  "title": "Service Instance Latency",
+                  "height": "150",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_resp_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "JVM CPU (Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_jvm_cpu",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%",
+                  "aggregation": "+",
+                  "aggregationNum": ""
+                },
+                {
+                  "width": 3,
+                  "title": "JVM Memory (Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_jvm_memory_heap, instance_jvm_memory_heap_max,instance_jvm_memory_noheap, instance_jvm_memory_noheap_max",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1045504"
+                },
+                {
+                  "width": 3,
+                  "title": "JVM GC Time",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_jvm_young_gc_time, instance_jvm_old_gc_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "JVM GC Count",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "metricName": "instance_jvm_young_gc_count, instance_jvm_old_gc_count"
+                },
+                {
+                  "width": 3,
+                  "title": "JVM Thread Count (Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "instance_jvm_thread_live_count, instance_jvm_thread_daemon_count, instance_jvm_thread_peak_count"
+                },
+                {
+                  "width": 3,
+                  "title": "CLR CPU  (.NET Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_clr_cpu",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%"
+                },
+                {
+                  "width": 3,
+                  "title": "CLR GC (.NET Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_clr_gen0_collect_count, instance_clr_gen1_collect_count, instance_clr_gen2_collect_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar"
+                },
+                {
+                  "width": 3,
+                  "title": "CLR Heap Memory (.NET Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "instance_clr_heap_memory",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "MB"
+                },
+                {
+                  "width": 3,
+                  "title": "CLR Thread (.NET Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "instance_clr_available_completion_port_threads,instance_clr_available_worker_threads,instance_clr_max_completion_port_threads,instance_clr_max_worker_threads"
+                }
+              ]
+            },
+            {
+              "name": "Endpoint",
+              "children": [
+                {
+                  "width": "4",
+                  "title": "Endpoint Load in Current Service",
+                  "height": "280",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_cpm",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": true,
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": "4",
+                  "title": "Slow Endpoints in Current Service",
+                  "height": "280",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "endpoint_avg",
+                  "unit": "ms",
+                  "parentService": true
+                },
+                {
+                  "width": "4",
+                  "title": "Successful Rate in Current Service",
+                  "height": "280",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_sla",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "aggregation": "/",
+                  "aggregationNum": "100",
+                  "parentService": true,
+                  "unit": "%",
+                  "sortOrder": "ASC"
+                },
+                {
+                  "width": 3,
+                  "title": "Endpoint Load",
+                  "height": 350,
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_cpm",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": 3,
+                  "title": "Endpoint Avg Response Time",
+                  "height": 350,
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_avg",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "Endpoint Response Time Percentile",
+                  "height": 350,
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "endpoint_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0, 1, 2, 3, 4",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "Endpoint Successful Rate",
+                  "height": 350,
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "endpoint_sla",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+
+  - name: "Database"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "name": "Database",
+          "type": "database",
+          "children": [
+            {
+              "name": "Database",
+              "children": [
+                {
+                  "width": 3,
+                  "title": "Database Avg Response Time",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_resp_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "Database Access Successful Rate",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_sla",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": 3,
+                  "title": "Database Traffic",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_cpm",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Database Access Latency Percentile",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "database_access_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0, 1, 2, 3, 4",
+                  "unit": "ms"
+                },
+                {
+                  "width": "6",
+                  "title": "Slow Statements",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "SAMPLED_RECORD",
+                  "metricName": "top_n_database_statement",
+                  "queryMetricType": "readSampledRecords",
+                  "chartType": "ChartSlow",
+                  "parentService": true,
+                  "sortOrder": "DES",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "All Database Loads",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_cpm",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "sortOrder": "DES",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Un-Health Databases (Successful Rate)",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_sla",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "sortOrder": "ASC",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+
+  - name: "Topology Instance"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "TOPOLOGY_INSTANCE"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "width": "4",
+          "title": "Service Instance Load",
+          "height": "150",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "service_instance_cpm",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "CPM - calls per minute"
+        },
+        {
+          "width": "4",
+          "title": "Service Instance Successful Rate",
+          "height": "150",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "service_instance_resp_time",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "%",
+          "aggregation": "/",
+          "aggregationNum": "100"
+        },
+        {
+          "width": "4",
+          "title": "Service Instance Latency",
+          "height": "150",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "service_instance_resp_time",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "ms"
+        },
+        {
+          "width": 3,
+          "title": "JVM CPU (Java Service)",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "instance_jvm_cpu",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "%",
+          "aggregation": "+",
+          "aggregationNum": ""
+        },
+        {
+          "width": 3,
+          "title": "JVM Memory (Java Service)",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "instance_jvm_memory_heap, instance_jvm_memory_heap_max,instance_jvm_memory_noheap, instance_jvm_memory_noheap_max",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "MB",
+          "aggregation": "/",
+          "aggregationNum": "1045504"
+        },
+        {
+          "width": 3,
+          "title": "JVM GC Time",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "instance_jvm_young_gc_time, instance_jvm_old_gc_time",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "ms"
+        },
+        {
+          "width": 3,
+          "title": "JVM GC Count",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartBar",
+          "metricName": "instance_jvm_young_gc_count, instance_jvm_old_gc_count"
+        },
+        {
+          "width": 3,
+          "title": "CLR CPU  (.NET Service)",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "instance_clr_cpu",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "%"
+        },
+        {
+          "width": 3,
+          "title": "CLR GC (.NET Service)",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "instance_clr_gen0_collect_count, instance_clr_gen1_collect_count, instance_clr_gen2_collect_count",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartBar"
+        },
+        {
+          "width": 3,
+          "title": "CLR Heap Memory (.NET Service)",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "instance_clr_heap_memory",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "MB"
+        },
+        {
+          "width": 3,
+          "title": "CLR Thread (.NET Service)",
+          "height": "250",
+          "entityType": "ServiceInstance",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "metricName": "instance_clr_available_completion_port_threads,instance_clr_available_worker_threads,instance_clr_max_completion_port_threads,instance_clr_max_worker_threads"
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+
+  - name: "Topology Endpoint"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "TOPOLOGY_ENDPOINT"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "width": "4",
+          "title": "Endpoint Load in Current Service",
+          "height": "280",
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_cpm",
+          "queryMetricType": "sortMetrics",
+          "chartType": "ChartSlow",
+          "parentService": true,
+          "unit": "CPM - calls per minute"
+        },
+        {
+          "width": "4",
+          "title": "Slow Endpoints in Current Service",
+          "height": "280",
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "queryMetricType": "sortMetrics",
+          "chartType": "ChartSlow",
+          "metricName": "endpoint_avg",
+          "unit": "ms",
+          "parentService": true
+        },
+        {
+          "width": "4",
+          "title": "Successful Rate in Current Service",
+          "height": "280",
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_sla",
+          "queryMetricType": "sortMetrics",
+          "chartType": "ChartSlow",
+          "aggregation": "/",
+          "aggregationNum": "100",
+          "parentService": true,
+          "unit": "%",
+          "sortOrder": "ASC"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Load",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_cpm",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Avg Response Time",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_avg",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "ms"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Response Time Percentile",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "LABELED_VALUE",
+          "metricName": "endpoint_percentile",
+          "queryMetricType": "readLabeledMetricsValues",
+          "chartType": "ChartLine",
+          "metricLabels": "P50, P75, P90, P95, P99",
+          "labelsIndex": "0, 1, 2, 3, 4",
+          "unit": "ms"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Successful Rate",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_sla",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "%",
+          "aggregation": "/",
+          "aggregationNum": "100"
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+  - name: SelfObservability
+    type: "DASHBOARD"
+    configuration: |-
+      [
+        {
+          "name": "SelfObservability",
+          "type": "service",
+          "children": [
+            {
+              "name": "oap-server",
+              "children": [
+                {
+                  "width": "3",
+                  "title": "CPU",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_cpu_percentage",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%"
+                },
+                {
+                  "width": "3",
+                  "title": "Memory",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_jvm_memory_bytes_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1000000"
+                },
+                {
+                  "width": "3",
+                  "title": "GC Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_jvm_young_gc_count,meter_instance_jvm_old_gc_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "GC Time",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_jvm_young_gc_time,meter_instance_jvm_old_gc_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "Millisecond"
+                },
+                {
+                  "width": 3,
+                  "title": "Trace Analysis Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_trace_count,meter_instance_trace_analysis_error_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Trace Analysis Latency",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_instance_trace_latency_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "labelsIndex": "50,70,90,99",
+                  "metricLabels": "50,70,90,99",
+                  "unit": "Millisecond"
+                },
+                {
+                  "width": 3,
+                  "title": "Mesh Analysis Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_mesh_count,meter_instance_mesh_analysis_error_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Mesh Analysis Latency",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_instance_mesh_latency_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "50,70,90,99",
+                  "labelsIndex": "50,70,90,99",
+                  "unit": "Millisecond"
+                },
+                {
+                  "width": "3",
+                  "title": "Aggregation",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_metrics_first_aggregation,meter_instance_metrics_second_aggregation",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Persistence Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per 5 Minutes"
+                },
+                {
+                  "width": 3,
+                  "title": "Persistence Preparing Latency ",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "unit": "Millisecond",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "meter_instance_persistence_prepare_percentile",
+                  "metricLabels": "50,70,90,99",
+                  "labelsIndex": "50,70,90,99"
+                },
+                {
+                  "width": 3,
+                  "title": "Persistence Execution Latency ",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_instance_persistence_execute_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "50,70,90,99",
+                  "labelsIndex": "50,70,90,99",
+                  "unit": "Millisecond"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+  - name: Spring-Sleuth
+    type: "DASHBOARD"
+    configuration: |-
+      [
+        {
+          "name":"Spring Sleuth",
+          "type":"service",
+          "children":[
+            {
+              "name":"Sleuth",
+              "children": [{
+                "width": "3",
+                "title": "HTTP Request",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_http_server_requests_count",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "HTTP Request Duration",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_http_server_requests_duration",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "ms"
+              }, {
+                "width": "3",
+                "title": "JDBC Connections",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "metricName": "meter_jdbc_connections_max,meter_jdbc_connections_active,meter_jdbc_connections_idle",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "Tomcat Session",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "metricName": "meter_tomcat_sessions_active_max,meter_tomcat_sessions_active_current,meter_tomcat_sessions_rejected",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "Instance CPU Usage",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_process_cpu_usage",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "+",
+                "aggregationNum": "",
+                "unit": "%"
+              }, {
+                "width": "3",
+                "title": "OS CPU Usage",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_system_cpu_usage",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "+",
+                "aggregationNum": "",
+                "unit": "%"
+              }, {
+                "width": "3",
+                "title": "OS System Load",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_system_load_average_1m",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "",
+                "aggregation": "+",
+                "aggregationNum": ""
+              }, {
+                "width": "3",
+                "title": "OS Process File",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_process_files_max,meter_process_files_open",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count",
+                "aggregation": "+",
+                "aggregationNum": ""
+              }, {
+                "width": "3",
+                "title": "JVM GC Pause Duration",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_gc_pause_duration",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "ms",
+                "aggregation": "+",
+                "aggregationNum": ""
+              }, {
+                "width": "3",
+                "title": "JVM Memory",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_memory_max,meter_jvm_memory_used,meter_jvm_memory_committed",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "/",
+                "aggregationNum": "1048576",
+                "unit": "MB"
+              }, {
+                "width": "3",
+                "title": "JVM Thread",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_threads_peak,meter_jvm_threads_live,meter_jvm_threads_daemon",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "JVM classes",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_classes_loaded,meter_jvm_classes_unloaded",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }]
+            }
+          ]
+      }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: false
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

@@ -33,12 +33,8 @@ jobs:
     runs-on: ubuntu-16.04
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - name: Prepare enviroment
         run: |
           bash ${SCRIPTS_DIR}/pre.sh

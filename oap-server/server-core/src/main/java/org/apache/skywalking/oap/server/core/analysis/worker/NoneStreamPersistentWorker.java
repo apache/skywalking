@@ -19,21 +19,18 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * None persistent use {@link INoneStreamDAO#insert(Model, NoneStream)} on get new data
+ * None persistent use {@link INoneStreamDAO#insert(Model, NoneStream)} on saving new data
  */
+@Slf4j
 public class NoneStreamPersistentWorker extends AbstractWorker<NoneStream> {
-
-    private static final Logger logger = LoggerFactory.getLogger(NoneStreamPersistentWorker.class);
-
     private final Model model;
     private final INoneStreamDAO configDAO;
 
@@ -48,7 +45,7 @@ public class NoneStreamPersistentWorker extends AbstractWorker<NoneStream> {
         try {
             configDAO.insert(model, noneStream);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }

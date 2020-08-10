@@ -36,6 +36,7 @@ services:
       - e2e
     environment:
       - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
@@ -43,18 +44,15 @@ services:
       retries: 120
 
   oap1:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_CLUSTER=zookeeper
-      - SW_CLUSTER_ZK_HOST_PORT=zk:2181
-      - SW_STORAGE=elasticsearch
-      - SW_STORAGE_ES_CLUSTER_NODES=es:9200
-    restart: on-failure
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: elasticsearch
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap1,destfile=/jacoco/oap1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     volumes:
       - ./gateways.yml:/skywalking/config/gateways.yml
     depends_on:
@@ -62,25 +60,17 @@ services:
         condition: service_healthy
       es:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
   oap2:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_CLUSTER=zookeeper
-      - SW_CLUSTER_ZK_HOST_PORT=zk:2181
-      - SW_STORAGE=elasticsearch
-      - SW_STORAGE_ES_CLUSTER_NODES=es:9200
-    restart: on-failure
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: elasticsearch
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap2,destfile=/jacoco/oap2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     volumes:
       - ./gateways.yml:/skywalking/config/gateways.yml
     depends_on:
@@ -90,18 +80,11 @@ services:
         condition: service_healthy
       oap1:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: ui
     environment:
       - SW_OAP_ADDRESS=oap1:12800,oap2:12800
     depends_on:
@@ -111,57 +94,35 @@ services:
         condition: service_healthy
 
   provider1:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-    networks:
-      - e2e
-    expose:
-      - 9090
+    extends:
+      file: ../base-compose.yml
+      service: provider
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap2:11800
-      - SW_AGENT_NAME=e2e-service-provider
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
+      SW_AGENT_NAME: e2e-service-provider
     depends_on:
-      oap2:
+      oap1:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
   provider2:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-    networks:
-      - e2e
-    expose:
-      - 9090
+    extends:
+      file: ../base-compose.yml
+      service: provider
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap2:11800
-      - SW_AGENT_NAME=e2e-service-provider
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
+      SW_AGENT_NAME: e2e-service-provider
     depends_on:
       oap2:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
   consumer:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.consumer
-    networks:
-      - e2e
-    expose:
-      - 9092
+    extends:
+      file: ../base-compose.yml
+      service: consumer
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap1:11800
-      - SW_AGENT_NAME=e2e-service-consumer
-      - PROVIDER_URL=http://gateway
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
+      SW_AGENT_NAME: e2e-service-consumer
+      PROVIDER_URL: http://gateway
     depends_on:
       oap1:
         condition: service_healthy

@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/kotlin-coroutine-scenario/case/h2
 healthCheck: http://localhost:8080/kotlin-coroutine-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: kt-coroutine
 runningMode: with_optional
 withPlugins: apm-kotlin-coroutine-plugin-*.jar

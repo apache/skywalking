@@ -19,16 +19,17 @@
 package org.apache.skywalking.e2e.controller;
 
 import com.google.common.base.Strings;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.e2e.E2EConfiguration;
 import org.apache.skywalking.e2e.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +37,21 @@ public class UserController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     private final E2EConfiguration configuration;
+
+    @PostMapping("/info")
+    public String info() throws InterruptedException {
+        Thread.sleep(1000L);
+
+        Optional<ResponseEntity<String>> optionalResponseEntity = Stream.of(
+            Strings.nullToEmpty(configuration.getProviderBaseUrl()).split(","))
+                                                                        .map(baseUrl -> restTemplate.postForEntity(
+                                                                            baseUrl + "/info", null, String.class))
+                                                                        .findFirst();
+        if (optionalResponseEntity.isPresent() && optionalResponseEntity.get().getStatusCodeValue() == 200) {
+            return optionalResponseEntity.get().getBody();
+        }
+        throw new RuntimeException();
+    }
 
     @PostMapping("/users")
     public Object createAuthor(@RequestBody final User user) throws InterruptedException {

@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/spring-cloud-feign-1.2.x-scenario/case/spring-cloud-feign-1.2.x-scenario
 healthCheck: http://localhost:8080/spring-cloud-feign-1.2.x-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: spring-cloud-feign-1.2.x-scenario
 environment:
 dependencies:

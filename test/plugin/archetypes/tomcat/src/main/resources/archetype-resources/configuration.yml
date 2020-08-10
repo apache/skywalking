@@ -17,6 +17,5 @@
 type: tomcat
 entryService: http://localhost:8080/${scenario_name}/case/${scenario_case}
 healthCheck: http://localhost:8080/${scenario_name}/case/healthCheck
-framework: ${scenario_name}
 environment:
 dependencies:

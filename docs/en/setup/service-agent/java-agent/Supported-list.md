@@ -24,14 +24,16 @@
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
 * HTTP Gateway
-  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.1.x.RELEASE (Optional²)
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
 * JDBC
   * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
   * H2 Driver 1.3.x -> 1.4.x
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
-  * [ShardingSphere](https://github.com/apache/incubator-shardingsphere) 3.0.0, 4.0.0-RC1
+  * [ShardingSphere](https://github.com/apache/shardingsphere) 3.0.0, 4.0.0-RC1, 4.0.0, 4.0.1, 4.1.0, 4.1.1
   * PostgreSQL Driver 8.x, 9.x, 42.x
+  * Mariadb Driver 2.x, 1.8
+  * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
@@ -43,6 +45,7 @@
   * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.98.0
   * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
   * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
+  * [Brpc-Java](https://github.com/baidu/brpc-java) 2.3.7 -> 2.5.3
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -67,6 +70,8 @@
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
     * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
+  * HBase
+    * [hbase-client](https://github.com/apache/hbase) HTable 1.x
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
@@ -78,6 +83,7 @@
 * [Hystrix: Latency and Fault Tolerance for Distributed Systems](https://github.com/Netflix/Hystrix) 1.4.20 -> 1.5.12
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
+  * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
 * OpenTracing community supported
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON
@@ -87,11 +93,13 @@
   * Vert.x Web 3.x
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
+  * [Quasar](https://github.com/puniverse/quasar) 0.7.x
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
-
+* GraphQL
+  * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.

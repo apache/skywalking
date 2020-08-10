@@ -18,17 +18,30 @@
 
 package org.apache.skywalking.e2e.storage;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.e2e.UIConfigurationManagementClient;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.dashboard.DashboardConfiguration;
+import org.apache.skywalking.e2e.dashboard.DashboardConfigurations;
+import org.apache.skywalking.e2e.dashboard.DashboardConfigurationsMatcher;
+import org.apache.skywalking.e2e.dashboard.DashboardSetting;
+import org.apache.skywalking.e2e.dashboard.TemplateChangeStatus;
+import org.apache.skywalking.e2e.dashboard.TemplateType;
 import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
+import org.apache.skywalking.e2e.metrics.ReadMetrics;
+import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
@@ -45,14 +58,15 @@ import org.apache.skywalking.e2e.topo.Call;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopology;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyMatcher;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyQuery;
-import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.topo.TopoMatcher;
 import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
@@ -63,8 +77,11 @@ import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANC
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LINER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LABELED_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SkyWalkingE2E
@@ -85,9 +102,11 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     @ContainerHostAndPort(name = "provider", port = 9090)
     private HostAndPort serviceHostPort;
 
+    private UIConfigurationManagementClient graphql;
+
     @BeforeAll
     void setUp() throws Exception {
-        queryClient(swWebappHostPort);
+        graphql = new UIConfigurationManagementClient(swWebappHostPort.host(), swWebappHostPort.port());
 
         trafficController(serviceHostPort, "/users");
     }
@@ -99,8 +118,9 @@ public class StorageE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     void services() throws Exception {
-        final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
+        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/storage/services.yml").as(ServicesMatcher.class).verify(services);
@@ -154,6 +174,108 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         load("expected/storage/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
 
         verifyServiceInstanceRelationMetrics(topology.getCalls());
+    }
+
+    @Test
+    void addUITemplate() throws Exception {
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting("test-ui-config-1").type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
+
+        verifyTemplates("expected/storage/dashboardConfiguration.yml");
+    }
+
+    @Test
+    void changeTemplate() throws Exception {
+        final String name = "test-ui-config-2";
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting(name).type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
+
+        TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
+            emptySetting(name).type(TemplateType.TOPOLOGY_SERVICE)
+        );
+        LOGGER.info("change UITemplate = {}", templateChangeStatus);
+        assertTrue(templateChangeStatus.isStatus());
+
+        TimeUnit.SECONDS.sleep(2L);
+        verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
+    }
+
+    @Test
+    void disableTemplate() throws Exception {
+        final String name = "test-ui-config-3";
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting(name).type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
+
+        TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
+        LOGGER.info("disable template = {}", templateChangeStatus);
+        assertTrue(templateChangeStatus.isStatus());
+
+        TimeUnit.SECONDS.sleep(2L);
+        verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
+    }
+
+    @RetryableTest
+    void so11y() throws Exception {
+        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+
+        services = services.stream().filter(s -> s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        LOGGER.info("services: {}", services);
+        load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
+        for (final Service service : services) {
+            final Instances instances = graphql.instances(
+                new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
+            );
+
+            LOGGER.info("instances: {}", instances);
+
+            load("expected/simple/so11y-instances.yml").as(InstancesMatcher.class).verify(instances);
+            for (Instance instance : instances.getInstances()) {
+                for (String metricsName : ALL_SO11Y_LINER_METRICS) {
+                    LOGGER.info("verifying service instance response time: {}", instance);
+                    final ReadMetrics instanceMetrics = graphql.readMetrics(
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                    );
+    
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(instanceMetrics.getValues());
+                }
+                for (String metricsName : ALL_SO11Y_LABELED_METRICS) {
+                    LOGGER.info("verifying service instance response time: {}", instance);
+                    final List<ReadMetrics> instanceMetrics = graphql.readLabeledMetrics(
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                    );
+    
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
+                    Metrics allValues = new Metrics();
+                    for (ReadMetrics readMetrics : instanceMetrics) {
+                        allValues.getValues().addAll(readMetrics.getValues().getValues());
+                    }
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(allValues);
+                }
+            }
+        }
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
@@ -272,4 +394,20 @@ public class StorageE2E extends SkyWalkingTestAdapter {
             }
         }
     }
+
+    private void verifyTemplates(String file) throws IOException {
+        List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
+        LOGGER.info("get all templates = {}", configurations);
+        DashboardConfigurations dashboardConfigurations = new DashboardConfigurations();
+        dashboardConfigurations.setConfigurations(configurations);
+        load(file).as(DashboardConfigurationsMatcher.class).verify(dashboardConfigurations);
+    }
+
+    private DashboardSetting emptySetting(final String name) {
+        return new DashboardSetting()
+            .name(name)
+            .active(true)
+            .configuration("{}");
+    }
+
 }

@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>8.2.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -219,6 +219,7 @@
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
     </properties>
 
     <dependencies>
@@ -253,6 +254,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>${javax.annotation-api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -467,6 +474,7 @@
                         <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
                         <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
                         <exclude>**/src/main/proto/validate/validate.proto</exclude>
+                        <exclude>**/src/main/proto/opencensus/**</exclude>
 
                         <!-- generated file from oal grammar and rt template -->
                         <exclude>**/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/OALLexer.tokens</exclude>
@@ -479,6 +487,7 @@
 
                         <!-- generated file from test agent plugin scenarios -->
                         <exclude>**/test/plugin/workspace/**</exclude>
+                        <exclude>**/test/jacoco/**</exclude>
 
                         <!-- TSL relevant files for e2e test -->
                         <exclude>**/*.crt</exclude>
@@ -622,9 +631,6 @@
                             <exclude>org/apache/skywalking/oap/server/core/remote/grpc/proto/*.class</exclude>
                             <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
-                            <exclude>org/apache/skywalking/oap/server/configuration/service/*.class</exclude>
-                            <exclude>org/apache/skywalking/oap/server/starter/OAPServerStartUp.class</exclude>
-
                             <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
                             <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
                             <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>

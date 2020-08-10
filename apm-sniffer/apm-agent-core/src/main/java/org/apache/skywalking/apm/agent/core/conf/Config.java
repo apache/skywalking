@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ClassCacheMode;
 import org.apache.skywalking.apm.util.Length;
 
 /**
@@ -74,15 +75,26 @@ public class Config {
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
         /**
+         * If true, SkyWalking agent will cache all instrumented classes to memory or disk files (decided by class cache
+         * mode), allow other javaagent to enhance those classes that enhanced by SkyWalking agent.
+         */
+        public static boolean IS_CACHE_ENHANCED_CLASS = false;
+
+        /**
+         * The instrumented classes cache mode: MEMORY or FILE MEMORY: cache class bytes to memory, if instrumented
+         * classes is too many or too large, it may take up more memory FILE: cache class bytes in `/class-cache`
+         * folder, automatically clean up cached class files when the application exits
+         */
+        public static ClassCacheMode CLASS_CACHE_MODE = ClassCacheMode.MEMORY;
+
+        /**
          * The identifier of the instance
          */
         @Length(50)
         public volatile static String INSTANCE_NAME = "";
 
-        /*
-         * service instance properties
-         * e.g.
-         *   agent.instance_properties[org]=apache
+        /**
+         * service instance properties e.g. agent.instance_properties[org]=apache
          */
         public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<>();
 
@@ -109,6 +121,14 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+
+    }
+
+    public static class OsInfo {
+        /**
+         * Limit the length of the ipv4 list size.
+         */
+        public static int IPV4_LIST_SIZE = 10;
     }
 
     public static class Collector {
@@ -132,6 +152,7 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
+
     }
 
     public static class Profile {
@@ -160,6 +181,23 @@ public class Config {
          * Snapshot transport to backend buffer size
          */
         public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 500;
+    }
+
+    public static class Meter {
+        /**
+         * If true, skywalking agent will enable sending meters. Otherwise disable meter report.
+         */
+        public static boolean ACTIVE = true;
+
+        /**
+         * Report meters interval
+         */
+        public static Integer REPORT_INTERVAL = 20;
+
+        /**
+         * Max size of the meter count, using {@link org.apache.skywalking.apm.agent.core.meter.MeterId} as identity
+         */
+        public static Integer MAX_METER_SIZE = 500;
     }
 
     public static class Jvm {
@@ -224,172 +262,10 @@ public class Config {
     }
 
     public static class Plugin {
-
         /**
          * Control the length of the peer field.
          */
         public static int PEER_MAX_LENGTH = 200;
-
-        public static class MongoDB {
-            /**
-             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not
-             * include parameters.
-             */
-            public static boolean TRACE_PARAM = false;
-
-            /**
-             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
-             * the first {@code FILTER_LENGTH_LIMIT} characters.
-             * <p>
-             * Set a negative number to save the complete parameter string to the tag.
-             */
-            public static int FILTER_LENGTH_LIMIT = 256;
-        }
-
-        public static class Elasticsearch {
-            /**
-             * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
-             */
-            public static boolean TRACE_DSL = false;
-
-            public static int ELASTICSEARCH_DSL_LENGTH_THRESHOLD = 1024;
-        }
-
-        public static class Customize {
-            /**
-             * Custom enhancement class configuration file path, recommended to use an absolute path.
-             */
-            public static String ENHANCE_FILE = "";
-
-            /**
-             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
-             * And using Map CONTEXT for avoiding classloader isolation issue.
-             */
-            public static Map<String, Object> CONTEXT = new HashMap<>();
-        }
-
-        public static class Tomcat {
-            /**
-             * This config item controls that whether the Tomcat plugin should collect the parameters of the request.
-             */
-            public static boolean COLLECT_HTTP_PARAMS = false;
-        }
-
-        public static class SpringMVC {
-            /**
-             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL,
-             * default is false.
-             */
-            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
-
-            /**
-             * This config item controls that whether the SpringMVC plugin should collect the parameters of the
-             * request.
-             */
-            public static boolean COLLECT_HTTP_PARAMS = false;
-        }
-
-        public static class Toolkit {
-            /**
-             * If true, the fully qualified method name will be used as the operation name instead of the given
-             * operation name, default is false.
-             */
-            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
-        }
-
-        public static class MySQL {
-            /**
-             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
-             * collected.
-             */
-            public static boolean TRACE_SQL_PARAMETERS = false;
-            /**
-             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
-             * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
-             * <p>
-             * Set a negative number to save the complete parameter string to the tag.
-             */
-            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
-        }
-
-        public static class POSTGRESQL {
-            /**
-             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
-             * collected.
-             */
-            public static boolean TRACE_SQL_PARAMETERS = false;
-
-            /**
-             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
-             * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
-             * <p>
-             * Set a negative number to save the complete parameter string to the tag.
-             */
-            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
-        }
-
-        public static class SolrJ {
-            /**
-             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,
-             * default is false.
-             */
-            public static boolean TRACE_STATEMENT = false;
-
-            /**
-             * If true, trace all the operation parameters in Solr request, default is false.
-             */
-            public static boolean TRACE_OPS_PARAMS = false;
-        }
-
-        /**
-         * Operation name group rules
-         */
-        public static class OPGroup {
-            /*
-             * Since 6.6.0, exit span is not requesting endpoint register,
-             * this group rule is not required.
-             *
-             * Keep this commented, just as a reminder that, it will be reused in a RPC server side plugin.
-             */
-            //            public static class RestTemplate implements OPGroupDefinition {
-            //                public static Map<String, String> RULE = new HashMap<String, String>();
-            //            }
-        }
-
-        public static class Light4J {
-            /**
-             * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,
-             * generating a local span for each.
-             */
-            public static boolean TRACE_HANDLER_CHAIN = false;
-        }
-
-        public static class SpringTransaction {
-
-            /**
-             * If true, the transaction definition name will be simplified
-             */
-            public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
-        }
-
-        public static class JdkThreading {
-
-            /**
-             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable} and their
-             * subclasses, including anonymous inner classes) whose name matches any one of the {@code
-             * THREADING_CLASS_PREFIXES} (splitted by ,) will be instrumented
-             */
-            public static String THREADING_CLASS_PREFIXES = "";
-        }
-
-        public static class Http {
-            /**
-             * When either {@link Tomcat#COLLECT_HTTP_PARAMS} or {@link SpringMVC#COLLECT_HTTP_PARAMS} is enabled, how
-             * many characters to keep and send to the OAP backend, use negative values to keep and send the complete
-             * parameters, NB. this config item is added for the sake of performance
-             */
-            public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
-        }
     }
 
     public static class Correlation {

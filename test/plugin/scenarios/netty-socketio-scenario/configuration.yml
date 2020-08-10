@@ -17,4 +17,3 @@
 type: tomcat
 entryService: http://localhost:8080/netty-socketio-scenario/case/netty-socketio
 healthCheck: http://localhost:8080/netty-socketio-scenario/healthCheck
-framework: netty-socketio

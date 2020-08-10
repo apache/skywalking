@@ -33,26 +33,16 @@ services:
       retries: 120
 
   oap1:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_CLUSTER=zookeeper
-      - SW_CLUSTER_ZK_HOST_PORT=zk:2181
-      - SW_STORAGE=mysql
-      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
-    volumes:
-      - ./download-mysql.sh:/download-mysql.sh
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-    entrypoint: ['bash', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: mysql
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap1,destfile=/jacoco/oap1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
     depends_on:
       zk:
         condition: service_healthy
@@ -60,26 +50,16 @@ services:
         condition: service_healthy
 
   oap2:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_CLUSTER=zookeeper
-      - SW_CLUSTER_ZK_HOST_PORT=zk:2181
-      - SW_STORAGE=mysql
-      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
-    volumes:
-      - ./download-mysql.sh:/download-mysql.sh
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-    entrypoint: ['bash', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+      SW_CLUSTER: zookeeper
+      SW_STORAGE: mysql
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap2,destfile=/jacoco/oap2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
     depends_on:
       zk:
         condition: service_healthy

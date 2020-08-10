@@ -17,21 +17,12 @@ version: '2.1'
 
 services:
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+    extends:
+      file: ../base-compose.yml
+      service: oap
 
   php-shadow:
-    image: skyapm/skywalking-php:v3.2.8
+    image: skyapm/skywalking-php:v3.3.2
     networks:
       - e2e
     expose:
@@ -46,7 +37,7 @@ services:
       - ./php-shadow.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
   php:
-    image: skyapm/skywalking-php:v3.2.8
+    image: skyapm/skywalking-php:v3.3.2
     networks:
       - e2e
     expose:
@@ -63,13 +54,9 @@ services:
       - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
-    environment:
-      - SW_OAP_ADDRESS=oap:12800
+    extends:
+      file: ../base-compose.yml
+      service: ui
     depends_on:
       php:
         condition: service_started

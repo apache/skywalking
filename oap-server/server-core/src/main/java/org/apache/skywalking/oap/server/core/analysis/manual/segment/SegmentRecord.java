@@ -21,18 +21,22 @@ package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import joptsimple.internal.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+@SuperDataset
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class SegmentRecord extends Record {
 
@@ -60,6 +64,10 @@ public class SegmentRecord extends Record {
     private String traceId;
     @Setter
     @Getter
+    @Column(columnName = TopN.STATEMENT)
+    private String statement;
+    @Setter
+    @Getter
     @Column(columnName = SERVICE_ID)
     private String serviceId;
     @Setter
@@ -84,7 +92,7 @@ public class SegmentRecord extends Record {
     private long endTime;
     @Setter
     @Getter
-    @Column(columnName = LATENCY)
+    @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private int latency;
     @Setter
     @Getter
@@ -108,9 +116,14 @@ public class SegmentRecord extends Record {
 
         @Override
         public Map<String, Object> data2Map(SegmentRecord storageData) {
+            storageData.statement = Strings.join(new String[] {
+                storageData.endpointName,
+                storageData.traceId
+            }, " - ");
             Map<String, Object> map = new HashMap<>();
             map.put(SEGMENT_ID, storageData.getSegmentId());
             map.put(TRACE_ID, storageData.getTraceId());
+            map.put(TopN.STATEMENT, storageData.getStatement());
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
             map.put(ENDPOINT_NAME, storageData.getEndpointName());
@@ -134,6 +147,7 @@ public class SegmentRecord extends Record {
             SegmentRecord record = new SegmentRecord();
             record.setSegmentId((String) dbMap.get(SEGMENT_ID));
             record.setTraceId((String) dbMap.get(TRACE_ID));
+            record.setStatement((String) dbMap.get(TopN.STATEMENT));
             record.setServiceId((String) dbMap.get(SERVICE_ID));
             record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
             record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));

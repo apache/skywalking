@@ -18,7 +18,6 @@ type: jvm
 entryService: http://localhost:8080/spring-tx-scenario/case/spring-tx-case
 healthCheck: http://localhost:8080/spring-tx-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: spring-tx
 runningMode: with_optional
 withPlugins: apm-spring-tx-plugin-*.jar
 environment:

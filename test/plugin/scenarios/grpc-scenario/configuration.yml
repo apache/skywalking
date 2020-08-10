@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/grpc-scenario/case/grpc-scenario
 healthCheck: http://localhost:8080/grpc-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: grpc-scenario
 environment:
 dependencies:

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-library</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,6 +63,10 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
     </dependencies>
 </project>

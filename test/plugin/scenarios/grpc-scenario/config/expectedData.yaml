@@ -33,7 +33,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '127.0.0.1:18080',
         refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -69,7 +69,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '', refType: CrossThread,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -87,7 +87,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '', refType: CrossThread,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -105,7 +105,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '127.0.0.1:18080',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -177,7 +177,7 @@ segmentItems:
       refs:
       - {parentEndpoint: GreeterBlocking.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
     - operationName: GreeterBlocking.sayHello/server/Request/onComplete
       operationId: 0
@@ -193,7 +193,7 @@ segmentItems:
       refs:
       - {parentEndpoint: GreeterBlocking.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -211,7 +211,7 @@ segmentItems:
       refs:
       - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
     - operationName: Greeter.sayHello/server/Request/onMessage
       operationId: 0
@@ -227,7 +227,7 @@ segmentItems:
       refs:
       - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -247,7 +247,7 @@ segmentItems:
       refs:
       - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
     - operationName: Greeter.sayHello/server/Request/onComplete
       operationId: 0
@@ -263,7 +263,7 @@ segmentItems:
       refs:
       - {parentEndpoint: Greeter.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -281,7 +281,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '', refType: CrossThread,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -299,7 +299,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '', refType: CrossThread,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -317,7 +317,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddress: '127.0.0.1:18080',
         refType: CrossProcess, parentSpanId: 5, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -343,7 +343,7 @@ segmentItems:
       refs:
       - {parentEndpoint: GreeterBlockingError.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
     - operationName: GreeterBlockingError.sayHello/server/Request/onComplete
       operationId: 0
@@ -359,7 +359,7 @@ segmentItems:
       refs:
       - {parentEndpoint: GreeterBlockingError.sayHello, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: grpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

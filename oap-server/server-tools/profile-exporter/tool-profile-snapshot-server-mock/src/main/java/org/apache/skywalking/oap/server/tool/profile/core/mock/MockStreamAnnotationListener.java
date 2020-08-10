@@ -22,9 +22,10 @@ import java.lang.annotation.Annotation;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
-import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -44,14 +45,14 @@ public class MockStreamAnnotationListener implements AnnotationListener {
     }
 
     @Override
-    public void notify(Class aClass) {
+    public void notify(Class aClass) throws StorageException {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream) aClass.getAnnotation(Stream.class);
 
             if (stream.processor().equals(RecordStreamProcessor.class)) {
                 RecordStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-            } else if (stream.processor().equals(NoneStreamingProcessor.class)) {
-                NoneStreamingProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(NoneStreamProcessor.class)) {
+                NoneStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             }
         } else {
             throw new UnexpectedException(

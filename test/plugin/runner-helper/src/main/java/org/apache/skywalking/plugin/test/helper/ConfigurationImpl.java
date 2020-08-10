@@ -18,23 +18,29 @@
 package org.apache.skywalking.plugin.test.helper;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
-import org.apache.skywalking.plugin.test.helper.util.StringUtils;
 import org.apache.skywalking.plugin.test.helper.vo.CaseConfiguration;
+import org.apache.skywalking.plugin.test.helper.vo.DependencyComponent;
+import org.apache.skywalking.plugin.test.helper.vo.DockerService;
+import org.apache.skywalking.plugin.test.helper.vo.RequestHeader;
 import org.yaml.snakeyaml.Yaml;
 
 public class ConfigurationImpl implements IConfiguration {
-    private CaseConfiguration configuration;
+    private final CaseConfiguration configuration;
     private final String scenarioHome;
 
     public ConfigurationImpl() throws FileNotFoundException, ConfigureFileNotFoundException {
         String configureFile = System.getProperty("configure.file");
-        if (StringUtils.isBlank(configureFile)) {
+        if (Strings.isNullOrEmpty(configureFile)) {
             throw new ConfigureFileNotFoundException();
         }
 
@@ -84,11 +90,6 @@ public class ConfigurationImpl implements IConfiguration {
     @Override
     public String scenarioVersion() {
         return System.getProperty("scenario.version");
-    }
-
-    @Override
-    public String testFramework() {
-        return this.configuration.getFramework();
     }
 
     @Override
@@ -154,4 +155,101 @@ public class ConfigurationImpl implements IConfiguration {
         return System.getProperty("output.dir");
     }
 
+    @Override
+    public String jacocoHome() {
+        return System.getProperty("jacoco.home");
+    }
+
+    @Override
+    public String debugMode() {
+        return System.getProperty("debug.mode");
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        final Map<String, Object> root = new HashMap<>();
+
+        root.put("agent_home", agentHome());
+        root.put("scenario_home", scenarioHome());
+        root.put("scenario_name", scenarioName());
+        root.put("scenario_version", scenarioVersion());
+        root.put("health_check", healthCheck());
+        root.put("start_script", startScript());
+        root.put("catalina_opts", catalinaOpts());
+        root.put("entry_service", entryService());
+        root.put("docker_image_name", dockerImageName());
+        root.put("docker_image_version", dockerImageVersion());
+        root.put("docker_container_name", dockerContainerName());
+        root.put("jacoco_home", jacocoHome());
+        root.put("debug_mode", debugMode());
+
+        root.put("expose", caseConfiguration().getExpose());
+        root.put("hostname", caseConfiguration().getHostname());
+        root.put("depends_on", caseConfiguration().getDepends_on());
+        root.put("environments", caseConfiguration().getEnvironment());
+
+        root.put("network_name", dockerNetworkName());
+        root.put("services", convertDockerServices(scenarioVersion(), caseConfiguration().getDependencies()));
+        root.put("extend_entry_header", extendEntryHeader());
+
+        root.put("docker_compose_file", outputDir() + File.separator + "docker-compose.yml");
+        root.put("build_id", dockerImageVersion());
+
+        final StringBuilder removeImagesScript = new StringBuilder();
+        final ArrayList<String> links = Lists.newArrayList();
+        if (caseConfiguration().getDependencies() != null) {
+            caseConfiguration().getDependencies().forEach((name, service) -> {
+                links.add(service.getHostname());
+                if (service.isRemoveOnExit()) {
+                    removeImagesScript.append("docker rmi ")
+                                      .append(
+                                          service.getImage().replace("${CASE_SERVER_IMAGE_VERSION}", scenarioVersion()))
+                                      .append(System.lineSeparator());
+                }
+            });
+        }
+        root.put("links", links);
+        root.put("removeImagesScript", removeImagesScript.toString());
+
+        return root;
+    }
+
+    @Override
+    public String extendEntryHeader() {
+        final List<RequestHeader> headers = this.configuration.getExtendEntryHeader();
+        if (headers == null || headers.isEmpty()) {
+            return "";
+        }
+        StringBuilder headerString = new StringBuilder("\"");
+        for (RequestHeader header : headers) {
+            headerString.append(" -H ").append(header.getKey()).append(":").append(header.getValue()).append(" ");
+        }
+        return headerString.append("\"").toString();
+    }
+
+    protected List<DockerService> convertDockerServices(final String version,
+                                                        Map<String, DependencyComponent> componentMap) {
+        final ArrayList<DockerService> services = Lists.newArrayList();
+        if (componentMap == null) {
+            return services;
+        }
+        componentMap.forEach((name, dependency) -> {
+            DockerService service = new DockerService();
+
+            String imageName = dependency.getImage().replace("${CASE_SERVER_IMAGE_VERSION}", version);
+            service.setName(name);
+            service.setImageName(imageName);
+            service.setExpose(dependency.getExpose());
+            service.setLinks(dependency.getDepends_on());
+            service.setStartScript(dependency.getStartScript());
+            service.setHostname(dependency.getHostname());
+            service.setDepends_on(dependency.getDepends_on());
+            service.setEntrypoint(dependency.getEntrypoint());
+            service.setHealthcheck(dependency.getHealthcheck());
+            service.setEnvironment(dependency.getEnvironment());
+            service.setRemoveOnExit(dependency.isRemoveOnExit());
+            services.add(service);
+        });
+        return services;
+    }
 }

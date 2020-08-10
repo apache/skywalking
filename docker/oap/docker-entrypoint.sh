@@ -1,3 +1,4 @@
+#!/bin/sh
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,33 +15,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash
-
 set -e
 
 echo "[Entrypoint] Apache SkyWalking Docker Image"
-
-if [[ "$SW_TELEMETRY" = "so11y" ]]; then
-    export SW_RECEIVER_SO11Y=default
-    echo "Set SW_RECEIVER_SO11Y to ${SW_RECEIVER_SO11Y}"
-fi
 
 EXT_LIB_DIR=/skywalking/ext-libs
 EXT_CONFIG_DIR=/skywalking/ext-config
 
 # Override configuration files
-cp -vfR ${EXT_CONFIG_DIR}/ config/
+if [ "$(ls -A $EXT_CONFIG_DIR)" ]; then
+  cp -vfRL ${EXT_CONFIG_DIR}/* config/
+fi
 
 CLASSPATH="config:$CLASSPATH"
 for i in oap-libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
-for i in ${EXT_LIB_DIR}/*.jar
+for i in "${EXT_LIB_DIR}"/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
 
+if java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -version; then
+  JAVA_OPTS="${JAVA_OPTS} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+fi
+
 set -ex
-exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap \
-     ${JAVA_OPTS} -classpath ${CLASSPATH} org.apache.skywalking.oap.server.starter.OAPServerStartUp "$@"
+
+exec java ${JAVA_OPTS} -classpath ${CLASSPATH} org.apache.skywalking.oap.server.starter.OAPServerStartUp "$@"

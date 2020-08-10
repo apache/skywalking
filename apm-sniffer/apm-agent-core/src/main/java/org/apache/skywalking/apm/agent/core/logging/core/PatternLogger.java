@@ -85,6 +85,9 @@ public class PatternLogger implements ILog {
     }
 
     private String replaceParam(String message, Object... parameters) {
+        if (message == null) {
+            return message;
+        }
         int startSize = 0;
         int parametersIndex = 0;
         int index;

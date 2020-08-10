@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/feign-scenario/case/feign-scenario
 healthCheck: http://localhost:8080/feign-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: feign-scenario
 environment:
 dependencies:

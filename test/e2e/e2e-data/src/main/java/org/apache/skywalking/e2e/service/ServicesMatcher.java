@@ -21,11 +21,13 @@ package org.apache.skywalking.e2e.service;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @Data
+@Slf4j
 public class ServicesMatcher {
     private List<ServiceMatcher> services;
 
@@ -34,6 +36,8 @@ public class ServicesMatcher {
     }
 
     public void verify(final List<Service> services) {
+        
+        LOGGER.info("services:{} matchers:{}", services, this.getServices());
         assertThat(services).hasSameSizeAs(this.getServices());
 
         for (int i = 0; i < getServices().size(); i++) {

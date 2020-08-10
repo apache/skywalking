@@ -38,7 +38,7 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     private long total;
     @Getter
     @Setter
-    @Column(columnName = PERCENTAGE, isValue = true, function = Function.Avg)
+    @Column(columnName = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private int percentage;
     @Getter
     @Setter

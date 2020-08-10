@@ -16,4 +16,3 @@ type: jvm
 entryService: http://localhost:8080/httpasyncclient/case/httpasyncclient
 healthCheck: http://localhost:8080/httpasyncclient/case/healthcheck
 startScript: ./bin/startup.sh
-framework: httpasyncclient

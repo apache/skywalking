@@ -32,14 +32,10 @@ public abstract class TopN extends Record implements ComparableStorageData {
     public static final String LATENCY = "latency";
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
-
+    
     @Getter
     @Setter
-    @Column(columnName = STATEMENT, storageOnly = true)
-    private String statement;
-    @Getter
-    @Setter
-    @Column(columnName = LATENCY)
+    @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Getter
     @Setter

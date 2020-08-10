@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/jdk-http-scenario/case/jdk-http-scenario
 healthCheck: http://localhost:8080/jdk-http-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: jdk-http-scenario
 runningMode: with_bootstrap
 withPlugins: apm-jdk-http-plugin-*.jar

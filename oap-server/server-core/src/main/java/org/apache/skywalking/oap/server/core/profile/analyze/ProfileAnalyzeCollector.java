@@ -26,7 +26,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
+import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 
 /**
  * Work for {@link ProfileAnalyzer} to analyze.
