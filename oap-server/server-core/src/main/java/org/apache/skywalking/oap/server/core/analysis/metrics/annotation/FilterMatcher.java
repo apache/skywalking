@@ -37,10 +37,4 @@ public @interface FilterMatcher {
      * lowercase.
      */
     String[] value() default {};
-
-    /**
-     * @return the type of the filter operand, which decides the getter of the operands, i.e. getter of {@code Boolean}
-     * and {@code boolean} type is {@code isArg}, otherwise {@code getArg}.
-     */
-    Class<?> type() default Object.class;
 }
