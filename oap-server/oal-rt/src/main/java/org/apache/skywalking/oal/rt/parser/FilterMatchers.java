@@ -26,6 +26,7 @@ import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.BooleanValueFilterMatcher;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -48,14 +49,31 @@ public enum FilterMatchers {
         for (ClassPath.ClassInfo classInfo : classes) {
             final Class<?> clazz = classInfo.load();
 
-            if (clazz.isAnnotationPresent(FilterMatcher.class)) {
-                final FilterMatcher filterMatcher = clazz.getAnnotation(FilterMatcher.class);
-                for (final String type : filterMatcher.value()) {
-                    matchersKeyedByType.put(type, new MatcherInfo(clazz, filterMatcher.type()));
+            final FilterMatcher plainFilterMatcher = clazz.getAnnotation(FilterMatcher.class);
+            final BooleanValueFilterMatcher booleanFilterMatcher = clazz.getAnnotation(BooleanValueFilterMatcher.class);
+            if (plainFilterMatcher != null && booleanFilterMatcher != null) {
+                throw new IllegalStateException(
+                    "A matcher class can not be annotated with both @FilterMatcher and @BooleanValueFilterMatcher"
+                );
+            }
+
+            if (plainFilterMatcher != null) {
+                for (final String type : plainFilterMatcher.value()) {
+                    matchersKeyedByType.put(type, new MatcherInfo(clazz, false));
                 }
-                if (filterMatcher.value().length == 0) {
+                if (plainFilterMatcher.value().length == 0) {
                     final String defaultTypeName = StringUtils.uncapitalize(clazz.getSimpleName());
-                    matchersKeyedByType.put(defaultTypeName, new MatcherInfo(clazz, filterMatcher.type()));
+                    matchersKeyedByType.put(defaultTypeName, new MatcherInfo(clazz, false));
+                }
+            }
+
+            if (booleanFilterMatcher != null) {
+                for (final String type : booleanFilterMatcher.value()) {
+                    matchersKeyedByType.put(type, new MatcherInfo(clazz, true));
+                }
+                if (booleanFilterMatcher.value().length == 0) {
+                    final String defaultTypeName = StringUtils.uncapitalize(clazz.getSimpleName());
+                    matchersKeyedByType.put(defaultTypeName, new MatcherInfo(clazz, true));
                 }
             }
         }
@@ -72,6 +90,6 @@ public enum FilterMatchers {
     @AllArgsConstructor
     public static class MatcherInfo {
         private final Class<?> matcher;
-        private final Class<?> type;
+        private final boolean isBooleanType;
     }
 }

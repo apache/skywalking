@@ -26,7 +26,11 @@ public class LikeMatch {
         if (left == null || right == null) {
             return false;
         }
-        return (left.startsWith("%") && right.endsWith(left.substring(1)))
-            || (left.endsWith("%") && right.startsWith(left.substring(0, left.length() - 1)));
+        if (left.startsWith("%") && left.endsWith("%")) { // %keyword%
+            return right.contains(left.substring(1, left.length() - 1));
+        }
+        return (left.startsWith("%") && right.endsWith(left.substring(1)))  // %suffix
+            || (left.endsWith("%") && right.startsWith(left.substring(0, left.length() - 1))) // prefix%
+            ;
     }
 }

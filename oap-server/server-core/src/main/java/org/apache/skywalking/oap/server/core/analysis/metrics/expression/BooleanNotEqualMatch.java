@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.BooleanValueFilterMatcher;
 
-@FilterMatcher(type = boolean.class)
+@BooleanValueFilterMatcher
 public class BooleanNotEqualMatch {
     public boolean match(Boolean left, Boolean right) {
         return left != right;

@@ -34,7 +34,7 @@ Read [Scope Definitions](scope-definitions.md), you can find all existing Scopes
 Use filter to build the conditions for the value of fields, by using field name and expression. 
 
 The expressions support to link by `and`, `or` and `(...)`. 
-The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `like "%..."`, `like "...%"`, with type detection based of field type. Trigger compile
+The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `like %...`, `like ...%` and `like %...%`, with type detection based of field type. Trigger compile
  or code generation error if incompatible. 
 
 ## Aggregation Function

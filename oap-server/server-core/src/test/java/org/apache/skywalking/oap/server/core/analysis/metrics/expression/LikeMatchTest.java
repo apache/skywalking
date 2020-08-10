@@ -28,6 +28,7 @@ public class LikeMatchTest {
     public void testLike() {
         assertTrue(new LikeMatch().match("%Black", "MaxBlack"));
         assertTrue(new LikeMatch().match("Max%", "MaxBlack"));
+        assertTrue(new LikeMatch().match("%axBl%", "MaxBlack"));
 
         assertFalse(new LikeMatch().match("Max%", "CarolineChanning"));
         assertFalse(new LikeMatch().match("%Max", "CarolineChanning"));

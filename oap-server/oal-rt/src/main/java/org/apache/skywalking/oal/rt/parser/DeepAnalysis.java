@@ -45,14 +45,14 @@ public class DeepAnalysis {
         List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
         if (expressions != null && expressions.size() > 0) {
             for (ConditionExpression expression : expressions) {
-                final FilterMatchers.MatcherInfo matcherClass = FilterMatchers.INSTANCE.find(expression.getExpressionType());
+                final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
-                final String getter = matcherClass.getType() == boolean.class || matcherClass.getType() == Boolean.class
+                final String getter = matcherInfo.isBooleanType()
                     ? ClassMethodUtil.toIsMethod(expression.getAttribute())
                     : ClassMethodUtil.toGetMethod(expression.getAttribute());
 
                 final Expression filterExpression = new Expression();
-                filterExpression.setExpressionObject(matcherClass.getMatcher().getName());
+                filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
                 filterExpression.setLeft("source." + getter + "()");
                 filterExpression.setRight(expression.getValue());
                 result.addFilterExpressions(filterExpression);
@@ -95,15 +95,15 @@ public class DeepAnalysis {
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
                 if (result.getFuncConditionExpressions().size() == 1) {
                     final ConditionExpression expression = result.getFuncConditionExpressions().get(0);
-                    final FilterMatchers.MatcherInfo matcherClass = FilterMatchers.INSTANCE.find(expression.getExpressionType());
+                    final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
-                    final String getter = matcherClass.getType() == boolean.class || matcherClass.getType() == Boolean.class
+                    final String getter = matcherInfo.isBooleanType()
                         ? ClassMethodUtil.toIsMethod(expression.getAttribute())
                         : ClassMethodUtil.toGetMethod(expression.getAttribute());
 
                     final Expression argExpression = new Expression();
                     argExpression.setRight(expression.getValue());
-                    argExpression.setExpressionObject(matcherClass.getMatcher().getName());
+                    argExpression.setExpressionObject(matcherInfo.getMatcher().getName());
                     argExpression.setLeft("source." + getter + "()");
 
                     entryMethod.addArg(argExpression);
