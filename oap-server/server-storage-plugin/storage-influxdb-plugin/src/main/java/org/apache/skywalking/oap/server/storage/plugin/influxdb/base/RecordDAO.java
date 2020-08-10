@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
@@ -60,18 +61,15 @@ public class RecordDAO implements IRecordDAO {
         });
 
         if (record instanceof SegmentRecord) {
-            List<SpanTag> data = ((SegmentRecord) record).getTagsRawData();
-
-            Map<String, Set<SpanTag>> collect = ((SegmentRecord) record).getTagsRawData()
-                                                                        .stream()
-                                                                        .collect(Collectors.groupingBy(SpanTag::getKey,
-                                                                                                       Collectors.toSet()
-                                                                        ));
+            Map<String, List<SpanTag>> collect = ((SegmentRecord) record).getTagsRawData()
+                                                                         .stream()
+                                                                         .collect(
+                                                                             Collectors.groupingBy(SpanTag::getKey));
             collect.entrySet().forEach(e -> {
-                String values = e.getValue().stream().map(SpanTag::getValue).collect(Collectors.joining(" "));
-                request.tag(e.getKey(), values);
+                request.tag(e.getKey(), Joiner.on(" ").join(Sets.newHashSet(e.getValue())));
             });
         }
         return request;
     }
+
 }
