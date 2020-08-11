@@ -21,41 +21,18 @@ package org.apache.skywalking.apm.agent.core.plugin;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Selector.EXCLUDES;
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Selector.INCLUDES;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.EXCLUDE_PLUGINS;
 
 public class PluginSelector {
 
-    private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-
     public List<PluginDefine> select(List<PluginDefine> pluginDefines) {
-        validConfig();
-        if (INCLUDES.isEmpty() && EXCLUDES.isEmpty()) {
-            return pluginDefines;
-        } else if (EXCLUDES.isEmpty()) {
-            List<String> includes = Arrays.asList(INCLUDES.toLowerCase().split(","));
+        if (!EXCLUDE_PLUGINS.isEmpty()) {
+            List<String> includes = Arrays.asList(EXCLUDE_PLUGINS.toLowerCase().split(","));
             return pluginDefines.stream()
-                                .filter(item -> includes.contains(item.getName().toLowerCase()))
-                                .collect(Collectors.toList());
-        } else {
-            List<String> excludes = Arrays.asList(EXCLUDES.toLowerCase().split(","));
-            return pluginDefines.stream()
-                                .filter(item -> !excludes.contains(item.getName().toLowerCase()))
+                                .filter(item -> !includes.contains(item.getName().toLowerCase()))
                                 .collect(Collectors.toList());
         }
-    }
-
-    private void validConfig() {
-        if (!StringUtil.isEmpty(EXCLUDES) && !StringUtil.isEmpty(INCLUDES)) {
-            logger.warn("excludes or includes cannot works at the same time in plugin selector,"
-                            + "the config would be override by default config:{includes:\"ALL\",excludes:\"NONE\"}");
-            INCLUDES = "";
-            EXCLUDES = "";
-        }
+        return pluginDefines;
     }
 }

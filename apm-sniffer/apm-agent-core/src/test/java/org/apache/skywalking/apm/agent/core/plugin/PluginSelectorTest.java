@@ -25,8 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Selector.EXCLUDES;
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Selector.INCLUDES;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.EXCLUDE_PLUGINS;
 
 public class PluginSelectorTest {
 
@@ -43,32 +42,16 @@ public class PluginSelectorTest {
 
     @Test
     public void selectDefaultTest() {
-        INCLUDES = "";
-        EXCLUDES = "";
+        EXCLUDE_PLUGINS = "";
         List<PluginDefine> select = selector.select(pluginDefines);
         Assert.assertEquals(2, select.size());
     }
 
     @Test
     public void selectNormalTest() {
-        EXCLUDES = "mysql";
-        INCLUDES = "";
+        EXCLUDE_PLUGINS = "mysql";
         List<PluginDefine> plugins = selector.select(pluginDefines);
         Assert.assertEquals(1, plugins.size());
         Assert.assertEquals("elasticsearch", plugins.get(0).getName());
-        EXCLUDES = "";
-        INCLUDES = "mysql";
-        plugins = selector.select(pluginDefines);
-        Assert.assertEquals(1, plugins.size());
-        Assert.assertEquals("mysql", plugins.get(0).getName());
-    }
-
-    @Test
-    public void selectExceptionTest() {
-        EXCLUDES = "mysql";
-        INCLUDES = "elasticsearch";
-        List<PluginDefine> plugins = selector.select(pluginDefines);
-        Assert.assertEquals(2, plugins.size());
-        Assert.assertEquals(pluginDefines, plugins);
     }
 }

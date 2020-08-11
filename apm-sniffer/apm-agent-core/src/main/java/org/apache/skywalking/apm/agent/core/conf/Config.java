@@ -267,16 +267,10 @@ public class Config {
          */
         public static int PEER_MAX_LENGTH = 200;
 
-        public static class Selector {
-            /**
-             * default is includes all
-             */
-            public static String INCLUDES = "";
-            /**
-             * default is excludes none
-             */
-            public static String EXCLUDES = "";
-        }
+        /**
+         * Excludes some plugins which define in plugins dir
+         */
+        public static String EXCLUDE_PLUGINS = "";
     }
 
     public static class Correlation {
