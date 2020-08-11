@@ -25,20 +25,20 @@ import org.junit.Test;
 public class ModelColumnTest {
     @Test
     public void testColumnDefine() {
-        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, true,
+        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), byte[].class, byte[].class, true,
                                              false, true, 0
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
 
-        column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, true,
+        column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, DataTable.class, true,
                                  false, true, 200
         );
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
-        Assert.assertEquals(0, column.getLength());
+        Assert.assertEquals(200, column.getLength());
 
-        column = new ModelColumn(new ColumnName("", "abc"), String.class, true,
+        column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class, true,
                                  false, true, 200
         );
         Assert.assertEquals(false, column.isStorageOnly());
@@ -47,7 +47,7 @@ public class ModelColumnTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConflictDefinition() {
-        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class,
+        ModelColumn column = new ModelColumn(new ColumnName("", "abc"), String.class, String.class,
                                              true, true, true, 200
         );
     }
