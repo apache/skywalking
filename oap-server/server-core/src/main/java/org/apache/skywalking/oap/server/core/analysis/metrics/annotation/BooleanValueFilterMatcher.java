@@ -16,14 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
+package org.apache.skywalking.oap.server.core.analysis.metrics.annotation;
 
-import java.util.Objects;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@FilterMatcher("stringMatch")
-public class EqualMatch {
-    public boolean match(Object left, Object right) {
-        return Objects.equals(left, right);
-    }
+/**
+ * Exactly the same functionalities as {@link FilterMatcher} except for the value type of this matcher is {@code
+ * boolean}.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BooleanValueFilterMatcher {
+    /**
+     * @return see {@link FilterMatcher#value()}.
+     */
+    String[] value() default {};
 }
