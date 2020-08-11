@@ -18,39 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
+import org.junit.Test;
 
-@FilterMatcher
-public class GreaterEqualMatch {
-    public boolean match(int left, int right) {
-        return left >= right;
-    }
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
-    public boolean match(long left, long right) {
-        return left >= right;
-    }
+public class LikeMatchTest {
+    @Test
+    public void testLike() {
+        assertTrue(new LikeMatch().match("%Black", "MaxBlack"));
+        assertTrue(new LikeMatch().match("Max%", "MaxBlack"));
+        assertTrue(new LikeMatch().match("%axBl%", "MaxBlack"));
 
-    public boolean match(float left, float right) {
-        return left >= right;
-    }
-
-    public boolean match(double left, double right) {
-        return left >= right;
-    }
-
-    public boolean match(Integer left, Integer right) {
-        return left >= right;
-    }
-
-    public boolean match(Long left, Long right) {
-        return left >= right;
-    }
-
-    public boolean match(Float left, Float right) {
-        return left >= right;
-    }
-
-    public boolean match(Double left, Double right) {
-        return left >= right;
+        assertFalse(new LikeMatch().match("Max%", "CarolineChanning"));
+        assertFalse(new LikeMatch().match("%Max", "CarolineChanning"));
     }
 }

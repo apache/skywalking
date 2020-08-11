@@ -23,13 +23,16 @@ import com.google.common.reflect.ClassPath;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 
+@SuppressWarnings("UnstableApiUsage")
 public class MetricsHolder {
-    private static Map<String, Class<? extends Metrics>> REGISTER = new HashMap<>();
+    private static final Map<String, Class<? extends Metrics>> REGISTER = new HashMap<>();
+    private static volatile boolean INITIALIZED = false;
 
-    public static void init() throws IOException {
+    private static void init() throws IOException {
         ClassPath classpath = ClassPath.from(MetricsHolder.class.getClassLoader());
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {
@@ -45,13 +48,16 @@ public class MetricsHolder {
         }
     }
 
-    public static Class<? extends Metrics> find(
-        String functionName) {
-        String func = functionName;
-        Class<? extends Metrics> metricsClass = REGISTER.get(
-            func);
+    @SneakyThrows
+    public static Class<? extends Metrics> find(String functionName) {
+        if (!INITIALIZED) {
+            init();
+            INITIALIZED = true;
+        }
+
+        Class<? extends Metrics> metricsClass = REGISTER.get(functionName);
         if (metricsClass == null) {
-            throw new IllegalArgumentException("Can't find metrics, " + func);
+            throw new IllegalArgumentException("Can't find metrics, " + functionName);
         }
         return metricsClass;
     }

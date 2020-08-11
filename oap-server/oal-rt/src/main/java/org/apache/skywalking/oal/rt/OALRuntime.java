@@ -53,7 +53,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
-import org.apache.skywalking.oal.rt.parser.MetricsHolder;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
@@ -143,12 +142,6 @@ public class OALRuntime implements OALEngine {
 
         this.currentClassLoader = currentClassLoader;
         Reader read;
-
-        try {
-            MetricsHolder.init();
-        } catch (IOException e) {
-            throw new ModuleStartException("load metrics functions error.", e);
-        }
 
         try {
             read = ResourceUtils.read(oalDefine.getConfigFile());

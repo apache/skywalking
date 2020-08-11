@@ -21,36 +21,16 @@ package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
 @FilterMatcher
-public class GreaterEqualMatch {
-    public boolean match(int left, int right) {
-        return left >= right;
-    }
-
-    public boolean match(long left, long right) {
-        return left >= right;
-    }
-
-    public boolean match(float left, float right) {
-        return left >= right;
-    }
-
-    public boolean match(double left, double right) {
-        return left >= right;
-    }
-
-    public boolean match(Integer left, Integer right) {
-        return left >= right;
-    }
-
-    public boolean match(Long left, Long right) {
-        return left >= right;
-    }
-
-    public boolean match(Float left, Float right) {
-        return left >= right;
-    }
-
-    public boolean match(Double left, Double right) {
-        return left >= right;
+public class LikeMatch {
+    public boolean match(String left, String right) {
+        if (left == null || right == null) {
+            return false;
+        }
+        if (left.startsWith("%") && left.endsWith("%")) { // %keyword%
+            return right.contains(left.substring(1, left.length() - 1));
+        }
+        return (left.startsWith("%") && right.endsWith(left.substring(1)))  // %suffix
+            || (left.endsWith("%") && right.startsWith(left.substring(0, left.length() - 1))) // prefix%
+            ;
     }
 }
