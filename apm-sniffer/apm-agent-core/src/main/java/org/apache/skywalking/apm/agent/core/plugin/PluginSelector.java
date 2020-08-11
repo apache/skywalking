@@ -28,9 +28,9 @@ public class PluginSelector {
 
     public List<PluginDefine> select(List<PluginDefine> pluginDefines) {
         if (!EXCLUDE_PLUGINS.isEmpty()) {
-            List<String> includes = Arrays.asList(EXCLUDE_PLUGINS.toLowerCase().split(","));
+            List<String> excludes = Arrays.asList(EXCLUDE_PLUGINS.toLowerCase().split(","));
             return pluginDefines.stream()
-                                .filter(item -> !includes.contains(item.getName().toLowerCase()))
+                                .filter(item -> !excludes.contains(item.getName().toLowerCase()))
                                 .collect(Collectors.toList());
         }
         return pluginDefines;
