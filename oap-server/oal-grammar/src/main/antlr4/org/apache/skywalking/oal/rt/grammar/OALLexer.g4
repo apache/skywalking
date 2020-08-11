@@ -139,7 +139,6 @@ COMMA:                               ',';
 SEMI:                                ';';
 EQUAL:                               '=';
 DUALEQUALS:                          '==';
-NOT_EQUAL:                           '!=';
 ALL:                                 '*';
 GREATER:                             '>';
 LESS:                                '<';

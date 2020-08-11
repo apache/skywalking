@@ -19,12 +19,10 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import java.util.Objects;
-
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
 @FilterMatcher
 public class NotEqualMatch {
-
     public boolean match(Object left, Object right) {
         return !Objects.equals(left, right);
     }

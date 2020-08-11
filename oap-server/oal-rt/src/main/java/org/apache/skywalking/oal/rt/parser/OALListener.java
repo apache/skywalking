@@ -149,11 +149,6 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
-    public void enterStringConditionValue(OALParser.StringConditionValueContext ctx) {
-        enterConditionValue(ctx.getText());
-    }
-
-    @Override
     public void enterEnumConditionValue(OALParser.EnumConditionValueContext ctx) {
         enterConditionValue(ctx.getText());
     }
