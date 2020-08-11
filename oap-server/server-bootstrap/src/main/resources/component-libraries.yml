@@ -314,6 +314,9 @@ spring-annotation:
 HBase:
   id: 94
   languages: Java
+spring-kafka-consumer:
+  id: 95
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -497,3 +500,4 @@ Component-Server-Mappings:
   influxdb-java: InfluxDB
   Predis: Redis
   PyMysql: Mysql
+  spring-kafka-consumer: kafka-consumer

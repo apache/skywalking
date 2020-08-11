@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-public interface DataTypeMapping {
+import java.lang.reflect.Type;
 
-    String transform(Class<?> type);
+public interface DataTypeMapping {
+    /**
+     * Map the given typd and genericType of the field to the column type.
+     */
+    String transform(Class<?> type, Type genericType);
 }
