@@ -266,6 +266,17 @@ public class Config {
          * Control the length of the peer field.
          */
         public static int PEER_MAX_LENGTH = 200;
+
+        public static class Selector {
+            /**
+             * default is includes all
+             */
+            public static String INCLUDES = "";
+            /**
+             * default is excludes none
+             */
+            public static String EXCLUDES = "";
+        }
     }
 
     public static class Correlation {
