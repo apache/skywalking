@@ -17,7 +17,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -64,26 +65,24 @@ public class TimeSeriesUtils {
     /**
      * @return Concrete index name for super dataset index
      */
-    public static String[] querySuperDatasetIndices(String indexName, long startTimeBucket, long endTimeBucket) {
-        if (startTimeBucket == 0 || endTimeBucket == 0) {
+    public static String[] superDatasetIndexNames(String indexName, long startSecondTB, long endSecondTB) {
+        if (startSecondTB == 0 || endSecondTB == 0) {
             return new String[] {indexName};
         }
-        long startDay = compressTimeBucket(convert2DayTimeBucket(startTimeBucket), SUPER_DATASET_DAY_STEP);
-        long endDay = compressTimeBucket(convert2DayTimeBucket(endTimeBucket), SUPER_DATASET_DAY_STEP);
-        DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startDay + "");
-        DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endDay + "");
-
-        int steps = Math.max((Days.daysBetween(startDateTime, endDateTime).getDays()) / SUPER_DATASET_DAY_STEP, 0);
-        return IntStream.rangeClosed(0, steps)
-                        .mapToObj(step -> indexName + Const.LINE + startDateTime.plusDays(Math.toIntExact(SUPER_DATASET_DAY_STEP * step)).toString(TIME_BUCKET_FORMATTER))
-                        .toArray(String[]::new);
-    }
-
-    private static long convert2DayTimeBucket(long timeBucket) {
-        while (timeBucket > 99999999) {
-            timeBucket /= 10;
+        DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startSecondTB / 1000000 + "");
+        DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endSecondTB / 1000000 + "");
+        List<DateTime> timeRanges = new ArrayList<>(16);
+        for (int i = 0; i <= Days.daysBetween(startDateTime, endDateTime).getDays(); i++) {
+            timeRanges.add(startDateTime.plusDays(i));
         }
-        return timeBucket;
+        if (timeRanges.isEmpty()) {
+            return new String[] {indexName};
+        } else {
+            return timeRanges.stream()
+                             .map(item -> indexName + Const.LINE + compressDateTime(item, SUPER_DATASET_DAY_STEP))
+                             .distinct()
+                             .toArray(String[]::new);
+        }
     }
 
     /**
@@ -140,6 +139,19 @@ public class TimeSeriesUtils {
              * No calculation required. dayStep is for lower traffic. For normally configuration, there is pointless to calculate.
              */
             return timeBucket;
+        }
+    }
+
+    static long compressDateTime(DateTime time, int dayStep) {
+        if (dayStep > 1) {
+            int days = Days.daysBetween(DAY_ONE, time).getDays();
+            int groupBucketOffset = days % dayStep;
+            return Long.parseLong(time.minusDays(groupBucketOffset).toString(TIME_BUCKET_FORMATTER));
+        } else {
+            /**
+             * No calculation required. dayStep is for lower traffic. For normally configuration, there is pointless to calculate.
+             */
+            return Long.parseLong(time.toString(TIME_BUCKET_FORMATTER));
         }
     }
 

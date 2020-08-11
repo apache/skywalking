@@ -30,18 +30,18 @@ public class TimeSeriesUtilsTestCase {
 
     @Test
     public void querySuperDatasetIndices() {
-        String[] indices = TimeSeriesUtils.querySuperDatasetIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        String[] indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 5);
-        indices = TimeSeriesUtils.querySuperDatasetIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 1);
-        indices = TimeSeriesUtils.querySuperDatasetIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
         Assert.assertEquals(indices.length, 1);
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(2);
-        indices = TimeSeriesUtils.querySuperDatasetIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 3);
-        indices = TimeSeriesUtils.querySuperDatasetIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
         Assert.assertEquals(indices.length, 1);
-        indices = TimeSeriesUtils.querySuperDatasetIndices(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
         Assert.assertEquals(indices.length, 1);
 
     }

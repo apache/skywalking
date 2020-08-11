@@ -25,18 +25,18 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameMa
  */
 public class TimeRangeIndexNameMaker implements IndexNameMaker {
 
-    private final long startTimeBucket;
-    private final long endTimeBucket;
+    private final long startSecondTB;
+    private final long endSecondTB;
     private final String indexName;
 
-    public TimeRangeIndexNameMaker(final String indexName, final long startTimeBucket, final long endTimeBucket) {
-        this.startTimeBucket = startTimeBucket;
-        this.endTimeBucket = endTimeBucket;
+    public TimeRangeIndexNameMaker(final String indexName, final long startSecondTB, final long endSecondTB) {
+        this.startSecondTB = startSecondTB;
+        this.endSecondTB = endSecondTB;
         this.indexName = indexName;
     }
 
     @Override
     public String[] make() {
-        return TimeSeriesUtils.querySuperDatasetIndices(indexName, startTimeBucket, endTimeBucket);
+        return TimeSeriesUtils.superDatasetIndexNames(indexName, startSecondTB, endSecondTB);
     }
 }
