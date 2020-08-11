@@ -16,13 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.analysis.metrics.annotation;
 
-import java.lang.reflect.Type;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface DataTypeMapping {
+/**
+ * Exactly the same functionalities as {@link FilterMatcher} except for the value type of this matcher is {@code
+ * boolean}.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BooleanValueFilterMatcher {
     /**
-     * Map the given typd and genericType of the field to the column type.
+     * @return see {@link FilterMatcher#value()}.
      */
-    String transform(Class<?> type, Type genericType);
+    String[] value() default {};
 }

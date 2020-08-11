@@ -80,6 +80,11 @@ public class TableMetaInfo {
             if (storageAndColumnMap.containsKey(SegmentRecord.SERVICE_ID)) {
                 storageAndTagMap.put(SegmentRecord.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
             }
+
+            // The field of SegmentRecord, tags, store as tag only. see SegmentRecord.DATA_BINARY
+            if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
+                storageAndColumnMap.remove(SegmentRecord.TAGS);
+            }
         }
 
         TableMetaInfo info = TableMetaInfo.builder()

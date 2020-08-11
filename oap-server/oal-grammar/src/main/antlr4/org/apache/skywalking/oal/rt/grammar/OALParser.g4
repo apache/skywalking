@@ -90,7 +90,7 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch
     ;
 
 booleanMatch
@@ -117,8 +117,16 @@ lessEqualMatch
     :  conditionAttribute LESS_EQUAL numberConditionValue
     ;
 
+booleanNotEqualMatch
+    :  conditionAttribute NOT_EQUAL booleanConditionValue
+    ;
+
 notEqualMatch
-    : conditionAttribute NOT_EQUAL (enumConditionValue | numberConditionValue | stringConditionValue | booleanConditionValue)
+    :  conditionAttribute NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue)
+    ;
+
+likeMatch
+    :  conditionAttribute LIKE stringConditionValue
     ;
 
 conditionAttribute
