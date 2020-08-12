@@ -341,11 +341,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return doSearch(searchSourceBuilder, indexName);
     }
 
-    private SearchResponse search(String[] indexNames, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        indexNames = Arrays.stream(indexNames).map(this::formatIndexName).toArray(String[]::new);
-        return doSearch(searchSourceBuilder, indexNames);
-    }
-
     private SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
                                     String... indexNames) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexNames);
