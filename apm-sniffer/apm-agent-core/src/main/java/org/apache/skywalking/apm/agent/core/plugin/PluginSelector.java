@@ -21,11 +21,21 @@ package org.apache.skywalking.apm.agent.core.plugin;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.EXCLUDE_PLUGINS;
 
+/**
+ * Select some plugins in activated plugins
+ */
 public class PluginSelector {
-
+    /**
+     * Exclude activated plugins
+     *
+     * @param pluginDefines the pluginDefines is loaded from activations directory or plugins directory
+     * @return real activate plugins
+     * @see Config.Plugin#EXCLUDE_PLUGINS
+     */
     public List<PluginDefine> select(List<PluginDefine> pluginDefines) {
         if (!EXCLUDE_PLUGINS.isEmpty()) {
             List<String> excludes = Arrays.asList(EXCLUDE_PLUGINS.toLowerCase().split(","));

@@ -268,7 +268,7 @@ public class Config {
         public static int PEER_MAX_LENGTH = 200;
 
         /**
-         * Excludes some plugins which define in plugins dir
+         * Exclude activated plugins
          */
         public static String EXCLUDE_PLUGINS = "";
     }
