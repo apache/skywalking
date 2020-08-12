@@ -49,6 +49,7 @@
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
+  * [Spring-Kafka](https://github.com/spring-projects/spring-kafka) Spring Kafka Consumer 2.2.x
   * [ActiveMQ](https://github.com/apache/activemq) 5.10.0 -> 5.15.4
   * [RabbitMQ](https://www.rabbitmq.com/) 5.x
   * [Pulsar](http://pulsar.apache.org) 2.2.x -> 2.4.x
@@ -70,6 +71,8 @@
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
     * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
+  * HBase
+    * [hbase-client](https://github.com/apache/hbase) HTable 1.x
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
@@ -81,6 +84,7 @@
 * [Hystrix: Latency and Fault Tolerance for Distributed Systems](https://github.com/Netflix/Hystrix) 1.4.20 -> 1.5.12
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
+  * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
 * OpenTracing community supported
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON

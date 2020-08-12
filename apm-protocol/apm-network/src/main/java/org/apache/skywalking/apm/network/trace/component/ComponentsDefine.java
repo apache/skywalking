@@ -166,4 +166,10 @@ public class ComponentsDefine {
     public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
 
     public static final OfficialComponent GRAPHQL = new OfficialComponent(92, "GraphQL");
+
+    public static final OfficialComponent SPRING_ANNOTATION = new OfficialComponent(93, "spring-annotation");
+
+    public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
+
+    public static final OfficialComponent SPRING_KAFKA_CONSUMER = new OfficialComponent(95, "spring-kafka-consumer");
 }

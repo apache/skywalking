@@ -105,6 +105,12 @@ public class H2SQLExecutor {
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
                                                                     StorageBuilder<T> storageBuilder) throws IOException {
+        return getInsertExecutor(modelName, metrics, storageBuilder, 1);
+    }
+
+    protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
+                                                                    StorageBuilder<T> storageBuilder,
+                                                                    int maxSizeOfArrayColumn) throws IOException {
         Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
@@ -114,16 +120,27 @@ public class H2SQLExecutor {
         param.add(metrics.id());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-            sqlBuilder.append("?");
-            if (i != columns.size() - 1) {
-                sqlBuilder.append(",");
+            if (List.class.isAssignableFrom(column.getType())) {
+                for (int physicalColumnIdx = 0; physicalColumnIdx < maxSizeOfArrayColumn; physicalColumnIdx++) {
+                    sqlBuilder.append("?");
+                    param.add(objectMap.get(column.getColumnName().getName() + "_" + physicalColumnIdx));
+                    if (physicalColumnIdx != maxSizeOfArrayColumn - 1) {
+                        sqlBuilder.append(",");
+                    }
+                }
+            } else {
+                sqlBuilder.append("?");
+
+                Object value = objectMap.get(column.getColumnName().getName());
+                if (value instanceof StorageDataComplexObject) {
+                    param.add(((StorageDataComplexObject) value).toStorageData());
+                } else {
+                    param.add(value);
+                }
             }
 
-            Object value = objectMap.get(column.getColumnName().getName());
-            if (value instanceof StorageDataComplexObject) {
-                param.add(((StorageDataComplexObject) value).toStorageData());
-            } else {
-                param.add(value);
+            if (i != columns.size() - 1) {
+                sqlBuilder.append(",");
             }
         }
         sqlBuilder.append(")");

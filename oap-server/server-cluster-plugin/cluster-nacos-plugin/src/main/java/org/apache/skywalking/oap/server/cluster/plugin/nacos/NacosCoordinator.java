@@ -23,6 +23,8 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -65,6 +67,9 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     @Override
     public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
+        if (needUsingInternalAddr()) {
+            remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
+        }
         String host = remoteInstance.getAddress().getHost();
         int port = remoteInstance.getAddress().getPort();
         try {
@@ -74,5 +79,9 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
         }
         this.selfAddress = remoteInstance.getAddress();
         TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
+    }
+
+    private boolean needUsingInternalAddr() {
+        return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
     }
 }

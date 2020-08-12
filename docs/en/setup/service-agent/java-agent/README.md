@@ -131,9 +131,24 @@ property key | Description | Default |
 `plugin.tomcat.collect_http_params`| This config item controls that whether the Tomcat plugin should collect the parameters of the request. Also, activate implicitly in the profiled trace. | `false` |
 `plugin.springmvc.collect_http_params`| This config item controls that whether the SpringMVC plugin should collect the parameters of the request, when your Spring application is based on Tomcat, consider only setting either `plugin.tomcat.collect_http_params` or `plugin.springmvc.collect_http_params`. Also, activate implicitly in the profiled trace. | `false` |
 `plugin.http.http_params_length_threshold`| When `COLLECT_HTTP_PARAMS` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added for the sake of performance.  | `1024` |
+`plugin.feign.collect_request_body`| This config item controls that whether the Feign plugin should collect the http body of the request. | `false` |
+`plugin.feign.filter_length_limit`| When `COLLECT_REQUEST_BODY` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete body.  | `1024` |
+`plugin.feign.supported_content_types_prefix`| When `COLLECT_REQUEST_BODY` is enabled and content-type start with SUPPORTED_CONTENT_TYPES_PREFIX, collect the body of the request , multiple paths should be separated by `,`  | `application/json,text/` |
 `plugin.influxdb.trace_influxql`|If true, trace all the influxql(query and write) in InfluxDB access, default is true.|`true`|
 `correlation.element_max_number`|Max element count of the correlation context.|`3`|
 `correlation.value_max_length`|Max value length of correlation context element.|`128`|
+`plugin.dubbo.collect_consumer_arguments`| Apache Dubbo consumer collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
+`plugin.dubbo.consumer_arguments_length_threshold`| When `plugin.dubbo.collect_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
+`plugin.dubbo.collect_provider_arguments`| Apache Dubbo provider collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
+`plugin.dubbo.consumer_provider_length_threshold`| When `plugin.dubbo.provider_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
+`plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
+`plugin.kafka.consumer_config`| Kafka producer configuration. ||
+`plugin.kafka.producer_config`| Kafka producer configuration. Read [producer configure](http://kafka.apache.org/24/documentation.html#producerconfigs) to get more details. Check [Kafka report doc](How-to-enable-kafka-reporter.md) for more details and examples. | |
+`plugin.kafka.topic_meter` | Specify which Kafka topic name for Meter System data to report to. | `skywalking_meters` |
+`plugin.kafka.topic_metrics` | Specify which Kafka topic name for JVM metrics data to report to. | `skywalking_metrics` |
+`plugin.kafka.topic_segment` | Specify which Kafka topic name for traces data to report to. | `skywalking_segments` |
+`plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
+`plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -172,6 +187,11 @@ Now, we have the following known bootstrap plugins.
     * If you want to forward MicroMeter/Spring Sleuth metrics to Meter System, use [SkyWalking MicroMeter Register](Application-toolkit-micrometer.md).
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
 * If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
+
+## Advanced Reporters
+The advanced report provides an alternative way to submit the agent collected data to the backend. All of them are in the `optional-reporter-plugins` folder, move the one you needed into the `reporter-plugins` folder for the activation. **Notice, don't try to activate multiple reporters, that could cause unexpected fatal errors.**
+
+* Use Kafka to transport the traces, JVM metrics, instance properties, and profiled snapshots to the backend. Read the [How to enable Kafka Reporter](How-to-enable-kafka-reporter.md) for more details.
 
 ## Plugin Development Guide
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
