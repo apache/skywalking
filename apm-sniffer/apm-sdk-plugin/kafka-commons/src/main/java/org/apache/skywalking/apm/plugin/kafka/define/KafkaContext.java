@@ -19,9 +19,30 @@
 
 package org.apache.skywalking.apm.plugin.kafka.define;
 
-public class Constants {
+public class KafkaContext {
 
-    public static final String KAFKA_FLAG = "SW_KAFKA_FLAG";
+    public KafkaContext(String operationName) {
+        needStop = false;
+        this.operationName = operationName;
+    }
 
-    public static final String KAFKA_POLL_AND_INVOKE_OPERATION_NAME = "/pollAndInvoke";
+    private boolean needStop;
+
+    private String operationName;
+
+    public boolean isNeedStop() {
+        return needStop;
+    }
+
+    public void setNeedStop(boolean needStop) {
+        this.needStop = needStop;
+    }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
+    }
 }

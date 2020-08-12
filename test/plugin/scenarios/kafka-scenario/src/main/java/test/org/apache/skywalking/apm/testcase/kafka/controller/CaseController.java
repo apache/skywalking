@@ -18,11 +18,16 @@
 
 package test.org.apache.skywalking.apm.testcase.kafka.controller;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -34,6 +39,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.skywalking.apm.toolkit.kafka.KafkaPollAndInvoke;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
@@ -110,6 +116,12 @@ public class CaseController {
             return SUCCESS;
         }
         throw new RuntimeException("kafka not ready");
+    }
+
+    @RequestMapping("/kafka-thread2-ping")
+    @ResponseBody
+    public String kafkaThread2Ping() {
+        return SUCCESS;
     }
 
     private static void wrapProducer(Consumer<Producer<String, String>> consFunc, String bootstrapServers) {
@@ -223,29 +235,33 @@ public class CaseController {
             consumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
             consumer.subscribe(topicPattern, new NoOpConsumerRebalanceListener());
-            int i = 0;
-            while (i++ <= 10) {
-                try {
-                    Thread.sleep(1 * 1000);
-                } catch (InterruptedException e) {
-                }
+            while (true) {
+                if (pollAndInvoke(consumer)) break;
+            }
+            consumer.close();
+        }
 
-                ConsumerRecords<String, String> records = consumer.poll(100);
-
-                if (!records.isEmpty()) {
-                    for (ConsumerRecord<String, String> record : records) {
-                        logger.info("header: {}", new String(record.headers()
-                          .headers("TEST")
-                          .iterator()
-                          .next()
-                          .value()));
-                        logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
-                    }
-                    break;
-                }
+        @KafkaPollAndInvoke
+        private boolean pollAndInvoke(KafkaConsumer<String, String> consumer) {
+            try {
+                Thread.sleep(1 * 1000);
+            } catch (InterruptedException e) {
             }
 
-            consumer.close();
+            ConsumerRecords<String, String> records = consumer.poll(100);
+
+            if (!records.isEmpty()) {
+                OkHttpClient client = new OkHttpClient.Builder().build();
+                Request request = new Request.Builder().url("http://localhost:8080/kafka-scenario/case/kafka-thread2-ping").build();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                } catch (IOException e) {
+                }
+                response.body().close();
+                return true;
+            }
+            return false;
         }
     }
 }
