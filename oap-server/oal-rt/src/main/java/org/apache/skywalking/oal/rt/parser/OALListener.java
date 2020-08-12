@@ -139,6 +139,21 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
+    public void enterNotEqualMatch(final OALParser.NotEqualMatchContext ctx) {
+        conditionExpression.setExpressionType("notEqualMatch");
+    }
+
+    @Override
+    public void enterBooleanNotEqualMatch(final OALParser.BooleanNotEqualMatchContext ctx) {
+        conditionExpression.setExpressionType("booleanNotEqualMatch");
+    }
+
+    @Override
+    public void enterLikeMatch(final OALParser.LikeMatchContext ctx) {
+        conditionExpression.setExpressionType("likeMatch");
+    }
+
+    @Override
     public void enterBooleanConditionValue(OALParser.BooleanConditionValueContext ctx) {
         enterConditionValue(ctx.getText());
     }
