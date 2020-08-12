@@ -92,7 +92,7 @@ public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
             } else if (AnnotationUtils.getAnnotation(m, PatchMapping.class) != null) {
                 return "{PATCH}";
             } else {
-                return "";
+                return null;
             }
         });
     }
