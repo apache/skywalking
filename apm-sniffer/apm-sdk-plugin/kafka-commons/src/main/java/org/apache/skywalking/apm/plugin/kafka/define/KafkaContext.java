@@ -22,11 +22,10 @@ package org.apache.skywalking.apm.plugin.kafka.define;
 public class KafkaContext {
 
     public KafkaContext(String operationName) {
-        needStop = false;
         this.operationName = operationName;
     }
 
-    private boolean needStop;
+    private boolean needStop = false;
 
     private String operationName;
 
