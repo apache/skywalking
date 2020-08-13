@@ -45,6 +45,8 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
+      - name: 'Check Javaagent Plugin List'
+        run: tools/plugin/check-javaagent-plugin-list.sh
 
   CI-on-Windows:
     runs-on: windows-latest
