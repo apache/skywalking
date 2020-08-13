@@ -31,7 +31,6 @@
     </properties>
 
     <modules>
-        <module>apm-toolkit-kafka</module>
         <module>apm-toolkit-log4j-1.x</module>
         <module>apm-toolkit-log4j-2.x</module>
         <module>apm-toolkit-logback-1.x</module>
@@ -39,5 +38,6 @@
         <module>apm-toolkit-trace</module>
         <module>apm-toolkit-meter</module>
         <module>apm-toolkit-micrometer-registry</module>
+        <module>apm-toolkit-kafka</module>
     </modules>
 </project>
