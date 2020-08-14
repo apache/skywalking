@@ -105,7 +105,8 @@ public class CaseController {
     public String springKafkaCase() {
         try {
             kafkaTemplate.send(topicName, "key", "helloWorld").get();
-            Thread.sleep(2000L);
+            kafkaTemplate.flush();
+            Thread.sleep(1000L);
         } catch (Exception e) {
             e.printStackTrace();
         }
