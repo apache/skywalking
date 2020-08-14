@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.kafka;
+package org.apache.skywalking.apm.toolkit.activation.kafka;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -26,9 +26,9 @@ import org.apache.skywalking.apm.plugin.kafka.define.InterceptorMethod;
 
 import java.lang.reflect.Method;
 
-public class PollAndInvokeMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class KafkaOnMessageAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String OPERATION_NAME = "/spring-kafka" + Constants.KAFKA_POLL_AND_INVOKE_OPERATION_NAME;
+    private static final String OPERATION_NAME = "/kafka-toolkit" + Constants.KAFKA_POLL_AND_INVOKE_OPERATION_NAME;
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
