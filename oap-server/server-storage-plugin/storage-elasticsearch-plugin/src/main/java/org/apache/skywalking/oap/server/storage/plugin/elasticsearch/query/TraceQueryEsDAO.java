@@ -133,7 +133,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
-        SearchResponse response = getClient().search(new TimeRangeIndexNameMaker(SegmentRecord.TIME_BUCKET, startSecondTB, endSecondTB), sourceBuilder);
+        SearchResponse response = getClient().search(new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().totalHits);
 
