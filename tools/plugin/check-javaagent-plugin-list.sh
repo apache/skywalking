@@ -41,6 +41,7 @@ function getMdJavaagentPluginList() {
 function checkDiff() {
     diff -w -bB -U0 ${MD_PLUGINS_LIST} ${GENERNATE_PLUGINS_LIST}
     status=$?
+    echo ${status}
     rm -rf  ${MD_PLUGINS_LIST}
     rm -rf ${GENERNATE_PLUGINS_LIST}
     [[ ${status} -ne 0 ]] && exit ${status}
