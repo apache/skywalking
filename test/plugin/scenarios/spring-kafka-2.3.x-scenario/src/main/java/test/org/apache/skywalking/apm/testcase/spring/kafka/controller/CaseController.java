@@ -18,6 +18,8 @@
 
 package test.org.apache.skywalking.apm.testcase.spring.kafka.controller;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -57,6 +59,8 @@ public class CaseController {
     private String topicName;
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    private CountDownLatch latch = new CountDownLatch(1);
+
     @PostConstruct
     private void setUp() {
         topicName = "spring_test";
@@ -83,7 +87,6 @@ public class CaseController {
         props.setMessageListener(new AcknowledgingMessageListener<String, String>() {
             @Override
             public void onMessage(ConsumerRecord<String, String> data, Acknowledgment acknowledgment) {
-                System.out.println(data);
                 OkHttpClient client = new OkHttpClient.Builder().build();
                 Request request = new Request.Builder().url("http://localhost:8080/spring-kafka-2.3.x-scenario/case/spring-kafka-consumer-ping").build();
                 Response response = null;
@@ -93,6 +96,7 @@ public class CaseController {
                 }
                 response.body().close();
                 acknowledgment.acknowledge();
+                latch.countDown();
             }
         });
         KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(factory, props);
@@ -106,9 +110,12 @@ public class CaseController {
         try {
             kafkaTemplate.send(topicName, "key", "helloWorld").get();
             kafkaTemplate.flush();
-            Thread.sleep(1000L);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        try {
+            latch.await(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
         }
         return SUCCESS;
     }
