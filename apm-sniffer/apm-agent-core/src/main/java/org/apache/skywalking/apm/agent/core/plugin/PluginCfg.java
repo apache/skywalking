@@ -35,14 +35,15 @@ public enum PluginCfg {
     private static final ILog logger = LogManager.getLogger(PluginCfg.class);
 
     private List<PluginDefine> pluginClassList = new ArrayList<PluginDefine>();
+    private PluginSelector pluginSelector = new PluginSelector();
 
     void load(InputStream input) throws IOException {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String pluginDefine = null;
+            String pluginDefine;
             while ((pluginDefine = reader.readLine()) != null) {
                 try {
-                    if (pluginDefine == null || pluginDefine.trim().length() == 0 || pluginDefine.startsWith("#")) {
+                    if (pluginDefine.trim().length() == 0 || pluginDefine.startsWith("#")) {
                         continue;
                     }
                     PluginDefine plugin = PluginDefine.build(pluginDefine);
@@ -51,6 +52,7 @@ public enum PluginCfg {
                     logger.error(e, "Failed to format plugin({}) define.", pluginDefine);
                 }
             }
+            pluginClassList = pluginSelector.select(pluginClassList);
         } finally {
             input.close();
         }
