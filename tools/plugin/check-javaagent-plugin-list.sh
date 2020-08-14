@@ -27,15 +27,15 @@ function genernateJavaagentPluginList() {
     find ${WORK_DIR}/apm-sniffer -name "skywalking-plugin.def"|grep "src/main/resources" > ${position_file}
     cat ${position_file} | while read line
     do
-        cat ${line}|grep -v "#"|grep -v "^$"|awk -F "=" '{print $1}' >> temp.txt
+        cat ${line}|grep -v "#"|awk -F "=" '{print $1}' >> temp.txt
     done
-    cat temp.txt|sort|uniq|awk NF  > ${GENERNATE_PLUGINS_LIST}
+    cat temp.txt|sort|uniq|awk NF|grep -E '^[a-z].*'  > ${GENERNATE_PLUGINS_LIST}
     rm -rf temp.txt
 }
 
 function getMdJavaagentPluginList() {
     md_javaagent_plugins_file=${WORK_DIR}/docs/en/setup/service-agent/java-agent/Plugin-list.md
-    cat  ${md_javaagent_plugins_file}|grep -v "#" |awk -F " " '{ print $2}'|sort >${MD_PLUGINS_LIST}
+    cat  ${md_javaagent_plugins_file}|grep -v "#" |awk -F " " '{ print $2}'|grep -E '^[a-z].*'|sort|uniq|awk NF >${MD_PLUGINS_LIST}
 }
 
 function checkDiff() {
