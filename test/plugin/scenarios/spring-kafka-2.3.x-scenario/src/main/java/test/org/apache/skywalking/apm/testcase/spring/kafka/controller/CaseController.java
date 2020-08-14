@@ -114,7 +114,7 @@ public class CaseController {
             e.printStackTrace();
         }
         try {
-            latch.await(2, TimeUnit.SECONDS);
+            latch.await();
         } catch (InterruptedException e) {
         }
         return SUCCESS;
