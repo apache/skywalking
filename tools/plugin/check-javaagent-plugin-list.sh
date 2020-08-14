@@ -38,15 +38,13 @@ function getMdJavaagentPluginList() {
     cat  ${md_javaagent_plugins_file}|grep -v "#" |awk -F " " '{ print $2}'|grep -E '^[a-z].*'|sort|uniq|awk NF >${MD_PLUGINS_LIST}
 }
 
-function checkDiff() {
-    diff -w -bB -U0 ${MD_PLUGINS_LIST} ${GENERNATE_PLUGINS_LIST}
-    status=$?
-    echo ${status}
-    [[ ${status} -ne 0 ]] && exit ${status}
-}
-
 genernateJavaagentPluginList
 getMdJavaagentPluginList
-checkDiff
+diff -w -bB -U0 ${MD_PLUGINS_LIST} ${GENERNATE_PLUGINS_LIST}
+status=$?
+echo ${status}
+rm -rf  ${MD_PLUGINS_LIST}
+rm -rf ${GENERNATE_PLUGINS_LIST}
+[[ ${status} -ne 0 ]] && exit ${status}
 
 
