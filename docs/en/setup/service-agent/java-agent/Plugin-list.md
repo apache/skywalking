@@ -90,6 +90,7 @@
 - toolkit-counter
 - toolkit-gauge
 - toolkit-histogram
+- toolkit-kafka
 - toolkit-log4j
 - toolkit-log4j2
 - toolkit-logback
@@ -99,4 +100,3 @@
 - undertow-2.x-plugin
 - vertx-core-3.x
 - zookeeper-3.4.x
-- mock-for-test
