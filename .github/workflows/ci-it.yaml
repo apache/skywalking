@@ -39,6 +39,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
+      - name: 'Check Javaagent Plugin List'
+        run: tools/plugin/check-javaagent-plugin-list.sh
       - name: 'Install & Test'
         run: |
           ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
