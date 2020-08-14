@@ -341,7 +341,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return doSearch(searchSourceBuilder, indexName);
     }
 
-    private SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
+    protected SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
                                     String... indexNames) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexNames);
         searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));

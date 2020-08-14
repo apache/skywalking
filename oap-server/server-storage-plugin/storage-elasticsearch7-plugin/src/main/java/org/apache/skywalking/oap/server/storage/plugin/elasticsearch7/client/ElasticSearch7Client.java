@@ -24,7 +24,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -193,16 +192,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return acknowledgedResponse.isAcknowledged();
     }
 
-    public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        indexName = formatIndexName(indexName);
-        return doSearch(searchSourceBuilder, indexName);
-    }
-
-    public SearchResponse search(String[] indexNames, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        indexNames = Arrays.stream(indexNames).map(this::formatIndexName).toArray(String[]::new);
-        return doSearch(searchSourceBuilder, indexNames);
-    }
-
+    @Override
     public SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder, String... indexNames) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexNames);
         searchRequest.source(searchSourceBuilder);
