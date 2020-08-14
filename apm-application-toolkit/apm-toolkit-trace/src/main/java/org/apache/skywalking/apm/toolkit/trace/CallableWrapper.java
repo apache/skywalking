@@ -24,8 +24,8 @@ import java.util.concurrent.Callable;
 public class CallableWrapper<V> implements Callable<V> {
     final Callable<V> callable;
 
-    public static <V> CallableWrapper of(Callable<V> r) {
-        return new CallableWrapper<V>(r);
+    public static <V> CallableWrapper<V> of(Callable<V> r) {
+        return new CallableWrapper<>(r);
     }
 
     public CallableWrapper(Callable<V> callable) {

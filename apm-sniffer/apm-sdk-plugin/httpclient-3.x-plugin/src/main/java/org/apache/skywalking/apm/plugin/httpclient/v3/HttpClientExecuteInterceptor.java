@@ -65,7 +65,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
         for (CarrierItem next = contextCarrier.items(); next.hasNext(); ) {
             next = next.next();
-            httpMethod.addRequestHeader(next.getHeadKey(), next.getHeadValue());
+            httpMethod.setRequestHeader(next.getHeadKey(), next.getHeadValue());
         }
     }
 

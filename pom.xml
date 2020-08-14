@@ -575,6 +575,10 @@
                         **/*.yaml,
                         **/*.xml
                     </resourceIncludes>
+                    <resourceExcludes>
+                        **/.asf.yaml,
+                        **/.github/**
+                    </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,

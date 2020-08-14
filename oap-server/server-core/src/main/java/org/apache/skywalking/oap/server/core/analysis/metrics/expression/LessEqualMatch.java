@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
+
+@FilterMatcher
 public class LessEqualMatch {
     public boolean match(int left, int right) {
         return left <= right;
