@@ -76,6 +76,8 @@ public class PrometheusMetricConverter {
 
     private final static String AVG_LABELED = "avgLabeled";
 
+    private final static String LATEST = "latest";
+
     private final Window window = new Window();
 
     private final List<MetricsRule> rules;
@@ -124,7 +126,7 @@ public class PrometheusMetricConverter {
                         }
                         return rule._3.getLabelFilter().stream()
                             .allMatch(matchRule -> matchRule.getOptions().stream()
-                                .anyMatch(metric.getLabels().get(matchRule.getKey())::matches));
+                                .anyMatch(option -> matchLabel(option, metric.getLabels().get(matchRule.getKey()))));
                     })
                     .map(rule -> Tuple.of(rule._1, rule._2, rule._3, metric))
             )
@@ -158,6 +160,7 @@ public class PrometheusMetricConverter {
                 log.debug("Building metrics {} -> {}", operation, sources);
                 Try.run(() -> {
                     switch (operation.getName()) {
+                        case LATEST:
                         case AVG:
                             sources.forEach((source, metrics) -> {
                                 AcceptableValue<Long> value = service.buildMetrics(formatMetricName(operation.getMetricName()), Long.class);
@@ -286,5 +289,20 @@ public class PrometheusMetricConverter {
             .onSuccess(i -> log.debug(debugMessage + " :{}", i))
             .onFailure(e -> log.debug(debugMessage + " failed", e))
             .toJavaStream();
+    }
+
+    private boolean matchLabel(String option, String labelValue) {
+        if (option.startsWith("!")) {
+            return !matchLabelRule(option.substring(1), labelValue);
+        }
+        log.debug("{} {}", option, labelValue);
+        return matchLabelRule(option, labelValue);
+    }
+
+    private boolean matchLabelRule(String rule, String labelValue) {
+        if (Strings.isNullOrEmpty(rule)) {
+            return Strings.isNullOrEmpty(labelValue);
+        }
+        return labelValue.matches(rule);
     }
 }
