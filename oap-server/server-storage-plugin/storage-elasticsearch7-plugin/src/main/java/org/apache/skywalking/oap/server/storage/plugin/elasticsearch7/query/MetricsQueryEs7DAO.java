@@ -46,16 +46,20 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
     }
 
     @Override
-    public int readMetricsValue(final MetricsCondition condition,
+    public long readMetricsValue(final MetricsCondition condition,
                                 final String valueColumnName,
                                 final Duration duration) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         buildQuery(sourceBuilder, condition, duration);
 
-        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
-                                                                         .field(Metrics.ENTITY_ID)
-                                                                         .size(1);
+        int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
+        if (function == Function.Latest) {
+            return readMetricsValues(condition, valueColumnName, duration).getValues().latestValue(defaultValue);
+        }
+        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
+            .field(Metrics.ENTITY_ID)
+            .size(1);
         functionAggregation(function, entityIdAggregation, valueColumnName);
 
         sourceBuilder.aggregation(entityIdAggregation);
@@ -67,16 +71,16 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
             switch (function) {
                 case Sum:
                     Sum sum = idBucket.getAggregations().get(valueColumnName);
-                    return (int) sum.getValue();
+                    return (long) sum.getValue();
                 case Avg:
                     Avg avg = idBucket.getAggregations().get(valueColumnName);
-                    return (int) avg.getValue();
+                    return (long) avg.getValue();
                 default:
                     avg = idBucket.getAggregations().get(valueColumnName);
-                    return (int) avg.getValue();
+                    return (long) avg.getValue();
             }
         }
-        return ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        return defaultValue;
     }
 
     protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
