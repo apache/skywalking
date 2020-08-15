@@ -106,7 +106,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
         if (logger.isDebugEnable()) {
             logger.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
         }
-        producer.send(new ProducerRecord<>(ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
+        producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
     }
 
     @Override
