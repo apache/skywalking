@@ -16,19 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.annotations.component;
+package org.apache.skywalking.apm.plugin.spring.annotations;
 
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationPackageRegexMatch.byClassAnnotationAndRegexMatch;
+public class SpringAnnotationConfig {
 
-public class SpringComponentInstrumentation extends AbstractSpringBeanInstrumentation {
-
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Component";
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byClassAnnotationAndRegexMatch(new String[] {ENHANCE_ANNOTATION}, getRegexExpressions());
+    public static class Plugin {
+        @PluginConfig(root = SpringAnnotationConfig.class)
+        public static class SpringAnnotation {
+            /**
+             * regex expression to match spring bean
+             */
+            public static String REGEX_EXPRESSION = ".*Service.*,.*Dao.*,.*Repository.*";
+        }
     }
 }

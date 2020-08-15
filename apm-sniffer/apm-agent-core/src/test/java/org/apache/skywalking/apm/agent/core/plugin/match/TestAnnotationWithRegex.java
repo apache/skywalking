@@ -16,19 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.annotations.component;
+package org.apache.skywalking.apm.agent.core.plugin.match;
 
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationPackageRegexMatch.byClassAnnotationAndRegexMatch;
-
-public class SpringComponentInstrumentation extends AbstractSpringBeanInstrumentation {
-
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Component";
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byClassAnnotationAndRegexMatch(new String[] {ENHANCE_ANNOTATION}, getRegexExpressions());
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+public @interface TestAnnotationWithRegex {
 }

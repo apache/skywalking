@@ -29,6 +29,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
+import static org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationConfig.Plugin.SpringAnnotation.REGEX_EXPRESSION;
 
 public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationInterceptor";
@@ -46,8 +47,9 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isPublic().and(not(isDeclaredBy(Object.class)).and(not(named(INTERCEPT_GET_SKYWALKING_DYNAMIC_FIELD_METHOD)))
-                                                                         .and(not(named(INTERCEPT_SET_SKYWALKING_DYNAMIC_FIELD_METHOD))));
+                    return isPublic().and(not(isDeclaredBy(Object.class))
+                                              .and(not(named(INTERCEPT_GET_SKYWALKING_DYNAMIC_FIELD_METHOD)))
+                                              .and(not(named(INTERCEPT_SET_SKYWALKING_DYNAMIC_FIELD_METHOD))));
                 }
 
                 @Override
@@ -62,4 +64,9 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
             }
         };
     }
+
+    protected String[] getRegexExpressions() {
+        return REGEX_EXPRESSION.split(",");
+    }
+
 }

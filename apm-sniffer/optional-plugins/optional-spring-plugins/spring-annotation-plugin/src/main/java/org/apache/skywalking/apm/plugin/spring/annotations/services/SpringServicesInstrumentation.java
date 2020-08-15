@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.spring.annotations.services;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationPackageRegexMatch.byClassAnnotationAndRegexMatch;
 
 public class SpringServicesInstrumentation extends AbstractSpringBeanInstrumentation {
 
@@ -29,6 +29,6 @@ public class SpringServicesInstrumentation extends AbstractSpringBeanInstrumenta
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
+        return byClassAnnotationAndRegexMatch(new String[] {ENHANCE_ANNOTATION}, getRegexExpressions());
     }
 }
