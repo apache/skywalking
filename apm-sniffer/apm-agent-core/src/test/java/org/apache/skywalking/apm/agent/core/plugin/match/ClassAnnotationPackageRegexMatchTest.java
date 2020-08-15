@@ -16,19 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.annotations.component;
+package org.apache.skywalking.apm.agent.core.plugin.match;
 
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
+import net.bytebuddy.description.type.TypeDescription;
+import org.junit.Assert;
+import org.junit.Test;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationPackageRegexMatch.byClassAnnotationAndRegexMatch;
 
-public class SpringComponentInstrumentation extends AbstractSpringBeanInstrumentation {
+public class ClassAnnotationPackageRegexMatchTest {
 
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Component";
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byClassAnnotationAndRegexMatch(new String[] {ENHANCE_ANNOTATION}, getRegexExpressions());
+    @Test
+    public void testMatch() throws Exception {
+        final String regex = ".*Service.*";
+        IndirectMatch indirectMatch = (IndirectMatch) byClassAnnotationAndRegexMatch(
+            new String[] {TestAnnotationWithRegex.class.getName()}, new String[] {regex});
+        TypeDescription typeDefinition = TypeDescription.ForLoadedType.of(TestAnnotationWithRegexService.class);
+        Assert.assertTrue(indirectMatch.isMatch(typeDefinition));
+        typeDefinition = TypeDescription.ForLoadedType.of(TestAnnotationWithRegexDao.class);
+        Assert.assertFalse(indirectMatch.isMatch(typeDefinition));
     }
-}
+}  
