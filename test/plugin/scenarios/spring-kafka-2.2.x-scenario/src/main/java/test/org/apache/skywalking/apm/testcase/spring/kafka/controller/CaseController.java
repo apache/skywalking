@@ -18,8 +18,6 @@
 
 package test.org.apache.skywalking.apm.testcase.spring.kafka.controller;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -46,6 +44,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 @Controller
 @RequestMapping("/case")
@@ -106,17 +105,11 @@ public class CaseController {
 
     @RequestMapping("/spring-kafka-case")
     @ResponseBody
-    public String springKafkaCase() {
-        try {
-            kafkaTemplate.send(topicName, "key", "helloWorld").get();
-            kafkaTemplate.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-        }
+    public String springKafkaCase() throws Exception {
+        kafkaTemplate.send(topicName, "key", "helloWorld").get();
+        latch.await();
+        Thread.sleep(500L);
+        kafkaTemplate.flush();
         return SUCCESS;
     }
 
