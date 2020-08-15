@@ -36,11 +36,11 @@ public class MessageConcurrentlyConsumeInterceptor extends AbstractMessageConsum
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         ConsumeConcurrentlyStatus status = (ConsumeConcurrentlyStatus) ret;
+        AbstractSpan activeSpan = ContextManager.activeSpan();
         if (status == ConsumeConcurrentlyStatus.RECONSUME_LATER) {
-            AbstractSpan activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
-            Tags.STATUS_CODE.set(activeSpan, status.name());
         }
+        Tags.STATUS_CODE.set(activeSpan, status.name());
         ContextManager.stopSpan();
         return ret;
     }

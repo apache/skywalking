@@ -33,6 +33,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/netty-socketio-scenario/case/netty-socketio'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -71,4 +72,5 @@ segmentItems:
       tags:
       - {key: http.method, value: not null}
       - {key: url, value: not null}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

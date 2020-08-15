@@ -47,8 +47,8 @@ public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
         SendStatus sendStatus = ((SendResult) allArguments[0]).getSendStatus();
         if (sendStatus != SendStatus.SEND_OK) {
             activeSpan.errorOccurred();
-            Tags.STATUS_CODE.set(activeSpan, sendStatus.name());
         }
+        Tags.STATUS_CODE.set(activeSpan, sendStatus.name());
         ContextManager.continued(enhanceInfo.getContextSnapshot());
     }
 

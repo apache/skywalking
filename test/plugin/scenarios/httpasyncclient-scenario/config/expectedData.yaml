@@ -33,6 +33,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/httpasyncclient/case/httpasyncclient'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -50,6 +51,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://127.0.0.1:8080/httpasyncclient/back'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -67,6 +69,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://127.0.0.1:8080/httpasyncclient/back'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - {operationName: httpasyncclient/local, operationId: 0, parentSpanId: -1, spanId: 0,
       spanLayer: not null, startTime: nq 0, endTime: nq 0, componentId: 0, isError: false,

@@ -60,4 +60,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/gson-scenario/case/gson-scenario'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

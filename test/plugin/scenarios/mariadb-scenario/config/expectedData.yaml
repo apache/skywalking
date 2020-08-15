@@ -115,5 +115,6 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/mariadb-scenario/case/mariadb-scenario'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       logs: []
       skipAnalysis: 'false'

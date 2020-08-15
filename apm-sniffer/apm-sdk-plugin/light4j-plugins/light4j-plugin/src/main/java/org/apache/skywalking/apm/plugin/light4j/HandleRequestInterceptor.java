@@ -76,8 +76,8 @@ public class HandleRequestInterceptor implements InstanceMethodsAroundIntercepto
 
                 if (exchange.getStatusCode() >= 400) {
                     span.errorOccurred();
-                    Tags.STATUS_CODE.set(span, String.valueOf(exchange.getStatusCode()));
                 }
+                Tags.STATUS_CODE.set(span, String.valueOf(exchange.getStatusCode()));
 
                 ContextManager.stopSpan(span);
 

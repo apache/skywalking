@@ -48,6 +48,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/activemq-scenario/case/activemq'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

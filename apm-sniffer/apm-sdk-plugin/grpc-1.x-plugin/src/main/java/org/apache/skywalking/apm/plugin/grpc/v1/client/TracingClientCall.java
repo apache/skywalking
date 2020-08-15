@@ -199,8 +199,8 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             ContextManager.continued(contextSnapshot);
             if (!status.isOk()) {
                 span.errorOccurred().log(status.asRuntimeException());
-                Tags.STATUS_CODE.set(span, status.getCode().name());
             }
+            Tags.STATUS_CODE.set(span, status.getCode().name());
 
             try {
                 delegate().onClose(status, trailers);

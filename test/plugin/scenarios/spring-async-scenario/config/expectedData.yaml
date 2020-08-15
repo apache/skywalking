@@ -33,6 +33,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/spring-async'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -50,6 +51,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/asyncVisit'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: SpringAsync, networkAddress: 'localhost:8080', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
@@ -71,6 +73,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/asyncVisit'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: SpringAsync, networkAddress: 'localhost:8080', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
@@ -92,6 +95,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/asyncVisit?by=system'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: SpringAsync
       operationId: 0
@@ -125,6 +129,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/asyncVisit?by=customize'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: SpringAsync
       operationId: 0

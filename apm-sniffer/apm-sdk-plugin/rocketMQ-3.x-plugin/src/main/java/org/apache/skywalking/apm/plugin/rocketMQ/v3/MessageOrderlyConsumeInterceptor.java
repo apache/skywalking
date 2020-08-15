@@ -37,11 +37,11 @@ public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInte
         Object ret) throws Throwable {
 
         ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) ret;
+        AbstractSpan activeSpan = ContextManager.activeSpan();
         if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
-            AbstractSpan activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
-            Tags.STATUS_CODE.set(activeSpan, status.name());
         }
+        Tags.STATUS_CODE.set(activeSpan, status.name());
         ContextManager.stopSpan();
         return ret;
     }

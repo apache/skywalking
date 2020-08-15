@@ -68,8 +68,8 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
         int statusCode = invocation.getStatus().getStatusCode();
         if (statusCode >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
         }
+        Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
         ContextManager.stopSpan();
         return ret;
     }

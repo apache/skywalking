@@ -65,4 +65,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/sofarpc-scenario/case/sofarpc'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

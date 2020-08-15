@@ -33,6 +33,7 @@ segmentItems:
       tags:
       - {key: url, value: /greet/skywalking}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: /greet/skywalking, networkAddress: '127.0.0.1:8085', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
@@ -53,6 +54,7 @@ segmentItems:
       peer: 127.0.0.1:8085
       tags:
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /greet/skywalking
       operationId: 0
@@ -68,4 +70,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/greet/skywalking'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

@@ -212,6 +212,7 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /testcase/annotation/error
       operationId: 0
@@ -243,6 +244,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:18080/testcase/annotation/foo'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /testcase/annotation/loo
       operationId: 0
@@ -258,6 +260,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:18080/testcase/annotation/loo'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /testcase/route/success
       operationId: 0
@@ -273,6 +276,7 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /testcase/route/error
       operationId: 0
@@ -320,6 +324,7 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /projectA/testcase
       operationId: 0
@@ -335,4 +340,5 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

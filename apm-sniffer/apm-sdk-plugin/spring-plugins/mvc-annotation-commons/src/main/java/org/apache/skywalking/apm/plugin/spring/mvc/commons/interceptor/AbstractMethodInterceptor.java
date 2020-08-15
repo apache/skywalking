@@ -174,8 +174,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
                     span.errorOccurred();
-                    Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
                 }
+                Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
 
                 ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);

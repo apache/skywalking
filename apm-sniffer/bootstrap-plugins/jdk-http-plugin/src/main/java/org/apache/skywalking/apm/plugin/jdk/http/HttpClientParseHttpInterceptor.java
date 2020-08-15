@@ -43,11 +43,11 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
         MessageHeader responseHeader = (MessageHeader) allArguments[0];
         String statusLine = responseHeader.getValue(0);
         Integer responseCode = parseResponseCode(statusLine);
+        AbstractSpan span = ContextManager.activeSpan();
         if (responseCode >= 400) {
-            AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
         }
+        Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
         ContextManager.stopSpan();
         return ret;
     }

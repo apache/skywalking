@@ -114,4 +114,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/kotlin-coroutine-scenario/case/h2'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

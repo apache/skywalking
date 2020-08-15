@@ -54,4 +54,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/finagle-17.10.x-scenario/case/finagle'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
