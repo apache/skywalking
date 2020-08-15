@@ -192,9 +192,9 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return acknowledgedResponse.isAcknowledged();
     }
 
-    public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        indexName = formatIndexName(indexName);
-        SearchRequest searchRequest = new SearchRequest(indexName);
+    @Override
+    public SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder, String... indexNames) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(indexNames);
         searchRequest.source(searchSourceBuilder);
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
