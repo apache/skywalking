@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import io.vavr.collection.Stream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,5 +36,9 @@ public class IntValues {
             }
         }
         return defaultValue;
+    }
+
+    public long latestValue(int defaultValue) {
+        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
     }
 }
