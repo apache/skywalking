@@ -24,12 +24,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalMatchOperation;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
-import static org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationConfig.Plugin.SpringAnnotation.PACKAGE_MATCH_REGEX_EXPRESSION;
+import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.RegexMatch.byRegexMatch;
+import static org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationConfig.Plugin.SpringAnnotation.CLASSNAME_MATCH_REGEX_EXPRESSION;
 
 public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationInterceptor";
@@ -65,7 +70,18 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
         };
     }
 
-    protected String[] getRegexExpressions() {
-        return PACKAGE_MATCH_REGEX_EXPRESSION.split(",");
+    @Override
+    protected ClassMatch enhanceClass() {
+        if (StringUtil.isEmpty(CLASSNAME_MATCH_REGEX_EXPRESSION)) {
+            return byClassAnnotationMatch(getEnhanceAnnotation());
+        } else {
+            return LogicalMatchOperation.and(
+                byRegexMatch(CLASSNAME_MATCH_REGEX_EXPRESSION.split(",")),
+                byClassAnnotationMatch(getEnhanceAnnotation())
+            );
+        }
     }
+
+    protected abstract String getEnhanceAnnotation();
+
 }

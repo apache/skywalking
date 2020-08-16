@@ -26,9 +26,9 @@ public class SpringAnnotationConfig {
         @PluginConfig(root = SpringAnnotationConfig.class)
         public static class SpringAnnotation {
             /**
-             * regex expression to match spring bean
+             * regex expression to match spring bean classname
              */
-            public static String PACKAGE_MATCH_REGEX_EXPRESSION = ".*";
+            public static String CLASSNAME_MATCH_REGEX_EXPRESSION = "";
         }
     }
 }

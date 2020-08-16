@@ -150,7 +150,7 @@ property key | Description | Default |
 `plugin.kafka.topic_segment` | Specify which Kafka topic name for traces data to report to. | `skywalking_segments` |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
-`plugin.springannotation.package_match_regex_expression` | Match spring bean with package name regex expression. | `the spring beans tagged with @Bean,@Service,@Dao or @Repository` |
+`plugin.springannotation.classname_match_regex_expression` | Match spring bean with regex expression for classname. | `the spring beans tagged with @Bean,@Service,@Dao or @Repository` |
 
 
 ## Optional Plugins
