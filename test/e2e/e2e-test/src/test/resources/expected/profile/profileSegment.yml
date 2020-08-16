@@ -27,6 +27,8 @@ spans:
         value: POST
       - key: http.params
         value: "e2e=[true]"
+      - key: status_code
+        value: "200"
   - spanId: 1
     parentSpanId: 0
     serviceCode: not null

@@ -99,4 +99,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/postgresql-scenario/case/postgres'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

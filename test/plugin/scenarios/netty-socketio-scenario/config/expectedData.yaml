@@ -72,5 +72,4 @@ segmentItems:
       tags:
       - {key: http.method, value: not null}
       - {key: url, value: not null}
-      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
