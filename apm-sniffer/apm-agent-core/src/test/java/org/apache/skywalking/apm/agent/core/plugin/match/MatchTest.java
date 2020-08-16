@@ -27,14 +27,14 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationM
 import static org.apache.skywalking.apm.agent.core.plugin.match.RegexMatch.byRegexMatch;
 
 public class MatchTest {
-    private static final String[] regex = new String[] {
+    private static final String[] REGEX = new String[] {
         ".*Service.*",
         ".*Repository.*"
     };
 
     @Test
     public void testRegexMatch() {
-        RegexMatch regexMatch = byRegexMatch(regex);
+        RegexMatch regexMatch = byRegexMatch(REGEX);
         TypeDescription typeDefinition = TypeDescription.ForLoadedType.of(TestService.class);
         Assert.assertTrue(regexMatch.isMatch(typeDefinition));
         typeDefinition = TypeDescription.ForLoadedType.of(TestDao.class);
@@ -57,7 +57,7 @@ public class MatchTest {
     @Test
     public void testLogicalMatchOperation() {
         IndirectMatch match = LogicalMatchOperation.and(
-            byRegexMatch(regex),
+            byRegexMatch(REGEX),
             byClassAnnotationMatch(MatchTestAnnotation.class.getName())
         );
         TypeDescription typeDefinition = TypeDescription.ForLoadedType.of(TestService.class);
