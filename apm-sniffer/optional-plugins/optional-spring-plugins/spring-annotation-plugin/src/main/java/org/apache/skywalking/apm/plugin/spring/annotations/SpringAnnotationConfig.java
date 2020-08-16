@@ -28,7 +28,7 @@ public class SpringAnnotationConfig {
             /**
              * regex expression to match spring bean
              */
-            public static String REGEX_EXPRESSION = ".*Service.*,.*Dao.*,.*Repository.*";
+            public static String PACKAGE_MATCH_REGEX_EXPRESSION = ".*";
         }
     }
 }

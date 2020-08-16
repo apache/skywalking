@@ -72,7 +72,7 @@ public class ClassAnnotationMatch implements IndirectMatch {
         return isAnnotatedWith(named(annotationName));
     }
 
-    public static ClassMatch byClassAnnotationMatch(String[] annotations) {
+    public static ClassAnnotationMatch byClassAnnotationMatch(String... annotations) {
         return new ClassAnnotationMatch(annotations);
     }
 }

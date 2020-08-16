@@ -19,9 +19,11 @@
 package org.apache.skywalking.apm.plugin.spring.annotations.repository;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalMatchOperation;
 import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationPackageRegexMatch.byClassAnnotationAndRegexMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.RegexMatch.byRegexMatch;
 
 public class SpringRepositoryInstrumentation extends AbstractSpringBeanInstrumentation {
 
@@ -29,6 +31,9 @@ public class SpringRepositoryInstrumentation extends AbstractSpringBeanInstrumen
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byClassAnnotationAndRegexMatch(new String[] {ENHANCE_ANNOTATION}, getRegexExpressions());
+        return LogicalMatchOperation.and(
+            byRegexMatch(getRegexExpressions()),
+            byClassAnnotationMatch(ENHANCE_ANNOTATION)
+        );
     }
 }

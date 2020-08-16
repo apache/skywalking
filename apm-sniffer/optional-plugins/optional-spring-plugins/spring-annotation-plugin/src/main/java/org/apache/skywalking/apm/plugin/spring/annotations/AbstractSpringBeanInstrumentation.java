@@ -29,7 +29,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
-import static org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationConfig.Plugin.SpringAnnotation.REGEX_EXPRESSION;
+import static org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationConfig.Plugin.SpringAnnotation.PACKAGE_MATCH_REGEX_EXPRESSION;
 
 public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationInterceptor";
@@ -66,6 +66,6 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
     }
 
     protected String[] getRegexExpressions() {
-        return REGEX_EXPRESSION.split(",");
+        return PACKAGE_MATCH_REGEX_EXPRESSION.split(",");
     }
 }
