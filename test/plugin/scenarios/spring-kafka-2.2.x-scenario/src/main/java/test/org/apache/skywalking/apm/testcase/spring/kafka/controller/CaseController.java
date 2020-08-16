@@ -117,7 +117,6 @@ public class CaseController {
     public String springKafkaCase() throws Exception {
         kafkaTemplate.send(topicName, "key", helloWorld).get();
         latch.await();
-        Thread.sleep(500L);
         kafkaTemplate.flush();
         return SUCCESS;
     }
