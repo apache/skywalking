@@ -202,6 +202,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-cloud-feign-2.x-scenario/delete/1'}
       - {key: http.method, value: DELETE}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: /spring-cloud-feign-2.x-scenario/case/spring-cloud-feign-2.x-scenario,
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 4,

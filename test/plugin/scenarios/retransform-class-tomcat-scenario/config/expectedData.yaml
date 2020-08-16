@@ -34,4 +34,5 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/retransform-class-tomcat-scenario/case/retransform-class'}
               - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}
             skipAnalysis: 'false'

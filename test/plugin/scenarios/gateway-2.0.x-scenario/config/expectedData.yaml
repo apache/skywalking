@@ -33,6 +33,7 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: SpringCloudGateway/RoutingFilter, networkAddress: 'localhost:18070',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not

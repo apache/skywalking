@@ -33,6 +33,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-cloud-feign-1.2.x-scenario/case/healthCheck'}
       - {key: http.method, value: HEAD}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -50,6 +51,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-cloud-feign-1.2.x-scenario/get'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: /spring-cloud-feign-1.2.x-scenario/case/spring-cloud-feign-1.2.x-scenario,
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
@@ -72,6 +74,7 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/spring-cloud-feign-1.2.x-scenario/get'}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: /spring-cloud-feign-1.2.x-scenario/case/spring-cloud-feign-1.2.x-scenario
       operationId: 0
@@ -87,4 +90,5 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-cloud-feign-1.2.x-scenario/case/spring-cloud-feign-1.2.x-scenario'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'

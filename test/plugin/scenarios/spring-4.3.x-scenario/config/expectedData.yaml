@@ -129,6 +129,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/update/1'}
       - {key: http.method, value: PUT}
+      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: /case/resttemplate, networkAddress: 'localhost:8080', refType: CrossProcess,
         parentSpanId: 4, parentTraceSegmentId: not null, parentServiceInstance: not
