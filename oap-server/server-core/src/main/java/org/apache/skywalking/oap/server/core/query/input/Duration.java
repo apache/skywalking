@@ -49,7 +49,7 @@ public class Duration {
     }
 
     public long getEndTimestamp() {
-        return DurationUtils.INSTANCE.startTimeToTimestamp(step, end);
+        return DurationUtils.INSTANCE.endTimeToTimestamp(step, end);
     }
 
     public long getStartTimeBucketInSec() {

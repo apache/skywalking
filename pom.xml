@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>8.1.0-SNAPSHOT</version>
+    <version>8.2.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -575,6 +575,10 @@
                         **/*.yaml,
                         **/*.xml
                     </resourceIncludes>
+                    <resourceExcludes>
+                        **/.asf.yaml,
+                        **/.github/**
+                    </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,

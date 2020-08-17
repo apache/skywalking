@@ -52,6 +52,9 @@ jobs:
           - { name: 'graphql-8.x-scenario', title: 'graphql-8.x 8.0 (1)' }
           - { name: 'graphql-9.x-scenario', title: 'graphql-9.x 9.0-11.0 (3)' }
           - { name: 'graphql-12.x-scenario', title: 'graphql-12.x 12.0-15.0 (4)' }
+          - { name: 'hbase-scenario', title: 'hbase-scenario (5)' }
+          - { name: 'spring-kafka-2.2.x-scenario', title: 'Spring-Kafka 2.2.x (7)' }
+          - { name: 'spring-kafka-2.3.x-scenario', title: 'Spring-Kafka 2.3.x (7)' }
     steps:
       - uses: actions/checkout@v2
         with:

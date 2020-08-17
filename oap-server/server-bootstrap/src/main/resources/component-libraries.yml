@@ -52,13 +52,13 @@ ORACLE:
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#,Node.js,PHP
+  languages: Java,C#,Node.js,PHP,Python
 Motan:
   id: 8
   languages: Java
 MongoDB:
   id: 9
-  languages: Java,C#,Node.js
+  languages: Java,C#,Node.js,Python
 Resin:
   id: 10
   languages: Java
@@ -151,10 +151,10 @@ rocketMQ-consumer:
   languages: Java
 kafka-producer:
   id: 40
-  languages: Java
+  languages: Java,Python
 kafka-consumer:
   id: 41
-  languages: Java
+  languages: Java,Python
 mongodb-driver:
   id: 42
   languages: Java
@@ -172,7 +172,7 @@ activemq-consumer:
   languages: Java
 Elasticsearch:
   id: 47
-  languages: Java
+  languages: Java,Python
 transport-client:
   id: 48
   languages: Java
@@ -187,10 +187,10 @@ RabbitMQ:
   languages: Java
 rabbitmq-producer:
   id: 52
-  languages: Java
+  languages: Java,Python
 rabbitmq-consumer:
   id: 53
-  languages: Java
+  languages: Java,Python
 Canal:
   id: 54
   languages: Java
@@ -308,6 +308,15 @@ brpc-java:
 GraphQL:
   id: 92
   languages: Java
+spring-annotation:
+  id: 93
+  languages: Java
+HBase:
+  id: 94
+  languages: Java
+spring-kafka-consumer:
+  id: 95
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -386,6 +395,18 @@ ServiceCombServiceCenter:
 MOSN:
   id: 5003
   languages: Golang
+GoHttpServer:
+  id: 5004
+  languages: Golang
+GoHttpClient:
+  id: 5005
+  languages: Golang
+Gin:
+  id: 5006
+  languages: Golang
+Gear:
+  id: 5007
+  languages: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent
@@ -403,6 +424,15 @@ Flask:
   languages: Python
 Requests:
   id: 7002
+  languages: Python
+PyMysql:
+  id: 7003
+  languages: Python
+Django:
+  id: 7004
+  languages: Python
+Tornado:
+  id: 7005
   languages: Python
 
 
@@ -467,4 +497,7 @@ Component-Server-Mappings:
   rest-high-level-client: Elasticsearch
   mariadb-jdbc: Mariadb
   Mysqli: Mysql
+  influxdb-java: InfluxDB
   Predis: Redis
+  PyMysql: Mysql
+  spring-kafka-consumer: kafka-consumer

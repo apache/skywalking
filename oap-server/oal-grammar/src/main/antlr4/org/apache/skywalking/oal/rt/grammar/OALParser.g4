@@ -52,7 +52,7 @@ filterExpression
 source
     : SRC_ALL | SRC_SERVICE | SRC_DATABASE_ACCESS | SRC_SERVICE_INSTANCE | SRC_ENDPOINT |
       SRC_SERVICE_RELATION | SRC_SERVICE_INSTANCE_RELATION | SRC_ENDPOINT_RELATION |
-      SRC_SERVICE_INSTANCE_JVM_CPU | SRC_SERVICE_INSTANCE_JVM_MEMORY | SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL | SRC_SERVICE_INSTANCE_JVM_GC |// JVM source of service instance
+      SRC_SERVICE_INSTANCE_JVM_CPU | SRC_SERVICE_INSTANCE_JVM_MEMORY | SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL | SRC_SERVICE_INSTANCE_JVM_GC | SRC_SERVICE_INSTANCE_JVM_THREAD |// JVM source of service instance
       SRC_SERVICE_INSTANCE_CLR_CPU | SRC_SERVICE_INSTANCE_CLR_GC | SRC_SERVICE_INSTANCE_CLR_THREAD |
       SRC_ENVOY_INSTANCE_METRIC
     ;
@@ -88,7 +88,7 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch
     ;
 
 booleanMatch
@@ -113,6 +113,18 @@ greaterEqualMatch
 
 lessEqualMatch
     :  conditionAttribute LESS_EQUAL numberConditionValue
+    ;
+
+booleanNotEqualMatch
+    :  conditionAttribute NOT_EQUAL booleanConditionValue
+    ;
+
+notEqualMatch
+    :  conditionAttribute NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue)
+    ;
+
+likeMatch
+    :  conditionAttribute LIKE stringConditionValue
     ;
 
 conditionAttribute

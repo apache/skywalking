@@ -28,6 +28,7 @@ public class VertxWebController extends AbstractVerticle {
     public void start() {
         Router router = Router.router(vertx);
         router.get("/vertx-web-3_54minus-scenario/case/web-case").handler(this::handleWebCase);
+        router.get("/vertx-web-3_54minus-scenario/dynamicEndpoint/:id").handler(this::dynamicEndpoint);
         router.route("/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler").handler(BodyHandler.create());
         router.get("/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler").handler(this::withBodyHandler);
         router.head("/vertx-web-3_54minus-scenario/case/healthCheck").handler(this::healthCheck);
@@ -35,12 +36,22 @@ public class VertxWebController extends AbstractVerticle {
     }
 
     private void handleWebCase(RoutingContext routingContext) {
+        //dynamic endpoint test
+        vertx.createHttpClient().getNow(8080, "localhost",
+                "/vertx-web-3_54minus-scenario/dynamicEndpoint/100", it -> {
+                });
+
+        //non-body and body handler test
         vertx.createHttpClient().headNow(8080, "localhost", "/vertx-web-3_54minus-scenario/case/healthCheck",
                 healthCheck -> {
                     vertx.createHttpClient().getNow(8080, "localhost",
                             "/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler",
                             it -> routingContext.response().setStatusCode(it.statusCode()).end());
                 });
+    }
+
+    private void dynamicEndpoint(RoutingContext routingContext) {
+        routingContext.response().setStatusCode(200).end("Success");
     }
 
     private void withBodyHandler(RoutingContext routingContext) {

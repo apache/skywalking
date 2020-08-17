@@ -116,6 +116,7 @@ public class Context {
                 Histogram.HistogramBuilder hBuilder = Histogram.builder();
                 hBuilder.name(name).timestamp(now);
                 samples.forEach(textSample -> {
+                    hBuilder.labels(textSample.getLabels());
                     if (textSample.getName().endsWith("_count")) {
                         hBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
                     } else if (textSample.getName().endsWith("_sum")) {

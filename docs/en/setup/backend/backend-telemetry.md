@@ -50,7 +50,7 @@ telemetry:
   prometheus:
     host: 127.0.0.1
     port: 1543
-```.
+```
 
 2. Setting up prometheus fetcher
 

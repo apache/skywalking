@@ -51,13 +51,15 @@ storage:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:""}
-    trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
+    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
+    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
+    dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
+    superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value lt 0
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
-    dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} # Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the bulk every 1000 requests
@@ -88,14 +90,7 @@ storage:
     trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
     trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"https"}
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-    advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    ...
 ```
 - File at `trustStorePath` is being monitored, once it is changed, the ElasticSearch client will do reconnecting.
 - `trustStorePass` could be changed on the runtime through [**Secrets Management File Of ElasticSearch Authentication**](#secrets-management-file-of-elasticsearch-authentication).
@@ -111,6 +106,9 @@ Such as, if dayStep == 11,
 1. data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
 1. data in [2000-01-12, 2000-01-22] will be merged into the index-20000112.
 
+`storage/elasticsearch/superDatasetDayStep` override the `storage/elasticsearch/dayStep` if the value is positive.
+This would affect the record related entities, such as the trace segment. In some cases, the size of metrics is much less than the record(trace), this would help the shards balance in the ElasticSearch cluster.
+ 
 NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
 
 ### Secrets Management File Of ElasticSearch Authentication

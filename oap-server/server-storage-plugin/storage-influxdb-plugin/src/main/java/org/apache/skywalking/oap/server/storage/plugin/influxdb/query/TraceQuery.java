@@ -26,6 +26,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -33,12 +34,14 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
+import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.Clause;
 
@@ -69,7 +72,8 @@ public class TraceQuery implements ITraceQueryDAO {
                                        int limit,
                                        int from,
                                        TraceState traceState,
-                                       QueryOrder queryOrder)
+                                       QueryOrder queryOrder,
+                                       final List<SpanTag> tags)
         throws IOException {
 
         String orderBy = SegmentRecord.START_TIME;
@@ -120,6 +124,13 @@ public class TraceQuery implements ITraceQueryDAO {
             case SUCCESS:
                 recallQuery.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
+        }
+        if (CollectionUtils.isNotEmpty(tags)) {
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
+            for (final SpanTag tag : tags) {
+                nested.and(contains(tag.getKey(), "'" + tag.getValue() + "'"));
+            }
+            nested.close();
         }
 
         WhereQueryImpl<SelectQueryImpl> countQuery = select()

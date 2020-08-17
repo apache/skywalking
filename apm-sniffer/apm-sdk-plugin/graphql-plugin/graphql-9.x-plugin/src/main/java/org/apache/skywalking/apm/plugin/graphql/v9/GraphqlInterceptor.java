@@ -29,8 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -71,8 +69,6 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     private String buildLogicEndpointSpan() {
-        Map<String, Object> logicEndpointSpan = new HashMap<>();
-        logicEndpointSpan.put("logic-span", true);
-        return logicEndpointSpan.toString();
+        return "{\"logic-span\":true}";
     }
 }

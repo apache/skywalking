@@ -29,7 +29,7 @@ import java.util.function.Function;
  */
 public class ParsePathUtil {
 
-    public static String recursiveParseMethodAnnotaion(Method method, Function<Method, String> parseFunc) {
+    public static String recursiveParseMethodAnnotation(Method method, Function<Method, String> parseFunc) {
         String result = parseFunc.apply(method);
         if (Objects.isNull(result)) {
             Class<?> declaringClass = method.getDeclaringClass();
@@ -38,9 +38,9 @@ public class ParsePathUtil {
         return Optional.ofNullable(result).orElse("");
     }
 
-    private static String recursiveMatches(Class claz, String methodName, Parameter[] parameters,
+    private static String recursiveMatches(Class clazz, String methodName, Parameter[] parameters,
         Function<Method, String> parseFunc) {
-        Class<?>[] interfaces = claz.getInterfaces();
+        Class<?>[] interfaces = clazz.getInterfaces();
         for (Class<?> implInterface : interfaces) {
             String path = recursiveMatches(implInterface, methodName, parameters, parseFunc);
             if (Objects.nonNull(path)) {
@@ -57,7 +57,7 @@ public class ParsePathUtil {
     }
 
     private static boolean parameterEquals(Parameter[] p1, Parameter[] p2) {
-        if (p1.length != p1.length) {
+        if (p1.length != p2.length) {
             return false;
         }
         for (int i = 0; i < p1.length; i++) {

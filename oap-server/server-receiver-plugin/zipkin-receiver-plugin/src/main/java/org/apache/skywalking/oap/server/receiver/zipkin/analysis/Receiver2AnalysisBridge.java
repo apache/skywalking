@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
 
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.SegmentListener;
 

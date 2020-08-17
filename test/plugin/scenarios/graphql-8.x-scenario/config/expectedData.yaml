@@ -32,7 +32,7 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: x-le, value: '{logic-span=true}'}
+      - {key: x-le, value: '{"logic-span":true}'}
     - operationName: users
       operationId: 0
       parentSpanId: 0
@@ -46,7 +46,7 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: x-le, value: '{logic-span=true}'}
+      - {key: x-le, value: '{"logic-span":true}'}
     - operationName: user
       operationId: 0
       parentSpanId: 0
@@ -60,7 +60,7 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: x-le, value: '{logic-span=true}'}
+      - {key: x-le, value: '{"logic-span":true}'}
     - operationName: users
       operationId: 0
       parentSpanId: 0
@@ -74,7 +74,7 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: x-le, value: '{logic-span=true}'}
+      - {key: x-le, value: '{"logic-span":true}'}
     - operationName: /graphql-scenario/case/graphql
       operationId: 0
       parentSpanId: -1

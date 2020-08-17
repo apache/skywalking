@@ -68,6 +68,9 @@ service by some network(RPC) protocol, such as gRPC, HTTPRestful.
 The receivers have many different module names, you could
 read **Set receivers** document in the [link list](#advanced-feature-document-link-list).
 
+## Configuration Vocabulary
+All available configurations in `application.yml` could be found in [Configuration Vocabulary](configuration-vocabulary.md). 
+
 ## Advanced feature document link list
 After understand the setting file structure, you could choose your interesting feature document.
 We recommend you to read the feature documents in our following order.
@@ -107,6 +110,7 @@ to reflect the delegation in topology graph.
 1. [Apdex threshold](apdex-threshold.md). Configure the thresholds for different services if Apdex calculation is activated in the OAL.
 1. [Group Parameterized Endpoints](endpoint-grouping-rules.md). Configure the grouping rules for parameterized endpoints,
 to improve the meaning of the metrics.
+1. [Spring Sleuth Metrics Analysis](spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
@@ -128,8 +132,8 @@ If you want to override it, please follow Java and OS documents to do so.
 SkyWalking provides browser UI, CLI and GraphQL ways to support extensions. But some users may have the idea to query data 
 directly from the storage. Such as in ElasticSearch case, Kibana is a great tool to do this.
 
-In default, due to reduce memory, network and storage space usages, SkyWalking saves id(s) only in the entity and metadata saved in the
-`*_inventory` entities only. But these tools usually don't support nested query, or don't work conveniently. In this special case,
+In default, due to reduce memory, network and storage space usages, SkyWalking saves based64-encoded id(s) only in the metrics entities. 
+But these tools usually don't support nested query, or don't work conveniently. In this special case,
 SkyWalking provide a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
 
 Take a look at `core/default/activeExtraModelColumns` config in the `application.yaml`, and set it as `true` to open this feature.

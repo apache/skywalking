@@ -27,6 +27,11 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListener;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.MultiScopesAnalysisListener;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
@@ -44,9 +49,6 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.UninstrumentedGatewaysConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +56,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags.LOGIC_ENDPOINT;
+import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +68,7 @@ import static org.mockito.Mockito.when;
  */
 public class MultiScopesAnalysisListenerTest {
     @Mock
-    private static TraceServiceModuleConfig CONFIG;
+    private static AnalyzerModuleConfig CONFIG;
     @Mock
     private static NetworkAddressAliasCache CACHE;
     @Mock

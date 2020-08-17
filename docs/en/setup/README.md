@@ -18,6 +18,8 @@ If you have any issues, please check that your issue is not already described in
 
 - [Python Agent](https://github.com/apache/skywalking-python). Introduce how to install the Python Agent in a Python service.
 
+- [Node.js agent](https://github.com/apache/skywalking-nodejs). Introduce how to install the NodeJS Agent in a NodeJS service.
+
 The following agents and SDKs are compatible with the SkyWalking's data formats and network protocols, but are maintained by 3rd-parties.
 You can go to their project repositories for additional info about guides and releases.
 

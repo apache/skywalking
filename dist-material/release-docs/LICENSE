@@ -225,7 +225,7 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-    raphw (byte-buddy) 1.9.2: http://bytebuddy.net/ , Apache 2.0
+    raphw (byte-buddy) 1.10.14: http://bytebuddy.net/ , Apache 2.0
     Google: gprc-java 1.26.0: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 28.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
@@ -308,6 +308,7 @@ The text of each license is the standard Apache 2.0 license.
     kubernetes-client 8.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
+    nacos 1.3.1: https://github.com/alibaba/nacos, Apache 2.0
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
@@ -335,6 +336,10 @@ The text of each license is the standard Apache 2.0 license.
     jose4j 0.7.0: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
     converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
+    kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
+    lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
+    snappy-java 1.1.7.3: https://github.com/xerial/snappy-java, Apache 2.0
+    slf4j-api 1.7.28: http://www.slf4j.org, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -370,7 +375,7 @@ BSD licenses
 The following components are provided under a BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    asm 5.0.4:https://gitlab.ow2.org , BSD-3-Clause
+    asm 8.0.1:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.5.1: http://www.antlr.org/license.html, BSD-3-Clause
     jline 0.9.94: http://mvnrepository.com/artifact/jline/jline/0.9.94, BSD
     Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
@@ -379,6 +384,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     proto files from gogo: https://github.com/gogo/protobuf  BSD-2
     proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
+    zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
 
 ========================================================================
 MPL 2.0 licenses
@@ -444,6 +450,7 @@ Apache 2.0 licenses
 ========================================
 echarts	4.1.0:	https://github.com/apache/incubator-echarts	Apache-2.0
 Material Icons 3.0.1 https://github.com/google/material-design-icons Apache-2.0
+groovy             3.0.3 https://github.com/apache/groovy Apache-2.0
 
 ========================================
 BSD licenses
