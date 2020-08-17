@@ -195,7 +195,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /impl/restmapping
+    - operationName: '{GET}/impl/restmapping'
       operationId: 0
       parentSpanId: -1
       spanId: 0
