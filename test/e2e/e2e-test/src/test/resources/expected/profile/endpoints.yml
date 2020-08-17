@@ -15,4 +15,4 @@
 
 endpoints:
   - key: ZTJlLXByb2ZpbGUtc2VydmljZQ==.1_L3Byb2ZpbGUve25hbWV9
-    label: {POST}/profile/{name}
+    label: '{POST}/profile/{name}'
