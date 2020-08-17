@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -187,7 +188,7 @@ public class HistogramFunctionTest {
     }
 
     @Test
-    public void testBuilder() throws IllegalAccessException, InstantiationException {
+    public void testBuilder() throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         HistogramFunctionInst inst = new HistogramFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
@@ -200,7 +201,7 @@ public class HistogramFunctionTest {
             })
         );
 
-        final StorageBuilder storageBuilder = inst.builder().();
+        final StorageBuilder storageBuilder = inst.builder().getDeclaredConstructor().newInstance();
 
         // Simulate the storage layer do, convert the datatable to string.
         final Map map = storageBuilder.data2Map(inst);
