@@ -143,7 +143,7 @@ public class KafkaProfileE2E extends SkyWalkingTestAdapter {
         final ProfileTaskCreationRequest creationRequest = ProfileTaskCreationRequest.builder()
                                                                                      .serviceId(
                                                                                          "ZTJlLXByb2ZpbGUtc2VydmljZQ==.1")
-                                                                                     .endpointName("{POST}/profile/{name}")
+                                                                                     .endpointName("/profile/{name}")
                                                                                      .duration(1)
                                                                                      .startTime(-1)
                                                                                      .minDurationThreshold(1500)
