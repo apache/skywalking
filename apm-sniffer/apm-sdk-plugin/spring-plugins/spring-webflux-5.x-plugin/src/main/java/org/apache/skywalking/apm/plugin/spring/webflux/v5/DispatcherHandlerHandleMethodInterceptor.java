@@ -67,7 +67,6 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         HTTP.METHOD.set(span, exchange.getRequest().getMethodValue());
         instance.setSkyWalkingDynamicField(ContextManager.capture());
         span.prepareForAsync();
-        ContextManager.stopSpan(span);
 
         exchange.getAttributes().put("SKYWALING_SPAN", span);
     }
@@ -79,6 +78,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         return ((Mono) ret).doFinally(s -> {
             AbstractSpan span = (AbstractSpan) exchange.getAttributes().get("SKYWALING_SPAN");
             if (span != null) {
+                ContextManager.stopSpan(span);
                 try {
                     Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
                     if (pathPattern != null) {
