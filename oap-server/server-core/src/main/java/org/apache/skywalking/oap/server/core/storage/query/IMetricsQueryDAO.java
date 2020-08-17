@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ import static java.util.stream.Collectors.toList;
  * @since 8.0.0
  */
 public interface IMetricsQueryDAO extends DAO {
-    int readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
+    long readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
 
     MetricsValues readMetricsValues(MetricsCondition condition,
                                     String valueColumnName,
@@ -95,7 +96,7 @@ public interface IMetricsQueryDAO extends DAO {
             final List<String> ids,
             final Map<String, DataTable> idMap) {
             List<String> allLabels;
-            if (Objects.isNull(labels) || labels.size() < 1) {
+            if (Objects.isNull(labels) || labels.size() < 1 || labels.stream().allMatch(Strings::isNullOrEmpty)) {
                 allLabels = idMap.values().stream()
                     .flatMap(dataTable -> dataTable.keys().stream())
                     .distinct().collect(Collectors.toList());

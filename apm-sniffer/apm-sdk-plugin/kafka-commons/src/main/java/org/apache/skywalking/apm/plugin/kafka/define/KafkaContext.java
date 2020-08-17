@@ -19,13 +19,15 @@
 
 package org.apache.skywalking.apm.plugin.kafka.define;
 
-public class SpringKafkaContext {
+public class KafkaContext {
 
-    public SpringKafkaContext() {
-        needStop = false;
+    public KafkaContext(String operationName) {
+        this.operationName = operationName;
     }
 
-    private boolean needStop;
+    private boolean needStop = false;
+
+    private String operationName;
 
     public boolean isNeedStop() {
         return needStop;
@@ -33,5 +35,13 @@ public class SpringKafkaContext {
 
     public void setNeedStop(boolean needStop) {
         this.needStop = needStop;
+    }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
     }
 }

@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.kafka.define;
 
 public class Constants {
 
-    public static final String SPRING_KAFKA_FLAG = "SW_SPRING_KAFKA_FLAG";
+    public static final String KAFKA_FLAG = "SW_KAFKA_FLAG";
 
-    public static final String SPRING_KAFKA_POLL_AND_INVOKE_OPERATION_NAME = "/spring-kafka/pollAndInvoke";
+    public static final String KAFKA_POLL_AND_INVOKE_OPERATION_NAME = "/pollAndInvoke";
 }

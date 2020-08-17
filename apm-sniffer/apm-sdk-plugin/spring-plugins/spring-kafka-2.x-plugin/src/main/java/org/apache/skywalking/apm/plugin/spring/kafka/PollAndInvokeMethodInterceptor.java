@@ -18,40 +18,33 @@
 
 package org.apache.skywalking.apm.plugin.spring.kafka;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.kafka.define.Constants;
-import org.apache.skywalking.apm.plugin.kafka.define.SpringKafkaContext;
+import org.apache.skywalking.apm.plugin.kafka.define.InterceptorMethod;
 
 import java.lang.reflect.Method;
 
 public class PollAndInvokeMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
+    private static final String OPERATION_NAME = "/spring-kafka" + Constants.KAFKA_POLL_AND_INVOKE_OPERATION_NAME;
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ContextManager.getRuntimeContext().put(Constants.SPRING_KAFKA_FLAG, new SpringKafkaContext());
+        InterceptorMethod.beforeMethod(OPERATION_NAME);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        SpringKafkaContext context = (SpringKafkaContext) ContextManager.getRuntimeContext().get(Constants.SPRING_KAFKA_FLAG);
-        if (context == null) {
-            return ret;
-        }
-        if (context.isNeedStop()) {
-            ContextManager.stopSpan();
-        } else {
-            ContextManager.getRuntimeContext().remove(Constants.SPRING_KAFKA_FLAG);
-        }
-        return ret;
+        return InterceptorMethod.afterMethod(ret);
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
+        InterceptorMethod.handleMethodException(t);
     }
 }
