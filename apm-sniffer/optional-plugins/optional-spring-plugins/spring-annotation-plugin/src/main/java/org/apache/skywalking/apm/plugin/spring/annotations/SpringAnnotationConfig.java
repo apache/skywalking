@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.annotations.repository;
+package org.apache.skywalking.apm.plugin.spring.annotations;
 
-import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class SpringRepositoryInstrumentation extends AbstractSpringBeanInstrumentation {
+public class SpringAnnotationConfig {
 
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Repository";
-
-    @Override
-    protected String getEnhanceAnnotation() {
-        return ENHANCE_ANNOTATION;
+    public static class Plugin {
+        @PluginConfig(root = SpringAnnotationConfig.class)
+        public static class SpringAnnotation {
+            /**
+             * regex expression to match spring bean classname
+             */
+            public static String CLASSNAME_MATCH_REGEX_EXPRESSION = "";
+        }
     }
 }
