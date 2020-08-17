@@ -16,16 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.annotations.repository;
+package org.apache.skywalking.apm.agent.core.plugin.match;
 
-import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-public class SpringRepositoryInstrumentation extends AbstractSpringBeanInstrumentation {
-
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Repository";
-
-    @Override
-    protected String getEnhanceAnnotation() {
-        return ENHANCE_ANNOTATION;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+public @interface MatchTestAnnotation {
 }
