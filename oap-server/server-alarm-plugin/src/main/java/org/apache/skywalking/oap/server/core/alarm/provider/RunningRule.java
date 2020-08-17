@@ -161,6 +161,10 @@ public class RunningRule {
         }
     }
 
+    /**
+     * Validate target whether matching rules which is included list, excludes list, include regular expression
+     * or exclude regular expression.
+     */
     private boolean validate(String target, List<String> includeList, List<String> excludeList,
         Pattern includeRegex, Pattern excludeRegex) {
         if (CollectionUtils.isNotEmpty(includeList)) {

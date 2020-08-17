@@ -28,8 +28,10 @@ Alarm rule is constituted by following keys
 - **Exclude labels**. The following labels of the metric are excluded in this rule.
 - **Include labels regex**. Provide a regex to include labels. If both setting the include label list and include label regex, both rules will take effect.
 - **Exclude labels regex**. Provide a regex to exclude labels. If both setting the exclude label list and exclude label regex, both rules will take effect.
+
 *The settings of labels is required by meter-system which intends to store metrics from label-system platform, just like Prometheus, Micrometer, etc.
 The function supports the above four settings should implement `LabeledValueHolder`.*
+
 - **Threshold**. The target value. 
 For multiple values metrics, such as **percentile**, the threshold is an array. Described like  `value1, value2, value3, value4, value5`.
 Each value could the threshold for each value of the metrics. Set the value to `-` if don't want to trigger alarm by this or some of the values.  
