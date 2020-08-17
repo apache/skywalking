@@ -55,6 +55,7 @@ jobs:
           - { name: 'hbase-scenario', title: 'hbase-scenario (5)' }
           - { name: 'spring-kafka-2.2.x-scenario', title: 'Spring-Kafka 2.2.x (7)' }
           - { name: 'spring-kafka-2.3.x-scenario', title: 'Spring-Kafka 2.3.x (7)' }
+          - { name: 'spring-scheduled-scenario', title: 'Spring Scheduled 3.1.x-5.2.x (119)' }
     steps:
       - uses: actions/checkout@v2
         with:
