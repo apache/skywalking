@@ -32,6 +32,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -80,6 +81,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActiveShardCount;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -325,15 +327,24 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public boolean deleteTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
-
-        Response response = client.getLowLevelClient()
-                                  .performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
+        Response response = client.getLowLevelClient().performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
+    }
+
+    public SearchResponse search(IndexNameMaker indexNameMaker, SearchSourceBuilder searchSourceBuilder) throws IOException {
+        String[] indexNames = Arrays.stream(indexNameMaker.make()).map(this::formatIndexName).toArray(String[]::new);
+        return doSearch(searchSourceBuilder, indexNames);
     }
 
     public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
         indexName = formatIndexName(indexName);
-        SearchRequest searchRequest = new SearchRequest(indexName);
+        return doSearch(searchSourceBuilder, indexName);
+    }
+
+    protected SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
+                                    String... indexNames) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(indexNames);
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
         searchRequest.types(TYPE);
         searchRequest.source(searchSourceBuilder);
         try {
@@ -501,7 +512,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return indexName;
     }
 
-    @Override public void registerChecker(HealthChecker healthChecker) {
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
         this.healthChecker.register(healthChecker);
     }
 }

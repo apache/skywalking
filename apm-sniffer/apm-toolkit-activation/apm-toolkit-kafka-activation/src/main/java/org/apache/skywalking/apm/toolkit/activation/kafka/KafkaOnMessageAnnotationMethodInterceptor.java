@@ -16,33 +16,35 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka;
+package org.apache.skywalking.apm.toolkit.activation.kafka;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.kafka.define.Constants;
+import org.apache.skywalking.apm.plugin.kafka.define.InterceptorMethod;
 
 import java.lang.reflect.Method;
 
-/**
- * transformation kafkaTemplate.buildCallback
- */
-public class KafkaTemplateCallbackInterceptor implements InstanceMethodsAroundInterceptor {
+public class KafkaOnMessageAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final String OPERATION_NAME = "/kafka-toolkit" + Constants.KAFKA_POLL_AND_INVOKE_OPERATION_NAME;
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-
+                             MethodInterceptResult result) throws Throwable {
+        InterceptorMethod.beforeMethod(OPERATION_NAME);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        return new CallbackAdapter((org.apache.kafka.clients.producer.Callback) ret, objInst);
+                              Object ret) throws Throwable {
+        return InterceptorMethod.afterMethod(ret);
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        InterceptorMethod.handleMethodException(t);
     }
 }

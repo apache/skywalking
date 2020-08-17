@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
@@ -116,6 +117,14 @@ public class CoreModuleConfig extends ModuleConfig {
      * In the current practice, we don't recommend the length over 190.
      */
     private int endpointNameMaxLength = 150;
+    /**
+     * Define the set of span tag keys, which should be searchable through the GraphQL.
+     *
+     * @since 8.2.0
+     */
+    @Setter
+    @Getter
+    private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
@@ -142,4 +151,19 @@ public class CoreModuleConfig extends ModuleConfig {
          */
         Aggregator
     }
+
+    /**
+     * SkyWalking Java Agent provides the recommended tag keys for other language agents or SDKs. This field declare the
+     * recommended keys should be searchable.
+     */
+    private static final String DEFAULT_SEARCHABLE_TAG_KEYS = String.join(
+        Const.COMMA,
+        "http.method",
+        "status_code",
+        "db.type",
+        "db.instance",
+        "mq.queue",
+        "mq.topic",
+        "mq.broker"
+    );
 }

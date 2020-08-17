@@ -34,6 +34,7 @@
         <log4j.version>2.6.2</log4j.version>
         <spring.version>4.3.8.RELEASE</spring.version>
         <spring-boot-version>1.5.2.RELEASE</spring-boot-version>
+        <okhttp-version>3.0.0</okhttp-version>
     </properties>
 
     <name>skywalking-kafka-scenario</name>
@@ -79,6 +80,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp-version}</version>
         </dependency>
     </dependencies>
 
