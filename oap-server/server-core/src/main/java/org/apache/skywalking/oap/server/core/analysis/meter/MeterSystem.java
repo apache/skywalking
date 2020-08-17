@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -219,7 +220,7 @@ public class MeterSystem implements Service {
         Class targetClass;
         try {
             targetClass = metricsClass.toClass(MeterSystem.class.getClassLoader(), null);
-            AcceptableValue prototype = (AcceptableValue) targetClass.newInstance();
+            AcceptableValue prototype = (AcceptableValue) targetClass.getDeclaredConstructor().newInstance();
             meterPrototypes.put(metricsName, new MeterDefinition(type, prototype, dataType));
 
             log.debug("Generate metrics class, " + metricsClass.getName());
@@ -230,7 +231,7 @@ public class MeterSystem implements Service {
                     metricsName, type.getScopeId(), prototype.builder(), MetricsStreamProcessor.class),
                 targetClass
             );
-        } catch (CannotCompileException | IllegalAccessException | InstantiationException | StorageException e) {
+        } catch (CannotCompileException | IllegalAccessException | InstantiationException | StorageException | NoSuchMethodException | InvocationTargetException e) {
             log.error("Can't compile/load/init " + className + ".", e);
             throw new UnexpectedException(e.getMessage(), e);
         }

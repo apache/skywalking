@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
@@ -58,7 +59,12 @@ public class ConsumeDriver<T> implements IDriver {
 
     private IConsumer<T> getNewConsumerInstance(Class<? extends IConsumer<T>> consumerClass) {
         try {
-            IConsumer<T> inst = consumerClass.newInstance();
+            IConsumer<T> inst = null;
+            try {
+                inst = consumerClass.getDeclaredConstructor().newInstance();
+            } catch (InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
             inst.init();
             return inst;
         } catch (InstantiationException e) {

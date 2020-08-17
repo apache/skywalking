@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,8 +73,8 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRecordDAO recordDAO;
         try {
-            recordDAO = storageDAO.newRecordDao(stream.builder().newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
+            recordDAO = storageDAO.newRecordDao(stream.builder().getDeclaredConstructor().newInstance());
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new UnexpectedException("Create " + stream.builder()
                                                             .getSimpleName() + " top n record DAO failure.", e);
         }

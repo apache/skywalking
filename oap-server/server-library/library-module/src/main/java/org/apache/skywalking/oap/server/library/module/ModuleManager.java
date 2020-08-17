@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -47,8 +48,8 @@ public class ModuleManager implements ModuleDefineHolder {
                 if (moduleName.equals(module.name())) {
                     ModuleDefine newInstance;
                     try {
-                        newInstance = module.getClass().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
+                        newInstance = module.getClass().getDeclaredConstructor().newInstance();
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                         throw new ModuleNotFoundException(e);
                     }
                     newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName), moduleProviderLoader);

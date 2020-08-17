@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
@@ -41,7 +43,7 @@ public class SourceReceiverImpl implements SourceReceiver {
         return getDispatcherManager();
     }
 
-    public void scan() throws IOException, InstantiationException, IllegalAccessException {
+    public void scan() throws IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         dispatcherManager.scan();
     }
 }

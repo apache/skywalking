@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.plugin.loader;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +49,7 @@ public class InterceptorInstanceLoader {
      * @return the type reference.
      */
     public static <T> T load(String className,
-        ClassLoader targetClassLoader) throws IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException {
+        ClassLoader targetClassLoader) throws IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException, NoSuchMethodException, InvocationTargetException {
         if (targetClassLoader == null) {
             targetClassLoader = InterceptorInstanceLoader.class.getClassLoader();
         }
@@ -68,7 +69,7 @@ public class InterceptorInstanceLoader {
             } finally {
                 INSTANCE_LOAD_LOCK.unlock();
             }
-            inst = Class.forName(className, true, pluginLoader).newInstance();
+            inst = Class.forName(className, true, pluginLoader).getDeclaredConstructor().newInstance();
             if (inst != null) {
                 INSTANCE_CACHE.put(instanceKey, inst);
             }

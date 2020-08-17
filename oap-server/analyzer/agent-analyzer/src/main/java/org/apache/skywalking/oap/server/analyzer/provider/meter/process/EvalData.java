@@ -63,7 +63,7 @@ public abstract class EvalData<FROM extends EvalData> implements MeterEvalOperat
     protected <T extends EvalData> T copyTo(Class<T> cls, Consumer<T> custom) {
         final T instance;
         try {
-            instance = cls.newInstance();
+            instance = cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new IllegalStateException("Copy data failed", e);
         }

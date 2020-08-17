@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -67,8 +68,8 @@ public class ManagementStreamProcessor implements StreamProcessor<ManagementData
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IManagementDAO managementDAO;
         try {
-            managementDAO = storageDAO.newManagementDao(stream.builder().newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
+            managementDAO = storageDAO.newManagementDao(stream.builder().getDeclaredConstructor().newInstance());
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new UnexpectedException("Create " + stream.builder()
                     .getSimpleName() + " none stream record DAO failure.", e);
         }

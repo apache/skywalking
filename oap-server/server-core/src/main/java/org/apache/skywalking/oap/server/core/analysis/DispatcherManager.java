@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class DispatcherManager implements DispatcherDetectorListener {
      * If it implement {@link org.apache.skywalking.oap.server.core.analysis.SourceDispatcher}, then, it will be added
      * into this DispatcherManager based on the Source definition.
      */
-    public void scan() throws IOException, IllegalAccessException, InstantiationException {
+    public void scan() throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         ClassPath classpath = ClassPath.from(this.getClass().getClassLoader());
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {
@@ -79,7 +80,7 @@ public class DispatcherManager implements DispatcherDetectorListener {
     }
 
     @Override
-    public void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException {
+    public void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         if (!aClass.isInterface() && SourceDispatcher.class.isAssignableFrom(aClass)) {
             Type[] genericInterfaces = aClass.getGenericInterfaces();
             for (Type genericInterface : genericInterfaces) {
@@ -92,7 +93,7 @@ public class DispatcherManager implements DispatcherDetectorListener {
                     }
                     Type argument = arguments[0];
 
-                    Object source = ((Class) argument).newInstance();
+                    Object source = ((Class) argument).getDeclaredConstructor().newInstance();
 
                     if (!Source.class.isAssignableFrom(source.getClass())) {
                         throw new UnexpectedException(
@@ -100,7 +101,7 @@ public class DispatcherManager implements DispatcherDetectorListener {
                     }
 
                     Source dispatcherSource = (Source) source;
-                    SourceDispatcher dispatcher = (SourceDispatcher) aClass.newInstance();
+                    SourceDispatcher dispatcher = (SourceDispatcher) aClass.getDeclaredConstructor().newInstance();
 
                     int scopeId = dispatcherSource.scope();
 

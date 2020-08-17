@@ -152,7 +152,7 @@ public class Parser {
                 patternConverters.add(new LiteralConverter(result));
             } else {
                 try {
-                    patternConverters.add(aClass.newInstance());
+                    patternConverters.add(aClass.getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     throw new IllegalStateException("Create Converter error. Class: " + aClass, e);
                 }

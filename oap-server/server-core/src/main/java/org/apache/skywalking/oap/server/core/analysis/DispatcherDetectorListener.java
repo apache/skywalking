@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import java.lang.reflect.InvocationTargetException;
+
 public interface DispatcherDetectorListener {
-    void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException;
+    void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException;
 }

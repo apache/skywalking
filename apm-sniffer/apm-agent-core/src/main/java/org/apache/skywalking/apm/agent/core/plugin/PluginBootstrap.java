@@ -64,7 +64,7 @@ public class PluginBootstrap {
             try {
                 logger.debug("loading plugin class {}.", pluginDefine.getDefineClass());
                 AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(pluginDefine.getDefineClass(), true, AgentClassLoader
-                    .getDefault()).newInstance();
+                    .getDefault()).getDeclaredConstructor().newInstance();
                 plugins.add(plugin);
             } catch (Throwable t) {
                 logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());

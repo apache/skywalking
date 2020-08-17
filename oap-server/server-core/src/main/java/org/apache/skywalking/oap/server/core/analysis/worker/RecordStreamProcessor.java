@@ -62,7 +62,7 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRecordDAO recordDAO;
         try {
-            recordDAO = storageDAO.newRecordDao(stream.builder().newInstance());
+            recordDAO = storageDAO.newRecordDao(stream.builder().());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " record DAO failure.", e);
         }

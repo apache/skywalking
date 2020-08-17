@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
@@ -290,7 +291,7 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             receiver.scan();
             annotationScan.scan();
-        } catch (IOException | IllegalAccessException | InstantiationException | StorageException e) {
+        } catch (IOException | IllegalAccessException | InstantiationException | StorageException | NoSuchMethodException | InvocationTargetException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 

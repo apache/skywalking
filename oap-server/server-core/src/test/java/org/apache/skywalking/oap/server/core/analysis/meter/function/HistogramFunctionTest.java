@@ -200,7 +200,7 @@ public class HistogramFunctionTest {
             })
         );
 
-        final StorageBuilder storageBuilder = inst.builder().newInstance();
+        final StorageBuilder storageBuilder = inst.builder().();
 
         // Simulate the storage layer do, convert the datatable to string.
         final Map map = storageBuilder.data2Map(inst);

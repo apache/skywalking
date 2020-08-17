@@ -65,7 +65,7 @@ public class BootstrapInterRuntimeAssist {
     public static <T> T createInterceptor(ClassLoader defaultAgentClassLoader, String className, IBootstrapLog log) {
         try {
             Class<?> interceptor = Class.forName(className, true, defaultAgentClassLoader);
-            return (T) interceptor.newInstance();
+            return (T) interceptor.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             log.error(e, "Interceptor[{}] not found", className);
         }
