@@ -53,7 +53,10 @@ public class RegexMatch implements IndirectMatch {
     public boolean isMatch(TypeDescription typeDescription) {
         boolean isMatch = false;
         for (String matchExpression : regexExpressions) {
-            isMatch = isMatch || typeDescription.getTypeName().matches(matchExpression);
+            isMatch = typeDescription.getTypeName().matches(matchExpression);
+            if (isMatch) {
+                break;
+            }
         }
         return isMatch;
     }
