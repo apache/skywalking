@@ -41,9 +41,9 @@ public class RegexMatch implements IndirectMatch {
         ElementMatcher.Junction regexJunction = null;
         for (String regexExpression : regexExpressions) {
             if (regexJunction == null) {
-                regexJunction = buildEachMatchExpression(regexExpression);
+                regexJunction = nameMatches(regexExpression);
             } else {
-                regexJunction = regexJunction.or(buildEachMatchExpression(regexExpression));
+                regexJunction = regexJunction.or(nameMatches(regexExpression));
             }
         }
         return regexJunction;
@@ -56,10 +56,6 @@ public class RegexMatch implements IndirectMatch {
             isMatch = isMatch || typeDescription.getTypeName().matches(matchExpression);
         }
         return isMatch;
-    }
-
-    private ElementMatcher.Junction buildEachMatchExpression(String matchExpression) {
-        return nameMatches(matchExpression);
     }
 
     public static RegexMatch byRegexMatch(String... regexExpressions) {
