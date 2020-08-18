@@ -19,9 +19,14 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.collect.Maps;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -113,6 +118,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     collectHttpParam(request, span);
                 }
 
+                if (SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS) {
+                    collectHttpHeaders(request, span);
+                }
+
                 stackDepth = new StackDepth();
                 ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, stackDepth);
             } else {
@@ -187,6 +196,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 collectHttpParam(request, span);
             }
 
+            if (!SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS && span.isProfiling()) {
+                collectHttpHeaders(request, span);
+            }
+
             ContextManager.stopSpan();
         }
 
@@ -206,6 +219,26 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             tagValue = SpringMVCPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
                 StringUtil.cut(tagValue, SpringMVCPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
             Tags.HTTP.PARAMS.set(span, tagValue);
+        }
+    }
+
+    private void collectHttpHeaders(HttpServletRequest request, AbstractSpan span) {
+        final Enumeration<String> headerNames =  request.getHeaderNames();
+        final Map<String, String[]> headersMap = Maps.newHashMap();
+        Collections.list(headerNames).stream().forEach(headerName -> {
+            Enumeration<String> headerValues = request.getHeaders(headerName);
+            String[] values = Collections.list(headerValues).toArray(new String []{});
+            List<String> excludeHeaders = SpringMVCPluginConfig.Plugin.Http.EXCLUDE_HTTP_HEADERS;
+            if (excludeHeaders == null || !excludeHeaders.contains(headerName.toLowerCase())) {
+                headersMap.put(headerName, values);
+            }
+        });
+
+        if (!headersMap.isEmpty()) {
+            String tagValue = CollectionUtil.toString(headersMap);
+            tagValue = SpringMVCPluginConfig.Plugin.Http.HTTP_HEADERS_LENGTH_THRESHOLD > 0 ?
+                    StringUtil.cut(tagValue, SpringMVCPluginConfig.Plugin.Http.HTTP_HEADERS_LENGTH_THRESHOLD) : tagValue;
+            Tags.HTTP.HEADERS.set(span, tagValue);
         }
     }
 }

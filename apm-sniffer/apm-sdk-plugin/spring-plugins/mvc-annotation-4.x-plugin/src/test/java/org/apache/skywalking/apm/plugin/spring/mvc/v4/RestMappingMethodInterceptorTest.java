@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.v4;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -40,6 +42,7 @@ import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor;
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
@@ -298,6 +301,37 @@ public class RestMappingMethodInterceptorTest {
         List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
         assertThat(logDataEntities.size(), is(1));
         SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);
+    }
+
+    @Test
+    public void testGetWithRequestHeaderCollected() throws Throwable {
+        SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS = true;
+
+        SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
+            @Override
+            public void handleCase() throws Throwable {
+                controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
+                RestMappingClass1 mappingClass1 = new RestMappingClass1();
+                Method m = mappingClass1.getClass().getMethod("getRequestURL");
+                when(request.getRequestURI()).thenReturn("/test/testRequestURL");
+                when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/getRequestURL"));
+                when(request.getHeaderNames()).thenReturn(new Vector(Arrays.asList("Connection", "Cookie")).elements());
+                when(request.getHeaders("Connection")).thenReturn(new Vector(Arrays.asList("keep-alive")).elements());
+                when(request.getHeaders("Cookie")).thenReturn(new Vector(Arrays.asList("dummy cookies")).elements());
+                ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(request, response);
+                RequestContextHolder.setRequestAttributes(servletRequestAttributes);
+
+                interceptor.beforeMethod(enhancedInstance, m, arguments, argumentType, methodInterceptResult);
+                interceptor.afterMethod(enhancedInstance, m, arguments, argumentType, null);
+            }
+        });
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+
+        assertHttpSpan(spans.get(0), "/getRequestURL");
+        SpanAssert.assertTag(spans.get(0), 2, "Connection=[keep-alive]");
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
