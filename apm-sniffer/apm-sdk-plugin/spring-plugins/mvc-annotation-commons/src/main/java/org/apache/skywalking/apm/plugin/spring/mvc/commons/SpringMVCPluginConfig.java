@@ -37,12 +37,6 @@ public class SpringMVCPluginConfig {
              * request.
              */
             public static boolean COLLECT_HTTP_PARAMS = false;
-
-            /**
-             * This config item controls that whether the SpringMVC plugin should collect the headers of the
-             * request.
-             */
-            public static boolean COLLECT_HTTP_HEADERS = false;
         }
 
         @PluginConfig(root = SpringMVCPluginConfig.class)
@@ -50,20 +44,19 @@ public class SpringMVCPluginConfig {
             /**
              * When either {@link Plugin.SpringMVC#COLLECT_HTTP_PARAMS} is enabled, how many characters to keep and send
              * to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is
-             * add for the sake of performance
+             * added for the sake of performance
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
 
             /**
-             * When either {@link Plugin.SpringMVC#COLLECT_HTTP_HEADERS} is enabled, how many characters to keep and send
+             * When either {@link Plugin.Http#INCLUDE_HTTP_HEADERS} is enabled, how many characters to keep and send
              * to the OAP backend, use negative values to keep and send the complete headers, NB. this config item is
-             * add for the sake of performance
+             * added for the sake of performance
              */
             public static int HTTP_HEADERS_LENGTH_THRESHOLD = 2048;
 
             /**
-             * When either {@link Plugin.SpringMVC#COLLECT_HTTP_HEADERS} is enabled, control what header data should be
-             * collect, this is for security purpose, values must be lowed case
+             * It controls what header data should be collected, this is for security purpose, values must be in lower case
              */
             public static List<String> INCLUDE_HTTP_HEADERS ;
         }

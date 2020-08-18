@@ -118,7 +118,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     collectHttpParam(request, span);
                 }
 
-                if (SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS) {
+                if (shouldCollectHeader()) {
                     collectHttpHeaders(request, span);
                 }
 
@@ -196,7 +196,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 collectHttpParam(request, span);
             }
 
-            if (!SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS && span.isProfiling()) {
+            if (!shouldCollectHeader() && span.isProfiling()) {
                 collectHttpHeaders(request, span);
             }
 
@@ -222,6 +222,11 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         }
     }
 
+    private boolean shouldCollectHeader() {
+        List<String> includeHeaders = SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS;
+        return includeHeaders != null && includeHeaders.size() > 0 ;
+    }
+
     private void collectHttpHeaders(HttpServletRequest request, AbstractSpan span) {
         final Enumeration<String> headerNames =  request.getHeaderNames();
         if (headerNames == null) {
@@ -231,8 +236,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Collections.list(headerNames).stream().forEach(headerName -> {
             Enumeration<String> headerValues = request.getHeaders(headerName);
             String[] values = Collections.list(headerValues).toArray(new String []{});
-            List<String> includeHeaders = SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS;
-            if (includeHeaders != null && includeHeaders.contains(headerName.toLowerCase())) {
+            if (SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.contains(headerName.toLowerCase())) {
                 headersMap.put(headerName, values);
             }
         });

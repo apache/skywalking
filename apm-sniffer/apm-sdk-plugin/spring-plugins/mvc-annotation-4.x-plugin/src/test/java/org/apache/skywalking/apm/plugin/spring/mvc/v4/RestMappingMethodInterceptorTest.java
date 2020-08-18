@@ -117,13 +117,11 @@ public class RestMappingMethodInterceptorTest {
             response.getClass()
         };
 
-        SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS = true;
         SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS = Arrays.asList("connection");
     }
 
     @After
     public void cleanup() {
-        SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS = false;
         SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS = null;
     }
 
