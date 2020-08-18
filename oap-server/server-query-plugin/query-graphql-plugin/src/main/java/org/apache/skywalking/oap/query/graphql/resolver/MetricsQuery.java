@@ -102,7 +102,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
     /**
      * Read metrics single value in the duration of required metrics
      */
-    public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
+    public long readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             return 0;
         }
