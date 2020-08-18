@@ -16,29 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.apm.plugin.spring.annotations;
 
-import io.vavr.collection.Stream;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class IntValues {
-    private List<KVInt> values = new ArrayList<>();
+public class SpringAnnotationConfig {
 
-    public void addKVInt(KVInt e) {
-        values.add(e);
-    }
-
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
-            }
+    public static class Plugin {
+        @PluginConfig(root = SpringAnnotationConfig.class)
+        public static class SpringAnnotation {
+            /**
+             * regex expression to match spring bean classname
+             */
+            public static String CLASSNAME_MATCH_REGEX_EXPRESSION = "";
         }
-        return defaultValue;
-    }
-
-    public long latestValue(int defaultValue) {
-        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
     }
 }

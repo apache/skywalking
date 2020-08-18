@@ -16,29 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import io.vavr.collection.Stream;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameMaker;
 
-public class IntValues {
-    private List<KVInt> values = new ArrayList<>();
+/**
+ * the time range index maker works for super size dataset
+ */
+public class TimeRangeIndexNameMaker implements IndexNameMaker {
 
-    public void addKVInt(KVInt e) {
-        values.add(e);
+    private final long startSecondTB;
+    private final long endSecondTB;
+    private final String indexName;
+
+    public TimeRangeIndexNameMaker(final String indexName, final long startSecondTB, final long endSecondTB) {
+        this.startSecondTB = startSecondTB;
+        this.endSecondTB = endSecondTB;
+        this.indexName = indexName;
     }
 
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
-            }
-        }
-        return defaultValue;
-    }
-
-    public long latestValue(int defaultValue) {
-        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
+    @Override
+    public String[] make() {
+        return TimeSeriesUtils.superDatasetIndexNames(indexName, startSecondTB, endSecondTB);
     }
 }
