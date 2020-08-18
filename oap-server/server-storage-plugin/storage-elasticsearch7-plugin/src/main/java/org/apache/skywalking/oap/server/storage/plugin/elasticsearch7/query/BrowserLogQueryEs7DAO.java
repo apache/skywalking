@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErro
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
-import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.BrowserLogQueryEsDAO;
@@ -47,7 +46,7 @@ public class BrowserLogQueryEs7DAO extends BrowserLogQueryEsDAO {
                                                   final String serviceVersionId,
                                                   final String pagePathId,
                                                   final String pagePath,
-                                                  final ErrorCategory category,
+                                                  final BrowserErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
                                                   final int limit,
@@ -77,10 +76,8 @@ public class BrowserLogQueryEs7DAO extends BrowserLogQueryEsDAO {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
         }
         if (nonNull(category)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(
-                BrowserErrorLogRecord.ERROR_CATEGORY,
-                BrowserErrorCategory.valueOf(category.name()).getValue()
-            ));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
         }
         sourceBuilder.size(limit);
         sourceBuilder.from(from);

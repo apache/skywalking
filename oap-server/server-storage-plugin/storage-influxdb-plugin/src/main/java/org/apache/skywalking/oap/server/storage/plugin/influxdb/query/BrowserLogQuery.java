@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErro
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
-import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
@@ -53,7 +52,7 @@ public class BrowserLogQuery implements IBrowserLogQueryDAO {
                                                   final String serviceVersionId,
                                                   final String pagePathId,
                                                   final String pagePath,
-                                                  final ErrorCategory category,
+                                                  final BrowserErrorCategory category,
                                                   final long startSecondTB,
                                                   final long endSecondTB,
                                                   final int limit,
@@ -80,10 +79,7 @@ public class BrowserLogQuery implements IBrowserLogQueryDAO {
             recallQuery.and(eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
         }
         if (nonNull(category)) {
-            recallQuery.and(eq(
-                BrowserErrorLogRecord.ERROR_CATEGORY,
-                BrowserErrorCategory.valueOf(category.name()).getValue()
-            ));
+            recallQuery.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
         }
         if (StringUtil.isNotEmpty(pagePath)) {
             recallQuery.and(contains(BrowserErrorLogRecord.PAGE_PATH, pagePath.replaceAll("/", "\\\\/")));

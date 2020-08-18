@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErro
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
-import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -46,7 +45,7 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
                                                   String serviceVersionId,
                                                   String pagePathId,
                                                   String pagePath,
-                                                  ErrorCategory category,
+                                                  BrowserErrorCategory category,
                                                   long startSecondTB,
                                                   long endSecondTB,
                                                   int limit,
@@ -79,7 +78,7 @@ public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
         }
         if (nonNull(category)) {
             sql.append(" and ").append(BrowserErrorLogRecord.ERROR_CATEGORY).append(" = ?");
-            parameters.add(BrowserErrorCategory.valueOf(category.name()).getValue());
+            parameters.add(category.getValue());
         }
         if (!Strings.isNullOrEmpty(pagePath)) {
             sql.append(" and ").append(BrowserErrorLogRecord.PAGE_PATH).append(" like concat('%',?,'%')");

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
@@ -52,9 +53,11 @@ public class BrowserLogQueryService implements Service {
                                                   final long endSecondTB,
                                                   final Pagination paging) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
+        BrowserErrorCategory errorCategory = BrowserErrorCategory.valueOf(category.name());
 
         return getBrowserLogQueryDAO().queryBrowserErrorLogs(
-            serviceId, serviceVersionId, pagePathId, pagePath, category, startSecondTB, endSecondTB, page.getLimit(),
+            serviceId, serviceVersionId, pagePathId, pagePath, errorCategory, startSecondTB, endSecondTB,
+            page.getLimit(),
             page.getFrom()
         );
     }
