@@ -236,7 +236,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Collections.list(headerNames).stream().forEach(headerName -> {
             Enumeration<String> headerValues = request.getHeaders(headerName);
             String[] values = Collections.list(headerValues).toArray(new String []{});
-            if (SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.contains(headerName.toLowerCase())) {
+            if (shouldCollectHeader() && SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.contains(headerName.toLowerCase())) {
                 headersMap.put(headerName, values);
             }
         });
