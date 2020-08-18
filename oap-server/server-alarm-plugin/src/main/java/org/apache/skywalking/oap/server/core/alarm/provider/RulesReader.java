@@ -65,6 +65,10 @@ public class RulesReader {
                         alarmRule.setExcludeNames((ArrayList) settings.getOrDefault("exclude-names", new ArrayList(0)));
                         alarmRule.setIncludeNamesRegex((String) settings.getOrDefault("include-names-regex", ""));
                         alarmRule.setExcludeNamesRegex((String) settings.getOrDefault("exclude-names-regex", ""));
+                        alarmRule.setIncludeLabels((ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
+                        alarmRule.setExcludeLabels((ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
+                        alarmRule.setIncludeLabelsRegex((String) settings.getOrDefault("include-labels-regex", ""));
+                        alarmRule.setExcludeLabelsRegex((String) settings.getOrDefault("exclude-labels-regex", ""));
                         alarmRule.setThreshold(settings.get("threshold").toString());
                         alarmRule.setOp((String) settings.get("op"));
                         alarmRule.setPeriod((Integer) settings.getOrDefault("period", 1));

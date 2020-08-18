@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
@@ -39,7 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avg")
 @ToString
-public abstract class AvgFunction extends Metrics implements AcceptableValue<Long> {
+public abstract class AvgFunction extends Metrics implements AcceptableValue<Long>, LongValueHolder {
     protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
     protected static final String VALUE = "value";
