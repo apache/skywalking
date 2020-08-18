@@ -45,6 +45,7 @@ import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor;
 import org.hamcrest.MatcherAssert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -116,6 +117,14 @@ public class RestMappingMethodInterceptorTest {
             response.getClass()
         };
 
+        SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS = true;
+        SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS = Arrays.asList("connection");
+    }
+
+    @After
+    public void cleanup() {
+        SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS = false;
+        SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS = null;
     }
 
     @Test
@@ -305,8 +314,6 @@ public class RestMappingMethodInterceptorTest {
 
     @Test
     public void testGetWithRequestHeaderCollected() throws Throwable {
-        SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_HEADERS = true;
-
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
             @Override
             public void handleCase() throws Throwable {

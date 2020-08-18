@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class SpringMVCPluginConfig {
@@ -63,10 +62,10 @@ public class SpringMVCPluginConfig {
             public static int HTTP_HEADERS_LENGTH_THRESHOLD = 2048;
 
             /**
-             * When either {@link Plugin.SpringMVC#COLLECT_HTTP_HEADERS} is enabled, control what header data should not
+             * When either {@link Plugin.SpringMVC#COLLECT_HTTP_HEADERS} is enabled, control what header data should be
              * collect, this is for security purpose, values must be lowed case
              */
-            public static List<String> EXCLUDE_HTTP_HEADERS = Arrays.asList("cookie");
+            public static List<String> INCLUDE_HTTP_HEADERS ;
         }
     }
 }
