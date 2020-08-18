@@ -43,7 +43,7 @@ segmentItems:
       endTime: not null
       componentId: 24
       isError: false
-      spanType: Entry
+      spanType: Local
       peer: ''
       skipAnalysis: false
       tags:
