@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.spring.scheduled;
 
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
@@ -32,13 +32,15 @@ import java.lang.reflect.Method;
 public class ScheduledMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final String DEFAULT_OPERATION_NAME = "SpringScheduled";
+    private static final String DEFAULT_LOGIC_ENDPOINT_CONTENT = "{\"logic-span\":true}";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         String targetMethodName = (String) objInst.getSkyWalkingDynamicField();
         String operationName = targetMethodName != null ? targetMethodName : DEFAULT_OPERATION_NAME;
 
-        AbstractSpan span = ContextManager.createEntrySpan(operationName, new ContextCarrier());
+        AbstractSpan span = ContextManager.createLocalSpan(operationName);
+        Tags.LOGIC_ENDPOINT.set(span, DEFAULT_LOGIC_ENDPOINT_CONTENT);
         span.setComponent(ComponentsDefine.SPRING_SCHEDULED);
     }
 

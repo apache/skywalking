@@ -14,35 +14,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-  - serviceName: spring-scheduled-scenario
-    segmentSize: ge 2
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: /spring-scheduled-scenario/case/call
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            skipAnalysis: false
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/spring-scheduled-scenario/case/call'}
-          - operationName: org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Unknown
-            startTime: not null
-            endTime: not null
-            componentId: 96
-            isError: false
-            spanType: Entry
-            peer: ''
-            skipAnalysis: false
+- serviceName: spring-scheduled-scenario
+  segmentSize: ge 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /spring-scheduled-scenario/case/call
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/spring-scheduled-scenario/case/call'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+  - segmentId: not null
+    spans:
+    - operationName: /spring-scheduled-scenario/case/call
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 12
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      skipAnalysis: false
+      tags:
+      - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:8080/spring-scheduled-scenario/case/call'}
+    - operationName: org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 96
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
