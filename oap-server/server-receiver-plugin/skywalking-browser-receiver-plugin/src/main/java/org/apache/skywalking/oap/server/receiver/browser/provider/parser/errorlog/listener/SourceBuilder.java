@@ -57,10 +57,6 @@ class SourceBuilder {
 
     @Setter
     @Getter
-    private long time;
-
-    @Setter
-    @Getter
     private long timeBucket;
 
     @Setter

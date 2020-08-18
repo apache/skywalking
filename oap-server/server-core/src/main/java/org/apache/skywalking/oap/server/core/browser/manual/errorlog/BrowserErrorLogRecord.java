@@ -41,7 +41,7 @@ public class BrowserErrorLogRecord extends Record {
     public static final String SERVICE_VERSION_ID = "service_version_id";
     public static final String PAGE_PATH_ID = "pate_path_id";
     public static final String PAGE_PATH = "page_path";
-    public static final String TIME = "time";
+    public static final String TIMESTAMP = "timestamp";
     public static final String ERROR_CATEGORY = "error_category";
     public static final String DATA_BINARY = "data_binary";
 
@@ -72,13 +72,13 @@ public class BrowserErrorLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = PAGE_PATH)
+    @Column(columnName = PAGE_PATH, matchQuery = true)
     private String pagePath;
 
     @Setter
     @Getter
-    @Column(columnName = TIME)
-    private long time;
+    @Column(columnName = TIMESTAMP)
+    private long timestamp;
 
     @Setter
     @Getter
@@ -100,7 +100,7 @@ public class BrowserErrorLogRecord extends Record {
             record.setServiceVersionId((String) dbMap.get(SERVICE_VERSION_ID));
             record.setPagePathId((String) dbMap.get(PAGE_PATH_ID));
             record.setPagePath((String) dbMap.get(PAGE_PATH));
-            record.setTime(((Number) dbMap.get(TIME)).longValue());
+            record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             record.setErrorCategory(((Number) dbMap.get(ERROR_CATEGORY)).intValue());
             String dataBinary = (String) dbMap.get(DATA_BINARY);
@@ -120,7 +120,7 @@ public class BrowserErrorLogRecord extends Record {
             map.put(SERVICE_VERSION_ID, storageData.getServiceVersionId());
             map.put(PAGE_PATH_ID, storageData.getPagePathId());
             map.put(PAGE_PATH, storageData.getPagePath());
-            map.put(TIME, storageData.getTime());
+            map.put(TIMESTAMP, storageData.getTimestamp());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             map.put(ERROR_CATEGORY, storageData.getErrorCategory());
             if (CollectionUtils.isEmpty(storageData.getDataBinary())) {

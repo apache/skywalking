@@ -26,7 +26,6 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
-import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfServiceGrpc;
 import org.apache.skywalking.apm.network.language.agent.v3.ErrorCategory;
@@ -129,6 +128,15 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
         }
     }
 
+    @RetryableTest
+    public void errorLogs() throws Exception {
+        List<BrowserErrorLog> logs = graphql.browserErrorLogs(new BrowserErrorLogQuery().start(startTime).end(now()));
+
+        LOGGER.info("errorLogs: {}", logs);
+
+        load("expected/browser/error-log.yml").as(BrowserErrorLogsMatcher.class).verifyLoosely(logs);
+    }
+
     private void verifyBrowserMetrics(final Service service) throws Exception {
         for (String metricName : ALL_BROWSER_METRICS) {
             verifyMetrics(graphql, metricName, service.getKey(), startTime);
@@ -207,17 +215,18 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
                 if (category == ErrorCategory.UNRECOGNIZED) {
                     continue;
                 }
-                BrowserErrorLog.Builder errorLogBuilder = BrowserErrorLog.newBuilder()
-                                                                         .setUniqueId(UUID.randomUUID().toString())
-                                                                         .setService(BROWSER_NAME)
-                                                                         .setServiceVersion(BROWSER_SINGLE_VERSION_NAME)
-                                                                         .setPagePath("/e2e-browser")
-                                                                         .setCategory(category)
-                                                                         .setMessage("test")
-                                                                         .setLine(1)
-                                                                         .setCol(1)
-                                                                         .setStack("e2e")
-                                                                         .setErrorUrl("/e2e-browser");
+                org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog.Builder errorLogBuilder = org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog
+                    .newBuilder()
+                    .setUniqueId(UUID.randomUUID().toString())
+                    .setService(BROWSER_NAME)
+                    .setServiceVersion(BROWSER_SINGLE_VERSION_NAME)
+                    .setPagePath("/e2e-browser")
+                    .setCategory(category)
+                    .setMessage("test")
+                    .setLine(1)
+                    .setCol(1)
+                    .setStack("e2e")
+                    .setErrorUrl("/e2e-browser");
                 if (category == ErrorCategory.js) {
                     errorLogBuilder.setFirstReportedError(true);
                 }
@@ -253,27 +262,28 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
         latch.await();
     }
 
-    private void sendBrowserErrorLog(BrowserErrorLog browserErrorLog) throws InterruptedException {
+    private void sendBrowserErrorLog(org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog browserErrorLog) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        StreamObserver<BrowserErrorLog> collectStream = browserPerfServiceStub.collectErrorLogs(
-            new StreamObserver<Commands>() {
-                @Override
-                public void onNext(Commands commands) {
+        StreamObserver<org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog> collectStream = browserPerfServiceStub
+            .collectErrorLogs(
+                new StreamObserver<Commands>() {
+                    @Override
+                    public void onNext(Commands commands) {
 
-                }
+                    }
 
-                @Override
-                public void onError(Throwable throwable) {
-                    throwable.printStackTrace();
-                    latch.countDown();
-                }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                        latch.countDown();
+                    }
 
-                @Override
-                public void onCompleted() {
-                    latch.countDown();
-                }
-            });
+                    @Override
+                    public void onCompleted() {
+                        latch.countDown();
+                    }
+                });
         collectStream.onNext(browserErrorLog);
         collectStream.onCompleted();
         latch.await();

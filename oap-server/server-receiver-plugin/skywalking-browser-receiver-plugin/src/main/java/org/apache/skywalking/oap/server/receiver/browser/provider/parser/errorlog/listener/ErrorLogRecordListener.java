@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -68,6 +69,9 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
         sampleStatus = SampleStatus.SAMPLED;
 
         errorLog.setUniqueId(decorator.getUniqueId());
+        errorLog.setTimeBucket(TimeBucket.getRecordTimeBucket(decorator.getTime()));
+        errorLog.setTimestamp(decorator.getTime());
+
         // service
         String serviceName = namingControl.formatServiceName(decorator.getService());
         errorLog.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Browser));

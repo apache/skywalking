@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.e2e.browser.BrowserErrorLog;
+import org.apache.skywalking.e2e.browser.BrowserErrorLogQuery;
+import org.apache.skywalking.e2e.browser.BrowserErrorLogsData;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
@@ -97,6 +100,31 @@ public class SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTraces().getData();
+    }
+
+    public List<BrowserErrorLog> browserErrorLogs(final BrowserErrorLogQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("browser-error-logs.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{step}", query.step())
+                                            .replace("{pageNum}", query.pageNum())
+                                            .replace("{pageSize}", query.pageSize())
+                                            .replace("{needTotal}", query.needTotal());
+        final ResponseEntity<GQLResponse<BrowserErrorLogsData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<BrowserErrorLogsData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody().getData().getLogs().getData());
     }
 
     public List<Service> services(final ServicesQuery query) throws Exception {

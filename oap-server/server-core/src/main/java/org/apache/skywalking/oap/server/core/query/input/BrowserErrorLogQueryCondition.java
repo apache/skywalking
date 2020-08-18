@@ -15,53 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.browser.source;
+package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.BROWSER_ERROR_LOG;
+@Setter
+@Getter
+public class BrowserErrorLogQueryCondition {
 
-/**
- * Browser error log raw data
- */
-@ScopeDeclaration(id = BROWSER_ERROR_LOG, name = "BrowserErrorLog")
-public class BrowserErrorLog extends Source {
-
-    @Override
-    public int scope() {
-        return BROWSER_ERROR_LOG;
-    }
-
-    @Override
-    public String getEntityId() {
-        return uniqueId;
-    }
-
-    @Getter
-    @Setter
-    private String uniqueId;
-    @Getter
-    @Setter
     private String serviceId;
-    @Getter
-    @Setter
     private String serviceVersionId;
-    @Getter
-    @Setter
     private String pagePathId;
-    @Getter
-    @Setter
     private String pagePath;
-    @Getter
-    @Setter
-    private long timestamp;
-    @Getter
-    @Setter
-    private BrowserErrorCategory errorCategory;
-    @Getter
-    @Setter
-    private byte[] dataBinary;
+    private ErrorCategory category;
+    private Duration queryDuration;
+    private Pagination paging;
 }

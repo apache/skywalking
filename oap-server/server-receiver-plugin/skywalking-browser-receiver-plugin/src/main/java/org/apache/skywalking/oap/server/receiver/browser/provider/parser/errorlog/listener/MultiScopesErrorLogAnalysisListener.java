@@ -53,8 +53,7 @@ public class MultiScopesErrorLogAnalysisListener implements ErrorLogAnalysisList
         sourceBuilder.setServiceVersion(decorator.getServiceVersion());
         sourceBuilder.setPatePath(decorator.getPagePath());
 
-        // time
-        sourceBuilder.setTime(decorator.getTime());
+        // time bucket
         sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(decorator.getTime()));
 
         // category

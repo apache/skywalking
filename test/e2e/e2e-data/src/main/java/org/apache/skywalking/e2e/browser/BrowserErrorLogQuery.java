@@ -6,26 +6,40 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.e2e.browser;
 
-import org.junit.Assert;
-import org.junit.Test;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import org.apache.skywalking.e2e.AbstractQuery;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+@Setter
+@Getter
+@Accessors(chain = true)
+public class BrowserErrorLogQuery extends AbstractQuery<BrowserErrorLogQuery> {
 
-        Assert.assertEquals(32, coreModule.services().length);
+    private String pageNum = "1";
+    private String pageSize = "15";
+    private String needTotal = "true";
+
+    public String pageNum() {
+        return pageNum;
+    }
+
+    public String pageSize() {
+        return pageSize;
+    }
+
+    public String needTotal() {
+        return needTotal;
     }
 }
