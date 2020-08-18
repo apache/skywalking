@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
@@ -78,7 +77,6 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
             throw new ServiceRegisterException(e.getMessage());
         }
         this.selfAddress = remoteInstance.getAddress();
-        TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
     }
 
     private boolean needUsingInternalAddr() {
