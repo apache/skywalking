@@ -403,7 +403,9 @@ templates:
                   "metricName": "instance_clr_heap_memory",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
-                  "unit": "MB"
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576"
                 },
                 {
                   "width": 3,
