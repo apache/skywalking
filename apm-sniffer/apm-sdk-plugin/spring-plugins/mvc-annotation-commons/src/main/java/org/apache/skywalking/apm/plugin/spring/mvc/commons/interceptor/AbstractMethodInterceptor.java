@@ -21,12 +21,12 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.collect.Maps;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -224,7 +224,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
     private void collectHttpHeaders(HttpServletRequest request, AbstractSpan span) {
         final Enumeration<String> headerNames =  request.getHeaderNames();
-        final Map<String, String[]> headersMap = Maps.newHashMap();
+        if (headerNames == null) {
+            return;
+        }
+        final Map<String, String[]> headersMap = new HashMap<>();
         Collections.list(headerNames).stream().forEach(headerName -> {
             Enumeration<String> headerValues = request.getHeaders(headerName);
             String[] values = Collections.list(headerValues).toArray(new String []{});
