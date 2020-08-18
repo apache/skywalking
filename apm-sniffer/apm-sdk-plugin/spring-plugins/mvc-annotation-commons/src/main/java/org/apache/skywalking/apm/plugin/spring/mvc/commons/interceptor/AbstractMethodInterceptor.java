@@ -21,9 +21,10 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -232,17 +233,17 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         if (headerNames == null) {
             return;
         }
-        final Map<String, String[]> headersMap = new HashMap<>();
+        final List<String> headersList = new LinkedList<>();
         Collections.list(headerNames).stream().forEach(headerName -> {
             Enumeration<String> headerValues = request.getHeaders(headerName);
-            String[] values = Collections.list(headerValues).toArray(new String []{});
+            String headerValue = Collections.list(headerValues).toString();
             if (shouldCollectHeader() && SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.contains(headerName.toLowerCase())) {
-                headersMap.put(headerName, values);
+                headersList.add(headerName + "=" + headerValue);
             }
         });
 
-        if (!headersMap.isEmpty()) {
-            String tagValue = CollectionUtil.toString(headersMap);
+        if (!headersList.isEmpty()) {
+            String tagValue = headersList.stream().collect(Collectors.joining("\n"));
             tagValue = SpringMVCPluginConfig.Plugin.Http.HTTP_HEADERS_LENGTH_THRESHOLD > 0 ?
                     StringUtil.cut(tagValue, SpringMVCPluginConfig.Plugin.Http.HTTP_HEADERS_LENGTH_THRESHOLD) : tagValue;
             Tags.HTTP.HEADERS.set(span, tagValue);
