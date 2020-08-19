@@ -41,7 +41,7 @@ public class PerfDataAnalyzer {
 
         try {
             BrowserPerfDataDecorator decorator = new BrowserPerfDataDecorator(browserPerfData);
-            // Use the server side current time, if the client side not set.
+            // Use the server side current time.
             long nowMillis = System.currentTimeMillis();
             decorator.setTime(nowMillis);
 

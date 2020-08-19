@@ -30,5 +30,4 @@ public class PerfDataParserListenerManager {
     public void add(final PerfDataListenerFactory factory) {
         perfDataListenerFactories.add(factory);
     }
-
 }

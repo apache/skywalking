@@ -30,5 +30,8 @@ public interface ErrorLogAnalysisListener {
      */
     void build();
 
+    /**
+     * Parse the raw data from the probe (js-client).
+     */
     void parse(BrowserErrorLogDecorator decorator);
 }

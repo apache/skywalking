@@ -85,6 +85,7 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
         errorLog.setPagePath(pagePath);
         errorLog.setPagePathId(IDManager.EndpointID.buildId(serviceName, pagePath));
 
+        // raw data
         errorLog.setErrorCategory(BrowserErrorCategory.fromErrorCategory(decorator.getCategory()));
         errorLog.setDataBinary(decorator.toByteArray());
     }

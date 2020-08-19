@@ -49,7 +49,7 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         sourceReceiver.receive(sourceBuilder.toBrowserAppSingleVersionTraffic());
         sourceReceiver.receive(sourceBuilder.toBrowserAppPageTraffic());
 
-        // performance (currently only page performance data is analyzed)
+        // performance (currently only page level performance data is analyzed)
         sourceReceiver.receive(sourceBuilder.toBrowserAppPagePerf());
     }
 
@@ -60,7 +60,6 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         sourceBuilder.setPatePath(decorator.getPagePath());
 
         // time
-        sourceBuilder.setTime(decorator.getTime());
         sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(decorator.getTime()));
 
         // performance related

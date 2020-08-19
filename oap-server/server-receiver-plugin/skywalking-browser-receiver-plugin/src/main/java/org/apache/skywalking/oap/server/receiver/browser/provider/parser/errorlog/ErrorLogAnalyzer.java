@@ -41,7 +41,7 @@ public class ErrorLogAnalyzer {
 
         try {
             BrowserErrorLogDecorator decorator = new BrowserErrorLogDecorator(errorLog);
-            // Use the server side current time, if the client side not set.
+            // Use the server side current time.
             long nowMillis = System.currentTimeMillis();
             decorator.setTime(nowMillis);
 
