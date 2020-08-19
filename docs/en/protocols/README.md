@@ -31,7 +31,7 @@ SkyWalking javaagent begins to support this since 8.0.0.
 
 ### Browser probe protocol
 
-The probe in [skywalking-client-js](https://github.com/apache/skywalking-client-js) cloud use this protocol to send to backendEnd. This service provided by gRPC.
+The browser probe, such as  [skywalking-client-js](https://github.com/apache/skywalking-client-js) could use this protocol to send to backend. This service provided by gRPC.
 
 [SkyWalking Browser Protocol](Browser-Protocol.md) define the communication way and format between `skywalking-client-js` and backend.
 
