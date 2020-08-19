@@ -43,10 +43,11 @@ segmentItems:
       endTime: not null
       componentId: 24
       isError: false
-      spanType: Entry
+      spanType: Local
       peer: ''
       skipAnalysis: false
       tags:
+        - {key: x-le, value: '{"logic-span":true}'}
         - {key: item, value: '0'}
         - {key: shardingTotalCount, value: '1'}
         - {key: taskId, value: not null}

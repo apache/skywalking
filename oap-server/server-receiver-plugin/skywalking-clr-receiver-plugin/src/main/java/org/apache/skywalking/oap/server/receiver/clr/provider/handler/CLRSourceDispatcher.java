@@ -80,7 +80,7 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRThread.setMaxCompletionPortThreads(thread.getMaxCompletionPortThreads());
         serviceInstanceCLRThread.setMaxWorkerThreads(thread.getMaxWorkerThreads());
         serviceInstanceCLRThread.setTimeBucket(minuteTimeBucket);
-        serviceInstanceCLRThread.setId(serviceInstance);
+        serviceInstanceCLRThread.setId(serviceInstanceId);
         serviceInstanceCLRThread.setName(service);
         serviceInstanceCLRThread.setServiceId(serviceId);
         serviceInstanceCLRThread.setServiceName(serviceInstance);
