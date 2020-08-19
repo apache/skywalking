@@ -20,4 +20,4 @@ healthCheck: http://localhost:8080/spring-4.3.x-scenario/healthCheck
 runningMode: with_optional
 withPlugins: apm-spring-annotation-plugin-*.jar
 environment:
-  - INCLUDE_HTTP_HEADERS=mock_header
+  - CATALINA_OPTS="-Dskywalking.plugin.http.include_http_headers=mock_header"
