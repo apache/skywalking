@@ -51,3 +51,4 @@ segmentItems:
         - {key: shardingTotalCount, value: '1'}
         - {key: taskId, value: not null}
         - {key: shardingItemParameters, value: '{0=Beijing}'}
+        - {key: x-le, value: '{"logic-span":true}'}
