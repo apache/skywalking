@@ -336,7 +336,7 @@ public class RestMappingMethodInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
         assertHttpSpan(spans.get(0), "/getRequestURL");
-        SpanAssert.assertTag(spans.get(0), 2, "Connection=[keep-alive]");
+        SpanAssert.assertTag(spans.get(0), 2, "connection=[keep-alive]");
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
