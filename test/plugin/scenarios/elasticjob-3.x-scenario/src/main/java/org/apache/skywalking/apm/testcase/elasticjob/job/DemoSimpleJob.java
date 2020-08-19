@@ -52,7 +52,7 @@ public class DemoSimpleJob implements SimpleJob {
     public void execute(ShardingContext shardingContext) {
         logger.info("Elastic Job Item: {} | Time: {} | Thread: {} | {}",
                 shardingContext.getShardingItem(), new SimpleDateFormat("HH:mm:ss").format(new Date()), Thread.currentThread().getId(), "SIMPLE");
-        Request request = new Request.Builder().url("http://skywalking.apache.org/team/").build();
+        Request request = new Request.Builder().url("http://localhost:8080/elasticjob-3.x-scenario/case/ping").build();
         Response response = null;
         latch.countDown();
         try {
