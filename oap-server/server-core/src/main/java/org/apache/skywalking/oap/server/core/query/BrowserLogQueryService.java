@@ -53,7 +53,9 @@ public class BrowserLogQueryService implements Service {
                                                   final long endSecondTB,
                                                   final Pagination paging) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
-        BrowserErrorCategory errorCategory = BrowserErrorCategory.valueOf(category.name());
+        BrowserErrorCategory errorCategory = Optional.ofNullable(category)
+                                                     .map(c -> BrowserErrorCategory.valueOf(c.name()))
+                                                     .orElse(null);
 
         return getBrowserLogQueryDAO().queryBrowserErrorLogs(
             serviceId, serviceVersionId, pagePathId, pagePath, errorCategory, startSecondTB, endSecondTB,
