@@ -48,7 +48,7 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
                 return;
             }
             AbstractSpan span = ContextManager.createLocalSpan(parameters.getField().get(0).getName());
-            Tags.LOGIC_ENDPOINT.set(span, buildLogicEndpointSpan());
+            Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
             span.setComponent(ComponentsDefine.GRAPHQL);
         } catch (NoSuchFieldException | IllegalAccessException e) {
         }
@@ -97,9 +97,5 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(throwable);
-    }
-
-    private String buildLogicEndpointSpan() {
-        return "{\"logic-span\":true}";
     }
 }
