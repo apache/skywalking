@@ -321,8 +321,8 @@ public class RestMappingMethodInterceptorTest {
                 when(request.getRequestURI()).thenReturn("/test/testRequestURL");
                 when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/getRequestURL"));
                 when(request.getHeaderNames()).thenReturn(new Vector(Arrays.asList("Connection", "Cookie")).elements());
-                when(request.getHeaders("Connection")).thenReturn(new Vector(Arrays.asList("keep-alive")).elements());
-                when(request.getHeaders("Cookie")).thenReturn(new Vector(Arrays.asList("dummy cookies")).elements());
+                when(request.getHeaders("connection")).thenReturn(new Vector(Arrays.asList("keep-alive")).elements());
+                when(request.getHeaders("cookie")).thenReturn(new Vector(Arrays.asList("dummy cookies")).elements());
                 ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(request, response);
                 RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
