@@ -31,6 +31,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
+import static java.util.Objects.isNull;
+
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
         // 1. Set sub package name by source.metrics
@@ -95,8 +97,10 @@ public class DeepAnalysis {
             } else if (annotation instanceof ConstOne) {
                 entryMethod.addArg(parameterType, "1");
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
-                if (result.getFuncConditionExpressions().size() == 1) {
-                    final ConditionExpression expression = result.getFuncConditionExpressions().get(0);
+                if (isNull(result.getFuncConditionExpressions()) || result.getFuncConditionExpressions().isEmpty()) {
+                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
+                } else {
+                    ConditionExpression expression = result.getNextFuncConditionExpression();
                     final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
                     final String getter = matcherInfo.isBooleanType()
@@ -107,11 +111,8 @@ public class DeepAnalysis {
                     argExpression.setRight(expression.getValue());
                     argExpression.setExpressionObject(matcherInfo.getMatcher().getName());
                     argExpression.setLeft("source." + getter + "()");
-                  
+
                     entryMethod.addArg(argExpression);
-                } else {
-                    throw new IllegalArgumentException(
-                        "Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
                 }
             } else if (annotation instanceof Arg) {
                 entryMethod.addArg(parameterType, result.getNextFuncArg());

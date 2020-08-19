@@ -168,6 +168,29 @@ public class ScriptParserTest {
     }
 
     @Test
+    public void testParse5() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_response_s4_summary = from(Service.latency).richPercent(param1 == true,param2 == false);",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        Assert.assertEquals(1, results.size());
+        AnalysisResult result = results.get(0);
+        Assert.assertEquals("richPercent", result.getAggregationFunctionName());
+        Assert.assertEquals(2, result.getFuncConditionExpressions().size());
+
+        ConditionExpression expression1 = result.getFuncConditionExpressions().get(0);
+        Assert.assertEquals("param1", expression1.getAttribute());
+        Assert.assertEquals("booleanMatch", expression1.getExpressionType());
+        Assert.assertEquals("true", expression1.getValue());
+
+        ConditionExpression expression2 = result.getFuncConditionExpressions().get(1);
+        Assert.assertEquals("param2", expression2.getAttribute());
+        Assert.assertEquals("booleanMatch", expression2.getExpressionType());
+        Assert.assertEquals("false", expression2.getValue());
+    }
+
+    @Test
     public void testDisable() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText("disable(segment);", TEST_SOURCE_PACKAGE);
         DisableCollection collection = parser.parse().getDisableCollection();

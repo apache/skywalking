@@ -53,6 +53,12 @@ In this case, input are request of each ServiceInstanceJVMCPU scope, avg is base
 > endpoint_percent = from(Endpoint.*).percent(status == true);
 
 In this case, all input are requests of each endpoint, condition is `endpoint.status == true`.
+- `richPercent`. The number or ratio expressed as a fraction of 100, for the condition matched input.
+> browser_app_error_rate = from(BrowserAppTraffic.*).richPercent(trafficCategory == BrowserAppTrafficCategory.NORMAL,trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR);
+
+In this case, all input are requests of each browser app traffic, `total` condition is `trafficCategory == BrowserAppTrafficCategory.NORMAL` and `match` condition is `trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR`.
+The parameter (1) is the `total` condition.
+The parameter (2) is the `match` condition.
 - `sum`. The sum calls per scope entity.
 > service_calls_sum = from(Service.*).sum();
 
@@ -81,11 +87,6 @@ Before 7.0.0, use `p99`, `p95`, `p90`, `p75`, `p50` func(s) to calculate metrics
 > all_p99 = from(All.latency).p99(10);
 
 In this case, p99 value of all incoming requests. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
-
-- `errorRate`. The error rate of browser traffic (only browser).
-> browser_app_error_rate = from(BrowserAppTraffic.trafficCategory).errorRate();
-
-The denominator is the amount of normal traffic in the browser, and the numerator is the first error traffic in the browser.
 
 ## Metrics name
 The metrics name for storage implementor, alarm and query modules. The type inference supported by core.
