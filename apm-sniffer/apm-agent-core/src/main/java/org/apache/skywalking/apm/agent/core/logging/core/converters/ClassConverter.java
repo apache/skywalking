@@ -16,34 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
-import org.apache.skywalking.apm.agent.core.conf.Constants;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 /**
- * Return the StackTrace of String with logEvent.getThrowable()
+ * Just return logEvent.getTargetClass().
  */
-public class ThrowableConverter implements Converter {
+public class ClassConverter implements Converter {
+
     @Override
     public String convert(LogEvent logEvent) {
-        Throwable t = logEvent.getThrowable();
-        return t == null ? "" : format(t);
+        return logEvent.getTargetClass();
     }
 
-    public static String format(Throwable t) {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        t.printStackTrace(new java.io.PrintWriter(buf, true));
-        String expMessage = buf.toString();
-        try {
-            buf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Constants.LINE_SEPARATOR + expMessage;
+    @Override
+    public String getKey() {
+        return Config.Logging.JSON.CLASS_KEY;
     }
 }

@@ -16,16 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
+
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.logging.core.Converter;
+import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
- * The Converter, it is used to convert the LogEvent to the String.
+ * Just return the logEvent.getMessage()
  */
-public interface Converter {
+public class MessageConverter implements Converter {
+    @Override
+    public String convert(LogEvent logEvent) {
+        return logEvent.getMessage();
+    }
 
-    String convert(LogEvent logEvent);
-
-    default String getKey() {
-        return "";
+    @Override
+    public String getKey() {
+        return Config.Logging.JSON.MESSAGE_KEY;
     }
 }

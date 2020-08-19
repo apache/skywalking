@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
@@ -35,6 +36,9 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.core.JsonLogResolver;
+import org.apache.skywalking.apm.agent.core.logging.core.PatternLogResolver;
+import org.apache.skywalking.apm.agent.core.logging.core.ResolverType;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.InstrumentDebuggingClass;
@@ -44,6 +48,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -53,7 +58,16 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * The main entrance of sky-walking agent, based on javaagent mechanism.
  */
 public class SkyWalkingAgent {
+<<<<<<< HEAD
     private static final ILog LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
+=======
+    private static final ILog logger;
+
+    static {
+        configureLogger();
+        logger = LogManager.getLogger(SkyWalkingAgent.class);
+    }
+>>>>>>> 62711c515... add json logger
 
     /**
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
@@ -75,14 +89,14 @@ public class SkyWalkingAgent {
         final ByteBuddy byteBuddy = new ByteBuddy().with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
         AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy).ignore(
-            nameStartsWith("net.bytebuddy.").or(nameStartsWith("org.slf4j."))
-                                            .or(nameStartsWith("org.groovy."))
-                                            .or(nameContains("javassist"))
-                                            .or(nameContains(".asm."))
-                                            .or(nameContains(".reflectasm."))
-                                            .or(nameStartsWith("sun.reflect"))
-                                            .or(allSkyWalkingAgentExcludeToolkit())
-                                            .or(ElementMatchers.isSynthetic()));
+                nameStartsWith("net.bytebuddy.").or(nameStartsWith("org.slf4j."))
+                        .or(nameStartsWith("org.groovy."))
+                        .or(nameContains("javassist"))
+                        .or(nameContains(".asm."))
+                        .or(nameContains(".reflectasm."))
+                        .or(nameStartsWith("sun.reflect"))
+                        .or(allSkyWalkingAgentExcludeToolkit())
+                        .or(ElementMatchers.isSynthetic()));
 
         JDK9ModuleExporter.EdgeClasses edgeClasses = new JDK9ModuleExporter.EdgeClasses();
         try {
@@ -109,10 +123,10 @@ public class SkyWalkingAgent {
         }
 
         agentBuilder.type(pluginFinder.buildMatch())
-                    .transform(new Transformer(pluginFinder))
-                    .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                    .with(new Listener())
-                    .installOn(instrumentation);
+                .transform(new Transformer(pluginFinder))
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .with(new Listener())
+                .installOn(instrumentation);
 
         try {
             ServiceManager.INSTANCE.boot();
@@ -121,7 +135,7 @@ public class SkyWalkingAgent {
         }
 
         Runtime.getRuntime()
-               .addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown, "skywalking service shutdown thread"));
+                .addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown, "skywalking service shutdown thread"));
     }
 
     private static class Transformer implements AgentBuilder.Transformer {
@@ -142,7 +156,7 @@ public class SkyWalkingAgent {
                 EnhanceContext context = new EnhanceContext();
                 for (AbstractClassEnhancePluginDefine define : pluginDefines) {
                     DynamicType.Builder<?> possibleNewBuilder = define.define(
-                        typeDescription, newBuilder, classLoader, context);
+                            typeDescription, newBuilder, classLoader, context);
                     if (possibleNewBuilder != null) {
                         newBuilder = possibleNewBuilder;
                     }
@@ -201,6 +215,22 @@ public class SkyWalkingAgent {
 
         @Override
         public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+        }
+    }
+
+    private static void configureLogger() {
+        // before get `logger`, we need to setup the LogResolver first
+        String resolver = System.getProperty("logging.resolver");
+        if (!StringUtil.isEmpty(resolver)) {
+            ResolverType resolverType = ResolverType.valueOf(resolver);
+            switch (resolverType) {
+                case JSON:
+                    LogManager.setLogResolver(new JsonLogResolver());
+                    break;
+                case PATTERN:
+                default:
+                    LogManager.setLogResolver(new PatternLogResolver());
+            }
         }
     }
 }

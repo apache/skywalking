@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
@@ -259,6 +260,43 @@ public class Config {
          * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
          */
         public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
+
+        public static class JSON {
+            /**
+             * Key of the AgentName
+             */
+            public static String AGENT_NAME_KEY = "agent_name";
+
+            /**
+             * Key of the timestamp
+             */
+            public static String TIMESTAMP_KEY = "@timestamp";
+
+            /**
+             * Key of the log message
+             */
+            public static String MESSAGE_KEY = "message";
+
+            /**
+             * Key of the current {@link Thread}
+             */
+            public static String THREAD_KEY = "thread";
+
+            /**
+             * Key of the {@link Throwable}
+             */
+            public static String THROWABLE_KEY = "throwable";
+
+            /**
+             * Key of the logger class
+             */
+            public static String CLASS_KEY = "class";
+
+            /**
+             * Key of the log level
+             */
+            public static String LEVEL_KEY = "level";
+        }
     }
 
     public static class Plugin {

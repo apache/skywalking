@@ -16,15 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.logging.core.Converter;
-import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
-
-public class AgentNameConverter implements Converter {
-    @Override
-    public String convert(LogEvent logEvent) {
-        return Config.Agent.SERVICE_NAME;
-    }
+public enum ResolverType {
+    JSON, PATTERN
 }

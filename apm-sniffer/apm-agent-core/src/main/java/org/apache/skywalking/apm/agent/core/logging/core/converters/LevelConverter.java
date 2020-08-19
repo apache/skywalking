@@ -16,17 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
- * Just return the Thread.currentThread().getName()
+ * Just return logEvent.getLevel().name()
  */
-public class ThreadConverter implements Converter {
+public class LevelConverter implements Converter {
     @Override
     public String convert(LogEvent logEvent) {
-        return Thread.currentThread().getName();
+        return logEvent.getLevel().name();
+    }
+
+    @Override
+    public String getKey() {
+        return Config.Logging.JSON.LEVEL_KEY;
     }
 }

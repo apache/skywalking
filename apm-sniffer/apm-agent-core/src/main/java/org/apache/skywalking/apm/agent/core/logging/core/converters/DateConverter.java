@@ -16,17 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
- * Just return logEvent.getLevel().name()
+ * The Converter is used to return a now date with format.
  */
-public class LevelConverter implements Converter {
+public class DateConverter implements Converter {
+
     @Override
     public String convert(LogEvent logEvent) {
-        return logEvent.getLevel().name();
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date());
+    }
+
+    @Override
+    public String getKey() {
+        return Config.Logging.JSON.TIMESTAMP_KEY;
     }
 }
