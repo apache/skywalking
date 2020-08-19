@@ -47,8 +47,8 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
+        - {key: x-le, value: '{"logic-span":true}'}
         - {key: item, value: '0'}
         - {key: shardingTotalCount, value: '1'}
         - {key: taskId, value: not null}
         - {key: shardingItemParameters, value: '{0=Beijing}'}
-        - {key: x-le, value: '{"logic-span":true}'}
