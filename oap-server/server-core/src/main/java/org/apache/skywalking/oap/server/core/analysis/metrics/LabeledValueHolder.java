@@ -16,8 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-public enum MetricsValueType {
-    LONG, INT, DOUBLE, LABELED_LONG, MULTI_INTS
+/**
+ * LabeledValueHolder holds a list of key-value pair.
+ */
+public interface LabeledValueHolder {
+    DataTable getValue();
 }

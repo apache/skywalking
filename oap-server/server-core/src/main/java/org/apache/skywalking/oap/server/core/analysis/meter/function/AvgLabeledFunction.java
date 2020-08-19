@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -37,7 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avgLabeled")
 @ToString
-public abstract class AvgLabeledFunction extends Metrics implements AcceptableValue<DataTable> {
+public abstract class AvgLabeledFunction extends Metrics implements AcceptableValue<DataTable>, LabeledValueHolder {
     protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
     protected static final String VALUE = "value";

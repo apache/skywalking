@@ -89,6 +89,8 @@ public final class Tags {
 
     public static final StringTag LOGIC_ENDPOINT = new StringTag(12, "x-le");
 
+    public static final String VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT = "{\"logic-span\":true}";
+
     /**
      * Creates a {@code StringTag} with the given key and cache it, if it's created before, simply return it without
      * creating a new one.
