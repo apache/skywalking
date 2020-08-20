@@ -19,8 +19,8 @@
 package org.apache.skywalking.apm.plugin.elasticjob;
 
 import org.apache.shardingsphere.elasticjob.api.listener.ShardingContexts;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -36,8 +36,9 @@ public class ElasticJobExecutorInterceptor implements InstanceMethodsAroundInter
         ShardingContexts shardingContexts = (ShardingContexts) allArguments[0];
         Integer item = (Integer) allArguments[1];
         String operateName = ComponentsDefine.ELASTIC_JOB.getName() + "/" + shardingContexts.getJobName();
-        AbstractSpan span = ContextManager.createEntrySpan(operateName, new ContextCarrier());
+        AbstractSpan span = ContextManager.createLocalSpan(operateName);
         span.setComponent(ComponentsDefine.ELASTIC_JOB);
+        Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
         span.tag("item", item == null ? "" : String.valueOf(item));
         span.tag("shardingTotalCount", Integer.toString(shardingContexts.getShardingTotalCount()));
         span.tag("taskId", shardingContexts.getTaskId());
