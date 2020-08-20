@@ -16,13 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.alarm.provider.slack;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -30,45 +34,48 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Use SkyWalking alarm webhook API call a remote endpoints.
+ * Use SkyWalking alarm slack webhook API call a remote endpoints.
  */
-public class WebhookCallback implements AlarmCallback {
-    private static final Logger logger = LoggerFactory.getLogger(WebhookCallback.class);
+public class SlackhookCallback implements AlarmCallback {
+    private static final Logger logger = LoggerFactory.getLogger(SlackhookCallback.class);
     private static final int HTTP_CONNECT_TIMEOUT = 1000;
     private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 1000;
     private static final int HTTP_SOCKET_TIMEOUT = 10000;
-
+    private static final Gson GSON = new Gson();
     private AlarmRulesWatcher alarmRulesWatcher;
     private RequestConfig requestConfig;
-    private Gson gson = new Gson();
+    private List<String> webhooks;
 
-    public WebhookCallback(AlarmRulesWatcher alarmRulesWatcher) {
+    public SlackhookCallback(final AlarmRulesWatcher alarmRulesWatcher) {
         this.alarmRulesWatcher = alarmRulesWatcher;
-        requestConfig = RequestConfig.custom()
-                                     .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
-                                     .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
-                                     .setSocketTimeout(HTTP_SOCKET_TIMEOUT)
-                                     .build();
+        this.requestConfig = RequestConfig.custom()
+                                          .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
+                                          .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
+                                          .setSocketTimeout(HTTP_SOCKET_TIMEOUT)
+                                          .build();
+        this.webhooks = alarmRulesWatcher.getSlackSettings().getWebhooks();
     }
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
-        if (alarmRulesWatcher.getWebHooks().isEmpty()) {
+        if (webhooks.isEmpty()) {
             return;
         }
 
         CloseableHttpClient httpClient = HttpClients.custom().build();
         try {
-            alarmRulesWatcher.getWebHooks().forEach(url -> {
+            webhooks.forEach(url -> {
                 HttpPost post = new HttpPost(url);
                 post.setConfig(requestConfig);
                 post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
@@ -76,7 +83,24 @@ public class WebhookCallback implements AlarmCallback {
 
                 StringEntity entity;
                 try {
-                    entity = new StringEntity(gson.toJson(alarmMessage), StandardCharsets.UTF_8);
+
+                    JsonObject jsonObject = new JsonObject();
+                    JsonArray jsonElements = new JsonArray();
+
+                    alarmMessage.forEach(item -> jsonElements.add(
+                        GSON.fromJson(
+                            String.format(
+                                alarmRulesWatcher.getSlackSettings().getTextTemplate(),
+                                OffsetDateTime.ofInstant(Instant.ofEpochMilli(item.getStartTime()),
+                                                         ZoneId.systemDefault()),
+                                item.getId0(), item.getScope(), item.getName(), item.getAlarmMessage()
+                            ),
+                            JsonObject.class
+                        )));
+                    jsonObject.add("blocks", jsonElements);
+
+                    entity = new StringEntity(GSON.toJson(jsonObject), ContentType.APPLICATION_JSON);
+
                     post.setEntity(entity);
                     CloseableHttpResponse httpResponse = httpClient.execute(post);
                     StatusLine statusLine = httpResponse.getStatusLine();
