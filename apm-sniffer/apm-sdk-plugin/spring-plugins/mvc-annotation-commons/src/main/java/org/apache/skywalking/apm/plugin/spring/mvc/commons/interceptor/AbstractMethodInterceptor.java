@@ -119,7 +119,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     collectHttpParam(request, span);
                 }
 
-                if (shouldCollectHeader()) {
+                if (!CollectionUtil.isEmpty(SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS)) {
                     collectHttpHeaders(request, span);
                 }
 
@@ -219,16 +219,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         }
     }
 
-    private boolean shouldCollectHeader() {
-        List<String> includeHeaders = SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS;
-        return !CollectionUtil.isEmpty(includeHeaders) ;
-    }
-
     private void collectHttpHeaders(HttpServletRequest request, AbstractSpan span) {
-        final Enumeration<String> headerNames =  request.getHeaderNames();
-        if (headerNames == null) {
-            return;
-        }
         final List<String> headersList = new LinkedList<>();
         SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.stream().filter(headerName -> request.getHeaders(headerName) != null).forEach(headerName -> {
             Enumeration<String> headerValues = request.getHeaders(headerName);

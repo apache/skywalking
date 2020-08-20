@@ -49,9 +49,9 @@ public class SpringMVCPluginConfig {
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
 
             /**
-             * When either {@link Plugin.Http#INCLUDE_HTTP_HEADERS} is enabled, how many characters to keep and send
-             * to the OAP backend, use negative values to keep and send the complete headers, NB. this config item is
-             * added for the sake of performance
+             * When {@link Plugin.Http#INCLUDE_HTTP_HEADERS} declares header names, this threshold controls the length
+             * limitation of all header values. use negative values to keep and send the complete headers.
+             * Note. this config item is added for the sake of performance.
              */
             public static int HTTP_HEADERS_LENGTH_THRESHOLD = 2048;
 
