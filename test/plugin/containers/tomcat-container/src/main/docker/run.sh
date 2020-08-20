@@ -84,7 +84,7 @@ java -jar \
     -Xmx256m -Xms256m \
     -DcaseName="${SCENARIO_NAME}-${SCENARIO_VERSION}" \
     -DtestCasePath=${SCENARIO_HOME}/data/ \
-    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>${LOGS_HOME}/validator.out
+    ${TOOLS_HOME}/skywalking-validator.jar 1>${LOGS_HOME}/validator.out
 status=$?
 
 if [[ $status -eq 0 ]]; then

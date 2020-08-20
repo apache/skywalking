@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -ex
 
 home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
@@ -131,7 +130,7 @@ if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
+[[ "$force_build" == "on" ]] && ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local}
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace
