@@ -47,6 +47,20 @@ segmentItems:
       spanType: Local
       peer: ''
       skipAnalysis: 'false'
+    - operationName: /person/action
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 0
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: 'false'
+      tags:
+        - {key: key, value: value}
     - operationName: /gson-scenario/case/gson-scenario
       operationId: 0
       spanId: 0

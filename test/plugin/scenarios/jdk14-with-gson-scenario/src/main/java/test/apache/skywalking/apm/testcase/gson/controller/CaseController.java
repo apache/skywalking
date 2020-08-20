@@ -20,6 +20,7 @@ package test.apache.skywalking.apm.testcase.gson.controller;
 
 import com.google.gson.Gson;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +48,7 @@ public class CaseController {
     }
 
     public record Person(String name, String uuid) {
+        @Trace(operationName = "/person/action")
         public void action() {
             ActiveSpan.tag("key", "value");
         }
