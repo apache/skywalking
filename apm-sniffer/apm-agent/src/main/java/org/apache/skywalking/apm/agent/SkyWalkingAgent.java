@@ -218,19 +218,24 @@ public class SkyWalkingAgent {
         }
     }
 
-    private static void configureLogger() {
+    static void configureLogger() {
         // before get `logger`, we need to setup the LogResolver first
-        String resolver = System.getProperty("logging.resolver");
+        String resolver = System.getProperty("skywalking.logger");
         if (!StringUtil.isEmpty(resolver)) {
-            ResolverType resolverType = ResolverType.valueOf(resolver);
-            switch (resolverType) {
-                case JSON:
-                    LogManager.setLogResolver(new JsonLogResolver());
-                    break;
-                case PATTERN:
-                default:
-                    LogManager.setLogResolver(new PatternLogResolver());
+            try {
+                ResolverType resolverType = ResolverType.valueOf(resolver);
+                switch (resolverType) {
+                    case JSON:
+                        LogManager.setLogResolver(new JsonLogResolver());
+                        break;
+                    case PATTERN:
+                    default:
+                        LogManager.setLogResolver(new PatternLogResolver());
+                }
+            } catch (IllegalArgumentException ignore) {
+                LogManager.setLogResolver(new PatternLogResolver());
             }
+
         }
     }
 }
