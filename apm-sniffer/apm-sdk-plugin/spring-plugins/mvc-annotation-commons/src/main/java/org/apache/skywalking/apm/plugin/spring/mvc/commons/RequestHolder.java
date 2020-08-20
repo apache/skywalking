@@ -17,10 +17,13 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
+import java.util.Enumeration;
 import java.util.Map;
 
 public interface RequestHolder {
     String getHeader(String headerName);
+
+    Enumeration<String> getHeaders(String headerName);
 
     String requestURL();
 

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
+import java.util.Enumeration;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,6 +32,11 @@ public class JavaxServletRequestHolder implements RequestHolder {
     @Override
     public String getHeader(final String headerName) {
         return request.getHeader(headerName);
+    }
+
+    @Override
+    public Enumeration<String> getHeaders(final String headerName) {
+        return request.getHeaders(headerName);
     }
 
     @Override

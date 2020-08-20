@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -31,6 +33,11 @@ public class ReactiveRequestHolder implements RequestHolder {
     @Override
     public String getHeader(final String headerName) {
         return this.serverHttpRequest.getHeaders().getFirst(headerName);
+    }
+
+    @Override
+    public Enumeration<String> getHeaders(final String headerName) {
+        return Collections.enumeration(this.serverHttpRequest.getHeaders().get(headerName));
     }
 
     @Override
