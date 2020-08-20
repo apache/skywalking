@@ -19,3 +19,5 @@ entryService: http://localhost:8080/spring-4.3.x-scenario/case/resttemplate
 healthCheck: http://localhost:8080/spring-4.3.x-scenario/healthCheck
 runningMode: with_optional
 withPlugins: apm-spring-annotation-plugin-*.jar
+environment:
+  - CATALINA_OPTS="-Dskywalking.plugin.http.include_http_headers=mock_header"
