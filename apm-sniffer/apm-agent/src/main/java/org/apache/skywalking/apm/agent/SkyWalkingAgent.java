@@ -63,6 +63,10 @@ public class SkyWalkingAgent {
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
+        } catch (Exception e) {
+            LogManager.getLogger(SkyWalkingAgent.class)
+                    .error(e, "SkyWalking agent initialized failure. Shutting down.");
+            return;
         } finally {
             logger = LogManager.getLogger(SkyWalkingAgent.class);
         }
