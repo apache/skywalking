@@ -42,7 +42,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
  */
 public class SnifferConfigInitializer {
-    private static ILog LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
+    private static ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
     private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
     private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static final String ENV_KEY_PREFIX = "skywalking.";
@@ -70,31 +70,31 @@ public class SnifferConfigInitializer {
             }
 
         } catch (Exception e) {
-            LOGGER.error(e, "Failed to read the config file, skywalking is going to run in default config.");
+            logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
         try {
             overrideConfigBySystemProp();
         } catch (Exception e) {
-            LOGGER.error(e, "Failed to read the system properties.");
+            logger.error(e, "Failed to read the system properties.");
         }
 
         agentOptions = StringUtil.trim(agentOptions, ',');
         if (!StringUtil.isEmpty(agentOptions)) {
             try {
                 agentOptions = agentOptions.trim();
-                LOGGER.info("Agent options is {}.", agentOptions);
+                logger.info("Agent options is {}.", agentOptions);
 
                 overrideConfigByAgentOptions(agentOptions);
             } catch (Exception e) {
-                LOGGER.error(e, "Failed to parse the agent options, val is {}.", agentOptions);
+                logger.error(e, "Failed to parse the agent options, val is {}.", agentOptions);
             }
         }
 
         initializeConfig(Config.class);
         // reconfigure logger after config initialization
         configureLogger();
-        LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
+        logger = LogManager.getLogger(SnifferConfigInitializer.class);
 
         if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
             throw new ExceptionInInitializerError("`agent.service_name` is missing.");
@@ -103,7 +103,7 @@ public class SnifferConfigInitializer {
             throw new ExceptionInInitializerError("`collector.backend_service` is missing.");
         }
         if (Config.Plugin.PEER_MAX_LENGTH <= 3) {
-            LOGGER.warn(
+            logger.warn(
                 "PEER_MAX_LENGTH configuration:{} error, the default value of 200 will be used.",
                 Config.Plugin.PEER_MAX_LENGTH
             );
@@ -120,13 +120,13 @@ public class SnifferConfigInitializer {
      */
     public static void initializeConfig(Class configClass) {
         if (AGENT_SETTINGS == null) {
-            LOGGER.error("Plugin configs have to be initialized after core config initialization.");
+            logger.error("Plugin configs have to be initialized after core config initialization.");
             return;
         }
         try {
             ConfigInitializer.initialize(AGENT_SETTINGS, configClass);
         } catch (IllegalAccessException e) {
-            LOGGER.error(e,
+            logger.error(e,
                          "Failed to set the agent settings {}"
                              + " to Config={} ",
                          AGENT_SETTINGS, configClass
@@ -203,7 +203,7 @@ public class SnifferConfigInitializer {
 
         if (configFile.exists() && configFile.isFile()) {
             try {
-                LOGGER.info("Config file found in {}.", configFile);
+                logger.info("Config file found in {}.", configFile);
 
                 return new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
