@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -ex
 
 home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
@@ -89,7 +90,7 @@ printSystemInfo(){
 }
 
 do_cleanup() {
-    images=$(docker images -q "skywalking/agent-test-*:${image_version}")
+    images=$(docker images -q "skywalking/agent-test-*")
     [[ -n "${images}" ]] && docker rmi -f ${images}
     images=$(docker images -qf "dangling=true")
     [[ -n "${images}" ]] && docker rmi -f ${images}

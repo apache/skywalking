@@ -61,7 +61,7 @@ segmentItems:
       skipAnalysis: 'false'
       tags:
         - {key: key, value: value}
-    - operationName: /gson-scenario/case/gson-scenario
+    - operationName: /case/gson-scenario
       operationId: 0
       spanId: 0
       spanLayer: Http
@@ -74,5 +74,4 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/gson-scenario/case/gson-scenario'}
       - {key: http.method, value: GET}
-      - {key: key, value: value}
       skipAnalysis: 'false'
