@@ -254,7 +254,7 @@ public class Config {
         /**
          * The log resolver type. Default is PATTERN which will create PatternLogResolver later.
          */
-        public static ResolverType LOGGER = ResolverType.PATTERN;
+        public static ResolverType RESOLVER = ResolverType.PATTERN;
 
         /**
          * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable". Each conversion specifiers

@@ -214,7 +214,7 @@ public class SnifferConfigInitializer {
     }
 
     static void configureLogger() {
-        switch (Config.Logging.LOGGER) {
+        switch (Config.Logging.RESOLVER) {
             case JSON:
                 LogManager.setLogResolver(new JsonLogResolver());
                 break;
