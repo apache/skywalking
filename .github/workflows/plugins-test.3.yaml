@@ -65,7 +65,7 @@ jobs:
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests -DBUILD_NO=local
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: ${{ matrix.case.title }}
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
       - name: Report Coverage
@@ -85,12 +85,32 @@ jobs:
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: Oracle 10.2.0.4.0 (1)
         run: |
           curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
           curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
           ./mvnw --batch-mode install:install-file -Dfile=ojdbc14-10.2.0.4.0.jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
           bash test/plugin/run.sh oracle-scenario
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
+
+  jdk14:
+    name: jdk14
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 14
+      - name: Build SkyWalking Agent
+        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
+      - name: Build Docker image
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
+      - name: jdk14-with-gson-scenario (1)
+        run: bash test/plugin/run.sh --image_version=jdk14-1.0.0 jdk14-with-gson-scenario
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh

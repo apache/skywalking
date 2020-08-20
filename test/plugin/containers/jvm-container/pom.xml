@@ -41,7 +41,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>skywalking/agent-test-jvm:${BUILD_NO}</name>
+                            <name>skywalking/agent-test-jvm:${version}</name>
                             <build>
                                 <from>openjdk:8</from>
                                 <workdir>/usr/local/skywalking/tools</workdir>
@@ -59,7 +59,7 @@
                             </build>
                         </image>
                         <image>
-                            <name>skywalking/agent-test-jvm:jdk14-${BUILD_NO}</name>
+                            <name>skywalking/agent-test-jvm:jdk14-${version}</name>
                             <build>
                                 <from>openjdk:14</from>
                                 <workdir>/usr/local/skywalking/tools</workdir>
