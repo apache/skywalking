@@ -22,25 +22,21 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class ScheduledMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-
-    private static final String DEFAULT_OPERATION_NAME = "SpringScheduled";
-    private static final String DEFAULT_LOGIC_ENDPOINT_CONTENT = "{\"logic-span\":true}";
+public class ScheduledMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        String targetMethodName = (String) objInst.getSkyWalkingDynamicField();
-        String operationName = targetMethodName != null ? targetMethodName : DEFAULT_OPERATION_NAME;
+        String fullMethodName = (String) objInst.getSkyWalkingDynamicField();
+        String operationName = ComponentsDefine.SPRING_SCHEDULED.getName() + "/" + fullMethodName;
 
         AbstractSpan span = ContextManager.createLocalSpan(operationName);
-        Tags.LOGIC_ENDPOINT.set(span, DEFAULT_LOGIC_ENDPOINT_CONTENT);
+        Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
         span.setComponent(ComponentsDefine.SPRING_SCHEDULED);
     }
 
@@ -53,29 +49,5 @@ public class ScheduledMethodInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
-    }
-
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
-        Object targetMethod = allArguments[1];
-        String targetMethodName = getTargetMethodName(targetMethod);
-
-        objInst.setSkyWalkingDynamicField(targetMethodName);
-    }
-
-    private String getTargetMethodName(Object targetMethod) {
-        if (targetMethod instanceof String) {
-            return (String) targetMethod;
-        }
-
-        if (targetMethod instanceof Method) {
-            Method method = (Method) targetMethod;
-
-            String methodName = method.getName();
-            String targetClassName = method.getDeclaringClass().getName();
-            return targetClassName + "." + methodName;
-        }
-
-        return null;
     }
 }

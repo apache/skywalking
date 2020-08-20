@@ -35,7 +35,7 @@ segmentItems:
       - {key: url, value: 'http://localhost:8080/spring-scheduled-scenario/case/call'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpoint: org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+      - {parentEndpoint: SpringScheduled/org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
   - segmentId: not null
     spans:
     - operationName: /spring-scheduled-scenario/case/call
@@ -53,7 +53,7 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/spring-scheduled-scenario/case/call'}
-    - operationName: org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work
+    - operationName: SpringScheduled/org.apache.skywalking.apm.testcase.spring.scheduled.job.SchedulingJob.work
       operationId: 0
       parentSpanId: -1
       spanId: 0

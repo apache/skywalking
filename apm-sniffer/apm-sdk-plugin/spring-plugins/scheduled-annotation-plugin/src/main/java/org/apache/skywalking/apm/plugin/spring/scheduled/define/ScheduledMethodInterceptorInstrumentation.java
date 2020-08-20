@@ -25,13 +25,19 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
+import java.lang.reflect.Method;
+
+import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class ScheduledMethodInterceptorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodInterceptor";
+    public static final String CONSTRUCTOR_WITH_METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodConstructorWithMethodInterceptor";
+    public static final String CONSTRUCTOR_WITH_STRING_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodConstructorWithStringInterceptor";
+    public static final String METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodInterceptor";
     public static final String ENHANC_CLASS = "org.springframework.scheduling.support.ScheduledMethodRunnable";
 
     @Override
@@ -45,12 +51,27 @@ public class ScheduledMethodInterceptorInstrumentation extends ClassInstanceMeth
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArguments(2);
+                    return takesArguments(2)
+                            .and(takesArgument(0, Object.class))
+                            .and(takesArgument(1, Method.class));
                 }
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return CONSTRUCTOR_WITH_METHOD_INTERCEPTOR_CLASS;
+                }
+            },
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArguments(2)
+                            .and(takesArgument(0, Object.class))
+                            .and(takesArgument(1, String.class));
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return CONSTRUCTOR_WITH_STRING_INTERCEPTOR_CLASS;
                 }
             }
         };
@@ -62,12 +83,14 @@ public class ScheduledMethodInterceptorInstrumentation extends ClassInstanceMeth
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("run").and(takesArguments(0));
+                        return named("run")
+                                .and(isPublic())
+                                .and(takesArguments(0));
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
+                        return METHOD_INTERCEPTOR_CLASS;
                     }
 
                     @Override
