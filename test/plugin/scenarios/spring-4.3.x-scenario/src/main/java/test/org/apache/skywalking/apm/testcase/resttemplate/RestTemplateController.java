@@ -43,7 +43,7 @@ public class RestTemplateController {
     @RequestMapping("/case/resttemplate")
     @ResponseBody
     public String restTemplate() throws IOException {
-        Request request = new Request.Builder().url(url + "/case/spring3/").build();
+        Request request = new Request.Builder().header("mock_header", "mock_value").url(url + "/case/spring3/").build();
         Response response = new OkHttpClient().newCall(request).execute();
         logger.info(response.toString());
 
