@@ -161,5 +161,10 @@ public abstract class AbstractLogger implements ILog {
         return tmpMessage;
     }
 
-    protected abstract void logger(LogLevel level, String message, Throwable e);
+    protected void logger(LogLevel level, String message, Throwable e) {
+        WriterFactory.getLogWriter().write(this.format(level, message, e));
+    }
+
+    protected abstract String format(LogLevel level, String message, Throwable e);
+
 }

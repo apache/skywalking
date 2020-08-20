@@ -38,7 +38,7 @@ public class LoggingBenchmark {
     private static final JsonLogger JSON_LOGGER = new JsonLogger(LoggingBenchmark.class, new Gson()) {
         @Override
         protected void logger(LogLevel level, String message, Throwable e) {
-            generateJson(level, message, e);
+            format(level, message, e);
         }
     };
 

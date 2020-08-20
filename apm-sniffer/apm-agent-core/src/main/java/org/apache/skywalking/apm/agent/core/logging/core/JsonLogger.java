@@ -45,11 +45,8 @@ public class JsonLogger extends AbstractLogger {
         }
     }
 
-    protected void logger(LogLevel level, String message, Throwable e) {
-        WriterFactory.getLogWriter().write(generateJson(level, message, e));
-    }
-
-    String generateJson(LogLevel level, String message, Throwable e) {
+    @Override
+    protected String format(LogLevel level, String message, Throwable e) {
         LogEvent logEvent = new LogEvent(level, message, e, this.targetClass);
         Map<String, String> log = new HashMap<>();
         for (Converter converter : this.converters) {

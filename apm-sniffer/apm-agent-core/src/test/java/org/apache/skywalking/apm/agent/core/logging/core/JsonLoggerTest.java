@@ -46,7 +46,7 @@ public class JsonLoggerTest {
         JsonLogger logger = new JsonLogger(JsonLoggerTest.class, new Gson()) {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
-                output.write(generateJson(level, message, e));
+                output.write(format(level, message, e));
             }
         };
 
@@ -76,7 +76,7 @@ public class JsonLoggerTest {
         JsonLogger logger = new JsonLogger(JsonLoggerTest.class, new Gson()) {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
-                output.write(generateJson(level, message, e));
+                output.write(format(level, message, e));
             }
         };
         logger.info("hello world");
@@ -104,7 +104,7 @@ public class JsonLoggerTest {
         JsonLogger logger = new JsonLogger(JsonLoggerTest.class, new Gson()) {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
-                output.write(generateJson(level, message, e));
+                output.write(format(level, message, e));
             }
         };
         String oldAgentKey = String.valueOf(Config.Logging.JSON.AGENT_NAME_KEY);
@@ -127,7 +127,7 @@ public class JsonLoggerTest {
         JsonLogger logger = new JsonLogger(JsonLoggerTest.class, new Gson()) {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
-                output.write(generateJson(level, message, e));
+                output.write(format(level, message, e));
             }
         };
         Exception e = new IllegalArgumentException();

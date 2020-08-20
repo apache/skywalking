@@ -52,11 +52,8 @@ public class PatternLogger extends AbstractLogger {
         this.converters = new Parser(pattern, DEFAULT_CONVERTER_MAP).parse();
     }
 
-    protected void logger(LogLevel level, String message, Throwable e) {
-        WriterFactory.getLogWriter().write(format(level, message, e));
-    }
-
-    String format(LogLevel level, String message, Throwable t) {
+    @Override
+    protected String format(LogLevel level, String message, Throwable t) {
         LogEvent logEvent = new LogEvent(level, message, t, targetClass);
         StringBuilder stringBuilder = new StringBuilder();
         for (Converter converter : this.converters) {
