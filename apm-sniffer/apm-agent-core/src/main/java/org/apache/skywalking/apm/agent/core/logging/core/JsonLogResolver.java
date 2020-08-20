@@ -23,15 +23,15 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogResolver;
 
 public class JsonLogResolver implements LogResolver {
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     @Override
     public ILog getLogger(Class<?> aClass) {
-        return new JsonLogger(aClass, gson);
+        return new JsonLogger(aClass, GSON);
     }
 
     @Override
     public ILog getLogger(String s) {
-        return new JsonLogger(s, gson);
+        return new JsonLogger(s, GSON);
     }
 }
