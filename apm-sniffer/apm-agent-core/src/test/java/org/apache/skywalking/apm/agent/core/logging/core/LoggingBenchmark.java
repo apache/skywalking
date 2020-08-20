@@ -61,4 +61,36 @@ public class LoggingBenchmark {
     public static void main(String[] args) throws Exception {
         org.openjdk.jmh.Main.main(args);
     }
+
+    /**
+     * # JMH version: 1.21
+     * # VM version: JDK 1.8.0_265, OpenJDK 64-Bit Server VM, 25.265-b01
+     * # VM invoker: /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/bin/java
+     * # VM options: -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=61104:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8
+     * # Warmup: 5 iterations, 10 s each
+     * # Measurement: 5 iterations, 10 s each
+     * # Timeout: 10 min per iteration
+     * # Threads: 1 thread, will synchronize iterations
+     * # Benchmark mode: Sampling time
+     *
+     * Benchmark                                               Mode      Cnt        Score    Error  Units
+     * LoggingBenchmark.jsonLogger                           sample  1400812     2305.088 ± 19.119  ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.00          sample              1988.000           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.50          sample              2156.000           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.90          sample              2280.000           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.95          sample              2388.000           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.99          sample              3576.000           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.999         sample             18688.000           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p0.9999        sample             78072.717           ns/op
+     * LoggingBenchmark.jsonLogger:jsonLogger·p1.00          sample           1183744.000           ns/op
+     * LoggingBenchmark.patternLogger                        sample  1100999     1522.612 ± 23.720  ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.00    sample              1270.000           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.50    sample              1378.000           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.90    sample              1452.000           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.95    sample              1548.000           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.99    sample              2188.000           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.999   sample             17696.000           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p0.9999  sample            589721.600           ns/op
+     * LoggingBenchmark.patternLogger:patternLogger·p1.00    sample           1259520.000           ns/op
+     */
 }
