@@ -44,7 +44,7 @@
                             <name>skywalking/agent-test-jvm:${version}</name>
                             <build>
                                 <from>openjdk:8</from>
-                                <workdir>/usr/local/skywalking/tools</workdir>
+                                <workdir>/usr/local/skywalking/scenario</workdir>
                                 <assembly>
                                     <mode>dir</mode>
                                     <targetDir>/usr/local/skywalking</targetDir>
@@ -54,7 +54,6 @@
                                     <run>chmod +x /usr/local/skywalking/run.sh</run>
                                     <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
                                 </runCmds>
-                                <workdir>/usr/local/skywalking/scenario</workdir>
                                 <cmd>/usr/local/skywalking/run.sh</cmd>
                             </build>
                         </image>
@@ -62,7 +61,7 @@
                             <name>skywalking/agent-test-jvm:jdk14-${version}</name>
                             <build>
                                 <from>openjdk:14</from>
-                                <workdir>/usr/local/skywalking/tools</workdir>
+                                <workdir>/usr/local/skywalking/scenario</workdir>
                                 <assembly>
                                     <mode>dir</mode>
                                     <targetDir>/usr/local/skywalking</targetDir>
@@ -73,7 +72,6 @@
                                     <run>chmod +x /usr/local/skywalking/run.sh</run>
                                     <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
                                 </runCmds>
-                                <workdir>/usr/local/skywalking/scenario</workdir>
                                 <cmd>/usr/local/skywalking/run.sh</cmd>
                             </build>
                         </image>

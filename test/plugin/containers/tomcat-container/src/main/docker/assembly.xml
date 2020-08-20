@@ -28,18 +28,18 @@
     <fileSets>
         <fileSet>
             <directory>${project.basedir}/../../agent-test-tools/dist</directory>
-            <outputDirectory>/usr/local/skywalking/tools</outputDirectory>
+            <outputDirectory>usr/local/skywalking/tools</outputDirectory>
         </fileSet>
     </fileSets>
 
     <files>
         <file>
             <source>${project.basedir}/src/main/docker/run.sh</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>./</outputDirectory>
         </file>
         <file>
             <source>${project.basedir}/src/main/docker/catalina.sh</source>
-            <outputDirectory>/usr/local/tomcat/bin</outputDirectory>
+            <outputDirectory>usr/local/tomcat/bin</outputDirectory>
         </file>
     </files>
 
