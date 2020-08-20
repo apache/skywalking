@@ -36,9 +36,6 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.logging.core.JsonLogResolver;
-import org.apache.skywalking.apm.agent.core.logging.core.PatternLogResolver;
-import org.apache.skywalking.apm.agent.core.logging.core.ResolverType;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.InstrumentDebuggingClass;
@@ -48,7 +45,6 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
-import org.apache.skywalking.apm.util.ConfigInitializer;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -58,16 +54,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * The main entrance of sky-walking agent, based on javaagent mechanism.
  */
 public class SkyWalkingAgent {
-<<<<<<< HEAD
-    private static final ILog LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
-=======
-    private static final ILog logger;
-
-    static {
-        configureLogger();
-        logger = LogManager.getLogger(SkyWalkingAgent.class);
-    }
->>>>>>> 62711c515... add json logger
+    private static ILog LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
 
     /**
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
@@ -79,12 +66,17 @@ public class SkyWalkingAgent {
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
         } catch (AgentPackageNotFoundException ape) {
+            LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
             LOGGER.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
+            LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
             LOGGER.error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         }
+
+        // reconfigure logger according to the new config
+        LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
 
         final ByteBuddy byteBuddy = new ByteBuddy().with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
@@ -215,23 +207,6 @@ public class SkyWalkingAgent {
 
         @Override
         public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
-        }
-    }
-
-    static void configureLogger() {
-        // before get `logger`, we need to setup the LogResolver first
-        try {
-            ConfigInitializer.initialize(System.getProperties(), Config.class);
-        } catch (IllegalAccessException ignore) {
-        }
-        ResolverType resolverType = Config.Logging.LOGGER;
-        switch (resolverType) {
-            case JSON:
-                LogManager.setLogResolver(new JsonLogResolver());
-                break;
-            case PATTERN:
-            default:
-                LogManager.setLogResolver(new PatternLogResolver());
         }
     }
 }
