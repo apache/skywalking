@@ -19,7 +19,7 @@
 package test.apache.skywalking.apm.testcase.gson.controller;
 
 import com.google.gson.Gson;
-import org.apache.skywalking.apm.toolkit.trace.Trace;
+import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,29 +29,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class CaseController {
 
     private static final String SUCCESS = "Success";
-    private static final String GSON_STRING = """
-        {"name":"skywalking", "uuid":"skywalking-jdk14-with-gson"}
-        """;
 
     @RequestMapping("/gson-scenario")
     @ResponseBody
     public String gsonCase() {
         Gson gson = new Gson();
-        gson.fromJson(gson.toJson(GSON_STRING), Person.class);
+        Person person = new Person("skywalking", "jdk14");
+        gson.fromJson(gson.toJson(person), Person.class);
+        person.action();
         return SUCCESS;
     }
 
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
-        // your codes
         return SUCCESS;
     }
 
     public record Person(String name, String uuid) {
-        @Trace(operationName = "/person/action")
         public void action() {
-
+            ActiveSpan.tag("key", "value");
         }
     }
 }
