@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/gson-scenario.jar &
+java -jar --enable-preview ${agent_opts} ${home}/../libs/gson-scenario.jar &

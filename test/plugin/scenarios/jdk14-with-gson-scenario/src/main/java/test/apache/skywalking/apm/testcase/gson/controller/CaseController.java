@@ -49,7 +49,7 @@ public class CaseController {
     }
 
     public record Person(String name, String uuid) {
-        @Trace("/person/action")
+        @Trace(operationName = "/person/action")
         public void action() {
 
         }

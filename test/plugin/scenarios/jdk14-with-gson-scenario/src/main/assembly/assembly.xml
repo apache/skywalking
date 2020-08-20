@@ -33,7 +33,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/gson-scenario.jar</source>
+            <source>${project.build.directory}/jdk14-with-gson-scenario.jar</source>
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>
