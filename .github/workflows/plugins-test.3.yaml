@@ -112,7 +112,5 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: jdk14-with-gson-scenario (1)
         run: bash test/plugin/run.sh --image_version=jdk14-1.0.0 jdk14-with-gson-scenario
-      - name: cleanup
-        run: bash test/plugin/run.sh --cleanup
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh

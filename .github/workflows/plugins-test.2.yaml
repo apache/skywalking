@@ -69,7 +69,5 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: ${{ matrix.case.title }}
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
-      - name: cleanup
-        run: bash test/plugin/run.sh --cleanup
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
