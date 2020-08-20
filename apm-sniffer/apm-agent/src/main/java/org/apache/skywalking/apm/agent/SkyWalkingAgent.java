@@ -63,20 +63,19 @@ public class SkyWalkingAgent {
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
+        } finally {
+            logger = LogManager.getLogger(SkyWalkingAgent.class);
+        }
 
+        try {
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
         } catch (AgentPackageNotFoundException ape) {
-            logger = LogManager.getLogger(SkyWalkingAgent.class);
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
-            logger = LogManager.getLogger(SkyWalkingAgent.class);
             logger.error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         }
-
-        // reconfigure logger according to the new config
-        logger = LogManager.getLogger(SkyWalkingAgent.class);
 
         final ByteBuddy byteBuddy = new ByteBuddy().with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
