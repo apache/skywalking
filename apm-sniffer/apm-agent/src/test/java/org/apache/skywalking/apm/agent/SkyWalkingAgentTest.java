@@ -18,14 +18,23 @@
 
 package org.apache.skywalking.apm.agent;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.logging.core.JsonLogger;
 import org.apache.skywalking.apm.agent.core.logging.core.PatternLogger;
+import org.apache.skywalking.apm.agent.core.logging.core.ResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SkyWalkingAgentTest {
+
+    @Before
+    public void setLoggerBackDefault() {
+        System.clearProperty("logging.logger");
+        Config.Logging.LOGGER = ResolverType.PATTERN;
+    }
 
     @Test
     public void testDefaultLogger() {
@@ -35,18 +44,18 @@ public class SkyWalkingAgentTest {
     }
 
     @Test
-    public void testJsonLogger() {
-        System.setProperty("skywalking.logger", "JSON");
+    public void givenLowerCaseEnumValue_testJsonLogger() {
+        System.setProperty("logging.logger", "Json");
         SkyWalkingAgent.configureLogger();
         ILog logger = LogManager.getLogger(SkyWalkingAgentTest.class);
         Assert.assertTrue(logger instanceof JsonLogger);
     }
 
     @Test
-    public void givenInvalidEnumValue_thenUsePatternLogger() {
-        System.setProperty("skywalking.logger", "Json");
+    public void testJsonLogger() {
+        System.setProperty("logging.logger", "JSON");
         SkyWalkingAgent.configureLogger();
         ILog logger = LogManager.getLogger(SkyWalkingAgentTest.class);
-        Assert.assertTrue(logger instanceof PatternLogger);
+        Assert.assertTrue(logger instanceof JsonLogger);
     }
 }

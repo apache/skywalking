@@ -48,7 +48,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.apm.util.ConfigInitializer;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -220,22 +220,18 @@ public class SkyWalkingAgent {
 
     static void configureLogger() {
         // before get `logger`, we need to setup the LogResolver first
-        String resolver = System.getProperty("skywalking.logger");
-        if (!StringUtil.isEmpty(resolver)) {
-            try {
-                ResolverType resolverType = ResolverType.valueOf(resolver);
-                switch (resolverType) {
-                    case JSON:
-                        LogManager.setLogResolver(new JsonLogResolver());
-                        break;
-                    case PATTERN:
-                    default:
-                        LogManager.setLogResolver(new PatternLogResolver());
-                }
-            } catch (IllegalArgumentException ignore) {
+        try {
+            ConfigInitializer.initialize(System.getProperties(), Config.class);
+        } catch (IllegalAccessException ignore) {
+        }
+        ResolverType resolverType = Config.Logging.LOGGER;
+        switch (resolverType) {
+            case JSON:
+                LogManager.setLogResolver(new JsonLogResolver());
+                break;
+            case PATTERN:
+            default:
                 LogManager.setLogResolver(new PatternLogResolver());
-            }
-
         }
     }
 }

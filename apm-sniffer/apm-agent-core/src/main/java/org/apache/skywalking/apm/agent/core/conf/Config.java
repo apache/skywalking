@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
+import org.apache.skywalking.apm.agent.core.logging.core.ResolverType;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ClassCacheMode;
 import org.apache.skywalking.apm.util.Length;
@@ -249,6 +250,11 @@ public class Config {
          * The log output. Default is FILE.
          */
         public static LogOutput OUTPUT = LogOutput.FILE;
+
+        /**
+         * The log resolver type. Default is PATTERN which will create PatternLogResolver later.
+         */
+        public static ResolverType LOGGER = ResolverType.PATTERN;
 
         /**
          * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable". Each conversion specifiers
