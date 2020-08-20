@@ -36,4 +36,9 @@ public class LiteralConverter implements Converter {
     public String convert(LogEvent logEvent) {
         return literal;
     }
+
+    @Override
+    public String getKey() {
+        return "";
+    }
 }

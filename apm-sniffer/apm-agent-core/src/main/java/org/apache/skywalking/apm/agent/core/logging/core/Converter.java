@@ -25,7 +25,5 @@ public interface Converter {
 
     String convert(LogEvent logEvent);
 
-    default String getKey() {
-        return "";
-    }
+    String getKey();
 }
