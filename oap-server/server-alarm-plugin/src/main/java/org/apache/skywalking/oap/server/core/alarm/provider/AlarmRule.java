@@ -41,6 +41,10 @@ public class AlarmRule {
     private String includeNamesRegex;
     private ArrayList<String> excludeNames;
     private String excludeNamesRegex;
+    private ArrayList<String> includeLabels;
+    private String includeLabelsRegex;
+    private ArrayList<String> excludeLabels;
+    private String excludeLabelsRegex;
     private String threshold;
     private String op;
     private int period;
