@@ -91,9 +91,9 @@ public class SlackhookCallback implements AlarmCallback {
                         GSON.fromJson(
                             String.format(
                                 alarmRulesWatcher.getSlackSettings().getTextTemplate(),
-                                OffsetDateTime.ofInstant(Instant.ofEpochMilli(item.getStartTime()),
-                                                         ZoneId.systemDefault()),
-                                item.getId0(), item.getScope(), item.getName(), item.getAlarmMessage()
+                                OffsetDateTime.ofInstant(
+                                    Instant.ofEpochMilli(item.getStartTime()), ZoneId.systemDefault()
+                                ), item.getScope(), item.getName(), item.getAlarmMessage(), item.getId0()
                             ),
                             JsonObject.class
                         )));
