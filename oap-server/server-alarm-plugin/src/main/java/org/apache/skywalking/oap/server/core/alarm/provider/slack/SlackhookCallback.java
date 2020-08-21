@@ -24,9 +24,6 @@ import com.google.gson.JsonObject;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -68,7 +65,7 @@ public class SlackhookCallback implements AlarmCallback {
     }
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessage) {
+    public void doAlarm(List<AlarmMessage> alarmMessages) {
         if (webhooks.isEmpty()) {
             return;
         }
@@ -87,16 +84,13 @@ public class SlackhookCallback implements AlarmCallback {
                     JsonObject jsonObject = new JsonObject();
                     JsonArray jsonElements = new JsonArray();
 
-                    alarmMessage.forEach(item -> jsonElements.add(
-                        GSON.fromJson(
+                    alarmMessages.forEach(item -> {
+                        jsonElements.add(GSON.fromJson(
                             String.format(
-                                alarmRulesWatcher.getSlackSettings().getTextTemplate(),
-                                OffsetDateTime.ofInstant(
-                                    Instant.ofEpochMilli(item.getStartTime()), ZoneId.systemDefault()
-                                ), item.getScope(), item.getName(), item.getAlarmMessage(), item.getId0()
-                            ),
-                            JsonObject.class
-                        )));
+                                this.alarmRulesWatcher.getSlackSettings().getTextTemplate(), item.getAlarmMessage()
+                            ), JsonObject.class));
+                    });
+
                     jsonObject.add("blocks", jsonElements);
 
                     entity = new StringEntity(GSON.toJson(jsonObject), ContentType.APPLICATION_JSON);

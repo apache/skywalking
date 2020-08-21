@@ -53,7 +53,7 @@ slackHooks:
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": ":alarm_clock: *Apache Skywalking Alarm* ,%s \n [%s], %s *%s* , %s."
+        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
       }
     }
   webhooks:

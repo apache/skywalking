@@ -111,7 +111,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         return this.rules.getGrpchookSetting();
     }
 
-    public SlackSettings getSlackSettings(){
+    public SlackSettings getSlackSettings() {
         return this.rules.getSlacks();
     }
 }
