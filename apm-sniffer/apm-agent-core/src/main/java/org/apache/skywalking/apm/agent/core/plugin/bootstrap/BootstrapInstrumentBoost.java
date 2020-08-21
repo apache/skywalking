@@ -52,7 +52,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * classes into bootstrap class loader, including generated dynamic delegate classes.
  */
 public class BootstrapInstrumentBoost {
-    private static final ILog logger = LogManager.getLogger(BootstrapInstrumentBoost.class);
+    private static final ILog LOGGER = LogManager.getLogger(BootstrapInstrumentBoost.class);
 
     private static final String[] HIGH_PRIORITY_CLASSES = {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist",

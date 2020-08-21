@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
  * please pay attention to the WARNING logs.
  */
 public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.AbstractBase<T> {
-    private static final ILog logger = LogManager.getLogger(ProtectiveShieldMatcher.class);
+    private static final ILog LOGGER = LogManager.getLogger(ProtectiveShieldMatcher.class);
 
     private final ElementMatcher<? super T> matcher;
 
@@ -45,8 +45,8 @@ public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.Abstract
         try {
             return this.matcher.matches(target);
         } catch (Throwable t) {
-            if (logger.isDebugEnable()) {
-                logger.debug(t, "Byte-buddy occurs exception when match type.");
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug(t, "Byte-buddy occurs exception when match type.");
             }
             return false;
         }

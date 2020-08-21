@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  **/
 public class CLRSourceDispatcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(CLRSourceDispatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CLRSourceDispatcher.class);
     private final SourceReceiver sourceReceiver;
 
     public CLRSourceDispatcher(ModuleManager moduleManager) {

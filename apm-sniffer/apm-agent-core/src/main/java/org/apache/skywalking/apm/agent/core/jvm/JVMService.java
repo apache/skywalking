@@ -42,7 +42,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  */
 @DefaultImplementor
 public class JVMService implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(JVMService.class);
+    private static final ILog LOGGER = LogManager.getLogger(JVMService.class);
     private volatile ScheduledFuture<?> collectMetricFuture;
     private volatile ScheduledFuture<?> sendMetricFuture;
     private JVMMetricsSender sender;
@@ -61,7 +61,7 @@ public class JVMService implements BootService, Runnable {
                                            new RunnableWithExceptionProtection.CallbackWhenException() {
                                                @Override
                                                public void handle(Throwable t) {
-                                                   logger.error("JVMService produces metrics failure.", t);
+                                                   LOGGER.error("JVMService produces metrics failure.", t);
                                                }
                                            }
                                        ), 0, 1, TimeUnit.SECONDS);
@@ -72,7 +72,7 @@ public class JVMService implements BootService, Runnable {
                                         new RunnableWithExceptionProtection.CallbackWhenException() {
                                             @Override
                                             public void handle(Throwable t) {
-                                                logger.error("JVMService consumes and upload failure.", t);
+                                                LOGGER.error("JVMService consumes and upload failure.", t);
                                             }
                                         }
                                     ), 0, 1, TimeUnit.SECONDS);
@@ -103,7 +103,7 @@ public class JVMService implements BootService, Runnable {
 
             sender.offer(jvmBuilder.build());
         } catch (Exception e) {
-            logger.error(e, "Collect JVM info fail.");
+            LOGGER.error(e, "Collect JVM info fail.");
         }
     }
 }
