@@ -16,12 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [[ -n $DEBUG_MODE ]]; then
-  set -ex
-  export
-else
-  set -e
-fi
+set -ex
+[[ -n $DEBUG_MODE ]] && export
 
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
@@ -90,7 +86,8 @@ exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${LOGS_HOME}/scenario.
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-`echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}`
+# To fix exception to exit because it will return non-zero value.
+dark=`echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}`
 sleep 5
 
 echo "To receive actual data"
