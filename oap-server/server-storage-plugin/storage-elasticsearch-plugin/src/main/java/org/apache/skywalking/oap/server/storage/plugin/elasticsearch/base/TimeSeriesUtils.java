@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -57,6 +59,29 @@ public class TimeSeriesUtils {
         } else {
             timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
             return model.getName() + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
+        }
+    }
+
+    /**
+     * @return Concrete index name for super dataset index
+     */
+    public static String[] superDatasetIndexNames(String indexName, long startSecondTB, long endSecondTB) {
+        if (startSecondTB == 0 || endSecondTB == 0) {
+            return new String[] {indexName};
+        }
+        DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startSecondTB / 1000000 + "");
+        DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endSecondTB / 1000000 + "");
+        List<DateTime> timeRanges = new ArrayList<>(16);
+        for (int i = 0; i <= Days.daysBetween(startDateTime, endDateTime).getDays(); i++) {
+            timeRanges.add(startDateTime.plusDays(i));
+        }
+        if (timeRanges.isEmpty()) {
+            return new String[] {indexName};
+        } else {
+            return timeRanges.stream()
+                             .map(item -> indexName + Const.LINE + compressDateTime(item, SUPER_DATASET_DAY_STEP))
+                             .distinct()
+                             .toArray(String[]::new);
         }
     }
 
@@ -116,4 +141,18 @@ public class TimeSeriesUtils {
             return timeBucket;
         }
     }
+
+    static long compressDateTime(DateTime time, int dayStep) {
+        if (dayStep > 1) {
+            int days = Days.daysBetween(DAY_ONE, time).getDays();
+            int groupBucketOffset = days % dayStep;
+            return Long.parseLong(time.minusDays(groupBucketOffset).toString(TIME_BUCKET_FORMATTER));
+        } else {
+            /**
+             * No calculation required. dayStep is for lower traffic. For normally configuration, there is pointless to calculate.
+             */
+            return Long.parseLong(time.toString(TIME_BUCKET_FORMATTER));
+        }
+    }
+
 }

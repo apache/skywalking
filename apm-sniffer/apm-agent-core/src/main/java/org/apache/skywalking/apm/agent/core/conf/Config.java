@@ -266,6 +266,11 @@ public class Config {
          * Control the length of the peer field.
          */
         public static int PEER_MAX_LENGTH = 200;
+
+        /**
+         * Exclude activated plugins
+         */
+        public static String EXCLUDE_PLUGINS = "";
     }
 
     public static class Correlation {

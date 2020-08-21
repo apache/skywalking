@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.kafka.define.Constants;
-import org.apache.skywalking.apm.plugin.kafka.define.SpringKafkaContext;
+import org.apache.skywalking.apm.plugin.kafka.define.KafkaContext;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -66,9 +66,10 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
         //
         if (records.size() > 0) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-            if (ContextManager.getRuntimeContext().get(Constants.SPRING_KAFKA_FLAG) != null) {
-                ContextManager.createEntrySpan(Constants.SPRING_KAFKA_POLL_AND_INVOKE_OPERATION_NAME, null);
-                ((SpringKafkaContext) ContextManager.getRuntimeContext().get(Constants.SPRING_KAFKA_FLAG)).setNeedStop(true);
+            KafkaContext context = (KafkaContext) ContextManager.getRuntimeContext().get(Constants.KAFKA_FLAG);
+            if (context != null) {
+                ContextManager.createEntrySpan(context.getOperationName(), null);
+                context.setNeedStop(true);
             }
             String operationName = OPERATE_NAME_PREFIX + requiredInfo.getTopics() + CONSUMER_OPERATE_NAME + requiredInfo.getGroupId();
             AbstractSpan activeSpan = ContextManager.createEntrySpan(operationName, null).start(requiredInfo.getStartTime());
