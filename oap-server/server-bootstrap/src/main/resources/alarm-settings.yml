@@ -57,5 +57,5 @@ slackHooks:
       }
     }
   webhooks:
-    - https://hooks.slack.com/services/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
+#    - https://hooks.slack.com/services/x/y/zssss
 
