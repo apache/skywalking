@@ -36,7 +36,7 @@ import java.io.IOException;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
 
@@ -49,7 +49,7 @@ public class CaseController {
                 try {
                     call("http://localhost:8080/quasar-scenario/case/ping");
                 } catch (Exception e) {
-                    logger.error("quasar error:", e);
+                    LOGGER.error("quasar error:", e);
                 }
                 return null;
             }

@@ -55,7 +55,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
  */
 @DefaultImplementor
 public class ProfileTaskChannelService implements BootService, Runnable, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(ProfileTaskChannelService.class);
+    private static final ILog LOGGER = LogManager.getLogger(ProfileTaskChannelService.class);
 
     // channel status
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
@@ -93,12 +93,12 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                 ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
             } catch (Throwable t) {
                 if (!(t instanceof StatusRuntimeException)) {
-                    logger.error(t, "Query profile task from backend fail.");
+                    LOGGER.error(t, "Query profile task from backend fail.");
                     return;
                 }
                 final StatusRuntimeException statusRuntimeException = (StatusRuntimeException) t;
                 if (statusRuntimeException.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
-                    logger.warn("Backend doesn't support profiling, profiling will be disabled");
+                    LOGGER.warn("Backend doesn't support profiling, profiling will be disabled");
                     if (getTaskListFuture != null) {
                         getTaskListFuture.cancel(true);
                     }
@@ -128,7 +128,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
             ).scheduleWithFixedDelay(
                 new RunnableWithExceptionProtection(
                     this,
-                    t -> logger.error("Query profile task list failure.", t)
+                    t -> LOGGER.error("Query profile task list failure.", t)
                 ), 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS
             );
 
@@ -143,7 +143,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                             sender.send(buffer);
                         }
                     },
-                    t -> logger.error("Profile segment snapshot upload failure.", t)
+                    t -> LOGGER.error("Profile segment snapshot upload failure.", t)
                 ), 0, 500, TimeUnit.MILLISECONDS
             );
         }
@@ -198,7 +198,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
             profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
                                    .reportTaskFinish(reportBuilder.build());
         } catch (Throwable e) {
-            logger.error(e, "Notify profile task finish to backend fail.");
+            LOGGER.error(e, "Notify profile task finish to backend fail.");
         }
     }
 

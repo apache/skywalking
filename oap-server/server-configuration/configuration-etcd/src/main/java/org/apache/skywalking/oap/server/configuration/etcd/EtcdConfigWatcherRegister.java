@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
-    private final static Logger logger = LoggerFactory.getLogger(EtcdConfigWatcherRegister.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EtcdConfigWatcherRegister.class);
 
     /**
      * server settings for Etcd configuration
@@ -126,8 +126,8 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
         try {
             EtcdKeysResponse.EtcdNode node = promise.get().getNode();
             String value = node.getValue();
-            if (logger.isInfoEnabled()) {
-                logger.info("Etcd config changed: {}: {}", key, node.getValue());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Etcd config changed: {}: {}", key, node.getValue());
             }
 
             configItemKeyedByName.put(key, Optional.ofNullable(value));

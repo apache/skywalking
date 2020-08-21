@@ -79,7 +79,7 @@
         <!--Checks that long constants are defined with an upper ell-->
         <module name="UpperEll"/>
         <module name="ConstantName">
-            <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)|(^logger)"/>
+            <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
         <!--Checks that local, non-final variable names conform to producerGroup format specified by the format property-->
         <module name="LocalVariableName"/>

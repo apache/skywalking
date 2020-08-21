@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     @Value("${activemq.server}")
     private String brokenUrl;
@@ -68,12 +68,12 @@ public class CaseController {
             session.close();
             connection.close();
         } catch (Exception ex) {
-            logger.error(ex);
+            LOGGER.error(ex);
             try {
                 session.close();
                 connection.close();
             } catch (JMSException e) {
-                logger.error(e);
+                LOGGER.error(e);
             }
         }
         new ConsumerThread().start();
@@ -92,12 +92,12 @@ public class CaseController {
             connection.getMetaData().getJMSVersion();
             connection.close();
         } catch (Exception ex) {
-            logger.error(ex);
+            LOGGER.error(ex);
             try {
                 session.close();
                 connection.close();
             } catch (JMSException e) {
-                logger.error(e);
+                LOGGER.error(e);
             }
             return FAIL;
         }
@@ -120,12 +120,12 @@ public class CaseController {
                 session.close();
                 connection.close();
             } catch (Exception ex) {
-                logger.error(ex);
+                LOGGER.error(ex);
                 try {
                     session.close();
                     connection.close();
                 } catch (JMSException e) {
-                    logger.error(e);
+                    LOGGER.error(e);
                 }
             }
         }

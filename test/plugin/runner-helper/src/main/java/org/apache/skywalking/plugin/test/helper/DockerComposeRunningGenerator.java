@@ -31,7 +31,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
-    private static final Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOGGER = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     protected DockerComposeRunningGenerator() {
     }
@@ -54,7 +54,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             cfg.getTemplate("docker-compose.template")
                .process(root, new FileWriter(new File(configuration.outputDir(), "docker-compose.yml")));
         } catch (TemplateException | IOException e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
@@ -67,7 +67,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         try {
             cfg.getTemplate("compose-start-script.template").process(root, out);
         } catch (Exception e) {
-            logger.error("Failed to generate running script.", e);
+            LOGGER.error("Failed to generate running script.", e);
         }
         return out.toString();
     }
