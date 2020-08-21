@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImplBase {
-    private static final Logger logger = LoggerFactory.getLogger(JaegerGRPCHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JaegerGRPCHandler.class);
 
     private SourceReceiver receiver;
     private JaegerReceiverConfig config;
@@ -51,8 +51,8 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
 
         request.getBatch().getSpansList().forEach(span -> {
             try {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(span.toString());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(span.toString());
                 }
 
                 JaegerSpan jaegerSpan = new JaegerSpan();
@@ -97,7 +97,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
 
                 receiver.receive(jaegerSpan);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         });
 

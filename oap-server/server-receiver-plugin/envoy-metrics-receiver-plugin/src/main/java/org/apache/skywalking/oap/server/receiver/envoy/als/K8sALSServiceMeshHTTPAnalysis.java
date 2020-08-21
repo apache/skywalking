@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * Analysis log based on ingress and mesh scenarios.
  */
 public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
-    private static final Logger logger = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
 
     private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
 
@@ -102,13 +102,13 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
             long startTime = System.nanoTime();
             for (V1Pod item : list.getItems()) {
                 if (!item.getStatus().getPhase().equals(VALID_PHASE)) {
-                    logger.debug("Invalid pod {} is not in a valid phase {}", item.getMetadata()
+                    LOGGER.debug("Invalid pod {} is not in a valid phase {}", item.getMetadata()
                                                                                   .getName(), item.getStatus()
                                                                                                   .getPhase());
                     continue;
                 }
                 if (item.getStatus().getPodIP().equals(item.getStatus().getHostIP())) {
-                    logger.debug(
+                    LOGGER.debug(
                         "Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata()
                                                                                             .getName(),
                         item.getMetadata()
@@ -118,10 +118,10 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                 }
                 ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
             }
-            logger.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
+            LOGGER.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
             ipServiceMap.set(ipMap);
         } catch (Throwable th) {
-            logger.error("run load pod error", th);
+            LOGGER.error("run load pod error", th);
         }
     }
 
@@ -231,7 +231,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                             .setProtocol(protocol)
                                                                             .setDetectPoint(DetectPoint.server);
 
-                        logger.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
+                        LOGGER.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
                         forward(metric);
                     } else {
                         // sidecar -> sidecar(server side)
@@ -254,7 +254,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                             .setProtocol(protocol)
                                                                             .setDetectPoint(DetectPoint.server);
 
-                        logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
+                        LOGGER.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
                         forward(metric);
                     }
                 } else if (cluster.startsWith("outbound|")) {
@@ -283,7 +283,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                         .setProtocol(protocol)
                                                                         .setDetectPoint(DetectPoint.client);
 
-                    logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
+                    LOGGER.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
                     forward(metric);
 
                 }
@@ -347,7 +347,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                     .setProtocol(protocol)
                                                                     .setDetectPoint(DetectPoint.server);
 
-                logger.debug("Transformed ingress inbound mesh metric {}", metric);
+                LOGGER.debug("Transformed ingress inbound mesh metric {}", metric);
                 forward(metric);
 
                 SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
@@ -378,7 +378,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                             .setProtocol(protocol)
                                                                             .setDetectPoint(DetectPoint.client);
 
-                logger.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
+                LOGGER.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
                 forward(outboundMetric);
             }
         }
@@ -407,13 +407,13 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     protected ServiceMetaInfo find(String ip, int port) {
         Map<String, ServiceMetaInfo> map = ipServiceMap.get();
         if (map == null) {
-            logger.debug("Unknown ip {}, ip -> service is null", ip);
+            LOGGER.debug("Unknown ip {}, ip -> service is null", ip);
             return ServiceMetaInfo.UNKNOWN;
         }
         if (map.containsKey(ip)) {
             return map.get(ip);
         }
-        logger.debug("Unknown ip {}, ip -> service is {}", ip, map);
+        LOGGER.debug("Unknown ip {}, ip -> service is {}", ip, map);
         return ServiceMetaInfo.UNKNOWN;
     }
 

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
-    private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MeshGRPCHandler.class);
 
     public MeshGRPCHandler(ModuleManager moduleManager) {
 
@@ -38,8 +38,8 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
         return new StreamObserver<ServiceMeshMetric>() {
             @Override
             public void onNext(ServiceMeshMetric metrics) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Received mesh metrics: {}", metrics);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Received mesh metrics: {}", metrics);
                 }
 
                 TelemetryDataDispatcher.process(metrics.toBuilder());
@@ -47,7 +47,7 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
 
             @Override
             public void onError(Throwable throwable) {
-                logger.error(throwable.getMessage(), throwable);
+                LOGGER.error(throwable.getMessage(), throwable);
                 responseObserver.onCompleted();
             }
 

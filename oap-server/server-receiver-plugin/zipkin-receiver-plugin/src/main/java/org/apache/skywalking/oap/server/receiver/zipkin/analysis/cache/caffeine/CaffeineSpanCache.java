@@ -40,7 +40,7 @@ import zipkin2.Span;
  * time, I have to set a timer to write a meaningless trace, for active expire.
  */
 public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, ZipkinTrace> {
-    private static final Logger logger = LoggerFactory.getLogger(CaffeineSpanCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CaffeineSpanCache.class);
     private Cache<String, ZipkinTrace> inProcessSpanCache;
     private ReentrantLock newTraceLock;
 
@@ -67,8 +67,8 @@ public class CaffeineSpanCache implements ISpanCache, RemovalListener<String, Zi
         try {
             Zipkin2SkyWalkingTransfer.INSTANCE.transfer(trace);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            logger.warn("Zipkin trace:" + trace);
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn("Zipkin trace:" + trace);
         }
     }
 

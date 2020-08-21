@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SQLExecutor implements InsertRequest, UpdateRequest {
 
-    private static final Logger logger = LoggerFactory.getLogger(SQLExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SQLExecutor.class);
 
     private String sql;
     private List<Object> param;
@@ -49,7 +49,7 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
             preparedStatement.setObject(i + 1, param.get(i));
         }
 
-        logger.debug("execute aql in batch: {}", sql);
+        LOGGER.debug("execute aql in batch: {}", sql);
         preparedStatement.execute();
     }
 }

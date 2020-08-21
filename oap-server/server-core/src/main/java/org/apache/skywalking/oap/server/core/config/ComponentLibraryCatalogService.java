@@ -32,7 +32,7 @@ import org.yaml.snakeyaml.Yaml;
  * which declare the real server type based on client component.
  */
 public class ComponentLibraryCatalogService implements IComponentLibraryCatalogService {
-    private static final Logger logger = LoggerFactory.getLogger(ComponentLibraryCatalogService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentLibraryCatalogService.class);
     private static final String COMPONENT_SERVER_MAPPING_SECTION = "Component-Server-Mappings";
 
     private Map<String, Integer> componentName2Id;
@@ -107,7 +107,7 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
             });
             nameMapping.clear();
         } catch (FileNotFoundException e) {
-            logger.error("component-libraries.yml not found.", e);
+            LOGGER.error("component-libraries.yml not found.", e);
         }
 
     }

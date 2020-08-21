@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Use SkyWalking alarm webhook API call a remote endpoints.
  */
 public class WebhookCallback implements AlarmCallback {
-    private static final Logger logger = LoggerFactory.getLogger(WebhookCallback.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebhookCallback.class);
     private static final int HTTP_CONNECT_TIMEOUT = 1000;
     private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 1000;
     private static final int HTTP_SOCKET_TIMEOUT = 10000;
@@ -81,19 +81,19 @@ public class WebhookCallback implements AlarmCallback {
                     CloseableHttpResponse httpResponse = httpClient.execute(post);
                     StatusLine statusLine = httpResponse.getStatusLine();
                     if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                        logger.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
+                        LOGGER.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
                     }
                 } catch (UnsupportedEncodingException e) {
-                    logger.error("Alarm to JSON error, " + e.getMessage(), e);
+                    LOGGER.error("Alarm to JSON error, " + e.getMessage(), e);
                 } catch (IOException e) {
-                    logger.error("send alarm to " + url + " failure.", e);
+                    LOGGER.error("send alarm to " + url + " failure.", e);
                 }
             });
         } finally {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

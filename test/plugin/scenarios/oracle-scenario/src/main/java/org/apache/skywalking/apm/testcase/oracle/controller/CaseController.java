@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     @Value("${oracle.address}")
     private String oracleHostAndPort;
@@ -85,7 +85,7 @@ public class CaseController {
             queryDataPreparedStatement.setString(1, "1");
             ResultSet resultSet = queryDataPreparedStatement.executeQuery();
             resultSet.next();
-            logger.info("Query id[{}]: value={}", "1", resultSet.getString(2));
+            LOGGER.info("Query id[{}]: value={}", "1", resultSet.getString(2));
             queryDataPreparedStatement.close();
 
             // drop table by using statement
@@ -94,7 +94,7 @@ public class CaseController {
             dropTableStatement.close();
         } catch (SQLException e) {
             String message = "Failed to execute sql";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         } finally {
             if (connection != null) {
@@ -102,7 +102,7 @@ public class CaseController {
                     connection.close();
                 } catch (SQLException e) {
                     String message = "Failed to close connection";
-                    logger.error(message);
+                    LOGGER.error(message);
                     throw new RuntimeException(message);
                 }
             }
@@ -121,7 +121,7 @@ public class CaseController {
             preparedStatement.close();
         } catch (SQLException e) {
             String message = "Failed to execute sql";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         } finally {
             if (connection != null) {
@@ -129,7 +129,7 @@ public class CaseController {
                     connection.close();
                 } catch (SQLException e) {
                     String message = "Failed to close connection";
-                    logger.error(message);
+                    LOGGER.error(message);
                     throw new RuntimeException(message);
                 }
             }

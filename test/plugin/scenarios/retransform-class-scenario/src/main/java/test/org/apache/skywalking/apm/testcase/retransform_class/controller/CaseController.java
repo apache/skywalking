@@ -32,17 +32,17 @@ import test.org.apache.skywalking.apm.testcase.retransform_class.RetransformUtil
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
     private static final String SUCCESS = "Success";
 
     @RequestMapping("/retransform-class-scenario")
     @ResponseBody
     public ResponseEntity testcase() throws HttpStatusCodeException {
         if (RetransformUtil.RETRANSFORMING_TAG.equals(RetransformUtil.RETRANSFORM_VALUE)) {
-            logger.info("retransform check success.");
+            LOGGER.info("retransform check success.");
             return ResponseEntity.ok("retransform success");
         } else {
-            logger.info("retransform check failure.");
+            LOGGER.info("retransform check failure.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("retransform failure");
         }
     }
