@@ -54,7 +54,7 @@
                                     <run>chmod +x /usr/local/skywalking/run.sh</run>
                                     <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
                                 </runCmds>
-                                <cmd>/usr/local/skywalking/run.sh</cmd>
+                                <cmd>["/usr/local/skywalking/run.sh"]</cmd>
                             </build>
                         </image>
                         <image>
@@ -72,10 +72,7 @@
                                     <run>chmod +x /usr/local/skywalking/run.sh</run>
                                     <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
                                 </runCmds>
-
-                                <entrypoint>
-                                    <shell>/usr/local/skywalking/run.sh</shell>
-                                </entrypoint>
+                                <cmd>["/usr/local/skywalking/run.sh"]</cmd>
                             </build>
                         </image>
                     </images>

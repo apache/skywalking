@@ -58,7 +58,7 @@
                                     <run>chmod +x /usr/local/tomcat/bin/catalina.sh</run>
                                     <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
                                 </runCmds>
-                                <cmd>/run.sh</cmd>
+                                <cmd>["/run.sh"]</cmd>
                             </build>
                         </image>
                     </images>
