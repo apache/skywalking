@@ -56,10 +56,10 @@ public class CaseController {
                 connector.rollback();
                 Message message = connector.getWithoutAck(batchSize);
                 long batchId = message.getId();
-                logger.info(message.getEntries().toString());
+                LOGGER.info(message.getEntries().toString());
                 connector.ack(batchId);
             } catch (Exception ex) {
-                logger.error(ex.toString());
+                LOGGER.error(ex.toString());
             }
         });
         return SUCCESS;

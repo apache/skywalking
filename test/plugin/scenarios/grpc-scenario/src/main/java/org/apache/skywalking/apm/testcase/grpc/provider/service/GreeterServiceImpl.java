@@ -34,7 +34,7 @@ public class GreeterServiceImpl extends GreeterGrpc.GreeterImplBase {
         StreamObserver<HelloRequest> requestStreamObserver = new StreamObserver<HelloRequest>() {
 
             public void onNext(HelloRequest request) {
-                logger.info("Receive an message from client. Message: {}", request.getName());
+                LOGGER.info("Receive an message from client. Message: {}", request.getName());
                 responseObserver.onNext(HelloReply.newBuilder().setMessage("Hi," + request.getName()).build());
             }
 
@@ -43,7 +43,7 @@ public class GreeterServiceImpl extends GreeterGrpc.GreeterImplBase {
             }
 
             public void onCompleted() {
-                logger.info("End the stream.");
+                LOGGER.info("End the stream.");
                 responseObserver.onCompleted();
             }
         };

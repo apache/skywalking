@@ -43,7 +43,7 @@ public class CaseController {
         RestRequest request = RestRequest.connect();
         request.createUser(1, "test");
         User user = request.getById(1);
-        logger.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
+        LOGGER.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
         request.updateUser(1, "testA");
         request.modifyUser(1, "testA");
         request.deleteUser(1);

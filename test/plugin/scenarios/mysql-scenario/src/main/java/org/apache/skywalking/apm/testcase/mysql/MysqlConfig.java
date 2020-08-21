@@ -36,7 +36,7 @@ public class MysqlConfig {
         try {
             properties.load(inputStream);
         } catch (IOException e) {
-            logger.error("Failed to load config", e);
+            LOGGER.error("Failed to load config", e);
         }
 
         url = properties.getProperty("mysql.url");

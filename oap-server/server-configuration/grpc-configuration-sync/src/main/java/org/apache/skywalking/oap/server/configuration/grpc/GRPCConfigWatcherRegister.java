@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
-    private static final Logger logger = LoggerFactory.getLogger(GRPCConfigWatcherRegister.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCConfigWatcherRegister.class);
 
     private RemoteEndpointSettings settings;
     private ConfigurationServiceGrpc.ConfigurationServiceBlockingStub stub;
@@ -68,7 +68,7 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
                 }
             });
         } catch (Exception e) {
-            logger.error("Remote config center [" + settings + "] is not available.", e);
+            LOGGER.error("Remote config center [" + settings + "] is not available.", e);
         }
         return Optional.of(table);
     }

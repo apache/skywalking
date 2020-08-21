@@ -78,7 +78,7 @@ public class CustomizeController {
             add("a2");
         }}, 123);
 
-        logger.info(SUCCESS);
+        LOGGER.info(SUCCESS);
         return SUCCESS;
     }
 

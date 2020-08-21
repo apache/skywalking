@@ -39,7 +39,7 @@ public class DemoSimpleJob implements SimpleJob {
     
     @Override
     public void execute(ShardingContext shardingContext) {
-        logger.info("Elastic Job Item: {} | Time: {} | Thread: {} | {}",
+        LOGGER.info("Elastic Job Item: {} | Time: {} | Thread: {} | {}",
                 shardingContext.getShardingItem(), new SimpleDateFormat("HH:mm:ss").format(new Date()), Thread.currentThread().getId(), "SIMPLE");
         Request request = new Request.Builder().url("http://localhost:8080/elasticjob-3.x-scenario/case/ping").build();
         Response response = null;

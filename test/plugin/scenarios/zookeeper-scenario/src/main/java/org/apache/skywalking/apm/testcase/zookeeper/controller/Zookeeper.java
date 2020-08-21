@@ -38,7 +38,7 @@ public class Zookeeper {
 
     @Bean
     public ZooKeeper zooKeeper() throws IOException {
-        ZooKeeper zooKeeper = new ZooKeeper(address, 8000, event -> logger.info("process"));
+        ZooKeeper zooKeeper = new ZooKeeper(address, 8000, event -> LOGGER.info("process"));
         return zooKeeper;
     }
 }

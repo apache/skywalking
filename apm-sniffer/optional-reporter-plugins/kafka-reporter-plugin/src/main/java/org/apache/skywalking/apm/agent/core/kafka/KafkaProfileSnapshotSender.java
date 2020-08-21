@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
  */
 @OverrideImplementor(ProfileSnapshotSender.class)
 public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
-    private static final ILog logger = LogManager.getLogger(ProfileSnapshotSender.class);
+    private static final ILog LOGGER = LogManager.getLogger(ProfileSnapshotSender.class);
 
     private String topic;
     private KafkaProducer<String, Bytes> producer;
@@ -55,8 +55,8 @@ public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
     public void send(final List<TracingThreadSnapshot> buffer) {
         for (TracingThreadSnapshot snapshot : buffer) {
             final ThreadSnapshot object = snapshot.transform();
-            if (logger.isDebugEnable()) {
-                logger.debug("Thread snapshot reporting, topic: {}, taskId: {}, sequence:{}, traceId: {}",
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("Thread snapshot reporting, topic: {}, taskId: {}, sequence:{}, traceId: {}",
                              object.getTaskId(), object.getSequence(), object.getTraceSegmentId()
                 );
             }

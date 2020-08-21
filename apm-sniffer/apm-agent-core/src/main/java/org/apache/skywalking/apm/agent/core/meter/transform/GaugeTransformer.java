@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 
 public class GaugeTransformer extends MeterTransformer<GaugeAdapter> {
-    private static final ILog logger = LogManager.getLogger(GaugeTransformer.class);
+    private static final ILog LOGGER = LogManager.getLogger(GaugeTransformer.class);
 
     public GaugeTransformer(GaugeAdapter adapter) {
         super(adapter);
@@ -38,7 +38,7 @@ public class GaugeTransformer extends MeterTransformer<GaugeAdapter> {
         try {
             count = adapter.getCount();
         } catch (Exception e) {
-            logger.warn(e, "Cannot get the count in meter:{}", adapter.getId().getName());
+            LOGGER.warn(e, "Cannot get the count in meter:{}", adapter.getId().getName());
             return null;
         }
 

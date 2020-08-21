@@ -60,7 +60,7 @@ public class FrontController {
         try {
             forEntity.get();
         } catch (Exception e) {
-            logger.error("exception:", e);
+            LOGGER.error("exception:", e);
         }
 
         return "Success";

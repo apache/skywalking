@@ -34,7 +34,7 @@ public class SQLExecutor implements AutoCloseable {
         try {
             Class.forName("org.mariadb.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
-            logger.error(ex);
+            LOGGER.error(ex);
         }
         connection = DriverManager.getConnection(MariadbConfig.getUrl(), MariadbConfig.getUserName(), MariadbConfig.getPassword());
     }

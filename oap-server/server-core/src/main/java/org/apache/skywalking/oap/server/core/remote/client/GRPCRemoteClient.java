@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GRPCRemoteClient implements RemoteClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(GRPCRemoteClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCRemoteClient.class);
 
     private final int channelSize;
     private final int bufferSize;
@@ -160,13 +160,13 @@ public class GRPCRemoteClient implements RemoteClient {
                 streamObserver.onCompleted();
             } catch (Throwable t) {
                 remoteOutErrorCounter.inc();
-                logger.error(t.getMessage(), t);
+                LOGGER.error(t.getMessage(), t);
             }
         }
 
         @Override
         public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
-            logger.error(t.getMessage(), t);
+            LOGGER.error(t.getMessage(), t);
         }
 
         @Override
@@ -189,13 +189,13 @@ public class GRPCRemoteClient implements RemoteClient {
             try {
                 Thread.sleep(sleepMillis);
             } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
 
             sleepTotalMillis += sleepMillis;
 
             if (sleepTotalMillis > 60000) {
-                logger.warn("Remote client block times over 60 seconds.");
+                LOGGER.warn("Remote client block times over 60 seconds.");
             }
         }
 
@@ -207,7 +207,7 @@ public class GRPCRemoteClient implements RemoteClient {
             @Override
             public void onError(Throwable throwable) {
                 concurrentStreamObserverNumber.addAndGet(-1);
-                logger.error(throwable.getMessage(), throwable);
+                LOGGER.error(throwable.getMessage(), throwable);
             }
 
             @Override

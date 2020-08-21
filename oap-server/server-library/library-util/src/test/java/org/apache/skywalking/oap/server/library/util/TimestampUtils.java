@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 
 public class TimestampUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(TimestampUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimestampUtils.class);
 
     public static void main(String[] args) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Timestamp timestamp = new Timestamp(1483200061001L);
-        logger.info("time: {}", format.format(timestamp));
+        LOGGER.info("time: {}", format.format(timestamp));
     }
 }

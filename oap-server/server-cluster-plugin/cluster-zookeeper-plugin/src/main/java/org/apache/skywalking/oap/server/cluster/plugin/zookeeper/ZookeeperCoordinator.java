@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
-    private static final Logger logger = LoggerFactory.getLogger(ZookeeperCoordinator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCoordinator.class);
 
     private static final String REMOTE_NAME_PATH = "remote";
 

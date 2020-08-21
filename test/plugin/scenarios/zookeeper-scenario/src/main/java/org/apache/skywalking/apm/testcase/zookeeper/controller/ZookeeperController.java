@@ -62,7 +62,7 @@ public class ZookeeperController {
             try {
                 zooKeeper.exists("/path", this);
             } catch (Exception e) {
-                logger.error("error", e);
+                LOGGER.error("error", e);
             }
         }
     };
