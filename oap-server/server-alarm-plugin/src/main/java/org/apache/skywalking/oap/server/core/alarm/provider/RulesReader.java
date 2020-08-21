@@ -113,9 +113,7 @@ public class RulesReader {
             if (slacks != null) {
                 SlackSettings slackSettings = new SlackSettings();
                 Object textTemplate = slacks.getOrDefault("textTemplate", "");
-                if (textTemplate != null) {
-                    slackSettings.setTextTemplate((String) textTemplate);
-                }
+                slackSettings.setTextTemplate((String) textTemplate);
 
                 List<String> slackWebhooks = (List<String>) slacks.get("webhooks");
                 if (slackWebhooks != null) {

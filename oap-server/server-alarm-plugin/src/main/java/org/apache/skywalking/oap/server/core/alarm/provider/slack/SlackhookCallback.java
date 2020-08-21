@@ -52,7 +52,6 @@ public class SlackhookCallback implements AlarmCallback {
     private static final Gson GSON = new Gson();
     private AlarmRulesWatcher alarmRulesWatcher;
     private RequestConfig requestConfig;
-    private List<String> webhooks;
 
     public SlackhookCallback(final AlarmRulesWatcher alarmRulesWatcher) {
         this.alarmRulesWatcher = alarmRulesWatcher;
@@ -61,18 +60,17 @@ public class SlackhookCallback implements AlarmCallback {
                                           .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
                                           .setSocketTimeout(HTTP_SOCKET_TIMEOUT)
                                           .build();
-        this.webhooks = alarmRulesWatcher.getSlackSettings().getWebhooks();
     }
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) {
-        if (webhooks.isEmpty()) {
+        if (this.alarmRulesWatcher.getSlackSettings().getWebhooks().isEmpty()) {
             return;
         }
 
         CloseableHttpClient httpClient = HttpClients.custom().build();
         try {
-            webhooks.forEach(url -> {
+            this.alarmRulesWatcher.getSlackSettings().getWebhooks().forEach(url -> {
                 HttpPost post = new HttpPost(url);
                 post.setConfig(requestConfig);
                 post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
