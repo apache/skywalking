@@ -170,13 +170,13 @@ public class ScriptParserTest {
     @Test
     public void testParse5() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText(
-            "service_response_s4_summary = from(Service.latency).richPercent(param1 == true,param2 == false);",
+            "service_response_s4_summary = from(Service.latency).rate(param1 == true,param2 == false);",
             TEST_SOURCE_PACKAGE
         );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
         Assert.assertEquals(1, results.size());
         AnalysisResult result = results.get(0);
-        Assert.assertEquals("richPercent", result.getAggregationFunctionName());
+        Assert.assertEquals("rate", result.getAggregationFunctionName());
         Assert.assertEquals(2, result.getFuncConditionExpressions().size());
 
         ConditionExpression expression1 = result.getFuncConditionExpressions().get(0);

@@ -225,7 +225,15 @@ Calculate the metrics data form each request of the page in the browser app (onl
 | serviceName | Represent the name of the browser app. | | string |
 | redirectTime | Represents the time of redirection. |  | int(in ms) |
 | dnsTime | Represents the DNS query time. | | int(in ms) |
-| reqTime | Represents the request time. | | int(in ms) |
-| domAnalysisTime | Represents the dom analysis time | | int(in ms) |
-| domReadyTime | Represents the dom ready time  | | int(in ms) |
-| blankTime | Represents the page blank time. | | int(in ms) |
+| ttfbTime | Time to first Byte. | | int(in ms) |
+| tcpTime | TCP connection time. | | int(in ms) |
+| transTime | Content transfer time.  | | int(in ms) |
+| domAnalysisTime | Dom parsing time. | | int(in ms) |
+| fptTime | First paint time or blank screen time. | | int(in ms) |
+| domReadyTime | Dom ready time. | | int(in ms) |
+| loadPageTime | Page full load time. | | int(in ms) |
+| resTime | Synchronous load resources in the page. | | int(in ms) |
+| sslTime | Only valid for HTTPS. | | int(in ms) |
+| ttlTime | Time to interact. | | int(in ms) |
+| firstPackTime | First pack time. | | int(in ms) |
+| fmpTime | First Meaningful Paint. | | int(in ms) |
