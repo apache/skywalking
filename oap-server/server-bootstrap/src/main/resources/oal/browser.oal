@@ -17,17 +17,17 @@
 */
 // browser app
 browser_app_pv = from(BrowserAppTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
-browser_app_error_rate = from(BrowserAppTraffic.*).richPercent(trafficCategory == BrowserAppTrafficCategory.NORMAL,trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR);
+browser_app_error_rate = from(BrowserAppTraffic.*).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR,trafficCategory == BrowserAppTrafficCategory.NORMAL);
 browser_app_error_sum = from(BrowserAppTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
 
 // browser app single version
 browser_app_single_version_pv = from(BrowserAppSingleVersionTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
-browser_app_single_version_error_rate = from(BrowserAppSingleVersionTraffic.trafficCategory).richPercent(trafficCategory == BrowserAppTrafficCategory.NORMAL,trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR);
+browser_app_single_version_error_rate = from(BrowserAppSingleVersionTraffic.trafficCategory).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR,trafficCategory == BrowserAppTrafficCategory.NORMAL);
 browser_app_single_version_error_sum = from(BrowserAppSingleVersionTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
 
 // browser app page
 browser_app_page_pv = from(BrowserAppPageTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
-browser_app_page_error_rate = from(BrowserAppPageTraffic.*).richPercent(trafficCategory == BrowserAppTrafficCategory.NORMAL,trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR);
+browser_app_page_error_rate = from(BrowserAppPageTraffic.*).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR,trafficCategory == BrowserAppTrafficCategory.NORMAL);
 browser_app_page_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
 
 browser_app_page_ajax_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.AJAX).sum();

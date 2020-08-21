@@ -25,43 +25,44 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-@MetricsFunction(functionName = "richPercent")
-public abstract class RichPercentMetrics extends Metrics implements IntValueHolder {
-    protected static final String TOTAL = "total";
-    protected static final String MATCH = "match";
+@MetricsFunction(functionName = "rate")
+public abstract class RateMetrics extends Metrics implements IntValueHolder {
+    protected static final String DENOMINATOR = "denominator";
+    protected static final String NUMERATOR = "numerator";
     protected static final String PERCENTAGE = "percentage";
 
     @Getter
     @Setter
-    @Column(columnName = TOTAL)
-    private long total;
+    @Column(columnName = DENOMINATOR)
+    private long denominator;
     @Getter
     @Setter
     @Column(columnName = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private int percentage;
     @Getter
     @Setter
-    @Column(columnName = MATCH)
-    private long match;
+    @Column(columnName = NUMERATOR)
+    private long numerator;
 
     @Entrance
-    public final void combine(@Expression boolean isTotal, @Expression boolean isMatch) {
-        if (isMatch) {
-            match++;
-        } else if (isTotal) {
-            total++;
+    public final void combine(@Expression boolean isNumerator, @Expression boolean isDenominator) {
+        if (isNumerator) {
+            numerator++;
+        }
+        if (isDenominator) {
+            denominator++;
         }
     }
 
     @Override
     public final void combine(Metrics metrics) {
-        total += ((RichPercentMetrics) metrics).total;
-        match += ((RichPercentMetrics) metrics).match;
+        denominator += ((RateMetrics) metrics).denominator;
+        numerator += ((RateMetrics) metrics).numerator;
     }
 
     @Override
     public void calculate() {
-        percentage = (int) (match * 10000 / total);
+        percentage = (int) (numerator * 10000 / denominator);
     }
 
     @Override

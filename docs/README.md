@@ -53,6 +53,8 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
     * [Overview](en/concepts-and-designs/ui-overview.md).  A simple brief about SkyWalking UI.
   * CLI (Command Line Interface)
     * SkyWalking CLI provides a command line interface to interact with SkyWalking backend (via GraphQL), for more information, [click here](https://github.com/apache/skywalking-cli).
+  * Browser performance monitoring
+    * Make browser as a start of whole distributed tracing, for more information, [click here](https://github.com/apache/skywalking-client-js).
 * [Setup](en/setup/README.md).
   * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
@@ -91,7 +93,6 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
     * [UI setup document](en/setup/backend/ui-setup.md).
     * [CLI setup document](https://github.com/apache/skywalking-cli).
-    * [Browser performance monitoring setup document](https://github.com/apache/skywalking-client-js).
 * [UI Introduction](en/ui/README.md). Introduce the UI usage and features.
 * [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can find how to start contributing.
   * [Contact us](en/guides/README.md#contact-us). Guide users about how to contact the official committer team or communicate with the project community.
