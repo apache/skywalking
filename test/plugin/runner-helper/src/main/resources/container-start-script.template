@@ -36,7 +36,7 @@ docker run -d \
         -v ${agent_home}:/usr/local/skywalking/scenario/agent \
         -v ${scenario_home}:/usr/local/skywalking/scenario \
         -v ${jacoco_home}:/jacoco \
-        ${docker_image_name}:${docker_image_version} 1>${scenario_home}/logs/container.log
+        ${docker_image_name}:${docker_image_version}
 
 sleep 3
 
@@ -48,6 +48,8 @@ if [[ -z ${container_name} ]]; then
     echo "docker startup failure!" >&2
     status=1
 else
+    [[ $status -ne 0]] && docker logs ${container_name} >&2
+    docker logs ${container_name} >${SCENARIO_HOME}/logs/container.log
     docker container rm -f $container_name
 fi
 </#noparse>

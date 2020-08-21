@@ -29,9 +29,9 @@ if [[ -z "${container}" ]]; then
     status=1
 else
     status=`docker wait ${container}`
-    if [[ $status -ne 0 ]]; then
-        docker logs ${container} >&2
-    fi
+
+    [[ $status -ne 0 ]] && docker logs ${container} >&2
+    docker logs ${container} >${SCENARIO_HOME}/logs/container.log
 
     docker-compose -p ${project_name} -f ${compose_file} kill
     docker-compose -p ${project_name} -f ${compose_file} rm -f

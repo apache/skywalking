@@ -16,7 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[[ -n $DEBUG_MODE ]] && set -ex
+if [[ -n $DEBUG_MODE ]]; then
+  set -ex
+  export
+else
+  set -e
+fi
 
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
