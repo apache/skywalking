@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MariadbConfig {
-    private static Logger logger = LogManager.getLogger(MariadbConfig.class);
+    private static final Logger LOGGER = LogManager.getLogger(MariadbConfig.class);
     private static String url;
     private static String userName;
     private static String password;

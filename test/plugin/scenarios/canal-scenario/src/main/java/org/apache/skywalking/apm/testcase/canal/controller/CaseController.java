@@ -38,7 +38,7 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private Logger logger = LoggerFactory.getLogger(CaseController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CaseController.class);
 
     @Value(value = "${canal.host}")
     private String address;

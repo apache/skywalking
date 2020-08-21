@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MysqlConfig {
-    private static Logger logger = LogManager.getLogger(MysqlConfig.class);
+    private static final Logger LOGGER = LogManager.getLogger(MysqlConfig.class);
     private static String url;
     private static String userName;
     private static String password;

@@ -35,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 @Component
 public class DemoSimpleJob implements SimpleJob {
     
-    private final Logger logger = LoggerFactory.getLogger(DemoSimpleJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemoSimpleJob.class);
     OkHttpClient client = new OkHttpClient.Builder().build();
 
     private CountDownLatch latch = new CountDownLatch(1);

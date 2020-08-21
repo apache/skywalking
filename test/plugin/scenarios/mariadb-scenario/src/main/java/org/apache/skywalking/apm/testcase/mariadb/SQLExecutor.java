@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SQLExecutor implements AutoCloseable {
-    private static Logger logger = LogManager.getLogger(SQLExecutor.class);
+    private static final Logger LOGGER = LogManager.getLogger(SQLExecutor.class);
     private Connection connection;
 
     public SQLExecutor() throws SQLException {

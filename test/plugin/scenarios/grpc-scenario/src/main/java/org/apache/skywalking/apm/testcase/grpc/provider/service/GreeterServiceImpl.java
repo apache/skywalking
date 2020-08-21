@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
 
 public class GreeterServiceImpl extends GreeterGrpc.GreeterImplBase {
 
-    private Logger logger = LogManager.getLogger(GreeterServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(GreeterServiceImpl.class);
 
     @Override
     public StreamObserver<HelloRequest> sayHello(final StreamObserver<HelloReply> responseObserver) {

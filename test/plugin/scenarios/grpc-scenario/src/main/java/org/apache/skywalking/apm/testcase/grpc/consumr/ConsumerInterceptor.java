@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ConsumerInterceptor implements ClientInterceptor {
 
-    private Logger logger = LogManager.getLogger(ConsumerInterceptor.class);
+    private static final Logger LOGGER = LogManager.getLogger(ConsumerInterceptor.class);
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> descriptor,
@@ -71,7 +71,7 @@ public class ConsumerInterceptor implements ClientInterceptor {
     }
 
     private static class Interceptor<RespT> extends ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT> {
-        private Logger logger = LogManager.getLogger(Interceptor.class);
+        private static final Logger LOGGER = LogManager.getLogger(Interceptor.class);
 
         private Object contextSnapshot;
 

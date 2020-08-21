@@ -31,7 +31,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class Zookeeper {
 
-    private Logger logger = LoggerFactory.getLogger(Zookeeper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Zookeeper.class);
 
     @Value(value = "${zookeeper.host}")
     private String address;

@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/httpasyncclient/case")
 public class FrontController {
 
-    private static Logger logger = LogManager.getLogger(FrontController.class);
+    private static final Logger LOGGER = LogManager.getLogger(FrontController.class);
 
     @GetMapping("/healthcheck")
     public String healthcheck() {

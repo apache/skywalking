@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/case")
 @PropertySource("classpath:application.properties")
 public class ZookeeperController {
-    private Logger logger = LoggerFactory.getLogger(ZookeeperController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperController.class);
 
     @Autowired
     private ZooKeeper zooKeeper;

@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TestACommand extends HystrixCommand<String> {
-    private Logger logger = LogManager.getLogger(TestACommand.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestACommand.class);
 
     private String name;
 

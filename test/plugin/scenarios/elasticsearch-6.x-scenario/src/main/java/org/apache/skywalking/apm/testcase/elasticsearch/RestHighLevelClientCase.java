@@ -58,7 +58,7 @@ import static java.util.Collections.singletonMap;
 @Component
 public class RestHighLevelClientCase {
 
-    private static Logger logger = LogManager.getLogger(RestHighLevelClientCase.class);
+    private static final Logger LOGGER = LogManager.getLogger(RestHighLevelClientCase.class);
 
     @Autowired
     private RestHighLevelClient client;

@@ -30,7 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ProviderInterceptor implements ServerInterceptor {
-    private Logger logger = LogManager.getLogger(ProviderInterceptor.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProviderInterceptor.class);
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata metadata,

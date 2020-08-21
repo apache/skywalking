@@ -32,7 +32,7 @@ import java.util.UUID;
 @Component
 public class TransportClientCase {
 
-    private static Logger logger = LogManager.getLogger(TransportClientCase.class);
+    private static final Logger LOGGER = LogManager.getLogger(TransportClientCase.class);
 
     @Autowired
     private TransportClient client;
