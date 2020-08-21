@@ -30,7 +30,7 @@ import java.security.ProtectionDomain;
 
 public class RetransformUtil {
 
-    private static final Logger logger = LogManager.getLogger(RetransformUtil.class);
+    private static final Logger LOGGER = LogManager.getLogger(RetransformUtil.class);
     public static final String RETRANSFORMING_TAG = "_retransforming_";
     public static final String RETRANSFORM_VALUE = "hello_from_agent";
 
@@ -59,9 +59,9 @@ public class RetransformUtil {
             instrumentation.addTransformer(transformer, true);
             try {
                 instrumentation.retransformClasses(CaseController.class);
-                logger.info("retransform classes success");
+                LOGGER.info("retransform classes success");
             } catch (Throwable e) {
-                logger.error("retransform classes failure", e);
+                LOGGER.error("retransform classes failure", e);
             }
 
         } finally {

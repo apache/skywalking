@@ -39,7 +39,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 @DefaultImplementor
 public class GRPCChannelManager implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(GRPCChannelManager.class);
+    private static final ILog LOGGER = LogManager.getLogger(GRPCChannelManager.class);
 
     private volatile GRPCChannel managedChannel = null;
     private volatile ScheduledFuture<?> connectCheckFuture;
@@ -58,8 +58,8 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void boot() {
         if (Config.Collector.BACKEND_SERVICE.trim().length() == 0) {
-            logger.error("Collector server addresses are not set.");
-            logger.error("Agent will not uplink any data.");
+            LOGGER.error("Collector server addresses are not set.");
+            LOGGER.error("Agent will not uplink any data.");
             return;
         }
         grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(","));
@@ -68,7 +68,7 @@ public class GRPCChannelManager implements BootService, Runnable {
         ).scheduleAtFixedRate(
             new RunnableWithExceptionProtection(
                 this,
-                t -> logger.error("unexpected exception.", t)
+                t -> LOGGER.error("unexpected exception.", t)
             ), 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS
         );
     }
@@ -86,12 +86,12 @@ public class GRPCChannelManager implements BootService, Runnable {
         if (managedChannel != null) {
             managedChannel.shutdownNow();
         }
-        logger.debug("Selected collector grpc service shutdown.");
+        LOGGER.debug("Selected collector grpc service shutdown.");
     }
 
     @Override
     public void run() {
-        logger.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
+        LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
             if (grpcServers.size() > 0) {
                 String server = "";
@@ -127,11 +127,11 @@ public class GRPCChannelManager implements BootService, Runnable {
 
                     return;
                 } catch (Throwable t) {
-                    logger.error(t, "Create channel to {} fail.", server);
+                    LOGGER.error(t, "Create channel to {} fail.", server);
                 }
             }
 
-            logger.debug(
+            LOGGER.debug(
                 "Selected collector grpc service is not available. Wait {} seconds to retry",
                 Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL
             );
@@ -161,7 +161,7 @@ public class GRPCChannelManager implements BootService, Runnable {
             try {
                 listener.statusChanged(status);
             } catch (Throwable t) {
-                logger.error(t, "Fail to notify {} about channel connected.", listener.getClass().getName());
+                LOGGER.error(t, "Fail to notify {} about channel connected.", listener.getClass().getName());
             }
         }
     }

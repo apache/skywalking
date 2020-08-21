@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
 
@@ -105,16 +105,16 @@ public class CaseController {
 
             @Override
             public void onNext(HelloReply reply) {
-                logger.info("Receive an message from provider. message: {}", reply.getMessage());
+                LOGGER.info("Receive an message from provider. message: {}", reply.getMessage());
                 requestStream.request(1);
             }
 
             public void onError(Throwable throwable) {
-                logger.error("Failed to send data", throwable);
+                LOGGER.error("Failed to send data", throwable);
             }
 
             public void onCompleted() {
-                logger.info("All Done");
+                LOGGER.info("All Done");
             }
         };
 

@@ -44,7 +44,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 
 @DefaultImplementor
 public class MeterSender implements BootService, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(MeterSender.class);
+    private static final ILog LOGGER = LogManager.getLogger(MeterSender.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
@@ -75,8 +75,8 @@ public class MeterSender implements BootService, GRPCChannelListener {
                     @Override
                     public void onError(Throwable throwable) {
                         status.finished();
-                        if (logger.isErrorEnable()) {
-                            logger.error(throwable, "Send meters to collector fail with a grpc internal exception.");
+                        if (LOGGER.isErrorEnable()) {
+                            LOGGER.error(throwable, "Send meters to collector fail with a grpc internal exception.");
                         }
                         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
                     }
@@ -91,12 +91,12 @@ public class MeterSender implements BootService, GRPCChannelListener {
                 transform(meterMap, meterData -> reporter.onNext(meterData));
             } catch (Throwable e) {
                 if (!(e instanceof StatusRuntimeException)) {
-                    logger.error(e, "Report meters to backend fail.");
+                    LOGGER.error(e, "Report meters to backend fail.");
                     return;
                 }
                 final StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
                 if (statusRuntimeException.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
-                    logger.warn("Backend doesn't support meter, it will be disabled");
+                    LOGGER.warn("Backend doesn't support meter, it will be disabled");
 
                     meterService.shutdown();
                 }

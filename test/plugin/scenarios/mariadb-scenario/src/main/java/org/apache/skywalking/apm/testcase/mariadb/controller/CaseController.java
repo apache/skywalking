@@ -31,7 +31,7 @@ import java.sql.SQLException;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
 
@@ -50,7 +50,7 @@ public class CaseController {
             sqlExecute.queryData(QUERY_DATA_SQL, "1");
             sqlExecute.execute(DROP_TABLE_SQL);
         } catch (Exception ex) {
-            logger.error("Failed to execute sql.", ex);
+            LOGGER.error("Failed to execute sql.", ex);
             throw ex;
         }
         return SUCCESS;

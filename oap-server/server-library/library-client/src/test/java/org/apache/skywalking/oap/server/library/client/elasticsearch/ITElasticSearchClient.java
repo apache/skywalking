@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 public class ITElasticSearchClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(ITElasticSearchClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ITElasticSearchClient.class);
 
     private ElasticSearchClient client;
 
@@ -99,7 +99,7 @@ public class ITElasticSearchClient {
         Assert.assertTrue(client.isExistsIndex(indexName));
 
         JsonObject index = getIndex(indexName);
-        logger.info(index.toString());
+        LOGGER.info(index.toString());
 
         Assert.assertEquals(2, index.getAsJsonObject(indexName)
                                     .getAsJsonObject("settings")
@@ -184,7 +184,7 @@ public class ITElasticSearchClient {
         client.forceInsert(indexName + "-2019", "testid", builder);
 
         JsonObject index = getIndex(indexName + "-2019");
-        logger.info(index.toString());
+        LOGGER.info(index.toString());
 
         Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019")
                                     .getAsJsonObject("settings")
@@ -265,7 +265,7 @@ public class ITElasticSearchClient {
 
     private JsonObject undoFormatIndexName(JsonObject index) {
         if (StringUtil.isNotEmpty(namespace) && index != null && index.size() > 0) {
-            logger.info("UndoFormatIndexName before " + index.toString());
+            LOGGER.info("UndoFormatIndexName before " + index.toString());
             String namespacePrefix = namespace + "_";
             index.entrySet().forEach(entry -> {
                 String oldIndexName = entry.getKey();
@@ -278,7 +278,7 @@ public class ITElasticSearchClient {
                             .getKey());
                 }
             });
-            logger.info("UndoFormatIndexName after " + index.toString());
+            LOGGER.info("UndoFormatIndexName after " + index.toString());
         }
         return index;
     }

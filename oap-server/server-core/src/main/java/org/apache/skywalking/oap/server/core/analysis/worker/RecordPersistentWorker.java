@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class RecordPersistentWorker extends AbstractWorker<Record> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RecordPersistentWorker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordPersistentWorker.class);
 
     private final Model model;
     private final IRecordDAO recordDAO;
@@ -51,7 +51,7 @@ public class RecordPersistentWorker extends AbstractWorker<Record> {
             InsertRequest insertRequest = recordDAO.prepareBatchInsert(model, record);
             batchDAO.asynchronous(insertRequest);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }

@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
-    private static final Logger logger = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
     private final List<ALSHTTPAnalysis> envoyHTTPAnalysisList;
     private final SourceReceiver sourceReceiver;
     private final CounterMetrics counter;
@@ -59,7 +59,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             }
         }
 
-        logger.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
+        LOGGER.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
 
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
 
@@ -93,8 +93,8 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
                     StreamAccessLogsMessage.LogEntriesCase logCase = message.getLogEntriesCase();
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
                             .getNode()
                             .getId(), role, logCase, message);
                     }
@@ -120,7 +120,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
             @Override
             public void onError(Throwable throwable) {
-                logger.error("Error in receiving access log from envoy", throwable);
+                LOGGER.error("Error in receiving access log from envoy", throwable);
                 responseObserver.onCompleted();
             }
 

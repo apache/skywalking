@@ -37,7 +37,7 @@ import static org.apache.skywalking.apm.plugin.elasticsearch.v5.ElasticsearchPlu
 
 public class TransportProxyClientInterceptor implements InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(TransportProxyClientInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(TransportProxyClientInterceptor.class);
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -121,7 +121,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
             try {
                 updateDsl = updateRequest.toXContent(XContentFactory.jsonBuilder(), null).string();
             } catch (IOException e) {
-                logger.warn("trace update request dsl error: ", e);
+                LOGGER.warn("trace update request dsl error: ", e);
             }
             enhanceInfo.setSource(updateDsl);
         }

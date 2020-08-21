@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import static java.util.Objects.nonNull;
 
 public abstract class JettyJsonHandler extends JettyHandler {
-    private static final Logger logger = LoggerFactory.getLogger(JettyJsonHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JettyJsonHandler.class);
 
     @Override
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -46,7 +46,7 @@ public abstract class JettyJsonHandler extends JettyHandler {
             try {
                 replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
             } catch (IOException replyException) {
-                logger.error(replyException.getMessage(), e);
+                LOGGER.error(replyException.getMessage(), e);
             }
         }
     }
@@ -61,7 +61,7 @@ public abstract class JettyJsonHandler extends JettyHandler {
             try {
                 replyError(resp, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
             } catch (IOException replyException) {
-                logger.error(replyException.getMessage(), e);
+                LOGGER.error(replyException.getMessage(), e);
             }
         }
     }
