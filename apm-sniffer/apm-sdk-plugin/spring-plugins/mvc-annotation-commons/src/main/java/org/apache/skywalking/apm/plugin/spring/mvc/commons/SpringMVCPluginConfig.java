@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
+import java.util.List;
+
 public class SpringMVCPluginConfig {
     public static class Plugin {
         @PluginConfig(root = SpringMVCPluginConfig.class)
@@ -45,6 +47,18 @@ public class SpringMVCPluginConfig {
              * added for the sake of performance
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
+
+            /**
+             * When {@link Plugin.Http#INCLUDE_HTTP_HEADERS} declares header names, this threshold controls the length
+             * limitation of all header values. use negative values to keep and send the complete headers.
+             * Note. this config item is added for the sake of performance.
+             */
+            public static int HTTP_HEADERS_LENGTH_THRESHOLD = 2048;
+
+            /**
+             * It controls what header data should be collected, this is for security purpose, values must be in lower case
+             */
+            public static List<String> INCLUDE_HTTP_HEADERS ;
         }
     }
 }
