@@ -47,7 +47,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 @OverrideImplementor(ServiceManagementClient.class)
 public class KafkaServiceManagementServiceClient implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(KafkaServiceManagementServiceClient.class);
+    private static final ILog LOGGER = LogManager.getLogger(KafkaServiceManagementServiceClient.class);
 
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
 
@@ -83,7 +83,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
             new DefaultNamedThreadFactory("ServiceManagementClientKafkaProducer")
         ).scheduleAtFixedRate(new RunnableWithExceptionProtection(
             this,
-            t -> logger.error("unexpected exception.", t)
+            t -> LOGGER.error("unexpected exception.", t)
         ), 0, Config.Collector.HEARTBEAT_PERIOD, TimeUnit.SECONDS);
 
         InstanceProperties instance = InstanceProperties.newBuilder()
@@ -103,8 +103,8 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
                                               .setService(Config.Agent.SERVICE_NAME)
                                               .setServiceInstance(Config.Agent.INSTANCE_NAME)
                                               .build();
-        if (logger.isDebugEnable()) {
-            logger.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
+        if (LOGGER.isDebugEnable()) {
+            LOGGER.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
         }
         producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
     }

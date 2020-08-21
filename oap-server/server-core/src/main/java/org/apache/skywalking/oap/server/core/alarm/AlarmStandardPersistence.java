@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
  */
 public class AlarmStandardPersistence implements AlarmCallback {
 
-    private static final Logger logger = LoggerFactory.getLogger(AlarmStandardPersistence.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlarmStandardPersistence.class);
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
         alarmMessage.forEach(message -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Alarm message: {}", message.getAlarmMessage());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Alarm message: {}", message.getAlarmMessage());
             }
 
             AlarmRecord record = new AlarmRecord();
