@@ -62,6 +62,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/case/spring3/'}
       - {key: http.method, value: GET}
+      - {key: http.headers, value: 'mock_header=[mock_value]'}
       refs:
       - {parentEndpoint: /case/resttemplate, networkAddress: 'localhost:8080', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
