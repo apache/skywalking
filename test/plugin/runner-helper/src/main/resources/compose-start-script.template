@@ -24,11 +24,11 @@ container_name="${project_name}_${docker_container_name}"
 docker-compose -p ${project_name} -f ${compose_file} up -d
 
 container_id=`docker ps -qf "name=${container_name}"`
-if [[ -z "${container}" ]]; then
+if [[ -z "${container_id}" ]]; then
     echo "docker startup failure!" >&2
     status=1
 else
-    status=`docker wait ${container}`
+    status=`docker wait ${container_id}`
 
     [[ $status -ne 0 ]] && docker logs ${container_id} >&2
     docker logs ${container_id} >${SCENARIO_HOME}/logs/container.log
