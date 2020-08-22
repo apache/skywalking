@@ -22,6 +22,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 
 import java.lang.reflect.Method;
 
+/**
+ * Intercept method of {@code org.springframework.scheduling.support.ScheduledMethodRunnable#ScheduledMethodRunnable(java.lang.Object, java.lang.String)}.
+ * record the execute method full name
+ */
 public class ScheduledMethodConstructorWithStringInterceptor extends ScheduledMethodConstructorWithMethodInterceptor {
 
     @Override

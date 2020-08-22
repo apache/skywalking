@@ -33,6 +33,15 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * Enhance {@code org.springframework.scheduling.support.ScheduledMethodRunnable} instance,
+ * and intercept {@code org.springframework.scheduling.support.ScheduledMethodRunnable#run()} method,
+ * this method is a unified entrance of execute schedule task.
+ *
+ * @see org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodConstructorWithMethodInterceptor
+ * @see org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodConstructorWithStringInterceptor
+ * @see org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodInterceptor
+ */
 public class ScheduledMethodInterceptorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String CONSTRUCTOR_WITH_METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.scheduled.ScheduledMethodConstructorWithMethodInterceptor";

@@ -28,6 +28,10 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
+/**
+ * Intercept method of {@code org.springframework.scheduling.support.ScheduledMethodRunnable#run()}.
+ * record the schedule task local span.
+ */
 public class ScheduledMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
