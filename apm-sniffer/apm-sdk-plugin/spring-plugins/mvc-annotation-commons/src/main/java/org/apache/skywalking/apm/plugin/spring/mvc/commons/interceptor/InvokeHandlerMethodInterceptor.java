@@ -36,10 +36,10 @@ public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInte
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         if (allArguments[2] instanceof EnhancedInstance) {
-            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, new JavaxServletRequestHolder(
-                (HttpServletRequest) allArguments[1]));
-            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new JavaxServletResponseHolder(
-                (HttpServletResponse) allArguments[0]));
+            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, new JavaxServletResponseHolder(
+                (HttpServletResponse) allArguments[1]));
+            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new JavaxServletRequestHolder(
+                (HttpServletRequest) allArguments[0]));
         }
     }
 

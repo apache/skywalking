@@ -222,7 +222,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         final List<String> headersList = new LinkedList<>();
         SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.stream()
                                                               .filter(
-                                                                  headerName -> request.getHeader(headerName) != null)
+                                                                  headerName -> request.getHeaders(headerName) != null)
                                                               .forEach(headerName -> {
                                                                   Enumeration<String> headerValues = request.getHeaders(
                                                                       headerName);
