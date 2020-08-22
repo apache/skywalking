@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
  * byte-buddy and sky-walking plugin.
  */
 public class StaticMethodsInter {
-    private static final ILog logger = LogManager.getLogger(StaticMethodsInter.class);
+    private static final ILog LOGGER = LogManager.getLogger(StaticMethodsInter.class);
 
     /**
      * A class full name, and instanceof {@link StaticMethodsAroundInterceptor} This name should only stay in {@link
@@ -72,7 +72,7 @@ public class StaticMethodsInter {
         try {
             interceptor.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
-            logger.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
+            LOGGER.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
 
         Object ret = null;
@@ -86,14 +86,14 @@ public class StaticMethodsInter {
             try {
                 interceptor.handleMethodException(clazz, method, allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
-                logger.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
+                LOGGER.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
             }
             throw t;
         } finally {
             try {
                 ret = interceptor.afterMethod(clazz, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
-                logger.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
+                LOGGER.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
             }
         }
         return ret;

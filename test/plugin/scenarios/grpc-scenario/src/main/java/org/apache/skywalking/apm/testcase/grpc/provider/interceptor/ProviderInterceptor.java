@@ -30,25 +30,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ProviderInterceptor implements ServerInterceptor {
-    private Logger logger = LogManager.getLogger(ProviderInterceptor.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProviderInterceptor.class);
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata metadata,
         ServerCallHandler<ReqT, RespT> handler) {
         Map<String, String> headerMap = new HashMap<String, String>();
         for (String key : metadata.keys()) {
-            logger.info("Receive key: {}", key);
+            LOGGER.info("Receive key: {}", key);
             if (!key.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
                 String value = metadata.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER));
 
                 headerMap.put(key, value);
             }
         }
-        logger.info("authority : {}", call.getAuthority());
+        LOGGER.info("authority : {}", call.getAuthority());
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
             @Override
             public void sendHeaders(Metadata responseHeaders) {
-                logger.info("sendHeaders....");
+                LOGGER.info("sendHeaders....");
                 Metadata.Key<String> headerKey = Metadata.Key.of("test-server", Metadata.ASCII_STRING_MARSHALLER);
                 responseHeaders.put(headerKey, "test-server");
                 delegate().sendHeaders(responseHeaders);
@@ -62,31 +62,31 @@ public class ProviderInterceptor implements ServerInterceptor {
         }, metadata)) {
             @Override
             public void onReady() {
-                logger.info("onReady....");
+                LOGGER.info("onReady....");
                 delegate().onReady();
             }
 
             @Override
             public void onCancel() {
-                logger.info("onCancel....");
+                LOGGER.info("onCancel....");
                 delegate().onCancel();
             }
 
             @Override
             public void onComplete() {
-                logger.info("onComplete....");
+                LOGGER.info("onComplete....");
                 delegate().onComplete();
             }
 
             @Override
             public void onHalfClose() {
-                logger.info("onHalfClose....");
+                LOGGER.info("onHalfClose....");
                 delegate().onHalfClose();
             }
 
             @Override
             public void onMessage(ReqT message) {
-                logger.info("onMessage....");
+                LOGGER.info("onMessage....");
                 delegate().onMessage(message);
             }
         };

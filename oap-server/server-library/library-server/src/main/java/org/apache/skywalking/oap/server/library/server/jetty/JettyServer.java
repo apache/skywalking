@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class JettyServer implements Server {
 
-    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JettyServer.class);
 
     private org.eclipse.jetty.server.Server server;
     private ServletContextHandler servletContextHandler;
@@ -70,13 +70,13 @@ public class JettyServer implements Server {
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(jettyServerConfig.getContextPath());
-        logger.info("http server root context path: {}", jettyServerConfig.getContextPath());
+        LOGGER.info("http server root context path: {}", jettyServerConfig.getContextPath());
 
         server.setHandler(servletContextHandler);
     }
 
     public void addHandler(JettyHandler handler) {
-        logger.info(
+        LOGGER.info(
             "Bind handler {} into jetty server {}:{}",
             handler.getClass().getSimpleName(), jettyServerConfig.getHost(), jettyServerConfig.getPort()
         );
@@ -98,14 +98,14 @@ public class JettyServer implements Server {
 
     @Override
     public void start() throws ServerException {
-        logger.info("start server, host: {}, port: {}", jettyServerConfig.getHost(), jettyServerConfig.getPort());
+        LOGGER.info("start server, host: {}, port: {}", jettyServerConfig.getHost(), jettyServerConfig.getPort());
         try {
-            if (logger.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 if (servletContextHandler.getServletHandler() != null && servletContextHandler.getServletHandler()
                                                                                               .getServletMappings() != null) {
                     for (ServletMapping servletMapping : servletContextHandler.getServletHandler()
                                                                               .getServletMappings()) {
-                        logger.debug(
+                        LOGGER.debug(
                             "jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping
                                 .getServletName());
                     }

@@ -35,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 @Component
 public class DemoSimpleJob implements SimpleJob {
     
-    private final Logger logger = LoggerFactory.getLogger(DemoSimpleJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemoSimpleJob.class);
     OkHttpClient client = new OkHttpClient.Builder().build();
 
     private CountDownLatch latch = new CountDownLatch(1);
@@ -50,7 +50,7 @@ public class DemoSimpleJob implements SimpleJob {
 
     @Override
     public void execute(ShardingContext shardingContext) {
-        logger.info("Elastic Job Item: {} | Time: {} | Thread: {} | {}",
+        LOGGER.info("Elastic Job Item: {} | Time: {} | Thread: {} | {}",
                 shardingContext.getShardingItem(), new SimpleDateFormat("HH:mm:ss").format(new Date()), Thread.currentThread().getId(), "SIMPLE");
         Request request = new Request.Builder().url("http://localhost:8080/elasticjob-3.x-scenario/case/ping").build();
         Response response = null;
