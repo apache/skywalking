@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings("Duplicates")
 public class MongoDBClientDelegateInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(MongoDBClientDelegateInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(MongoDBClientDelegateInterceptor.class);
 
     @SuppressWarnings("deprecation")
     @Override
@@ -56,8 +56,8 @@ public class MongoDBClientDelegateInterceptor implements InstanceConstructorInte
             // @see: org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation
             EnhancedInstance retInstance = (EnhancedInstance) ret;
             String remotePeer = (String) objInst.getSkyWalkingDynamicField();
-            if (logger.isDebugEnable()) {
-                logger.debug("Mark OperationExecutor remotePeer: {}", remotePeer);
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("Mark OperationExecutor remotePeer: {}", remotePeer);
             }
             retInstance.setSkyWalkingDynamicField(remotePeer);
         }

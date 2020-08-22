@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class H2NetworkAddressAliasDAO extends H2SQLExecutor implements INetworkAddressAliasDAO {
-    private static final Logger logger = LoggerFactory.getLogger(H2NetworkAddressAliasDAO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(H2NetworkAddressAliasDAO.class);
     private JDBCHikariCPClient h2Client;
 
     public H2NetworkAddressAliasDAO(JDBCHikariCPClient h2Client) {
@@ -63,7 +63,7 @@ public class H2NetworkAddressAliasDAO extends H2SQLExecutor implements INetworkA
                 throw new IOException(e);
             }
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            LOGGER.error(t.getMessage(), t);
         }
         return networkAddressAliases;
     }

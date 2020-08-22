@@ -34,7 +34,7 @@ import java.util.Collection;
 
 public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(ConnectionManagerInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(ConnectionManagerInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -86,7 +86,7 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
                 return ret;
             }
         } catch (Exception e) {
-            logger.warn("redisClient set peer error: ", e);
+            LOGGER.warn("redisClient set peer error: ", e);
         }
         return ret;
     }
@@ -113,7 +113,7 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
             URI uri = (URI) obj;
             return uri.getHost() + ":" + uri.getPort();
         } else {
-            logger.warn("redisson not support this version");
+            LOGGER.warn("redisson not support this version");
             return null;
         }
     }

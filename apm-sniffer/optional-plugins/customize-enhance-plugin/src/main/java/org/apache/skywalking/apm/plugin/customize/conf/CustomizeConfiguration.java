@@ -57,7 +57,7 @@ public enum CustomizeConfiguration {
 
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
+    private static final ILog LOGGER = LogManager.getLogger(CustomizeConfiguration.class);
 
     /**
      * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
@@ -76,7 +76,7 @@ public enum CustomizeConfiguration {
                 addContextEnhanceClass(configuration);
             }
         } catch (Exception e) {
-            logger.error("CustomizeConfiguration loadForAgent fail", e);
+            LOGGER.error("CustomizeConfiguration loadForAgent fail", e);
         }
     }
 
@@ -92,7 +92,7 @@ public enum CustomizeConfiguration {
                 addContextMethodConfiguration(configuration);
             }
         } catch (Exception e) {
-            logger.error("CustomizeConfiguration loadForConfiguration fail", e);
+            LOGGER.error("CustomizeConfiguration loadForConfiguration fail", e);
         } finally {
             LOAD_FOR_CONFIGURATION.set(true);
         }
@@ -257,7 +257,7 @@ public enum CustomizeConfiguration {
             }
             return configuration;
         } catch (Exception e) {
-            logger.error(e, "Failed to resolver, className is {}, methodDesc is {}.", className, methodDesc);
+            LOGGER.error(e, "Failed to resolver, className is {}, methodDesc is {}.", className, methodDesc);
         }
         return null;
     }

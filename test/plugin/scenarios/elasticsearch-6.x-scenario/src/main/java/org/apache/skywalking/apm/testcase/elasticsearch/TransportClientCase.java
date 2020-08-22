@@ -32,7 +32,7 @@ import java.util.UUID;
 @Component
 public class TransportClientCase {
 
-    private static Logger logger = LogManager.getLogger(TransportClientCase.class);
+    private static final Logger LOGGER = LogManager.getLogger(TransportClientCase.class);
 
     @Autowired
     private TransportClient client;
@@ -71,7 +71,7 @@ public class TransportClientCase {
                     .endObject())
                 .get();
         } catch (IOException e) {
-            logger.error("index document error.", e);
+            LOGGER.error("index document error.", e);
             throw e;
         }
     }
@@ -86,7 +86,7 @@ public class TransportClientCase {
                 .setDoc(XContentFactory.jsonBuilder().startObject().field("price", "9.9").endObject())
                 .execute();
         } catch (IOException e) {
-            logger.error("update document error.", e);
+            LOGGER.error("update document error.", e);
             throw e;
         }
     }

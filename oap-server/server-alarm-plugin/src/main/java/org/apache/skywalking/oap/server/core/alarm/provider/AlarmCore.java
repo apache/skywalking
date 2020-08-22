@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * trigger and the alarm rules to decides whether send the alarm to database and webhook(s)
  */
 public class AlarmCore {
-    private static final Logger logger = LoggerFactory.getLogger(AlarmCore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlarmCore.class);
 
     private LocalDateTime lastExecuteTime;
     private AlarmRulesWatcher alarmRulesWatcher;
@@ -77,7 +77,7 @@ public class AlarmCore {
                     allCallbacks.forEach(callback -> callback.doAlarm(alarmMessageList));
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }, 10, 10, TimeUnit.SECONDS);
     }
