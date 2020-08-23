@@ -29,6 +29,7 @@
         <module>webflux-projectA-scenario</module>
         <module>webflux-projectB-scenario</module>
         <module>webflux-dist</module>
+        <module>webflux-webclient-scenario</module>
     </modules>
 
     <name>skywalking-webflux-scenario</name>
