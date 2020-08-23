@@ -112,7 +112,7 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 14
       - name: jdk14-with-gson-scenario (1)
         run: bash test/plugin/run.sh --image_version=jdk14-1.0.0 jdk14-with-gson-scenario
       - name: Report Coverage
