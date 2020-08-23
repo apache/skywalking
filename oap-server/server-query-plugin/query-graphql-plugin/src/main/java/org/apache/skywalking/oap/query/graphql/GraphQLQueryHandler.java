@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class GraphQLQueryHandler extends JettyJsonHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GraphQLQueryHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLQueryHandler.class);
 
     private static final String QUERY = "query";
     private static final String VARIABLES = "variables";
@@ -91,7 +91,7 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
                                                           .variables(variables)
                                                           .build();
             ExecutionResult executionResult = graphQL.execute(executionInput);
-            logger.debug("Execution result is {}", executionResult);
+            LOGGER.debug("Execution result is {}", executionResult);
             Object data = executionResult.getData();
             List<GraphQLError> errors = executionResult.getErrors();
             JsonObject jsonObject = new JsonObject();
@@ -110,7 +110,7 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
             }
             return jsonObject;
         } catch (final Throwable e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             JsonObject jsonObject = new JsonObject();
             JsonArray errorArray = new JsonArray();
             JsonObject errorJson = new JsonObject();

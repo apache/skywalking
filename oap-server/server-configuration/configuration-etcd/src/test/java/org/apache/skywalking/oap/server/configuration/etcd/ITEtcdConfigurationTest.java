@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ITEtcdConfigurationTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ITEtcdConfigurationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ITEtcdConfigurationTest.class);
 
     private final Yaml yaml = new Yaml();
 
@@ -65,7 +65,7 @@ public class ITEtcdConfigurationTest {
 
         final String etcdHost = System.getProperty("etcd.host");
         final String etcdPort = System.getProperty("etcd.port");
-        logger.info("etcdHost: {}, etcdPort: {}", etcdHost, etcdPort);
+        LOGGER.info("etcdHost: {}, etcdPort: {}", etcdHost, etcdPort);
         Properties properties = new Properties();
         properties.setProperty("serverAddr", etcdHost + ":" + etcdPort);
 
@@ -84,7 +84,7 @@ public class ITEtcdConfigurationTest {
         assertTrue(publishConfig("test-module.default.testKey", "skywalking", "500"));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
-            logger.info("value is : {}", provider.watcher.value());
+            LOGGER.info("value is : {}", provider.watcher.value());
         }
 
         assertEquals("500", provider.watcher.value());

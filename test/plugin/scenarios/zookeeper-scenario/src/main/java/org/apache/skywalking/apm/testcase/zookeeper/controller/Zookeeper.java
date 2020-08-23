@@ -31,14 +31,14 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class Zookeeper {
 
-    private Logger logger = LoggerFactory.getLogger(Zookeeper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Zookeeper.class);
 
     @Value(value = "${zookeeper.host}")
     private String address;
 
     @Bean
     public ZooKeeper zooKeeper() throws IOException {
-        ZooKeeper zooKeeper = new ZooKeeper(address, 8000, event -> logger.info("process"));
+        ZooKeeper zooKeeper = new ZooKeeper(address, 8000, event -> LOGGER.info("process"));
         return zooKeeper;
     }
 }

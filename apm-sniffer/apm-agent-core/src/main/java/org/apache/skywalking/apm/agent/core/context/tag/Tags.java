@@ -83,9 +83,13 @@ public final class Tags {
         public static final StringTag PARAMS = new StringTag(11, "http.params", true);
 
         public static final StringTag BODY = new StringTag(13, "http.body");
+
+        public static final StringTag HEADERS = new StringTag(14, "http.headers");
     }
 
     public static final StringTag LOGIC_ENDPOINT = new StringTag(12, "x-le");
+
+    public static final String VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT = "{\"logic-span\":true}";
 
     /**
      * Creates a {@code StringTag} with the given key and cache it, if it's created before, simply return it without

@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.testcase.elasticjob.controller;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.skywalking.apm.testcase.elasticjob.job.DemoSimpleJob;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,13 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    @Autowired
+    private DemoSimpleJob demoSimpleJob;
 
     private static final String SUCCESS = "Success";
 
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() throws Exception {
+        demoSimpleJob.getLatchAwait();
         return SUCCESS;
     }
 
