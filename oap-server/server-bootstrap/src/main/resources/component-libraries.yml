@@ -434,7 +434,9 @@ Django:
 Tornado:
   id: 7005
   languages: Python
-
+Urllib3:
+  id: 7006
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
