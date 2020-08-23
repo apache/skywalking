@@ -40,6 +40,7 @@
         <module>mvc-annotation-5.x-plugin</module>
         <module>spring-webflux-5.x-plugin</module>
         <module>spring-kafka-2.x-plugin</module>
+        <module>spring-webflux-5.x-webclient-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

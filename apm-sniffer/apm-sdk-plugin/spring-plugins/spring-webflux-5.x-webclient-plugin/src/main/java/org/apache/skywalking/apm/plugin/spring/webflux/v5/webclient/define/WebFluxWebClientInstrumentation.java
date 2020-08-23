@@ -32,6 +32,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class WebFluxWebClientInstrumentation extends ClassEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spring.webflux.v5.webclient.WebFluxWebClientInterceptor";
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
