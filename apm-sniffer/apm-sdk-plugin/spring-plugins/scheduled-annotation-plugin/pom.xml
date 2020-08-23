@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -18,38 +17,29 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
+        <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <artifactId>apm-sdk-plugin</artifactId>
         <version>8.2.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-plugins</artifactId>
-    <modules>
-        <module>async-annotation-plugin</module>
-        <module>concurrent-util-4.x-plugin</module>
-        <module>resttemplate-4.x-plugin</module>
-        <module>mvc-annotation-4.x-plugin</module>
-        <module>spring-cloud</module>
-        <module>mvc-annotation-3.x-plugin</module>
-        <module>core-patch</module>
-        <module>mvc-annotation-commons</module>
-        <module>spring-commons</module>
-        <module>mvc-annotation-5.x-plugin</module>
-        <module>spring-webflux-5.x-plugin</module>
-        <module>spring-kafka-2.x-plugin</module>
-        <module>scheduled-annotation-plugin</module>
-    </modules>
-    <packaging>pom</packaging>
+    <artifactId>apm-spring-scheduled-annotation-plugin</artifactId>
+    <packaging>jar</packaging>
 
-    <name>apm-sdk-plugin</name>
+    <name>scheduled-annotation-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sdk.plugin.related.dir>/..</sdk.plugin.related.dir>
+        <spring-context.version>5.1.4.RELEASE</spring-context.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring-context.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>
