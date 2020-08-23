@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -ex
 [[ -n $DEBUG_MODE ]] && export
 
 function exitOnError() {
@@ -85,7 +86,7 @@ exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${LOGS_HOME}/scenario.
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-`echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}`
+echo 0 && `echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}`
 sleep 5
 
 echo "To receive actual data"
