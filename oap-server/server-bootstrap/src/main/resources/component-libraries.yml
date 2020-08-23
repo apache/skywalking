@@ -317,6 +317,9 @@ HBase:
 spring-kafka-consumer:
   id: 95
   languages: Java
+SpringScheduled:
+  id: 96
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
