@@ -37,7 +37,7 @@
     </modules>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
@@ -49,7 +49,7 @@
         <lombok.version>1.18.10</lombok.version>
         <snakeyaml.version>1.24</snakeyaml.version>
 
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
 
         <docker.image.version>1.0.0</docker.image.version>
@@ -101,6 +101,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
+                    <release>${java.version}</release>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.source}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
