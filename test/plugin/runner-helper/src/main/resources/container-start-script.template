@@ -15,7 +15,7 @@
   ~ limitations under the License.
 -->
 
-docker run \
+docker run -d \
         --memory=1024m \
         --name ${docker_container_name} \
         --env SCENARIO_NAME=${scenario_name} \
@@ -36,17 +36,20 @@ docker run \
         -v ${agent_home}:/usr/local/skywalking/scenario/agent \
         -v ${scenario_home}:/usr/local/skywalking/scenario \
         -v ${jacoco_home}:/jacoco \
-        ${docker_image_name}:${docker_image_version} 1>${scenario_home}/logs/container.log
+        ${docker_image_name}:${docker_image_version}
 
-status="$?"
+sleep 3
 
 container_name=`docker ps -aqf "name=${docker_container_name}"`
-
 <#noparse>
+status=$(docker wait ${container_name})
+
 if [[ -z ${container_name} ]]; then
     echo "docker startup failure!" >&2
     status=1
 else
+    [[ $status -ne 0 ]] && docker logs ${container_name} >&2
+    docker logs ${container_name} >${SCENARIO_HOME}/logs/container.log
     docker container rm -f $container_name
 fi
 </#noparse>

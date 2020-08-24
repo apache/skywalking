@@ -16,24 +16,26 @@
   ~ limitations under the License.
   ~
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<assembly
+    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <formats>
+        <format>zip</format>
+    </formats>
 
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
+    <fileSets>
+        <fileSet>
+            <directory>./bin</directory>
+            <fileMode>0775</fileMode>
+        </fileSet>
+    </fileSets>
 
-    <parent>
-        <groupId>org.apache.skywalking.plugin</groupId>
-        <artifactId>apache-skywalking-test-plugin</artifactId>
-        <version>1.0.0</version>
-    </parent>
-
-    <artifactId>containers</artifactId>
-    <name>SkyWalking Plugin Test Runner Images</name>
-
-    <modules>
-        <module>tomcat-container</module>
-        <module>jvm-container</module>
-    </modules>
-</project>
+    <files>
+        <file>
+            <source>${project.build.directory}/jdk14-with-gson-scenario.jar</source>
+            <outputDirectory>./libs</outputDirectory>
+            <fileMode>0775</fileMode>
+        </file>
+    </files>
+</assembly>
