@@ -53,20 +53,11 @@ browser_app_page_ttl_avg = from(BrowserAppPagePerf.ttlTime).longAvg();
 browser_app_page_first_pack_avg = from(BrowserAppPagePerf.firstPackTime).longAvg();
 browser_app_page_fmp_avg = from(BrowserAppPagePerf.fmpTime).longAvg();
 
-browser_app_page_redirect_percentile = from(BrowserAppPagePerf.redirectTime).percentile(10);
-browser_app_page_dns_percentile = from(BrowserAppPagePerf.dnsTime).percentile(10);
-browser_app_page_ttfb_percentile = from(BrowserAppPagePerf.ttfbTime).percentile(10);
-browser_app_page_tcp_percentile = from(BrowserAppPagePerf.tcpTime).percentile(10);
-browser_app_page_trans_percentile = from(BrowserAppPagePerf.transTime).percentile(10);
-browser_app_page_dom_analysis_percentile = from(BrowserAppPagePerf.domAnalysisTime).percentile(10);
 browser_app_page_fpt_percentile = from(BrowserAppPagePerf.fptTime).percentile(10);
+browser_app_page_ttl_percentile = from(BrowserAppPagePerf.ttlTime).percentile(10);
 browser_app_page_dom_ready_percentile = from(BrowserAppPagePerf.domReadyTime).percentile(10);
 browser_app_page_load_page_percentile = from(BrowserAppPagePerf.loadPageTime).percentile(10);
-browser_app_page_res_percentile = from(BrowserAppPagePerf.resTime).percentile(10);
-browser_app_page_ssl_percentile = from(BrowserAppPagePerf.sslTime).percentile(10);
-browser_app_page_ttl_percentile = from(BrowserAppPagePerf.ttlTime).percentile(10);
 browser_app_page_first_pack_percentile = from(BrowserAppPagePerf.firstPackTime).percentile(10);
-browser_app_page_fmp_percentile = from(BrowserAppPagePerf.fmpTime).percentile(10);
 
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////

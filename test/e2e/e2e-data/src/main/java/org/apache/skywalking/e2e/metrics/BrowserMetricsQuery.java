@@ -99,35 +99,17 @@ public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
         BROWSER_APP_PAGE_FMP_AVG
     };
 
-    public static final String BROWSER_APP_PAGE_REDIRECT_PERCENTILE = "browser_app_page_redirect_percentile";
-    public static final String BROWSER_APP_PAGE_DNS_PERCENTILE = "browser_app_page_dns_percentile";
-    public static final String BROWSER_APP_PAGE_TTFB_PERCENTILE = "browser_app_page_ttfb_percentile";
-    public static final String BROWSER_APP_PAGE_TCP_PERCENTILE = "browser_app_page_tcp_percentile";
-    public static final String BROWSER_APP_PAGE_TRANS_PERCENTILE = "browser_app_page_trans_percentile";
-    public static final String BROWSER_APP_PAGE_DOM_ANALYSIS_PERCENTILE = "browser_app_page_dom_analysis_percentile";
     public static final String BROWSER_APP_PAGE_FPT_PERCENTILE = "browser_app_page_fpt_percentile";
     public static final String BROWSER_APP_PAGE_DOM_READY_PERCENTILE = "browser_app_page_dom_ready_percentile";
     public static final String BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE = "browser_app_page_load_page_percentile";
-    public static final String BROWSER_APP_PAGE_RES_PERCENTILE = "browser_app_page_res_percentile";
-    public static final String BROWSER_APP_PAGE_SSL_PERCENTILE = "browser_app_page_ssl_percentile";
     public static final String BROWSER_APP_PAGE_TTL_PERCENTILE = "browser_app_page_ttl_percentile";
     public static final String BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE = "browser_app_page_first_pack_percentile";
-    public static final String BROWSER_APP_PAGE_FMP_PERCENTILE = "browser_app_page_fmp_percentile";
 
     public static final String[] ALL_BROWSER_PAGE_MULTIPLE_LINEAR_METRICS = {
-        BROWSER_APP_PAGE_REDIRECT_PERCENTILE,
-        BROWSER_APP_PAGE_DNS_PERCENTILE,
-        BROWSER_APP_PAGE_TTFB_PERCENTILE,
-        BROWSER_APP_PAGE_TCP_PERCENTILE,
-        BROWSER_APP_PAGE_TRANS_PERCENTILE,
-        BROWSER_APP_PAGE_DOM_ANALYSIS_PERCENTILE,
         BROWSER_APP_PAGE_FPT_PERCENTILE,
+        BROWSER_APP_PAGE_TTL_PERCENTILE,
         BROWSER_APP_PAGE_DOM_READY_PERCENTILE,
         BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE,
-        BROWSER_APP_PAGE_RES_PERCENTILE,
-        BROWSER_APP_PAGE_SSL_PERCENTILE,
-        BROWSER_APP_PAGE_TTL_PERCENTILE,
-        BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE,
-        BROWSER_APP_PAGE_FMP_PERCENTILE
+        BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE
     };
 }
