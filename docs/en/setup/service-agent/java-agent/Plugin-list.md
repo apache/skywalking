@@ -82,6 +82,7 @@
 - spring-mvc-annotation-4.x
 - spring-mvc-annotation-5.x
 - spring-resttemplate-4.x
+- spring-scheduled-annotation
 - spring-tx
 - spring-webflux-5.x
 - spymemcached-2.x
