@@ -41,7 +41,7 @@ public class CaseController {
 
     private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
-    @Value("${activemq_server}")
+    @Value("${activemq.server}")
     private String brokenUrl;
 
     private static final String USER_NAME = ActiveMQConnection.DEFAULT_USER;
