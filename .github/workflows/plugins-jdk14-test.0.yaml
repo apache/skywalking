@@ -39,7 +39,7 @@ jobs:
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests -Pjdk14
       - uses: actions/setup-java@v1
         with:
           java-version: 14
