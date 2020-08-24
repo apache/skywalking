@@ -53,7 +53,7 @@ import static java.util.Objects.isNull;
 @PropertySource("classpath:application.properties")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
 
@@ -83,14 +83,14 @@ public class CaseController {
             producer.send(record, new Callback() {
                 @Override
                 public void onCompletion(RecordMetadata metadata, Exception exception) {
-                    logger.info("send success metadata={}", metadata);
+                    LOGGER.info("send success metadata={}", metadata);
                 }
             });
 
             ProducerRecord<String, String> record2 = new ProducerRecord<String, String>(topicName2, "testKey", Integer.toString(1));
             record2.headers().add("TEST", "TEST".getBytes());
             Callback callback2 = (metadata, exception) -> {
-                logger.info("send success metadata={}", metadata);
+                LOGGER.info("send success metadata={}", metadata);
             };
             producer.send(record2, callback2);
         }, bootstrapServers);
@@ -172,7 +172,7 @@ public class CaseController {
                         producer.send(record, callback);
                     }, bootstrapServers);
                 } catch (Exception e) {
-                    logger.error("check " + bootstrapServers + " " + e.getMessage(), e);
+                    LOGGER.error("check " + bootstrapServers + " " + e.getMessage(), e);
                 }
                 try {
                     Thread.sleep(5000);
@@ -207,12 +207,12 @@ public class CaseController {
 
                 if (!records.isEmpty()) {
                     for (ConsumerRecord<String, String> record : records) {
-                        logger.info("header: {}", new String(record.headers()
+                        LOGGER.info("header: {}", new String(record.headers()
                                                                    .headers("TEST")
                                                                    .iterator()
                                                                    .next()
                                                                    .value()));
-                        logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
+                        LOGGER.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
                     }
                     break;
                 }

@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RemoteServiceHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteServiceHandler.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
     private IWorkerInstanceGetter workerInstanceGetter;
@@ -125,14 +125,14 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                             nextWorker.in(streamData);
                         } else {
                             remoteInTargetNotFoundCounter.inc();
-                            logger.warn(
+                            LOGGER.warn(
                                 "Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.",
                                 nextWorkerName
                             );
                         }
                     } catch (Throwable t) {
                         remoteInErrorCounter.inc();
-                        logger.error(t.getMessage(), t);
+                        LOGGER.error(t.getMessage(), t);
                     }
                 } finally {
                     timer.finish();
@@ -141,7 +141,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
             @Override
             public void onError(Throwable throwable) {
-                logger.error(throwable.getMessage(), throwable);
+                LOGGER.error(throwable.getMessage(), throwable);
             }
 
             @Override

@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 @DefaultImplementor
 public class MeterService implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(MeterService.class);
+    private static final ILog LOGGER = LogManager.getLogger(MeterService.class);
 
     // all meters
     private final ConcurrentHashMap<MeterId, MeterTransformer> meterMap = new ConcurrentHashMap<>();
@@ -52,7 +52,7 @@ public class MeterService implements BootService, Runnable {
             return;
         }
         if (meterMap.size() >= Config.Meter.MAX_METER_SIZE) {
-            logger.warn(
+            LOGGER.warn(
                 "Already out of the meter system max size, will not report. meter name:{}", meterTransformer.getName());
             return;
         }
@@ -72,7 +72,7 @@ public class MeterService implements BootService, Runnable {
                 new DefaultNamedThreadFactory("MeterReportService")
             ).scheduleWithFixedDelay(new RunnableWithExceptionProtection(
                 this,
-                t -> logger.error("Report meters failure.", t)
+                t -> LOGGER.error("Report meters failure.", t)
             ), 0, Config.Meter.REPORT_INTERVAL, TimeUnit.SECONDS);
         }
     }

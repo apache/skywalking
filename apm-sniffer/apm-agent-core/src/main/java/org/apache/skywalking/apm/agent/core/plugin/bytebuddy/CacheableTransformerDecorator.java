@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CacheableTransformerDecorator implements AgentBuilder.TransformerDecorator {
 
-    private static final ILog logger = LogManager.getLogger(CacheableTransformerDecorator.class);
+    private static final ILog LOGGER = LogManager.getLogger(CacheableTransformerDecorator.class);
 
     private final ClassCacheMode cacheMode;
     private ClassCacheResolver cacheResolver;
@@ -163,7 +163,7 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
                     fileInputStream = new FileInputStream(cacheFile);
                     return IOUtils.toByteArray(fileInputStream);
                 } catch (IOException e) {
-                    logger.error("load class bytes from cache file failure", e);
+                    LOGGER.error("load class bytes from cache file failure", e);
                 } finally {
                     IOUtils.closeQuietly(fileInputStream);
                 }
@@ -180,7 +180,7 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
                 output = new FileOutputStream(cacheFile);
                 IOUtils.copy(new ByteArrayInputStream(classfileBuffer), output);
             } catch (IOException e) {
-                logger.error("save class bytes to cache file failure", e);
+                LOGGER.error("save class bytes to cache file failure", e);
             } finally {
                 IOUtils.closeQuietly(output);
             }

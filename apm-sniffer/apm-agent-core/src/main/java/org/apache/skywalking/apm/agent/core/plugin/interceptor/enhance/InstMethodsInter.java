@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
  * byte-buddy and sky-walking plugin.
  */
 public class InstMethodsInter {
-    private static final ILog logger = LogManager.getLogger(InstMethodsInter.class);
+    private static final ILog LOGGER = LogManager.getLogger(InstMethodsInter.class);
 
     /**
      * An {@link InstanceMethodsAroundInterceptor} This name should only stay in {@link String}, the real {@link Class}
@@ -75,7 +75,7 @@ public class InstMethodsInter {
         try {
             interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
-            logger.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
+            LOGGER.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
         }
 
         Object ret = null;
@@ -89,14 +89,14 @@ public class InstMethodsInter {
             try {
                 interceptor.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
-                logger.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
+                LOGGER.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
             }
             throw t;
         } finally {
             try {
                 ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
-                logger.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
+                LOGGER.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
             }
         }
         return ret;

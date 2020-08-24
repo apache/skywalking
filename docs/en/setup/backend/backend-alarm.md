@@ -162,6 +162,24 @@ message AlarmMessage {
 }
 ```
 
+## Slack Chat Hook
+To do this you need to follow the [Getting Started with Incoming Webhooks guide](https://api.slack.com/messaging/webhooks) and create new Webhooks.
+
+The alarm message will send through HTTP post by `application/json` content type if you configured Slack Incoming Webhooks as following:
+```yml
+slackHooks:
+  textTemplate: |-
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+      }
+    }
+  webhooks:
+    - https://hooks.slack.com/services/x/y/z
+```
+
 ## Update the settings dynamically
 Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.

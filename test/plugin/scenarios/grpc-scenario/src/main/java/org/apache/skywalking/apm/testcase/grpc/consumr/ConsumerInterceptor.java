@@ -33,18 +33,18 @@ import org.apache.logging.log4j.Logger;
 
 public class ConsumerInterceptor implements ClientInterceptor {
 
-    private Logger logger = LogManager.getLogger(ConsumerInterceptor.class);
+    private static final Logger LOGGER = LogManager.getLogger(ConsumerInterceptor.class);
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> descriptor,
         CallOptions options, Channel channel) {
-        logger.info("start interceptor!");
-        logger.info("method type: {}", descriptor.getType());
+        LOGGER.info("start interceptor!");
+        LOGGER.info("method type: {}", descriptor.getType());
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(descriptor, options)) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
-                logger.info("Peer: {}", channel.authority());
-                logger.info("Operation Name : {}", descriptor.getFullMethodName());
+                LOGGER.info("Peer: {}", channel.authority());
+                LOGGER.info("Operation Name : {}", descriptor.getFullMethodName());
                 Interceptor<RespT> tracingResponseListener = new Interceptor(responseListener);
                 tracingResponseListener.contextSnapshot = "contextSnapshot";
                 delegate().start(tracingResponseListener, headers);
@@ -52,26 +52,26 @@ public class ConsumerInterceptor implements ClientInterceptor {
 
             @Override
             public void cancel(@Nullable String message, @Nullable Throwable cause) {
-                logger.info("cancel");
+                LOGGER.info("cancel");
                 super.cancel(message, cause);
             }
 
             @Override
             public void halfClose() {
-                logger.info("halfClose");
+                LOGGER.info("halfClose");
                 super.halfClose();
             }
 
             @Override
             public void sendMessage(ReqT message) {
-                logger.info("sendMessage ....");
+                LOGGER.info("sendMessage ....");
                 super.sendMessage(message);
             }
         };
     }
 
     private static class Interceptor<RespT> extends ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT> {
-        private Logger logger = LogManager.getLogger(Interceptor.class);
+        private static final Logger LOGGER = LogManager.getLogger(Interceptor.class);
 
         private Object contextSnapshot;
 
@@ -81,28 +81,28 @@ public class ConsumerInterceptor implements ClientInterceptor {
 
         @Override
         public void onHeaders(Metadata headers) {
-            logger.info("on Headers");
+            LOGGER.info("on Headers");
             for (String key : headers.keys()) {
-                logger.info("Receive key: {}", key);
+                LOGGER.info("Receive key: {}", key);
             }
             delegate().onHeaders(headers);
         }
 
         @Override
         public void onMessage(RespT message) {
-            logger.info("contextSnapshot: {}", contextSnapshot);
+            LOGGER.info("contextSnapshot: {}", contextSnapshot);
             delegate().onMessage(message);
         }
 
         @Override
         public void onClose(Status status, Metadata trailers) {
-            logger.info("on close");
+            LOGGER.info("on close");
             delegate().onClose(status, trailers);
         }
 
         @Override
         public void onReady() {
-            logger.info("on Ready");
+            LOGGER.info("on Ready");
             super.onReady();
         }
     }
