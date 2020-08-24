@@ -16,7 +16,7 @@ Every plugin maintained in the main repo requires corresponding test cases, also
 
 ## Case Base Image Introduction
 
-The test framework provides `JVM-container` and `Tomcat-container` base images including JDK8, JDK14. You could choose the suitable one for your test case, if either is suitable, **recommend choose `JVM-container`**.
+The test framework provides `JVM-container` and `Tomcat-container` base images including JDK8, JDK14. You could choose the suitable one for your test case, if both are suitable, **`JVM-container` is preferred**.
 
 ### JVM-container Image Introduction
 
