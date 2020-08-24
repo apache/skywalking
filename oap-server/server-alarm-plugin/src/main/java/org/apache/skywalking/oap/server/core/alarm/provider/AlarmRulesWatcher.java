@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
@@ -108,5 +109,9 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     public GRPCAlarmSetting getGrpchookSetting() {
         return this.rules.getGrpchookSetting();
+    }
+
+    public SlackSettings getSlackSettings() {
+        return this.rules.getSlacks();
     }
 }

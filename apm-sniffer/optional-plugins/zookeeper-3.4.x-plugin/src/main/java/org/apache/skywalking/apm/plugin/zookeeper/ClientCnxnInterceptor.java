@@ -42,7 +42,7 @@ import java.util.List;
 
 public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(ClientCnxnInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(ClientCnxnInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -90,9 +90,9 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
             }
             objInst.setSkyWalkingDynamicField(peer.toString());
         } catch (NoSuchFieldException e) {
-            logger.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
+            LOGGER.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
         } catch (IllegalAccessException e) {
-            logger.warn("IllegalAccessException, not be compatible with this version of zookeeper", e);
+            LOGGER.warn("IllegalAccessException, not be compatible with this version of zookeeper", e);
         }
     }
 }

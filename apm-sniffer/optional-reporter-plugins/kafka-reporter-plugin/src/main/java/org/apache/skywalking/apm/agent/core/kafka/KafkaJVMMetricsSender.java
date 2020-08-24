@@ -39,7 +39,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
  */
 @OverrideImplementor(JVMMetricsSender.class)
 public class KafkaJVMMetricsSender extends JVMMetricsSender {
-    private static final ILog logger = LogManager.getLogger(KafkaJVMMetricsSender.class);
+    private static final ILog LOGGER = LogManager.getLogger(KafkaJVMMetricsSender.class);
     private KafkaProducer<String, Bytes> producer;
     private String topic;
 
@@ -59,8 +59,8 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
                                                                  .setServiceInstance(Config.Agent.INSTANCE_NAME)
                                                                  .build();
 
-                if (logger.isDebugEnable()) {
-                    logger.debug(
+                if (LOGGER.isDebugEnable()) {
+                    LOGGER.debug(
                         "JVM metrics reporting, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(),
                         buffer.size()
                     );

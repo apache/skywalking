@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class CustomizeExpression {
 
-    private static final ILog logger = LogManager.getLogger(CustomizeExpression.class);
+    private static final ILog LOGGER = LogManager.getLogger(CustomizeExpression.class);
 
     public static Map<String, Object> evaluationContext(Object[] allArguments) {
         Map<String, Object> context = new HashMap<>();
@@ -70,7 +70,7 @@ public class CustomizeExpression {
                 try {
                     context.put(field.getName(), field.get(ret));
                 } catch (Exception e) {
-                    logger.debug("evaluationReturnContext error, ret is {}, exception is {}", ret, e.getMessage());
+                    LOGGER.debug("evaluationReturnContext error, ret is {}, exception is {}", ret, e.getMessage());
                 }
             }
         }
@@ -83,7 +83,7 @@ public class CustomizeExpression {
             Object o = context.get(es[0]);
             return o == null ? "null" : String.valueOf(parse(es, o, 0));
         } catch (Exception e) {
-            logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
+            LOGGER.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
         }
         return "null";
     }
@@ -97,7 +97,7 @@ public class CustomizeExpression {
             Object o = context.get(es[1]);
             return o == null ? "null" : String.valueOf(parse(es, o, 1));
         } catch (Exception e) {
-            logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
+            LOGGER.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
         }
         return "null";
     }
@@ -152,7 +152,7 @@ public class CustomizeExpression {
                 return f.get(o);
             }
         } catch (Exception e) {
-            logger.debug("matcher default error, expression is {}, object is {}, expression is {}", expression, o, e.getMessage());
+            LOGGER.debug("matcher default error, expression is {}, object is {}, expression is {}", expression, o, e.getMessage());
         }
         return null;
     }

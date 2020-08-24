@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Locate the base work path of OAP backend.
  */
 public class WorkPath {
-    private static final Logger logger = LoggerFactory.getLogger(WorkPath.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkPath.class);
 
     private static File PATH;
 
@@ -47,7 +47,7 @@ public class WorkPath {
         if (resource != null) {
             String urlString = resource.toString();
 
-            logger.debug("The beacon class location is {}.", urlString);
+            LOGGER.debug("The beacon class location is {}.", urlString);
 
             int insidePathIndex = urlString.indexOf('!');
             boolean isInJar = insidePathIndex > -1;

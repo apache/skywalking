@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import zipkin2.codec.SpanBytesDecoder;
 
 public class SpanV2JettyHandler extends JettyHandler {
-    private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpanV2JettyHandler.class);
 
     private ZipkinReceiverConfig config;
     private SourceReceiver sourceReceiver;
@@ -64,7 +64,7 @@ public class SpanV2JettyHandler extends JettyHandler {
         } catch (Exception e) {
             response.setStatus(500);
 
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }

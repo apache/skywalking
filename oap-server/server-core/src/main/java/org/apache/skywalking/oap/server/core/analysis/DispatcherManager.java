@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class DispatcherManager implements DispatcherDetectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(DispatcherManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherManager.class);
 
     private Map<Integer, List<SourceDispatcher>> dispatcherMap;
 
@@ -114,7 +114,7 @@ public class DispatcherManager implements DispatcherDetectorListener {
 
                     dispatchers.add(dispatcher);
 
-                    logger.info("Dispatcher {} is added into DefaultScopeDefine {}.", dispatcher.getClass()
+                    LOGGER.info("Dispatcher {} is added into DefaultScopeDefine {}.", dispatcher.getClass()
                                                                                                 .getName(), scopeId);
                 }
             }

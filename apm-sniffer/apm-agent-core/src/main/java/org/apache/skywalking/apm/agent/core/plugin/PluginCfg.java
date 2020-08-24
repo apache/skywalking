@@ -32,7 +32,7 @@ import java.util.List;
 public enum PluginCfg {
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(PluginCfg.class);
+    private static final ILog LOGGER = LogManager.getLogger(PluginCfg.class);
 
     private List<PluginDefine> pluginClassList = new ArrayList<PluginDefine>();
     private PluginSelector pluginSelector = new PluginSelector();
@@ -49,7 +49,7 @@ public enum PluginCfg {
                     PluginDefine plugin = PluginDefine.build(pluginDefine);
                     pluginClassList.add(plugin);
                 } catch (IllegalPluginDefineException e) {
-                    logger.error(e, "Failed to format plugin({}) define.", pluginDefine);
+                    LOGGER.error(e, "Failed to format plugin({}) define.", pluginDefine);
                 }
             }
             pluginClassList = pluginSelector.select(pluginClassList);

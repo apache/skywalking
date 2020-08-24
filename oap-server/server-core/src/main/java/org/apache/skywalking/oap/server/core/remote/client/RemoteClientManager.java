@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteClientManager implements Service {
 
-    private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
     private SslContext sslContext;
@@ -121,8 +121,8 @@ public class RemoteClientManager implements Service {
                 }
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Refresh remote nodes collection.");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Refresh remote nodes collection.");
             }
 
             List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
@@ -131,20 +131,20 @@ public class RemoteClientManager implements Service {
 
             gauge.setValue(instanceList.size());
 
-            if (logger.isDebugEnabled()) {
-                instanceList.forEach(instance -> logger.debug("Cluster instance: {}", instance.toString()));
+            if (LOGGER.isDebugEnabled()) {
+                instanceList.forEach(instance -> LOGGER.debug("Cluster instance: {}", instance.toString()));
             }
 
             if (!compare(instanceList)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("ReBuilding remote clients.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("ReBuilding remote clients.");
                 }
                 reBuildRemoteClients(instanceList);
             }
 
             printRemoteClientList();
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            LOGGER.error(t.getMessage(), t);
         }
     }
 
@@ -152,10 +152,10 @@ public class RemoteClientManager implements Service {
      * Print the client list into log for confirm how many clients built.
      */
     private void printRemoteClientList() {
-        if (logger.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             StringBuilder addresses = new StringBuilder();
             this.usingClients.forEach(client -> addresses.append(client.getAddress().toString()).append(","));
-            logger.debug("Remote client list: {}", addresses);
+            LOGGER.debug("Remote client list: {}", addresses);
         }
     }
 

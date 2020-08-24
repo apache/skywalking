@@ -52,7 +52,7 @@ public class AgentClassLoader extends ClassLoader {
         registerAsParallelCapable();
     }
 
-    private static final ILog logger = LogManager.getLogger(AgentClassLoader.class);
+    private static final ILog LOGGER = LogManager.getLogger(AgentClassLoader.class);
     /**
      * The default class loader for the agent.
      */
@@ -111,7 +111,7 @@ public class AgentClassLoader extends ClassLoader {
                 }
                 return processLoadedClass(defineClass(name, data, 0, data.length));
             } catch (IOException e) {
-                logger.error(e, "find class fail.");
+                LOGGER.error(e, "find class fail.");
             }
         }
         throw new ClassNotFoundException("Can't find " + name);
@@ -194,9 +194,9 @@ public class AgentClassLoader extends ClassLoader {
                         File file = new File(path, fileName);
                         Jar jar = new Jar(new JarFile(file), file);
                         jars.add(jar);
-                        logger.info("{} loaded.", file.toString());
+                        LOGGER.info("{} loaded.", file.toString());
                     } catch (IOException e) {
-                        logger.error(e, "{} jar file can't be resolved", fileName);
+                        LOGGER.error(e, "{} jar file can't be resolved", fileName);
                     }
                 }
             }

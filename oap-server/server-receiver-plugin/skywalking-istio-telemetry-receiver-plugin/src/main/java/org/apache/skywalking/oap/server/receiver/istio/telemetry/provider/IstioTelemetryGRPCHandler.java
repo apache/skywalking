@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMetricServiceImplBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(IstioTelemetryGRPCHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IstioTelemetryGRPCHandler.class);
 
     private static final Joiner JOINER = Joiner.on(".");
 
@@ -64,8 +64,8 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
     @Override
     public void handleMetric(IstioMetricProto.HandleMetricRequest request,
         StreamObserver<ReportProto.ReportResult> responseObserver) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received msg {}", request);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Received msg {}", request);
         }
         for (IstioMetricProto.InstanceMsg i : request.getInstancesList()) {
             counter.inc();
@@ -130,7 +130,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                                                              .setStatus(status)
                                                              .setProtocol(netProtocol)
                                                              .setDetectPoint(detectPoint);
-                logger.debug("Transformed metrics {}", metrics);
+                LOGGER.debug("Transformed metrics {}", metrics);
 
                 TelemetryDataDispatcher.process(metrics);
             } finally {
