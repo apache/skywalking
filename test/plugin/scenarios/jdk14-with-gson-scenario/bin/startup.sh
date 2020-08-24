@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,16 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/activemq-scenario/case/activemq
-healthCheck: http://localhost:8080/activemq-scenario/case/healthCheck
-startScript: ./bin/startup.sh
-environment:
-  - activemq.server=tcp://activemq-server:61616
-dependencies:
-  activemq-server:
-    image: rmohr/activemq:${CASE_SERVER_IMAGE_VERSION}
-    hostname: activemq-server
-    expose:
-    - 8161
-    - 61616
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar --enable-preview ${agent_opts} ${home}/../libs/jdk14-with-gson-scenario.jar &

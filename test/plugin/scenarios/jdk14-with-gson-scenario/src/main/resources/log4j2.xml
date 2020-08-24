@@ -16,24 +16,15 @@
   ~ limitations under the License.
   ~
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-
-    <parent>
-        <groupId>org.apache.skywalking.plugin</groupId>
-        <artifactId>apache-skywalking-test-plugin</artifactId>
-        <version>1.0.0</version>
-    </parent>
-
-    <artifactId>containers</artifactId>
-    <name>SkyWalking Plugin Test Runner Images</name>
-
-    <modules>
-        <module>tomcat-container</module>
-        <module>jvm-container</module>
-    </modules>
-</project>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_ERR">
+            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
