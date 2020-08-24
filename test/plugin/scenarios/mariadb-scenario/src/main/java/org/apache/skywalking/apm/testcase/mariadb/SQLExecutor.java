@@ -27,14 +27,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SQLExecutor implements AutoCloseable {
-    private static Logger logger = LogManager.getLogger(SQLExecutor.class);
+    private static final Logger LOGGER = LogManager.getLogger(SQLExecutor.class);
     private Connection connection;
 
     public SQLExecutor() throws SQLException {
         try {
             Class.forName("org.mariadb.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
-            logger.error(ex);
+            LOGGER.error(ex);
         }
         connection = DriverManager.getConnection(MariadbConfig.getUrl(), MariadbConfig.getUserName(), MariadbConfig.getPassword());
     }

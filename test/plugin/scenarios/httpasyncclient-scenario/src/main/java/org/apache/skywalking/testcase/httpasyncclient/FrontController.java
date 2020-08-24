@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/httpasyncclient/case")
 public class FrontController {
 
-    private static Logger logger = LogManager.getLogger(FrontController.class);
+    private static final Logger LOGGER = LogManager.getLogger(FrontController.class);
 
     @GetMapping("/healthcheck")
     public String healthcheck() {
@@ -85,20 +85,20 @@ public class FrontController {
 
         httpclient.execute(producer3, consumer3, new FutureCallback<HttpResponse>() {
             public void completed(final HttpResponse response3) {
-                logger.info(request3.getRequestLine() + "->" + response3.getStatusLine());
+                LOGGER.info(request3.getRequestLine() + "->" + response3.getStatusLine());
                 try {
                     httpclient.close();
                 } catch (IOException e) {
-                    logger.error("Httpclient  close failed" + e);
+                    LOGGER.error("Httpclient  close failed" + e);
                 }
             }
 
             public void failed(final Exception ex) {
-                logger.error(request3.getRequestLine() + "->" + ex);
+                LOGGER.error(request3.getRequestLine() + "->" + ex);
             }
 
             public void cancelled() {
-                logger.error(request3.getRequestLine() + " cancelled");
+                LOGGER.error(request3.getRequestLine() + " cancelled");
             }
 
         });

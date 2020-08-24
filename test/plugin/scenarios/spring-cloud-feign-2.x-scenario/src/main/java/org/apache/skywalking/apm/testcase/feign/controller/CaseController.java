@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/case")
 public class CaseController {
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private RestRequest restRequest;
 
@@ -47,7 +47,7 @@ public class CaseController {
     public String feignCase() {
         restRequest.createUser(new User(1, "test"));
         User user = restRequest.getById(1);
-        logger.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
+        LOGGER.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
         restRequest.updateUser(1, new User(0, "testA"));
         restRequest.deleteUser(1);
         return "success";

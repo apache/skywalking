@@ -36,7 +36,7 @@ public class RestTemplateController {
 
     private static final String SUCCESS = "Success";
 
-    private Logger logger = LogManager.getLogger(RestTemplateController.class);
+    private static final Logger LOGGER = LogManager.getLogger(RestTemplateController.class);
 
     private static final String url = "http://localhost:8080/spring-4.1.x-scenario";
 
@@ -45,7 +45,7 @@ public class RestTemplateController {
     public String restTemplate() throws IOException {
         Request request = new Request.Builder().url(url + "/case/spring3/").build();
         Response response = new OkHttpClient().newCall(request).execute();
-        logger.info(response.toString());
+        LOGGER.info(response.toString());
 
         // Create user
         HttpEntity<User> userEntity = new HttpEntity<>(new User(1, "a"));

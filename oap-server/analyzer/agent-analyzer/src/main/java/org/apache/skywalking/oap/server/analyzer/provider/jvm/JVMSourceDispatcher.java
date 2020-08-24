@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JVMSourceDispatcher {
-    private static final Logger logger = LoggerFactory.getLogger(JVMSourceDispatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JVMSourceDispatcher.class);
     private final SourceReceiver sourceReceiver;
 
     public JVMSourceDispatcher(ModuleManager moduleManager) {

@@ -52,7 +52,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * instance methods, or both, {@link ClassEnhancePluginDefine} will add a field of {@link Object} type.
  */
 public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePluginDefine {
-    private static final ILog logger = LogManager.getLogger(ClassEnhancePluginDefine.class);
+    private static final ILog LOGGER = LogManager.getLogger(ClassEnhancePluginDefine.class);
 
     /**
      * New field name.

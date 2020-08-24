@@ -38,7 +38,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
  */
 @OverrideImplementor(MeterSender.class)
 public class KafkaMeterSender extends MeterSender {
-    private static final ILog logger = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
+    private static final ILog LOGGER = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
 
     private String topic;
     private KafkaProducer<String, Bytes> producer;
@@ -56,8 +56,8 @@ public class KafkaMeterSender extends MeterSender {
     public void send(Map<MeterId, MeterTransformer> meterMap, MeterService meterService) {
         MeterDataCollection.Builder builder = MeterDataCollection.newBuilder();
         transform(meterMap, meterData -> {
-            if (logger.isDebugEnable()) {
-                logger.debug("Meter data reporting, instance: {}", meterData.getServiceInstance());
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("Meter data reporting, instance: {}", meterData.getServiceInstance());
             }
             builder.addMeterData(meterData);
         });

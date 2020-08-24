@@ -42,7 +42,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
  */
 @DefaultImplementor
 public class ProfileSnapshotSender implements BootService, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(ProfileSnapshotSender.class);
+    private static final ILog LOGGER = LogManager.getLogger(ProfileSnapshotSender.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
@@ -86,8 +86,8 @@ public class ProfileSnapshotSender implements BootService, GRPCChannelListener {
                         public void onError(
                             Throwable throwable) {
                             status.finished();
-                            if (logger.isErrorEnable()) {
-                                logger.error(
+                            if (LOGGER.isErrorEnable()) {
+                                LOGGER.error(
                                     throwable,
                                     "Send profile segment snapshot to collector fail with a grpc internal exception."
                                 );
@@ -109,7 +109,7 @@ public class ProfileSnapshotSender implements BootService, GRPCChannelListener {
                 snapshotStreamObserver.onCompleted();
                 status.wait4Finish();
             } catch (Throwable t) {
-                logger.error(t, "Send profile segment snapshot to backend fail.");
+                LOGGER.error(t, "Send profile segment snapshot to backend fail.");
             }
         }
     }

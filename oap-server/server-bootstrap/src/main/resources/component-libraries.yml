@@ -317,6 +317,9 @@ HBase:
 spring-kafka-consumer:
   id: 95
   languages: Java
+SpringScheduled:
+  id: 96
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -434,7 +437,9 @@ Django:
 Tornado:
   id: 7005
   languages: Python
-
+Urllib3:
+  id: 7006
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
