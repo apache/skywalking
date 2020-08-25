@@ -59,7 +59,7 @@ jobs:
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: ${{ matrix.case.title }}
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
       - name: Report Coverage

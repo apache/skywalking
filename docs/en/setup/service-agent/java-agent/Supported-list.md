@@ -85,6 +85,7 @@
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
   * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
+  * [Spring @Scheduled](https://github.com/spring-projects/spring-framework) 3.1+
 * OpenTracing community supported
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON
