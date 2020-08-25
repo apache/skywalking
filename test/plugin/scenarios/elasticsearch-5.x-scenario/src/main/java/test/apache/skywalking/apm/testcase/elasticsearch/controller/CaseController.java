@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     @Value("${elasticsearch.server}")
     private String host;
@@ -51,7 +51,7 @@ public class CaseController {
         ClusterHealthResponse response = client.admin().cluster().prepareHealth().setWaitForYellowStatus().get();
         if (response.isTimedOut()) {
             String message = "elastic search node start fail!";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
         client.close();
@@ -94,7 +94,7 @@ public class CaseController {
                                             .endObject())
                   .get();
         } catch (IOException e) {
-            logger.error("index document error.", e);
+            LOGGER.error("index document error.", e);
             throw e;
         }
     }
@@ -109,7 +109,7 @@ public class CaseController {
                   .setDoc(XContentFactory.jsonBuilder().startObject().field("price", "9.9").endObject())
                   .execute();
         } catch (IOException e) {
-            logger.error("update document error.", e);
+            LOGGER.error("update document error.", e);
             throw e;
         }
     }
@@ -133,7 +133,7 @@ public class CaseController {
             client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress
                 .getByName(host), 9300));
         } catch (UnknownHostException e) {
-            logger.error("create client error", e);
+            LOGGER.error("create client error", e);
             throw e;
         }
         return client;

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/case")
 public class CaseController {
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     @Autowired
     private RestRequest restRequest;
@@ -43,7 +43,7 @@ public class CaseController {
     @RequestMapping("/spring-cloud-feign-1.2.x-scenario")
     public String feignCase() {
         String user = restRequest.getById();
-        logger.info(user);
+        LOGGER.info(user);
         return "success";
     }
 }

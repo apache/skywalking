@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
 
-    private final static Logger logger = LoggerFactory.getLogger(EtcdConfigurationProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EtcdConfigurationProvider.class);
 
     private EtcdServerSettings settings;
 
@@ -41,7 +41,7 @@ public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
 
     @Override
     protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
-        logger.info("settings: {}", settings);
+        LOGGER.info("settings: {}", settings);
         if (Strings.isNullOrEmpty(settings.getServerAddr())) {
             throw new ModuleStartException("Etcd serverAddr cannot be null or empty.");
         }
