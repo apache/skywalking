@@ -16,7 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[[ -n $DEBUG_MODE ]] && set -ex
+set -ex
+[[ -n $DEBUG_MODE ]] && export
 
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
@@ -85,7 +86,7 @@ exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${LOGS_HOME}/scenario.
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-`echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}`
+`echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}` || true
 sleep 5
 
 echo "To receive actual data"
@@ -97,7 +98,7 @@ java -jar \
     -Xmx256m -Xms256m \
     -DcaseName="${SCENARIO_NAME}-${SCENARIO_VERSION}" \
     -DtestCasePath=${SCENARIO_HOME}/data/ \
-    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>${LOGS_HOME}/validatolr.out
+    ${TOOLS_HOME}/skywalking-validator.jar 1>${LOGS_HOME}/validatolr.out
 status=$?
 
 if [[ $status -eq 0 ]]; then
