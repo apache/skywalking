@@ -104,12 +104,14 @@ public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
     public static final String BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE = "browser_app_page_load_page_percentile";
     public static final String BROWSER_APP_PAGE_TTL_PERCENTILE = "browser_app_page_ttl_percentile";
     public static final String BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE = "browser_app_page_first_pack_percentile";
+    public static final String BROWSER_APP_PAGE_FMP_PERCENTILE = "browser_app_page_fmp_percentile";
 
     public static final String[] ALL_BROWSER_PAGE_MULTIPLE_LINEAR_METRICS = {
         BROWSER_APP_PAGE_FPT_PERCENTILE,
         BROWSER_APP_PAGE_TTL_PERCENTILE,
         BROWSER_APP_PAGE_DOM_READY_PERCENTILE,
         BROWSER_APP_PAGE_LOAD_PAGE_PERCENTILE,
-        BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE
+        BROWSER_APP_PAGE_FIRST_PACK_PERCENTILE,
+        BROWSER_APP_PAGE_FMP_PERCENTILE
     };
 }
