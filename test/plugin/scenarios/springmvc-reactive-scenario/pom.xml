@@ -23,7 +23,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>springmvc-reactive-scenario</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>5.0.0</version>
 
     <name>skywalking-springmvc-reactive-scenario</name>
