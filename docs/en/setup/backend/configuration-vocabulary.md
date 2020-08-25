@@ -32,7 +32,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | searchableTracesTags | Define the set of span tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_TAG_KEYS | http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker|
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_CORE_GRPC_THREAD_POOL_SIZE | CPU core * 4|
 | - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_CORE_GRPC_POOL_QUEUE_SIZE | 10000|
-| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CAlL | - |
+| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CALL | - |
 | - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | SW_CORE_GRPC_MAX_MESSAGE_SIZE | 4M(based on Netty) |
 | - | - | remoteTimeout |Timeout for cluster internal communication, in seconds.| - |20|
 | - | - | maxSizeOfNetworkAddressAlias|Max size of network address detected in the be monitored system.| - | 1_000_000|
@@ -144,7 +144,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | gRPCSslEnabled| Activate SSL for gRPC service | SW_RECEIVER_GRPC_SSL_ENABLED | false |
 | - | - | gRPCSslKeyPath| The file path of gRPC SSL key| SW_RECEIVER_GRPC_SSL_KEY_PATH | - |
 | - | - | gRPCSslCertChainPath| The file path of gRPC SSL cert chain| SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH | - |
-| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_RECEIVER_GRPC_MAX_CONCURRENT_CAlL | - |
+| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL | - |
 | - | - | authentication | The token text for the authentication. Work for gRPC connection only. Once this is set, the client is required to use the same token. | SW_AUTHENTICATION | - |
 | receiver-register|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-trace|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
