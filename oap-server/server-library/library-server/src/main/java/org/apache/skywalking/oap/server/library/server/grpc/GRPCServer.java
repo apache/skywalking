@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.oap.server.library.server.grpc;
 
+import com.google.common.base.Strings;
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
-import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -48,9 +46,9 @@ public class GRPCServer implements Server {
     private int maxMessageSize;
     private io.grpc.Server server;
     private NettyServerBuilder nettyServerBuilder;
-    private SslContextBuilder sslContextBuilder;
-    private File certChainFile;
-    private File privateKeyFile;
+    private String certChainFile;
+    private String privateKeyFile;
+    private DynamicSslContext sslContext;
     private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 4;
     private int threadPoolQueueSize = 10000;
 
@@ -83,11 +81,10 @@ public class GRPCServer implements Server {
      * @param certChainFile  `server.crt` file
      * @param privateKeyFile `server.pem` file
      */
-    public GRPCServer(String host, int port, File certChainFile, File privateKeyFile) {
+    public GRPCServer(String host, int port, String certChainFile, String privateKeyFile) {
         this(host, port);
         this.certChainFile = certChainFile;
         this.privateKeyFile = privateKeyFile;
-        this.sslContextBuilder = SslContextBuilder.forServer(certChainFile, privateKeyFile);
     }
 
     @Override
@@ -109,6 +106,10 @@ public class GRPCServer implements Server {
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection)
                                                .maxInboundMessageSize(maxMessageSize)
                                                .executor(executor);
+        if (!Strings.isNullOrEmpty(privateKeyFile) && !Strings.isNullOrEmpty(certChainFile)) {
+            sslContext = new DynamicSslContext(privateKeyFile, certChainFile);
+            nettyServerBuilder.sslContext(sslContext);
+        }
         LOGGER.info("Server started, host {} listening on {}", host, port);
     }
 
@@ -123,10 +124,7 @@ public class GRPCServer implements Server {
     @Override
     public void start() throws ServerException {
         try {
-            if (sslContextBuilder != null) {
-                nettyServerBuilder = nettyServerBuilder.sslContext(GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL)
-                                                                                  .build());
-            }
+            Optional.ofNullable(sslContext).ifPresent(DynamicSslContext::start);
             server = nettyServerBuilder.build();
             server.start();
         } catch (IOException e) {
@@ -146,7 +144,7 @@ public class GRPCServer implements Server {
 
     @Override
     public boolean isSSLOpen() {
-        return sslContextBuilder == null;
+        return !Strings.isNullOrEmpty(privateKeyFile) && !Strings.isNullOrEmpty(certChainFile);
     }
 
     @Override
