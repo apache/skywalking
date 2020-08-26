@@ -57,8 +57,7 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
 //        设置实体名称，后续加载再进行定义
-//        span.setComponent(ComponentsDefine.SPRING_WEBCLIENT);
-        span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT);
+        span.setComponent(ComponentsDefine.SPRING_WEBCLIENT);
         Tags.URL.set(span, uri.toString());
         Tags.HTTP.METHOD.set(span, request.method().toString());
         SpanLayer.asHttp(span);

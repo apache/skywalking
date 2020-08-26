@@ -22,3 +22,6 @@ java -jar ${agent_opts} "-Dskywalking.agent.service_name=webflux-projectA-scenar
 sleep 1
 
 java -jar ${agent_opts} "-Dskywalking.agent.service_name=webflux-projectB-scenario" ${home}/../libs/webflux-projectB-scenario.jar &
+
+sleep 1
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=webflux-webclient-scenario" ${home}/../libs/webflux-webclient-scenario.jar &

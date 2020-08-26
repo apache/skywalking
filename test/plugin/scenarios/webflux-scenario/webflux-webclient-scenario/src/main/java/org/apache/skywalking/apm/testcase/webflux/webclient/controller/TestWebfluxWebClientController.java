@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 @RestController
 public class TestWebfluxWebClientController {
     @Value("${webclient.host:localhost:18081}")
-    private String hostBAddress;
+    private String clientHostAddress;
 
     @RequestMapping("/testcase/webclient/server")
     public String webclientServer() {
@@ -37,7 +37,7 @@ public class TestWebfluxWebClientController {
         Mono<String> response = WebClient
                 .create()
                 .get()
-                .uri("http://" + hostBAddress + "/testcase/webclient/server")
+                .uri("http://" + clientHostAddress + "/testcase/webclient/server")
                 .retrieve()
                 .bodyToMono(String.class);
         response.subscribe();
@@ -49,7 +49,7 @@ public class TestWebfluxWebClientController {
         Mono<String> response = WebClient
                 .create()
                 .post()
-                .uri("http://" + hostBAddress + "/testcase/webclient/server")
+                .uri("http://" + clientHostAddress + "/testcase/webclient/server")
                 .retrieve()
                 .bodyToMono(String.class);
         response.subscribe();

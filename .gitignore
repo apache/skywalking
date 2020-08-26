@@ -23,3 +23,5 @@ OALLexer.tokens
 /test/jacoco/classes
 /test/jacoco/*.exec
 oap-server/oal-grammar/**/gen/
+pom.xml
+pom.xml

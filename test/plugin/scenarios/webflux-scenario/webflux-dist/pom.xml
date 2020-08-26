@@ -27,7 +27,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>webflux-dist</artifactId>
-    <packaging>pom</packaging>
 
     <build>
         <plugins>
@@ -52,7 +51,4 @@
             </plugin>
         </plugins>
     </build>
-    <modules>
-        <module>../webflux-webclient-scenario</module>
-    </modules>
 </project>

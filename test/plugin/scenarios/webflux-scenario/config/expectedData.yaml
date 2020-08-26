@@ -333,6 +333,99 @@ segmentItems:
       spanType: Entry
       peer: ''
       tags:
-      - {key: url, value: not null}
-      - {key: http.method, value: GET}
+        - {key: url, value: not null}
+        - {key: http.method, value: GET}
       skipAnalysis: 'false'
+    - operationName: /testcase/webclient/testGet
+      operationId: 0
+      parentSpanId: 0
+      spanId: 9
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 2
+      isError: false
+      spanType: Exit
+      peer: not null
+      skipAnalysis: false
+      tags:
+        - {key: url, value: not null}
+        - {key: http.method, value: GET}
+        - operationName: /projectA/testcase
+          operationId: 0
+          parentSpanId: -1
+          spanId: 0
+          spanLayer: Http
+          startTime: not null
+          endTime: not null
+          componentId: 1
+          isError: false
+          spanType: Entry
+          peer: ''
+          tags:
+            - {key: url, value: not null}
+            - {key: http.method, value: GET}
+          skipAnalysis: 'false'
+- serviceName: webflux-webclient-scenario
+  segmentSize: nq 0
+  segments:
+    - SEGMENTiD: NOT NULL
+      SPANS:
+        - OPERATIONnAME: /TESTCASE/WEBCLIENT/TESTgET
+          OPERATIONiD: 0
+          PARENTsPANiD: -1
+          SPANiD: 0
+          SPANlAYER: hTTP
+          STARTtIME: NOT NULL
+          ENDtIME: NOT NULL
+          COMPONENTiD: 67
+          ISeRROR: FALSE
+          SPANtYPE: eNTRY
+          PEER: ''
+          SKIPaNALYSIS: FALSE
+          TAGS:
+            - {KEY: URL, VALUE: 'HTTP://LOCALHOST:18081/TESTCASE/WEBCLIENT/TESTgET'}
+            - {KEY: HTTP.METHOD, VALUE: get}
+            - {KEY: STATUS_CODE, VALUE: '200'}
+          REFS:
+            - {PARENTeNDPOINT: /PROJECTa/TESTCASE, NETWORKaDDRESS: 'LOCALHOST:18080', REFtYPE: cROSSpROCESS,
+               PARENTsPANiD: 9, PARENTtRACEsEGMENTiD: NOT NULL, PARENTsERVICEiNSTANCE: NOT NULL, PARENTsERVICE: NOT NULL, TRACEiD: NOT NULL}
+    - SEGMENTiD: NOT NULL
+      SPANS:
+        - OPERATIONnAME: /TESTCASE/WEBCLIENT/SERVER
+          OPERATIONiD: 0
+          PARENTsPANiD: -1
+          SPANiD: 0
+          SPANlAYER: hTTP
+          STARTtIME: NOT NULL
+          ENDtIME: NOT NULL
+          COMPONENTiD: 67
+          ISeRROR: FALSE
+          SPANtYPE: eNTRY
+          PEER: ''
+          SKIPaNALYSIS: FALSE
+          TAGS:
+            - {KEY: URL, VALUE: 'HTTP://LOCALHOST:18081/TESTCASE/WEBCLIENT/SERVER'}
+            - {KEY: HTTP.METHOD, VALUE: get}
+            - {KEY: STATUS_CODE, VALUE: '200'}
+          REFS:
+            - {PARENTeNDPOINT: /TESTCASE/WEBCLIENT/SERVER, NETWORKaDDRESS: 'LOCALHOST:18081', REFtYPE: cROSSpROCESS,
+               PARENTsPANiD: 0, PARENTtRACEsEGMENTiD: NOT NULL, PARENTsERVICEiNSTANCE: NOT NULL, PARENTsERVICE: NOT NULL, TRACEiD: NOT NULL}
+    - SEGMENTiD: NOT NULL
+      SPANS:
+        - OPERATIONnAME: /TESTCASE/WEBCLIENT/SERVER
+          OPERATIONiD: 0
+          PARENTsPANiD: -1
+          SPANiD: 0
+          SPANlAYER: hTTP
+          STARTtIME: NOT NULL
+          ENDtIME: NOT NULL
+          COMPONENTiD: 96
+          ISeRROR: FALSE
+          SPANtYPE: eXIT
+          PEER: NOT NULL
+          SKIPaNALYSIS: FALSE
+          TAGS:
+            - {KEY: URL, VALUE: 'HTTP://LOCALHOST:18081/TESTCASE/WEBCLIENT/SERVER'}
+            - {KEY: HTTP.METHOD, VALUE: get}
+            - {KEY: STATUS_CODE, VALUE: '200'}
