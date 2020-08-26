@@ -24,6 +24,18 @@ import org.apache.skywalking.apm.agent.core.logging.core.converters.LiteralConve
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An alternative logger for the SkyWalking agent. The default layout is
+ * {
+ *     "timestamp": "", // timestamp
+ *     "logger": "", // name of the Logger
+ *     "level": "", // info|debug|warn|error
+ *     "thread": "", // thread where the log method is called
+ *     "message": "", // your log message
+ *     "throwable": "",
+ *     "agent_name" "service_name"
+ * }
+ */
 public class JsonLogger extends AbstractLogger {
     private final Gson gson;
 
@@ -31,6 +43,15 @@ public class JsonLogger extends AbstractLogger {
         this(targetClass.getSimpleName(), gson);
     }
 
+    /**
+     * In the Constructor, the instances of converters are created,
+     * except those {@link LiteralConverter} since this class is used
+     * only the literals in {@link PatternLogger} ,
+     * and thus should not be added to the json log.
+     *
+     * @param targetClass the logger class
+     * @param gson instance of Gson works as json serializer
+     */
     public JsonLogger(String targetClass, Gson gson) {
         super(targetClass);
         this.gson = gson;

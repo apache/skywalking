@@ -34,6 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+/**
+ * An abstract class to simplify the real implementation of the loggers.
+ * It hold the class name of the logger, and is responsible for log level check,
+ * message interpolation, etc.
+ */
 public abstract class AbstractLogger implements ILog {
     public static final Map<String, Class<? extends Converter>> DEFAULT_CONVERTER_MAP = new HashMap<>();
     protected List<Converter> converters = new ArrayList<>();
@@ -165,6 +170,16 @@ public abstract class AbstractLogger implements ILog {
         WriterFactory.getLogWriter().write(this.format(level, message, e));
     }
 
+    /**
+     * The abstract method left for real loggers.
+     * Any implementation MUST return string, which will be directly transferred to log destination,
+     * i.e. log files OR stdout
+     *
+     * @param level log level
+     * @param message log message, which has been interpolated with user-defined parameters.
+     * @param e throwable if exists
+     * @return string representation of the log, for example, raw json string for {@link JsonLogger}
+     */
     protected abstract String format(LogLevel level, String message, Throwable e);
 
 }
