@@ -85,39 +85,16 @@ public class JsonLoggerTest {
         Type type = new TypeToken<Map<String, String>>() {
         }.getType();
         Map<String, String> logMap = gson.fromJson(argument.getValue(), type);
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.TIMESTAMP_KEY));
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.MESSAGE_KEY));
-        Assert.assertEquals(logMap.get(Config.Logging.JSON.MESSAGE_KEY), "hello world");
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.THREAD_KEY));
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.LEVEL_KEY));
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.AGENT_NAME_KEY));
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.THROWABLE_KEY));
-        Assert.assertEquals(logMap.get(Config.Logging.JSON.THROWABLE_KEY), "");
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.CLASS_KEY));
-        Assert.assertEquals(logMap.get(Config.Logging.JSON.CLASS_KEY), "JsonLoggerTest");
-    }
-
-    @Test
-    public void testJsonLogKeys_whenChangeJsonKeyInConfig() {
-        final IWriter output = Mockito.mock(IWriter.class);
-        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
-        JsonLogger logger = new JsonLogger(JsonLoggerTest.class, new Gson()) {
-            @Override
-            protected void logger(LogLevel level, String message, Throwable e) {
-                output.write(format(level, message, e));
-            }
-        };
-        String oldAgentKey = String.valueOf(Config.Logging.JSON.AGENT_NAME_KEY);
-        Config.Logging.JSON.AGENT_NAME_KEY = "agent";
-        logger.info("hello world");
-        Mockito.verify(output).write(argument.capture());
-        Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-        Map<String, String> logMap = gson.fromJson(argument.getValue(), type);
-        Assert.assertTrue(logMap.containsKey(Config.Logging.JSON.AGENT_NAME_KEY));
-        Assert.assertFalse(logMap.containsKey(oldAgentKey));
-        Config.Logging.JSON.AGENT_NAME_KEY = oldAgentKey;
+        Assert.assertTrue(logMap.containsKey("timestamp"));
+        Assert.assertTrue(logMap.containsKey("message"));
+        Assert.assertEquals(logMap.get("message"), "hello world");
+        Assert.assertTrue(logMap.containsKey("thread"));
+        Assert.assertTrue(logMap.containsKey("level"));
+        Assert.assertTrue(logMap.containsKey("agent_name"));
+        Assert.assertTrue(logMap.containsKey("throwable"));
+        Assert.assertEquals(logMap.get("throwable"), "");
+        Assert.assertTrue(logMap.containsKey("logger"));
+        Assert.assertEquals(logMap.get("logger"), "JsonLoggerTest");
     }
 
     @Test
