@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
@@ -65,7 +66,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
             @Override
             public void onNext(SegmentObject segment) {
                 if (log.isDebugEnabled()) {
-                    log.debug("receive segment");
+                    log.debug("received segment in streaming");
                 }
 
                 HistogramMetrics.Timer timer = histogram.createTimer();
@@ -90,5 +91,26 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void collectInSync(final SegmentCollection request, final StreamObserver<Commands> responseObserver) {
+        if (log.isDebugEnabled()) {
+            log.debug("received {} segments", request.getSegmentsCount());
+        }
+
+        request.getSegmentsList().forEach(segment -> {
+            HistogramMetrics.Timer timer = histogram.createTimer();
+            try {
+                segmentParserService.send(segment);
+            } catch (Exception e) {
+                errorCounter.inc();
+            } finally {
+                timer.finish();
+            }
+        });
+
+        responseObserver.onNext(Commands.newBuilder().build());
+        responseObserver.onCompleted();
     }
 }
