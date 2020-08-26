@@ -32,7 +32,6 @@ public class ConditionExpression {
     private String expressionType;
     private String attribute;
     private String value;
-
     private List<String> values;
 
     public ConditionExpression(final String expressionType, final String attribute, final String value) {
