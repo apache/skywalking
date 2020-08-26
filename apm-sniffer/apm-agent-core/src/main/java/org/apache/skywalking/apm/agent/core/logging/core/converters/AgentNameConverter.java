@@ -30,6 +30,6 @@ public class AgentNameConverter implements Converter {
 
     @Override
     public String getKey() {
-        return Config.Logging.JSON.AGENT_NAME_KEY;
+        return "agent_name";
     }
 }

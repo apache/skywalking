@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
@@ -50,6 +49,6 @@ public class ThrowableConverter implements Converter {
 
     @Override
     public String getKey() {
-        return Config.Logging.JSON.THROWABLE_KEY;
+        return "throwable";
     }
 }

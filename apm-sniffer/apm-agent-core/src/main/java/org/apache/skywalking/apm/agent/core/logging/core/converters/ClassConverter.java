@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
@@ -34,6 +33,6 @@ public class ClassConverter implements Converter {
 
     @Override
     public String getKey() {
-        return Config.Logging.JSON.CLASS_KEY;
+        return "logger";
     }
 }
