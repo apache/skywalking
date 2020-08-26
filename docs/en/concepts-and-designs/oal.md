@@ -34,7 +34,7 @@ Read [Scope Definitions](scope-definitions.md), you can find all existing Scopes
 Use filter to build the conditions for the value of fields, by using field name and expression. 
 
 The expressions support to link by `and`, `or` and `(...)`. 
-The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `like %...`, `like ...%` and `like %...%`, with type detection based of field type. Trigger compile
+The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `in [...]` ,`like %...`, `like ...%` and `like %...%`, with type detection based of field type. Trigger compile
  or code generation error if incompatible. 
 
 ## Aggregation Function
@@ -54,12 +54,12 @@ In this case, input are request of each ServiceInstanceJVMCPU scope, avg is base
 
 In this case, all input are requests of each endpoint, condition is `endpoint.status == true`.
 - `sum`. The sum calls per scope entity.
-> Service_Calls_Sum = from(Service.*).sum();
+> service_calls_sum = from(Service.*).sum();
 
 In this case, calls of each service. 
 
 - `histogram`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map)
-> All_heatmap = from(All.latency).histogram(100, 20);
+> all_heatmap = from(All.latency).histogram(100, 20);
 
 In this case, thermodynamic heatmap of all incoming requests. 
 The parameter (1) is the precision of latency calculation, such as in above case, 113ms and 193ms are considered same in the 101-200ms group.
@@ -78,7 +78,7 @@ The parameter (2) is the status of this request. The status(success/failure) eff
 **percentile** is the first multiple value metrics, introduced since 7.0.0. As having multiple values, it could be query through `getMultipleLinearIntValues` GraphQL query.
 In this case, `p99`, `p95`, `p90`, `p75`, `p50` of all incoming request. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
 Before 7.0.0, use `p99`, `p95`, `p90`, `p75`, `p50` func(s) to calculate metrics separately. Still supported in 7.x, but don't be recommended, and don't be included in official OAL script. 
-> All_p99 = from(All.latency).p99(10);
+> all_p99 = from(All.latency).p99(10);
 
 In this case, p99 value of all incoming requests. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
 
@@ -100,28 +100,37 @@ In default, no one is being disable.
 ## Examples
 ```
 // Caculate p99 of both Endpoint1 and Endpoint2
-Endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2")).summary(0.99)
+endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2")).summary(0.99)
 
 // Caculate p99 of Endpoint name started with `serv`
 serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").summary(0.99)
 
 // Caculate the avg response time of each Endpoint
-Endpoint_avg = from(Endpoint.latency).avg()
+endpoint_avg = from(Endpoint.latency).avg()
 
 // Caculate the p50, p75, p90, p95 and p99 of each Endpoint by 50 ms steps.
-Endpoint_percentile = from(Endpoint.latency).percentile(10)
+endpoint_percentile = from(Endpoint.latency).percentile(10)
 
 // Caculate the percent of response status is true, for each service.
-Endpoint_success = from(Endpoint.*).filter(status == true).percent()
+endpoint_success = from(Endpoint.*).filter(status == true).percent()
 
 // Caculate the percent of response code in [200, 299], for each service.
-Endpoint_200 = from(Endpoint.*).filter(responseCode like "2%").percent()
+endpoint_200 = from(Endpoint.*).filter(responseCode like "2%").percent()
 
 // Caculate the percent of response code in [500, 599], for each service.
-Endpoint_500 = from(Endpoint.*).filter(responseCode like "5%").percent()
+endpoint_500 = from(Endpoint.*).filter(responseCode like "5%").percent()
+
+// Caculate the sum of response code in [404, 500, 503], for each service.
+endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).sum()
+
+// Caculate the sum of request type in [RequestType.PRC, RequestType.gRPC], for each service.
+endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.PRC, RequestType.gRPC]).sum()
+
+// Caculate the sum of endpoint name in ["/v1", "/v2"], for each service.
+endpoint_url_sum = from(Endpoint.*).filter(endpointName in ["/v1", "/v2"]).sum()
 
 // Caculate the sum of calls for each service.
-EndpointCalls = from(Endpoint.*).sum()
+endpoint_calls = from(Endpoint.*).sum()
 
 disable(segment);
 disable(endpoint_relation_server_side);

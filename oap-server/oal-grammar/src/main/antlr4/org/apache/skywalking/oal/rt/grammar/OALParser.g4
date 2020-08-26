@@ -88,7 +88,7 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch
     ;
 
 booleanMatch
@@ -125,6 +125,14 @@ notEqualMatch
 
 likeMatch
     :  conditionAttribute LIKE stringConditionValue
+    ;
+
+inMatch
+    :  conditionAttribute IN multiConditionValue
+    ;
+
+multiConditionValue
+    : LS_BRACKET (numberConditionValue ((COMMA numberConditionValue)*) | stringConditionValue ((COMMA stringConditionValue)*) | enumConditionValue ((COMMA enumConditionValue)*)) RS_BRACKET
     ;
 
 conditionAttribute
