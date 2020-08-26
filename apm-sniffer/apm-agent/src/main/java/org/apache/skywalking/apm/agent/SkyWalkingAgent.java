@@ -119,10 +119,10 @@ public class SkyWalkingAgent {
         }
 
         agentBuilder.type(pluginFinder.buildMatch())
-                .transform(new Transformer(pluginFinder))
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                .with(new Listener())
-                .installOn(instrumentation);
+                    .transform(new Transformer(pluginFinder))
+                    .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                    .with(new Listener())
+                    .installOn(instrumentation);
 
         try {
             ServiceManager.INSTANCE.boot();
