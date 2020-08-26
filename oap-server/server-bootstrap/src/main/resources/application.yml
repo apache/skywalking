@@ -64,6 +64,10 @@ core:
     restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
+    maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:0}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
     gRPCSslCertChainPath: ${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
@@ -175,14 +179,25 @@ agent-analyzer:
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
+    # For Jetty server
     host: ${SW_RECEIVER_JETTY_HOST:0.0.0.0}
     contextPath: ${SW_RECEIVER_JETTY_CONTEXT_PATH:/}
-    authentication: ${SW_AUTHENTICATION:""}
     jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
     jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
     jettyIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
     jettyAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
     jettyAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
+    # For gRPC server
+    gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
+    maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_RECEIVER_GRPC_POOL_QUEUE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_RECEIVER_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH:""}
+    authentication: ${SW_AUTHENTICATION:""}
 receiver-register:
   selector: ${SW_RECEIVER_REGISTER:default}
   default:
