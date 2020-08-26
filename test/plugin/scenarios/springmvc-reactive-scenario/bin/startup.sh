@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,9 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.ControllerInstrumentation
-spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.RestControllerInstrumentation
-spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.HandlerMethodInstrumentation
-spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.InvocableHandlerMethodInstrumentation
-spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.ReactiveControllerInstrumentation
-spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.ReactiveRestControllerInstrumentation
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/springmvc-reactive-scenario.jar &
