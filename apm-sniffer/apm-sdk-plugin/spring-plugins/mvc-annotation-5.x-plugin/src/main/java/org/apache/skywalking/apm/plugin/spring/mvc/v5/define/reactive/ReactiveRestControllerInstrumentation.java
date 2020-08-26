@@ -16,22 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
+package org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive;
 
-import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
+public class ReactiveRestControllerInstrumentation extends AbstractReactiveControllerInstrumentation {
 
-/**
- * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
- * ignored
- */
-public class TraceSegmentSampler {
-    private TraceSampleRateWatcher traceSampleRateWatcher;
+    public static final String ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RestController";
 
-    public TraceSegmentSampler(TraceSampleRateWatcher traceSampleRateWatcher) {
-        this.traceSampleRateWatcher = traceSampleRateWatcher;
-    }
-
-    public boolean shouldSample(String traceId) {
-        return traceId.hashCode() % 10000 < traceSampleRateWatcher.getSampleRate();
+    @Override
+    protected String[] getEnhanceAnnotations() {
+        return new String[] {ENHANCE_ANNOTATION};
     }
 }
