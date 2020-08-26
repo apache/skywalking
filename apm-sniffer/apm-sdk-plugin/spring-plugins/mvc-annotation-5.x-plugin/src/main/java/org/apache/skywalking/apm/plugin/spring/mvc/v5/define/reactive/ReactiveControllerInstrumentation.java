@@ -15,15 +15,14 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.testcase.sc.webflux.projectB;
+package org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+public class ReactiveControllerInstrumentation extends AbstractReactiveControllerInstrumentation {
 
-@SpringBootApplication
-public class Application {
+    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    @Override
+    protected String[] getEnhanceAnnotations() {
+        return new String[] {ENHANCE_ANNOTATION};
     }
 }
