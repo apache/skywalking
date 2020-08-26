@@ -35,12 +35,14 @@ public class JsonLogger extends AbstractLogger {
         super(targetClass);
         this.gson = gson;
         for (Map.Entry<String, Class<? extends Converter>> entry : DEFAULT_CONVERTER_MAP.entrySet()) {
+            final Class<? extends Converter> converterClass = entry.getValue();
             try {
                 if (converters instanceof LiteralConverter) {
                     continue;
                 }
-                converters.add(entry.getValue().newInstance());
-            } catch (IllegalAccessException | InstantiationException ignore) {
+                converters.add(converterClass.newInstance());
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw new IllegalStateException("Create Converter error. Class: " + converterClass, e);
             }
         }
     }
