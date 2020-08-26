@@ -53,8 +53,6 @@ public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
 
     public static final String BROWSER_APP_PAGE_AJAX_ERROR_SUM = "browser_app_page_ajax_error_sum";
     public static final String BROWSER_APP_PAGE_RESOURCE_ERROR_SUM = "browser_app_page_resource_error_sum";
-    public static final String BROWSER_APP_PAGE_VUE_ERROR_SUM = "browser_app_page_vue_error_sum";
-    public static final String BROWSER_APP_PAGE_PROMISE_ERROR_SUM = "browser_app_page_promise_error_sum";
     public static final String BROWSER_APP_PAGE_JS_ERROR_SUM = "browser_app_page_js_error_sum";
     public static final String BROWSER_APP_PAGE_UNKNOWN_ERROR_SUM = "browser_app_page_unknown_error_sum";
 
@@ -79,8 +77,6 @@ public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
         BROWSER_APP_PAGE_ERROR_SUM,
         BROWSER_APP_PAGE_AJAX_ERROR_SUM,
         BROWSER_APP_PAGE_RESOURCE_ERROR_SUM,
-        BROWSER_APP_PAGE_VUE_ERROR_SUM,
-        BROWSER_APP_PAGE_PROMISE_ERROR_SUM,
         BROWSER_APP_PAGE_JS_ERROR_SUM,
         BROWSER_APP_PAGE_UNKNOWN_ERROR_SUM,
         BROWSER_APP_PAGE_REDIRECT_AVG,

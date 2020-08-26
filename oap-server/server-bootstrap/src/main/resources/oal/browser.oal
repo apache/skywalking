@@ -32,9 +32,7 @@ browser_app_page_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCat
 
 browser_app_page_ajax_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.AJAX).sum();
 browser_app_page_resource_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.RESOURCE).sum();
-browser_app_page_vue_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.VUE).sum();
-browser_app_page_promise_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.PROMISE).sum();
-browser_app_page_js_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.JS).sum();
+browser_app_page_js_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory in [BrowserErrorCategory.JS,BrowserErrorCategory.VUE,BrowserErrorCategory.PROMISE]).sum();
 browser_app_page_unknown_error_sum = from(BrowserAppPageTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).filter(errorCategory == BrowserErrorCategory.UNKNOWN).sum();
 
 // browser performance metrics
