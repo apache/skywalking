@@ -6,34 +6,35 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
-import org.junit.Test;
+import java.util.Objects;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+@FilterMatcher
+public class InMatch {
 
-public class LikeMatchTest {
-    @Test
-    public void testLike() {
-        assertTrue(new LikeMatch().match("MaxBlack", "%Black"));
-        assertTrue(new LikeMatch().match("MaxBlack", "Max%"));
-        assertTrue(new LikeMatch().match("MaxBlack", "%axBl%"));
-
-        assertFalse(new LikeMatch().match("CarolineChanning", "Max%"));
-        assertFalse(new LikeMatch().match("CarolineChanning", "%Max"));
-
-        assertTrue(new LikeMatch().match("MaxBlack", "\"%Black\""));
-        assertFalse(new LikeMatch().match("CarolineChanning", "\"Max%\""));
+    public boolean match(Object left, Object[] rights) {
+        for (Object right : rights) {
+            if (right instanceof String) {
+                String r = (String) right;
+                if (r.startsWith("\"") && r.endsWith("\"")) {
+                    right = r.substring(1, r.length() - 1);
+                }
+            }
+            if (Objects.equals(left, right)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
