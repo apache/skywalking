@@ -132,7 +132,7 @@ inMatch
     ;
 
 multiConditionValue
-    : LR_SQUARE_BRACKET (numberConditionValue ((COMMA numberConditionValue)*) | stringConditionValue ((COMMA stringConditionValue)*) | enumConditionValue ((COMMA enumConditionValue)*)) RR_SQUARE_BRACKET
+    : LS_BRACKET (numberConditionValue ((COMMA numberConditionValue)*) | stringConditionValue ((COMMA stringConditionValue)*) | enumConditionValue ((COMMA enumConditionValue)*)) RS_BRACKET
     ;
 
 conditionAttribute
