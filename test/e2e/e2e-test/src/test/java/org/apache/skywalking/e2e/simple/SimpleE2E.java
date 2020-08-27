@@ -19,6 +19,8 @@
 package org.apache.skywalking.e2e.simple;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -29,6 +31,8 @@ import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
+import org.apache.skywalking.e2e.metrics.ReadMetrics;
+import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
@@ -58,11 +62,14 @@ import org.testcontainers.containers.DockerComposeContainer;
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_JVM_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LINER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LABELED_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
@@ -109,11 +116,11 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "ui", port = 8080)
-    private HostAndPort swWebappHostPort;
+    protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider", port = 9090)
-    private HostAndPort serviceHostPort;
+    protected HostAndPort serviceHostPort;
 
     @BeforeAll
     void setUp() throws Exception {
@@ -126,11 +133,12 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
     public void tearDown() {
         trafficController.stop();
     }
-
+     
     @RetryableTest
     void services() throws Exception {
-        final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
+        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/simple/services.yml").as(ServicesMatcher.class).verify(services);
@@ -143,6 +151,8 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
             final Instances instances = verifyServiceInstances(service);
 
             verifyInstancesMetrics(instances);
+
+            verifyInstancesJVMMetrics(instances);
 
             final Endpoints endpoints = verifyServiceEndpoints(service);
 
@@ -185,6 +195,58 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
 
         verifyServiceInstanceRelationMetrics(topology.getCalls());
     }
+    
+    @RetryableTest
+    void so11y() throws Exception {
+        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+
+        services = services.stream().filter(s -> s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        LOGGER.info("services: {}", services);
+        load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
+        for (final Service service : services) {
+            final Instances instances = graphql.instances(
+                new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
+            );
+
+            LOGGER.info("instances: {}", instances);
+
+            load("expected/simple/so11y-instances.yml").as(InstancesMatcher.class).verify(instances);
+            for (Instance instance : instances.getInstances()) {
+                for (String metricsName : ALL_SO11Y_LINER_METRICS) {
+                    LOGGER.info("verifying service instance response time: {}", instance);
+                    final ReadMetrics instanceMetrics = graphql.readMetrics(
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                    );
+    
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(instanceMetrics.getValues());
+                }
+                for (String metricsName : ALL_SO11Y_LABELED_METRICS) {
+                    LOGGER.info("verifying service instance response time: {}", instance);
+                    final List<ReadMetrics> instanceMetrics = graphql.readLabeledMetrics(
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                    );
+    
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
+                    Metrics allValues = new Metrics();
+                    for (ReadMetrics readMetrics : instanceMetrics) {
+                        allValues.getValues().addAll(readMetrics.getValues().getValues());
+                    }
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(allValues);
+                }
+            }
+        }
+    }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
         final Instances instances = graphql.instances(
@@ -224,6 +286,26 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 instanceRespTimeMatcher.verify(instanceMetrics);
                 LOGGER.info("{}: {}", metricsName, instanceMetrics);
+            }
+        }
+    }
+
+    private void verifyInstancesJVMMetrics(final Instances instances) throws Exception {
+        for (Instance instance : instances.getInstances()) {
+            for (String metricsName : ALL_INSTANCE_JVM_METRICS) {
+                LOGGER.info("verifying service instance response time: {}", instance);
+                final Metrics instanceJVMMetrics = graphql.metrics(
+                        new MetricsQuery().stepByMinute().metricsName(metricsName).id(instance.getKey())
+                );
+
+                LOGGER.info("instance jvm metrics: {}", instanceJVMMetrics);
+
+                final AtLeastOneOfMetricsMatcher instanceThreadMatcher = new AtLeastOneOfMetricsMatcher();
+                final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                greaterThanZero.setValue("gt 0");
+                instanceThreadMatcher.setValue(greaterThanZero);
+                instanceThreadMatcher.verify(instanceJVMMetrics);
+                LOGGER.info("{}: {}", metricsName, instanceJVMMetrics);
             }
         }
     }

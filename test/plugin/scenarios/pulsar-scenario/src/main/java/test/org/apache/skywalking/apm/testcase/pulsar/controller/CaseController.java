@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @PropertySource("classpath:application.properties")
 public class CaseController {
 
-    private Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     private static final String PULSAR_DOMAIN = "pulsar://";
 
@@ -69,13 +69,13 @@ public class CaseController {
                     StringBuilder builder = new StringBuilder();
                     msg.getProperties()
                        .forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v)).append(", "));
-                    logger.info("Received message with messageId = {}, key = {}, value = {}, properties = {}", msg.getMessageId(), msg
+                    LOGGER.info("Received message with messageId = {}, key = {}, value = {}, properties = {}", msg.getMessageId(), msg
                         .getKey(), new String(msg.getValue()), builder.toString());
 
                 }
                 consumer.acknowledge(msg);
             } catch (PulsarClientException e) {
-                logger.error("Receive message error", e);
+                LOGGER.error("Receive message error", e);
             } finally {
                 latch.countDown();
             }
@@ -86,7 +86,7 @@ public class CaseController {
         try {
             latch.await(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            logger.error("Can get message from consumer", e);
+            LOGGER.error("Can get message from consumer", e);
             t.interrupt();
             throw e;
         }

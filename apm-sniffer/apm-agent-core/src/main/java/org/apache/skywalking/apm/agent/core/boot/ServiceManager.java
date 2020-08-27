@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 public enum ServiceManager {
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(ServiceManager.class);
+    private static final ILog LOGGER = LogManager.getLogger(ServiceManager.class);
     private Map<Class, BootService> bootedServices = Collections.emptyMap();
 
     public void boot() {
@@ -50,7 +50,7 @@ public enum ServiceManager {
             try {
                 service.shutdown();
             } catch (Throwable e) {
-                logger.error(e, "ServiceManager try to shutdown [{}] fail.", service.getClass().getName());
+                LOGGER.error(e, "ServiceManager try to shutdown [{}] fail.", service.getClass().getName());
             }
         }
     }
@@ -103,7 +103,7 @@ public enum ServiceManager {
             try {
                 service.prepare();
             } catch (Throwable e) {
-                logger.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
+                LOGGER.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
             }
         }
     }
@@ -113,7 +113,7 @@ public enum ServiceManager {
             try {
                 service.boot();
             } catch (Throwable e) {
-                logger.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
+                LOGGER.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
             }
         }
     }
@@ -123,7 +123,7 @@ public enum ServiceManager {
             try {
                 service.onComplete();
             } catch (Throwable e) {
-                logger.error(e, "Service [{}] AfterBoot process fails.", service.getClass().getName());
+                LOGGER.error(e, "Service [{}] AfterBoot process fails.", service.getClass().getName());
             }
         }
     }

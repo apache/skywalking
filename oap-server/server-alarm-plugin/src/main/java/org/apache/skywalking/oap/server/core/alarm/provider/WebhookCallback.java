@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -35,14 +36,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Use SkyWalking alarm webhook API call a remote endpoints.
  */
+@Slf4j
 public class WebhookCallback implements AlarmCallback {
-    private static final Logger logger = LoggerFactory.getLogger(WebhookCallback.class);
     private static final int HTTP_CONNECT_TIMEOUT = 1000;
     private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 1000;
     private static final int HTTP_SOCKET_TIMEOUT = 10000;
@@ -62,7 +61,7 @@ public class WebhookCallback implements AlarmCallback {
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
-        if (alarmRulesWatcher.getWebHooks().size() == 0) {
+        if (alarmRulesWatcher.getWebHooks().isEmpty()) {
             return;
         }
 
@@ -81,19 +80,19 @@ public class WebhookCallback implements AlarmCallback {
                     CloseableHttpResponse httpResponse = httpClient.execute(post);
                     StatusLine statusLine = httpResponse.getStatusLine();
                     if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                        logger.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
+                        log.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
                     }
                 } catch (UnsupportedEncodingException e) {
-                    logger.error("Alarm to JSON error, " + e.getMessage(), e);
+                    log.error("Alarm to JSON error, " + e.getMessage(), e);
                 } catch (IOException e) {
-                    logger.error("send alarm to " + url + " failure.", e);
+                    log.error("send alarm to " + url + " failure.", e);
                 }
             });
         } finally {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
     }

@@ -22,7 +22,6 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
@@ -31,7 +30,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback}.
  */
-public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ExecuteInstrumentation extends AbstractShardingSphereV4R3Instrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback";
 

@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 
 public abstract class AbstractRequestInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
-    private static final ILog logger = LogManager.getLogger(GenericRequestorInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(GenericRequestorInterceptor.class);
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -46,7 +46,7 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
                     .getRemoteName()));
             } catch (IOException e) {
                 objInst.setSkyWalkingDynamicField(new AvroInstance("Undefined", "Undefined"));
-                logger.error("Failed to get Avro Remote Client Information.", e);
+                LOGGER.error("Failed to get Avro Remote Client Information.", e);
             }
         }
     }

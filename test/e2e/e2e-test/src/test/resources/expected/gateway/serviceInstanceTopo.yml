@@ -24,13 +24,13 @@ nodes:
     name: not null
     serviceId: not null
     serviceName: e2e-service-provider
-    type: Unknown
+    type: not null
     isReal: true
   - id: not null
     name: not null
     serviceId: not null
     serviceName: e2e-service-provider
-    type: Unknown
+    type: not null
     isReal: true
 calls:
   - id: not null

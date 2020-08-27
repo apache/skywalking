@@ -20,7 +20,7 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -47,6 +47,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
             <version>${spring-webmvc.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.2.4.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

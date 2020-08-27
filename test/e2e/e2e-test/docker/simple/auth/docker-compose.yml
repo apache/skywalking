@@ -22,6 +22,8 @@ services:
       service: oap
     environment:
       SW_AUTHENTICATION: test-token
+      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_TELEMETRY: prometheus
 
   ui:
     extends:
@@ -39,6 +41,7 @@ services:
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.authentication=test-token
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     depends_on:
       oap:
         condition: service_healthy

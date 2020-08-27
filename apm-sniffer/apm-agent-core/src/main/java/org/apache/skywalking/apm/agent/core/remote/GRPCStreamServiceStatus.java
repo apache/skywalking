@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 public class GRPCStreamServiceStatus {
-    private static final ILog logger = LogManager.getLogger(GRPCStreamServiceStatus.class);
+    private static final ILog LOGGER = LogManager.getLogger(GRPCStreamServiceStatus.class);
     private volatile boolean status;
 
     public GRPCStreamServiceStatus(boolean status) {
@@ -49,7 +49,7 @@ public class GRPCStreamServiceStatus {
             hasWaited += recheckCycle;
 
             if (recheckCycle >= maxCycle) {
-                logger.warn("Collector traceSegment service doesn't response in {} seconds.", hasWaited / 1000);
+                LOGGER.warn("Collector traceSegment service doesn't response in {} seconds.", hasWaited / 1000);
             } else {
                 recheckCycle = Math.min(recheckCycle * 2, maxCycle);
             }

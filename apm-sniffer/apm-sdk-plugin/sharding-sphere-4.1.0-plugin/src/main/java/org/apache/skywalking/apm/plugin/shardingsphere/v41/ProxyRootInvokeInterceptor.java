@@ -19,12 +19,13 @@
 package org.apache.skywalking.apm.plugin.shardingsphere.v41;
 
 import java.lang.reflect.Method;
+
+import org.apache.shardingsphere.underlying.executor.engine.ExecutorDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.shardingsphere.v41.threadlocal.ContextThreadLocal;
 
 /**
  * ProxyRootInvokeInterceptor enhances. skywalking intercepts org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask
@@ -37,7 +38,7 @@ public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundIntercep
         MethodInterceptResult result) {
         ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/")
                       .setComponent(ComponentsDefine.SHARDING_SPHERE);
-        ContextThreadLocal.getValue().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
+        ExecutorDataMap.getValue().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
 
     @Override

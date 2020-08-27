@@ -158,4 +158,20 @@ public class ComponentsDefine {
     public static final OfficialComponent FINAGLE = new OfficialComponent(85, "Finagle");
 
     public static final OfficialComponent MARIADB_JDBC = new OfficialComponent(87, "mariadb-jdbc");
+
+    public static final OfficialComponent QUASAR = new OfficialComponent(88, "quasar");
+
+    public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(90, "influxdb-java");
+
+    public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
+
+    public static final OfficialComponent GRAPHQL = new OfficialComponent(92, "GraphQL");
+
+    public static final OfficialComponent SPRING_ANNOTATION = new OfficialComponent(93, "spring-annotation");
+
+    public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
+
+    public static final OfficialComponent SPRING_KAFKA_CONSUMER = new OfficialComponent(95, "spring-kafka-consumer");
+
+    public static final OfficialComponent SPRING_SCHEDULED = new OfficialComponent(96, "SpringScheduled");
 }

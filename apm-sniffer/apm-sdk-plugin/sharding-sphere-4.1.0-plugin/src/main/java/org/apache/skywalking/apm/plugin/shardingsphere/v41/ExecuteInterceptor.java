@@ -20,13 +20,14 @@ package org.apache.skywalking.apm.plugin.shardingsphere.v41;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import org.apache.shardingsphere.underlying.executor.engine.ExecutorDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.shardingsphere.v41.threadlocal.ContextThreadLocal;
 
 /**
  * {@link ExecuteInterceptor} enhances. {@link org.apache.shardingsphere.sharding.execute.sql.execute.SQLExecuteCallback}
@@ -38,7 +39,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) {
         ContextManager.createLocalSpan("/ShardingSphere/executeSQL/").setComponent(ComponentsDefine.SHARDING_SPHERE);
-        ContextSnapshot contextSnapshot = (ContextSnapshot) ContextThreadLocal.getValue()
+        ContextSnapshot contextSnapshot = (ContextSnapshot) ExecutorDataMap.getValue()
                                                                                   .get(Constant.CONTEXT_SNAPSHOT);
         if (null == contextSnapshot) {
             contextSnapshot = (ContextSnapshot) ((Map) allArguments[2]).get(Constant.CONTEXT_SNAPSHOT);
@@ -52,7 +53,6 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
         ContextManager.stopSpan();
-        ContextThreadLocal.remove();
         return ret;
     }
 
@@ -60,6 +60,5 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
-        ContextThreadLocal.remove();
     }
 }

@@ -17,12 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -69,6 +68,11 @@
             <artifactId>cluster-etcd-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-nacos-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- cluster module -->
 
         <!-- receiver module -->
@@ -112,12 +116,27 @@
             <artifactId>skywalking-profile-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>opencensus-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-meter-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>prometheus-fetcher-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>kafka-fetcher-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- fetcher module -->
@@ -191,6 +210,16 @@
             <artifactId>configuration-consul</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-k8s-configmap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-nacos</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -229,6 +258,7 @@
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>meter-receive-config/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.mock;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
@@ -29,7 +30,7 @@ class ServiceAMock {
     public static String SERVICE_NAME = "mock_a_service";
     public static String SERVICE_INSTANCE_NAME = "mock_a_service_instance";
 
-    static String REST_ENDPOINT = "/dubbox-case/case/dubbox-rest";
+    static String REST_ENDPOINT = "/dubbox-case/case/dubbox-rest/404-test";
     static String DUBBO_ENDPOINT = "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()";
     static String DUBBO_ADDRESS = "DubboIPAddress:1000";
 
@@ -62,6 +63,9 @@ class ServiceAMock {
         span.setComponentId(ComponentsDefine.TOMCAT.getId());
         span.setOperationName(REST_ENDPOINT);
         span.setIsError(false);
+        span.addTags(KeyStringValuePair.newBuilder().setKey("http.method").setValue("get").build());
+        span.addTags(KeyStringValuePair.newBuilder().setKey("status_code").setValue("404").build());
+        span.addTags(KeyStringValuePair.newBuilder().setKey("status_code").setValue("200").build());
         return span;
     }
 

@@ -55,6 +55,8 @@ jobs:
           - { name: 'gateway-2.0.x-scenario', title: 'Spring-Cloud-Gateway 2.0.x (3)' }
           - { name: 'grpc-scenario', title: 'gRPC 1.6.0-1.25.0 (22)' }
           - { name: 'gson-scenario', title: 'Gson (7)' }
+          - { name: 'elasticjob-3.x-scenario', title: 'elasticjob-3.x-scenario (1)' }
+          - { name: 'springmvc-reactive-scenario', title: 'springmvc-reactive-scenario (7)' }
     steps:
       - uses: actions/checkout@v2
         with:
@@ -65,7 +67,7 @@ jobs:
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: ${{ matrix.case.title }}
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
       - name: Report Coverage

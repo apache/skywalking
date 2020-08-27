@@ -19,12 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 
 public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
 
-    public MySQLTraceQueryDAO(JDBCHikariCPClient mysqlClient) {
-        super(mysqlClient);
+    public MySQLTraceQueryDAO(ModuleManager manager,
+                              JDBCHikariCPClient h2Client,
+                              final int maxSizeOfArrayColumn,
+                              final int numOfSearchableValuesPerTag) {
+        super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
     }
 
     @Override

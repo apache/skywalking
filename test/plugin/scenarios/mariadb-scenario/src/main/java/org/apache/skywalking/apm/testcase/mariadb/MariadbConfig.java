@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MariadbConfig {
-    private static Logger logger = LogManager.getLogger(MariadbConfig.class);
+    private static final Logger LOGGER = LogManager.getLogger(MariadbConfig.class);
     private static String url;
     private static String userName;
     private static String password;
@@ -36,7 +36,7 @@ public class MariadbConfig {
         try {
             properties.load(inputStream);
         } catch (IOException e) {
-            logger.error("Failed to load config", e);
+            LOGGER.error("Failed to load config", e);
         }
 
         url = properties.getProperty("mariadb.url");

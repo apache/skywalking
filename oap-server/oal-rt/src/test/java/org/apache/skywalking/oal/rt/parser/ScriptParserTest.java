@@ -34,8 +34,6 @@ public class ScriptParserTest {
 
     @BeforeClass
     public static void init() throws IOException, StorageException {
-        MetricsHolder.init();
-
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.scan();
@@ -167,6 +165,46 @@ public class ScriptParserTest {
         Assert.assertEquals("latency", booleanMatchExp.getAttribute());
         Assert.assertEquals("4000", booleanMatchExp.getValue());
         Assert.assertEquals("lessEqualMatch", booleanMatchExp.getExpressionType());
+    }
+
+    @Test
+    public void testParse6() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_response_s4_summary = from(Service.latency).filter(latency like \"%a\").sum();",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        Assert.assertEquals(1, results.size());
+        AnalysisResult result = results.get(0);
+        List<Expression> expressions = result.getFilterExpressions();
+        Assert.assertEquals(1, expressions.size());
+        Expression expression = expressions.get(0);
+        Assert.assertEquals("source.getLatency()", expression.getLeft());
+        Assert.assertEquals(
+            "org.apache.skywalking.oap.server.core.analysis.metrics.expression.LikeMatch",
+            expression.getExpressionObject()
+        );
+        Assert.assertEquals("\"%a\"", expression.getRight());
+    }
+
+    @Test
+    public void testParse7() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_response_s4_summary = from(Service.latency).filter(latency != 1).filter(latency in [1,2, 3]).sum();",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        Assert.assertEquals(1, results.size());
+        AnalysisResult result = results.get(0);
+        List<Expression> expressions = result.getFilterExpressions();
+        Assert.assertEquals(2, expressions.size());
+        Expression expression = expressions.get(1);
+        Assert.assertEquals("source.getLatency()", expression.getLeft());
+        Assert.assertEquals(
+            "org.apache.skywalking.oap.server.core.analysis.metrics.expression.InMatch",
+            expression.getExpressionObject()
+        );
+        Assert.assertEquals("new Object[]{1,2,3}", expression.getRight());
     }
 
     @Test

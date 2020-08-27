@@ -38,6 +38,7 @@ jobs:
           - { name: 'httpclient-3.x-scenario', title: 'HttpClient 2.0-3.1 (5)' }
           - { name: 'httpclient-4.3.x-scenario', title: 'HttpClient 4.3.x-4.5.x (14)' }
           - { name: 'hystrix-scenario', title: 'Hystrix 1.4.20-1.5.12 (20)' }
+          - { name: 'influxdb-scenario', title: 'InfluxDB Java 2.5-2.17 (12)' }
           - { name: 'jdk-http-scenario', title: 'JDK http (1)' }
           - { name: 'jdk-threading-scenario', title: 'JDK Threading (1)' }
           - { name: 'jedis-scenario', title: 'Jedis 2.4.0-2.9.0 (18)' }
@@ -58,7 +59,7 @@ jobs:
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
       - name: ${{ matrix.case.title }}
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
       - name: Report Coverage

@@ -39,7 +39,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
  * Add agent version(Described in MANIFEST.MF) to the connection establish stage.
  */
 public class AgentIDDecorator implements ChannelDecorator {
-    private static final ILog logger = LogManager.getLogger(AgentIDDecorator.class);
+    private static final ILog LOGGER = LogManager.getLogger(AgentIDDecorator.class);
     private static final Metadata.Key<String> AGENT_VERSION_HEAD_HEADER_NAME = Metadata.Key.of("Agent-Version", Metadata.ASCII_STRING_MARSHALLER);
     private String version = "UNKNOWN";
 
@@ -62,7 +62,7 @@ public class AgentIDDecorator implements ChannelDecorator {
                 }
             }
         } catch (Exception e) {
-            logger.warn("Can't read version from MANIFEST.MF in the agent jar");
+            LOGGER.warn("Can't read version from MANIFEST.MF in the agent jar");
         }
     }
 

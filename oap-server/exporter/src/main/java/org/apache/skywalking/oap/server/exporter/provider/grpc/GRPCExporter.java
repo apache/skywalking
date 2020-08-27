@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
-    private static final Logger logger = LoggerFactory.getLogger(GRPCExporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCExporter.class);
 
     private GRPCExporterSetting setting;
     private final MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
@@ -87,7 +87,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
                                                      .subscription(SubscriptionReq.newBuilder().build());
         subscription.getMetricNamesList().forEach(subscriptionSet::add);
-        logger.debug("Get exporter subscription list, {}", subscriptionSet);
+        LOGGER.debug("Get exporter subscription list, {}", subscriptionSet);
     }
 
     @Override
@@ -179,7 +179,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             }
 
             if (sleepTime > 2000L) {
-                logger.warn(
+                LOGGER.warn(
                     "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(),
                     setting
                         .getTargetPort(), sleepTime
@@ -188,14 +188,14 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             }
         }
 
-        logger.debug(
+        LOGGER.debug(
             "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
                 .getTargetPort(), sleepTime);
     }
 
     @Override
     public void onError(List<ExportData> data, Throwable t) {
-        logger.error(t.getMessage(), t);
+        LOGGER.error(t.getMessage(), t);
     }
 
     @Override

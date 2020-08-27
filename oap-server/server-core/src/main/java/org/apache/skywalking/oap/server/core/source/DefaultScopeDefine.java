@@ -67,6 +67,7 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_UPDATE = 30;
     public static final int NETWORK_ADDRESS_ALIAS = 31;
     public static final int UI_TEMPLATE = 32;
+    public static final int SERVICE_INSTANCE_JVM_THREAD = 33;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

@@ -19,3 +19,4 @@ toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.md
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async.AsyncAppenderBaseInstrumentation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async.LoggingEventInstrumentation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.TcpSocketAppenderActivation
+toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.TraceIdJsonProviderActivation

@@ -138,7 +138,7 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      */
     AbstractSpan setOperationName(String endpointName);
 ```
-Besides set operation name, tags and logs, two attributes shoule be set, which are component and layer, 
+Besides setting operation name, tags and logs, two attributes should be set, which are component and layer, 
 especially for EntrySpan and ExitSpan
 
 SpanLayer is the catalog of span. Here are 5 values:
@@ -150,6 +150,36 @@ SpanLayer is the catalog of span. Here are 5 values:
 
 Component IDs are defined and reserved by SkyWalking project.
 For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
+
+### Special Span Tags
+All tags are available in the trace view, meanwhile, 
+in the OAP backend analysis, some special tag or tag combination could provide other advanced features.
+
+#### Tag key `status_code`
+The value should be an integer. The response code of OAL entities is according to this.
+
+#### Tag key `db.statement` and `db.type`.
+The value of `db.statement` should be a String, representing the Database statement, such as SQL, or `[No statement]/`+span#operationName if value is empty.
+When exit span has this tag, OAP samples the slow statements based on `agent-analyzer/default/maxSlowSQLLength`.
+The threshold of slow statement is defined by following [`agent-analyzer/default/slowDBAccessThreshold`](../setup/backend/slow-db-statement.md)
+
+#### Extension logic endpoint. Tag key `x-le`
+Logic endpoint is a concept, which doesn't represent a real RPC call, but requires the statistic.
+The value of `x-le` should be JSON format, with two options.
+1. Define a separated logic endpoint. Provide its own endpoint name, latency and status. Suitable for entry and local span.
+```json
+{
+  "name": "GraphQL-service",
+  "latency": 100,
+  "status": true
+}
+```
+2. Declare the current local span representing a logic endpoint.
+```json
+{
+  "logic-span": true
+}
+``` 
 
 ### Advanced APIs
 #### Async Span APIs
@@ -197,7 +227,7 @@ so you just need to define the intercept point(a.k.a. aspect pointcut in Spring)
 ### Intercept
 SkyWalking provide two common defines to intercept Contructor, instance method and class method.
 * Extend `ClassInstanceMethodsEnhancePluginDefine` defines `Contructor` intercept points and `instance method` intercept points.
-* Extend `ClassStaticMethodsEnhancePluginDefine` definec `class method` intercept points.
+* Extend `ClassStaticMethodsEnhancePluginDefine` defines `class method` intercept points.
 
 Of course, you can extend `ClassEnhancePluginDefine` to set all intercept points. But it is unusual. 
 
@@ -345,6 +375,61 @@ public class URLInstrumentation extends ClassEnhancePluginDefine {
 **NOTICE**, doing bootstrap instrumentation should only happen in necessary, but mostly it effect the JRE core(rt.jar),
 and could make very unexpected result or side effect.
 
+### Provide Customization Config for the Plugin
+The config could provide different behaviours based on the configurations. SkyWalking plugin mechanism provides the configuration
+injection and initialization system in the agent core.
+
+Every plugin could declare one or more classes to represent the config by using `@PluginConfig` annotation. The agent core
+could initialize this class' static field though System environments, System properties, and `agent.config` static file.
+
+The `#root()` method in the `@PluginConfig` annotation requires to declare the root class for the initialization process.
+Typically, SkyWalking prefers to use nested inner static classes for the hierarchy of the configuration. 
+Recommend using `Plugin`/`plugin-name`/`config-key` as the nested classes structure of the Config class.
+
+NOTE, because of the Java ClassLoader mechanism, the `@PluginConfig` annotation should be added on the real class used in the interceptor codes. 
+
+Such as, in the following example, `@PluginConfig(root = SpringMVCPluginConfig.class)` represents the initialization should 
+start with using `SpringMVCPluginConfig` as the root. Then the config key of the attribute `USE_QUALIFIED_NAME_AS_ENDPOINT_NAME`,
+should be `plugin.springmvc.use_qualified_name_as_endpoint_name`.
+```java
+public class SpringMVCPluginConfig {
+    public static class Plugin {
+        // NOTE, if move this annotation on the `Plugin` or `SpringMVCPluginConfig` class, it no longer has any effect. 
+        @PluginConfig(root = SpringMVCPluginConfig.class)
+        public static class SpringMVC {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL,
+             * default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+
+            /**
+             * This config item controls that whether the SpringMVC plugin should collect the parameters of the
+             * request.
+             */
+            public static boolean COLLECT_HTTP_PARAMS = false;
+        }
+
+        @PluginConfig(root = SpringMVCPluginConfig.class)
+        public static class Http {
+            /**
+             * When either {@link Plugin.SpringMVC#COLLECT_HTTP_PARAMS} is enabled, how many characters to keep and send
+             * to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is
+             * added for the sake of performance
+             */
+            public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
+        }
+    }
+}
+```
+
+### Plugin Test Tool
+[Apache SkyWalking Agent Test Tool Suite](https://github.com/apache/skywalking-agent-test-tool)
+a tremendously useful test tools suite in a wide variety of languages of Agent. Includes mock collector and validator. 
+The mock collector is a SkyWalking receiver, like OAP server.
+
+You could learn how to use this tool to test the plugin in [this doc](Plugin-test.md). If you want to contribute plugins
+to SkyWalking official repo, this is required.
 
 ### Contribute plugins into Apache SkyWalking repository
 We are welcome everyone to contribute plugins.

@@ -79,8 +79,8 @@ public class AggregationQuery implements IAggregationQueryDAO {
             });
         }
         final SelectSubQueryImpl<SelectQueryImpl> subQuery = where
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getStartTimeBucket())))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getEndTimeBucket())))
+            .and(gte(InfluxClient.TIME, InfluxClient.timeIntervalTS(duration.getStartTimestamp())))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeIntervalTS(duration.getEndTimestamp())))
             .groupBy(InfluxConstants.TagName.ENTITY_ID);
 
         query.setSubQuery(subQuery);

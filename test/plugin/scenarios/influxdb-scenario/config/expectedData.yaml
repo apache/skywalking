@@ -1,0 +1,131 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: influxdb-scenario
+  segmentSize: gt 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: InfluxDB/ping
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 90
+      isError: false
+      spanType: Exit
+      peer: http://influxdb:8086
+      tags:
+      - {key: db.type, value: InfluxDB}
+      skipAnalysis: 'false'
+    - operationName: /influxdb-scenario/case/healthCheck
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/influxdb-scenario/case/healthCheck'}
+      - {key: http.method, value: HEAD}
+  - segmentId: not null
+    spans:
+    - operationName: InfluxDB/query
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 90
+      isError: false
+      spanType: Exit
+      peer: http://influxdb:8086
+      tags:
+      - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'CREATE DATABASE skywalking'}
+      skipAnalysis: 'false'
+    - operationName: InfluxDB/query
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 90
+      isError: false
+      spanType: Exit
+      peer: http://influxdb:8086
+      tags:
+      - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'CREATE RETENTION POLICY one_day ON skywalking DURATION 1d REPLICATION 1 DEFAULT'}
+      skipAnalysis: 'false'
+    - operationName: InfluxDB/write
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 90
+      isError: false
+      spanType: Exit
+      peer: http://influxdb:8086
+      tags:
+      - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: InfluxDB/query
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 90
+      isError: false
+      spanType: Exit
+      peer: http://influxdb:8086
+      tags:
+      - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'SELECT * FROM heartbeat'}
+      skipAnalysis: 'false'
+    - operationName: /influxdb-scenario/case/influxdb-scenario
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/influxdb-scenario/case/influxdb-scenario'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

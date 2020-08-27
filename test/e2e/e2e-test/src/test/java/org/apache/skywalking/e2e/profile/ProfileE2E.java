@@ -81,11 +81,11 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "ui", port = 8080)
-    private HostAndPort swWebappHostPort;
+    protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider", port = 9090)
-    private HostAndPort serviceHostPort;
+    protected HostAndPort serviceHostPort;
 
     @SuppressWarnings("unused")
     @DockerContainer("oap")

@@ -19,7 +19,11 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -41,6 +45,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+
+import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -138,6 +144,142 @@ public class TagAnnotationTest {
 
     }
 
+    @Test
+    public void testTraceWithReturnList() throws Throwable {
+        Method testMethodWithReturnList = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnList", String.class, Integer.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnList, new Object[]{"wangwu", 18}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnList, null, null, Arrays.asList(new User("wangwu", 18)));
+
+        ContextManager.stopSpan();
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 2);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+
+        assertThat(tags.get(0).getKey().key(), is("username"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
+        assertThat(tags.get(1).getKey().key(), is("info"));
+        assertThat(tags.get(1).getValue(), is("username=wangwu,age=18"));
+
+    }
+
+    @Test
+    public void testTraceWithReturnArray() throws Throwable {
+        Method testMethodWithReturnArray = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnArray", String.class, Integer.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnArray, new Object[]{"wangwu", 18}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnArray, null, null, new User[]{new User("wangwu", 18)});
+
+        ContextManager.stopSpan();
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 2);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+
+        assertThat(tags.get(0).getKey().key(), is("username"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
+        assertThat(tags.get(1).getKey().key(), is("info"));
+        assertThat(tags.get(1).getValue(), is("username=wangwu,age=18"));
+    }
+
+    @Test
+    public void testTraceWithReturnMap() throws Throwable {
+        Method testMethodWithReturnMap = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnMap", String.class, Integer.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnMap, new Object[]{"wangwu", 18}, null, null);
+
+        Map<String, User> userMap = new HashMap<>();
+        userMap.put("user", new User("wangwu", 18));
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnMap, null, null, userMap);
+
+        ContextManager.stopSpan();
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 2);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+
+        assertThat(tags.get(0).getKey().key(), is("username"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
+        assertThat(tags.get(1).getKey().key(), is("info"));
+        assertThat(tags.get(1).getValue(), is("username=wangwu,age=18"));
+    }
+
+    @Test
+    public void testTraceWithReturnString() throws Throwable {
+        Method testMethodWithReturnString = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnString", String.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnString, new Object[]{"wangwu"}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnString, null, null, "wangwu");
+
+        ContextManager.stopSpan();
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 1);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+
+        assertThat(tags.get(0).getKey().key(), is("result"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
+    }
+
+    @Test
+    public void testTraceWithReturnInteger() throws Throwable {
+        Method testMethodWithReturnInteger = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnInteger", Integer.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnInteger, new Object[]{18}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnInteger, null, null, 18);
+
+        ContextManager.stopSpan();
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 1);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+
+        assertThat(tags.get(0).getKey().key(), is("result"));
+        assertThat(Integer.valueOf(tags.get(0).getValue()), is(18));
+    }
+
+    @Test
+    public void testTraceWithReturnObject() throws Throwable {
+        Method testMethodWithReturnObject = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnObject", String.class, Integer.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnObject, new Object[]{"wangwu", 18}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnObject, null, null, new User("wangwu", 18));
+
+        ContextManager.stopSpan();
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 1);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+
+        assertThat(tags.get(0).getKey().key(), is("result"));
+        assertThat(tags.get(0).getValue(), anything());
+    }
+
     private class TestAnnotationMethodClass {
 
         @Tag(key = "username", value = "arg[0]")
@@ -151,6 +293,38 @@ public class TagAnnotationTest {
 
         @Tags({@Tag(key = "username", value = "arg[0]"), @Tag(key = "info", value = "returnedObj.info")})
         public User testMethodWithTags(String username, Integer age) {
+            return new User(username, age);
+        }
+
+        @Tags({@Tag(key = "username", value = "arg[0]"), @Tag(key = "info", value = "returnedObj.0.info")})
+        public List<User> testMethodWithReturnList(String username, Integer age) {
+            return Arrays.asList(new User(username, age));
+        }
+
+        @Tags({@Tag(key = "username", value = "arg[0]"), @Tag(key = "info", value = "returnedObj.0.info")})
+        public User[] testMethodWithReturnArray(String username, Integer age) {
+            return new User[]{new User(username, age)};
+        }
+
+        @Tags({@Tag(key = "username", value = "arg[0]"), @Tag(key = "info", value = "returnedObj.user.info")})
+        public Map<String, User> testMethodWithReturnMap(String username, Integer age) {
+            Map<String, User> userMap = new HashMap<>();
+            userMap.put("user", new User(username, age));
+            return userMap;
+        }
+
+        @Tag(key = "result", value = "returnedObj")
+        public String testMethodWithReturnString(String username) {
+            return username;
+        }
+
+        @Tag(key = "result", value = "returnedObj")
+        public Integer testMethodWithReturnInteger(Integer age) {
+            return age;
+        }
+
+        @Tag(key = "result", value = "returnedObj")
+        public User testMethodWithReturnObject(String username, Integer age) {
             return new User(username, age);
         }
     }

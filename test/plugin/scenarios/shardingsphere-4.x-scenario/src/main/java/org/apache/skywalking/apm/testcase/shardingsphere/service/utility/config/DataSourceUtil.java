@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp.BasicDataSource;
 
 public class DataSourceUtil {
 
