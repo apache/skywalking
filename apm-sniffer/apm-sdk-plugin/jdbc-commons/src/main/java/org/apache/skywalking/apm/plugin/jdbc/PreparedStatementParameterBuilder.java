@@ -59,7 +59,7 @@ public class PreparedStatementParameterBuilder {
             first = false;
             
             //  cut the string as soon as it reached the length limitation
-            if (maxLength > 0 && stringBuilder.length() > maxLength){
+            if (maxLength > 0 && stringBuilder.length() > maxLength) {
                 return String.format("[%s]", stringBuilder.toString().substring(0, maxLength) + "...");
             }
         }
