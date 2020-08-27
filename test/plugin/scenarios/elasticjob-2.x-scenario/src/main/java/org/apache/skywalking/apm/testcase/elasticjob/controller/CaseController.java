@@ -39,7 +39,7 @@ public class CaseController {
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
-        return SUCCESS;
+      return SUCCESS;
     }
 
 }
