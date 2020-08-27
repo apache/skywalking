@@ -59,16 +59,20 @@ public class PreparedStatementParameterBuilder {
             first = false;
             
             //  cut the string as soon as it reached the length limitation
-            if (maxLength > 0 && stringBuilder.length() > maxLength) {
-                return String.format("[%s...]", stringBuilder.toString().substring(0, maxLength));
+            if (maxLength > 0 && (stringBuilder.length() + EMPTY_LIST.length()) > maxLength) {
+                return format(stringBuilder).substring(0, maxLength) + "...";
             }
         }
-        return String.format("[%s]", stringBuilder.toString());
+        return format(stringBuilder);
     }
 
     private int getMaxIndex() {
         int maxIdx = maxIndex != null ? maxIndex : parameters.length;
         return Math.min(maxIdx, parameters.length);
+    }
+
+    private String format(StringBuilder stringBuilder) {
+        return String.format("[%s]", stringBuilder.toString());
     }
 
 }
