@@ -17,3 +17,6 @@
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.ControllerInstrumentation
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.RestControllerInstrumentation
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.HandlerMethodInstrumentation
+spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.InvocableHandlerMethodInstrumentation
+spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.ReactiveControllerInstrumentation
+spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.ReactiveRestControllerInstrumentation

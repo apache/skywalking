@@ -19,10 +19,12 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletResponseHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
@@ -34,20 +36,21 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
 public class InvokeForRequestInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext()
-                      .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((NativeWebRequest) allArguments[0]).getNativeResponse());
+                      .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, new JavaxServletResponseHolder(
+                          (HttpServletResponse) ((NativeWebRequest) allArguments[0]).getNativeResponse()));
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }
