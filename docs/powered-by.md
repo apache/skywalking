@@ -2,6 +2,7 @@
 This page documents an **alphabetical list** of institutions that are using Apache SkyWalking for research and production,
 or providing commercial products including Apache SkyWalking.
 
+1. 100tal.cn 北京世纪好未来教育科技有限公司 http://www.100tal.com/
 1. 17173.com https://www.17173.com/
 1. 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 1. 360jinrong.net 360金融 https://www.360jinrong.net/
@@ -158,7 +159,6 @@ or providing commercial products including Apache SkyWalking.
 1. zbj.com 猪八戒 https://www.zbj.com/
 1. zhaopin.com 智联招聘 https://www.zhaopin.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. www.100tal.cn 北京世纪好未来教育科技有限公司 http://www.100tal.com/
 
 # Use Cases
 ## Alibaba and Alibaba Cloud
