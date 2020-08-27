@@ -75,7 +75,7 @@ segmentItems:
             spanType: Entry
             peer: ''
             tags:
-              - {key: url, value: 'http://localhost:18080/testcase/annotation/foo'}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/loo'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
@@ -97,12 +97,12 @@ segmentItems:
             spanType: Entry
             peer: ''
             tags:
-              - {key: url, value: 'http://localhost:18080/testcase/annotation/loo'}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/foo'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
-              - {                                                                                                                  parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
-                parentSpanId: 4, parentTraceSegmentId: not null, parentServiceInstance: not
+              - {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
+                parentSpanId: 3, parentTraceSegmentId: not null, parentServiceInstance: not
                                                                    null, parentService: not null, traceId: not null}
             skipAnalysis: 'false'
       - segmentId: not null
@@ -321,6 +321,21 @@ segmentItems:
               - {key: url, value: not null}
               - {key: http.method, value: GET}
             skipAnalysis: 'false'
+          - operationName: /testcase/webclient/testGet
+            operationId: 0
+            parentSpanId: 0
+            spanId: 9
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: 'false'
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
           - operationName: /projectA/testcase
             operationId: 0
             parentSpanId: -1
@@ -336,42 +351,29 @@ segmentItems:
               - {key: url, value: not null}
               - {key: http.method, value: GET}
             skipAnalysis: 'false'
-
-          - operationName: /testcase/webclient/testGet
-            operationId: 0
-            parentSpanId: 0
-            spanId: 9
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 2
-            isError: false
-            spanType: Exit
-            peer: not null
-            skipAnalysis: false
-            tags:
-              - {key: url, value: not null}
-              - {key: http.method, value: GET}
-              - operationName: /projectA/testcase
-                operationId: 0
-                parentSpanId: -1
-                spanId: 0
-                spanLayer: Http
-                startTime: not null
-                endTime: not null
-                componentId: 1
-                isError: false
-                spanType: Entry
-                peer: ''
-                tags:
-                  - {key: url, value: not null}
-                  - {key: http.method, value: GET}
-                skipAnalysis: 'false'
   - serviceName: webflux-webclient-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null
         spans:
+          - operationName: /testcase/webclient/server
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: 'false'
+            tags:
+              - {key: url, value: 'http://localhost:18081/testcase/webclient/server'}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}
+      - segmentId: not null
+        spans:
           - operationName: /testcase/webclient/testGet
             operationId: 0
             parentSpanId: -1
@@ -383,50 +385,32 @@ segmentItems:
             isError: false
             spanType: Entry
             peer: ''
-            skipAnalysis: false
+            skipAnalysis: 'false'
             tags:
               - {key: url, value: 'http://localhost:18081/testcase/webclient/testGet'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
-              - {parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
+              - {parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18081', refType: CrossProcess,
                  parentSpanId: 9, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
       - segmentId: not null
         spans:
-          - operationName: /testcase/webclient/server
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 67
-            isError: false
-            spanType: Entry
-            peer: ''
-            skipAnalysis: false
-            tags:
-              - {key: url, value: 'http://localhost:18081/testcase/webclient/server'}
-              - {key: http.method, value: GET}
-              - {key: status_code, value: '200'}
-            refs:
-              - {parentEndpoint: /testcase/webclient/server, networkAddress: 'localhost:18081', refType: CrossProcess,
-                 parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/webclient/server
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 96
-            isError: false
-            spanType: Exit
-            peer: not null
-            skipAnalysis: false
-            tags:
-              - {key: url, value: 'http://localhost:18081/testcase/webclient/server'}
-              - {key: http.method, value: GET}
-              - {key: status_code, value: '200'}
+        - operationName: /testcase/webclient/server
+          operationId: 0
+          parentSpanId: -1
+          spanId: 0
+          spanLayer: Http
+          startTime: not null
+          endTime: not null
+          componentId: 96
+          isError: false
+          spanType: Exit
+          peer: not null
+          skipAnalysis: 'false'
+          tags:
+            - {key: url, value: 'http://localhost:18081/testcase/webclient/server'}
+            - {key: http.method, value: GET}
+            - {key: status_code, value: '200'}
+          refs:
+            - {parentEndpoint: /testcase/webclient/server, networkAddress: 'localhost:18081', refType: CrossProcess,
+               parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
