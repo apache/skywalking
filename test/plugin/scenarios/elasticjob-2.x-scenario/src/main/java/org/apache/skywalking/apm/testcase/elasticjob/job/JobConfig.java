@@ -62,14 +62,17 @@ public class JobConfig {
                                                          final int shardingTotalCount,
                                                          final String shardingItemParameters,
                                                          final String jobParameters) {
-        // 定义作业核心配置
-        JobCoreConfiguration simpleCoreConfig = JobCoreConfiguration.newBuilder(jobClass.getName(), cron, shardingTotalCount).
-                shardingItemParameters(shardingItemParameters).jobParameter(jobParameters).build();
-        // 定义SIMPLE类型配置
-        SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(simpleCoreConfig, jobClass.getCanonicalName());
-        // 定义Lite作业根配置
-        LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).overwrite(true).build();
-        return simpleJobRootConfig;
+        JobCoreConfiguration simpleCoreConfig = JobCoreConfiguration
+                .newBuilder(jobClass.getName(), cron, shardingTotalCount)
+                .shardingItemParameters(shardingItemParameters)
+                .jobParameter(jobParameters)
+                .build();
 
+        SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(simpleCoreConfig, jobClass.getCanonicalName());
+
+        LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration
+                .newBuilder(simpleJobConfig)
+                .overwrite(true).build();
+        return simpleJobRootConfig;
     }
 }

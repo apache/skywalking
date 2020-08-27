@@ -33,14 +33,12 @@ public class CaseController {
     @RequestMapping("/call")
     @ResponseBody
     public String call() {
-        // your codes
         return SUCCESS;
     }
 
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
-        // your codes
         return SUCCESS;
     }
 
