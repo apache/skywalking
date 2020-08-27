@@ -44,8 +44,7 @@ public class PreparedStatementParameterBuilder {
             return EMPTY_LIST;
         }
 
-        String parameterString = getParameterString();
-        return truncate(parameterString);
+        return getParameterString();
     }
 
     private String getParameterString() {
@@ -58,6 +57,11 @@ public class PreparedStatementParameterBuilder {
             }
             stringBuilder.append(parameter);
             first = false;
+            
+            //  cut the string as soon as it reached the length limitation
+            if (maxLength > 0 && stringBuilder.length() > maxLength){
+                return String.format("[%s]", stringBuilder.toString().substring(0, maxLength) + "...");
+            }
         }
         return String.format("[%s]", stringBuilder.toString());
     }
@@ -65,14 +69,6 @@ public class PreparedStatementParameterBuilder {
     private int getMaxIndex() {
         int maxIdx = maxIndex != null ? maxIndex : parameters.length;
         return Math.min(maxIdx, parameters.length);
-    }
-
-    private String truncate(String parameterString) {
-        if (maxLength > 0 && parameterString.length() > maxLength) {
-            parameterString = parameterString.substring(0, maxLength) + "...";
-        }
-
-        return parameterString;
     }
 
 }
