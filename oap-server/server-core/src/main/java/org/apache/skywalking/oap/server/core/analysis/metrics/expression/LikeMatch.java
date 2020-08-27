@@ -23,14 +23,18 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 @FilterMatcher
 public class LikeMatch {
     public boolean match(String left, String right) {
-        if (left == null || right == null) {
+        if (right == null || left == null) {
             return false;
         }
-        if (left.startsWith("%") && left.endsWith("%")) { // %keyword%
-            return right.contains(left.substring(1, left.length() - 1));
+        if (right.startsWith("\"") && right.endsWith("\"")) {
+            right = right.substring(1, right.length() - 1);
         }
-        return (left.startsWith("%") && right.endsWith(left.substring(1)))  // %suffix
-            || (left.endsWith("%") && right.startsWith(left.substring(0, left.length() - 1))) // prefix%
+
+        if (right.startsWith("%") && right.endsWith("%")) { // %keyword%
+            return left.contains(right.substring(1, right.length() - 1));
+        }
+        return (right.startsWith("%") && left.endsWith(right.substring(1)))  // %suffix
+            || (right.endsWith("%") && left.startsWith(right.substring(0, right.length() - 1))) // prefix%
             ;
     }
 }

@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Threshold {
-    private static final Logger logger = LoggerFactory.getLogger(Threshold.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Threshold.class);
     private static final String NONE_THRESHOLD = "-";
 
     private String alarmRuleName;
@@ -78,7 +78,7 @@ public class Threshold {
                     }
             }
         } catch (NumberFormatException e) {
-            logger.warn("Alarm rule {} threshold doesn't match the metrics type, expected type: {}", alarmRuleName, type);
+            LOGGER.warn("Alarm rule {} threshold doesn't match the metrics type, expected type: {}", alarmRuleName, type);
         }
     }
 }

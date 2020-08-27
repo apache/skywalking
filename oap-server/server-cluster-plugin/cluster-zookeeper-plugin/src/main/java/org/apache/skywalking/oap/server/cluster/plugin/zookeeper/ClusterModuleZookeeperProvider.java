@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClusterModuleZookeeperProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterModuleZookeeperProvider.class);
 
     private static final String BASE_PATH = "/skywalking";
 
@@ -132,7 +132,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             serviceDiscovery.start();
             coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);
         }
 

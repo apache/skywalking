@@ -55,7 +55,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * ContextCarrier} or {@link ContextSnapshot}.
  */
 public class TracingContext implements AbstractTracerContext {
-    private static final ILog logger = LogManager.getLogger(TracingContext.class);
+    private static final ILog LOGGER = LogManager.getLogger(TracingContext.class);
     private long lastWarningTimestamp = 0;
 
     /**
@@ -559,7 +559,7 @@ public class TracingContext implements AbstractTracerContext {
         if (spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT) {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastWarningTimestamp > 30 * 1000) {
-                logger.warn(
+                LOGGER.warn(
                     new RuntimeException("Shadow tracing context. Thread dump"),
                     "More than {} spans required to create", Config.Agent.SPAN_LIMIT_PER_SEGMENT
                 );

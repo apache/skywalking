@@ -41,7 +41,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 
 @DefaultImplementor
 public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(JVMMetricsSender.class);
+    private static final ILog LOGGER = LogManager.getLogger(JVMMetricsSender.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile JVMMetricReportServiceGrpc.JVMMetricReportServiceBlockingStub stub = null;
@@ -83,7 +83,7 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 }
             } catch (Throwable t) {
-                logger.error(t, "send JVM metrics to Collector fail.");
+                LOGGER.error(t, "send JVM metrics to Collector fail.");
             }
         }
     }

@@ -10,26 +10,27 @@ Every plugin maintained in the main repo requires corresponding test cases, also
 ## Environment Requirements
 
 1. MacOS/Linux
-2. jdk 8+
+2. JDK 8+
 3. Docker
 4. Docker Compose
 
 ## Case Base Image Introduction
 
-The test framework provides `JVM-container` and `Tomcat-container` base images. You could choose the suitable one for your test case, if either is suitable, **recommend choose `JVM-container`**.
+The test framework provides `JVM-container` and `Tomcat-container` base images including JDK8, JDK14. You could choose the suitable one for your test case, if both are suitable, **`JVM-container` is preferred**.
 
 ### JVM-container Image Introduction
 
-[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image.
+[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image. `JVM-container` has supported JDK14, which inherits `openjdk:14`.
 The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
 Take the following test projects as good examples
 * [sofarpc-scenario](../../../test/plugin/scenarios/sofarpc-scenario) as a single project case.
 * [webflux-scenario](../../../test/plugin/scenarios/webflux-scenario) as a case including multiple projects.
+* [jdk14-with-gson-scenario](../../../test/plugin/scenarios/jdk14-with-gson-scenario) as a single project case with JDK14.
 
 ### Tomcat-container Image Introduction
 
-[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the base image.
+[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.57-jdk8-openjdk` or `tomcat:8.5.57-jdk14-openjdk` as the base image.
 The test case project is required to be packaged as `project-name.war` by using `mvn package`.
 
 Take the following test project as a good example
@@ -508,6 +509,8 @@ Based on your plugin's name, please add the test case into file `.github/workflo
 
 Every test case is a Github Actions Job. Please use the `<scenario name> + <version range> + (<supported version count>)` as the Job `title`, and the scenario directory as the Job `name`,
 mostly you'll just need to decide which file (`plugins-test.<n>.yaml`) to add your test case, and simply put one line (as follows) in it, take the existed cases as examples.
+
+If a test case required to run in JDK 14 environment, please add you test case into file `plugins-jdk14-test.<n>.yaml`.
 
 ```yaml
 jobs:

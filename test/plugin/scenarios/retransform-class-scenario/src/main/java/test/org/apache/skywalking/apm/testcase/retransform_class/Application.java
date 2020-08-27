@@ -27,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class Application {
-    private static final Logger logger = LogManager.getLogger(Application.class);
+    private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
     @Bean
     public RestTemplate restTemplate() {
