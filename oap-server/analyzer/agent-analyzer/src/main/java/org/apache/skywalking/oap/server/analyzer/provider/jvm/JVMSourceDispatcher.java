@@ -75,9 +75,9 @@ public class JVMSourceDispatcher {
                                         CPU cpu) {
         ServiceInstanceJVMCPU serviceInstanceJVMCPU = new ServiceInstanceJVMCPU();
         serviceInstanceJVMCPU.setId(serviceInstanceId);
-        serviceInstanceJVMCPU.setName(service);
+        serviceInstanceJVMCPU.setName(serviceInstance);
         serviceInstanceJVMCPU.setServiceId(serviceId);
-        serviceInstanceJVMCPU.setServiceName(serviceInstance);
+        serviceInstanceJVMCPU.setServiceName(service);
         serviceInstanceJVMCPU.setUsePercent(cpu.getUsagePercent());
         serviceInstanceJVMCPU.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMCPU);
@@ -92,9 +92,9 @@ public class JVMSourceDispatcher {
         gcs.forEach(gc -> {
             ServiceInstanceJVMGC serviceInstanceJVMGC = new ServiceInstanceJVMGC();
             serviceInstanceJVMGC.setId(serviceInstanceId);
-            serviceInstanceJVMGC.setName(service);
+            serviceInstanceJVMGC.setName(serviceInstance);
             serviceInstanceJVMGC.setServiceId(serviceId);
-            serviceInstanceJVMGC.setServiceName(serviceInstance);
+            serviceInstanceJVMGC.setServiceName(service);
 
             switch (gc.getPhrase()) {
                 case NEW:
@@ -121,9 +121,9 @@ public class JVMSourceDispatcher {
         memories.forEach(memory -> {
             ServiceInstanceJVMMemory serviceInstanceJVMMemory = new ServiceInstanceJVMMemory();
             serviceInstanceJVMMemory.setId(serviceInstanceId);
-            serviceInstanceJVMMemory.setName(service);
+            serviceInstanceJVMMemory.setName(serviceInstance);
             serviceInstanceJVMMemory.setServiceId(serviceId);
-            serviceInstanceJVMMemory.setServiceName(serviceInstance);
+            serviceInstanceJVMMemory.setServiceName(service);
             serviceInstanceJVMMemory.setHeapStatus(memory.getIsHeap());
             serviceInstanceJVMMemory.setInit(memory.getInit());
             serviceInstanceJVMMemory.setMax(memory.getMax());
@@ -144,9 +144,9 @@ public class JVMSourceDispatcher {
         memoryPools.forEach(memoryPool -> {
             ServiceInstanceJVMMemoryPool serviceInstanceJVMMemoryPool = new ServiceInstanceJVMMemoryPool();
             serviceInstanceJVMMemoryPool.setId(serviceInstanceId);
-            serviceInstanceJVMMemoryPool.setName(service);
+            serviceInstanceJVMMemoryPool.setName(serviceInstance);
             serviceInstanceJVMMemoryPool.setServiceId(serviceId);
-            serviceInstanceJVMMemoryPool.setServiceName(serviceInstance);
+            serviceInstanceJVMMemoryPool.setServiceName(service);
 
             switch (memoryPool.getType()) {
                 case NEWGEN_USAGE:
@@ -186,9 +186,9 @@ public class JVMSourceDispatcher {
             Thread thread) {
         ServiceInstanceJVMThread serviceInstanceJVMThread = new ServiceInstanceJVMThread();
         serviceInstanceJVMThread.setId(serviceInstanceId);
-        serviceInstanceJVMThread.setName(service);
+        serviceInstanceJVMThread.setName(serviceInstance);
         serviceInstanceJVMThread.setServiceId(serviceId);
-        serviceInstanceJVMThread.setServiceName(serviceInstance);
+        serviceInstanceJVMThread.setServiceName(service);
         serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
         serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
         serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());
