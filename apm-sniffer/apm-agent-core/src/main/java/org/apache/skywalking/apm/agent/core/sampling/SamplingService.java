@@ -86,9 +86,10 @@ public class SamplingService implements BootService {
     }
 
     /**
+     * @param operationName The first operation name of the new tracing context.
      * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
-    public boolean trySampling() {
+    public boolean trySampling(String operationName) {
         if (on) {
             int factor = samplingFactorHolder.get();
             if (factor < Config.Agent.SAMPLE_N_PER_3_SECS) {
