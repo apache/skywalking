@@ -39,7 +39,13 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  * distributed trace.
  */
 public abstract class AbstractTracingSpan implements AbstractSpan {
+    /**
+     * Span id starts from 0.
+     */
     protected int spanId;
+    /**
+     * Parent span id starts from 0. -1 means no parent span.
+     */
     protected int parentSpanId;
     protected List<TagValuePair> tags;
     protected String operationName;

@@ -300,10 +300,6 @@ public class TracingContext implements AbstractTracerContext {
         }
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        /*
-         * From v6.0.0-beta, local span doesn't do op name register.
-         * All op name register is related to entry and exit spans only.
-         */
         AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName, this);
         span.start();
         return push(span);
@@ -438,20 +434,7 @@ public class TracingContext implements AbstractTracerContext {
 
             if (isFinishedInMainThread && (!isRunningInAsyncMode || asyncSpanCounter == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
-                /*
-                 * Recheck the segment if the segment contains only one span.
-                 * Because in the runtime, can't sure this segment is part of distributed trace.
-                 *
-                 * @see {@link #createSpan(String, long, boolean)}
-                 */
-                if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-                    if (!SAMPLING_SERVICE.trySampling()) {
-                        finishedSegment.setIgnore(true);
-                    }
-                }
-
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);
-
                 running = false;
             }
         } finally {
