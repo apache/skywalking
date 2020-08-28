@@ -40,7 +40,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.profile.ProfileStatusReference;
 import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
-import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -62,11 +61,6 @@ public class TracingContext implements AbstractTracerContext {
      * @see ProfileTaskExecutionService
      */
     private static ProfileTaskExecutionService PROFILE_TASK_EXECUTION_SERVICE;
-
-    /**
-     * @see SamplingService
-     */
-    private static SamplingService SAMPLING_SERVICE;
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
@@ -122,10 +116,6 @@ public class TracingContext implements AbstractTracerContext {
         isRunningInAsyncMode = false;
         createTime = System.currentTimeMillis();
         running = true;
-
-        if (SAMPLING_SERVICE == null) {
-            SAMPLING_SERVICE = ServiceManager.INSTANCE.findService(SamplingService.class);
-        }
 
         // profiling status
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
