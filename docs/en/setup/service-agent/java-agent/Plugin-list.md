@@ -53,6 +53,7 @@
 - postgresql-8.x
 - pulsar
 - quasar
+- quartz-scheduler
 - rabbitmq-5.x
 - redisson-3.x
 - resteasy-server-3.x
