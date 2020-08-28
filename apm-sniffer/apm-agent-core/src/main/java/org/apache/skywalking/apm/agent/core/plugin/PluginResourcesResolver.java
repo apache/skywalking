@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
  * Use the current classloader to read all plugin define file. The file must be named 'skywalking-plugin.def'
  */
 public class PluginResourcesResolver {
-    private static final ILog logger = LogManager.getLogger(PluginResourcesResolver.class);
+    private static final ILog LOGGER = LogManager.getLogger(PluginResourcesResolver.class);
 
     public List<URL> getResources() {
         List<URL> cfgUrlPaths = new ArrayList<URL>();
@@ -42,12 +42,12 @@ public class PluginResourcesResolver {
             while (urls.hasMoreElements()) {
                 URL pluginUrl = urls.nextElement();
                 cfgUrlPaths.add(pluginUrl);
-                logger.info("find skywalking plugin define in {}", pluginUrl);
+                LOGGER.info("find skywalking plugin define in {}", pluginUrl);
             }
 
             return cfgUrlPaths;
         } catch (IOException e) {
-            logger.error("read resources failure.", e);
+            LOGGER.error("read resources failure.", e);
         }
         return null;
     }

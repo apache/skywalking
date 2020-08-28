@@ -93,6 +93,17 @@ Calculate the metrics data if the service instance is a JVM and collected by jav
 | time | GC time cost | | long |
 | count | Count of GC op | | long |
 
+5. SCOPE `ServiceInstanceJVMThread`
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| id | Represent the unique id of the service instance, usually a number. | yes | int |
+| name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
+| serviceName | Represent the name of the service. | | string |
+| liveCount | Represent Current number of live threads | | int |
+| daemonCount | Represent Current number of daemon threads | | int |
+| peakCount | Represent Current number of peak threads | | int |
+
 ### SCOPE `Endpoint`
 
 Calculate the metrics data from each request of the endpoint in the service. 

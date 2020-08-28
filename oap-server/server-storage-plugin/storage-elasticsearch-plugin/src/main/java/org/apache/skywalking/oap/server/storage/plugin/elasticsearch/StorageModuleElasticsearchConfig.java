@@ -46,8 +46,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int flushInterval = 10;
     @Setter
     private int concurrentRequests = 2;
-    @Setter
-    private int syncBulkActions = 3;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
      */
@@ -82,6 +80,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     @Getter
     private int dayStep = 1;
+    /**
+     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater than 0
+     */
+    @Getter
+    private int superDatasetDayStep = -1;
     @Setter
     private int resultWindowMaxSize = 10000;
     @Setter

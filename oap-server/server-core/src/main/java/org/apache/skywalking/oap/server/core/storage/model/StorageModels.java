@@ -23,9 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -105,10 +104,26 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
+                // Use the column#length as the default column length, as read the system env as the override mechanism.
+                // Log the error but don't block the startup sequence.
+                int columnLength = column.length();
+                final String lengthEnvVariable = column.lengthEnvVariable();
+                if (StringUtil.isNotEmpty(lengthEnvVariable)) {
+                    final String envValue = System.getenv(lengthEnvVariable);
+                    if (StringUtil.isNotEmpty(envValue)) {
+                        try {
+                            columnLength = Integer.parseInt(envValue);
+                        } catch (NumberFormatException e) {
+                            log.error("Model [{}] Column [{}], illegal value {} of column length from system env [{}]",
+                                      modelName, column.columnName(), envValue, lengthEnvVariable
+                            );
+                        }
+                    }
+                }
                 modelColumns.add(
                     new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(),
-                        column.storageOnly(), column.dataType().isValue(), column.length()
+                        new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
+                        column.matchQuery(), column.storageOnly(), column.dataType().isValue(), columnLength
                     ));
                 if (log.isDebugEnabled()) {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());

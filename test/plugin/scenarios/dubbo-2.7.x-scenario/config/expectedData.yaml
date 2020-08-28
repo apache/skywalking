@@ -14,57 +14,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-- serviceName: dubbo-2.7.x-scenario
-  segmentSize: ge 3
-  segments:
-  - segmentId: not null
-    spans:
-    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 3
-      isError: false
-      spanType: Entry
-      peer: ''
-      tags:
-      - {key: url, value: not null}
-      refs:
-      - {parentEndpoint: /dubbo-2.7.x-scenario/case/dubbo, networkAddress: 'localhost:20080',
-        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: dubbo-2.7.x-scenario, traceId: not null}
-      skipAnalysis: 'false'
-  - segmentId: not null
-    spans:
-    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
-      operationId: 0
-      parentSpanId: 0
-      spanId: 1
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 3
-      isError: false
-      spanType: Exit
-      peer: localhost:20080
-      tags:
-      - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()'}
-      skipAnalysis: 'false'
-    - operationName: /dubbo-2.7.x-scenario/case/dubbo
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 1
-      isError: false
-      spanType: Entry
-      peer: ''
-      tags:
-      - {key: url, value: 'http://localhost:8080/dubbo-2.7.x-scenario/case/dubbo'}
-      - {key: http.method, value: GET}
-      skipAnalysis: 'false'
+  - serviceName: dubbo-2.7.x-scenario
+    segmentSize: ge 3
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 3
+            isError: false
+            spanType: Entry
+            peer: not null
+            tags:
+              - {key: url, value: not null}
+              - {key: arguments, value: helloWorld}
+            refs:
+              - {parentEndpoint: /dubbo-2.7.x-scenario/case/dubbo, networkAddress: 'localhost:20080',
+                 refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: dubbo-2.7.x-scenario, traceId: not null}
+            skipAnalysis: 'false'
+      - segmentId: not null
+        spans:
+          - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 3
+            isError: false
+            spanType: Exit
+            peer: localhost:20080
+            tags:
+              - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness(String)'}
+              - {key: arguments, value: helloWorld}
+            skipAnalysis: 'false'
+          - operationName: /dubbo-2.7.x-scenario/case/dubbo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            isError: false
+            spanType: Entry
+            peer: ''
+            tags:
+              - {key: url, value: 'http://localhost:8080/dubbo-2.7.x-scenario/case/dubbo'}
+              - {key: http.method, value: GET}
+            skipAnalysis: 'false'

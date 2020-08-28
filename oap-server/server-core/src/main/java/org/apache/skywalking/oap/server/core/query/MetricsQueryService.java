@@ -50,7 +50,7 @@ public class MetricsQueryService implements Service {
     /**
      * Read metrics single value in the duration of required metrics
      */
-    public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
+    public long readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
         return getMetricQueryDAO().readMetricsValue(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }

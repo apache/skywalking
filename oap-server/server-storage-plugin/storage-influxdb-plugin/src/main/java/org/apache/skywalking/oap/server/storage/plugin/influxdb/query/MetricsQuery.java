@@ -60,10 +60,14 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public int readMetricsValue(final MetricsCondition condition,
+    public long readMetricsValue(final MetricsCondition condition,
                                 final String valueColumnName,
                                 final Duration duration) throws IOException {
+        int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
+        if (function == Function.Latest) {
+            return readMetricsValues(condition, valueColumnName, duration).getValues().latestValue(defaultValue);
+        }
         final String measurement = condition.getName();
 
         SelectionQueryImpl query = select();
@@ -82,8 +86,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
 
         queryWhereQuery
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getStartTimeBucket())))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getEndTimeBucket())))
+            .and(gte(InfluxClient.TIME, InfluxClient.timeIntervalTS(duration.getStartTimestamp())))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeIntervalTS(duration.getEndTimestamp())))
             .groupBy(InfluxConstants.TagName.ENTITY_ID);
 
         List<QueryResult.Series> seriesList = client.queryForSeries(queryWhereQuery);
@@ -93,11 +97,11 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (CollectionUtils.isNotEmpty(seriesList)) {
             for (QueryResult.Series series : seriesList) {
                 Number value = (Number) series.getValues().get(0).get(1);
-                return value.intValue();
+                return value.longValue();
             }
         }
 
-        return ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        return defaultValue;
     }
 
     @Override
@@ -175,40 +179,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
 
-        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
-        labels.forEach(label -> {
-            MetricsValues labelValue = new MetricsValues();
-            labelValue.setLabel(label);
-
-            labeledValues.put(label, labelValue);
-        });
-
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        Map<String, DataTable> idMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(series)) {
             series.get(0).getValues().forEach(values -> {
                 final String id = (String) values.get(1);
                 DataTable multipleValues = new DataTable(5);
                 multipleValues.toObject((String) values.get(2));
-
-                labels.forEach(label -> {
-                    Long data = multipleValues.get(label);
-                    if (data == null) {
-                        data = (long) defaultValue;
-                    }
-                    final IntValues intValues = labeledValues.get(label).getValues();
-                    KVInt kv = new KVInt();
-                    kv.setId(id);
-                    kv.setValue(data);
-                    intValues.addKVInt(kv);
-                });
+                idMap.put(id, multipleValues);
             });
         }
-
-        return Util.sortValues(
-            new ArrayList<>(labeledValues.values()),
-            ids,
-            defaultValue
-        );
+        return Util.composeLabelValue(condition, labels, ids, idMap);
     }
 
     @Override

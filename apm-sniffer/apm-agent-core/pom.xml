@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-agent-core</artifactId>
@@ -34,7 +34,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <guava.version>20.0</guava.version>
-        <bytebuddy.version>1.10.7</bytebuddy.version>
+        <bytebuddy.version>1.10.14</bytebuddy.version>
         <wiremock.version>2.6.0</wiremock.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
         <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>

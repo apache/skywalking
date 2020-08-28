@@ -24,6 +24,14 @@ Alarm rule is constituted by following keys
 - **Exclude names**. The following entity names are excluded in this rule. Please follow [Entity name define](#entity-name).
 - **Include names regex**. Provide a regex to include the entity names. If both setting the include name list and include name regex, both rules will take effect.
 - **Exclude names regex**. Provide a regex to exclude the exclude names. If both setting the exclude name list and exclude name regex, both rules will take effect.
+- **Include labels**. The following labels of the metric are included in this rule.
+- **Exclude labels**. The following labels of the metric are excluded in this rule.
+- **Include labels regex**. Provide a regex to include labels. If both setting the include label list and include label regex, both rules will take effect.
+- **Exclude labels regex**. Provide a regex to exclude labels. If both setting the exclude label list and exclude label regex, both rules will take effect.
+
+*The settings of labels is required by meter-system which intends to store metrics from label-system platform, just like Prometheus, Micrometer, etc.
+The function supports the above four settings should implement `LabeledValueHolder`.*
+
 - **Threshold**. The target value. 
 For multiple values metrics, such as **percentile**, the threshold is an array. Described like  `value1, value2, value3, value4, value5`.
 Each value could the threshold for each value of the metrics. Set the value to `-` if don't want to trigger alarm by this or some of the values.  
@@ -75,6 +83,16 @@ rules:
     count: 3
     silence-period: 5
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
+  meter_service_status_code_rule:
+    metrics-name: meter_status_code
+    exclude-labels:
+      - "200"
+    op: ">"
+    threshold: 10
+    period: 10
+    count: 3
+    silence-period: 5
+    message: The request number of entity {name} non-200 status is more than expected.
 ```
 
 ### Default alarm rules
@@ -142,6 +160,24 @@ message AlarmMessage {
     string alarmMessage = 7;
     int64 startTime = 8;
 }
+```
+
+## Slack Chat Hook
+To do this you need to follow the [Getting Started with Incoming Webhooks guide](https://api.slack.com/messaging/webhooks) and create new Webhooks.
+
+The alarm message will send through HTTP post by `application/json` content type if you configured Slack Incoming Webhooks as following:
+```yml
+slackHooks:
+  textTemplate: |-
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+      }
+    }
+  webhooks:
+    - https://hooks.slack.com/services/x/y/z
 ```
 
 ## Update the settings dynamically

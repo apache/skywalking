@@ -28,7 +28,9 @@ mvnw=${home}/../../mvnw
 agent_home="${home}"/../../skywalking-agent
 jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
-num_of_testcases=0
+num_of_testcases=
+
+image_version="1.0.0"
 
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
@@ -50,6 +52,13 @@ parse_commandline() {
                 ;;
             --debug)
                 debug_mode="on";
+                ;;
+            --image_version)
+                image_version="$2"
+                shift
+                ;;
+            --image_version=*)
+                image_version="${_key##--image_version=}"
                 ;;
             -h|--help)
                 print_help
@@ -81,7 +90,7 @@ printSystemInfo(){
 }
 
 do_cleanup() {
-    images=$(docker images -q "skywalking/agent-test-*:${BUILD_NO:=local}")
+    images=$(docker images -q "skywalking/agent-test-*")
     [[ -n "${images}" ]] && docker rmi -f ${images}
     images=$(docker images -qf "dangling=true")
     [[ -n "${images}" ]] && docker rmi -f ${images}
@@ -131,7 +140,11 @@ if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
+if [[ "$force_build" == "on" ]]; then
+    profile=
+    [[ $image_version =~ "jdk14-" ]] && profile="-Pjdk14"
+    ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests ${profile}
+fi
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace
@@ -144,7 +157,6 @@ fi
 
 echo "start submit job"
 scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
-
 
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
@@ -189,7 +201,7 @@ do
         -Dagent.dir=${_agent_home} \
         -Djacoco.home=${jacoco_home} \
         -Ddebug.mode=${debug_mode} \
-        -Ddocker.image.version=${BUILD_NO:=local} \
+        -Ddocker.image.version=${image_version} \
         ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"

@@ -59,7 +59,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     private int componentId;
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(columnName = ENTITY_ID, length = 512)
     private String entityId;
 
     @Override

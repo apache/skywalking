@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public class GRPCServer implements Server {
 
-    private static final Logger logger = LoggerFactory.getLogger(GRPCServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCServer.class);
 
     private final String host;
     private final int port;
@@ -107,16 +107,16 @@ public class GRPCServer implements Server {
         ExecutorService executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection)
-                                               .maxMessageSize(maxMessageSize)
+                                               .maxInboundMessageSize(maxMessageSize)
                                                .executor(executor);
-        logger.info("Server started, host {} listening on {}", host, port);
+        LOGGER.info("Server started, host {} listening on {}", host, port);
     }
 
     static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            logger.warn("Grpc server thread pool is full, rejecting the task");
+            LOGGER.warn("Grpc server thread pool is full, rejecting the task");
         }
     }
 
@@ -135,12 +135,12 @@ public class GRPCServer implements Server {
     }
 
     public void addHandler(BindableService handler) {
-        logger.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
+        LOGGER.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(handler);
     }
 
     public void addHandler(ServerServiceDefinition definition) {
-        logger.info("Bind handler {} into gRPC server {}:{}", definition.getClass().getSimpleName(), host, port);
+        LOGGER.info("Bind handler {} into gRPC server {}:{}", definition.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(definition);
     }
 

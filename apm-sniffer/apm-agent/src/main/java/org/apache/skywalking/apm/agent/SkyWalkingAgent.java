@@ -42,6 +42,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
+import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
@@ -52,7 +53,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * The main entrance of sky-walking agent, based on javaagent mechanism.
  */
 public class SkyWalkingAgent {
-    private static final ILog logger = LogManager.getLogger(SkyWalkingAgent.class);
+    private static final ILog LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
 
     /**
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
@@ -60,15 +61,14 @@ public class SkyWalkingAgent {
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
-            SnifferConfigInitializer.initialize(agentArgs);
+            SnifferConfigInitializer.initializeCoreConfig(agentArgs);
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
-
         } catch (AgentPackageNotFoundException ape) {
-            logger.error(ape, "Locate agent.jar failure. Shutting down.");
+            LOGGER.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent initialized failure. Shutting down.");
+            LOGGER.error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         }
 
@@ -88,15 +88,24 @@ public class SkyWalkingAgent {
         try {
             agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
+            LOGGER.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
             return;
         }
 
         try {
             agentBuilder = JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
+            LOGGER.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
             return;
+        }
+
+        if (Config.Agent.IS_CACHE_ENHANCED_CLASS) {
+            try {
+                agentBuilder = agentBuilder.with(new CacheableTransformerDecorator(Config.Agent.CLASS_CACHE_MODE));
+                LOGGER.info("SkyWalking agent class cache [{}] activated.", Config.Agent.CLASS_CACHE_MODE);
+            } catch (Exception e) {
+                LOGGER.error(e, "SkyWalking agent can't active class cache.");
+            }
         }
 
         agentBuilder.type(pluginFinder.buildMatch())
@@ -108,7 +117,7 @@ public class SkyWalkingAgent {
         try {
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
-            logger.error(e, "Skywalking agent boot failure.");
+            LOGGER.error(e, "Skywalking agent boot failure.");
         }
 
         Runtime.getRuntime()
@@ -139,13 +148,13 @@ public class SkyWalkingAgent {
                     }
                 }
                 if (context.isEnhanced()) {
-                    logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
+                    LOGGER.debug("Finish the prepare stage for {}.", typeDescription.getName());
                 }
 
                 return newBuilder;
             }
 
-            logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
+            LOGGER.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
             return builder;
         }
     }
@@ -166,8 +175,8 @@ public class SkyWalkingAgent {
                                      final JavaModule module,
                                      final boolean loaded,
                                      final DynamicType dynamicType) {
-            if (logger.isDebugEnable()) {
-                logger.debug("On Transformation class {}.", typeDescription.getName());
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("On Transformation class {}.", typeDescription.getName());
             }
 
             InstrumentDebuggingClass.INSTANCE.log(dynamicType);
@@ -187,7 +196,7 @@ public class SkyWalkingAgent {
                             final JavaModule module,
                             final boolean loaded,
                             final Throwable throwable) {
-            logger.error("Enhance class " + typeName + " error.", throwable);
+            LOGGER.error("Enhance class " + typeName + " error.", throwable);
         }
 
         @Override

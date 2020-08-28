@@ -62,6 +62,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_JVM_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
@@ -115,11 +116,11 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "ui", port = 8080)
-    private HostAndPort swWebappHostPort;
+    protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider", port = 9090)
-    private HostAndPort serviceHostPort;
+    protected HostAndPort serviceHostPort;
 
     @BeforeAll
     void setUp() throws Exception {
@@ -150,6 +151,8 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
             final Instances instances = verifyServiceInstances(service);
 
             verifyInstancesMetrics(instances);
+
+            verifyInstancesJVMMetrics(instances);
 
             final Endpoints endpoints = verifyServiceEndpoints(service);
 
@@ -283,6 +286,26 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 instanceRespTimeMatcher.verify(instanceMetrics);
                 LOGGER.info("{}: {}", metricsName, instanceMetrics);
+            }
+        }
+    }
+
+    private void verifyInstancesJVMMetrics(final Instances instances) throws Exception {
+        for (Instance instance : instances.getInstances()) {
+            for (String metricsName : ALL_INSTANCE_JVM_METRICS) {
+                LOGGER.info("verifying service instance response time: {}", instance);
+                final Metrics instanceJVMMetrics = graphql.metrics(
+                        new MetricsQuery().stepByMinute().metricsName(metricsName).id(instance.getKey())
+                );
+
+                LOGGER.info("instance jvm metrics: {}", instanceJVMMetrics);
+
+                final AtLeastOneOfMetricsMatcher instanceThreadMatcher = new AtLeastOneOfMetricsMatcher();
+                final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                greaterThanZero.setValue("gt 0");
+                instanceThreadMatcher.setValue(greaterThanZero);
+                instanceThreadMatcher.verify(instanceJVMMetrics);
+                LOGGER.info("{}: {}", metricsName, instanceJVMMetrics);
             }
         }
     }

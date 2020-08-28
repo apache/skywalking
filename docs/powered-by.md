@@ -2,6 +2,7 @@
 This page documents an **alphabetical list** of institutions that are using Apache SkyWalking for research and production,
 or providing commercial products including Apache SkyWalking.
 
+1. 100tal.cn 北京世纪好未来教育科技有限公司 http://www.100tal.com/
 1. 17173.com https://www.17173.com/
 1. 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 1. 360jinrong.net 360金融 https://www.360jinrong.net/
@@ -71,6 +72,7 @@ or providing commercial products including Apache SkyWalking.
 1. iBoxChain 盒子科技 https://www.iboxpay.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
 1. Inspur 浪潮集团
+1. iQIYI.COM. 爱奇艺 https://www.iqiyi.com/
 1. juhaokan 聚好看科技股份有限公司 https://www.juhaokan.org/
 1. Ke.com. 贝壳找房. https://www.ke.com
 1. Keking.cn 凯京集团. http://www.keking.cn

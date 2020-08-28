@@ -60,8 +60,8 @@ public class AlarmQuery implements IAlarmQueryDAO {
             .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
             .where();
         if (startTB > 0 && endTB > 0) {
-            recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                       .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+            recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeIntervalTB(startTB)))
+                       .and(lte(InfluxClient.TIME, InfluxClient.timeIntervalTB(endTB)));
         }
         if (!Strings.isNullOrEmpty(keyword)) {
             recallQuery.and(contains(AlarmRecord.ALARM_MESSAGE, keyword.replaceAll("/", "\\\\/")));

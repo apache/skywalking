@@ -22,5 +22,5 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
 
 public interface Parser {
-    MetricFamily parse() throws IOException;
+    MetricFamily parse(long now) throws IOException;
 }

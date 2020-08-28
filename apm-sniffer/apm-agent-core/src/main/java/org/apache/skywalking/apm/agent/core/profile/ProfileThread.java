@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  */
 public class ProfileThread implements Runnable {
 
-    private static final ILog logger = LogManager.getLogger(ProfileThread.class);
+    private static final ILog LOGGER = LogManager.getLogger(ProfileThread.class);
 
     // profiling task context
     private final ProfileTaskExecutionContext taskExecutionContext;
@@ -52,7 +52,7 @@ public class ProfileThread implements Runnable {
             // ignore interrupted
             // means current task has stopped
         } catch (Exception e) {
-            logger.error(e, "Profiling task fail. taskId:{}", taskExecutionContext.getTask().getTaskId());
+            LOGGER.error(e, "Profiling task fail. taskId:{}", taskExecutionContext.getTask().getTaskId());
         } finally {
             // finally stop current profiling task, tell execution service task has stop
             profileTaskExecutionService.stopCurrentProfileTask(taskExecutionContext);

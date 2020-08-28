@@ -54,7 +54,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(columnName = ENTITY_ID, length = 512)
     private String entityId;
     @Getter
     @Setter

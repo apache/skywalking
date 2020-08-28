@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 interface Fetcher extends Function<V1OwnerReference, Optional<V1ObjectMeta>> {
 
-    Logger logger = LoggerFactory.getLogger(Fetcher.class);
+    Logger LOGGER = LoggerFactory.getLogger(Fetcher.class);
 
     V1ObjectMeta go(V1OwnerReference ownerReference) throws ApiException;
 
@@ -37,10 +37,10 @@ interface Fetcher extends Function<V1OwnerReference, Optional<V1ObjectMeta>> {
         try {
             return Optional.ofNullable(go(ownerReference));
         } catch (final ApiException e) {
-            logger.error("code:{} header:{} body:{}", e.getCode(), e.getResponseHeaders(), e.getResponseBody());
+            LOGGER.error("code:{} header:{} body:{}", e.getCode(), e.getResponseHeaders(), e.getResponseBody());
             return Optional.empty();
         } catch (final Throwable th) {
-            logger.error("other errors", th);
+            LOGGER.error("other errors", th);
             return Optional.empty();
         }
     }

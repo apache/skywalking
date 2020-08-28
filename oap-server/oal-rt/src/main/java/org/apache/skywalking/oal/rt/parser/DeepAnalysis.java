@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
@@ -35,8 +36,7 @@ public class DeepAnalysis {
         // 1. Set sub package name by source.metrics
         result.setPackageName(result.getSourceName().toLowerCase());
 
-        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = MetricsHolder.find(result
-            .getAggregationFunctionName());
+        Class<? extends Metrics> metricsClass = MetricsHolder.find(result.getAggregationFunctionName());
         String metricsClassSimpleName = metricsClass.getSimpleName();
 
         result.setMetricsClassName(metricsClassSimpleName);
@@ -45,45 +45,22 @@ public class DeepAnalysis {
         List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
         if (expressions != null && expressions.size() > 0) {
             for (ConditionExpression expression : expressions) {
-                Expression filterExpression = new Expression();
-                if ("booleanMatch".equals(expression.getExpressionType())) {
-                    filterExpression.setExpressionObject("EqualMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toIsMethod(expression.getAttribute()) + "()");
-                    filterExpression.setRight(expression.getValue());
-                    result.addFilterExpressions(filterExpression);
-                } else if ("stringMatch".equals(expression.getExpressionType())) {
-                    filterExpression.setExpressionObject("EqualMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                    filterExpression.setRight(expression.getValue());
-                    result.addFilterExpressions(filterExpression);
-                } else if ("greaterMatch".equals(expression.getExpressionType())) {
-                    filterExpression.setExpressionObject("GreaterMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                    filterExpression.setRight(expression.getValue());
-                    result.addFilterExpressions(filterExpression);
-                } else if ("lessMatch".equals(expression.getExpressionType())) {
-                    filterExpression.setExpressionObject("LessMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                    filterExpression.setRight(expression.getValue());
-                    result.addFilterExpressions(filterExpression);
-                } else if ("greaterEqualMatch".equals(expression.getExpressionType())) {
-                    filterExpression.setExpressionObject("GreaterEqualMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                    filterExpression.setRight(expression.getValue());
-                    result.addFilterExpressions(filterExpression);
-                } else if ("lessEqualMatch".equals(expression.getExpressionType())) {
-                    filterExpression.setExpressionObject("LessEqualMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                    filterExpression.setRight(expression.getValue());
-                    result.addFilterExpressions(filterExpression);
-                } else {
-                    throw new IllegalArgumentException("filter expression [" + expression.getExpressionType() + "] not found");
-                }
+                final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
+
+                final String getter = matcherInfo.isBooleanType()
+                    ? ClassMethodUtil.toIsMethod(expression.getAttribute())
+                    : ClassMethodUtil.toGetMethod(expression.getAttribute());
+
+                final Expression filterExpression = new Expression();
+                filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
+                filterExpression.setLeft("source." + getter + "()");
+                filterExpression.setRight(expression.getValue());
+                result.addFilterExpressions(filterExpression);
             }
         }
 
         // 3. Find Entrance method of this metrics
-        Class c = metricsClass;
+        Class<?> c = metricsClass;
         Method entranceMethod = null;
         SearchEntrance:
         while (!c.equals(Object.class)) {
@@ -117,36 +94,17 @@ public class DeepAnalysis {
                 entryMethod.addArg(parameterType, "1");
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
                 if (result.getFuncConditionExpressions().size() == 1) {
-                    ConditionExpression expression = result.getFuncConditionExpressions().get(0);
+                    final ConditionExpression expression = result.getFuncConditionExpressions().get(0);
+                    final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
-                    Expression argExpression = new Expression();
-                    if ("booleanMatch".equals(expression.getExpressionType())) {
-                        argExpression.setExpressionObject("EqualMatch");
-                        argExpression.setLeft("source." + ClassMethodUtil.toIsMethod(expression.getAttribute()) + "()");
-                        argExpression.setRight(expression.getValue());
-                    } else if ("stringMatch".equals(expression.getExpressionType())) {
-                        argExpression.setExpressionObject("EqualMatch");
-                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                        argExpression.setRight(expression.getValue());
-                    } else if ("greaterMatch".equals(expression.getExpressionType())) {
-                        argExpression.setExpressionObject("GreaterMatch");
-                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                        argExpression.setRight(expression.getValue());
-                    } else if ("lessMatch".equals(expression.getExpressionType())) {
-                        argExpression.setExpressionObject("LessMatch");
-                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                        argExpression.setRight(expression.getValue());
-                    } else if ("greaterEqualMatch".equals(expression.getExpressionType())) {
-                        argExpression.setExpressionObject("GreaterEqualMatch");
-                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                        argExpression.setRight(expression.getValue());
-                    } else if ("lessEqualMatch".equals(expression.getExpressionType())) {
-                        argExpression.setExpressionObject("LessEqualMatch");
-                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
-                        argExpression.setRight(expression.getValue());
-                    } else {
-                        throw new IllegalArgumentException("filter expression [" + expression.getExpressionType() + "] not found");
-                    }
+                    final String getter = matcherInfo.isBooleanType()
+                        ? ClassMethodUtil.toIsMethod(expression.getAttribute())
+                        : ClassMethodUtil.toGetMethod(expression.getAttribute());
+
+                    final Expression argExpression = new Expression();
+                    argExpression.setRight(expression.getValue());
+                    argExpression.setExpressionObject(matcherInfo.getMatcher().getName());
+                    argExpression.setLeft("source." + getter + "()");
 
                     entryMethod.addArg(argExpression);
                 } else {
