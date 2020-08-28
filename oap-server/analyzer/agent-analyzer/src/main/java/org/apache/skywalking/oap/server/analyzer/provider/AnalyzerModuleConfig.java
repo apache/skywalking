@@ -80,8 +80,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     private final String configPath = "meter-receive-config";
 
     /**
-     * When open sampling, true means some error segment will be saved, even that segment will abandoned by server side trace sampling mechanism.
-     * false means all segment saved condition by server side trace sampling mechanism.
+     * Sample the trace segment if the segment has span(s) tagged as error status, and ignore the sampleRate configuration.
      */
     @Setter
     @Getter
