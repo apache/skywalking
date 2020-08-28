@@ -588,6 +588,7 @@
                     </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**,
+                        org/apache/skywalking/apm/agent/core/logging/core/generated/LoggingBenchmark*.java,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
                         org/apache/skywalking/apm/network/servicemesh/**/*.java,
