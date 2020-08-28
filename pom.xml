@@ -588,7 +588,6 @@
                     </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**,
-                        org/apache/skywalking/apm/agent/core/logging/core/generated/LoggingBenchmark*.java,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
                         org/apache/skywalking/apm/network/servicemesh/**/*.java,
@@ -596,7 +595,8 @@
                         org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
                         org/apache/skywalking/oal/rt/grammar/*.java,
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
-                        org/apache/skywalking/oap/server/configuration/service/*.java
+                        org/apache/skywalking/oap/server/configuration/service/*.java,
+                        org/apache/skywalking/apm/agent/core/logging/core/generated/LoggingBenchmark*.java
                     </excludes>
                     <propertyExpansion>
                         import.control=apm-checkstyle/importControl.xml
