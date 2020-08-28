@@ -227,7 +227,7 @@ so you just need to define the intercept point(a.k.a. aspect pointcut in Spring)
 ### Intercept
 SkyWalking provide two common defines to intercept Contructor, instance method and class method.
 * Extend `ClassInstanceMethodsEnhancePluginDefine` defines `Contructor` intercept points and `instance method` intercept points.
-* Extend `ClassStaticMethodsEnhancePluginDefine` definec `class method` intercept points.
+* Extend `ClassStaticMethodsEnhancePluginDefine` defines `class method` intercept points.
 
 Of course, you can extend `ClassEnhancePluginDefine` to set all intercept points. But it is unusual. 
 
