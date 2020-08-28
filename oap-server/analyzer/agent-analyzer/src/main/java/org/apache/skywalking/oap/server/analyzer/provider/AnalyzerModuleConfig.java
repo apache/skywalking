@@ -85,5 +85,5 @@ public class AnalyzerModuleConfig extends ModuleConfig {
      */
     @Setter
     @Getter
-    private boolean forceSaveErrorSegment = true;
+    private boolean forceSampleErrorSegment = true;
 }

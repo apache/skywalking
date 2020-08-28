@@ -33,5 +33,6 @@ Then the 35% traces in the global will be collected and saved in storage consist
 because they are reported to Backend-Instance**A** and ignored.
 
 # Note
-When you open sampling, the actual sampleRate will above sampleRate. Because we want some error segment will be saved, even that segment will abandoned by server side trace sampling mechanism. may be miss some other trace segments, but we can analyze this error segment to solve problem.
+When you open sampling, the actual sample rate could be over sampleRate. Because currently, all error segments will be saved, meanwhile, the upstream and downstream may not be sampled. This feature is going to make sure you could have the error stacks and segments, but don't guarantee you would have the whole trace.
 
+Also, the side effect would be, if most of the accesses are fail, the sampling rate would be closing to 100%, which could crash the backend or storage clusters.
