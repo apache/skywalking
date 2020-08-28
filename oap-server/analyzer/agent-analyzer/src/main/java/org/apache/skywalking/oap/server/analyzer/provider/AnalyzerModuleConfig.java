@@ -78,4 +78,11 @@ public class AnalyzerModuleConfig extends ModuleConfig {
 
     @Getter
     private final String configPath = "meter-receive-config";
+
+    /**
+     * Sample the trace segment if the segment has span(s) tagged as error status, and ignore the sampleRate configuration.
+     */
+    @Setter
+    @Getter
+    private boolean forceSampleErrorSegment = true;
 }
