@@ -85,7 +85,7 @@ public class JsonLoggerTest {
         Type type = new TypeToken<Map<String, String>>() {
         }.getType();
         Map<String, String> logMap = gson.fromJson(argument.getValue(), type);
-        Assert.assertTrue(logMap.containsKey("timestamp"));
+        Assert.assertTrue(logMap.containsKey("@timestamp"));
         Assert.assertTrue(logMap.containsKey("message"));
         Assert.assertEquals(logMap.get("message"), "hello world");
         Assert.assertTrue(logMap.containsKey("thread"));
