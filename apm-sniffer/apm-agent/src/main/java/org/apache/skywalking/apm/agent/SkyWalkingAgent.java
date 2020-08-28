@@ -64,10 +64,12 @@ public class SkyWalkingAgent {
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
         } catch (Exception e) {
+            // try to resolve a new logger, and use the new logger to write the error log here
             LogManager.getLogger(SkyWalkingAgent.class)
                     .error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         } finally {
+            // refresh logger again after initialization finishes
             LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
         }
 
