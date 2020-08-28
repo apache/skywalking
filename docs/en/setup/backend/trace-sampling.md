@@ -31,3 +31,7 @@ And we assume the agents reported all trace segments to backend,
 Then the 35% traces in the global will be collected and saved in storage consistent/complete, with all spans.
 20% trace segments, which reported to Backend-Instance**B**, will saved in storage, maybe miss some trace segments,
 because they are reported to Backend-Instance**A** and ignored.
+
+# Note
+When you open sampling, the actual sampleRate will above sampleRate. Because we want some error segment will be saved, even that segment will abandoned by server side trace sampling mechanism. may be miss some other trace segments, but we can analyze this error segment to solve problem.
+

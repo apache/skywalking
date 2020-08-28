@@ -125,18 +125,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
     @Override
     public void parseSegment(SegmentObject segmentObject) {
-        if (sampleStatus.equals(SAMPLE_STATUS.UNKNOWN) || sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
-            if (sampler.shouldSample(segmentObject.getTraceId())) {
-                sampleStatus = SAMPLE_STATUS.SAMPLED;
-            } else {
-                sampleStatus = SAMPLE_STATUS.IGNORE;
-            }
-        }
-
-        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
-            return;
-        }
-
         segment.setTraceId(segmentObject.getTraceId());
         segmentObject.getSpansList().forEach(span -> {
             if (startTimestamp == 0 || startTimestamp > span.getStartTime()) {
@@ -153,6 +141,14 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         });
         final long accurateDuration = endTimestamp - startTimestamp;
         duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
+
+        if (sampleStatus.equals(SAMPLE_STATUS.UNKNOWN) || sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            if (sampler.shouldSample(segmentObject.getTraceId()) || isError) {
+                sampleStatus = SAMPLE_STATUS.SAMPLED;
+            } else {
+                sampleStatus = SAMPLE_STATUS.IGNORE;
+            }
+        }
     }
 
     private void appendSearchableTags(SpanObject span) {
