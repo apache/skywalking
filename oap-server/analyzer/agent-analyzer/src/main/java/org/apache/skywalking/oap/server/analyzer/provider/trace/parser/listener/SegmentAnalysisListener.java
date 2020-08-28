@@ -47,6 +47,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, SegmentListener {
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
+    private final boolean forceSaveErrorSegment;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
 
@@ -143,7 +144,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
 
         if (sampleStatus.equals(SAMPLE_STATUS.UNKNOWN) || sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
-            if (sampler.shouldSample(segmentObject.getTraceId()) || isError) {
+            if (sampler.shouldSample(segmentObject.getTraceId()) || forceSaveErrorSegment) {
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
             } else {
                 sampleStatus = SAMPLE_STATUS.IGNORE;
@@ -182,6 +183,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final TraceSegmentSampler sampler;
+        private final boolean forceSaveErrorSegment;
         private final NamingControl namingControl;
         private final List<String> searchTagKeys;
 
@@ -192,6 +194,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                                                              .getService(ConfigService.class);
             this.searchTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
             this.sampler = new TraceSegmentSampler(config.getTraceSampleRateWatcher());
+            this.forceSaveErrorSegment = config.isForceSaveErrorSegment();
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
@@ -202,6 +205,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             return new SegmentAnalysisListener(
                 sourceReceiver,
                 sampler,
+                forceSaveErrorSegment,
                 namingControl,
                 searchTagKeys
             );
