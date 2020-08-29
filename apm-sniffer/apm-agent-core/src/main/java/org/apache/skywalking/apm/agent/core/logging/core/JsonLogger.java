@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * An alternative logger for the SkyWalking agent. The default layout is
  * {
- *     "timestamp": "", // timestamp
+ *     "@timestamp": "", // timestamp
  *     "logger": "", // name of the Logger
  *     "level": "", // info|debug|warn|error
  *     "thread": "", // thread where the log method is called
