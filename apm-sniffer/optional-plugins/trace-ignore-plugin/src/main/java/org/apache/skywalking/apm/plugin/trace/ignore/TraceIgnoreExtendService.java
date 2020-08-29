@@ -19,26 +19,20 @@
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
-import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
-import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
-import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfigInitializer;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.apache.skywalking.apm.util.StringUtil;
 
-@OverrideImplementor(ContextManagerExtendService.class)
-public class TraceIgnoreExtendService extends ContextManagerExtendService {
-
+@OverrideImplementor(SamplingService.class)
+public class TraceIgnoreExtendService extends SamplingService {
     private static final ILog LOGGER = LogManager.getLogger(TraceIgnoreExtendService.class);
-
     private static final String PATTERN_SEPARATOR = ",";
-
     private TracePathMatcher pathMatcher = new FastPathMatcher();
-
     private String[] patterns = new String[] {};
 
     @Override
@@ -50,15 +44,31 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
     }
 
     @Override
-    public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {
-        if (patterns.length > 0 && !forceSampling) {
+    public void prepare() {
+    }
+
+    @Override
+    public void onComplete() {
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public boolean trySampling(final String operationName) {
+        if (patterns.length > 0) {
             for (String pattern : patterns) {
                 if (pathMatcher.match(pattern, operationName)) {
                     LOGGER.debug("operationName : " + operationName + " Ignore tracking");
-                    return new IgnoredTracerContext();
+                    return false;
                 }
             }
         }
-        return super.createTraceContext(operationName, forceSampling);
+        return true;
+    }
+
+    @Override
+    public void forceSampled() {
     }
 }
