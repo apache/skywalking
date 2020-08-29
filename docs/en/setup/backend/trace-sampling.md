@@ -15,10 +15,18 @@ agent-analyzer:
   default:
     ...
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
+    forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism active, this config can open(true) force save some error segment. true is default.
 ```
 
-`sampleRate` is for you to set sample rate to this backend. 
-The sample rate precision is 1/10000. 10000 means 100% sample in default. 
+`sampleRate` is for you to set sample rate to this backend.
+The sample rate precision is 1/10000. 10000 means 100% sample in default.
+
+`slowDBAccessThreshold` is for you to set slow database access thresholds.
+The slow database access thresholds. Unit ms.
+
+`forceSampleErrorSegment` is for you to open force save some error segment when sampling mechanism active.
+When sampling mechanism active, this config can open(true) force save some error segment. true is default.
 
 # Recommendation
 You could set different backend instances with different `sampleRate` values, but we recommend you to set the same.
