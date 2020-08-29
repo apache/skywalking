@@ -114,7 +114,6 @@ public class PatternLoggerTest {
         Mockito.verify(output, times(2)).write(argument.capture());
         Assert.assertThat(argument.getValue(), StringContains.containsString("DEBUG [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello !@#$%^&*(),./[]:;"));
 
-
         logger.info("{}{}");
         Mockito.verify(output, times(3)).write(argument.capture());
         Assert.assertThat(argument.getValue(), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 {}{}"));

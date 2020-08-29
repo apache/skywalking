@@ -90,8 +90,8 @@ public class JsonLoggerTest {
     }
 
     private static class LogMatcher extends TypeSafeDiagnosingMatcher<String> {
-        private static final Gson gson = new Gson();
-        private static final Type type = new TypeToken<Map<String, String>>() {
+        private static final Gson GSON = new Gson();
+        private static final Type MAP_TYPE = new TypeToken<Map<String, String>>() {
         }.getType();
 
         private final String agent;
@@ -111,7 +111,7 @@ public class JsonLoggerTest {
         @Override
         protected boolean matchesSafely(String item, Description mismatchDescription) {
             try {
-                Map<String, String> logMap = gson.fromJson(item, type);
+                Map<String, String> logMap = GSON.fromJson(item, MAP_TYPE);
                 if (!logMap.containsKey("agent_name")) {
                     mismatchDescription.appendText("agent_name did not exist");
                     return false;
