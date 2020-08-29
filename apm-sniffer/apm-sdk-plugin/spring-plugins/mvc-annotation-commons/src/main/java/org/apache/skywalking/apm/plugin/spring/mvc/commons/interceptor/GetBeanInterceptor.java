@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletRequestHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -44,8 +45,8 @@ public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
         Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
             ContextManager.getRuntimeContext()
-                          .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                              .getRequest());
+                          .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new JavaxServletRequestHolder(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                              .getRequest()));
         }
         return ret;
     }

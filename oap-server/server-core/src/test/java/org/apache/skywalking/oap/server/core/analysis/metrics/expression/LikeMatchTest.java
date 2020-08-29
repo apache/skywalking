@@ -20,17 +20,20 @@ package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class LikeMatchTest {
     @Test
     public void testLike() {
-        assertTrue(new LikeMatch().match("%Black", "MaxBlack"));
-        assertTrue(new LikeMatch().match("Max%", "MaxBlack"));
-        assertTrue(new LikeMatch().match("%axBl%", "MaxBlack"));
+        assertTrue(new LikeMatch().match("MaxBlack", "%Black"));
+        assertTrue(new LikeMatch().match("MaxBlack", "Max%"));
+        assertTrue(new LikeMatch().match("MaxBlack", "%axBl%"));
 
-        assertFalse(new LikeMatch().match("Max%", "CarolineChanning"));
-        assertFalse(new LikeMatch().match("%Max", "CarolineChanning"));
+        assertFalse(new LikeMatch().match("CarolineChanning", "Max%"));
+        assertFalse(new LikeMatch().match("CarolineChanning", "%Max"));
+
+        assertTrue(new LikeMatch().match("MaxBlack", "\"%Black\""));
+        assertFalse(new LikeMatch().match("CarolineChanning", "\"Max%\""));
     }
 }

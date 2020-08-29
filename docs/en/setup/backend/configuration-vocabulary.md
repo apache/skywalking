@@ -30,10 +30,10 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | instanceNameMaxLength| Max length limitation of service instance name. The max length of service + instance names should be less than 200.|SW_INSTANCE_NAME_MAX_LENGTH|70|
 | - | - | endpointNameMaxLength| Max length limitation of endpoint name. The max length of service + endpoint names should be less than 240.|SW_ENDPOINT_NAME_MAX_LENGTH|150|
 | - | - | searchableTracesTags | Define the set of span tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_TAG_KEYS | http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker|
-| - | - | gRPCThreadPoolSize|Pool size of gRPC server| - | CPU core * 4|
-| - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| - | 10000|
-| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | - | - |
-| - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | - | 4M(based on Netty) |
+| - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_CORE_GRPC_THREAD_POOL_SIZE | CPU core * 4|
+| - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_CORE_GRPC_POOL_QUEUE_SIZE | 10000|
+| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CALL | - |
+| - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | SW_CORE_GRPC_MAX_MESSAGE_SIZE | 4M(based on Netty) |
 | - | - | remoteTimeout |Timeout for cluster internal communication, in seconds.| - |20|
 | - | - | maxSizeOfNetworkAddressAlias|Max size of network address detected in the be monitored system.| - | 1_000_000|
 | - | - | maxPageSizeOfQueryProfileSnapshot|The max size in every OAP query for snapshot analysis| - | 500 |
@@ -133,18 +133,20 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | agent-analyzer | default | Agent Analyzer. | SW_AGENT_ANALYZER | default |
 | - | -| sampleRate|Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default.|SW_TRACE_SAMPLE_RATE|10000|
 | - | - |slowDBAccessThreshold|The slow database access thresholds. Unit ms.|SW_SLOW_DB_THRESHOLD|default:200,mongodb:100|
+| - | - |forceSampleErrorSegment|When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.|SW_FORCE_SAMPLE_ERROR_SEGMENT|true|
 | receiver-sharing-server|default| Sharing server provides new gRPC and restful servers for data collection. Ana make the servers in the core module working for internal communication only.| - | - |
 | - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report| - | - |
 | - | - | restPort | Binding port of restful service |  - | - |
 | - | - | restContextPath| Web context path of restful service| - | - |
-| - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| - | - |
-| - | - | gRPCPort| Binding port of gRPC service | - | - |
-| - | - | gRPCThreadPoolSize|Pool size of gRPC server| - | CPU core * 4|
-| - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| - | 10000|
-| - | - | gRPCSslEnabled| Activate SSL for gRPC service | - | - |
-| - | - | gRPCSslKeyPath| The file path of gRPC SSL key| - | - |
-| - | - | gRPCSslCertChainPath| The file path of gRPC SSL cert chain| - | - |
-| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | - | - |
+| - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_GRPC_HOST | 0.0.0.0. Not Activated |
+| - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_GRPC_PORT | Not Activated |
+| - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_RECEIVER_GRPC_THREAD_POOL_SIZE | CPU core * 4|
+| - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_RECEIVER_GRPC_POOL_QUEUE_SIZE | 10000|
+| - | - | gRPCSslEnabled| Activate SSL for gRPC service | SW_RECEIVER_GRPC_SSL_ENABLED | false |
+| - | - | gRPCSslKeyPath| The file path of gRPC SSL key| SW_RECEIVER_GRPC_SSL_KEY_PATH | - |
+| - | - | gRPCSslCertChainPath| The file path of gRPC SSL cert chain| SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH | - |
+| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL | - |
+| - | - | authentication | The token text for the authentication. Work for gRPC connection only. Once this is set, the client is required to use the same token. | SW_AUTHENTICATION | - |
 | receiver-register|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-trace|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-jvm| default| Read [receiver doc](backend-receivers.md) for more details | - | - |

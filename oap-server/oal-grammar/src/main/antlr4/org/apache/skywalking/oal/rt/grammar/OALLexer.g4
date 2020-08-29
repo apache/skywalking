@@ -61,6 +61,26 @@ SRC_PROFILE_TASK: 'profile_task';
 SRC_PROFILE_TASK_LOG: 'profile_task_log';
 SRC_PROFILE_THREAD_SHANPSHOT: 'profile_task_segment_snapshot';
 
+// Constructors symbols
+
+DOT:                                 '.';
+LR_BRACKET:                          '(';
+RR_BRACKET:                          ')';
+LS_BRACKET:                          '[';
+RS_BRACKET:                          ']';
+COMMA:                               ',';
+SEMI:                                ';';
+EQUAL:                               '=';
+DUALEQUALS:                          '==';
+ALL:                                 '*';
+GREATER:                             '>';
+LESS:                                '<';
+GREATER_EQUAL:                       '>=';
+LESS_EQUAL:                          '<=';
+NOT_EQUAL:                           '!=';
+LIKE:                                'like';
+IN:                                  'in';
+
 // Literals
 
 BOOL_LITERAL:       'true'
@@ -119,20 +139,3 @@ fragment Letter
     | ~[\u0000-\u007F\uD800-\uDBFF] // covers all characters above 0x7F which are not a surrogate
     | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
-
-// Constructors symbols
-
-DOT:                                 '.';
-LR_BRACKET:                          '(';
-RR_BRACKET:                          ')';
-COMMA:                               ',';
-SEMI:                                ';';
-EQUAL:                               '=';
-DUALEQUALS:                          '==';
-ALL:                                 '*';
-GREATER:                             '>';
-LESS:                                '<';
-GREATER_EQUAL:                       '>=';
-LESS_EQUAL:                          '<=';
-NOT_EQUAL:                           '!=';
-LIKE:                                'like';

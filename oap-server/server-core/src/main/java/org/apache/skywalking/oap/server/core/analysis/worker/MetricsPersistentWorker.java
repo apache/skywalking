@@ -130,7 +130,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
          * Hard coded the max size. This is only the batch size of one metrics, too large number is meaningless.
          */
         int maxBatchGetSize = 2000;
-        final int batchSize = Math.max(maxBatchGetSize, lastCollection.size());
+        final int batchSize = Math.min(maxBatchGetSize, lastCollection.size());
         List<Metrics> metricsList = new ArrayList<>();
         for (Metrics data : lastCollection) {
             transWorker.ifPresent(metricsTransWorker -> metricsTransWorker.in(data));
