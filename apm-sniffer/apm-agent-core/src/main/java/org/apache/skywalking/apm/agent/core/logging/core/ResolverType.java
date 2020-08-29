@@ -16,17 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.logging.core.Converter;
-import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
-
-/**
- * Just return the logEvent.getMessage()
- */
-public class MessageConverter implements Converter {
-    @Override
-    public String convert(LogEvent logEvent) {
-        return logEvent.getMessage();
-    }
+public enum ResolverType {
+    JSON, PATTERN
 }
