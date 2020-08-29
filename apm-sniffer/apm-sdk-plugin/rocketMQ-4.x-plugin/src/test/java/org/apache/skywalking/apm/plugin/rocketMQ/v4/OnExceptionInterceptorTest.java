@@ -86,7 +86,7 @@ public class OnExceptionInterceptorTest {
     }
 
     @Test
-    public void testOnExceptionWithoutSkyWalkingDynamicFielde() throws Throwable {
+    public void testOnExceptionWithoutSkyWalkingDynamicField() throws Throwable {
         exceptionInterceptor.beforeMethod(enhancedInstance, null, new Object[] {new RuntimeException()}, null, null);
         exceptionInterceptor.afterMethod(enhancedInstance, null, new Object[] {new RuntimeException()}, null, null);
 
