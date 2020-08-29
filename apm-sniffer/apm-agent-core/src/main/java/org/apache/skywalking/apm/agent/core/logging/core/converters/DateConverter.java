@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
@@ -32,5 +32,10 @@ public class DateConverter implements Converter {
     @Override
     public String convert(LogEvent logEvent) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date());
+    }
+
+    @Override
+    public String getKey() {
+        return "@timestamp";
     }
 }

@@ -32,6 +32,8 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.core.JsonLogResolver;
+import org.apache.skywalking.apm.agent.core.logging.core.PatternLogResolver;
 import org.apache.skywalking.apm.util.ConfigInitializer;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -40,7 +42,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
  */
 public class SnifferConfigInitializer {
-    private static final ILog LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
+    private static ILog LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
     private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
     private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static final String ENV_KEY_PREFIX = "skywalking.";
@@ -90,6 +92,9 @@ public class SnifferConfigInitializer {
         }
 
         initializeConfig(Config.class);
+        // reconfigure logger after config initialization
+        configureLogger();
+        LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
 
         if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
             throw new ExceptionInInitializerError("`agent.service_name` is missing.");
@@ -206,5 +211,16 @@ public class SnifferConfigInitializer {
             }
         }
         throw new ConfigNotFoundException("Failed to load agent.config.");
+    }
+
+    static void configureLogger() {
+        switch (Config.Logging.RESOLVER) {
+            case JSON:
+                LogManager.setLogResolver(new JsonLogResolver());
+                break;
+            case PATTERN:
+            default:
+                LogManager.setLogResolver(new PatternLogResolver());
+        }
     }
 }

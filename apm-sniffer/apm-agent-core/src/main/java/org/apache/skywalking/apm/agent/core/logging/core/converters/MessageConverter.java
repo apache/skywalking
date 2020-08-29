@@ -16,17 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
- * Just return logEvent.getLevel().name()
+ * Just return the logEvent.getMessage()
  */
-public class LevelConverter implements Converter {
+public class MessageConverter implements Converter {
     @Override
     public String convert(LogEvent logEvent) {
-        return logEvent.getLevel().name();
+        return logEvent.getMessage();
+    }
+
+    @Override
+    public String getKey() {
+        return "message";
     }
 }
