@@ -596,7 +596,8 @@
                         org/apache/skywalking/oal/rt/grammar/*.java,
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java,
-                        org/apache/skywalking/apm/agent/core/logging/core/generated/LoggingBenchmark*.java
+                        **/generated/*_jmhType*.java,
+                        **/generated/*_jmhTest.java
                     </excludes>
                     <propertyExpansion>
                         import.control=apm-checkstyle/importControl.xml
