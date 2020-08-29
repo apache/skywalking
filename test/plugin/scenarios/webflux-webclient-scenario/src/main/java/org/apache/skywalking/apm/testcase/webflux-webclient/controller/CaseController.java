@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.webflux-webclient.controller;
-
-import lombok.extern.log4j.Log4j2;
+package org.apache.skywalking.apm.testcase.webflux import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+-webclient.controller;
 
 @RestController
 @RequestMapping("/case")

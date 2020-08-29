@@ -16,10 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.webflux-webclient;
-
-import org.springframework.boot.SpringApplication;
+package org.apache.skywalking.apm.testcase.webflux import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+-webclient;
 
 @SpringBootApplication
 public class Application {
