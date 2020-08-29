@@ -16,15 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
+
+import org.apache.skywalking.apm.agent.core.logging.core.Converter;
+import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
- * The Converter, it is used to convert the LogEvent to the String.
- * For JsonLogger, the `getKey()` method is used to generate the key for json.
+ * This Converter is used to return the literal.
  */
-public interface Converter {
+public class LiteralConverter implements Converter {
 
-    String convert(LogEvent logEvent);
+    private final String literal;
 
-    String getKey();
+    public LiteralConverter(String literal) {
+        this.literal = literal;
+    }
+
+    @Override
+    public String convert(LogEvent logEvent) {
+        return literal;
+    }
+
+    @Override
+    public String getKey() {
+        return "";
+    }
 }
