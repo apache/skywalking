@@ -16,24 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
-/**
- * This Converter is used to return the literal.
- */
-public class LiteralConverter implements Converter {
-
-    private final String literal;
-
-    public LiteralConverter(String literal) {
-        this.literal = literal;
+public class AgentNameConverter implements Converter {
+    @Override
+    public String convert(LogEvent logEvent) {
+        return Config.Agent.SERVICE_NAME;
     }
 
     @Override
-    public String convert(LogEvent logEvent) {
-        return literal;
+    public String getKey() {
+        return "agent_name";
     }
 }

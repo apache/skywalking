@@ -16,18 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.logging.core.Converter;
-import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
+import com.google.gson.Gson;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogResolver;
 
-/**
- * Just return logEvent.getTargetClass().
- */
-public class ClassConverter implements Converter {
+public class JsonLogResolver implements LogResolver {
+    private static final Gson GSON = new Gson();
 
     @Override
-    public String convert(LogEvent logEvent) {
-        return logEvent.getTargetClass();
+    public ILog getLogger(Class<?> aClass) {
+        return new JsonLogger(aClass, GSON);
+    }
+
+    @Override
+    public ILog getLogger(String s) {
+        return new JsonLogger(s, GSON);
     }
 }
