@@ -41,6 +41,8 @@ public class OnExceptionInterceptor implements InstanceMethodsAroundInterceptor 
         MethodInterceptResult result) throws Throwable {
         SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo) objInst.getSkyWalkingDynamicField();
         String topicId = DEFAULT_TOPIC;
+        // The SendCallBackEnhanceInfo could be null when there is an internal exception in the client API,
+        // such as MQClientException("no route info of this topic")
         if (enhanceInfo != null) {
             topicId = enhanceInfo.getTopicId();
         }
