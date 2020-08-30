@@ -53,7 +53,7 @@
 - postgresql-8.x
 - pulsar
 - quasar
-- quartz-scheduler
+- quartz-scheduler-2.x
 - rabbitmq-5.x
 - redisson-3.x
 - resteasy-server-3.x
@@ -102,3 +102,4 @@
 - undertow-2.x-plugin
 - vertx-core-3.x
 - zookeeper-3.4.x
+- 
