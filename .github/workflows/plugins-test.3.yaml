@@ -57,6 +57,7 @@ jobs:
           - { name: 'spring-kafka-2.3.x-scenario', title: 'Spring-Kafka 2.3.x (7)' }
           - { name: 'spring-scheduled-scenario', title: 'Spring Scheduled 3.1.x-5.2.x (9)' }
           - { name: 'elasticjob-2.x-scenario', title: 'elasticjob-2.x-scenario (2)' }
+          - { name: 'quartz-scheduler-2.x-scenario', title: 'quartz-scheduler-2.x-scenario (5)' }
     steps:
       - uses: actions/checkout@v2
         with:
