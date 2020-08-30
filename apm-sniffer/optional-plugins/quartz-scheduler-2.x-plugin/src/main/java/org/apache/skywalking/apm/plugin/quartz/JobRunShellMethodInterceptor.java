@@ -31,7 +31,6 @@ import org.quartz.JobDetail;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,6 +41,8 @@ public class JobRunShellMethodInterceptor implements InstanceMethodsAroundInterc
 
     private static final AbstractTag JOB_GROUP = Tags.ofKey("jobGroup");
     private static final AbstractTag JOB_DATA_MAP = Tags.ofKey("jobDataMap");
+
+    private static final String EMPTY_JOB_DATA_MAP_STRING = Collections.emptyMap().toString();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
@@ -55,7 +56,7 @@ public class JobRunShellMethodInterceptor implements InstanceMethodsAroundInterc
         span.setComponent(ComponentsDefine.QUARTZ_SCHEDULER);
         Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
         span.tag(JOB_GROUP, jobGroup == null ? "" : jobGroup);
-        span.tag(JOB_DATA_MAP, getJobDataMap(jobDetail).toString());
+        span.tag(JOB_DATA_MAP, getJobDataMapString(jobDetail));
     }
 
     @Override
@@ -69,17 +70,14 @@ public class JobRunShellMethodInterceptor implements InstanceMethodsAroundInterc
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
-    private static Map<String, String> getJobDataMap(JobDetail jobDetail) {
-        JobDataMap originalJobDataMap = jobDetail.getJobDataMap();
-        if (originalJobDataMap != null) {
-            Map<String, String> jobDataMap = new HashMap();
-            for (String key : originalJobDataMap.getKeys()) {
-                Object value = originalJobDataMap.get(key);
-                jobDataMap.put(key, value != null ? value.toString() : "");
+    private static String getJobDataMapString(JobDetail jobDetail) {
+        JobDataMap jobDataMap = jobDetail.getJobDataMap();
+        if (jobDataMap != null) {
+            Map wrappedMap = jobDataMap.getWrappedMap();
+            if (wrappedMap != null) {
+                return wrappedMap.toString();
             }
-            return jobDataMap;
         }
-
-        return Collections.emptyMap();
+        return EMPTY_JOB_DATA_MAP_STRING;
     }
 }
