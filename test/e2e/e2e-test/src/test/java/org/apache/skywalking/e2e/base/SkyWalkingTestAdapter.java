@@ -21,15 +21,15 @@ package org.apache.skywalking.e2e.base;
 import com.google.common.collect.ImmutableMap;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Map;
 import org.apache.skywalking.e2e.SimpleQueryClient;
 import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.utils.Times;
 import org.springframework.web.client.RestTemplate;
 
 public abstract class SkyWalkingTestAdapter {
     protected final RestTemplate restTemplate = new RestTemplate();
-    protected final LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
+    protected final LocalDateTime startTime = Times.now();
 
     protected Map<String, String> trafficData = ImmutableMap.of("name", "SkyWalking");
 
