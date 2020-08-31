@@ -92,7 +92,7 @@
                                 <image>
                                     <name>skywalking/agent-test-jvm:jdk14-${project.version}</name>
                                     <build>
-                                        <from>openjdk:14</from>
+                                        <from>openjdk:14-buster</from>
                                         <workdir>/usr/local/skywalking/scenario</workdir>
                                         <assembly>
                                             <mode>dir</mode>
@@ -100,7 +100,6 @@
                                             <descriptor>assembly.xml</descriptor>
                                         </assembly>
                                         <runCmds>
-                                            <run>yum install -y unzip</run>
                                             <run>chmod +x /usr/local/skywalking/run.sh</run>
                                             <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
                                         </runCmds>

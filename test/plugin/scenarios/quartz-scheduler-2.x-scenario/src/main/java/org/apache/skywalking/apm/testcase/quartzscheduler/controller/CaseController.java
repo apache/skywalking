@@ -16,21 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.testcase.quartzscheduler.controller;
 
-import org.apache.skywalking.apm.agent.core.logging.core.Converter;
-import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+@RestController
+@RequestMapping("/case")
+@Log4j2
+public class CaseController {
 
-/**
- * The Converter is used to return a now date with format.
- */
-public class DateConverter implements Converter {
+    private static final String SUCCESS = "Success";
 
-    @Override
-    public String convert(LogEvent logEvent) {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date());
+    @RequestMapping("/call")
+    @ResponseBody
+    public String call() {
+        return SUCCESS;
+    }
+
+    @RequestMapping("/healthCheck")
+    @ResponseBody
+    public String healthCheck() {
+        return SUCCESS;
     }
 }
