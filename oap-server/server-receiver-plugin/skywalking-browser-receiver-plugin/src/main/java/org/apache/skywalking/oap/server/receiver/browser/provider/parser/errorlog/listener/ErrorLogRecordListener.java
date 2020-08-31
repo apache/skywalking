@@ -99,7 +99,6 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
     }
 
     public static class Factory implements ErrorLogListenerFactory {
-
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
         private final ErrorLogRecordSampler sampler;

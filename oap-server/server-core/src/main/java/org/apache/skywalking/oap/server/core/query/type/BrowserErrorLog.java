@@ -23,7 +23,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class BrowserErrorLog {
-
     private String service;
     private String serviceVersion;
     private Long time;

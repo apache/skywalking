@@ -90,7 +90,6 @@ public class BrowserErrorLogRecord extends Record {
     private byte[] dataBinary;
 
     public static class Builder implements StorageBuilder<BrowserErrorLogRecord> {
-
         @Override
         public BrowserErrorLogRecord map2Data(final Map<String, Object> dbMap) {
             BrowserErrorLogRecord record = new BrowserErrorLogRecord();

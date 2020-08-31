@@ -66,7 +66,6 @@ public class MultiScopesErrorLogAnalysisListener implements ErrorLogAnalysisList
     }
 
     public static class Factory implements ErrorLogListenerFactory {
-
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
 

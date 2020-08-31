@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.query.type.Pagination;
 @Setter
 @Getter
 public class BrowserErrorLogQueryCondition {
-
     private String serviceId;
     private String serviceVersionId;
     private String pagePathId;

@@ -24,7 +24,6 @@ import lombok.Setter;
 
 @Getter
 public class BrowserErrorLogs {
-
     private final List<BrowserErrorLog> logs;
     @Setter
     private int total;
