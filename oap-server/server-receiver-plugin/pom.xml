@@ -42,6 +42,7 @@
         <module>skywalking-profile-receiver-plugin</module>
         <module>opencensus-receiver-plugin</module>
         <module>skywalking-meter-receiver-plugin</module>
+        <module>skywalking-browser-receiver-plugin</module>
     </modules>
 
     <dependencies>
