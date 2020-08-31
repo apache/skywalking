@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import io.grpc.netty.GrpcSslContexts;
-import io.netty.handler.ssl.SslContext;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.net.ssl.SSLException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +39,7 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContext;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
@@ -59,7 +56,7 @@ public class RemoteClientManager implements Service {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
-    private SslContext sslContext;
+    private DynamicSslContext sslContext;
     private ClusterNodesQuery clusterNodesQuery;
     private volatile List<RemoteClient> usingClients;
     private GaugeMetrics gauge;
@@ -73,13 +70,9 @@ public class RemoteClientManager implements Service {
      */
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder,
                                int remoteTimeout,
-                               File trustedCAFile) {
+                               String trustedCAFile) {
         this(moduleDefineHolder, remoteTimeout);
-        try {
-            sslContext = GrpcSslContexts.forClient().trustManager(trustedCAFile).build();
-        } catch (SSLException e) {
-            throw new IllegalArgumentException(e);
-        }
+        sslContext = DynamicSslContext.forClient(trustedCAFile);
     }
 
     /**
@@ -96,6 +89,7 @@ public class RemoteClientManager implements Service {
     }
 
     public void start() {
+        sslContext.start();
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::refresh, 1, 5, TimeUnit.SECONDS);
     }
 

@@ -33,6 +33,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
+import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,7 @@ public class GRPCServer implements Server {
                                                .maxInboundMessageSize(maxMessageSize)
                                                .executor(executor);
         if (!Strings.isNullOrEmpty(privateKeyFile) && !Strings.isNullOrEmpty(certChainFile)) {
-            sslContext = new DynamicSslContext(privateKeyFile, certChainFile);
+            sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile);
             nettyServerBuilder.sslContext(sslContext);
         }
         LOGGER.info("Server started, host {} listening on {}", host, port);
