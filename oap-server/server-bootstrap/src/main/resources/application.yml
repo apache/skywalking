@@ -276,6 +276,10 @@ receiver_jaeger:
     gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 
+receiver-browser:
+  selector: ${SW_RECEIVER_BROWSER:default}
+  default:
+
 query:
   selector: ${SW_QUERY:graphql}
   graphql:
