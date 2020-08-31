@@ -83,7 +83,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Browser.value())));
         return buildServices(query);
     }
 

@@ -31,6 +31,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
+import static java.util.Objects.isNull;
+
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
         // 1. Set sub package name by source.metrics
@@ -85,16 +87,20 @@ public class DeepAnalysis {
             Class<?> parameterType = parameter.getType();
             Annotation[] parameterAnnotations = parameter.getAnnotations();
             if (parameterAnnotations == null || parameterAnnotations.length == 0) {
-                throw new IllegalArgumentException("Entrance method:" + entranceMethod + " doesn't include the annotation.");
+                throw new IllegalArgumentException(
+                    "Entrance method:" + entranceMethod + " doesn't include the annotation.");
             }
             Annotation annotation = parameterAnnotations[0];
             if (annotation instanceof SourceFrom) {
-                entryMethod.addArg(parameterType, "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
+                entryMethod.addArg(
+                    parameterType, "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
             } else if (annotation instanceof ConstOne) {
                 entryMethod.addArg(parameterType, "1");
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
-                if (result.getFuncConditionExpressions().size() == 1) {
-                    final ConditionExpression expression = result.getFuncConditionExpressions().get(0);
+                if (isNull(result.getFuncConditionExpressions()) || result.getFuncConditionExpressions().isEmpty()) {
+                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
+                } else {
+                    ConditionExpression expression = result.getNextFuncConditionExpression();
                     final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
                     final String getter = matcherInfo.isBooleanType()
@@ -107,13 +113,12 @@ public class DeepAnalysis {
                     argExpression.setLeft("source." + getter + "()");
 
                     entryMethod.addArg(argExpression);
-                } else {
-                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
                 }
             } else if (annotation instanceof Arg) {
                 entryMethod.addArg(parameterType, result.getNextFuncArg());
             } else {
-                throw new IllegalArgumentException("Entrance method:" + entranceMethod + " doesn't the expected annotation.");
+                throw new IllegalArgumentException(
+                    "Entrance method:" + entranceMethod + " doesn't the expected annotation.");
             }
         }
 
