@@ -90,7 +90,7 @@ public class RemoteClientManager implements Service {
     }
 
     public void start() {
-        Optional.of(sslContext).ifPresent(DynamicSslContext::start);
+        Optional.ofNullable(sslContext).ifPresent(DynamicSslContext::start);
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::refresh, 1, 5, TimeUnit.SECONDS);
     }
 
