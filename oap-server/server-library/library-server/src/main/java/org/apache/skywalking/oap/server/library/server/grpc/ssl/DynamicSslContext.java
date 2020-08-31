@@ -68,7 +68,7 @@ public class DynamicSslContext extends SslContext {
 
     private void updateContext(String caFile) {
         try {
-            GrpcSslContexts.forClient().trustManager(Paths.get(caFile).toFile()).build();
+            ctx = GrpcSslContexts.forClient().trustManager(Paths.get(caFile).toFile()).build();
         } catch (SSLException e) {
             throw new IllegalArgumentException(e);
         }
