@@ -16,17 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.agent.core.logging.core.converters;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
-/**
- * Just return the Thread.currentThread().getName()
- */
-public class ThreadConverter implements Converter {
+public class AgentNameConverter implements Converter {
     @Override
     public String convert(LogEvent logEvent) {
-        return Thread.currentThread().getName();
+        return Config.Agent.SERVICE_NAME;
+    }
+
+    @Override
+    public String getKey() {
+        return "agent_name";
     }
 }

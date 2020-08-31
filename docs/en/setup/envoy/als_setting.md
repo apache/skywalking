@@ -18,14 +18,31 @@ You need three steps to open ALS.
     ```
     Note:Skywalking oap service is at skywalking namespace, and the port of gRPC service is 11800
     
-2. Open SkyWalking [envoy receiver](../backend/backend-receivers.md).
-3. Active ALS k8s-mesh analysis
+2. (Default is ACTIVATED) Activate SkyWalking [envoy receiver](../backend/backend-receivers.md). 
+3. Active ALS k8s-mesh analysis, set system env variable `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS`=`k8s-mesh`
 ```yaml
 envoy-metric:
+  selector: ${SW_ENVOY_METRIC:default}
   default:
-    alsHTTPAnalysis: "k8s-mesh"
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
+    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""} # Setting the system env variable would override this. 
 ```
 Note multiple value，please use `,` symbol split
+
+Here's an example to deploy SkyWalking by Helm chart.
+
+```
+istioctl install --set profile=demo --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 --set meshConfig.enableEnvoyAccessLogService=true
+
+git checkout https://github.com/apache/skywalking-kubernetes.git
+cd skywalking-kubernetes/chart
+
+helm repo add elastic https://helm.elastic.co
+
+helm dep up skywalking
+
+helm install 8.1.0 skywalking -n istio-system --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh --set fullnameOverride=skywalking --set oap.envoy.als.enabled=true
+```
 
 Notice, only use this when envoy under Istio controlled, also in k8s env. The OAP requires the read right to k8s API server for all pods IPs.
 

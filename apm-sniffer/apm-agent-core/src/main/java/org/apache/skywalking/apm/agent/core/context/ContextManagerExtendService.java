@@ -65,7 +65,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-            if (forceSampling || samplingService.trySampling()) {
+            if (forceSampling || samplingService.trySampling(operationName)) {
                 context = new TracingContext(operationName);
             } else {
                 context = new IgnoredTracerContext();

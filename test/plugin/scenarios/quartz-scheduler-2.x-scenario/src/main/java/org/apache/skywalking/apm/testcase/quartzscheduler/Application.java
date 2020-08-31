@@ -16,24 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+package org.apache.skywalking.apm.testcase.quartzscheduler;
 
-import org.apache.skywalking.apm.agent.core.logging.core.Converter;
-import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * This Converter is used to return the literal.
- */
-public class LiteralConverter implements Converter {
+@SpringBootApplication
+public class Application {
 
-    private final String literal;
-
-    public LiteralConverter(String literal) {
-        this.literal = literal;
-    }
-
-    @Override
-    public String convert(LogEvent logEvent) {
-        return literal;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 }
