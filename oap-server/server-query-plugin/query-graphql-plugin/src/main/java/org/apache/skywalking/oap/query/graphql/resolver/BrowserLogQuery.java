@@ -31,7 +31,6 @@ import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 public class BrowserLogQuery implements GraphQLQueryResolver {
-
     private final ModuleManager moduleManager;
     private BrowserLogQueryService queryService;
 

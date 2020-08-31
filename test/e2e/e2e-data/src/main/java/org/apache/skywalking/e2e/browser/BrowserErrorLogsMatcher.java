@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 @Data
 public class BrowserErrorLogsMatcher {
-
     private List<BrowserErrorLogMatcher> logs;
 
     public BrowserErrorLogsMatcher() {

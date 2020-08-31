@@ -29,7 +29,6 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.perform
 @Slf4j
 @RequiredArgsConstructor
 public class PerfDataAnalyzer {
-
     private final ModuleManager moduleManager;
     private final PerfDataParserListenerManager listenerManager;
     private final BrowserServiceModuleConfig config;

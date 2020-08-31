@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.perform
  */
 @Slf4j
 public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisListener {
-
     private final SourceReceiver sourceReceiver;
 
     private final SourceBuilder sourceBuilder;
@@ -42,6 +41,10 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         this.sourceBuilder = new SourceBuilder(namingControl);
     }
 
+    /**
+     * Send BrowserAppTraffic, BrowserAppSingleVersionTraffic, BrowserAppPageTraffic and BrowserAppPagePerf scope to the
+     * receiver.
+     */
     @Override
     public void build() {
         // traffic
@@ -53,6 +56,9 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         sourceReceiver.receive(sourceBuilder.toBrowserAppPagePerf());
     }
 
+    /**
+     * Parse raw data
+     */
     @Override
     public void parse(final BrowserPerfDataDecorator decorator) {
         sourceBuilder.setService(decorator.getService());

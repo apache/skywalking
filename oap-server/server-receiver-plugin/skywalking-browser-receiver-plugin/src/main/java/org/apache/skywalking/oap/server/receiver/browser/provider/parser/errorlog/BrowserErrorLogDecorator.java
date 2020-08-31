@@ -23,7 +23,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.ErrorCategory;
 
 @RequiredArgsConstructor
 public class BrowserErrorLogDecorator {
-
     private boolean isOrigin = true;
     private final BrowserErrorLog errorLog;
     private BrowserErrorLog.Builder builder;

@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.core.browser.manual.BrowserAppTrafficSou
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppTraffic;
 
 public class BrowserAppTrafficDispatcher extends BrowserAppTrafficSourceDispatcher<BrowserAppTraffic> implements SourceDispatcher<BrowserAppTraffic> {
-
     @Override
     protected void dispatchInterval(final BrowserAppTraffic source) {
         ServiceTraffic traffic = new ServiceTraffic();

@@ -25,6 +25,5 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserService
  * BrowserPerfDataListener could have its own creation factory.
  */
 public interface PerfDataListenerFactory {
-
     PerfDataAnalysisListener create(ModuleManager moduleManager, BrowserServiceModuleConfig moduleConfig);
 }

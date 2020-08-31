@@ -38,13 +38,15 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlo
 @Slf4j
 @RequiredArgsConstructor
 public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
-
     private final NamingControl namingControl;
     private final SourceReceiver sourceReceiver;
     private final BrowserErrorLog errorLog = new BrowserErrorLog();
     private final ErrorLogRecordSampler sampler;
     private SampleStatus sampleStatus = SampleStatus.UNKNOWN;
 
+    /**
+     * Send BrowserErrorLog to the oreceiver.
+     */
     @Override
     public void build() {
         if (sampleStatus.equals(SampleStatus.SAMPLED)) {
@@ -54,6 +56,7 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
 
     @Override
     public void parse(final BrowserErrorLogDecorator decorator) {
+        // sample
         if (StringUtil.isEmpty(decorator.getUniqueId())) {
             if (log.isDebugEnabled()) {
                 log.debug("Because uniqueId is empty BrowserErrorLog is ignored.");
@@ -68,6 +71,7 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
         }
         sampleStatus = SampleStatus.SAMPLED;
 
+        // error log
         errorLog.setUniqueId(decorator.getUniqueId());
         errorLog.setTimeBucket(TimeBucket.getRecordTimeBucket(decorator.getTime()));
         errorLog.setTimestamp(decorator.getTime());

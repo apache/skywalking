@@ -18,7 +18,6 @@
 package org.apache.skywalking.oap.server.core.browser.source;
 
 public enum BrowserAppTrafficCategory {
-
     /**
      * From the BrowserPerfData.
      */

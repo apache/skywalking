@@ -23,7 +23,6 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogListenerFactory;
 
 public class ErrorLogParserListenerManager {
-
     @Getter
     private final List<ErrorLogListenerFactory> errorLogAnalysisListeners = new LinkedList<>();
 

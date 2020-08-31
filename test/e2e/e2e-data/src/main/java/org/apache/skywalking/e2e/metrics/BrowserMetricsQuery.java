@@ -26,7 +26,6 @@ import org.apache.skywalking.e2e.AbstractQuery;
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
 public class BrowserMetricsQuery extends AbstractQuery<BrowserMetricsQuery> {
-
     public static final String BROWSER_APP_PV = "browser_app_pv";
     public static final String BROWSER_APP_ERROR_RATE = "browser_app_error_rate";
     public static final String BROWSER_APP_ERROR_SUM = "browser_app_error_sum";

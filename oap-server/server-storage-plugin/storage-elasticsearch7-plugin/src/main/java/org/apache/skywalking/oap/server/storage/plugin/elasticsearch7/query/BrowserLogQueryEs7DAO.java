@@ -36,7 +36,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import static java.util.Objects.nonNull;
 
 public class BrowserLogQueryEs7DAO extends BrowserLogQueryEsDAO {
-
     public BrowserLogQueryEs7DAO(final ElasticSearchClient client) {
         super(client);
     }

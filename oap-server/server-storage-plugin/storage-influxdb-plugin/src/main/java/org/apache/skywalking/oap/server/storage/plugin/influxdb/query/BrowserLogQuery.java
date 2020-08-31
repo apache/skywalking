@@ -44,7 +44,6 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 @RequiredArgsConstructor
 public class BrowserLogQuery implements IBrowserLogQueryDAO {
-
     private final InfluxClient client;
 
     @Override

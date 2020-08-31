@@ -37,7 +37,6 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class BrowserModuleProvider extends ModuleProvider {
-
     private final BrowserServiceModuleConfig moduleConfig = new BrowserServiceModuleConfig();
 
     @Override

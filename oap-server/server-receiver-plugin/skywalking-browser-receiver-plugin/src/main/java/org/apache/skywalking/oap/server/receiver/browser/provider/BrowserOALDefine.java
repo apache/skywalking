@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
  * Browser OAL script includes the metrics related to browser only.
  */
 public class BrowserOALDefine extends OALDefine {
-
     public static final BrowserOALDefine INSTANCE = new BrowserOALDefine();
 
     private BrowserOALDefine() {

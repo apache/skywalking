@@ -29,7 +29,6 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlo
 @Slf4j
 @RequiredArgsConstructor
 public class ErrorLogAnalyzer {
-
     private final ModuleManager moduleManager;
     private final ErrorLogParserListenerManager listenerManager;
     private final BrowserServiceModuleConfig moduleConfig;

@@ -23,7 +23,6 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.PerfDataListenerFactory;
 
 public class PerfDataParserListenerManager {
-
     @Getter
     private final List<PerfDataListenerFactory> perfDataListenerFactories = new LinkedList<>();
 

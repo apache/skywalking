@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface IBrowserLogQueryDAO extends Service {
-
     BrowserErrorLogs queryBrowserErrorLogs(String serviceId,
                                            String serviceVersionId,
                                            String pagePathId,
@@ -38,6 +37,9 @@ public interface IBrowserLogQueryDAO extends Service {
                                            int limit,
                                            int from) throws IOException;
 
+    /**
+     * Parser the raw error log.
+     */
     default BrowserErrorLog parserDataBinary(
         String dataBinaryBase64) {
         try {

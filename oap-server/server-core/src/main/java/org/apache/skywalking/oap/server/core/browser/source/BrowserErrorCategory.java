@@ -21,7 +21,6 @@ import lombok.Getter;
 import org.apache.skywalking.apm.network.language.agent.v3.ErrorCategory;
 
 public enum BrowserErrorCategory {
-
     AJAX(0), RESOURCE(1), VUE(2), PROMISE(3), JS(4), UNKNOWN(5);
 
     public static BrowserErrorCategory fromErrorCategory(ErrorCategory category) {

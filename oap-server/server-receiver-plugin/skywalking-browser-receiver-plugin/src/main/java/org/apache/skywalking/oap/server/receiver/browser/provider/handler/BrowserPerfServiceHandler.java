@@ -36,9 +36,11 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+/**
+ * Collect and process the performance and error log.
+ */
 @Slf4j
 public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPerfServiceImplBase implements GRPCHandler {
-
     private final ModuleManager moduleManager;
     private final BrowserServiceModuleConfig config;
     private final PerfDataParserListenerManager perfDataListenerManager;

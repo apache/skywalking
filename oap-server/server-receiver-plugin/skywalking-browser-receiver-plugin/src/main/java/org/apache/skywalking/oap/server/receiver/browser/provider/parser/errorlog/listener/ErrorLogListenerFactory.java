@@ -21,6 +21,5 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
 
 public interface ErrorLogListenerFactory {
-
     ErrorLogAnalysisListener create(final ModuleManager moduleManager, final BrowserServiceModuleConfig moduleConfig);
 }

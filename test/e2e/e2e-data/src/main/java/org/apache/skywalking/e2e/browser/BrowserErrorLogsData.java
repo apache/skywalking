@@ -21,6 +21,5 @@ import lombok.Data;
 
 @Data
 public class BrowserErrorLogsData {
-
     private BrowserErrorLogs logs;
 }

@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorLog;
 
 public class BrowserErrorLogRecordDispatcher implements SourceDispatcher<BrowserErrorLog> {
-
     @Override
     public void dispatch(final BrowserErrorLog source) {
         BrowserErrorLogRecord record = new BrowserErrorLogRecord();

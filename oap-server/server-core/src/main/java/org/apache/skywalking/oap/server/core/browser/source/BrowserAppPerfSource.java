@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.source.Source;
 @Setter
 @Getter
 public abstract class BrowserAppPerfSource extends Source {
-
     protected String name;
     protected final NodeType nodeType = NodeType.Browser;
     private int redirectTime;

@@ -22,7 +22,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 public class BrowserServiceModuleConfig extends ModuleConfig {
-
     /**
      * The sample rate precision is 1/10000. 10000 means 100% sample in default.
      */

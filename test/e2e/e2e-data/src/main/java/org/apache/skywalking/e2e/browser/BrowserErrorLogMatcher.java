@@ -28,7 +28,6 @@ import static java.util.Objects.nonNull;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class BrowserErrorLogMatcher extends AbstractMatcher<BrowserErrorLog> {
-
     private String service;
     private String serviceVersion;
     private String time;

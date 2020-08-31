@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
  */
 @RequiredArgsConstructor
 public class ErrorLogRecordSampler {
-
     private final int sampleRate;
 
     /**

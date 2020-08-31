@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 @RequiredArgsConstructor
 public class BrowserLogQueryService implements Service {
-
     private final ModuleManager moduleManager;
     private IBrowserLogQueryDAO browserLogQueryDAO;
 

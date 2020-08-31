@@ -37,7 +37,6 @@ import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 public class H2BrowserLogQueryDAO implements IBrowserLogQueryDAO {
-
     private final JDBCHikariCPClient h2Client;
 
     @Override

@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.perform
  * BrowserPerfDataListener represents the callback when OAP does the browser performance data analysis.
  */
 public interface PerfDataAnalysisListener {
-
     /**
      * The last step of the analysis process. Typically, the implementations forward the analysis results to the source
      * receiver.

@@ -23,7 +23,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class BrowserErrorLog {
-
     private String service;
     private String serviceVersion;
     private Long time;

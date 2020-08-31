@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlo
  * ErrorLogAnalysisListener represents the callback when OAP does the browser error log analysis.
  */
 public interface ErrorLogAnalysisListener {
-
     /**
      * The last step of the analysis process. Typically, the implementations forward the analysis results to the source
      * receiver.

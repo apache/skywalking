@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.core.browser.manual.BrowserAppTrafficSou
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppSingleVersionTraffic;
 
 public class BrowserAppSingleVersionTrafficDispatcher extends BrowserAppTrafficSourceDispatcher<BrowserAppSingleVersionTraffic> implements SourceDispatcher<BrowserAppSingleVersionTraffic> {
-
     @Override
     protected void dispatchInterval(final BrowserAppSingleVersionTraffic source) {
         InstanceTraffic traffic = new InstanceTraffic();

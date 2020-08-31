@@ -26,7 +26,6 @@ import org.apache.skywalking.e2e.AbstractQuery;
 @Getter
 @Accessors(chain = true)
 public class BrowserErrorLogQuery extends AbstractQuery<BrowserErrorLogQuery> {
-
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";

@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 
 @RequiredArgsConstructor
 class SourceBuilder {
-
     private final NamingControl namingControl;
 
     @Getter
@@ -77,6 +76,9 @@ class SourceBuilder {
         source.setErrorCategory(errorCategory);
     }
 
+    /**
+     * Browser service traffic error related source.
+     */
     BrowserAppTraffic toBrowserAppTraffic() {
         BrowserAppTraffic traffic = new BrowserAppTraffic();
         toBrowserAppTrafficSource(traffic);
@@ -86,6 +88,9 @@ class SourceBuilder {
         return traffic;
     }
 
+    /**
+     * Browser single version error metrics related source.
+     */
     BrowserAppSingleVersionTraffic toBrowserAppSingleVersionTraffic() {
         BrowserAppSingleVersionTraffic traffic = new BrowserAppSingleVersionTraffic();
         toBrowserAppTrafficSource(traffic);
@@ -94,6 +99,9 @@ class SourceBuilder {
         return traffic;
     }
 
+    /**
+     * Browser page error metrics related source.
+     */
     BrowserAppPageTraffic toBrowserAppPageTraffic() {
         BrowserAppPageTraffic traffic = new BrowserAppPageTraffic();
         toBrowserAppTrafficSource(traffic);

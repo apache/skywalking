@@ -63,7 +63,6 @@ import static org.apache.skywalking.e2e.utils.Yamls.load;
 @Slf4j
 @SkyWalkingE2E
 public class BrowserE2E extends SkyWalkingTestAdapter {
-
     private static final int MAX_INBOUND_MESSAGE_SIZE = 1024 * 1024 * 50;
 
     private static final String BROWSER_NAME = "e2e";

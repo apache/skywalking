@@ -21,7 +21,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BrowserLogQueryDAO;
 
 public class MysqlBrowserLogQueryDAO extends H2BrowserLogQueryDAO {
-
     public MysqlBrowserLogQueryDAO(final JDBCHikariCPClient h2Client) {
         super(h2Client);
     }

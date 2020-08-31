@@ -27,7 +27,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @ScopeDeclaration(id = BROWSER_APP_PERF, name = "BrowserAppPerf", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class BrowserAppPerf extends BrowserAppPerfSource {
-
     @Override
     public int scope() {
         return BROWSER_APP_PERF;

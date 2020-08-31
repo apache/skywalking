@@ -42,7 +42,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class JVMSourceDispatcher {
-
     private final SourceReceiver sourceReceiver;
 
     public JVMSourceDispatcher(ModuleManager moduleManager) {

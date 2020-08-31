@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlo
  * MultiScopesErrorLogAnalysisListener analysis error log, the kinds of error and error sum metrics.
  */
 public class MultiScopesErrorLogAnalysisListener implements ErrorLogAnalysisListener {
-
     private final SourceReceiver sourceReceiver;
 
     private final SourceBuilder sourceBuilder;
@@ -40,6 +39,10 @@ public class MultiScopesErrorLogAnalysisListener implements ErrorLogAnalysisList
         this.sourceBuilder = new SourceBuilder(namingControl);
     }
 
+    /**
+     * Send BrowserAppTraffic, BrowserAppSingleVersionTraffic, BrowserAppPageTraffic and BrowserAppPagePerf scope to the
+     * receiver.
+     */
     @Override
     public void build() {
         sourceReceiver.receive(sourceBuilder.toBrowserAppTraffic());

@@ -37,7 +37,6 @@ import org.apache.skywalking.oap.server.core.source.Source;
  */
 @RequiredArgsConstructor
 class SourceBuilder {
-
     private final NamingControl namingControl;
 
     @Getter

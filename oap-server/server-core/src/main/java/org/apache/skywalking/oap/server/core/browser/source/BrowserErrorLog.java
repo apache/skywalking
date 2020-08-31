@@ -29,7 +29,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.BR
  */
 @ScopeDeclaration(id = BROWSER_ERROR_LOG, name = "BrowserErrorLog")
 public class BrowserErrorLog extends Source {
-
     @Override
     public int scope() {
         return BROWSER_ERROR_LOG;

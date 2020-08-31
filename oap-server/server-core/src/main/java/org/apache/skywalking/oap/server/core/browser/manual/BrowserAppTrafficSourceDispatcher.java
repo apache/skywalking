@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.core.browser.source.BrowserAppTrafficCat
 import org.apache.skywalking.oap.server.core.browser.source.BrowserAppTrafficSource;
 
 public abstract class BrowserAppTrafficSourceDispatcher<SOURCE extends BrowserAppTrafficSource> implements SourceDispatcher<SOURCE> {
-
     @Override
     public void dispatch(final SOURCE source) {
         // filter error traffic

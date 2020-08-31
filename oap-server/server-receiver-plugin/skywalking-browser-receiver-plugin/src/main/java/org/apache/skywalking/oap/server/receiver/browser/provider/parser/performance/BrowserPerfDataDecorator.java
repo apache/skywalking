@@ -22,7 +22,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 
 @RequiredArgsConstructor
 public class BrowserPerfDataDecorator {
-
     private boolean isOrigin = true;
     private final BrowserPerfData browserPerfData;
     private BrowserPerfData.Builder builder;
