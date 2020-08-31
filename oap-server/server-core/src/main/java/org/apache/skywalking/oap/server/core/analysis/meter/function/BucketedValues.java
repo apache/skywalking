@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
@@ -32,6 +33,9 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 @ToString
 @Getter
 public class BucketedValues {
+
+    @Setter
+    private String group;
     /**
      * The element in the buckets represent the minimal value of this bucket, the max is defined by the next element.
      * Such as 0, 10, 50, 100 means buckets are [0, 10), [10, 50), [50, 100), [100, infinite+).

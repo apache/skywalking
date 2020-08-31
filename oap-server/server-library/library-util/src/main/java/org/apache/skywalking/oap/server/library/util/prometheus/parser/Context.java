@@ -113,22 +113,31 @@ public class Context {
                         .build()));
                 break;
             case HISTOGRAM:
-                Histogram.HistogramBuilder hBuilder = Histogram.builder();
-                hBuilder.name(name).timestamp(now);
-                samples.forEach(textSample -> {
-                    hBuilder.labels(textSample.getLabels());
-                    if (textSample.getName().endsWith("_count")) {
-                        hBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
-                    } else if (textSample.getName().endsWith("_sum")) {
-                        hBuilder.sampleSum(convertStringToDouble(textSample.getValue()));
-                    } else if (textSample.getLabels().containsKey("le")) {
-                        hBuilder.bucket(
-                            convertStringToDouble(textSample.getLabels().remove("le")),
-                            (long) convertStringToDouble(textSample.getValue())
-                        );
-                    }
-                });
-                metricFamilyBuilder.addMetric(hBuilder.build());
+                samples.stream()
+                    .map(sample -> {
+                        Map<String, String> labels = Maps.newHashMap(sample.getLabels());
+                        labels.remove("le");
+                        return Pair.of(labels, sample);
+                    })
+                    .collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
+                    .forEach((labels, samples) -> {
+                        Histogram.HistogramBuilder hBuilder = Histogram.builder();
+                        hBuilder.name(name).timestamp(now);
+                        hBuilder.labels(labels);
+                        samples.forEach(textSample -> {
+                            if (textSample.getName().endsWith("_count")) {
+                                hBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
+                            } else if (textSample.getName().endsWith("_sum")) {
+                                hBuilder.sampleSum(convertStringToDouble(textSample.getValue()));
+                            } else if (textSample.getLabels().containsKey("le")) {
+                                hBuilder.bucket(
+                                    convertStringToDouble(textSample.getLabels().remove("le")),
+                                    (long) convertStringToDouble(textSample.getValue())
+                                );
+                            }
+                        });
+                        metricFamilyBuilder.addMetric(hBuilder.build());
+                    });
                 break;
             case SUMMARY:
                 samples.stream()

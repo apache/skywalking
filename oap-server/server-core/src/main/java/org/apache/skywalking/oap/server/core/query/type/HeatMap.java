@@ -132,9 +132,16 @@ public class HeatMap {
         private final boolean asc;
 
         @Override
-        public int compare(final String key1, final String key2) {
+        public int compare(final String k1, final String k2) {
             int result;
-
+            String[] kk1 = parseKey(k1);
+            String[] kk2 = parseKey(k2);
+            result = kk1[0].compareTo(kk2[0]);
+            if (result != 0) {
+                return result;
+            }
+            final String key1 = kk1[1];
+            final String key2 = kk2[1];
             if (key1.equals(key2)) {
                 result = 0;
             } else if (Bucket.INFINITE_NEGATIVE.equals(key1) || Bucket.INFINITE_POSITIVE.equals(key2)) {
@@ -146,6 +153,13 @@ public class HeatMap {
             }
 
             return asc ? result : 0 - result;
+        }
+
+        private String[] parseKey(String key) {
+            if (key.contains(":")) {
+                return key.split(":");
+            }
+            return new String[] {"default", key};
         }
     }
 }
