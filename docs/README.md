@@ -53,8 +53,6 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
     * [Overview](en/concepts-and-designs/ui-overview.md).  A simple brief about SkyWalking UI.
   * CLI (Command Line Interface)
     * SkyWalking CLI provides a command line interface to interact with SkyWalking backend (via GraphQL), for more information, [click here](https://github.com/apache/skywalking-cli).
-  * Browser performance monitoring
-    * Make browser as a start of whole distributed tracing, for more information, [click here](https://github.com/apache/skywalking-client-js).
 * [Setup](en/setup/README.md).
   * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
@@ -68,6 +66,8 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Plugin development guide](en/setup/service-agent/java-agent/README.md#plugin-development-guide).
       * [Agent plugin tests and performance tests](en/setup/service-agent/java-agent/README.md#test).
     * [Other language agents](en/setup/README.md#language-agents-in-service) includes Nginx LUA, Python, .NetCore, PHP, NodeJS, Go.
+    * Browser performance monitoring
+      * Track the performance of the browser, such as latency of redirect, dns, ttfb. For more information, [click here](https://github.com/apache/skywalking-client-js).
   * Service Mesh
     * [SkyWalking on Istio](en/setup/istio/README.md). Introduces how to use Istio Mixer bypass Adapter to work with SkyWalking.
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
