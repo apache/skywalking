@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.server.grpc;
 
 import com.google.common.base.Strings;
 import io.grpc.BindableService;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
@@ -31,15 +32,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class GRPCServer implements Server {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCServer.class);
 
     private final String host;
     private final int port;
@@ -102,7 +101,10 @@ public class GRPCServer implements Server {
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
         ArrayBlockingQueue blockingQueue = new ArrayBlockingQueue(threadPoolQueueSize);
-        ExecutorService executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
+        ExecutorService executor = new ThreadPoolExecutor(
+            threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, blockingQueue,
+            new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler()
+        );
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection)
                                                .maxInboundMessageSize(maxMessageSize)
@@ -111,14 +113,14 @@ public class GRPCServer implements Server {
             sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile);
             nettyServerBuilder.sslContext(sslContext);
         }
-        LOGGER.info("Server started, host {} listening on {}", host, port);
+        log.info("Server started, host {} listening on {}", host, port);
     }
 
     static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            LOGGER.warn("Grpc server thread pool is full, rejecting the task");
+            log.warn("Grpc server thread pool is full, rejecting the task");
         }
     }
 
@@ -134,13 +136,18 @@ public class GRPCServer implements Server {
     }
 
     public void addHandler(BindableService handler) {
-        LOGGER.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
+        log.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(handler);
     }
 
     public void addHandler(ServerServiceDefinition definition) {
-        LOGGER.info("Bind handler {} into gRPC server {}:{}", definition.getClass().getSimpleName(), host, port);
+        log.info("Bind handler {} into gRPC server {}:{}", definition.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(definition);
+    }
+
+    public void addHandler(ServerInterceptor serverInterceptor) {
+        log.info("Bind interceptor {} into gRPC server {}:{}", serverInterceptor.getClass().getSimpleName(), host, port);
+        nettyServerBuilder.intercept(serverInterceptor);
     }
 
     @Override
@@ -155,7 +162,8 @@ public class GRPCServer implements Server {
         if (target == null || getClass() != target.getClass())
             return false;
         GRPCServer that = (GRPCServer) target;
-        return port == that.port && Objects.equals(host, that.host) && Objects.equals(certChainFile, that.certChainFile) && Objects
+        return port == that.port && Objects.equals(host, that.host) && Objects.equals(
+            certChainFile, that.certChainFile) && Objects
             .equals(privateKeyFile, that.privateKeyFile);
     }
 }

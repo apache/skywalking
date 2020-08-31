@@ -31,7 +31,7 @@ public class TraceSegmentSampler {
         this.traceSampleRateWatcher = traceSampleRateWatcher;
     }
 
-    public boolean shouldSample(String segmentId) {
-        return segmentId.hashCode() % 10000 < traceSampleRateWatcher.getSampleRate();
+    public boolean shouldSample(String traceId) {
+        return traceId.hashCode() % 10000 < traceSampleRateWatcher.getSampleRate();
     }
 }
