@@ -46,6 +46,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.is;
+
 public class JVMMetricsHandlerTest {
     private static final String TOPIC_NAME = "skywalking-metrics";
     private JVMMetricsHandler handler = null;
@@ -59,6 +61,8 @@ public class JVMMetricsHandlerTest {
         @Override
         protected void verify(final List<Source> sourceList) throws Throwable {
             Assert.assertTrue(sourceList.get(0) instanceof ServiceInstanceJVMCPU);
+            ServiceInstanceJVMCPU serviceInstanceJVMCPU = (ServiceInstanceJVMCPU) sourceList.get(0);
+            Assert.assertThat(serviceInstanceJVMCPU.getUsePercent(), is(1.0));
             Assert.assertTrue(sourceList.get(1) instanceof ServiceInstanceJVMMemory);
             Assert.assertTrue(sourceList.get(2) instanceof ServiceInstanceJVMMemoryPool);
             Assert.assertTrue(sourceList.get(3) instanceof ServiceInstanceJVMGC);
