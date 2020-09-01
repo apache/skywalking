@@ -137,7 +137,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
 
         String template = "%s";
         if (!Strings.isNullOrEmpty(value.getBucketedValues().getGroup())) {
-            template   = value.getBucketedValues().getGroup() + ":%s";
+            template  = value.getBucketedValues().getGroup() + ":%s";
         }
         final long[] values = value.getBucketedValues().getValues();
         for (int i = 0; i < values.length; i++) {
