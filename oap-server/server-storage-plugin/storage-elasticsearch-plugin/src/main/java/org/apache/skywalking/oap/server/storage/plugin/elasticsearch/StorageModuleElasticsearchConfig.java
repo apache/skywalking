@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
@@ -38,6 +39,12 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexShardsFactor = 5;
     @Setter
     private int indexReplicasNumber = 0;
+    /**
+     * @since 8.2.0, the replicas number is for super size dataset record replicas number
+     * @see SuperDataset
+     */
+    @Setter
+    private int superDatasetIndexReplicasNumber = 0;
     @Setter
     private int indexRefreshInterval = 2;
     @Setter
