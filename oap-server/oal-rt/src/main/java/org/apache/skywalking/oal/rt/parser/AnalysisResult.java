@@ -57,6 +57,8 @@ public class AnalysisResult {
 
     private List<ConditionExpression> funcConditionExpressions;
 
+    private int funcConditionExpressionGetIdx = 0;
+
     private List<Argument> funcArgs;
 
     private int argGetIdx = 0;
@@ -80,6 +82,10 @@ public class AnalysisResult {
             funcConditionExpressions = new LinkedList<>();
         }
         funcConditionExpressions.add(conditionExpression);
+    }
+
+    public ConditionExpression getNextFuncConditionExpression() {
+        return funcConditionExpressions.get(funcConditionExpressionGetIdx++);
     }
 
     public void addFilterExpressions(Expression filterExpression) {

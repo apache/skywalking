@@ -29,6 +29,21 @@ envoy-metric:
 ```
 Note multiple value，please use `,` symbol split
 
+Here's an example to deploy SkyWalking by Helm chart.
+
+```
+istioctl install --set profile=demo --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 --set meshConfig.enableEnvoyAccessLogService=true
+
+git checkout https://github.com/apache/skywalking-kubernetes.git
+cd skywalking-kubernetes/chart
+
+helm repo add elastic https://helm.elastic.co
+
+helm dep up skywalking
+
+helm install 8.1.0 skywalking -n istio-system --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh --set fullnameOverride=skywalking --set oap.envoy.als.enabled=true
+```
+
 Notice, only use this when envoy under Istio controlled, also in k8s env. The OAP requires the read right to k8s API server for all pods IPs.
 
 You can use `kubectl logs ${You-OAP-Pod} | grep "K8sALSServiceMeshHTTPAnalysis"` to ensure OAP ALS k8s-mesh analysis has been active.
