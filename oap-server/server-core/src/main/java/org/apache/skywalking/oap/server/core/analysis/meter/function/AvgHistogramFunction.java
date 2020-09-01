@@ -107,8 +107,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
     @Override
     public void calculate() {
-        final Set<String> keys = summation.keys();
-        for (String key : keys) {
+        for (String key : summation.keys()) {
             long value = 0;
             if (count.get(key) != 0) {
                 value = summation.get(key) / count.get(key);
