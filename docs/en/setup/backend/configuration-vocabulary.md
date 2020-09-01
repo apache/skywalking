@@ -137,6 +137,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | -| sampleRate|Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default.|SW_TRACE_SAMPLE_RATE|10000|
 | - | - |slowDBAccessThreshold|The slow database access thresholds. Unit ms.|SW_SLOW_DB_THRESHOLD|default:200,mongodb:100|
 | - | - |forceSampleErrorSegment|When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.|SW_FORCE_SAMPLE_ERROR_SEGMENT|true|
+| - | - |segmentStatusAnalysisStrategy|Extract the final segment status from span collection in segment. Logic or operation is as default within all span status.|SW_SEGMENT_STATUS_ANALYSIS_STRATEGY|FROM_SPAN_STATUS|
 | receiver-sharing-server|default| Sharing server provides new gRPC and restful servers for data collection. Ana make the servers in the core module working for internal communication only.| - | - |
 | - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report| - | - |
 | - | - | restPort | Binding port of restful service |  - | - |
