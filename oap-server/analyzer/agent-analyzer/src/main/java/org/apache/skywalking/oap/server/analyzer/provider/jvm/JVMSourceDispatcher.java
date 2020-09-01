@@ -77,7 +77,9 @@ public class JVMSourceDispatcher {
         serviceInstanceJVMCPU.setName(serviceInstance);
         serviceInstanceJVMCPU.setServiceId(serviceId);
         serviceInstanceJVMCPU.setServiceName(service);
-        serviceInstanceJVMCPU.setUsePercent(cpu.getUsagePercent());
+        // If the cpu usage percent is less than 1, will set to 1
+        double adjustedCpuUsagePercent = Math.max(cpu.getUsagePercent(), 1.0);
+        serviceInstanceJVMCPU.setUsePercent(adjustedCpuUsagePercent);
         serviceInstanceJVMCPU.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMCPU);
     }
