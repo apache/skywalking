@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -149,10 +150,10 @@ public class HeatMap {
             } else if (Bucket.INFINITE_NEGATIVE.equals(key2) || Bucket.INFINITE_POSITIVE.equals(key1)) {
                 result = 1;
             } else {
-                result = Integer.parseInt(key1) - Integer.parseInt(key2);
+                result = new BigInteger(key1).subtract(new BigInteger(key2)).signum();
             }
 
-            return asc ? result : 0 - result;
+            return asc ? result : -result;
         }
 
         private String[] parseKey(String key) {

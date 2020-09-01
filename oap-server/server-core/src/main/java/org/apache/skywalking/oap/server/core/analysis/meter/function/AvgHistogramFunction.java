@@ -90,8 +90,8 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
         }
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
-            int bucket = value.getBuckets()[i];
-            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
+            long bucket = value.getBuckets()[i];
+            String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
             String key = String.format(template, bucketName);
             summation.valueAccumulation(key, values[i]);
             count.valueAccumulation(key, 1L);
@@ -101,13 +101,6 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
     @Override
     public void combine(final Metrics metrics) {
         AvgHistogramFunction histogram = (AvgHistogramFunction) metrics;
-
-        if (!summation.keysEqual(histogram.getSummation())) {
-            log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
-                     histogram, this, entityId
-            );
-            return;
-        }
         this.summation.append(histogram.summation);
         this.count.append(histogram.count);
     }

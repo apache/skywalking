@@ -33,22 +33,15 @@ import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgL
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgLabeledFunction.SUMMATION;
 
 public class AvgHistogramFunctionTest {
-    private static final int[] BUCKETS = new int[] {
+    private static final long[] BUCKETS = new long[] {
         0,
         50,
         100,
         250
     };
 
-    private static final int[] BUCKETS_2ND = new int[] {
-        0,
-        51,
-        100,
-        250
-    };
-
-    private static final int[] INFINITE_BUCKETS = new int[] {
-        Integer.MIN_VALUE,
+    private static final long[] INFINITE_BUCKETS = new long[] {
+        Long.MIN_VALUE,
         -5,
         0,
         10
