@@ -53,6 +53,12 @@ In this case, input are request of each ServiceInstanceJVMCPU scope, avg is base
 > endpoint_percent = from(Endpoint.*).percent(status == true);
 
 In this case, all input are requests of each endpoint, condition is `endpoint.status == true`.
+- `rate`. The rate expressed as a fraction of 100, for the condition matched input.
+> browser_app_error_rate = from(BrowserAppTraffic.*).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR, trafficCategory == BrowserAppTrafficCategory.NORMAL);
+
+In this case, all input are requests of each browser app traffic, `numerator` condition is `trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR` and `denominator` condition is `trafficCategory == BrowserAppTrafficCategory.NORMAL`.
+The parameter (1) is the `numerator` condition.
+The parameter (2) is the `denominator` condition.
 - `sum`. The sum calls per scope entity.
 > service_calls_sum = from(Service.*).sum();
 

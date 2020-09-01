@@ -45,6 +45,14 @@ SRC_SERVICE_INSTANCE_CLR_GC: 'ServiceInstanceCLRGC';
 SRC_SERVICE_INSTANCE_CLR_THREAD: 'ServiceInstanceCLRThread';
 SRC_ENVOY_INSTANCE_METRIC: 'EnvoyInstanceMetric';
 
+// Browser keywords
+SRC_BROWSER_APP_PERF: 'BrowserAppPerf';
+SRC_BROWSER_APP_PAGE_PERF: 'BrowserAppPagePerf';
+SRC_BROWSER_APP_SINGLE_VERSION_PERF: 'BrowserAppSingleVersionPerf';
+SRC_BROWSER_APP_TRAFFIC: 'BrowserAppTraffic';
+SRC_BROWSER_APP_PAGE_TRAFFIC: 'BrowserAppPageTraffic';
+SRC_BROWSER_APP_SINGLE_VERSION_TRAFFIC: 'BrowserAppSingleVersionTraffic';
+
 //hard code entities, only used when need to be deactived.
 //Disable is targeting @Stream#name
 SRC_SEGMENT: 'segment';
@@ -60,6 +68,8 @@ SRC_JAEGER_SPAN: 'jaeger_span';
 SRC_PROFILE_TASK: 'profile_task';
 SRC_PROFILE_TASK_LOG: 'profile_task_log';
 SRC_PROFILE_THREAD_SHANPSHOT: 'profile_task_segment_snapshot';
+
+SRC_BROWSER_ERROR_LOG: 'browser_error_log';
 
 // Constructors symbols
 

@@ -33,6 +33,7 @@ Here is the list of all DAO interfaces in storage
 1. IRegisterDAO
 1. ILogQueryDAO
 1. ITopNRecordsQueryDAO
+1. IBrowserLogQueryDAO
 
 ## Register all service implementations
 In `public void prepare()`, use `this#registerServiceImplementation` method to do register binding your implementation with the above interfaces.
