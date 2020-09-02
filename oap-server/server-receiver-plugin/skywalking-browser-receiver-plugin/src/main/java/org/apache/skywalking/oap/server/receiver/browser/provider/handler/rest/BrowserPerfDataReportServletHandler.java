@@ -58,11 +58,11 @@ public class BrowserPerfDataReportServletHandler extends JettyHandler {
 
         perfHistogram = metricsCreator.createHistogramMetric(
             "browser_perf_data_in_latency", "The process latency of browser performance data",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         perfErrorCounter = metricsCreator.createCounter(
             "browser_perf_data_analysis_error_count", "The error number of browser performance data analysis",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 

@@ -61,7 +61,7 @@ public abstract class BrowserErrorLogReportBaseServletHandler extends JettyHandl
         );
         logErrorCounter = metricsCreator.createCounter(
             "browser_error_log_analysis_error_count", "The error number of browser error log analysis",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
