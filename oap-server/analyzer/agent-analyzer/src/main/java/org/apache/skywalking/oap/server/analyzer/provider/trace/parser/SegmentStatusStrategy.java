@@ -38,12 +38,4 @@ public enum SegmentStatusStrategy {
         this.exceptionAnalyzer = exceptionAnalyzer;
     }
 
-    public static SegmentStatusStrategy findByName(String name) {
-        for (final SegmentStatusStrategy strategy : SegmentStatusStrategy.values()) {
-            if (strategy.name().equalsIgnoreCase(name)) {
-                return strategy;
-            }
-        }
-        return FROM_FIRST_SPAN_STATUS;
-    }
 }

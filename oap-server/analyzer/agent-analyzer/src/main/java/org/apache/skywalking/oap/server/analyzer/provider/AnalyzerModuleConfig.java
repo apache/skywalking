@@ -97,5 +97,5 @@ public class AnalyzerModuleConfig extends ModuleConfig {
      */
     @Setter
     @Getter
-    private String segmentStatusAnalysisStrategy = FROM_SPAN_STATUS.name();
+    private SegmentStatusStrategy segmentStatusAnalysisStrategy = FROM_SPAN_STATUS;
 }
