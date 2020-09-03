@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
     private final Set<Class<? extends Throwable>> ignoredExceptions = new CopyOnWriteArraySet<>();
+    private final Set<Class<? extends Throwable>> exceptions = new CopyOnWriteArraySet<>();
 
     @Override
     public boolean isError(final Throwable e) {
@@ -32,20 +33,22 @@ public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrat
         if (ignoredExceptions.contains(clazz)) {
             return false;
         }
-        ClassLoader classLoader = clazz.getClassLoader();
+        if (exceptions.contains(clazz)) {
+            return true;
+        }
         StatusCheckService statusTriggerService = ServiceManager.INSTANCE.findService(StatusCheckService.class);
         String[] ignoredExceptionNames = statusTriggerService.getIgnoredExceptionNames();
         for (final String ignoredExceptionName : ignoredExceptionNames) {
             try {
-                Class<?> parentClazz = Class.forName(ignoredExceptionName, true, classLoader);
+                Class<?> parentClazz = Class.forName(ignoredExceptionName, true, clazz.getClassLoader());
                 if (parentClazz.isAssignableFrom(clazz)) {
                     ignoredExceptions.add(clazz);
                     return false;
                 }
             } catch (ClassNotFoundException ignore) {
-                return true;
             }
         }
+        exceptions.add(clazz);
         return true;
     }
 }

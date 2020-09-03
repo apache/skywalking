@@ -20,10 +20,13 @@ package org.apache.skywalking.apm.agent.core.context.status;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
     private final Set<Class<? extends Throwable>> ignoredExceptions = new CopyOnWriteArraySet<>();
+    private final Set<Class<? extends Throwable>> exceptions = new CopyOnWriteArraySet<>();
+    private static final String TAG_NAME = AnnotationMatchExceptionCheckStrategy.class.getSimpleName();
 
     @Override
     public boolean isError(final Throwable e) {
@@ -31,14 +34,15 @@ public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStra
         if (ignoredExceptions.contains(clazz)) {
             return false;
         }
-        try {
-            String value = (String) clazz.getMethod("getSkyWalkingDynamicField").invoke(e);
-            if (ExceptionCheckStrategy.class.getSimpleName().equals(value)) {
-                ignoredExceptions.add(e.getClass());
-                return false;
-            }
-        } catch (Exception ignore) {
+        if (exceptions.contains(clazz)) {
+            return true;
         }
-        return true;
+        if (e instanceof EnhancedInstance && ((EnhancedInstance) e).getSkyWalkingDynamicField().equals(TAG_NAME)) {
+            ignoredExceptions.add(clazz);
+            return false;
+        } else {
+            exceptions.add(clazz);
+            return true;
+        }
     }
 }

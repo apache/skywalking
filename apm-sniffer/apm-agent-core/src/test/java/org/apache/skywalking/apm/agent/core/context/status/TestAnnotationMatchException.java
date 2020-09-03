@@ -46,7 +46,7 @@ public class TestAnnotationMatchException extends RuntimeException implements En
 
     @Override
     public Object getSkyWalkingDynamicField() {
-        return ExceptionCheckStrategy.class.getSimpleName();
+        return AnnotationMatchExceptionCheckStrategy.class.getSimpleName();
     }
 
     @Override
