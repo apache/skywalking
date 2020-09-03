@@ -16,21 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.prometheus;
+package org.apache.skywalking.oap.server.core.metric.promethues.rule;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * The Prometheus telemetry implementor settings.
- */
-@Setter
-@Getter
-public class PrometheusConfig extends ModuleConfig {
-    private String host = "0.0.0.0";
-    private int port = 1234;
-    private boolean sslEnabled = false;
-    private String sslKeyPath;
-    private String sslCertChainPath;
+@Data
+@NoArgsConstructor
+public class Target {
+    private String url;
+    private String sslCaFilePath;
 }
