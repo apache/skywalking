@@ -64,7 +64,6 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
 
     private void dealException(Throwable throwable) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(throwable);
     }
 }

@@ -46,7 +46,7 @@ public class SWCallable<V> implements Callable<V> {
             ContextManager.continued(snapshot);
             return callable.call();
         } catch (Exception e) {
-            ContextManager.activeSpan().errorOccurred().log(e);
+            ContextManager.activeSpan().log(e);
             throw e;
         } finally {
             ContextManager.stopSpan();

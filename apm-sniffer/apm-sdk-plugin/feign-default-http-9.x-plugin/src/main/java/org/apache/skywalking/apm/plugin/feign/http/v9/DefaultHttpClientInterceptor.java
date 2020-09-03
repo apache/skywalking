@@ -165,6 +165,5 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);
-        activeSpan.errorOccurred();
     }
 }
