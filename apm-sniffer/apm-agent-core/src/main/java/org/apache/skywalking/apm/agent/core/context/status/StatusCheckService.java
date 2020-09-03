@@ -41,7 +41,7 @@ public class StatusCheckService implements BootService {
         ignoredExceptionNames = Arrays.stream(Config.StatusCheck.IGNORED_EXCEPTIONS.split(","))
                                       .filter(StringUtil::isNotEmpty)
                                       .toArray(String[]::new);
-        statusChecker = Config.StatusCheck.MAX_RECURSIVE_DEPTH == 0 ? OFF : HIERARCHY_MATCH;
+        statusChecker = Config.StatusCheck.MAX_RECURSIVE_DEPTH > 0 ? HIERARCHY_MATCH : OFF;
     }
 
     @Override
