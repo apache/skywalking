@@ -28,6 +28,9 @@ import org.apache.skywalking.apm.util.StringUtil;
 import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.HIERARCHY_MATCH;
 import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.OFF;
 
+/**
+ * The <code>StatusCheckService</code> checks the exception logged by span.
+ */
 @DefaultImplementor
 public class StatusCheckService implements BootService {
 

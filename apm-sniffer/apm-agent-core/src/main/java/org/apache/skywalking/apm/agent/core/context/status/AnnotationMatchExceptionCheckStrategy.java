@@ -23,13 +23,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 /**
- * The exception tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException will not be thought as error, also
- * affects its subclasses.
+ * The exception tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException will not be thought as an error,
+ * also affects its subclasses.
  */
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
-    private final Set<Class<?>> ignoredExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
-    private final Set<Class<?>> errorStatusExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
+    private final Set<Class<? extends Throwable>> ignoredExceptions = ConcurrentHashMap.newKeySet(32);
+    private final Set<Class<? extends Throwable>> errorStatusExceptions = ConcurrentHashMap.newKeySet(128);
     private static final String TAG_NAME = AnnotationMatchExceptionCheckStrategy.class.getSimpleName();
 
     @Override

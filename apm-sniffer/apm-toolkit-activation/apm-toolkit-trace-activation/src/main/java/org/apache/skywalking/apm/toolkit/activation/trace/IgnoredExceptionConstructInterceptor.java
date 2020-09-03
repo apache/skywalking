@@ -23,6 +23,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 public class IgnoredExceptionConstructInterceptor implements InstanceConstructorInterceptor {
+
+    /**
+     * Inject a tag field to mark the exception should be not thought error status.
+     */
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (ContextManager.isActive()) {

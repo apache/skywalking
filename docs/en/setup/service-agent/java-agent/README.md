@@ -101,7 +101,7 @@ property key | Description | Default |
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
 `statuscheck.ignored_exceptions`|Ignored exception list, also affect their subclasses.|`""`|
-`statuscheck.max_recursive_depth`|Thx max depth for recursive check exception status. Default 0 means all exceptions will be thought as error status. If a exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS or tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought as error status, also affects its subclasses.|`0`|
+`statuscheck.max_recursive_depth`|The max depth for recursive check exception status. Default 0 means all exceptions will be thought of as error status. If an exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS or tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought of as error status, also affects its subclasses.|`0`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|

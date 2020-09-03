@@ -24,12 +24,12 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 
 /**
  * The exception listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS will not be
- * thought as error, also affects its subclasses.
+ * thought as an error, also affects its subclasses.
  */
 public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
-    private final Set<Class<?>> ignoredExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
-    private final Set<Class<?>> errorStatusExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
+    private final Set<Class<? extends Throwable>> ignoredExceptions = ConcurrentHashMap.newKeySet(32);
+    private final Set<Class<? extends Throwable>> errorStatusExceptions = ConcurrentHashMap.newKeySet(128);
 
     @Override
     public boolean isError(final Throwable e) {

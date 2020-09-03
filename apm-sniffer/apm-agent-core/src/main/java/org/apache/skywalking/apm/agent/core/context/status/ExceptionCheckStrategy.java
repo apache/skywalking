@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.context.status;
 
+/**
+ * The strategy checks the status of exception logged in a span.
+ */
 public interface ExceptionCheckStrategy {
 
     boolean isError(Throwable e);
-
 }

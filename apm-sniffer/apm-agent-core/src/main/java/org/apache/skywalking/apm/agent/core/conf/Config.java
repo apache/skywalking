@@ -274,10 +274,10 @@ public class Config {
         public static String IGNORED_EXCEPTIONS = "";
 
         /**
-         * Thx max depth for recursive check exception status.Default 0 means all exceptions will be thought as error
-         * status. If a exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS
-         * or tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought as
-         * error status, also affects its subclasses.
+         * The max depth for recursive check exception status. Default 0 means all exceptions will be thought of as
+         * error status. If an exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS
+         * or tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought of
+         * as error status, also affects its subclasses.
          */
         public static Integer MAX_RECURSIVE_DEPTH = 0;
     }
