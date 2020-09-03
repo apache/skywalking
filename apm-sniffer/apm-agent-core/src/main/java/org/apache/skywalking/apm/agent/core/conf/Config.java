@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
@@ -266,6 +265,19 @@ public class Config {
          * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
          */
         public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
+    }
+
+    public static class StatusCheck {
+        /**
+         * Ignored exception list, also affect their subclasses.
+         */
+        public static String IGNORED_EXCEPTIONS = "";
+
+        /**
+         * Agent would do hierarchy check for the exception unless the max_recursive_depth equals to 0.And -1 means no limit.
+         * Principle of exception check: <br/> If a exception is listed in ignored_exceptions or tagged with @IgnoredException, the exception would be thought as ignore exception.Also affect its subclasses.
+         */
+        public static Integer MAX_RECURSIVE_DEPTH = 0;
     }
 
     public static class Plugin {

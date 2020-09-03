@@ -100,6 +100,8 @@ property key | Description | Default |
 `logging.pattern `|Logging format. There are all conversion specifiers: <br>&nbsp;&nbsp;* `%level` means log level. <br>&nbsp;&nbsp;*  `%timestamp` means now of time with format `yyyy-MM-dd HH:mm:ss:SSS`.<br>&nbsp;&nbsp;*   `%thread` means name of current thread.<br>&nbsp;&nbsp;*   `%msg` means some message which user logged. <br>&nbsp;&nbsp;*  `%class` means SimpleName of TargetClass. <br>&nbsp;&nbsp;*  `%throwable` means a throwable which user called. <br>&nbsp;&nbsp;*  `%agent_name` means `agent.service_name`. Only apply to the `PatternLogger`. |`%level %timestamp %thread %class : %msg %throwable`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
+`statuscheck.ignored_exceptions`|Ignored exception list, also affect their subclasses.|`""`|
+`statuscheck.max_recursive_depth`|Agent would do hierarchy check for the exception unless the max_recursive_depth equals to 0.And -1 means no limit.Principle of exception check: If a exception is listed in ignored_exceptions or tagged with @IgnoredException, the exception would be thought as ignore exception.Also affect its subclasses.|`1`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|
@@ -154,7 +156,6 @@ property key | Description | Default |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
 `plugin.springannotation.classname_match_regex_expression` |  Match spring beans with regex expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
-
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
