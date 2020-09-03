@@ -32,11 +32,13 @@ public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStra
             return false;
         }
         try {
-            clazz.getMethod("getSkyWalkingDynamicField");
-            ignoredExceptions.add(e.getClass());
-            return false;
-        } catch (NoSuchMethodException ignore) {
-            return true;
+            String value = (String) clazz.getMethod("getSkyWalkingDynamicField").invoke(e);
+            if (ExceptionCheckStrategy.class.getSimpleName().equals(value)) {
+                ignoredExceptions.add(e.getClass());
+                return false;
+            }
+        } catch (Exception ignore) {
         }
+        return true;
     }
 }

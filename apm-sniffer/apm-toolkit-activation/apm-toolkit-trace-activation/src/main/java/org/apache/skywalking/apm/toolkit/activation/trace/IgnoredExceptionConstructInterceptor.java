@@ -18,6 +18,7 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.status.ExceptionCheckStrategy;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
@@ -25,7 +26,7 @@ public class IgnoredExceptionConstructInterceptor implements InstanceConstructor
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (ContextManager.isActive()) {
-            objInst.setSkyWalkingDynamicField(true);
+            objInst.setSkyWalkingDynamicField(ExceptionCheckStrategy.class.getSimpleName());
         }
     }
 }
