@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider.handler;
+package org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc;
 
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
