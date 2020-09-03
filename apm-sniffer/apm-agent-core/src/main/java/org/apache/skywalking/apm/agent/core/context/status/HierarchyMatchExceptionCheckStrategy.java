@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context.status;
 
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 
 /**
@@ -28,8 +28,8 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
  */
 public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
-    private final Set<Class<? extends Throwable>> ignoredExceptions = new CopyOnWriteArraySet<>();
-    private final Set<Class<? extends Throwable>> exceptions = new CopyOnWriteArraySet<>();
+    private final Set<Class<?>> ignoredExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
+    private final Set<Class<?>> errorStatusExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
 
     @Override
     public boolean isError(final Throwable e) {
@@ -37,7 +37,7 @@ public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrat
         if (ignoredExceptions.contains(clazz)) {
             return false;
         }
-        if (exceptions.contains(clazz)) {
+        if (errorStatusExceptions.contains(clazz)) {
             return true;
         }
         StatusCheckService statusTriggerService = ServiceManager.INSTANCE.findService(StatusCheckService.class);
@@ -52,7 +52,7 @@ public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrat
             } catch (ClassNotFoundException ignore) {
             }
         }
-        exceptions.add(clazz);
+        errorStatusExceptions.add(clazz);
         return true;
     }
 }

@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context.status;
 
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 /**
@@ -28,8 +28,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  */
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
-    private final Set<Class<? extends Throwable>> ignoredExceptions = new CopyOnWriteArraySet<>();
-    private final Set<Class<? extends Throwable>> exceptions = new CopyOnWriteArraySet<>();
+    private final Set<Class<?>> ignoredExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
+    private final Set<Class<?>> errorStatusExceptions = new ConcurrentHashMap<Class<?>, String>().keySet();
     private static final String TAG_NAME = AnnotationMatchExceptionCheckStrategy.class.getSimpleName();
 
     @Override
@@ -38,14 +38,14 @@ public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStra
         if (ignoredExceptions.contains(clazz)) {
             return false;
         }
-        if (exceptions.contains(clazz)) {
+        if (errorStatusExceptions.contains(clazz)) {
             return true;
         }
-        if (e instanceof EnhancedInstance && ((EnhancedInstance) e).getSkyWalkingDynamicField().equals(TAG_NAME)) {
+        if (e instanceof EnhancedInstance && TAG_NAME.equals(((EnhancedInstance) e).getSkyWalkingDynamicField())) {
             ignoredExceptions.add(clazz);
             return false;
         } else {
-            exceptions.add(clazz);
+            errorStatusExceptions.add(clazz);
             return true;
         }
     }
