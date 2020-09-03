@@ -18,24 +18,20 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.AnySpanSegmentStatusAnalyzer;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.FirstSpanSegmentStatusAnalyzer;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.FromSpanStatus;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.FromEntrySpan;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusAnalyzer;
 
 /**
- * define the strategy to analysis segment status
+ * Define the available strategies for analysis segment status analysis.
  */
+@AllArgsConstructor
 public enum SegmentStatusStrategy {
-    FROM_SPAN_STATUS(new AnySpanSegmentStatusAnalyzer()),
-
-    FROM_FIRST_SPAN_STATUS(new FirstSpanSegmentStatusAnalyzer());
+    FROM_SPAN_STATUS(new FromSpanStatus()),
+    FROM_ENTRY_SPAN(new FromEntrySpan());
 
     @Getter
     private final SegmentStatusAnalyzer exceptionAnalyzer;
-
-    SegmentStatusStrategy(final SegmentStatusAnalyzer exceptionAnalyzer) {
-        this.exceptionAnalyzer = exceptionAnalyzer;
-    }
-
 }

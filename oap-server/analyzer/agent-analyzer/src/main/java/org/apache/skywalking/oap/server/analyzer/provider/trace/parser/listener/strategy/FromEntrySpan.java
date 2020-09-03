@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 
-public class AnySpanSegmentStatusAnalyzer implements SegmentStatusAnalyzer {
+public class FromEntrySpan implements SegmentStatusAnalyzer {
 
     @Override
     public boolean isError(final SpanObject spanObject) {
-        return spanObject.getIsError();
+        return spanObject.getSpanType().equals(SpanType.Entry) && spanObject.getIsError();
     }
 }

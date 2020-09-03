@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
-public class FirstSpanSegmentStatusAnalyzer extends AnySpanSegmentStatusAnalyzer {
+public class FromSpanStatus implements SegmentStatusAnalyzer {
 
     @Override
     public boolean isError(final SpanObject spanObject) {
-        return spanObject.getSpanId() == 0 && spanObject.getIsError();
+        return spanObject.getIsError();
     }
 }

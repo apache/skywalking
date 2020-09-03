@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * judge the status of spanObject
+ * The SegmentStatusAnalyzer implementations provide different strategies for determining the segment status from the status of spans.
  */
 public interface SegmentStatusAnalyzer {
     /**
