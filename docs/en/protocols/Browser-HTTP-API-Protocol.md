@@ -9,7 +9,7 @@ Detail information about data format can be found in [BrowserPerf.proto](https:/
 
 ### POST http://localhost:12800/browser/perfData
 
-Send a performance log object with JSON format.
+Send a performance data object with JSON format.
 
 Input:
 
