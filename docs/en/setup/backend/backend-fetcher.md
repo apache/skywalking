@@ -42,13 +42,22 @@ metricsPath: <path>
 staticConfig:
   # The targets specified by the static config.
   targets:
-    [ - <host> ]
+    [ - <target> ]
   # Labels assigned to all metrics fetched from the targets.
   labels:
     [ <labelname>: <labelvalue> ... ]
 # Metrics rule allow you to recompute queries.
 metricsRules:
    [ - <metric_rules> ]
+```
+
+#### <target>
+
+```yaml
+# The url of target exporter. the format should be complied with "java.net.URI"
+url: <string>
+# The path of root CA file.
+sslCaFilePath: <string>
 ```
 
 #### <metric_rules>
