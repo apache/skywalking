@@ -22,8 +22,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 
+@AllArgsConstructor
 public enum StatusChecker {
 
     /**
@@ -32,10 +34,9 @@ public enum StatusChecker {
     OFF(Collections.singletonList(new OffExceptionCheckStrategy())),
 
     /**
-     * Do hierarchy check for the exception. Tag span as error status unless it is listed in
-     * Config.StatusCheck#IGNORED_EXCEPTIONS or tagged with @IgnoredException
-     * @see org.apache.skywalking.apm.toolkit.trace.IgnoredException
-     * @see Config.StatusCheck#IGNORED_EXCEPTIONS
+     * If a exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS or
+     * tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought as error
+     * status, also affects its subclasses.
      */
     HIERARCHY_MATCH(Arrays.asList(
         new HierarchyMatchExceptionCheckStrategy(),
@@ -43,10 +44,6 @@ public enum StatusChecker {
     ));
 
     private final List<ExceptionCheckStrategy> strategies;
-
-    StatusChecker(final List<ExceptionCheckStrategy> strategies) {
-        this.strategies = strategies;
-    }
 
     public boolean checkStatus(Throwable e) {
         int maxDepth = Config.StatusCheck.MAX_RECURSIVE_DEPTH;

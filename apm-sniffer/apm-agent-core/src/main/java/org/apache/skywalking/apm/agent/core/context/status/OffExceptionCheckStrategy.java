@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.context.status;
 
+/**
+ * All exceptions will be thought as error status.
+ */
 public class OffExceptionCheckStrategy implements ExceptionCheckStrategy {
     @Override
     public boolean isError(final Throwable e) {

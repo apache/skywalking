@@ -22,6 +22,10 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
+/**
+ * The exception tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException will not be thought as error, also
+ * affects its subclasses.
+ */
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
     private final Set<Class<? extends Throwable>> ignoredExceptions = new CopyOnWriteArraySet<>();

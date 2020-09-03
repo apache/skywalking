@@ -22,6 +22,10 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 
+/**
+ * The exception listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS will not be
+ * thought as error, also affects its subclasses.
+ */
 public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
     private final Set<Class<? extends Throwable>> ignoredExceptions = new CopyOnWriteArraySet<>();
