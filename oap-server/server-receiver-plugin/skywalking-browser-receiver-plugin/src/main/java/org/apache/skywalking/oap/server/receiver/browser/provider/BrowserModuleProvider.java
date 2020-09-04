@@ -21,13 +21,17 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.browser.module.BrowserModule;
-import org.apache.skywalking.oap.server.receiver.browser.provider.handler.BrowserPerfServiceHandler;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc.BrowserPerfServiceHandler;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest.BrowserErrorLogReportListServletHandler;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest.BrowserErrorLogReportSingleServletHandler;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest.BrowserPerfDataReportServletHandler;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.ErrorLogParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogRecordListener;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.MultiScopesErrorLogAnalysisListener;
@@ -69,10 +73,24 @@ public class BrowserModuleProvider extends ModuleProvider {
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider().getService(GRPCHandlerRegister.class);
-
+        // grpc
         grpcHandlerRegister.addHandler(
             new BrowserPerfServiceHandler(
                 getManager(), moduleConfig, perfDataListenerManager(), errorLogListenerManager()));
+
+        // rest
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                                .provider()
+                                                                .getService(JettyHandlerRegister.class);
+        // performance
+        jettyHandlerRegister.addHandler(
+            new BrowserPerfDataReportServletHandler(getManager(), moduleConfig, perfDataListenerManager()));
+        // error log
+        ErrorLogParserListenerManager errorLogParserListenerManager = errorLogListenerManager();
+        jettyHandlerRegister.addHandler(
+            new BrowserErrorLogReportSingleServletHandler(getManager(), moduleConfig, errorLogParserListenerManager));
+        jettyHandlerRegister.addHandler(
+            new BrowserErrorLogReportListServletHandler(getManager(), moduleConfig, errorLogParserListenerManager));
     }
 
     @Override
