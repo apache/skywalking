@@ -23,6 +23,19 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 
 @FilterMatcher("stringMatch")
 public class EqualMatch {
+
+    public boolean match(String left, String right) {
+        if (left.startsWith("\"") && left.endsWith("\"")) {
+            left = left.substring(1, left.length() - 1);
+        }
+
+        if (right.startsWith("\"") && right.endsWith("\"")) {
+            right = left.substring(1, right.length() - 1);
+        }
+
+        return Objects.equals(left, right);
+    }
+
     public boolean match(Object left, Object right) {
         return Objects.equals(left, right);
     }

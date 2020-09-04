@@ -27,14 +27,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class PercentileFunctionTest {
-    private static final int[] BUCKETS = new int[] {
+    private static final long[] BUCKETS = new long[] {
         0,
         50,
         100,
         250
     };
 
-    private static final int[] BUCKETS_2ND = new int[] {
+    private static final long[] BUCKETS_2ND = new long[] {
         0,
         51,
         100,

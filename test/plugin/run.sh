@@ -140,7 +140,11 @@ if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests
+if [[ "$force_build" == "on" ]]; then
+    profile=
+    [[ $image_version =~ "jdk14-" ]] && profile="-Pjdk14"
+    ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests ${profile}
+fi
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace
