@@ -26,17 +26,11 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class PercentileFunctionTest {
+public class AvgHistogramPercentileFunctionTest {
+
     private static final long[] BUCKETS = new long[] {
         0,
         50,
-        100,
-        250
-    };
-
-    private static final long[] BUCKETS_2ND = new long[] {
-        0,
-        51,
         100,
         250
     };
@@ -51,7 +45,7 @@ public class PercentileFunctionTest {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
-            new PercentileFunction.PercentileArgument(
+            new AvgHistogramPercentileFunction.AvgPercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -67,7 +61,7 @@ public class PercentileFunctionTest {
 
         inst.accept(
             MeterEntity.newService("service-test"),
-            new PercentileFunction.PercentileArgument(
+            new AvgHistogramPercentileFunction.AvgPercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -86,10 +80,10 @@ public class PercentileFunctionTest {
         /**
          * Expected percentile dataset
          * <pre>
-         *     0  , 20
-         *     50 , 40
-         *     100, 60 <- P50
-         *     250, 80 <- P90
+         *     0  , 10
+         *     50 , 20
+         *     100, 30 <- P50
+         *     250, 40 <- P90
          * </pre>
          */
         Assert.assertArrayEquals(new int[] {
@@ -98,48 +92,12 @@ public class PercentileFunctionTest {
         }, values);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testIncompatible() {
-        PercentileFunctionInst inst = new PercentileFunctionInst();
-        inst.accept(
-            MeterEntity.newService("service-test"),
-            new PercentileFunction.PercentileArgument(
-                new BucketedValues(
-                    BUCKETS,
-                    new long[] {
-                        10,
-                        20,
-                        30,
-                        40
-                    }
-                ),
-                RANKS
-            )
-        );
-
-        inst.accept(
-            MeterEntity.newService("service-test"),
-            new PercentileFunction.PercentileArgument(
-                new BucketedValues(
-                    BUCKETS_2ND,
-                    new long[] {
-                        10,
-                        20,
-                        30,
-                        40
-                    }
-                ),
-                RANKS
-            )
-        );
-    }
-
     @Test
     public void testSerialization() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
-            new PercentileFunction.PercentileArgument(
+            new AvgHistogramPercentileFunction.AvgPercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -168,7 +126,7 @@ public class PercentileFunctionTest {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
-            new PercentileFunction.PercentileArgument(
+            new AvgHistogramPercentileFunction.AvgPercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -187,11 +145,13 @@ public class PercentileFunctionTest {
 
         // Simulate the storage layer do, convert the datatable to string.
         final Map map = storageBuilder.data2Map(inst);
-        map.put(PercentileFunction.DATASET, ((DataTable) map.get(PercentileFunction.DATASET)).toStorageData());
-        map.put(PercentileFunction.VALUE, ((DataTable) map.get(PercentileFunction.VALUE)).toStorageData());
-        map.put(PercentileFunction.RANKS, ((IntList) map.get(PercentileFunction.RANKS)).toStorageData());
+        map.put(AvgHistogramPercentileFunction.COUNT, ((DataTable) map.get(AvgHistogramPercentileFunction.COUNT)).toStorageData());
+        map.put(AvgHistogramPercentileFunction.SUMMATION, ((DataTable) map.get(AvgHistogramPercentileFunction.SUMMATION)).toStorageData());
+        map.put(AvgHistogramPercentileFunction.DATASET, ((DataTable) map.get(AvgHistogramPercentileFunction.DATASET)).toStorageData());
+        map.put(AvgHistogramPercentileFunction.VALUE, ((DataTable) map.get(AvgHistogramPercentileFunction.VALUE)).toStorageData());
+        map.put(AvgHistogramPercentileFunction.RANKS, ((IntList) map.get(AvgHistogramPercentileFunction.RANKS)).toStorageData());
 
-        final PercentileFunction inst2 = (PercentileFunction) storageBuilder.map2Data(map);
+        final AvgHistogramPercentileFunction inst2 = (AvgHistogramPercentileFunction) storageBuilder.map2Data(map);
         Assert.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
         Assert.assertEquals(inst.getDataset(), inst2.getDataset());
@@ -199,10 +159,10 @@ public class PercentileFunctionTest {
         Assert.assertEquals(inst.getRanks(), inst2.getRanks());
     }
 
-    private static class PercentileFunctionInst extends PercentileFunction {
+    private static class PercentileFunctionInst extends AvgHistogramPercentileFunction {
         @Override
-        public AcceptableValue<PercentileArgument> createNew() {
-            return new PercentileFunctionInst();
+        public AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument> createNew() {
+            return new AvgHistogramPercentileFunctionTest.PercentileFunctionInst();
         }
     }
 }

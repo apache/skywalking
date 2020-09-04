@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.Comparator;
+import com.google.common.base.Strings;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
@@ -32,6 +31,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -83,33 +83,38 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
         this.entityId = entity.id();
 
+        String template = "%s";
+        if (!Strings.isNullOrEmpty(value.getGroup())) {
+            template   = value.getGroup() + ":%s";
+        }
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
-            String bucketName = String.valueOf(value.getBuckets()[i]);
-            summation.valueAccumulation(bucketName, values[i]);
-            count.valueAccumulation(bucketName, 1L);
+            long bucket = value.getBuckets()[i];
+            String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
+            String key = String.format(template, bucketName);
+            summation.valueAccumulation(key, values[i]);
+            count.valueAccumulation(key, 1L);
         }
     }
 
     @Override
     public void combine(final Metrics metrics) {
         AvgHistogramFunction histogram = (AvgHistogramFunction) metrics;
-
-        if (!summation.keysEqual(histogram.getSummation())) {
-            log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
-                     histogram, this, entityId
-            );
-            return;
-        }
         this.summation.append(histogram.summation);
         this.count.append(histogram.count);
     }
 
     @Override
     public void calculate() {
-        final List<String> sortedKeys = summation.sortedKeys(Comparator.comparingInt(Integer::parseInt));
-        for (String key : sortedKeys) {
-            dataset.put(key, summation.get(key) / count.get(key));
+        for (String key : summation.keys()) {
+            long value = 0;
+            if (count.get(key) != 0) {
+                value = summation.get(key) / count.get(key);
+                if (value == 0L && summation.get(key) > 0L) {
+                    value = 1;
+                }
+            }
+            dataset.put(key, value);
         }
     }
 
@@ -146,6 +151,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
         this.setCount(new DataTable(remoteData.getDataObjectStrings(0)));
         this.setSummation(new DataTable(remoteData.getDataObjectStrings(1)));
+        this.setDataset(new DataTable(remoteData.getDataObjectStrings(2)));
     }
 
     @Override
@@ -157,6 +163,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
         remoteBuilder.addDataObjectStrings(count.toStorageData());
         remoteBuilder.addDataObjectStrings(summation.toStorageData());
+        remoteBuilder.addDataObjectStrings(dataset.toStorageData());
 
         return remoteBuilder;
     }
