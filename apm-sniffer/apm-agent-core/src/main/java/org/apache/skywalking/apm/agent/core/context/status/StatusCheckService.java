@@ -29,7 +29,8 @@ import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.
 import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.OFF;
 
 /**
- * The <code>StatusCheckService</code> checks the status of a exception traced in a span.
+ * The <code>StatusCheckService</code> determines whether the span should be tagged in error status if an exception
+ * captured in the scope.
  */
 @DefaultImplementor
 public class StatusCheckService implements BootService {
