@@ -269,17 +269,17 @@ public class Config {
 
     public static class StatusCheck {
         /**
-         * Ignored exception list, also affect their subclasses.
+         * Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a
+         * way of controlling business flow.
          */
         public static String IGNORED_EXCEPTIONS = "";
 
         /**
-         * The max depth for recursive check exception status. Default 0 means all exceptions will be thought of as
-         * error status. If an exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS
-         * or tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought of
-         * as error status, also affects its subclasses.
+         * The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend
+         * setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored,
+         * which means all exceptions would make the span tagged in error status.
          */
-        public static Integer MAX_RECURSIVE_DEPTH = 0;
+        public static Integer MAX_RECURSIVE_DEPTH = 1;
     }
 
     public static class Plugin {

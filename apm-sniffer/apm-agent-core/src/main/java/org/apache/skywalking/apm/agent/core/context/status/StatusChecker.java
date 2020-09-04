@@ -29,14 +29,15 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 public enum StatusChecker {
 
     /**
-     * All exceptions will be thought of as error status.
+     * All exceptions would make the span tagged as the error status.
      */
     OFF(Collections.singletonList(new OffExceptionCheckStrategy())),
 
     /**
-     * If a exception is listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS or
-     * tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the exception will not be thought as an
-     * error status, also affects its subclasses.
+     * Hierarchy check the status of the traced exception.
+     *
+     * @see HierarchyMatchExceptionCheckStrategy
+     * @see AnnotationMatchExceptionCheckStrategy
      */
     HIERARCHY_MATCH(Arrays.asList(
         new HierarchyMatchExceptionCheckStrategy(),

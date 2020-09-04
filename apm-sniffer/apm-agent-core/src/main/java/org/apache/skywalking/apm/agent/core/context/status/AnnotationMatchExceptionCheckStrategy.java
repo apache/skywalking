@@ -23,8 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 /**
- * The exception tagged with org.apache.skywalking.apm.toolkit.trace.IgnoredException will not be thought as an error,
- * also affects its subclasses.
+ * AnnotationMatchExceptionCheckStrategy does an annotation matching check for a traced exception. If it has been
+ * annotated with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the error status of the span wouldn't be
+ * changed. Because of the annotation supports integration, the subclasses would be also annotated with it.
  */
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 

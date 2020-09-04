@@ -25,8 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * When open status checker in the agent, the exception will not be thought of as error status which tagged with this
- * annotation in a span.
+ * When opening the exception status checker in the agent, a traced exception wouldn't be marked as error status which
+ * tagged with this annotation in a span. Besides the annotation supports integration, the subclasses would be also
+ * annotated with it.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

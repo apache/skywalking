@@ -23,8 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 
 /**
- * The exception listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS will not be
- * thought as an error, also affects its subclasses.
+ * HierarchyMatchExceptionCheckStrategy does a hierarchy check for a traced exception. If it or its parent has been
+ * listed in org.apache.skywalking.apm.agent.core.conf.Config.StatusCheck#IGNORED_EXCEPTIONS, the error status of the
+ * span wouldn't be changed.
  */
 public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
