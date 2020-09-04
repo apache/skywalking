@@ -22,10 +22,10 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 
 /**
- * FromEntrySpan means the status of the segment is the same as the status of the entry span. If the entry span does not
- * exist, the final state of the segment will be a success.
+ * FromFirstSpan means the status of the segment is the same as the status of the first span. Mostly, the first span is
+ * an entry span. However, a tracing caused by a scheduled task, the first one should be a local span.
  */
-public class FromEntrySpan implements SegmentStatusAnalyzer {
+public class FromFirstSpan implements SegmentStatusAnalyzer {
 
     @Override
     public boolean isError(final SpanObject spanObject) {

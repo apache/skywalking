@@ -25,10 +25,10 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentStatusStrategy;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentStatusStrategy.FROM_SPAN_STATUS;
+import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
 public class AnalyzerModuleConfig extends ModuleConfig {
     /**
@@ -91,7 +91,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     private boolean forceSampleErrorSegment = true;
 
     /**
-     * Extract the final segment status from span collection in segment.
+     * Determine the final segment status from the status of spans.
      *
      * @see SegmentStatusStrategy
      */

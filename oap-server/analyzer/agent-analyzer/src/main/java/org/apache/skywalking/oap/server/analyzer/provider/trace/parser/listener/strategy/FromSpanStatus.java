@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
+/**
+ * If the status of any span is an error, the status of the segment would be an error.
+ */
 public class FromSpanStatus implements SegmentStatusAnalyzer {
 
     @Override

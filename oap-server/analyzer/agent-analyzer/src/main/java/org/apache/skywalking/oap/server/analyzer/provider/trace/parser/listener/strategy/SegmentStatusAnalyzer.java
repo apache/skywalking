@@ -21,11 +21,12 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * The SegmentStatusAnalyzer implementations provide different strategies for determining the segment status from the status of spans.
+ * The SegmentStatusAnalyzer implementations provide different strategies for determining the segment status from the
+ * status of spans.
  */
 public interface SegmentStatusAnalyzer {
     /**
-     * extract error status from the span collection in segmentObject
+     * Determines whether the status of a span is passed to segment or not.
      */
     boolean isError(SpanObject spanObject);
 }
