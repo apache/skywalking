@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.metric.promethues.operation;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,7 @@ public class Operation {
     private final ScopeType scope;
 
     private final List<Integer> percentiles;
+
+    private final TimeUnit bucketUnit;
 
 }

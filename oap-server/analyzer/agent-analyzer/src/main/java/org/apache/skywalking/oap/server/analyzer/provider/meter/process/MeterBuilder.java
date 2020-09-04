@@ -101,7 +101,7 @@ public class MeterBuilder {
                 final EvalData combinedHistogramData = values.combineAsSingleData();
                 if (combinedHistogramData instanceof EvalHistogramData) {
                     final EvalHistogramData histogram = (EvalHistogramData) combinedHistogramData;
-                    int[] buckets = new int[histogram.getBuckets().size()];
+                    long[] buckets = new long[histogram.getBuckets().size()];
                     long[] bucketValues = new long[histogram.getBuckets().size()];
                     int i = 0;
                     for (Map.Entry<Double, Long> entry : histogram.getBuckets().entrySet()) {
