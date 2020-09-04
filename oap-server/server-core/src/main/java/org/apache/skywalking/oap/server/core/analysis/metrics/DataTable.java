@@ -141,7 +141,7 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         this.append(source);
     }
 
-    public void append(DataTable dataTable) {
+    public DataTable append(DataTable dataTable) {
         dataTable.data.forEach((key, value) -> {
             Long current = this.data.get(key);
             if (current == null) {
@@ -151,5 +151,6 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
             }
             this.data.put(key, current);
         });
+        return this;
     }
 }

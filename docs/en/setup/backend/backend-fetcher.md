@@ -69,6 +69,10 @@ name: <string>
 scope: <string>
 # The transformation operation from prometheus metrics to skywalking ones. 
 operation: <operation>
+# The percentile rank of percentile operation
+[percentiles: [<rank>,...]]
+# bucketUnit indicates the unit of histogram bucket, it should be one of MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS
+[bucketUnit: <string>]
 # The prometheus sources of the transformation operation.
 sources:
   # The prometheus metric family name 
@@ -77,8 +81,12 @@ sources:
     [counterFunction: <string> ]
     # The range of a counterFunction.
     [range: <duration>]
-    # The percentile rank of percentile operation
-    [percentiles: [<rank>,...]]
+    # Aggregate metrics group by dedicated labels
+    [groupBy: [<labelname>, ...]]
+    # Set up the scale of the analysis result
+    [scale: <integer>]
+    # Filter target metrics by dedicated labels
+    [labelFilter: [<filterRule>, ...]]
     # Relabel prometheus labels to skywalking dimensions.
     relabel:
       service: [<labelname>, ...]
