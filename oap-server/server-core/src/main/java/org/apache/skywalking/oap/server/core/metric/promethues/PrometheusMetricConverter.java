@@ -202,7 +202,10 @@ public class PrometheusMetricConverter {
                             Map.Entry<MetricSource, List<Metric>> smm = sources.entrySet().iterator().next();
 
                             smm.getValue().stream()
-                                .collect(groupingBy(m -> Optional.ofNullable(smm.getKey().getGroupBy()).orElse(DEFAULT_GROUP_LIST).stream().map(m.getLabels()::get).collect(Collectors.joining(":"))))
+                                .collect(groupingBy(m -> Optional.ofNullable(smm.getKey().getGroupBy()).orElse(DEFAULT_GROUP_LIST).stream()
+                                    .map(m.getLabels()::get)
+                                    .map(group -> Optional.ofNullable(group).orElse(DEFAULT_GROUP))
+                                    .collect(Collectors.joining("-"))))
                                 .forEach((group, mm) -> {
                                     Histogram h = (Histogram) sum(mm);
 
