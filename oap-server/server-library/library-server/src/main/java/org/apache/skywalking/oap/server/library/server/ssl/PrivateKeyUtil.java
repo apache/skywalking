@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc.ssl;
+package org.apache.skywalking.oap.server.library.server.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import java.util.Base64;
 /**
  * Util intends to parse PKCS#1 and PKCS#8 at same time.
  */
-class PrivateKeyUtil {
+public class PrivateKeyUtil {
     private static final String PKCS_1_PEM_HEADER = "-----BEGIN RSA PRIVATE KEY-----";
     private static final String PKCS_1_PEM_FOOTER = "-----END RSA PRIVATE KEY-----";
     private static final String PKCS_8_PEM_HEADER = "-----BEGIN PRIVATE KEY-----";
@@ -39,7 +39,7 @@ class PrivateKeyUtil {
     /**
      * Load a RSA decryption key from a file (PEM or DER).
      */
-    static InputStream loadDecryptionKey(String keyFilePath) throws GeneralSecurityException, IOException {
+    public static InputStream loadDecryptionKey(String keyFilePath) throws GeneralSecurityException, IOException {
         byte[] keyDataBytes = Files.readAllBytes(Paths.get(keyFilePath));
         String keyDataString = new String(keyDataBytes, StandardCharsets.UTF_8);
 
