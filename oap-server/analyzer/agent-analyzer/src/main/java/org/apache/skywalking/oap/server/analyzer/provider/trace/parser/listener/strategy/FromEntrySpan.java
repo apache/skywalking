@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 
 /**
  * FromEntrySpan means the status of the segment is the same as the status of the entry span. If the entry span does not
- * exist, the final state of the segment will be a success.
+ * exist, the final state of the segment is successful.
  */
 public class FromEntrySpan implements SegmentStatusAnalyzer {
 
