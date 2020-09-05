@@ -139,7 +139,7 @@ segmentItems:
       - {key: es.indices, value: ''}
       - {key: es.types, value: ''}
       skipAnalysis: 'false'
-    - operationName: /case/elasticsearch
+    - operationName: '{GET}/case/elasticsearch'
       operationId: 0
       parentSpanId: -1
       spanId: 0

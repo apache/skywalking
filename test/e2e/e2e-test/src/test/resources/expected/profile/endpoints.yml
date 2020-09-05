@@ -14,5 +14,5 @@
 # limitations under the License.
 
 endpoints:
-  - key: ZTJlLXByb2ZpbGUtc2VydmljZQ==.1_L3Byb2ZpbGUve25hbWV9
-    label: /profile/{name}
+  - key: ZTJlLXByb2ZpbGUtc2VydmljZQ==.1_e1BPU1R9L3Byb2ZpbGUve25hbWV9
+    label: '{POST}/profile/{name}'

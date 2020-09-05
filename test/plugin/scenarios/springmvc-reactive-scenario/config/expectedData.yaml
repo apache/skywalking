@@ -36,7 +36,7 @@ segmentItems:
       - {key: db.instance, value: test}
       - {key: db.statement, value: not null}
       skipAnalysis: 'false'
-    - operationName: /testcase/{test}
+    - operationName: '{GET}/testcase/{test}'
       operationId: 0
       parentSpanId: -1
       spanId: 0

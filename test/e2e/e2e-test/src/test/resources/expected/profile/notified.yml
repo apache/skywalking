@@ -16,7 +16,7 @@
 tasks:
   - id: not null
     serviceId: ZTJlLXByb2ZpbGUtc2VydmljZQ==.1
-    endpointName: /profile/{name}
+    endpointName: '{POST}/profile/{name}'
     startTime: gt 0
     duration: gt 0
     minDurationThreshold: gt 0
