@@ -8,9 +8,12 @@ telemetry:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+    sslEnabled: ${SW_TELEMETRY_PROMETHEUS_SSL_ENABLED:false}
+    sslKeyPath: ${SW_TELEMETRY_PROMETHEUS_SSL_KEY_PATH:""}
+    sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 ```
 
-but you can set one of `prometheus` or `so11y` to enable them, for more information, refer to the details below.
+but you can set one of `prometheus` to enable them, for more information, refer to the details below.
 
 ## Prometheus
 Prometheus is supported as telemetry implementor. 
@@ -30,6 +33,19 @@ telemetry:
   prometheus:
     host: 127.0.0.1
     port: 1543
+```
+
+Set SSL relevant settings to expose a secure endpoint. Notice private key file and cert chain file could be uploaded once
+changes are applied to them.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+    host: 127.0.0.1
+    port: 1543
+    sslEnabled: true
+    sslKeyPath: /etc/ssl/key.pem
+    sslCertChainPath: /etc/ssl/cert-chain.pem
 ```
 
 ### Grafana Visualization
