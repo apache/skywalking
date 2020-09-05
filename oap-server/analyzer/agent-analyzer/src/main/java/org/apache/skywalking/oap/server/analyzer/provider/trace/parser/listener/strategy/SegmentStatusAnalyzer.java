@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
  */
 public interface SegmentStatusAnalyzer {
     /**
-     * Determines whether the status of a span is passed to segment or not.
+     * @return false, if the status of the given status represents the fatal status of the whole segment based on the strategy
      */
     boolean isError(SpanObject spanObject);
 }
