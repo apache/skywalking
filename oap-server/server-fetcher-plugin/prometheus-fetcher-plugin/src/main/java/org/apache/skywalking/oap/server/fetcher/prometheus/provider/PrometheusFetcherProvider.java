@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
 
 import com.google.common.collect.Maps;
 import io.vavr.CheckedFunction1;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -29,15 +31,14 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import org.apache.commons.codec.Charsets;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.metric.promethues.PrometheusMetricConverter;
 import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rule;
 import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
 import org.apache.skywalking.oap.server.core.metric.promethues.rule.StaticConfig;
+import org.apache.skywalking.oap.server.fetcher.prometheus.http.HttpClient;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -51,15 +52,12 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 public class PrometheusFetcherProvider extends ModuleProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PrometheusFetcherProvider.class);
 
     private final PrometheusFetcherConfig config;
-
-    private final OkHttpClient client = new OkHttpClient();
 
     private List<Rule> rules;
 
@@ -115,13 +113,11 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                     StaticConfig sc = r.getStaticConfig();
                     long now = System.currentTimeMillis();
                     converter.toMeter(sc.getTargets().stream()
-                        .map(CheckedFunction1.liftTry(url -> {
-                            Request request = new Request.Builder()
-                                .url(String.format("http://%s%s", url, r.getMetricsPath().startsWith("/") ? r.getMetricsPath() : "/" + r.getMetricsPath()))
-                                .build();
+                        .map(CheckedFunction1.liftTry(target -> {
                             List<Metric> result = new LinkedList<>();
-                            try (Response response = client.newCall(request).execute()) {
-                                Parser p = Parsers.text(requireNonNull(response.body()).byteStream());
+                            String content = HttpClient.builder().url(target.getUrl()).caFilePath(target.getSslCaFilePath()).build().request();
+                            try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
+                                Parser p = Parsers.text(targetStream);
                                 MetricFamily mf;
 
                                 while ((mf = p.parse(now)) != null) {
@@ -131,7 +127,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                                 return;
                                             }
                                             Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
-                                            extraLabels.put("instance", url);
+                                            extraLabels.put("instance", target.getUrl());
                                             extraLabels.forEach((key, value) -> {
                                                 if (metric.getLabels().containsKey(key)) {
                                                     metric.getLabels().put("exported_" + key, metric.getLabels().get(key));

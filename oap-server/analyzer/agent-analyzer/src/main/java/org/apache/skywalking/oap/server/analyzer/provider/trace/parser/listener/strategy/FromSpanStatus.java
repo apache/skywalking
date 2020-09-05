@@ -16,21 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.prometheus;
+package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * The Prometheus telemetry implementor settings.
+ * If the status of any span is an error, the status of the segment would be an error.
  */
-@Setter
-@Getter
-public class PrometheusConfig extends ModuleConfig {
-    private String host = "0.0.0.0";
-    private int port = 1234;
-    private boolean sslEnabled = false;
-    private String sslKeyPath;
-    private String sslCertChainPath;
+public class FromSpanStatus implements SegmentStatusAnalyzer {
+
+    @Override
+    public boolean isError(final SpanObject spanObject) {
+        return spanObject.getIsError();
+    }
 }

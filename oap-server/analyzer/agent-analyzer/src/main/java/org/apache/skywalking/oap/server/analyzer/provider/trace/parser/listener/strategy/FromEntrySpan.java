@@ -16,21 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.prometheus;
+package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 
 /**
- * The Prometheus telemetry implementor settings.
+ * FromEntrySpan means the status of the segment is the same as the status of the entry span. If the entry span does not
+ * exist, the final state of the segment is successful.
  */
-@Setter
-@Getter
-public class PrometheusConfig extends ModuleConfig {
-    private String host = "0.0.0.0";
-    private int port = 1234;
-    private boolean sslEnabled = false;
-    private String sslKeyPath;
-    private String sslCertChainPath;
+public class FromEntrySpan implements SegmentStatusAnalyzer {
+
+    @Override
+    public boolean isError(final SpanObject spanObject) {
+        return spanObject.getSpanType().equals(SpanType.Entry) && spanObject.getIsError();
+    }
 }
