@@ -40,7 +40,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.profile.ProfileStatusReference;
 import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
-import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -55,18 +54,13 @@ import org.apache.skywalking.apm.util.StringUtil;
  * ContextCarrier} or {@link ContextSnapshot}.
  */
 public class TracingContext implements AbstractTracerContext {
-    private static final ILog logger = LogManager.getLogger(TracingContext.class);
+    private static final ILog LOGGER = LogManager.getLogger(TracingContext.class);
     private long lastWarningTimestamp = 0;
 
     /**
      * @see ProfileTaskExecutionService
      */
     private static ProfileTaskExecutionService PROFILE_TASK_EXECUTION_SERVICE;
-
-    /**
-     * @see SamplingService
-     */
-    private static SamplingService SAMPLING_SERVICE;
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
@@ -122,10 +116,6 @@ public class TracingContext implements AbstractTracerContext {
         isRunningInAsyncMode = false;
         createTime = System.currentTimeMillis();
         running = true;
-
-        if (SAMPLING_SERVICE == null) {
-            SAMPLING_SERVICE = ServiceManager.INSTANCE.findService(SamplingService.class);
-        }
 
         // profiling status
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
@@ -300,10 +290,6 @@ public class TracingContext implements AbstractTracerContext {
         }
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        /*
-         * From v6.0.0-beta, local span doesn't do op name register.
-         * All op name register is related to entry and exit spans only.
-         */
         AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName, this);
         span.start();
         return push(span);
@@ -438,20 +424,7 @@ public class TracingContext implements AbstractTracerContext {
 
             if (isFinishedInMainThread && (!isRunningInAsyncMode || asyncSpanCounter == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
-                /*
-                 * Recheck the segment if the segment contains only one span.
-                 * Because in the runtime, can't sure this segment is part of distributed trace.
-                 *
-                 * @see {@link #createSpan(String, long, boolean)}
-                 */
-                if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-                    if (!SAMPLING_SERVICE.trySampling()) {
-                        finishedSegment.setIgnore(true);
-                    }
-                }
-
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);
-
                 running = false;
             }
         } finally {
@@ -559,7 +532,7 @@ public class TracingContext implements AbstractTracerContext {
         if (spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT) {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastWarningTimestamp > 30 * 1000) {
-                logger.warn(
+                LOGGER.warn(
                     new RuntimeException("Shadow tracing context. Thread dump"),
                     "More than {} spans required to create", Config.Agent.SPAN_LIMIT_PER_SEGMENT
                 );

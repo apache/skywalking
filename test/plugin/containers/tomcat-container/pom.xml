@@ -32,9 +32,104 @@
     <artifactId>tomcat-container</artifactId>
     <name>SkyWalking Tomcat Runner Image</name>
 
-    <properties>
-        <skip.docker>false</skip.docker>
-        <docker.image.name>skywalking/agent-test-tomcat</docker.image.name>
-    </properties>
+    <profiles>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.33.0</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>skywalking/agent-test-tomcat:${project.version}</name>
+                                    <build>
+                                        <from>tomcat:8.5.57-jdk8-openjdk</from>
+                                        <workdir>/usr/local/skywalking/scenario</workdir>
+                                        <env>
+                                            <CATALINA_OPTS>""</CATALINA_OPTS>
+                                        </env>
+                                        <assembly>
+                                            <mode>dir</mode>
+                                            <targetDir>/</targetDir>
+                                            <descriptor>assembly.xml</descriptor>
+                                        </assembly>
+                                        <runCmds>
+                                            <run>chmod +x /run.sh</run>
+                                            <run>chmod +x /usr/local/tomcat/bin/catalina.sh</run>
+                                            <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
+                                        </runCmds>
+                                        <cmd>["/run.sh"]</cmd>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>jdk14</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.33.0</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>skywalking/agent-test-tomcat:jd414-${project.version}</name>
+                                    <build>
+                                        <from>tomcat:8.5.57-jdk14-openjdk</from>
+                                        <workdir>/usr/local/skywalking/scenario</workdir>
+                                        <env>
+                                            <CATALINA_OPTS>""</CATALINA_OPTS>
+                                        </env>
+                                        <assembly>
+                                            <mode>dir</mode>
+                                            <targetDir>/</targetDir>
+                                            <descriptor>assembly.xml</descriptor>
+                                        </assembly>
+                                        <runCmds>
+                                            <run>chmod +x /run.sh</run>
+                                            <run>chmod +x /usr/local/tomcat/bin/catalina.sh</run>
+                                            <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
+                                        </runCmds>
+                                        <cmd>["/run.sh"]</cmd>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 
 </project>

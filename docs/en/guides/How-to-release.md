@@ -218,6 +218,7 @@ All PMC members and committers should check these before vote +1.
 are in `https://dist.apache.org/repos/dist/dev/skywalking/x.y.z` with .asc, .sha512
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum -c apache-skywalking-apm-x.y.z-src.tgz.sha512`
+1. Check `gpg --verify apache-skywalking-apm-x.y.z-src.tgz.asc apache-skywalking-apm-x.y.z-src.tgz`
 1. Build distribution from source code package (apache-skywalking-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/skywalking/blob/master/docs/en/guides/How-to-build.md#build-from-apache-source-code-release).
 1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
 

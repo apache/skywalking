@@ -18,11 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import com.google.common.base.Strings;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +40,13 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
+import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 
 /**
  * AvgPercentile intends to calculate percentile based on the average of raw values over the interval(minute, hour or day).
@@ -53,6 +62,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
 public abstract class AvgHistogramPercentileFunction extends Metrics implements AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument>, MultiIntValuesHolder {
+    private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
     public static final String VALUE = "value";
@@ -125,11 +135,17 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
 
         this.entityId = entity.id();
 
+        String template = "%s";
+        if (!Strings.isNullOrEmpty(value.getBucketedValues().getGroup())) {
+            template  = value.getBucketedValues().getGroup() + ":%s";
+        }
         final long[] values = value.getBucketedValues().getValues();
         for (int i = 0; i < values.length; i++) {
-            String bucketName = String.valueOf(value.getBucketedValues().getBuckets()[i]);
-            summation.valueAccumulation(bucketName, values[i]);
-            count.valueAccumulation(bucketName, 1L);
+            long bucket = value.getBucketedValues().getBuckets()[i];
+            String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
+            String key = String.format(template, bucketName);
+            summation.valueAccumulation(key, values[i]);
+            count.valueAccumulation(key, 1L);
         }
 
         this.isCalculated = false;
@@ -139,12 +155,6 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     public void combine(final Metrics metrics) {
         AvgHistogramPercentileFunction percentile = (AvgHistogramPercentileFunction) metrics;
 
-        if (!summation.keysEqual(percentile.getSummation())) {
-            log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
-                     percentile, this, entityId
-            );
-            return;
-        }
         if (ranks.size() > 0) {
             if (this.ranks.size() != ranks.size()) {
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
@@ -168,38 +178,64 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     @Override
     public void calculate() {
         if (!isCalculated) {
-            final List<String> sortedKeys = summation.sortedKeys(Comparator.comparingInt(Integer::parseInt));
-            for (String key : sortedKeys) {
-                dataset.put(key, summation.get(key) / count.get(key));
-            }
-
-            long total = dataset.sumOfValues();
-
-            int[] roofs = new int[ranks.size()];
-            for (int i = 0; i < ranks.size(); i++) {
-                roofs[i] = Math.round(total * ranks.get(i) * 1.0f / 100);
-            }
-
-            int count = 0;
-            int loopIndex = 0;
-
-            for (int i = 0; i < sortedKeys.size(); i++) {
-                String key = sortedKeys.get(i);
-                final Long value = dataset.get(key);
-
-                count += value;
-                for (int rankIdx = loopIndex; rankIdx < roofs.length; rankIdx++) {
-                    int roof = roofs[rankIdx];
-
-                    if (count >= roof) {
-                        long latency = (i + 1 == sortedKeys.size()) ? Long.MAX_VALUE : Long.parseLong(sortedKeys.get(i + 1));
-                        percentileValues.put(String.valueOf(ranks.get(rankIdx)), latency);
-                        loopIndex++;
-                    } else {
-                        break;
+            final Set<String> keys = summation.keys();
+            for (String key : keys) {
+                long value = 0;
+                if (count.get(key) != 0) {
+                    value = summation.get(key) / count.get(key);
+                    if (value == 0L && summation.get(key) > 0L) {
+                        value = 1;
                     }
                 }
+                dataset.put(key, value);
             }
+            dataset.keys().stream()
+                .map(key -> {
+                    if (key.contains(":")) {
+                        String[] kk = key.split(":");
+                        return Tuple.of(kk[0], key);
+                    } else {
+                        return Tuple.of(DEFAULT_GROUP, key);
+                    }
+                })
+                .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, Collector.of(
+                    DataTable::new,
+                    (dt, key) -> dt.put(key.contains(":") ? key.split(":")[1] : key, dataset.get(key)),
+                    DataTable::append))))
+                .forEach((group, subDataset) -> {
+                    long total;
+                    total = subDataset.sumOfValues();
+
+                    int[] roofs = new int[ranks.size()];
+                    for (int i = 0; i < ranks.size(); i++) {
+                        roofs[i] = Math.round(total * ranks.get(i) * 1.0f / 100);
+                    }
+
+                    int count = 0;
+                    final List<String> sortedKeys = subDataset.sortedKeys(Comparator.comparingLong(Long::parseLong));
+
+                    int loopIndex = 0;
+
+                    for (String key : sortedKeys) {
+                        final Long value = subDataset.get(key);
+
+                        count += value;
+                        for (int rankIdx = loopIndex; rankIdx < roofs.length; rankIdx++) {
+                            int roof = roofs[rankIdx];
+
+                            if (count >= roof) {
+                                if (group.equals(DEFAULT_GROUP)) {
+                                    percentileValues.put(String.valueOf(ranks.get(rankIdx)), Long.parseLong(key));
+                                } else {
+                                    percentileValues.put(String.format("%s:%s", group, ranks.get(rankIdx)), Long.parseLong(key));
+                                }
+                                loopIndex++;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                });
         }
     }
 

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchProcessEsDAO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchProcessEsDAO.class);
 
     private BulkProcessor bulkProcessor;
     private final int bulkActions;

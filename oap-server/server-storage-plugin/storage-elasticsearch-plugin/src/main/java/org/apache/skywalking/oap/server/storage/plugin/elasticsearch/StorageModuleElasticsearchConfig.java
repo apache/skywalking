@@ -20,56 +20,15 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
 import lombok.Getter;
 import lombok.Setter;
-
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
+@Setter
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
-    @Setter
     private String nameSpace;
-    @Setter
     private String clusterNodes;
-    @Getter
-    @Setter
     String protocol = "http";
-    @Setter
-    private int indexShardsNumber = 1;
-    @Setter
-    private int superDatasetIndexShardsFactor = 5;
-    @Setter
-    private int indexReplicasNumber = 0;
-    @Setter
-    private int indexRefreshInterval = 2;
-    @Setter
-    private int bulkActions = 2000;
-    @Setter
-    private int flushInterval = 10;
-    @Setter
-    private int concurrentRequests = 2;
-    /**
-     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
-     */
-    @Setter
-    private String user;
-    /**
-     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
-     */
-    @Setter
-    private String password;
-    /**
-     * Secrets management file includes the username, password, which are managed by 3rd party tool.
-     */
-    @Getter
-    private String secretsManagementFile;
-    @Getter
-    @Setter
-    private String trustStorePath;
-    /**
-     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
-     */
-    @Getter
-    @Setter
-    private String trustStorePass;
     /**
      * Since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
      * storage creates new indexes in every day.
@@ -78,22 +37,43 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * with previous versions. But if there isn't much traffic for single one day, user could set the step larger to
      * reduce the number of indexes, and keep the TTL longer.
      */
-    @Getter
     private int dayStep = 1;
+    private int indexReplicasNumber = 0;
+    private int indexShardsNumber = 1;
     /**
      * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater than 0
      */
-    @Getter
     private int superDatasetDayStep = -1;
-    @Setter
+    /**
+     * @see SuperDataset
+     * @since 8.2.0, the replicas number is for super size dataset record replicas number
+     */
+    private int superDatasetIndexReplicasNumber = 0;
+    private int superDatasetIndexShardsFactor = 5;
+    private int indexRefreshInterval = 2;
+    private int bulkActions = 2000;
+    private int flushInterval = 10;
+    private int concurrentRequests = 2;
+    /**
+     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
+     */
+    private String user;
+    /**
+     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
+     */
+    private String password;
+    /**
+     * Secrets management file includes the username, password, which are managed by 3rd party tool.
+     */
+    private String secretsManagementFile;
+    private String trustStorePath;
+    /**
+     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
+     */
+    private String trustStorePass;
     private int resultWindowMaxSize = 10000;
-    @Setter
     private int metadataQueryMaxSize = 5000;
-    @Setter
     private int segmentQueryMaxSize = 200;
-    @Setter
     private int profileTaskQueryMaxSize = 200;
-    @Setter
     private String advanced;
-
 }

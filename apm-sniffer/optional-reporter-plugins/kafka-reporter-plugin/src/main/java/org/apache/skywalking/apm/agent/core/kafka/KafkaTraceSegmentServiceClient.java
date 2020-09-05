@@ -37,7 +37,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
  */
 @OverrideImplementor(TraceSegmentServiceClient.class)
 public class KafkaTraceSegmentServiceClient implements BootService, TracingContextListener {
-    private static final ILog logger = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
+    private static final ILog LOGGER = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
 
     private String topic;
     private KafkaProducer<String, Bytes> producer;
@@ -64,12 +64,12 @@ public class KafkaTraceSegmentServiceClient implements BootService, TracingConte
 
     @Override
     public void afterFinished(final TraceSegment traceSegment) {
-        if (logger.isDebugEnable()) {
-            logger.debug("Trace segment reporting, traceId: {}", traceSegment.getTraceSegmentId());
+        if (LOGGER.isDebugEnable()) {
+            LOGGER.debug("Trace segment reporting, traceId: {}", traceSegment.getTraceSegmentId());
         }
 
         if (traceSegment.isIgnore()) {
-            logger.debug("Trace[TraceId={}] is ignored.", traceSegment.getTraceSegmentId());
+            LOGGER.debug("Trace[TraceId={}] is ignored.", traceSegment.getTraceSegmentId());
             return;
         }
         SegmentObject upstreamSegment = traceSegment.transform();

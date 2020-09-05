@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider.jvm;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.CPU;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
@@ -38,11 +39,9 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMThread;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class JVMSourceDispatcher {
-    private static final Logger logger = LoggerFactory.getLogger(JVMSourceDispatcher.class);
     private final SourceReceiver sourceReceiver;
 
     public JVMSourceDispatcher(ModuleManager moduleManager) {
@@ -75,10 +74,12 @@ public class JVMSourceDispatcher {
                                         CPU cpu) {
         ServiceInstanceJVMCPU serviceInstanceJVMCPU = new ServiceInstanceJVMCPU();
         serviceInstanceJVMCPU.setId(serviceInstanceId);
-        serviceInstanceJVMCPU.setName(service);
+        serviceInstanceJVMCPU.setName(serviceInstance);
         serviceInstanceJVMCPU.setServiceId(serviceId);
-        serviceInstanceJVMCPU.setServiceName(serviceInstance);
-        serviceInstanceJVMCPU.setUsePercent(cpu.getUsagePercent());
+        serviceInstanceJVMCPU.setServiceName(service);
+        // If the cpu usage percent is less than 1, will set to 1
+        double adjustedCpuUsagePercent = Math.max(cpu.getUsagePercent(), 1.0);
+        serviceInstanceJVMCPU.setUsePercent(adjustedCpuUsagePercent);
         serviceInstanceJVMCPU.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceJVMCPU);
     }
@@ -92,9 +93,9 @@ public class JVMSourceDispatcher {
         gcs.forEach(gc -> {
             ServiceInstanceJVMGC serviceInstanceJVMGC = new ServiceInstanceJVMGC();
             serviceInstanceJVMGC.setId(serviceInstanceId);
-            serviceInstanceJVMGC.setName(service);
+            serviceInstanceJVMGC.setName(serviceInstance);
             serviceInstanceJVMGC.setServiceId(serviceId);
-            serviceInstanceJVMGC.setServiceName(serviceInstance);
+            serviceInstanceJVMGC.setServiceName(service);
 
             switch (gc.getPhrase()) {
                 case NEW:
@@ -121,9 +122,9 @@ public class JVMSourceDispatcher {
         memories.forEach(memory -> {
             ServiceInstanceJVMMemory serviceInstanceJVMMemory = new ServiceInstanceJVMMemory();
             serviceInstanceJVMMemory.setId(serviceInstanceId);
-            serviceInstanceJVMMemory.setName(service);
+            serviceInstanceJVMMemory.setName(serviceInstance);
             serviceInstanceJVMMemory.setServiceId(serviceId);
-            serviceInstanceJVMMemory.setServiceName(serviceInstance);
+            serviceInstanceJVMMemory.setServiceName(service);
             serviceInstanceJVMMemory.setHeapStatus(memory.getIsHeap());
             serviceInstanceJVMMemory.setInit(memory.getInit());
             serviceInstanceJVMMemory.setMax(memory.getMax());
@@ -144,9 +145,9 @@ public class JVMSourceDispatcher {
         memoryPools.forEach(memoryPool -> {
             ServiceInstanceJVMMemoryPool serviceInstanceJVMMemoryPool = new ServiceInstanceJVMMemoryPool();
             serviceInstanceJVMMemoryPool.setId(serviceInstanceId);
-            serviceInstanceJVMMemoryPool.setName(service);
+            serviceInstanceJVMMemoryPool.setName(serviceInstance);
             serviceInstanceJVMMemoryPool.setServiceId(serviceId);
-            serviceInstanceJVMMemoryPool.setServiceName(serviceInstance);
+            serviceInstanceJVMMemoryPool.setServiceName(service);
 
             switch (memoryPool.getType()) {
                 case NEWGEN_USAGE:
@@ -186,9 +187,9 @@ public class JVMSourceDispatcher {
             Thread thread) {
         ServiceInstanceJVMThread serviceInstanceJVMThread = new ServiceInstanceJVMThread();
         serviceInstanceJVMThread.setId(serviceInstanceId);
-        serviceInstanceJVMThread.setName(service);
+        serviceInstanceJVMThread.setName(serviceInstance);
         serviceInstanceJVMThread.setServiceId(serviceId);
-        serviceInstanceJVMThread.setServiceName(serviceInstance);
+        serviceInstanceJVMThread.setServiceName(service);
         serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
         serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
         serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());

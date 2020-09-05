@@ -53,6 +53,7 @@
 - postgresql-8.x
 - pulsar
 - quasar
+- quartz-scheduler-2.x
 - rabbitmq-5.x
 - redisson-3.x
 - resteasy-server-3.x
@@ -82,6 +83,7 @@
 - spring-mvc-annotation-4.x
 - spring-mvc-annotation-5.x
 - spring-resttemplate-4.x
+- spring-scheduled-annotation
 - spring-tx
 - spring-webflux-5.x
 - spymemcached-2.x

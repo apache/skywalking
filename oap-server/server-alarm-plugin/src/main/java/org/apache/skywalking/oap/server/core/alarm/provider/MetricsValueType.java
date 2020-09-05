@@ -19,5 +19,5 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 public enum MetricsValueType {
-    LONG, INT, DOUBLE, MULTI_INTS
+    LONG, INT, DOUBLE, LABELED_LONG, MULTI_INTS
 }

@@ -226,7 +226,7 @@ public class ClusterE2E extends SkyWalkingTestAdapter {
             }
 
             for (String metricName : ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS) {
-                verifyPercentileMetrics(graphql, metricName, endpoint.getKey(), startTime, 0, null);
+                verifyPercentileMetrics(graphql, metricName, endpoint.getKey(), startTime);
             }
         }
     }
@@ -238,7 +238,7 @@ public class ClusterE2E extends SkyWalkingTestAdapter {
             verifyMetrics(graphql, metricName, service.getKey(), startTime);
         }
         for (String metricName : ALL_SERVICE_MULTIPLE_LINEAR_METRICS) {
-            verifyPercentileMetrics(graphql, metricName, service.getKey(), startTime, 0, null);
+            verifyPercentileMetrics(graphql, metricName, service.getKey(), startTime);
         }
     }
 

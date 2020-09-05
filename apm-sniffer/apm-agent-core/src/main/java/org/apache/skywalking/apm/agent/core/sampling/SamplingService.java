@@ -41,7 +41,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  */
 @DefaultImplementor
 public class SamplingService implements BootService {
-    private static final ILog logger = LogManager.getLogger(SamplingService.class);
+    private static final ILog LOGGER = LogManager.getLogger(SamplingService.class);
 
     private volatile boolean on = false;
     private volatile AtomicInteger samplingFactorHolder;
@@ -67,8 +67,8 @@ public class SamplingService implements BootService {
             ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("SamplingService"));
             scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(
-                this::resetSamplingFactor, t -> logger.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
-            logger.debug(
+                this::resetSamplingFactor, t -> LOGGER.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
+            LOGGER.debug(
                 "Agent sampling mechanism started. Sample {} traces in 3 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
         }
     }
@@ -86,9 +86,10 @@ public class SamplingService implements BootService {
     }
 
     /**
+     * @param operationName The first operation name of the new tracing context.
      * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
-    public boolean trySampling() {
+    public boolean trySampling(String operationName) {
         if (on) {
             int factor = samplingFactorHolder.get();
             if (factor < Config.Agent.SAMPLE_N_PER_3_SECS) {

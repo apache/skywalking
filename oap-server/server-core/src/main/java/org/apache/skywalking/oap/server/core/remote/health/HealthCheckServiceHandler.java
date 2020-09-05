@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class HealthCheckServiceHandler extends HealthGrpc.HealthImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckServiceHandler.class);
 
     /**
      * By my test, consul didn't send the service.
@@ -39,8 +39,8 @@ public class HealthCheckServiceHandler extends HealthGrpc.HealthImplBase impleme
     public void check(HealthCheckService.HealthCheckRequest request,
         StreamObserver<HealthCheckService.HealthCheckResponse> responseObserver) {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received the gRPC server health check with the service name of {}", request.getService());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Received the gRPC server health check with the service name of {}", request.getService());
         }
 
         HealthCheckService.HealthCheckResponse.Builder response = HealthCheckService.HealthCheckResponse.newBuilder();

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class ClusterModuleStandaloneProvider extends ModuleProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
 
     public ClusterModuleStandaloneProvider() {
         super();

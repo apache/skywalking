@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class BootstrapFlow {
-    private static final Logger logger = LoggerFactory.getLogger(BootstrapFlow.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapFlow.class);
 
     private Map<String, ModuleDefine> loadedModules;
     private List<ModuleProvider> startupSequence;
@@ -52,7 +52,7 @@ class BootstrapFlow {
                     }
                 }
             }
-            logger.info("start the provider {} in {} module.", provider.name(), provider.getModuleName());
+            LOGGER.info("start the provider {} in {} module.", provider.name(), provider.getModuleName());
             provider.requiredCheck(provider.getModule().services());
 
             provider.start();

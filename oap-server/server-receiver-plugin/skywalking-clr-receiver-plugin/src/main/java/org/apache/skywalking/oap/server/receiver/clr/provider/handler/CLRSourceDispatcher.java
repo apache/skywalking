@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  **/
 public class CLRSourceDispatcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(CLRSourceDispatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CLRSourceDispatcher.class);
     private final SourceReceiver sourceReceiver;
 
     public CLRSourceDispatcher(ModuleManager moduleManager) {
@@ -80,7 +80,7 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRThread.setMaxCompletionPortThreads(thread.getMaxCompletionPortThreads());
         serviceInstanceCLRThread.setMaxWorkerThreads(thread.getMaxWorkerThreads());
         serviceInstanceCLRThread.setTimeBucket(minuteTimeBucket);
-        serviceInstanceCLRThread.setId(serviceInstance);
+        serviceInstanceCLRThread.setId(serviceInstanceId);
         serviceInstanceCLRThread.setName(service);
         serviceInstanceCLRThread.setServiceId(serviceId);
         serviceInstanceCLRThread.setServiceName(serviceInstance);

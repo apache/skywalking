@@ -172,4 +172,8 @@ public class ComponentsDefine {
     public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
 
     public static final OfficialComponent SPRING_KAFKA_CONSUMER = new OfficialComponent(95, "spring-kafka-consumer");
+
+    public static final OfficialComponent SPRING_SCHEDULED = new OfficialComponent(96, "SpringScheduled");
+
+    public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(97, "quartz-scheduler");
 }

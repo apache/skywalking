@@ -104,7 +104,9 @@ public class StorageEsInstaller extends ModelInstaller {
     protected Map<String, Object> createSetting(Model model) {
         Map<String, Object> setting = new HashMap<>();
 
-        setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
+        setting.put("index.number_of_replicas", model.isSuperDataset()
+            ? config.getSuperDatasetIndexReplicasNumber()
+            : config.getIndexReplicasNumber());
         setting.put("index.number_of_shards", model.isSuperDataset()
             ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
             : config.getIndexShardsNumber());
