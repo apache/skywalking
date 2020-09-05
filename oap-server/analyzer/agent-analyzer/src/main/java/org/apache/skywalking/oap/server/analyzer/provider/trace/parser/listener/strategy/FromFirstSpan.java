@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 
 /**
  * FromFirstSpan means the status of the segment is the same as the status of the first span. Mostly, the first span is
@@ -29,6 +28,6 @@ public class FromFirstSpan implements SegmentStatusAnalyzer {
 
     @Override
     public boolean isError(final SpanObject spanObject) {
-        return spanObject.getSpanType().equals(SpanType.Entry) && spanObject.getIsError();
+        return spanObject.getSpanId() == 0 && spanObject.getIsError();
     }
 }
