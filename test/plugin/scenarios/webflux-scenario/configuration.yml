@@ -17,4 +17,5 @@
 type: jvm
 entryService: http://localhost:8080/projectA/testcase
 healthCheck: http://localhost:8080/projectA/healthCheck
+runningMode: with_optional
 startScript: ./bin/startup.sh
