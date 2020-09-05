@@ -41,6 +41,7 @@
         <module>spring-webflux-5.x-plugin</module>
         <module>spring-kafka-2.x-plugin</module>
         <module>scheduled-annotation-plugin</module>
+        <module>spring-rmi-5.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -55,6 +55,7 @@ jobs:
           - { name: 'hbase-scenario', title: 'hbase-scenario (5)' }
           - { name: 'spring-kafka-2.2.x-scenario', title: 'Spring-Kafka 2.2.x (7)' }
           - { name: 'spring-kafka-2.3.x-scenario', title: 'Spring-Kafka 2.3.x (7)' }
+          - { name: 'spring-rmi-5.x-scenario', title: 'Spring-Rmi 5.x (48)' }
           - { name: 'spring-scheduled-scenario', title: 'Spring Scheduled 3.1.x-5.2.x (9)' }
           - { name: 'elasticjob-2.x-scenario', title: 'elasticjob-2.x-scenario (2)' }
           - { name: 'quartz-scheduler-2.x-scenario', title: 'quartz-scheduler-2.x-scenario (5)' }
