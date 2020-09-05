@@ -37,7 +37,7 @@ public enum SegmentStatusStrategy {
      */
     FROM_ENTRY_SPAN(new FromEntrySpan()),
     /**
-     * FROM_FIRST_SPAN` means the segment status would be determined by the status of the first span only.
+     * `FROM_FIRST_SPAN` means the segment status would be determined by the status of the first span only.
      */
     FROM_FIRST_SPAN(new FromFirstSpan());
 
