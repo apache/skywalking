@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.apm.agent.core.context.status;
 
+import java.util.Set;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.api.support.membermodification.MemberModifier;
 
 import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.HIERARCHY_MATCH;
 import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.OFF;
@@ -34,6 +37,16 @@ public class StatusCheckerTest {
         Config.StatusCheck.IGNORED_EXCEPTIONS = "org.apache.skywalking.apm.agent.core.context.status.TestNamedMatchException";
         Config.StatusCheck.MAX_RECURSIVE_DEPTH = 1;
         ServiceManager.INSTANCE.boot();
+    }
+
+    @After
+    public void after() throws IllegalAccessException {
+        ((Set) MemberModifier
+            .field(ExceptionCheckContext.class, "ignoredExceptions")
+            .get(ExceptionCheckContext.INSTANCE)).clear();
+        ((Set) MemberModifier
+            .field(ExceptionCheckContext.class, "errorStatusExceptions")
+            .get(ExceptionCheckContext.INSTANCE)).clear();
     }
 
     @Test

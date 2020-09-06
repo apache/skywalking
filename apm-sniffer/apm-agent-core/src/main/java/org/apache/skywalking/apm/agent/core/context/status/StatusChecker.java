@@ -44,7 +44,7 @@ public enum StatusChecker {
         new AnnotationMatchExceptionCheckStrategy()
     ));
 
-    private final List<ExceptionCheckStrategy> strategies;
+    private final List<ExceptionCheckStrategy> uncheckedMatchStrategies;
 
     public boolean checkStatus(Throwable e) {
         int maxDepth = Config.StatusCheck.MAX_RECURSIVE_DEPTH;
@@ -57,6 +57,8 @@ public enum StatusChecker {
     }
 
     private boolean check(final Throwable e) {
-        return strategies.stream().allMatch(item -> item.isError(e));
+        return ExceptionCheckContext.INSTANCE.isChecked(e)
+            ? ExceptionCheckContext.INSTANCE.isError(e)
+            : uncheckedMatchStrategies.stream().allMatch(item -> item.isError(e));
     }
 }

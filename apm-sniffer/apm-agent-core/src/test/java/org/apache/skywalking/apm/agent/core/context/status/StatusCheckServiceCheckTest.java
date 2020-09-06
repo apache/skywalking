@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.apm.agent.core.context.status;
 
+import java.util.Set;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.api.support.membermodification.MemberModifier;
 
 public class StatusCheckServiceCheckTest {
 
@@ -38,6 +41,16 @@ public class StatusCheckServiceCheckTest {
         exception1 = new TestNamedMatchException();
         exception2 = new IllegalArgumentException(exception1);
         exception3 = new IllegalArgumentException(exception2);
+    }
+
+    @After
+    public void after() throws IllegalAccessException {
+        ((Set) MemberModifier
+            .field(ExceptionCheckContext.class, "ignoredExceptions")
+            .get(ExceptionCheckContext.INSTANCE)).clear();
+        ((Set) MemberModifier
+            .field(ExceptionCheckContext.class, "errorStatusExceptions")
+            .get(ExceptionCheckContext.INSTANCE)).clear();
     }
 
     @Test

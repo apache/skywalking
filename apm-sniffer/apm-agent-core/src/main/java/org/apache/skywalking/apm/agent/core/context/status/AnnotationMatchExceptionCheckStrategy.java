@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context.status;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 /**
@@ -29,24 +27,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  */
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
-    private final Set<Class<? extends Throwable>> ignoredExceptions = ConcurrentHashMap.newKeySet(32);
-    private final Set<Class<? extends Throwable>> errorStatusExceptions = ConcurrentHashMap.newKeySet(128);
     private static final String TAG_NAME = AnnotationMatchExceptionCheckStrategy.class.getSimpleName();
 
     @Override
     public boolean isError(final Throwable e) {
-        Class<? extends Throwable> clazz = e.getClass();
-        if (ignoredExceptions.contains(clazz)) {
-            return false;
-        }
-        if (errorStatusExceptions.contains(clazz)) {
-            return true;
-        }
         if (e instanceof EnhancedInstance && TAG_NAME.equals(((EnhancedInstance) e).getSkyWalkingDynamicField())) {
-            ignoredExceptions.add(clazz);
+            ExceptionCheckContext.INSTANCE.registerIgnoredException(e);
             return false;
         } else {
-            errorStatusExceptions.add(clazz);
+            ExceptionCheckContext.INSTANCE.registerErrorStatusException(e);
             return true;
         }
     }

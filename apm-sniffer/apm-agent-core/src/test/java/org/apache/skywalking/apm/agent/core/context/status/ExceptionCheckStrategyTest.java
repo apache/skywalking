@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.context.status;
 import java.util.Set;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,16 @@ public class ExceptionCheckStrategyTest {
         ServiceManager.INSTANCE.boot();
     }
 
+    @After
+    public void after() throws IllegalAccessException {
+        ((Set) MemberModifier
+            .field(ExceptionCheckContext.class, "ignoredExceptions")
+            .get(ExceptionCheckContext.INSTANCE)).clear();
+        ((Set) MemberModifier
+            .field(ExceptionCheckContext.class, "errorStatusExceptions")
+            .get(ExceptionCheckContext.INSTANCE)).clear();
+    }
+
     @Test
     public void checkOffExceptionCheckStrategy() {
         OffExceptionCheckStrategy offExceptionCheckStrategy = new OffExceptionCheckStrategy();
@@ -46,10 +57,15 @@ public class ExceptionCheckStrategyTest {
         HierarchyMatchExceptionCheckStrategy hierarchyMatchExceptionCheckStrategy = new HierarchyMatchExceptionCheckStrategy();
         Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestNamedMatchException()));
         Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestInheriteMatchException()));
+        Assert.assertTrue(hierarchyMatchExceptionCheckStrategy.isError(new TestAnnotationMatchException()));
         Set ignoredExceptions = (Set) MemberModifier
-            .field(hierarchyMatchExceptionCheckStrategy.getClass(), "ignoredExceptions")
-            .get(hierarchyMatchExceptionCheckStrategy);
+            .field(ExceptionCheckContext.class, "ignoredExceptions")
+            .get(ExceptionCheckContext.INSTANCE);
+        Set errorStatusExceptions = (Set) MemberModifier
+            .field(ExceptionCheckContext.class, "errorStatusExceptions")
+            .get(ExceptionCheckContext.INSTANCE);
         Assert.assertTrue(ignoredExceptions.size() > 0);
+        Assert.assertTrue(errorStatusExceptions.size() > 0);
     }
 
     @Test
@@ -58,9 +74,13 @@ public class ExceptionCheckStrategyTest {
         Assert.assertFalse(annotationMatchExceptionCheckStrategy.isError(new TestAnnotationMatchException()));
         Assert.assertTrue(annotationMatchExceptionCheckStrategy.isError(new TestInheriteMatchException()));
         Set ignoredExceptions = (Set) MemberModifier
-            .field(annotationMatchExceptionCheckStrategy.getClass(), "ignoredExceptions")
-            .get(annotationMatchExceptionCheckStrategy);
+            .field(ExceptionCheckContext.class, "ignoredExceptions")
+            .get(ExceptionCheckContext.INSTANCE);
+        Set errorStatusExceptions = (Set) MemberModifier
+            .field(ExceptionCheckContext.class, "errorStatusExceptions")
+            .get(ExceptionCheckContext.INSTANCE);
         Assert.assertTrue(ignoredExceptions.size() > 0);
+        Assert.assertTrue(errorStatusExceptions.size() > 0);
     }
 
 }
