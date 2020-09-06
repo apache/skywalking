@@ -70,7 +70,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /create/
+    - operationName: '{POST}/create/'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -91,7 +91,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /get/{id}
+    - operationName: '{GET}/get/{id}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -112,7 +112,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /update/{id}
+    - operationName: '{PUT}/update/{id}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -133,7 +133,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /delete/{id}
+    - operationName: '{DELETE}/delete/{id}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -196,7 +196,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /impl/restmapping
+    - operationName: '{GET}/impl/restmapping'
       operationId: 0
       parentSpanId: -1
       spanId: 0
