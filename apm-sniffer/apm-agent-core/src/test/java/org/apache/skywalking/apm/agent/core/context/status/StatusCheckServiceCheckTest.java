@@ -72,8 +72,8 @@ public class StatusCheckServiceCheckTest {
     }
 
     @Test
-    public void testDepthNoLimit() {
-        Config.StatusCheck.MAX_RECURSIVE_DEPTH = -1;
+    public void testDepth_3() {
+        Config.StatusCheck.MAX_RECURSIVE_DEPTH = 3;
         StatusCheckService service = ServiceManager.INSTANCE.findService(StatusCheckService.class);
         Assert.assertFalse(service.isError(exception1));
         Assert.assertFalse(service.isError(exception2));
