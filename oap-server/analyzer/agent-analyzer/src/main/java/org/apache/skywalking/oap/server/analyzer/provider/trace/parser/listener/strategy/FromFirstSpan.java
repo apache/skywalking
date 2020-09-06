@@ -16,21 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.prometheus;
+package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * The Prometheus telemetry implementor settings.
+ * FromFirstSpan means the status of the segment is the same as the status of the first span. Mostly, the first span is
+ * an entry span. However, a tracing caused by a scheduled task, the first one should be a local span.
  */
-@Setter
-@Getter
-public class PrometheusConfig extends ModuleConfig {
-    private String host = "0.0.0.0";
-    private int port = 1234;
-    private boolean sslEnabled = false;
-    private String sslKeyPath;
-    private String sslCertChainPath;
+public class FromFirstSpan implements SegmentStatusAnalyzer {
+
+    @Override
+    public boolean isError(final SpanObject spanObject) {
+        return spanObject.getSpanId() == 0 && spanObject.getIsError();
+    }
 }

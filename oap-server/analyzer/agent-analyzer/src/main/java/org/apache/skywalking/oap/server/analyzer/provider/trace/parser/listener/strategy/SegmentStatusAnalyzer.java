@@ -16,21 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.prometheus;
+package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * The Prometheus telemetry implementor settings.
+ * The SegmentStatusAnalyzer implementations provide different strategies for determining the segment status from the
+ * status of spans.
  */
-@Setter
-@Getter
-public class PrometheusConfig extends ModuleConfig {
-    private String host = "0.0.0.0";
-    private int port = 1234;
-    private boolean sslEnabled = false;
-    private String sslKeyPath;
-    private String sslCertChainPath;
+public interface SegmentStatusAnalyzer {
+    /**
+     * @return false, if the status of the given status represents the fatal status of the whole segment based on the strategy
+     */
+    boolean isError(SpanObject spanObject);
 }

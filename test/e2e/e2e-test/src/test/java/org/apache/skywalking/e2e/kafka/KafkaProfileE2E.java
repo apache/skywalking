@@ -141,9 +141,8 @@ public class KafkaProfileE2E extends SkyWalkingTestAdapter {
     @Order(3)
     void createProfileTask() throws Exception {
         final ProfileTaskCreationRequest creationRequest = ProfileTaskCreationRequest.builder()
-                                                                                     .serviceId(
-                                                                                         "ZTJlLXByb2ZpbGUtc2VydmljZQ==.1")
-                                                                                     .endpointName("/profile/{name}")
+                                                                                     .serviceId("ZTJlLXByb2ZpbGUtc2VydmljZQ==.1")
+                                                                                     .endpointName("{POST}/profile/{name}")
                                                                                      .duration(1)
                                                                                      .startTime(-1)
                                                                                      .minDurationThreshold(1500)
