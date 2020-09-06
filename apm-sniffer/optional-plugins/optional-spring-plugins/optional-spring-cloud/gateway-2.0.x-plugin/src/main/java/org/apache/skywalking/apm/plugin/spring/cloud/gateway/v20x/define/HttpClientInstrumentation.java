@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpClientInstrumentation extends AbstractGateway200EnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {

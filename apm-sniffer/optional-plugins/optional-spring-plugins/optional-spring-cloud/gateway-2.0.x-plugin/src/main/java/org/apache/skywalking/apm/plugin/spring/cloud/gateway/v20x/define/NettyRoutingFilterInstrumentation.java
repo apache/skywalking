@@ -28,7 +28,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class NettyRoutingFilterInstrumentation extends AbstractGateway200EnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {

@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class DispatcherHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class DispatcherHandlerInstrumentation extends AbstractGateway200EnhancePluginDefine {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
