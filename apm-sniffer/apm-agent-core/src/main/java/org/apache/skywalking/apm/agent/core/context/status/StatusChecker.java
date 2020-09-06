@@ -49,7 +49,7 @@ public enum StatusChecker {
     public boolean checkStatus(Throwable e) {
         int maxDepth = Config.StatusCheck.MAX_RECURSIVE_DEPTH;
         boolean isError = true;
-        while (isError && Objects.nonNull(e) && maxDepth-- != 0) {
+        while (isError && Objects.nonNull(e) && maxDepth-- > 0) {
             isError = check(e);
             e = e.getCause();
         }
