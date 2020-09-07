@@ -36,13 +36,11 @@ public class HierarchyMatchExceptionCheckStrategy implements ExceptionCheckStrat
             try {
                 Class<?> parentClazz = Class.forName(ignoredExceptionName, true, clazz.getClassLoader());
                 if (parentClazz.isAssignableFrom(clazz)) {
-                    ExceptionCheckContext.INSTANCE.registerIgnoredException(e);
                     return false;
                 }
             } catch (ClassNotFoundException ignore) {
             }
         }
-        ExceptionCheckContext.INSTANCE.registerErrorStatusException(e);
         return true;
     }
 }

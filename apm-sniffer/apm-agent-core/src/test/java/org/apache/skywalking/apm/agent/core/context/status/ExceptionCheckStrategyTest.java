@@ -53,34 +53,18 @@ public class ExceptionCheckStrategyTest {
     }
 
     @Test
-    public void checkInheriteMatchExceptionCheckStrategy() throws IllegalAccessException {
+    public void checkInheriteMatchExceptionCheckStrategy() {
         HierarchyMatchExceptionCheckStrategy hierarchyMatchExceptionCheckStrategy = new HierarchyMatchExceptionCheckStrategy();
         Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestNamedMatchException()));
         Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestInheriteMatchException()));
         Assert.assertTrue(hierarchyMatchExceptionCheckStrategy.isError(new TestAnnotationMatchException()));
-        Set ignoredExceptions = (Set) MemberModifier
-            .field(ExceptionCheckContext.class, "ignoredExceptions")
-            .get(ExceptionCheckContext.INSTANCE);
-        Set errorStatusExceptions = (Set) MemberModifier
-            .field(ExceptionCheckContext.class, "errorStatusExceptions")
-            .get(ExceptionCheckContext.INSTANCE);
-        Assert.assertTrue(ignoredExceptions.size() > 0);
-        Assert.assertTrue(errorStatusExceptions.size() > 0);
     }
 
     @Test
-    public void checkAnnotationMatchExceptionCheckStrategy() throws IllegalAccessException {
+    public void checkAnnotationMatchExceptionCheckStrategy() {
         AnnotationMatchExceptionCheckStrategy annotationMatchExceptionCheckStrategy = new AnnotationMatchExceptionCheckStrategy();
         Assert.assertFalse(annotationMatchExceptionCheckStrategy.isError(new TestAnnotationMatchException()));
         Assert.assertTrue(annotationMatchExceptionCheckStrategy.isError(new TestInheriteMatchException()));
-        Set ignoredExceptions = (Set) MemberModifier
-            .field(ExceptionCheckContext.class, "ignoredExceptions")
-            .get(ExceptionCheckContext.INSTANCE);
-        Set errorStatusExceptions = (Set) MemberModifier
-            .field(ExceptionCheckContext.class, "errorStatusExceptions")
-            .get(ExceptionCheckContext.INSTANCE);
-        Assert.assertTrue(ignoredExceptions.size() > 0);
-        Assert.assertTrue(errorStatusExceptions.size() > 0);
     }
 
 }

@@ -31,12 +31,6 @@ public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStra
 
     @Override
     public boolean isError(final Throwable e) {
-        if (e instanceof EnhancedInstance && TAG_NAME.equals(((EnhancedInstance) e).getSkyWalkingDynamicField())) {
-            ExceptionCheckContext.INSTANCE.registerIgnoredException(e);
-            return false;
-        } else {
-            ExceptionCheckContext.INSTANCE.registerErrorStatusException(e);
-            return true;
-        }
+        return !(e instanceof EnhancedInstance) || !TAG_NAME.equals(((EnhancedInstance) e).getSkyWalkingDynamicField());
     }
 }

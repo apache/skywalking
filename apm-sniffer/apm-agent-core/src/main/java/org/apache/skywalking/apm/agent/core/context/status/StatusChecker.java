@@ -31,7 +31,11 @@ public enum StatusChecker {
     /**
      * All exceptions would make the span tagged as the error status.
      */
-    OFF(Collections.singletonList(new OffExceptionCheckStrategy())),
+    OFF(
+        Collections.singletonList(new OffExceptionCheckStrategy()),
+        (isError, throwable) -> {
+        }
+    ),
 
     /**
      * Hierarchy check the status of the traced exception.
@@ -39,12 +43,23 @@ public enum StatusChecker {
      * @see HierarchyMatchExceptionCheckStrategy
      * @see AnnotationMatchExceptionCheckStrategy
      */
-    HIERARCHY_MATCH(Arrays.asList(
-        new HierarchyMatchExceptionCheckStrategy(),
-        new AnnotationMatchExceptionCheckStrategy()
-    ));
+    HIERARCHY_MATCH(
+        Arrays.asList(
+            new HierarchyMatchExceptionCheckStrategy(),
+            new AnnotationMatchExceptionCheckStrategy()
+        ),
+        (isError, throwable) -> {
+            if (isError) {
+                ExceptionCheckContext.INSTANCE.registerErrorStatusException(throwable);
+            } else {
+                ExceptionCheckContext.INSTANCE.registerIgnoredException(throwable);
+            }
+        }
+    );
 
-    private final List<ExceptionCheckStrategy> uncheckedMatchStrategies;
+    private final List<ExceptionCheckStrategy> strategies;
+
+    private final ExceptionCheckCallback callback;
 
     public boolean checkStatus(Throwable e) {
         int maxDepth = Config.StatusCheck.MAX_RECURSIVE_DEPTH;
@@ -57,8 +72,19 @@ public enum StatusChecker {
     }
 
     private boolean check(final Throwable e) {
-        return ExceptionCheckContext.INSTANCE.isChecked(e)
+        boolean isError = ExceptionCheckContext.INSTANCE.isChecked(e)
             ? ExceptionCheckContext.INSTANCE.isError(e)
-            : uncheckedMatchStrategies.stream().allMatch(item -> item.isError(e));
+            : strategies.stream().allMatch(item -> item.isError(e));
+        callback.onChecked(isError, e);
+        return isError;
     }
+
+    /**
+     * The callback function would be triggered after an exception is checked by StatusChecker.
+     */
+    @FunctionalInterface
+    private interface ExceptionCheckCallback {
+        void onChecked(Boolean isError, Throwable throwable);
+    }
+
 }

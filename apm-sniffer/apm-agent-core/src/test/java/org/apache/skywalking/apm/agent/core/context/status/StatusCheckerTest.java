@@ -58,12 +58,20 @@ public class StatusCheckerTest {
     }
 
     @Test
-    public void checkInheritNamedAndAnnotationMatchStatusChecker() {
+    public void checkInheritNamedAndAnnotationMatchStatusChecker() throws IllegalAccessException {
         Assert.assertTrue(HIERARCHY_MATCH.checkStatus(new Throwable()));
         Assert.assertTrue(HIERARCHY_MATCH.checkStatus(new IllegalArgumentException()));
         Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestNamedMatchException()));
         Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestInheriteMatchException()));
         Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestAnnotationMatchException()));
+        Set ignoredExceptions = (Set) MemberModifier
+            .field(ExceptionCheckContext.class, "ignoredExceptions")
+            .get(ExceptionCheckContext.INSTANCE);
+        Set errorStatusExceptions = (Set) MemberModifier
+            .field(ExceptionCheckContext.class, "errorStatusExceptions")
+            .get(ExceptionCheckContext.INSTANCE);
+        Assert.assertTrue(ignoredExceptions.size() > 0);
+        Assert.assertTrue(errorStatusExceptions.size() > 0);
     }
 
 }
