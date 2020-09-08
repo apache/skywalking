@@ -15,16 +15,21 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define;
+package test.apache.skywalking.apm.testcase.sc.gateway.projectA;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public abstract class AbstractGateway200EnhancePluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
+@Configuration
+public class TestFilterConfig {
 
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {
-            "org.springframework.cloud.gateway.config.GatewayAutoConfiguration$1"
-        };
+    @Bean
+    public Test1Filter test1Filter() {
+        return new Test1Filter();
+    }
+
+    @Bean
+    public Test2Filter test2Filter() {
+        return new Test2Filter();
     }
 }
