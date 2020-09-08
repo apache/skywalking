@@ -18,40 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define;
 
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+public class ServerWebExchangeInstrumentation extends org.apache.skywalking.apm.plugin.spring.webflux.v5.define.ServerWebExchangeInstrumentation {
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
-
-public class ServerWebExchangeInstrumentation extends AbstractGateway200EnhancePluginDefine {
     @Override
-    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
-                }
-
-                @Override
-                public String getConstructorInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.ServerWebExchangeConstructorInterceptor";
-                }
-            }
+    protected String[] witnessClasses() {
+        return new String[] {
+            "org.springframework.cloud.gateway.config.GatewayAutoConfiguration$1"
         };
-    }
-
-    @Override
-    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[0];
-    }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName("org.springframework.web.server.adapter.DefaultServerWebExchange");
     }
 }

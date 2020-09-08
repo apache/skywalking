@@ -18,45 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define;
 
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
-
-public class DispatcherHandlerInstrumentation extends AbstractGateway200EnhancePluginDefine {
-    @Override
-    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
-    }
+public class DispatcherHandlerInstrumentation extends org.apache.skywalking.apm.plugin.spring.webflux.v5.define.DispatcherHandlerInstrumentation {
 
     @Override
-    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("handle");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.DispatcherHandlerHandleMethodInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
+    protected String[] witnessClasses() {
+        return new String[] {
+            "org.springframework.cloud.gateway.config.GatewayAutoConfiguration$1"
         };
-    }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName("org.springframework.web.reactive.DispatcherHandler");
     }
 }
