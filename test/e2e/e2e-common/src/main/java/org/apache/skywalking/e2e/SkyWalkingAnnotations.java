@@ -48,6 +48,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import static java.util.stream.Collectors.joining;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
 /**
@@ -203,22 +204,20 @@ public final class SkyWalkingAnnotations {
         final DockerComposeContainer<?> compose = new DockerComposeContainer<>(IDENTIFIER, files);
 
         if (!IS_CI) {
-            files.forEach(file -> {
-                try {
-                    DockerComposeFile dockerComposeFile = DockerComposeFile.getAllConfigInfo(
-                            file.getAbsolutePath());
-                    LOGGER.info(file.getAbsolutePath());
-                    dockerComposeFile.getServices().forEach(
-                            (service, ignored) -> {
-                                if (dockerComposeFile.isExposedPort(service, REMOTE_DEBUG_PORT)) {
-                                    REMOTE_SERVICE_NAMES.add(service);
-                                    compose.withExposedService(service, REMOTE_DEBUG_PORT, Wait.forListeningPort());
-                                }
-                            });
-                } catch (IOException | InterruptedException e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            });
+            List<String> filePathList =  files.stream().map(File::getAbsolutePath).collect(Collectors.toList());
+            try {
+                LOGGER.info("Parse files:{}", filePathList.stream().collect(joining(" ", " ", "")));
+                DockerComposeFile dockerComposeFile = DockerComposeFile.getAllConfigInfo(filePathList);
+
+                dockerComposeFile.getServices().forEach((service, ignored) -> {
+                    if (dockerComposeFile.isExposedPort(service, REMOTE_DEBUG_PORT)) {
+                        REMOTE_SERVICE_NAMES.add(service);
+                        compose.withExposedService(service, REMOTE_DEBUG_PORT, Wait.forListeningPort());
+                    }
+                });
+            } catch (IOException | InterruptedException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
 
         for (final Field field : fields) {
