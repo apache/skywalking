@@ -17,3 +17,5 @@
 spring-cloud-gateway-2.0.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define.NettyRoutingFilterInstrumentation
 spring-cloud-gateway-2.0.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define.HttpClientInstrumentation
 spring-cloud-gateway-2.0.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define.HttpClientRequestInstrumentation
+spring-cloud-gateway-2.0.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define.ServerWebExchangeInstrumentation
+spring-cloud-gateway-2.0.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define.DispatcherHandlerInstrumentation
