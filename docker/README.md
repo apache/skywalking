@@ -32,6 +32,7 @@ The tag of docker image. The default value is `latest`.
 ### ES_VERSION
 
 The elasticsearch version this image supports. The default value is `es6`, available values are `es6` and `es7`.
+If the image version is 7.+,please set the value to es7.
 
 
 For example, if we want to build images with a hub `foo.io` and a tag `bar`, and it supports elasticsearch 7 at the same time.
