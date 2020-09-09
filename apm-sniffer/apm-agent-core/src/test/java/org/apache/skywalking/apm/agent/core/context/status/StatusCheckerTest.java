@@ -52,7 +52,7 @@ public class StatusCheckerTest {
     @Test
     public void checkOffStatusChecker() {
         Assert.assertTrue(OFF.checkStatus(new Throwable()));
-        Assert.assertTrue(OFF.checkStatus(new TestInheriteMatchException()));
+        Assert.assertTrue(OFF.checkStatus(new TestHierarchyMatchException()));
         Assert.assertTrue(OFF.checkStatus(new TestNamedMatchException()));
         Assert.assertTrue(OFF.checkStatus(new IllegalArgumentException()));
     }
@@ -62,7 +62,7 @@ public class StatusCheckerTest {
         Assert.assertTrue(HIERARCHY_MATCH.checkStatus(new Throwable()));
         Assert.assertTrue(HIERARCHY_MATCH.checkStatus(new IllegalArgumentException()));
         Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestNamedMatchException()));
-        Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestInheriteMatchException()));
+        Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestHierarchyMatchException()));
         Assert.assertFalse(HIERARCHY_MATCH.checkStatus(new TestAnnotationMatchException()));
         Set ignoredExceptions = (Set) MemberModifier
             .field(ExceptionCheckContext.class, "ignoredExceptions")

@@ -49,14 +49,14 @@ public class ExceptionCheckStrategyTest {
     @Test
     public void checkOffExceptionCheckStrategy() {
         OffExceptionCheckStrategy offExceptionCheckStrategy = new OffExceptionCheckStrategy();
-        Assert.assertTrue(offExceptionCheckStrategy.isError(new TestInheriteMatchException()));
+        Assert.assertTrue(offExceptionCheckStrategy.isError(new TestHierarchyMatchException()));
     }
 
     @Test
     public void checkInheriteMatchExceptionCheckStrategy() {
         HierarchyMatchExceptionCheckStrategy hierarchyMatchExceptionCheckStrategy = new HierarchyMatchExceptionCheckStrategy();
         Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestNamedMatchException()));
-        Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestInheriteMatchException()));
+        Assert.assertFalse(hierarchyMatchExceptionCheckStrategy.isError(new TestHierarchyMatchException()));
         Assert.assertTrue(hierarchyMatchExceptionCheckStrategy.isError(new TestAnnotationMatchException()));
     }
 
@@ -64,7 +64,7 @@ public class ExceptionCheckStrategyTest {
     public void checkAnnotationMatchExceptionCheckStrategy() {
         AnnotationMatchExceptionCheckStrategy annotationMatchExceptionCheckStrategy = new AnnotationMatchExceptionCheckStrategy();
         Assert.assertFalse(annotationMatchExceptionCheckStrategy.isError(new TestAnnotationMatchException()));
-        Assert.assertTrue(annotationMatchExceptionCheckStrategy.isError(new TestInheriteMatchException()));
+        Assert.assertTrue(annotationMatchExceptionCheckStrategy.isError(new TestHierarchyMatchException()));
     }
 
 }

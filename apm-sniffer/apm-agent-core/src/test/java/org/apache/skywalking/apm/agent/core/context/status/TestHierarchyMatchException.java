@@ -18,27 +18,27 @@
 
 package org.apache.skywalking.apm.agent.core.context.status;
 
-public class TestInheriteMatchException extends TestNamedMatchException {
+public class TestHierarchyMatchException extends TestNamedMatchException {
 
-    public TestInheriteMatchException() {
+    public TestHierarchyMatchException() {
     }
 
-    public TestInheriteMatchException(final String message) {
+    public TestHierarchyMatchException(final String message) {
         super(message);
     }
 
-    public TestInheriteMatchException(final String message, final Throwable cause) {
+    public TestHierarchyMatchException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public TestInheriteMatchException(final Throwable cause) {
+    public TestHierarchyMatchException(final Throwable cause) {
         super(cause);
     }
 
-    public TestInheriteMatchException(final String message,
-                                      final Throwable cause,
-                                      final boolean enableSuppression,
-                                      final boolean writableStackTrace) {
+    public TestHierarchyMatchException(final String message,
+                                       final Throwable cause,
+                                       final boolean enableSuppression,
+                                       final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
