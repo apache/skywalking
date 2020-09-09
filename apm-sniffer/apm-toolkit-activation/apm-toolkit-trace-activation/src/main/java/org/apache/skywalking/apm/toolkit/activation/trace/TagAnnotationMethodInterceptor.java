@@ -89,7 +89,7 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
     public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final Throwable t) {
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 }

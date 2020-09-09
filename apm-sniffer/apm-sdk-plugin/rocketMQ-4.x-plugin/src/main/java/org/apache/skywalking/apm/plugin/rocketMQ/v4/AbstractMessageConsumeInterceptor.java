@@ -60,7 +60,7 @@ public abstract class AbstractMessageConsumeInterceptor implements InstanceMetho
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private ContextCarrier getContextCarrierFromMessage(MessageExt message) {

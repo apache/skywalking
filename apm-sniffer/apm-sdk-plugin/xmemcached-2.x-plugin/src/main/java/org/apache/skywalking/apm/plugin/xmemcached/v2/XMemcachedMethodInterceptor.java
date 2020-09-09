@@ -59,7 +59,6 @@ public class XMemcachedMethodInterceptor implements InstanceMethodsAroundInterce
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 }

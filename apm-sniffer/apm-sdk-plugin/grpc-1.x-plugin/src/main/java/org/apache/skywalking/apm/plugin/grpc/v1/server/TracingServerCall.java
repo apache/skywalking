@@ -57,7 +57,7 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
             try {
                 super.sendMessage(message);
             } catch (Throwable t) {
-                ContextManager.activeSpan().errorOccurred().log(t);
+                ContextManager.activeSpan().log(t);
                 throw t;
             } finally {
                 ContextManager.stopSpan();
@@ -82,9 +82,9 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
             case UNKNOWN:
             case INTERNAL:
                 if (status.getCause() == null) {
-                    span.errorOccurred().log(status.asRuntimeException());
+                    span.log(status.asRuntimeException());
                 } else {
-                    span.errorOccurred().log(status.getCause());
+                    span.log(status.getCause());
                 }
                 break;
             // Other status code means some predictable error occurred in server.
@@ -93,7 +93,7 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
             default:
                 // But if the status still has cause exception, we will log it too.
                 if (status.getCause() != null) {
-                    span.errorOccurred().log(status.getCause());
+                    span.log(status.getCause());
                 }
                 break;
         }
@@ -102,7 +102,7 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
         try {
             super.close(status, trailers);
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             ContextManager.stopSpan();

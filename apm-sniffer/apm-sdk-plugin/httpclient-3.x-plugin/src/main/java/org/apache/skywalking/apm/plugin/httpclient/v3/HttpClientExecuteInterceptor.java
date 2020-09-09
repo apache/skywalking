@@ -89,7 +89,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     @Override
     public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private String getRequestURI(URI uri) throws URIException {

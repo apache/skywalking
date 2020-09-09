@@ -49,7 +49,7 @@ public class FutureCallbackWrapper<T> implements FutureCallback<T> {
     public void failed(Exception e) {
         CONTEXT_LOCAL.remove();
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(e);
+            ContextManager.activeSpan().log(e);
             ContextManager.stopSpan();
         }
         if (callback != null) {
