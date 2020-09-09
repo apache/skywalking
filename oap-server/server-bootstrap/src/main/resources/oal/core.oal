@@ -69,12 +69,6 @@ database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
 
-// Example of TLS related metric. Detected point was not distinguished, that means mTLS requests from both sides will be
-// counted in.
-//////////
-// service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm();
-// service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm();
-
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////
 // disable(segment);
