@@ -82,7 +82,6 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
             return;
         }
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 

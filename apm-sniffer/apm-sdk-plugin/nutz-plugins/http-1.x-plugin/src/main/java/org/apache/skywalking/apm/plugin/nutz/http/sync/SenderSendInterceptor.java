@@ -76,6 +76,6 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

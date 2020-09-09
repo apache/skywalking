@@ -49,7 +49,7 @@ public class SWBiConsumer<T, U> implements BiConsumer<T, U> {
             ContextManager.continued(snapshot);
             biConsumer.accept(t, u);
         } catch (Throwable th) {
-            ContextManager.activeSpan().errorOccurred().log(th);
+            ContextManager.activeSpan().log(th);
         } finally {
             ContextManager.stopSpan();
         }

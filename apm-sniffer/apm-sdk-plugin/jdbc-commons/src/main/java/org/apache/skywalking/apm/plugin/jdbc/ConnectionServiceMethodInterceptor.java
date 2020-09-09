@@ -62,7 +62,7 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
 }

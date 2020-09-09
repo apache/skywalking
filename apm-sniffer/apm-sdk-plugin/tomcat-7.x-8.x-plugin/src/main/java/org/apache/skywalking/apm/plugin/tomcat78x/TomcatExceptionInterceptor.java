@@ -28,7 +28,7 @@ public class TomcatExceptionInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        ContextManager.activeSpan().errorOccurred().log((Throwable) allArguments[2]);
+        ContextManager.activeSpan().log((Throwable) allArguments[2]);
     }
 
     @Override
