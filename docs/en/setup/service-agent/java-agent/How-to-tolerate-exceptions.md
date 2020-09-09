@@ -1,13 +1,13 @@
-# How-to-tolerate-exceptions
-*Because in some codes, the exception is being used as a way of controlling business flow. Skywalking provides 2 ways to tolerate an exception which is traced in a span.*
-1. The hard config in the javaagent.
-2. Annotated with an annotation.
+# How to tolerate custom exceptions
+*In some codes, the exception is being used as a way of controlling business flow. Skywalking provides 2 ways to tolerate an exception which is traced in a span.*
+1. Set the names of exception classes in the agent config
+2. Use our annotation in the codes.
 
+## Set the names of exception classes in the agent config
+The property named  "statuscheck.ignored_exceptions" is used to set up class names in the agent configuration file. if the exception listed here are detected in the agent, the agent core would flag the related span as the error status.
 
-## The hard config in the javaagent
-The property named  "statuscheck.ignored_exceptions" is configured in the agent configuration file.  When opening the config, the listed exceptions would not be treated as an error. Also, affects the subclasses.
 ### Demo
-1. Some exceptions have been defined in user or library codes.
+1. A custom exception.
 
     - TestNamedMatchException
     ```java
@@ -35,13 +35,13 @@ The property named  "statuscheck.ignored_exceptions" is configured in the agent 
         ...
     }
     ```
-2. When the above exceptions traced in some spans, the status is like the following:
+2. When the above exceptions traced in some spans, the status is like the following.
 
      The traced exception | Final span status |
      ----------- | ---------- |
      `org.apache.skywalking.apm.agent.core.context.status.TestNamedMatchException`  | true |
      `org.apache.skywalking.apm.agent.core.context.status.TestHierarchyMatchException`  | true |
-3. After opening the config named "statuscheck.ignored_exceptions", the status would be changed.
+3. After set these class names through "statuscheck.ignored_exceptions", the status of spans would be changed.
 
     ```
     statuscheck.ignored_exceptions=org.apache.skywalking.apm.agent.core.context.status.TestNamedMatchException
@@ -52,8 +52,9 @@ The property named  "statuscheck.ignored_exceptions" is configured in the agent 
      `org.apache.skywalking.apm.agent.core.context.status.TestNamedMatchException`  | false |
      `org.apache.skywalking.apm.agent.core.context.status.TestHierarchyMatchException`  | false |
 
-## Annotated with an annotation
-If an exception annotated with the annotation called IgnoredException, the exception wouldn't be marked as error status when tracing. Because the annotation supports inheritance, also affects the subclasses.
+## Use our annotation in the codes.
+If an exception has the `@IgnoredException` annotation, the exception wouldn't be marked as error status when tracing. Because the annotation supports inheritance, also affects the subclasses.
+
 ### Dependency
 * Dependency the toolkit, such as using maven or gradle. Since 8.2.0.
 ```xml
@@ -64,7 +65,7 @@ If an exception annotated with the annotation called IgnoredException, the excep
    </dependency>
 ```
 ### Demo
- 1. The exception has been defined in user or library codes.
+ 1. A custom exception.
  
      ```java
     package org.apache.skywalking.apm.agent.core.context.status;
@@ -78,7 +79,7 @@ If an exception annotated with the annotation called IgnoredException, the excep
         ...
     }
     ```
- 2. When the above exception traced in some spans, the status is like the following:
+ 2. When the above exception traced in some spans, the status is like the following.
  
       The traced exception | Final span status |
       ----------- | ---------- |
@@ -104,6 +105,7 @@ If an exception annotated with the annotation called IgnoredException, the excep
      The traced exception | Final span status |
       ----------- | ---------- |
       `org.apache.skywalking.apm.agent.core.context.status.TestAnnotatedException`  | false |
+
 ## Recursive check
 Due to the wrapper nature of Java exceptions, sometimes users need recursive checking. Skywalking also supports it. Typically, we don't recommend setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored, which means all exceptions would make the span tagged in error status.
 
