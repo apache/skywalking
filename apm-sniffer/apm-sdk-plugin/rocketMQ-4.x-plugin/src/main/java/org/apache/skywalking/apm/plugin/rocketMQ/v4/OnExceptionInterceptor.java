@@ -48,7 +48,7 @@ public class OnExceptionInterceptor implements InstanceMethodsAroundInterceptor 
         }
         AbstractSpan activeSpan = ContextManager.createLocalSpan(CALLBACK_OPERATION_NAME_PREFIX + topicId + "/Producer/Callback");
         activeSpan.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
-        activeSpan.errorOccurred().log((Throwable) allArguments[0]);
+        activeSpan.log((Throwable) allArguments[0]);
         if (enhanceInfo != null && enhanceInfo.getContextSnapshot() != null) {
             ContextManager.continued(enhanceInfo.getContextSnapshot());
         }

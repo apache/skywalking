@@ -49,7 +49,7 @@ public class SWConsumer<T> implements Consumer<T> {
             ContextManager.continued(snapshot);
             consumer.accept(t);
         } catch (Throwable th) {
-            ContextManager.activeSpan().errorOccurred().log(th);
+            ContextManager.activeSpan().log(th);
         } finally {
             ContextManager.stopSpan();
         }

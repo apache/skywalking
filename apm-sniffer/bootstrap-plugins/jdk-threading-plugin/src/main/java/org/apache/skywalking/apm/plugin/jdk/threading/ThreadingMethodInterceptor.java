@@ -62,7 +62,7 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
         final Class<?>[] argumentsTypes, final Throwable t) {
 
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 
+import static java.util.stream.Collectors.joining;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
 @Data
@@ -34,8 +35,9 @@ public final class DockerComposeFile {
     private Map<String, Map<String, Object>> services;
     private Map<String, Map<String, Object>> networks;
 
-    public static DockerComposeFile getAllConfigInfo(String composeFile) throws IOException, InterruptedException {
-        String shStr = String.format("docker-compose -f %s config", composeFile);
+    public static DockerComposeFile getAllConfigInfo(List<String> composeFiles) throws IOException, InterruptedException {
+        String shStr = String.format("docker-compose %s config",
+                composeFiles.stream().collect(joining(" -f", " -f", "")));
         Process process = Runtime.getRuntime().exec(shStr, null, null);
         InputStreamReader ir = new InputStreamReader(process.getInputStream());
         LineNumberReader input = new LineNumberReader(ir);

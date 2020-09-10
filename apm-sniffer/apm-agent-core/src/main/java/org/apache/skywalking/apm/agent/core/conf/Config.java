@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
@@ -266,6 +265,21 @@ public class Config {
          * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
          */
         public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
+    }
+
+    public static class StatusCheck {
+        /**
+         * Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a
+         * way of controlling business flow.
+         */
+        public static String IGNORED_EXCEPTIONS = "";
+
+        /**
+         * The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend
+         * setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored,
+         * which means all exceptions would make the span tagged in error status.
+         */
+        public static Integer MAX_RECURSIVE_DEPTH = 1;
     }
 
     public static class Plugin {

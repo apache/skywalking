@@ -177,5 +177,5 @@ public class ComponentsDefine {
 
     public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(97, "quartz-scheduler");
 
-    public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(99, "spring-webclient");
+    public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(98, "spring-webclient");
 }

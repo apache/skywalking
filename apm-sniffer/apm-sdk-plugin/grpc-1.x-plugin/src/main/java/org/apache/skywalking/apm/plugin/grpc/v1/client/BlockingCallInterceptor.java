@@ -55,6 +55,6 @@ public class BlockingCallInterceptor implements StaticMethodsAroundInterceptor {
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }
