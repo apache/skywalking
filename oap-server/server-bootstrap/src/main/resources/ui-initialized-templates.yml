@@ -334,7 +334,7 @@ templates:
                   "chartType": "ChartLine",
                   "unit": "MB",
                   "aggregation": "/",
-                  "aggregationNum": "1045504"
+                  "aggregationNum": "1048576"
                 },
                 {
                   "width": 3,
@@ -721,7 +721,7 @@ templates:
           "chartType": "ChartLine",
           "unit": "MB",
           "aggregation": "/",
-          "aggregationNum": "1045504"
+          "aggregationNum": "1048576"
         },
         {
           "width": 3,
