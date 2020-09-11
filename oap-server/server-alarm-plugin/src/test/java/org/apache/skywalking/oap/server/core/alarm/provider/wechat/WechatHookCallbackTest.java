@@ -74,7 +74,6 @@ public class WechatHookCallbackTest implements Servlet {
     public void testWechatWebhook() {
         List<String> remoteEndpoints = new ArrayList<>();
         remoteEndpoints.add("http://127.0.0.1:" + port + "/wechathook/receiveAlarm");
-        remoteEndpoints.add("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=81caeeba-47db-4e2c-9498-58e0d91536bc");
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
         rules.setWechatSetting(WechatSettings.builder().webhooks(remoteEndpoints).textTemplate(template).build());

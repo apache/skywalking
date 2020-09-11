@@ -180,6 +180,23 @@ slackHooks:
     - https://hooks.slack.com/services/x/y/z
 ```
 
+## WeChat Hook
+To use Wechat webhook you need to follow the [Wechat Webhooks guide](https://work.weixin.qq.com/api/doc/90000/90136/91770).
+The alarm message will send through HTTP post by `application/json` content type if you configured Wechat Webhooks as following:
+```yml
+wechatHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache Skywalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
+```
+
+
 ## Update the settings dynamically
 Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.
