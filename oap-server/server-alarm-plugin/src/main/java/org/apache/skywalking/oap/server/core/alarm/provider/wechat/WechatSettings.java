@@ -16,29 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.alarm.provider.wechat;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
-import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
 @ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
-    private GRPCAlarmSetting grpchookSetting;
-    private SlackSettings slacks;
-    private WechatSettings wecchats;
+public class WechatSettings {
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
-    }
+    private String textTemplate;
+
+    @Builder.Default
+    private List<String> webhooks = new ArrayList<>();
 }
