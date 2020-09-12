@@ -189,7 +189,7 @@ wechatHooks:
     {
       "msgtype": "text",
       "text": {
-        "content": "Apache Skywalking Alarm: \n %s."
+        "content": "Apache SkyWalking Alarm: \n %s."
       }
     }
   webhooks:
