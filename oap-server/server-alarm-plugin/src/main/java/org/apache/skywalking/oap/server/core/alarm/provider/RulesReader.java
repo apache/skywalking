@@ -133,7 +133,7 @@ public class RulesReader {
                 if (wechatWebhooks != null) {
                     wechatSettings.getWebhooks().addAll(wechatWebhooks);
                 }
-                rules.setWechatSetting(wechatSettings);
+                rules.setWecchats(wechatSettings);
             }
         }
         return rules;

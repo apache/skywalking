@@ -35,7 +35,7 @@ public class Rules {
     private List<String> webhooks;
     private GRPCAlarmSetting grpchookSetting;
     private SlackSettings slacks;
-    private WechatSettings wechatSetting;
+    private WechatSettings wecchats;
 
     public Rules() {
         this.rules = new ArrayList<>();

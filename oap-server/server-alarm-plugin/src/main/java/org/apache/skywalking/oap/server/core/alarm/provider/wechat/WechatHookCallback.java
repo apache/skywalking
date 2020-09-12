@@ -39,7 +39,6 @@ import java.util.List;
 
 /**
  * Use SkyWalking alarm wechat webhook API.
- * See https://work.weixin.qq.com/api/doc/90000/90136/91770
  */
 @Slf4j
 public class WechatHookCallback implements AlarmCallback {
@@ -93,10 +92,10 @@ public class WechatHookCallback implements AlarmCallback {
             CloseableHttpResponse httpResponse = httpClient.execute(post);
             StatusLine statusLine = httpResponse.getStatusLine();
             if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                log.error("send wechat alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
+                log.error("send wechat alarm to {} failure. Response code: {} ", url, statusLine.getStatusCode());
             }
         } catch (Throwable e) {
-            log.error("send wechat alarm to " + url + " failure.", e);
+            log.error("send wechat alarm to {} failure.", url, e);
         }
     }
 }

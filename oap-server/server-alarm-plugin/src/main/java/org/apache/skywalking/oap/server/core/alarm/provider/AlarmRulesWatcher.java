@@ -117,6 +117,6 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     }
 
     public WechatSettings getWechatSettings() {
-        return this.rules.getWechatSetting();
+        return this.rules.getWecchats();
     }
 }

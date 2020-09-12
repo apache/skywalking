@@ -181,7 +181,7 @@ slackHooks:
 ```
 
 ## WeChat Hook
-To use Wechat webhook you need to follow the [Wechat Webhooks guide](https://work.weixin.qq.com/api/doc/90000/90136/91770).
+To use Wechat webhook you need to follow the [Wechat Webhooks guide](https://work.weixin.qq.com/help?doc_id=13376).
 The alarm message will send through HTTP post by `application/json` content type if you configured Wechat Webhooks as following:
 ```yml
 wechatHooks:
