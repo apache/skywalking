@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Duration;
 import com.google.protobuf.Timestamp;
@@ -28,6 +29,7 @@ import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
+import io.envoyproxy.envoy.data.accesslog.v2.TLSProperties;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
@@ -43,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +70,12 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
 
     private static final String VALID_PHASE = "Running";
+
+    private static final String NON_TLS = "NONE";
+
+    private static final String M_TLS = "mTLS";
+
+    private static final String TLS = "TLS";
 
     @Getter(AccessLevel.PROTECTED)
     private final AtomicReference<Map<String, ServiceMetaInfo>> ipServiceMap = new AtomicReference<>();
@@ -211,6 +220,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                     downstreamLocalAddress.getSocketAddress()
                                           .getAddress(), downstreamLocalAddress.getSocketAddress()
                                                                                .getPortValue());
+                String tlsMode = parseTLS(properties.getTlsProperties());
                 if (cluster.startsWith("inbound|")) {
                     // Server side
                     if (downstreamService.equals(ServiceMetaInfo.UNKNOWN)) {
@@ -229,6 +239,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                                 Math.toIntExact(responseCode))
                                                                             .setStatus(status)
                                                                             .setProtocol(protocol)
+                                                                            .setTlsMode(tlsMode)
                                                                             .setDetectPoint(DetectPoint.server);
 
                         LOGGER.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
@@ -252,6 +263,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                                 Math.toIntExact(responseCode))
                                                                             .setStatus(status)
                                                                             .setProtocol(protocol)
+                                                                            .setTlsMode(tlsMode)
                                                                             .setDetectPoint(DetectPoint.server);
 
                         LOGGER.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
@@ -281,6 +293,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                         .setResponseCode(Math.toIntExact(responseCode))
                                                                         .setStatus(status)
                                                                         .setProtocol(protocol)
+                                                                        .setTlsMode(tlsMode)
                                                                         .setDetectPoint(DetectPoint.client);
 
                     LOGGER.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
@@ -290,6 +303,21 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
             }
         }
         return sources;
+    }
+
+    private String parseTLS(TLSProperties properties) {
+        if (properties == null) {
+            return NON_TLS;
+        }
+        if (Strings.isNullOrEmpty(Optional.ofNullable(properties.getLocalCertificateProperties())
+            .orElse(TLSProperties.CertificateProperties.newBuilder().build()).getSubject())) {
+            return NON_TLS;
+        }
+        if (Strings.isNullOrEmpty(Optional.ofNullable(properties.getPeerCertificateProperties())
+            .orElse(TLSProperties.CertificateProperties.newBuilder().build()).getSubject())) {
+            return TLS;
+        }
+        return M_TLS;
     }
 
     protected void analysisProxy(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry) {
@@ -330,6 +358,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                     responseCode = response.getResponseCode().getValue();
                 }
                 boolean status = responseCode >= 200 && responseCode < 400;
+                String tlsMode = parseTLS(properties.getTlsProperties());
 
                 ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
                                                                     .setStartTime(startTime)
@@ -345,6 +374,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                     .setResponseCode(Math.toIntExact(responseCode))
                                                                     .setStatus(status)
                                                                     .setProtocol(protocol)
+                                                                    .setTlsMode(tlsMode)
                                                                     .setDetectPoint(DetectPoint.server);
 
                 LOGGER.debug("Transformed ingress inbound mesh metric {}", metric);
@@ -376,6 +406,9 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                                 Math.toIntExact(responseCode))
                                                                             .setStatus(status)
                                                                             .setProtocol(protocol)
+                                                                            // Can't parse it from tls properties, leave
+                                                                            // it to Server side.
+                                                                            .setTlsMode(NON_TLS)
                                                                             .setDetectPoint(DetectPoint.client);
 
                 LOGGER.debug("Transformed ingress outbound mesh metric {}", outboundMetric);

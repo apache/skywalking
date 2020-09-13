@@ -133,6 +133,7 @@ Calculate the metrics data from each request between one service and the other s
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
+| tlsMode | Represent TLS mode between source and destination services. For example `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
 
 
 ### SCOPE `ServiceInstanceRelation`
@@ -154,6 +155,7 @@ Calculate the metrics data from each request between one service instance and th
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
+| tlsMode | Represent TLS mode between source and destination service instances. For example, `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
 
 ### SCOPE `EndpointRelation`
 
