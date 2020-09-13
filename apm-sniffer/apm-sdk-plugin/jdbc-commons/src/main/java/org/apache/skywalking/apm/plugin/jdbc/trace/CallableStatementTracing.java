@@ -42,7 +42,6 @@ public class CallableStatementTracing {
             span.setComponent(connectInfo.getComponent());
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
-            span.errorOccurred();
             span.log(e);
             throw e;
         } finally {

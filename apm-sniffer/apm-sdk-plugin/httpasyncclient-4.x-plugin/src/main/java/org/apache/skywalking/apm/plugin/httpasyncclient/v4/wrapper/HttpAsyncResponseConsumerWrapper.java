@@ -70,7 +70,7 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
     public void failed(Exception ex) {
         CONTEXT_LOCAL.remove();
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(ex);
+            ContextManager.activeSpan().log(ex);
             ContextManager.stopSpan();
         }
         consumer.failed(ex);

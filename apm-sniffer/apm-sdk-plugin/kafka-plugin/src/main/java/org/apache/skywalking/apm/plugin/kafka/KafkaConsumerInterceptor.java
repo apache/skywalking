@@ -107,7 +107,7 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
          * {@link #afterMethod}, before the creation of entry span, we can not ensure there is an active span
          */
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 }

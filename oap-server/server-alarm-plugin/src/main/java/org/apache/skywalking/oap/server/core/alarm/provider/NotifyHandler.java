@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackhookCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatHookCallback;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
@@ -160,6 +161,7 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new WebhookCallback(alarmRulesWatcher));
         allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
         allCallbacks.add(new SlackhookCallback(alarmRulesWatcher));
+        allCallbacks.add(new WechatHookCallback(alarmRulesWatcher));
         core.start(allCallbacks);
     }
 }

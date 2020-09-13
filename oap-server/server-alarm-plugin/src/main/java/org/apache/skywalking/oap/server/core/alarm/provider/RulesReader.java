@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -118,15 +119,23 @@ public class RulesReader {
 
                 List<String> slackWebhooks = (List<String>) slacks.get("webhooks");
                 if (slackWebhooks != null) {
-                    slackWebhooks.forEach(
-                        url -> slackSettings.getWebhooks().add(url)
-                    );
+                    slackSettings.getWebhooks().addAll(slackWebhooks);
                 }
-
                 rules.setSlacks(slackSettings);
             }
-        }
 
+            Map wechatConfig = (Map) yamlData.get("wechatHooks");
+            if (wechatConfig != null) {
+                WechatSettings wechatSettings = new WechatSettings();
+                Object textTemplate = wechatConfig.getOrDefault("textTemplate", "");
+                wechatSettings.setTextTemplate((String) textTemplate);
+                List<String> wechatWebhooks = (List<String>) wechatConfig.get("webhooks");
+                if (wechatWebhooks != null) {
+                    wechatSettings.getWebhooks().addAll(wechatWebhooks);
+                }
+                rules.setWecchats(wechatSettings);
+            }
+        }
         return rules;
     }
 }

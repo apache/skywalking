@@ -46,6 +46,6 @@ public class FutureGetInterceptor implements InstanceMethodsAroundInterceptor {
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred().log(t);
+        activeSpan.log(t);
     }
 }

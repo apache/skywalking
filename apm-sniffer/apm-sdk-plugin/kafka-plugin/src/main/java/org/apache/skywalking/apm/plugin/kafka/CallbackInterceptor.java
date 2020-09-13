@@ -63,7 +63,7 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
             if (null != snapshot) {
                 Exception exceptions = (Exception) allArguments[1];
                 if (exceptions != null) {
-                    ContextManager.activeSpan().errorOccurred().log(exceptions);
+                    ContextManager.activeSpan().log(exceptions);
                 }
                 ContextManager.stopSpan();
             }
@@ -74,7 +74,7 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private ContextSnapshot getSnapshot(CallbackCache cache) {

@@ -112,7 +112,6 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan abstractSpan = ContextManager.activeSpan();
-        abstractSpan.errorOccurred();
         abstractSpan.log(t);
     }
 }

@@ -83,7 +83,7 @@ public class TracingHandler implements HttpHandler {
         try {
             next.handleRequest(exchange);
         } catch (Throwable e) {
-            span.errorOccurred().log(e);
+            span.log(e);
         } finally {
             ContextManager.stopSpan(span);
             ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);

@@ -87,7 +87,7 @@ public class HttpClientRequestInterceptor implements InstanceMethodsAroundInterc
                 AbstractSpan abstractSpan = enhanceCacheObject.getSendSpan();
                 if (abstractSpan != null) {
                     if (throwable != null) {
-                        abstractSpan.errorOccurred().log(throwable);
+                        abstractSpan.log(throwable);
                     } else if (httpClientResponse.status().code() > 400) {
                         abstractSpan.errorOccurred();
                     }
