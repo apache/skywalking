@@ -186,6 +186,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setResponseCode(metrics.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
+        serviceRelation.setTlsMode(metrics.getTlsMode());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -221,6 +222,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setResponseCode(metrics.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
+        serviceRelation.setTlsMode(metrics.getTlsMode());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
