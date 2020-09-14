@@ -18,9 +18,8 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v22x.define;
 
 public class Constants {
-
-	public static String ContextKey = "ContextKey";
-	public static String InstanceKey = "InstanceKey";
-	public static String InSpanKey = "InSpanKey";
-	public static String OutSpanKey = "OutSpanKey";
+    public static String CONTEXT_KEY = "ContextKey";
+    public static String INSTANCE_KEY = "InstanceKey";
+    public static String IN_SPAN_KEY = "InSpanKey";
+    public static String OUT_SPAN_KEY = "OutSpanKey";
 }

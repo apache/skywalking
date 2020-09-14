@@ -39,7 +39,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
-
 public class TracingHelper {
     private static final ILog logger = LogManager.getLogger(TracingHelper.class);
 
@@ -49,8 +48,8 @@ public class TracingHelper {
             try {
                 Field f = ContextManager.class.getDeclaredField("CONTEXT");
                 f.setAccessible(true);
-                ThreadLocal<AbstractTracerContext> CONTEXT = (ThreadLocal<AbstractTracerContext>) f.get(ContextManager.class);
-                return CONTEXT.get();
+                ThreadLocal<AbstractTracerContext> context = (ThreadLocal<AbstractTracerContext>) f.get(ContextManager.class);
+                return context.get();
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
@@ -63,15 +62,15 @@ public class TracingHelper {
         try {
             Field f = ContextManager.class.getDeclaredField("CONTEXT");
             f.setAccessible(true);
-            ThreadLocal<AbstractTracerContext> CONTEXT = (ThreadLocal<AbstractTracerContext>) f.get(ContextManager.class);
-            CONTEXT.set(context);
+            ThreadLocal<AbstractTracerContext> localContext = (ThreadLocal<AbstractTracerContext>) f.get(ContextManager.class);
+            localContext.set(context);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
     }
 
     public static void onException(Throwable cause, ServerWebExchange serverWebExchange) {
-        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.ContextKey);
+        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.CONTEXT_KEY);
         if (tracingContext == null) {
             return;
         }
@@ -80,7 +79,8 @@ public class TracingHelper {
 
     public static void onServerRequest(ServerWebExchange serverWebExchange) {
         if (ContextManager.isActive()) {
-            setTracingContext(null); /* 说明上一个请求还没有处理完(server response还没有发出), 该线程又开始处理新的请求, 需要把线程变量CONTEXT设置成null, 延迟设置null是为了后面的其他plugin还可以使用ContextManager接口 */
+            // The latest tracing is running, set tracingContext null to expand.
+            setTracingContext(null);
         }
         ServerHttpRequest request = serverWebExchange.getRequest();
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -99,13 +99,13 @@ public class TracingHelper {
         span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
         SpanLayer.asHttp(span);
 
-        serverWebExchange.getAttributes().put(Constants.ContextKey, getTracingContext());
+        serverWebExchange.getAttributes().put(Constants.CONTEXT_KEY, getTracingContext());
 
     }
 
     public static void onServerResponse(ServerWebExchange serverWebExchange) {
 
-        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.ContextKey);
+        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.CONTEXT_KEY);
 
         if (tracingContext == null) {
             return;
@@ -117,11 +117,11 @@ public class TracingHelper {
             span.errorOccurred();
         }
         Tags.STATUS_CODE.set(span, String.valueOf(scCode));
-        tracingContext.stopSpan(span); /*stop entryspan */
+        tracingContext.stopSpan(span); //stop entryspan
     }
 
     public static void onClientRequest(ServerWebExchange serverWebExchange) {
-        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.ContextKey);
+        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.CONTEXT_KEY);
         ServerHttpRequest request = serverWebExchange.getRequest();
 
         URI url = serverWebExchange.getAttribute(GATEWAY_REQUEST_URL_ATTR);
@@ -136,11 +136,11 @@ public class TracingHelper {
             tracingContext.inject(contextCarrier);
         } else {
             if (ContextManager.isActive()) {
-                setTracingContext(null); /* 说明上一个请求还没有处理完(client response还没有收到), 该线程又开始处理新的请求, 需要把线程变量CONTEXT设置成null *//* 和下面的ContextManager.createExitSpan是一对 */
+                setTracingContext(null);
             }
             span = ContextManager.createExitSpan(uri, contextCarrier, peer);
 
-            serverWebExchange.getAttributes().put(Constants.ContextKey, getTracingContext());
+            serverWebExchange.getAttributes().put(Constants.CONTEXT_KEY, getTracingContext());
         }
         Tags.URL.set(span, peer + url.getPath());
         Tags.HTTP.METHOD.set(span, request.getMethodValue());
@@ -150,7 +150,6 @@ public class TracingHelper {
 
         HttpHeaders headers = serverWebExchange.getRequest().getHeaders();
 
-
         Field field;
         try {
             field = HttpHeaders.class.getDeclaredField("headers");
@@ -159,7 +158,7 @@ public class TracingHelper {
             while (next.hasNext()) {
                 next = next.next();
                 maps.add(next.getHeadKey(), next.getHeadValue());
-//		            request.headers().set(next.getHeadKey(), next.getHeadValue());
+                //request.headers().set(next.getHeadKey(), next.getHeadValue());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -168,7 +167,7 @@ public class TracingHelper {
     }
 
     public static void onClientResponse(ServerWebExchange serverWebExchange) {
-        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.ContextKey);
+        AbstractTracerContext tracingContext = (AbstractTracerContext) serverWebExchange.getAttributes().get(Constants.CONTEXT_KEY);
         if (tracingContext == null) {
             return;
         }

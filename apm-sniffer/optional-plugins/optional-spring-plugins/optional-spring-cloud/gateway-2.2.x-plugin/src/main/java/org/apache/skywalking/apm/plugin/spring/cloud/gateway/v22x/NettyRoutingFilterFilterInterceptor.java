@@ -28,13 +28,11 @@ import reactor.core.publisher.Mono;
 
 public class NettyRoutingFilterFilterInterceptor implements InstanceMethodsAroundInterceptor {
 
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
 
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-
         TracingHelper.onClientRequest(exchange);
     }
 
