@@ -60,7 +60,7 @@ public class EventThreadMethodInterceptor implements InstanceMethodsAroundInterc
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         if (isWatchedEvent(allArguments[0])) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

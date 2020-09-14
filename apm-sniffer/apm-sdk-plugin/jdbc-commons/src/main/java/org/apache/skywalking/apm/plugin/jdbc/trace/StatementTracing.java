@@ -42,7 +42,6 @@ public class StatementTracing {
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
             AbstractSpan span = ContextManager.activeSpan();
-            span.errorOccurred();
             span.log(e);
             throw e;
         } finally {

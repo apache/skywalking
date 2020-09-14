@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.logging.core.coverts.LiteralConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.converters.LiteralConverter;
 
 import java.util.ArrayList;
 import java.util.List;

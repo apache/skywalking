@@ -113,7 +113,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         final long[] values = value.getBucketedValues().getValues();
         for (int i = 0; i < values.length; i++) {
             final long bucket = value.getBucketedValues().getBuckets()[i];
-            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
+            String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
             final long bucketValue = values[i];
             dataset.valueAccumulation(bucketName, bucketValue);
         }

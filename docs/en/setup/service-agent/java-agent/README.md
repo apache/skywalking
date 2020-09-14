@@ -96,9 +96,12 @@ property key | Description | Default |
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
 `logging.dir`|Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located |`""`|
-`logging.pattern `|logging format. There are all conversion specifiers: <br>&nbsp;&nbsp;* `%level` means log level. <br>&nbsp;&nbsp;*  `%timestamp` means now of time with format `yyyy-MM-dd HH:mm:ss:SSS`.<br>&nbsp;&nbsp;*   `%thread` means name of current thread.<br>&nbsp;&nbsp;*   `%msg` means some message which user logged. <br>&nbsp;&nbsp;*  `%class` means SimpleName of TargetClass. <br>&nbsp;&nbsp;*  `%throwable` means a throwable which user called. <br>&nbsp;&nbsp;*  `%agent_name` means `agent.service_name`  |`%level %timestamp %thread %class : %msg %throwable`|
+`logging.resolver`|Logger resolver: `PATTERN` or `JSON`. The default is `PATTERN`, which uses `logging.pattern` to print traditional text logs. `JSON` resolver prints logs in JSON format. |`PATTERN`|
+`logging.pattern `|Logging format. There are all conversion specifiers: <br>&nbsp;&nbsp;* `%level` means log level. <br>&nbsp;&nbsp;*  `%timestamp` means now of time with format `yyyy-MM-dd HH:mm:ss:SSS`.<br>&nbsp;&nbsp;*   `%thread` means name of current thread.<br>&nbsp;&nbsp;*   `%msg` means some message which user logged. <br>&nbsp;&nbsp;*  `%class` means SimpleName of TargetClass. <br>&nbsp;&nbsp;*  `%throwable` means a throwable which user called. <br>&nbsp;&nbsp;*  `%agent_name` means `agent.service_name`. Only apply to the `PatternLogger`. |`%level %timestamp %thread %class : %msg %throwable`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
+`statuscheck.ignored_exceptions`|Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a way of controlling business flow.|`""`|
+`statuscheck.max_recursive_depth`|The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored, which means all exceptions would make the span tagged in error status.|`1`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|
@@ -152,8 +155,7 @@ property key | Description | Default |
 `plugin.kafka.topic_segment` | Specify which Kafka topic name for traces data to report to. | `skywalking_segments` |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
-`plugin.springannotation.classname_match_regex_expression` |  Match spring beans with regex expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
-
+`plugin.springannotation.classname_match_regex` |  Match spring beans with regular expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -169,6 +171,8 @@ Now, we have the following known optional plugins.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway. spring-cloud-gateway-2.x-plugin and spring-webflux-5.x-plugin are both required.
 * Plugin of Spring Transaction in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
+* Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
+* Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
@@ -191,6 +195,7 @@ Now, we have the following known bootstrap plugins.
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
     * If you want to forward MicroMeter/Spring Sleuth metrics to Meter System, use [SkyWalking MicroMeter Register](Application-toolkit-micrometer.md).
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
+    * If you want to tolerate some exceptions, read [tolerate custom exception doc](How-to-tolerate-exceptions.md).
 * If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
 
 ## Advanced Reporters

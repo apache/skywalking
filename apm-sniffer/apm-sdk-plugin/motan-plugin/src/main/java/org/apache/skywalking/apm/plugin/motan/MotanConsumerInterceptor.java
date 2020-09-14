@@ -71,7 +71,6 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
         Response response = (Response) ret;
         if (response != null && response.getException() != null) {
             AbstractSpan span = ContextManager.activeSpan();
-            span.errorOccurred();
             span.log(response.getException());
         }
         ContextManager.stopSpan();
@@ -82,7 +81,6 @@ public class MotanConsumerInterceptor implements InstanceConstructorInterceptor,
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 

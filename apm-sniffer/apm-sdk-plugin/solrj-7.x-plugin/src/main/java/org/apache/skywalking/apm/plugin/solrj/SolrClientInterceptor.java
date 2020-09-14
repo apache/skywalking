@@ -182,7 +182,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 code = ((SolrException) t).code();
             }
             span.tag(SolrjTags.TAG_STATUS, String.valueOf(code));
-            span.errorOccurred().log(t);
+            span.log(t);
         }
     }
 

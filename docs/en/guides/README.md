@@ -97,6 +97,9 @@ We expose all the logs from all containers to the stdout in non-CI (local) mode,
 **NOTE:** Please verify the newly-added E2E test case locally first, however, if you find it passed locally but failed in the PR check status, make sure all the updated/newly-added files (especially those in submodules)
 are committed and included in that PR, or reset the git HEAD to the remote and verify locally again.
 
+#### E2E local remote debugging
+When the E2E test is executed locally, if any test case fails, the [E2E local remote debugging function](E2E-local-remote-debug.md) can be used to quickly troubleshoot the bug.
+
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
 read the following guides.

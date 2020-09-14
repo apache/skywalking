@@ -110,7 +110,7 @@ public class HttpClientRequestImplInterceptor implements InstanceMethodsAroundIn
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private static String toPath(String uri) {

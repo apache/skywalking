@@ -67,7 +67,7 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     public String getHttpMethod(HttpRequest request) {

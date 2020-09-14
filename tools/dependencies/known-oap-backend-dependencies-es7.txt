@@ -157,7 +157,6 @@ retrofit-2.3.0.jar
 simpleclient-0.6.0.jar
 simpleclient_common-0.6.0.jar
 simpleclient_hotspot-0.6.0.jar
-simpleclient_httpserver-0.6.0.jar
 slf4j-api-1.7.25.jar
 snakeyaml-1.18.jar
 sundr-codegen-0.21.0.jar

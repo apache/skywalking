@@ -25,7 +25,10 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+
+import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
 public class AnalyzerModuleConfig extends ModuleConfig {
     /**
@@ -78,4 +81,21 @@ public class AnalyzerModuleConfig extends ModuleConfig {
 
     @Getter
     private final String configPath = "meter-receive-config";
+
+    /**
+     * Sample the trace segment if the segment has span(s) tagged as error status, and ignore the sampleRate
+     * configuration.
+     */
+    @Setter
+    @Getter
+    private boolean forceSampleErrorSegment = true;
+
+    /**
+     * Determine the final segment status from the status of spans.
+     *
+     * @see SegmentStatusStrategy
+     */
+    @Setter
+    @Getter
+    private String segmentStatusAnalysisStrategy = FROM_SPAN_STATUS.name();
 }

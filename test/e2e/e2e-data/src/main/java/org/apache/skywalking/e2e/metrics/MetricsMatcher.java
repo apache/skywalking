@@ -19,10 +19,10 @@
 package org.apache.skywalking.e2e.metrics;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.SimpleQueryClient;
+import org.apache.skywalking.e2e.utils.Times;
 
 @Slf4j
 public class MetricsMatcher {
@@ -46,7 +46,7 @@ public class MetricsMatcher {
                 new MetricsQuery().stepByMinute()
                                   .metricsName(metricName)
                                   .start(minutesAgo)
-                                  .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                                  .end(Times.now().plusMinutes(1))
                                   .id(id));
             LOGGER.info("{}: {}", metricName, metrics);
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
@@ -70,6 +70,13 @@ public class MetricsMatcher {
     public static void verifyPercentileMetrics(final SimpleQueryClient queryClient,
                                                final String metricName,
                                                final String id,
+                                               final LocalDateTime minutesAgo) throws Exception {
+        verifyPercentileMetrics(queryClient, metricName, id, minutesAgo, 0, null);
+    }
+
+    public static void verifyPercentileMetrics(final SimpleQueryClient queryClient,
+                                               final String metricName,
+                                               final String id,
                                                final LocalDateTime minutesAgo,
                                                final long retryInterval,
                                                final Runnable generateTraffic) throws Exception {
@@ -79,7 +86,7 @@ public class MetricsMatcher {
                 new MetricsQuery().stepByMinute()
                                   .metricsName(metricName)
                                   .start(minutesAgo)
-                                  .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                                  .end(Times.now().plusMinutes(1))
                                   .id(id), "5");
             LOGGER.info("{}: {}", metricName, metricsArray);
             AtLeastOneOfMetricsMatcher matcher = new AtLeastOneOfMetricsMatcher();

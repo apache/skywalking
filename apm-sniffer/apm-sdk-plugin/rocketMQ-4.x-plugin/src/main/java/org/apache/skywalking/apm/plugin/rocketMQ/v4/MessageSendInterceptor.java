@@ -91,7 +91,7 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private String buildOperationName(String topicName) {

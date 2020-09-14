@@ -83,7 +83,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         if (allArguments[0] != null) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 }

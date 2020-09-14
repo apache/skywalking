@@ -19,7 +19,7 @@ spans:
     serviceCode: not null
     startTime: gt 0
     endTime: gt 0
-    endpointName: /profile/{name}
+    endpointName: '{POST}/profile/{name}'
     tags:
       - key: url
         value: not null

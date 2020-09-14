@@ -93,7 +93,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
         try {
             delegate().start(new TracingClientCallListener(responseListener, snapshot), headers);
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             if (blockingSpan == null) {
@@ -117,7 +117,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
         try {
             super.sendMessage(message);
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             ContextManager.stopSpan();
@@ -134,7 +134,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
         try {
             super.halfClose();
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             ContextManager.stopSpan();
@@ -155,7 +155,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
         try {
             super.cancel(message, cause);
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             ContextManager.stopSpan();
@@ -185,7 +185,7 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             try {
                 delegate().onMessage(message);
             } catch (Throwable t) {
-                ContextManager.activeSpan().errorOccurred().log(t);
+                ContextManager.activeSpan().log(t);
             } finally {
                 ContextManager.stopSpan();
             }
@@ -198,14 +198,14 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
             ContextManager.continued(contextSnapshot);
             if (!status.isOk()) {
-                span.errorOccurred().log(status.asRuntimeException());
+                span.log(status.asRuntimeException());
                 Tags.STATUS_CODE.set(span, status.getCode().name());
             }
 
             try {
                 delegate().onClose(status, trailers);
             } catch (Throwable t) {
-                ContextManager.activeSpan().errorOccurred().log(t);
+                ContextManager.activeSpan().log(t);
             } finally {
                 ContextManager.stopSpan();
             }

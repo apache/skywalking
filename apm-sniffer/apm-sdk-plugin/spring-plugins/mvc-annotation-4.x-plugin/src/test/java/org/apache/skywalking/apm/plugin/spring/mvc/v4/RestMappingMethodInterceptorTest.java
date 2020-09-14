@@ -147,7 +147,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/getRequestURL");
+        assertHttpSpan(spans.get(0), "{GET}", "/getRequestURL");
     }
 
     @Test
@@ -173,7 +173,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/postRequestURL");
+        assertHttpSpan(spans.get(0), "{POST}", "/postRequestURL");
     }
 
     @Test
@@ -199,7 +199,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/putRequestURL");
+        assertHttpSpan(spans.get(0), "{PUT}", "/putRequestURL");
     }
 
     @Test
@@ -226,7 +226,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/deleteRequestURL");
+        assertHttpSpan(spans.get(0), "{DELETE}", "/deleteRequestURL");
     }
 
     @Test
@@ -252,7 +252,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/patchRequestURL");
+        assertHttpSpan(spans.get(0), "{PATCH}", "/patchRequestURL");
     }
 
     @Test
@@ -278,7 +278,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "");
+        assertHttpSpan(spans.get(0), "", "");
     }
 
     @Test
@@ -304,7 +304,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/getRequestURL");
+        assertHttpSpan(spans.get(0), "{GET}", "/getRequestURL");
         List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
         assertThat(logDataEntities.size(), is(1));
         SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);
@@ -335,7 +335,7 @@ public class RestMappingMethodInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
-        assertHttpSpan(spans.get(0), "/getRequestURL");
+        assertHttpSpan(spans.get(0), "{GET}", "/getRequestURL");
         SpanAssert.assertTag(spans.get(0), 2, "connection=[keep-alive]");
     }
 
@@ -345,8 +345,8 @@ public class RestMappingMethodInterceptorTest {
         MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.444.555"));
     }
 
-    private void assertHttpSpan(AbstractTracingSpan span, String suffix) {
-        assertThat(span.getOperationName(), is("/test" + suffix));
+    private void assertHttpSpan(AbstractTracingSpan span, String prefix, String suffix) {
+        assertThat(span.getOperationName(), is(prefix + "/test" + suffix));
         SpanAssert.assertComponent(span, ComponentsDefine.SPRING_MVC_ANNOTATION);
         SpanAssert.assertTag(span, 0, "http://localhost:8080/test" + suffix);
         assertThat(span.isEntry(), is(true));

@@ -149,7 +149,7 @@ public class ConfigInitializer {
             String propertyStringKey = propertyKey.toString();
             if (propertyStringKey.startsWith(prefix) && propertyStringKey.endsWith(suffix)) {
                 String itemKey = propertyStringKey.substring(
-                    prefix.length(), propertyStringKey.length() - suffix.length());
+                        prefix.length(), propertyStringKey.length() - suffix.length());
                 Object keyObj;
                 Object valueObj;
 

@@ -28,7 +28,7 @@ The core features are following.
 - Distributed tracing and context propagation
 - Database access metrics. Detect slow database access statements(including SQL statements).
 - Alarm
-
+- Browser performance monitoring
 
 <img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20200423"/>
 

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import java.nio.file.Paths;
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -45,6 +44,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
     private JettyServer jettyServer;
     private ReceiverGRPCHandlerRegister receiverGRPCHandlerRegister;
     private ReceiverJettyHandlerRegister receiverJettyHandlerRegister;
+    private AuthenticationInterceptor authenticationInterceptor;
 
     public SharingServerModuleProvider() {
         super();
@@ -92,13 +92,17 @@ public class SharingServerModuleProvider extends ModuleProvider {
             this.registerServiceImplementation(JettyHandlerRegister.class, receiverJettyHandlerRegister);
         }
 
+        if (StringUtil.isNotEmpty(config.getAuthentication())) {
+            authenticationInterceptor = new AuthenticationInterceptor(config.getAuthentication());
+        }
+
         if (config.getGRPCPort() != 0) {
             if (config.isGRPCSslEnabled()) {
                 grpcServer = new GRPCServer(
                     Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
                     config.getGRPCPort(),
-                    Paths.get(config.getGRPCSslCertChainPath()).toFile(),
-                    Paths.get(config.getGRPCSslKeyPath()).toFile()
+                    config.getGRPCSslCertChainPath(),
+                    config.getGRPCSslKeyPath()
                 );
             } else {
                 grpcServer = new GRPCServer(
@@ -120,11 +124,15 @@ public class SharingServerModuleProvider extends ModuleProvider {
             }
             grpcServer.initialize();
 
-            this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
+            GRPCHandlerRegisterImpl grpcHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);
+            if (Objects.nonNull(authenticationInterceptor)) {
+                grpcHandlerRegister.addFilter(authenticationInterceptor);
+            }
+            this.registerServiceImplementation(GRPCHandlerRegister.class, grpcHandlerRegister);
         } else {
             this.receiverGRPCHandlerRegister = new ReceiverGRPCHandlerRegister();
-            if (StringUtil.isNotEmpty(config.getAuthentication())) {
-                receiverGRPCHandlerRegister.addFilter(new AuthenticationInterceptor(config.getAuthentication()));
+            if (Objects.nonNull(authenticationInterceptor)) {
+                receiverGRPCHandlerRegister.addFilter(authenticationInterceptor);
             }
             this.registerServiceImplementation(GRPCHandlerRegister.class, receiverGRPCHandlerRegister);
         }

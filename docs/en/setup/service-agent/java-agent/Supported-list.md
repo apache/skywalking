@@ -9,7 +9,7 @@
   * [Resin](http://www.caucho.com/resin-4.0/) 3 (Optional¹)
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
-  * [Spring WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
+  * [Spring WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x (Optional¹)
   * [Undertow](http://undertow.io/)  1.3.0.Final -> 2.0.27.Final
   * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
   * [Play Framework](https://www.playframework.com/) 2.6.x -> 2.8.x
@@ -86,6 +86,7 @@
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
   * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
   * [Spring @Scheduled](https://github.com/spring-projects/spring-framework) 3.1+
+  * [Quartz Scheduler](https://github.com/quartz-scheduler/quartz) 2.x (Optional²)
 * OpenTracing community supported
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON

@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDA
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -117,6 +118,7 @@ public class MySQLStorageProvider extends ModuleProvider {
                 config.getNumOfSearchableValuesPerTag()
             )
         );
+        this.registerServiceImplementation(IBrowserLogQueryDAO.class, new MysqlBrowserLogQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));

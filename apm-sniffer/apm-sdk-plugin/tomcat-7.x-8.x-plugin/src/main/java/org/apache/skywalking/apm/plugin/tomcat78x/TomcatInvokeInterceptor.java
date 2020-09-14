@@ -111,7 +111,6 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
                                       Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
-        span.errorOccurred();
     }
 
     private void collectHttpParam(Request request, AbstractSpan span) {

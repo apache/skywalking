@@ -58,7 +58,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             try {
                 super.onMessage(message);
             } catch (Throwable t) {
-                ContextManager.activeSpan().errorOccurred().log(t);
+                ContextManager.activeSpan().log(t);
                 throw t;
             } finally {
                 ContextManager.stopSpan();
@@ -78,7 +78,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
         try {
             super.onCancel();
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             ContextManager.stopSpan();
@@ -95,7 +95,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
         try {
             super.onHalfClose();
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             ContextManager.stopSpan();
