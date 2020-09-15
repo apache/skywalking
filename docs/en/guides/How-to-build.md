@@ -55,6 +55,9 @@ or
 
 > make build.agent
 
+If you intend to compile a single one plugin, such as in the dev stage, you could
+>  cd plugin_module_dir & mvn clean package
+
 - Compile backend and package
 >  ./mvnw package -Pbackend,dist
 
@@ -68,9 +71,6 @@ or
 or
 
 > make build.ui
-
-- Compile single plugin
->  cd plugin_module_dir & mvn clean package
 
 
 ### Build docker images
