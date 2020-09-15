@@ -29,6 +29,8 @@ public class TestController {
 
     @Value("${projectB.host:localhost:18080}")
     private String hostBAddress;
+    @Value("${webclient.host:localhost:18081}")
+    private String clientHostAddress;
 
     @Autowired
     private HttpUtils httpUtils;
@@ -43,6 +45,7 @@ public class TestController {
         visit("http://" + hostBAddress + "/testcase/route/error");
         visit("http://" + hostBAddress + "/notFound");
         visit("http://" + hostBAddress + "/testcase/annotation/mono/hello");
+        visit("http://" + clientHostAddress + "/testcase/webclient/testGet");
         return "test";
     }
 
