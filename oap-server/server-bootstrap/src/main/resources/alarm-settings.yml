@@ -68,4 +68,4 @@ wechatHooks:
       }
     }
   webhooks:
-    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
+#    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key

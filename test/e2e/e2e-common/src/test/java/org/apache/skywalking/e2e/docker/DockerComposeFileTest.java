@@ -59,7 +59,6 @@ class DockerComposeFileTest {
         Assert.assertNotNull(testFile.getServices());
         Assert.assertEquals(COMPOSE_FILE_ONE.getServices().size() + COMPOSE_FILE_TWO.getServices().size(),
                 testFile.getServices().size());
-        Assert.assertEquals(COMPOSE_FILE_ONE.getVersion(), testFile.getVersion());
     }
 
     @Test

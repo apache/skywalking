@@ -28,7 +28,6 @@ import java.util.ServiceLoader;
  * The <code>ModuleManager</code> takes charge of all {@link ModuleDefine}s in collector.
  */
 public class ModuleManager implements ModuleDefineHolder {
-
     private boolean isInPrepareStage = true;
     private final Map<String, ModuleDefine> loadedModules = new HashMap<>();
 
@@ -45,14 +44,8 @@ public class ModuleManager implements ModuleDefineHolder {
         for (ModuleDefine module : moduleServiceLoader) {
             for (String moduleName : moduleNames) {
                 if (moduleName.equals(module.name())) {
-                    ModuleDefine newInstance;
-                    try {
-                        newInstance = module.getClass().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new ModuleNotFoundException(e);
-                    }
-                    newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName), moduleProviderLoader);
-                    loadedModules.put(moduleName, newInstance);
+                    module.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName), moduleProviderLoader);
+                    loadedModules.put(moduleName, module);
                     moduleList.remove(moduleName);
                 }
             }
