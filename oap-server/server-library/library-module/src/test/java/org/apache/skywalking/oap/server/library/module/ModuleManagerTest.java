@@ -38,4 +38,24 @@ public class ModuleManagerTest {
                                                                  .getService(BaseModuleA.ServiceABusiness1.class);
         Assert.assertTrue(serviceABusiness1 != null);
     }
+
+    @Test(expected = ModuleNotFoundException.class)
+    public void testModuleMissing() throws ModuleConfigException, ModuleNotFoundException, ModuleStartException {
+        ApplicationConfiguration configuration = new ApplicationConfiguration();
+        configuration.addModule("BaseA").addProviderConfiguration("P-A", new Properties());
+        configuration.addModule("BaseB").addProviderConfiguration("P-B2", new Properties());
+
+        ModuleManager manager = new ModuleManager();
+        manager.init(configuration);
+    }
+
+    @Test(expected = CycleDependencyException.class)
+    public void testCycleDependency() throws ModuleConfigException, ModuleNotFoundException, ModuleStartException {
+        ApplicationConfiguration configuration = new ApplicationConfiguration();
+        configuration.addModule("BaseA").addProviderConfiguration("P-A2", new Properties());
+        configuration.addModule("BaseB").addProviderConfiguration("P-B3", new Properties());
+
+        ModuleManager manager = new ModuleManager();
+        manager.init(configuration);
+    }
 }
