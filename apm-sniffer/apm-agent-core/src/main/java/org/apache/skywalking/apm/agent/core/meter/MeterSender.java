@@ -42,12 +42,14 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrp
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
+/**
+ * Collect the values from given registered metrics, and send to the backend.
+ */
 @DefaultImplementor
 public class MeterSender implements BootService, GRPCChannelListener {
     private static final ILog LOGGER = LogManager.getLogger(MeterSender.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
-
     private volatile MeterReportServiceGrpc.MeterReportServiceStub meterReportServiceStub;
 
     @Override

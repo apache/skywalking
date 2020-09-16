@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.toolkit.meter;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.toolkit.activation.meter.adapter.TookitCounterAdapter;
+import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitCounterAdapter;
 import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class ToolkitCounterAdapterTest {
     @Test
     public void testGetCount() {
         final Counter counter = MeterFactory.counter("test").build();
-        final TookitCounterAdapter adapter = new TookitCounterAdapter((CounterImpl) counter);
+        final ToolkitCounterAdapter adapter = new ToolkitCounterAdapter((CounterImpl) counter);
 
         counter.increment(1d);
         counter.increment(2d);
@@ -45,7 +45,7 @@ public class ToolkitCounterAdapterTest {
     @Test
     public void testGetCountWithRate() {
         final Counter counter = MeterFactory.counter("test_with_rate").mode(Counter.Mode.RATE).build();
-        final TookitCounterAdapter adapter = new TookitCounterAdapter((CounterImpl) counter);
+        final ToolkitCounterAdapter adapter = new ToolkitCounterAdapter((CounterImpl) counter);
 
         counter.increment(1d);
         counter.increment(2d);
@@ -60,7 +60,7 @@ public class ToolkitCounterAdapterTest {
     @Test
     public void testGetId() {
         final Counter counter = MeterFactory.counter("test").tag("k1", "v1").build();
-        final TookitCounterAdapter adapter = new TookitCounterAdapter((CounterImpl) counter);
+        final ToolkitCounterAdapter adapter = new ToolkitCounterAdapter((CounterImpl) counter);
 
         final MeterId id = adapter.getId();
         Assert.assertEquals("test", id.getName());
