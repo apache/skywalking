@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.meter.MeterId;
  */
 public interface MeterAdapter {
     /**
-     * @return @see {@link MeterId}
+     * @return {@link MeterId}
      */
     MeterId getId();
 }
