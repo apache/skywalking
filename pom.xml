@@ -383,12 +383,16 @@
                         <goals>
                             <goal>enforce</goal>
                         </goals>
+                        <phase>validate</phase>
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
                                     <!-- Build has not yet been updated for Java 9+ -->
                                     <version>1.8</version>
                                 </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>3.6</version>
+                                </requireMavenVersion>
                             </rules>
                         </configuration>
                     </execution>
@@ -564,8 +568,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
-                    <configLocation>apm-checkstyle/checkStyle.xml</configLocation>
-                    <headerLocation>apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
+                    <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
+                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -600,7 +604,7 @@
                         **/generated/*_jmhTest.java
                     </excludes>
                     <propertyExpansion>
-                        import.control=apm-checkstyle/importControl.xml
+                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
                     </propertyExpansion>
                 </configuration>
                 <executions>
