@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
 
 /**
- * A report to send JVM Metrics data to Kafka Broker.
+ * A report to send Metrics data of meter system to Kafka Broker.
  */
 @OverrideImplementor(MeterSender.class)
 public class KafkaMeterSender extends MeterSender {

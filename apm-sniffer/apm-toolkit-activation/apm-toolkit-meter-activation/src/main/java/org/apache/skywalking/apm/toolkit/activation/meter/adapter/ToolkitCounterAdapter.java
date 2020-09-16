@@ -23,12 +23,12 @@ import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
 import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 
-public class TookitCounterAdapter implements CounterAdapter {
+public class ToolkitCounterAdapter implements CounterAdapter {
 
     private final CounterImpl counter;
     private final MeterId id;
 
-    public TookitCounterAdapter(CounterImpl counter) {
+    public ToolkitCounterAdapter(CounterImpl counter) {
         this.counter = counter;
         this.id = MeterIdConverter.convert(counter.getMeterId());
     }
