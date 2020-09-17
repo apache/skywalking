@@ -39,7 +39,7 @@
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync -->
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
+            <artifactId>mongodb-driver-core</artifactId>
             <version>${mongo-java-driver.version}</version>
             <scope>provided</scope>
         </dependency>
