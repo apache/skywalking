@@ -24,4 +24,5 @@ thrift=org.apache.skywalking.apm.plugin.thrift.async.define.server.AsyncFrameBuf
 thrift=org.apache.skywalking.apm.plugin.thrift.async.define.server.TBaseAsyncProcessorInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.transport.define.TSocketInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.transport.define.TNonblockingSocketInstrumentation
+thrift=org.apache.skywalking.apm.plugin.thrift.transport.define.THttpServletInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.transport.define.THttpClientInstrumentation

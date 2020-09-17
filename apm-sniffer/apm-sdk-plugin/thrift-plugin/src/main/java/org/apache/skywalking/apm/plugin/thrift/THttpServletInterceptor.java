@@ -18,5 +18,36 @@
 
 package org.apache.skywalking.apm.plugin.thrift;
 
-public class THttpServletInterceptor {
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.plugin.thrift.wrapper.ServerInProtocolWrapper;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.server.TServlet;
+
+import java.lang.reflect.Field;
+
+/**
+ * To instrument Servlet implementation class ThriftServer.
+ * {@link TServlet}
+ */
+public class THttpServletInterceptor implements InstanceConstructorInterceptor {
+    private static final ILog logger = LogManager.getLogger(THttpServletInterceptor.class);
+
+    @Override
+    public void onConstruct(EnhancedInstance instance, Object[] allArguments) throws Throwable {
+        try {
+            // hijack inputProtocolFactory_ to carry CarrierItems
+            Field inputProtocolFactoryField = TServlet.class.getDeclaredField("inProtocolFactory");
+            TServlet server = (TServlet) instance;
+            inputProtocolFactoryField.setAccessible(true);
+            final TProtocolFactory factory = (TProtocolFactory) inputProtocolFactoryField.get(server);
+            inputProtocolFactoryField.set(server, (TProtocolFactory) transport -> {
+                return new ServerInProtocolWrapper(factory.getProtocol(transport));
+            });
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            logger.error("Hijack field 'inProtocolFactory' failed.", e);
+        }
+    }
 }

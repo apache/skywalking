@@ -27,6 +27,9 @@ import org.apache.skywalking.apm.plugin.thrift.wrapper.ServerInProtocolWrapper;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.server.TServer;
 
+/**
+ * To instrument generic interface for a Thrift server except for Http Server.
+ */
 public class TServerInterceptor implements InstanceConstructorInterceptor {
     private static final ILog logger = LogManager.getLogger(TServerInterceptor.class);
 

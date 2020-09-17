@@ -1,4 +1,4 @@
-/*
+package org.apache.skywalking.apm.testcase.thrift.client;/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,7 +16,17 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.thrift.define;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class THttpServletInstumentation {
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
+    }
 }
