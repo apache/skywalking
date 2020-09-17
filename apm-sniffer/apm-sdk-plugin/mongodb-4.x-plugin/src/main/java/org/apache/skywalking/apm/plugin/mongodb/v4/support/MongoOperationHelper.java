@@ -55,6 +55,8 @@ public class MongoOperationHelper {
     /**
      * Convert ReadOperation interface or WriteOperation interface to the implementation class. Get the method name and
      * filter info.
+     * @param obj operation
+     * @return result
      */
     public static String getTraceParam(Object obj) {
         if (obj instanceof CountOperation) {
