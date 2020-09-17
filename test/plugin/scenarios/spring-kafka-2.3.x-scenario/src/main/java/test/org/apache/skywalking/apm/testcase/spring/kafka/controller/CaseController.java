@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class CaseController {
     private String bootstrapServers;
     private String topicName;
     private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate2;
 
     private CountDownLatch latch = new CountDownLatch(1);
     private String helloWorld = "helloWorld";
@@ -65,6 +67,7 @@ public class CaseController {
     private void setUp() {
         topicName = "spring_test";
         setUpProvider();
+        setUpAnotherProvider();
         setUpConsumer();
     }
 
@@ -77,6 +80,21 @@ public class CaseController {
         try {
             kafkaTemplate.send(topicName, "key", "ping").get();
             kafkaTemplate.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setUpAnotherProvider() {
+        Map<String, Object> props = new HashMap<>();
+        // use list type here
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Arrays.asList(bootstrapServers.split(",")));
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        kafkaTemplate2 = new KafkaTemplate<String, String>(new DefaultKafkaProducerFactory<>(props));
+        try {
+            kafkaTemplate2.send(topicName, "key", "ping").get();
+            kafkaTemplate2.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
