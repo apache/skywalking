@@ -43,13 +43,15 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class MongoDBClientDelegateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
+    private static final String WITNESS_CLASS = "com.mongodb.internal.connection.Cluster";
+
     private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate";
 
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v4.interceptor.MongoDBClientDelegateInterceptor";
 
     @Override
     protected String[] witnessClasses() {
-        return new String[] {ENHANCE_CLASS};
+        return new String[] {WITNESS_CLASS};
     }
 
     @Override

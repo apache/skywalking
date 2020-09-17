@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
  */
 public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String WITNESS_CLASS = "com.mongodb.client.ClientSession";
+    private static final String WITNESS_CLASS = "com.mongodb.internal.operation.FindOperation";
 
     private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate$DelegateOperationExecutor";
 
