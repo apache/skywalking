@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.testcase.mongodb.controller;
 
+import com.mongodb.client.*;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
