@@ -60,7 +60,7 @@ public class CaseController {
     private KafkaTemplate<String, String> kafkaTemplate;
     private KafkaTemplate<String, String> kafkaTemplate2;
 
-    private CountDownLatch latch = new CountDownLatch(1);
+    private CountDownLatch latch;
     private String helloWorld = "helloWorld";
 
     @PostConstruct
@@ -133,9 +133,14 @@ public class CaseController {
     @RequestMapping("/spring-kafka-case")
     @ResponseBody
     public String springKafkaCase() throws Exception {
+        this.latch = new CountDownLatch(1);
         kafkaTemplate.send(topicName, "key", helloWorld).get();
-        latch.await();
+        this.latch.await();
         kafkaTemplate.flush();
+        this.latch = new CountDownLatch(1);
+        kafkaTemplate2.send(topicName, "key", helloWorld).get();
+        this.latch.await();
+        kafkaTemplate2.flush();
         return SUCCESS;
     }
 
