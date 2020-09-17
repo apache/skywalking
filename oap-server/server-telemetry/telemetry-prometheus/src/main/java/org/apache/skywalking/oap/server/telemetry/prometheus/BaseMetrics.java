@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
- * BaseMetrics parent class represents the me
+ * BaseMetrics parent class represents the metrics
  */
 public abstract class BaseMetrics<T extends SimpleCollector, C> {
     private static Map<String, Object> ALL_METRICS = new HashMap<>();
@@ -49,6 +49,12 @@ public abstract class BaseMetrics<T extends SimpleCollector, C> {
         return TelemetryRelatedContext.INSTANCE.getId() != null;
     }
 
+    /**
+     * Create real prometheus metrics with SkyWalking native labels, and provide to all metrics implementation. Metrics
+     * name should be unique.
+     *
+     * @return metric reference if the service instance id has been initialized. Or NULL.
+     */
     protected C getMetric() {
         if (metricsInstance == null) {
             if (isIDReady()) {
