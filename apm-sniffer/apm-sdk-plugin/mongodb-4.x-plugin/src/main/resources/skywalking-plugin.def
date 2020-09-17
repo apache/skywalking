@@ -14,6 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# v4.1~
+# v4.0.0~
 mongodb-4.x=org.apache.skywalking.apm.plugin.mongodb.v4.define.MongoDBClientDelegateInstrumentation
 mongodb-4.x=org.apache.skywalking.apm.plugin.mongodb.v4.define.MongoDBOperationExecutorInstrumentation

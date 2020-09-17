@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 /**
  * same whit {@link org.apache.skywalking.apm.plugin.mongodb.v3.define.v38.MongoDBOperationExecutorInstrumentation}
  * <p>
- * support: 3.8.x or higher
+ * support: 4.0.x or higher
  */
 public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -43,7 +43,7 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     private static final String METHOD_NAME = "execute";
 
-    private static final String ARGUMENT_TYPE = "com.mongodb.session.ClientSession";
+    private static final String ARGUMENT_TYPE = "com.mongodb.client.ClientSession";
 
     @Override
     protected String[] witnessClasses() {
@@ -67,7 +67,6 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return ElementMatchers
-                        // 4.1.0~
                         .named(METHOD_NAME)
                         .and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
                         .or(ElementMatchers.<MethodDescription>named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(3, ARGUMENT_TYPE)));

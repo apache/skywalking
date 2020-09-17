@@ -36,7 +36,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * OperationExecutor which is unified entrance of execute mongo command. we can mark OperationExecutor which connection
  * belongs to.
  * <p>
- * support: 3.7.x or higher
+ * support: 4.0.0 or higher
  *
  * @see MongoDBOperationExecutorInstrumentation
  * @see MongoDBClientDelegateInterceptor
