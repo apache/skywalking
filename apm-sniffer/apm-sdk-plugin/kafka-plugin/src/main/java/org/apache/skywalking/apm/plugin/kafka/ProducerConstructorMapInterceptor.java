@@ -22,11 +22,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Target at kafka-clients 2.1+
@@ -41,7 +39,7 @@ public class ProducerConstructorMapInterceptor implements InstanceConstructorInt
         if (objInst.getSkyWalkingDynamicField() == null) {
             Object bootstrapServers = config.get("bootstrap.servers");
             if (bootstrapServers instanceof List) {
-                objInst.setSkyWalkingDynamicField(String.join(";", ((List<String>) bootstrapServers)));
+                objInst.setSkyWalkingDynamicField(String.join(";", (List<String>) bootstrapServers));
             } else {
                 objInst.setSkyWalkingDynamicField(StringUtil.join(';', COMMA_WITH_WHITESPACE.split((String) bootstrapServers, -1)));
             }

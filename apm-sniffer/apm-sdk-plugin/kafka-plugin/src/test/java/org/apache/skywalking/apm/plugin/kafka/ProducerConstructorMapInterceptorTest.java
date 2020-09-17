@@ -36,9 +36,9 @@ import static org.hamcrest.core.Is.is;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProducerConstructorMapInterceptorTest {
-    private static Map<String, Object> producerConfigWithListBootstrapServers;
+    private static Map<String, Object> PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS;
 
-    private static Map<String, Object> producerConfigWithStringBootstrapServers;
+    private static Map<String, Object> PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS;
 
     @Mock
     private ProducerConstructorMapInterceptor constructorMapInterceptor;
@@ -62,10 +62,10 @@ public class ProducerConstructorMapInterceptorTest {
         List<String> mockBootstrapServers = new ArrayList<String>();
         mockBootstrapServers.add("localhost:9092");
         mockBootstrapServers.add("localhost:19092");
-        producerConfigWithListBootstrapServers = new HashMap<String, Object>() {{
+        PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS = new HashMap<String, Object>() {{
             put("bootstrap.servers", mockBootstrapServers);
         }};
-        producerConfigWithStringBootstrapServers = new HashMap<String, Object>() {{
+        PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS = new HashMap<String, Object>() {{
             // deliberately add whitespaces
             put("bootstrap.servers", String.join(" , ", mockBootstrapServers));
         }};
@@ -78,13 +78,13 @@ public class ProducerConstructorMapInterceptorTest {
 
     @Test
     public void givenListTypeBootstrapServers_whenConstructProducer_thenServersSaves() {
-        constructorMapInterceptor.onConstruct(enhancedInstance, new Object[]{producerConfigWithListBootstrapServers});
+        constructorMapInterceptor.onConstruct(enhancedInstance, new Object[]{PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS});
         assertThat(enhancedInstance.getSkyWalkingDynamicField().toString(), is("localhost:9092;localhost:19092"));
     }
 
     @Test
     public void givenStringTypeBootstrapServers_whenConstructProducer_thenServersSaves() {
-        constructorMapInterceptor.onConstruct(enhancedInstance, new Object[]{producerConfigWithStringBootstrapServers});
+        constructorMapInterceptor.onConstruct(enhancedInstance, new Object[]{PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS});
         assertThat(enhancedInstance.getSkyWalkingDynamicField().toString(), is("localhost:9092;localhost:19092"));
     }
 }
