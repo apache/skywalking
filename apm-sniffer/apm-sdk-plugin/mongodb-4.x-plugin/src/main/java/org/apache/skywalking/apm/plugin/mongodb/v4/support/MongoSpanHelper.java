@@ -30,6 +30,12 @@ public class MongoSpanHelper {
     private MongoSpanHelper() {
     }
 
+    /**
+     * createExitSpan
+     * @param executeMethod executeMethod
+     * @param remotePeer remotePeer
+     * @param operation operation
+     */
     public static void createExitSpan(String executeMethod, String remotePeer, Object operation) {
         AbstractSpan span = ContextManager.createExitSpan(
             MongoConstants.MONGO_DB_OP_PREFIX + executeMethod, new ContextCarrier(), remotePeer);

@@ -28,6 +28,11 @@ public class MongoRemotePeerHelper {
     private MongoRemotePeerHelper() {
     }
 
+    /**
+     * 
+     * @param cluster cluster
+     * @return result
+     */
     public static String getRemotePeer(Cluster cluster) {
         StringBuilder peersBuilder = new StringBuilder();
         for (ServerDescription description : cluster.getDescription().getServerDescriptions()) {
