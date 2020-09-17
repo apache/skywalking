@@ -323,7 +323,7 @@ SpringScheduled:
 quartz-scheduler:
   id: 97
   languages: Java
-spring-webclient:
+spring-webflux-webclient:
   id: 98
   languages: Java
 
