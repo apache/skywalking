@@ -41,6 +41,7 @@
 - memcache-2.x
 - mongodb-2.x
 - mongodb-3.x
+- mongodb-4.x
 - motan-0.x
 - mysql-5.x
 - mysql-6.x
