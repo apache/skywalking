@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Target at kafka-clients 2.1+
+ * Target at kafka-clients >=2.1.0
  */
 public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
     private static final Pattern COMMA_WITH_WHITESPACE = Pattern.compile("\\s*,\\s*");
