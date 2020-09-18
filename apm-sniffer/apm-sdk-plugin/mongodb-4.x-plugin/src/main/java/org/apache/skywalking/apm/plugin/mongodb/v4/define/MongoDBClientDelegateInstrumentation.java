@@ -33,8 +33,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * Enhance {@code com.mongodb.client.internal.MongoClientDelegate} instance, and intercept {@code
  * com.mongodb.client.internal.MongoClientDelegate#getOperationExecutor()}, this is the only way to get
- * OperationExecutor which is unified entrance of execute mongo command. we can mark OperationExecutor which connection
- * belongs to.
+ * OperationExecutor which is unified entrance of execute mongo command. Inject the remotePeer into enhanced OperationExecutor.
  * <p>
  * support: 4.0.0 or higher
  *

@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 /**
- * same whit org.apache.skywalking.apm.plugin.mongodb.v3.define.v38.MongoDBOperationExecutorInstrumentation
+ * same with org.apache.skywalking.apm.plugin.mongodb.v3.define.v38.MongoDBOperationExecutorInstrumentation
  * <p>
  * support: 4.0.x or higher
  */

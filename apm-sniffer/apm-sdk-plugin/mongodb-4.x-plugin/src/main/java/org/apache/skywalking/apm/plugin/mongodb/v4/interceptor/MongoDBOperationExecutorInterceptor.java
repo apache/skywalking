@@ -38,8 +38,8 @@ public class MongoDBOperationExecutorInterceptor implements InstanceMethodsAroun
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) {
         String executeMethod = allArguments[0].getClass().getSimpleName();
-        // OperationExecutor has be mark it's remotePeer
-        // @see: MongoDBClientDelegateInterceptor.afterMethod
+        // OperationExecutor has included th remotePeer
+        // See: MongoDBClientDelegateInterceptor.afterMethod
         String remotePeer = (String) objInst.getSkyWalkingDynamicField();
         if (LOGGER.isDebugEnable()) {
             LOGGER.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
