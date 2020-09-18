@@ -51,7 +51,7 @@ public class MongoDBClientDelegateInterceptor implements InstanceConstructorInte
         Object ret) {
         if (ret instanceof EnhancedInstance) {
             // pass remotePeer to OperationExecutor, which has be enhanced as EnhancedInstance
-            // @see: org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation
+            // See: org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation
             EnhancedInstance retInstance = (EnhancedInstance) ret;
             String remotePeer = (String) objInst.getSkyWalkingDynamicField();
             if (LOGGER.isDebugEnable()) {
