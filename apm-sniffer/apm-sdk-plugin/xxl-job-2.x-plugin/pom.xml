@@ -29,9 +29,7 @@
 
     <artifactId>apm-xxl-job-2.x-plugin</artifactId>
     <packaging>jar</packaging>
-
     <name>xxl-job-2.x-plugin</name>
-    <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
