@@ -63,7 +63,7 @@ public class SlackhookCallback implements AlarmCallback {
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) {
-        if (this.alarmRulesWatcher.getSlackSettings().getWebhooks().isEmpty()) {
+        if (this.alarmRulesWatcher.getSlackSettings() == null || this.alarmRulesWatcher.getSlackSettings().getWebhooks().isEmpty()) {
             return;
         }
 
@@ -77,31 +77,26 @@ public class SlackhookCallback implements AlarmCallback {
 
                 StringEntity entity;
                 try {
-
                     JsonObject jsonObject = new JsonObject();
                     JsonArray jsonElements = new JsonArray();
-
                     alarmMessages.forEach(item -> {
                         jsonElements.add(GSON.fromJson(
                             String.format(
                                 this.alarmRulesWatcher.getSlackSettings().getTextTemplate(), item.getAlarmMessage()
                             ), JsonObject.class));
                     });
-
                     jsonObject.add("blocks", jsonElements);
-
                     entity = new StringEntity(GSON.toJson(jsonObject), ContentType.APPLICATION_JSON);
-
                     post.setEntity(entity);
                     CloseableHttpResponse httpResponse = httpClient.execute(post);
                     StatusLine statusLine = httpResponse.getStatusLine();
                     if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                        log.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
+                        log.error("Send slack alarm to {} failure. Response code: {}", url , statusLine.getStatusCode());
                     }
                 } catch (UnsupportedEncodingException e) {
-                    log.error("Alarm to JSON error, " + e.getMessage(), e);
+                    log.error("Alarm to JSON error, {} ", e.getMessage(), e);
                 } catch (IOException e) {
-                    log.error("send alarm to " + url + " failure.", e);
+                    log.error("Send slack alarm to {} failure.", url , e);
                 }
             });
         } finally {
