@@ -28,7 +28,6 @@
     <modules>
         <module>webflux-projectA-scenario</module>
         <module>webflux-projectB-scenario</module>
-        <module>webflux-webclient-scenario</module>
         <module>webflux-dist</module>
     </modules>
 

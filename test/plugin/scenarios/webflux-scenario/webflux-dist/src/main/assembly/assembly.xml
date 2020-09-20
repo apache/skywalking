@@ -42,11 +42,5 @@
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>
-        <file>
-            <source>../webflux-webclient-scenario/target/webflux-webclient-scenario.jar</source>
-            <outputDirectory>./libs</outputDirectory>
-            <fileMode>0775</fileMode>
-        </file>
-
     </files>
 </assembly>
