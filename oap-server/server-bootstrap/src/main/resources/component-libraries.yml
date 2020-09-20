@@ -323,8 +323,11 @@ SpringScheduled:
 quartz-scheduler:
   id: 97
   languages: Java
-spring-webflux-webclient:
+xxl-job:
   id: 98
+  languages: Java
+spring-webflux-webclient:
+  id: 99
   languages: Java
 
 # .NET/.NET Core components
