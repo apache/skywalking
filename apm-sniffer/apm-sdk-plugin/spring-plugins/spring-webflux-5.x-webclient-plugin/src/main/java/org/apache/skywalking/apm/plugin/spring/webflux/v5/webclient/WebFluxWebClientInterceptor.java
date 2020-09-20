@@ -76,6 +76,10 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        // fix the problem that allArgument[0] may be null
+        if(allArguments[0] == null){
+            return ret;
+        }
         Mono<ClientResponse> ret1 = (Mono<ClientResponse>) ret;
         AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
         return ret1.doAfterSuccessOrError(new BiConsumer<ClientResponse, Throwable>() {
@@ -90,7 +94,6 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
                 }
             }
         }).doOnError(error -> {
-            span.errorOccurred();
             span.log(error);
         }).doFinally(s -> {
             span.asyncFinish();
