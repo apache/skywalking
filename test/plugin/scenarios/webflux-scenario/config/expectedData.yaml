@@ -402,7 +402,7 @@ segmentItems:
       spanLayer: Http
       startTime: not null
       endTime: not null
-      componentId: 98
+      componentId: 99
       isError: false
       spanType: Exit
       peer: not null

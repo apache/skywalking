@@ -77,7 +77,7 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         // fix the problem that allArgument[0] may be null
-        if(allArguments[0] == null){
+        if (allArguments[0] == null) {
             return ret;
         }
         Mono<ClientResponse> ret1 = (Mono<ClientResponse>) ret;
