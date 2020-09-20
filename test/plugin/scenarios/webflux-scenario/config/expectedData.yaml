@@ -321,6 +321,21 @@ segmentItems:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
+    - operationName: /testcase/webclient/server
+      operationId: 0
+      parentSpanId: 0
+      spanId: 9
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 99
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
     - operationName: /projectA/testcase
       operationId: 0
       parentSpanId: -1
