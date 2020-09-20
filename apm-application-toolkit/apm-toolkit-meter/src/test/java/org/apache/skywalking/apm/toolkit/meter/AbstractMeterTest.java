@@ -162,8 +162,13 @@ public class AbstractMeterTest {
         }
 
         @Override
-        public double get() {
+        public double getCount() {
             return 0;
+        }
+
+        @Override
+        public Mode getMode() {
+            return Mode.INCREMENT;
         }
 
         public static class Builder extends AbstractBuilder<Builder, Counter, TestCounter> {

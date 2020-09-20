@@ -21,7 +21,10 @@ package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
+
+import java.util.Objects;
 
 public class ToolkitCounterAdapter implements CounterAdapter {
 
@@ -34,9 +37,13 @@ public class ToolkitCounterAdapter implements CounterAdapter {
     }
 
     @Override
-    public Double getCount() {
-        // Using agent get, support rate mode
-        return counter.agentGet();
+    public double getCount() {
+        return counter.getCount();
+    }
+
+    @Override
+    public boolean usingRate() {
+        return Objects.equals(counter.getMode(), Counter.Mode.RATE);
     }
 
     @Override

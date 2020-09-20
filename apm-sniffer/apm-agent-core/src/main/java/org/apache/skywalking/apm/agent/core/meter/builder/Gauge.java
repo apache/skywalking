@@ -16,31 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
+package org.apache.skywalking.apm.agent.core.meter.builder;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
+/**
+ * A gauge is a metric that represents a single numerical value that can arbitrarily go up and down.
+ */
+public interface Gauge extends BaseMeter {
 
-public class ToolkitGaugeAdapter implements GaugeAdapter {
+    /**
+     * Get count
+     */
+    double getCount();
 
-    private final Gauge gauge;
-    private final MeterId id;
-
-    public ToolkitGaugeAdapter(Gauge gauge) {
-        this.gauge = gauge;
-        this.id = MeterIdConverter.convert(gauge.getMeterId());
-    }
-
-    @Override
-    public double getCount() {
-        return gauge.get();
-    }
-
-    @Override
-    public MeterId getId() {
-        return id;
+    interface Builder extends BaseBuilder<Builder, Gauge> {
     }
 
 }

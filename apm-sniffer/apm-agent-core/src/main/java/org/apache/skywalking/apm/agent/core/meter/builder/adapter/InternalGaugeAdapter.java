@@ -16,34 +16,35 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter.impl;
+package org.apache.skywalking.apm.agent.core.meter.builder.adapter;
 
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
-import org.apache.skywalking.apm.toolkit.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
+import org.apache.skywalking.apm.agent.core.meter.builder.Gauge;
+import org.apache.skywalking.apm.agent.core.meter.transform.GaugeTransformer;
+import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 
 import java.util.function.Supplier;
 
 /**
- * Using {@link Supplier} as the value.
+ * Agent core level gauge adapter
  */
-public class GaugeImpl extends AbstractMeter implements Gauge {
-
+public class InternalGaugeAdapter extends InternalBaseAdapter implements GaugeAdapter, Gauge {
     protected Supplier<Double> getter;
 
-    public GaugeImpl(MeterId meterId, Supplier<Double> getter) {
+    private InternalGaugeAdapter(MeterId meterId, Supplier<Double> getter) {
         super(meterId);
         this.getter = getter;
     }
 
-    /**
-     * Get count
-     */
-    public double get() {
+    @Override
+    public double getCount() {
         final Double val = getter.get();
         return val == null ? 0.0 : val;
     }
 
-    public static class Builder extends AbstractBuilder<Gauge.Builder, Gauge, GaugeImpl> implements Gauge.Builder {
+    public static class Builder extends AbstractBuilder<Gauge.Builder, Gauge, GaugeAdapter> implements Gauge.Builder {
         private final Supplier<Double> getter;
 
         public Builder(String name, Supplier<Double> getter) {
@@ -51,30 +52,23 @@ public class GaugeImpl extends AbstractMeter implements Gauge {
             this.getter = getter;
         }
 
-        public Builder(MeterId meterId, Supplier<Double> getter) {
-            super(meterId);
-            this.getter = getter;
+        @Override
+        protected MeterType getType() {
+            return MeterType.GAUGE;
         }
 
         @Override
-        public void accept(GaugeImpl meter) {
-            if (this.getter != meter.getter) {
-                throw new IllegalArgumentException("Getter is not same");
-            }
-        }
-
-        @Override
-        public GaugeImpl create(MeterId meterId) {
+        protected InternalGaugeAdapter create(MeterId meterId) {
             if (getter == null) {
                 throw new IllegalArgumentException("getter cannot be null");
             }
-            return new GaugeImpl(meterId, getter);
+            return new InternalGaugeAdapter(meterId, getter);
         }
 
         @Override
-        public MeterId.MeterType getType() {
-            return MeterId.MeterType.GAUGE;
+        protected MeterTransformer<GaugeAdapter> wrapperTransformer(GaugeAdapter adapter) {
+            return new GaugeTransformer(adapter);
         }
-    }
 
+    }
 }

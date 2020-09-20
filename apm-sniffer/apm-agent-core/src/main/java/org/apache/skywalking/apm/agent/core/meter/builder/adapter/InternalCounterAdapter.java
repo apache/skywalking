@@ -16,56 +16,52 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter.impl;
+package org.apache.skywalking.apm.agent.core.meter.builder.adapter;
 
-import org.apache.skywalking.apm.toolkit.meter.Counter;
-import org.apache.skywalking.apm.toolkit.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
+import org.apache.skywalking.apm.agent.core.meter.builder.Counter;
+import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
+import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.DoubleAdder;
 
 /**
- * Using {@link DoubleAdder} to add count
+ * Agent core level counter adapter
  */
-public class CounterImpl extends AbstractMeter implements Counter {
+public class InternalCounterAdapter extends InternalBaseAdapter implements CounterAdapter, Counter {
 
     protected final DoubleAdder count;
-    protected final Mode mode;
+    protected final Counter.Mode mode;
 
-    protected CounterImpl(MeterId meterId, Mode mode) {
+    private InternalCounterAdapter(MeterId meterId, Counter.Mode mode) {
         super(meterId);
         this.count = new DoubleAdder();
         this.mode = mode;
     }
 
-    /**
-     * Increment count
-     */
+    @Override
+    public double getCount() {
+        return count.doubleValue();
+    }
+
+    @Override
+    public boolean usingRate() {
+        return Objects.equals(mode, Mode.RATE);
+    }
+
+    @Override
     public void increment(double count) {
         this.count.add(count);
     }
 
-    /**
-     * Get count value
-     */
-    public double getCount() {
-        return this.count.doubleValue();
-    }
-
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
-    public static class Builder extends AbstractBuilder<Counter.Builder, Counter, CounterImpl> implements Counter.Builder {
+    public static class Builder extends AbstractBuilder<Counter.Builder, Counter, CounterAdapter> implements Counter.Builder {
         private Counter.Mode mode = Counter.Mode.INCREMENT;
 
         public Builder(String name) {
             super(name);
-        }
-
-        public Builder(MeterId meterId) {
-            super(meterId);
         }
 
         /**
@@ -77,21 +73,19 @@ public class CounterImpl extends AbstractMeter implements Counter {
         }
 
         @Override
-        protected void accept(CounterImpl meter) throws IllegalArgumentException {
-            // Rate mode must be same
-            if (!Objects.equals(meter.mode, this.mode)) {
-                throw new IllegalArgumentException("Mode is not same");
-            }
+        protected CounterAdapter create(MeterId meterId) {
+            return new InternalCounterAdapter(meterId, mode);
         }
 
         @Override
-        protected Counter create(MeterId meterId) {
-            return new CounterImpl(meterId, mode);
+        protected MeterTransformer<CounterAdapter> wrapperTransformer(CounterAdapter adapter) {
+            return new CounterTransformer(adapter);
         }
 
         @Override
-        protected MeterId.MeterType getType() {
-            return MeterId.MeterType.COUNTER;
+        protected MeterType getType() {
+            return MeterType.COUNTER;
         }
+
     }
 }

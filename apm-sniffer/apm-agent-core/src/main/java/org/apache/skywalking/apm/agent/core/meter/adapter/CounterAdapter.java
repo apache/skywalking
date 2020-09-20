@@ -19,5 +19,10 @@
 package org.apache.skywalking.apm.agent.core.meter.adapter;
 
 public interface CounterAdapter extends MeterAdapter {
-    Double getCount();
+    double getCount();
+
+    /**
+     * Is counter using rate mode
+     */
+    boolean usingRate();
 }

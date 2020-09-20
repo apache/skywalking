@@ -237,8 +237,13 @@ public class MeterServiceTest {
         }
 
         @Override
-        public Double getCount() {
+        public double getCount() {
             return 2d;
+        }
+
+        @Override
+        public boolean usingRate() {
+            return false;
         }
 
         @Override

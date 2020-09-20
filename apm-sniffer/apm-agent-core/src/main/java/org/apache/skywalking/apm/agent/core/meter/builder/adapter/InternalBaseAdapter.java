@@ -16,52 +16,58 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter;
+package org.apache.skywalking.apm.agent.core.meter.builder.adapter;
+
+import org.apache.skywalking.apm.agent.core.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 
 import java.util.Objects;
 
-public class MeterTag implements Comparable<MeterTag> {
+/**
+ * Base meter implementation bean
+ */
+public class InternalBaseAdapter {
 
-    private String key;
-    private String value;
+    protected final MeterId meterId;
 
-    public MeterTag(String key, String value) {
-        this.key = key;
-        this.value = value;
+    public InternalBaseAdapter(MeterId meterId) {
+        this.meterId = meterId;
     }
 
-    public String getKey() {
-        return key;
+    /**
+     * Get meter name
+     */
+    public String getName() {
+        return meterId.getName();
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
+    /**
+     * Get tag value
+     */
+    public String getTag(String tagKey) {
+        for (MeterTag tag : meterId.getTags()) {
+            if (tag.getKey().equals(tagKey)) {
+                return tag.getValue();
+            }
+        }
+        return null;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MeterTag meterTag = (MeterTag) o;
-        return Objects.equals(key, meterTag.key) &&
-            Objects.equals(value, meterTag.value);
+        InternalBaseAdapter abstractMeter = (InternalBaseAdapter) o;
+        return Objects.equals(meterId, abstractMeter.meterId);
+    }
+
+    public MeterId getId() {
+        return meterId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, value);
+        return Objects.hash(meterId);
     }
 
-    @Override
-    public int compareTo(MeterTag o) {
-        return this.key.compareTo(o.key);
-    }
 }

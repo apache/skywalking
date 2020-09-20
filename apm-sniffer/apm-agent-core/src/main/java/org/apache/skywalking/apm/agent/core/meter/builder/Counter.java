@@ -16,31 +16,38 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
+package org.apache.skywalking.apm.agent.core.meter.builder;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
+/**
+ * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
+ */
+public interface Counter extends BaseMeter {
 
-public class ToolkitGaugeAdapter implements GaugeAdapter {
+    void increment(double count);
 
-    private final Gauge gauge;
-    private final MeterId id;
+    double getCount();
 
-    public ToolkitGaugeAdapter(Gauge gauge) {
-        this.gauge = gauge;
-        this.id = MeterIdConverter.convert(gauge.getMeterId());
+    /**
+     * Counter mode
+     */
+    enum Mode {
+        /**
+         * Increase single value, report the real value
+         */
+        INCREMENT,
+
+        /**
+         * Rate with previous value when report
+         */
+        RATE
     }
 
-    @Override
-    public double getCount() {
-        return gauge.get();
-    }
+    interface Builder extends BaseBuilder<Builder, Counter> {
 
-    @Override
-    public MeterId getId() {
-        return id;
-    }
+        /**
+         * Setting counter mode
+         */
+        Builder mode(Counter.Mode mode);
 
+    }
 }

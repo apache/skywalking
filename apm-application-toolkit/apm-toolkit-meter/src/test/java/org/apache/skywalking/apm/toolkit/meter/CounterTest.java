@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,13 +39,13 @@ public class CounterTest {
     public void testIncrement() {
         Counter counter = MeterFactory.counter("test_counter1").tag("k1", "v1").build();
         counter.increment(1);
-        Assert.assertEquals(counter.get(), 1d, 0.0);
+        Assert.assertEquals(counter.getCount(), 1d, 0.0);
 
         counter.increment(1.5);
-        Assert.assertEquals(counter.get(), 2.5d, 0.0);
+        Assert.assertEquals(counter.getCount(), 2.5d, 0.0);
 
         counter.increment(-1d);
-        Assert.assertEquals(counter.get(), 1.5d, 0.0);
+        Assert.assertEquals(counter.getCount(), 1.5d, 0.0);
     }
 
     @Test
@@ -78,40 +77,6 @@ public class CounterTest {
             throw e;
         } catch (Exception e) {
         }
-    }
-
-    @Test
-    public void testAgentGetWithoutRate() {
-        final Counter counter = MeterFactory.counter("test_counter_without_rate")
-            .tag("k1", "v1")
-            .build();
-
-        final CounterImpl counterImpl = (CounterImpl) counter;
-        counter.increment(1);
-        Assert.assertEquals(counterImpl.agentGet(), 1d, 0.0);
-        Assert.assertEquals(counterImpl.agentGet(), 1d, 0.0);
-
-        counter.increment(1.5);
-        counter.increment(-0.5);
-        Assert.assertEquals(counterImpl.agentGet(), 2d, 0.0);
-        Assert.assertEquals(counterImpl.agentGet(), 2d, 0.0);
-    }
-
-    @Test
-    public void testAgentGetWithRate() {
-        final Counter counter = MeterFactory.counter("test_counter_with_rate")
-            .tag("k1", "v1")
-            .mode(Counter.Mode.RATE).build();
-
-        final CounterImpl counterImpl = (CounterImpl) counter;
-        counter.increment(1);
-        Assert.assertEquals(counterImpl.agentGet(), 1d, 0.0);
-        Assert.assertEquals(counterImpl.agentGet(), 0d, 0.0);
-
-        counter.increment(1.5);
-        counter.increment(-0.5);
-        Assert.assertEquals(counterImpl.agentGet(), 1d, 0.0);
-        Assert.assertEquals(counterImpl.agentGet(), 0d, 0.0);
     }
 
 }

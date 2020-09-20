@@ -50,11 +50,43 @@ public class CounterTransformerTest {
     public void testTransform() {
         final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
         final DoubleAdder counter = new DoubleAdder();
-        CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter));
+        CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter, false));
 
         counter.add(2d);
 
         validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
+    }
+
+    @Test
+    public void testTransformWithRate() {
+        final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
+        final DoubleAdder counter = new DoubleAdder();
+        CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter, true));
+
+        counter.add(1d);
+        counter.add(2d);
+
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 3d, transformer.transform());
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 0d, transformer.transform());
+
+        counter.add(-4d);
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), -4d, transformer.transform());
+    }
+
+    @Test
+    public void testGetCountWithoutRate() {
+        final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
+        final DoubleAdder counter = new DoubleAdder();
+        CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter, false));
+
+        counter.add(1d);
+        counter.add(2d);
+
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 3d, transformer.transform());
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 3d, transformer.transform());
+
+        counter.add(-4d);
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), -1d, transformer.transform());
     }
 
     /**
@@ -76,15 +108,22 @@ public class CounterTransformerTest {
     private static class TestCounterAdapter implements CounterAdapter {
         private final MeterId meterId;
         private DoubleAdder counter;
+        private boolean usingRate;
 
-        public TestCounterAdapter(MeterId meterId, DoubleAdder counter) {
+        public TestCounterAdapter(MeterId meterId, DoubleAdder counter, boolean usingRate) {
             this.meterId = meterId;
             this.counter = counter;
+            this.usingRate = usingRate;
         }
 
         @Override
-        public Double getCount() {
+        public double getCount() {
             return counter.doubleValue();
+        }
+
+        @Override
+        public boolean usingRate() {
+            return usingRate;
         }
 
         @Override

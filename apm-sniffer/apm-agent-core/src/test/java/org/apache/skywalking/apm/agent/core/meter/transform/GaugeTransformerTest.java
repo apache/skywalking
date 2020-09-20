@@ -78,7 +78,7 @@ public class GaugeTransformerTest {
         }
 
         @Override
-        public Double getCount() {
+        public double getCount() {
             return supplier.get();
         }
 

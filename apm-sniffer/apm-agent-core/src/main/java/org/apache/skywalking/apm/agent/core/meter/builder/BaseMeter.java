@@ -16,31 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
+package org.apache.skywalking.apm.agent.core.meter.builder;
 
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
 
-public class ToolkitGaugeAdapter implements GaugeAdapter {
+public interface BaseMeter {
 
-    private final Gauge gauge;
-    private final MeterId id;
+    /**
+     * Get meter name
+     */
+    String getName();
 
-    public ToolkitGaugeAdapter(Gauge gauge) {
-        this.gauge = gauge;
-        this.id = MeterIdConverter.convert(gauge.getMeterId());
-    }
+    /**
+     * Get tag value
+     */
+    String getTag(String tagKey);
 
-    @Override
-    public double getCount() {
-        return gauge.get();
-    }
-
-    @Override
-    public MeterId getId() {
-        return id;
-    }
+    /**
+     * Get meter Id
+     */
+    MeterId getId();
 
 }
