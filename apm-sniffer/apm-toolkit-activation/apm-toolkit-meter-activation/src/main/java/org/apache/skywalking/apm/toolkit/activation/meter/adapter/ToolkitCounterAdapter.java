@@ -37,8 +37,8 @@ public class ToolkitCounterAdapter implements CounterAdapter {
     }
 
     @Override
-    public double getCount() {
-        return counter.getCount();
+    public double get() {
+        return counter.get();
     }
 
     @Override

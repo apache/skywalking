@@ -43,7 +43,7 @@ public class InternalCounterAdapter extends InternalBaseAdapter implements Count
     }
 
     @Override
-    public double getCount() {
+    public double get() {
         return count.doubleValue();
     }
 

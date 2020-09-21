@@ -36,9 +36,9 @@ public class GaugeImpl extends AbstractMeter implements Gauge {
     }
 
     /**
-     * Get count
+     * Get value
      */
-    public double getCount() {
+    public double get() {
         final Double val = getter.get();
         return val == null ? 0.0 : val;
     }

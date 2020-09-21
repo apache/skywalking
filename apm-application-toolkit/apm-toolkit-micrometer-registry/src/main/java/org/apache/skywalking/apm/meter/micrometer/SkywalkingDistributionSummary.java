@@ -84,16 +84,16 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
 
     @Override
     public long count() {
-        return (long) counter.getCount();
+        return (long) counter.get();
     }
 
     @Override
     public double totalAmount() {
-        return sum.getCount();
+        return sum.get();
     }
 
     @Override
     public double max() {
-        return max.getCount();
+        return max.get();
     }
 }

@@ -162,7 +162,7 @@ public class AbstractMeterTest {
         }
 
         @Override
-        public double getCount() {
+        public double get() {
             return 0;
         }
 

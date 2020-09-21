@@ -32,7 +32,7 @@ public class ToolkitGaugeAdapterTest {
         final Gauge gauge = MeterFactory.gauge("test", () -> 1d).build();
         final ToolkitGaugeAdapter adapter = new ToolkitGaugeAdapter(gauge);
 
-        Assert.assertEquals(adapter.getCount(), 1d, 0.0);
+        Assert.assertEquals(adapter.get(), 1d, 0.0);
     }
 
     @Test

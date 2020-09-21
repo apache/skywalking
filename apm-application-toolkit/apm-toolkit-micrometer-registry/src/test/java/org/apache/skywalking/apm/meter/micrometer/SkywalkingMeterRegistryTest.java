@@ -71,7 +71,7 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
         Assert.assertTrue(meter instanceof Gauge);
         final Gauge gauge = (Gauge) meter;
 
-        Assert.assertEquals(1d, gauge.getCount(), 0.0);
+        Assert.assertEquals(1d, gauge.get(), 0.0);
     }
 
     @Test

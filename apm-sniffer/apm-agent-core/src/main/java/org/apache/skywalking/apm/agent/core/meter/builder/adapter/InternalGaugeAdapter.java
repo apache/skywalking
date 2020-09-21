@@ -39,7 +39,7 @@ public class InternalGaugeAdapter extends InternalBaseAdapter implements GaugeAd
     }
 
     @Override
-    public double getCount() {
+    public double get() {
         final Double val = getter.get();
         return val == null ? 0.0 : val;
     }

@@ -37,7 +37,7 @@ public class SkywalkingMeterBaseTest {
         Assert.assertEquals(tags, counter.getMeterId().getTags());
         Assert.assertEquals(MeterId.MeterType.COUNTER, counter.getMeterId().getType());
 
-        Assert.assertEquals(count, counter.getCount(), 0.0);
+        Assert.assertEquals(count, counter.get(), 0.0);
     }
 
     /**
@@ -56,9 +56,9 @@ public class SkywalkingMeterBaseTest {
         Assert.assertEquals(MeterId.MeterType.GAUGE, gauge.getMeterId().getType());
 
         if (greaterThanValueMode) {
-            Assert.assertTrue(gauge.getCount() > value);
+            Assert.assertTrue(gauge.get() > value);
         } else {
-            Assert.assertEquals(value, gauge.getCount(), 0.0);
+            Assert.assertEquals(value, gauge.get(), 0.0);
         }
     }
 

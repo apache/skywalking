@@ -41,7 +41,7 @@ public class CounterTransformer extends MeterTransformer<CounterAdapter> {
         }
 
         // using rate mode or increase
-        final double currentValue = adapter.getCount();
+        final double currentValue = adapter.get();
         double count;
         if (adapter.usingRate()) {
             final Double previousValue = previous.getAndSet(currentValue);

@@ -84,16 +84,16 @@ public class SkywalkingTimer extends AbstractTimer {
 
     @Override
     public long count() {
-        return (long) counter.getCount();
+        return (long) counter.get();
     }
 
     @Override
     public double totalTime(TimeUnit unit) {
-        return unit.convert((long) sum.getCount(), TimeUnit.MILLISECONDS);
+        return unit.convert((long) sum.get(), TimeUnit.MILLISECONDS);
     }
 
     @Override
     public double max(TimeUnit unit) {
-        return unit.convert((long) max.getCount(), TimeUnit.MILLISECONDS);
+        return unit.convert((long) max.get(), TimeUnit.MILLISECONDS);
     }
 }

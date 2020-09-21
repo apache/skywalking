@@ -19,5 +19,5 @@
 package org.apache.skywalking.apm.agent.core.meter.adapter;
 
 public interface GaugeAdapter extends MeterAdapter {
-    double getCount();
+    double get();
 }

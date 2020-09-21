@@ -40,7 +40,7 @@ public class SkywalkingCounter extends AbstractMeter implements io.micrometer.co
 
     @Override
     public double count() {
-        return counter.getCount();
+        return counter.get();
     }
 
 }

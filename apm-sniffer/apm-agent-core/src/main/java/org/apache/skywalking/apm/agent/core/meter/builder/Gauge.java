@@ -24,9 +24,9 @@ package org.apache.skywalking.apm.agent.core.meter.builder;
 public interface Gauge extends BaseMeter {
 
     /**
-     * Get count
+     * Get value
      */
-    double getCount();
+    double get();
 
     interface Builder extends BaseBuilder<Builder, Gauge> {
     }

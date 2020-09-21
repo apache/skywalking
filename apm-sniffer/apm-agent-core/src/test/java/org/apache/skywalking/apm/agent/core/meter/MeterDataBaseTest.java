@@ -43,7 +43,7 @@ public class MeterDataBaseTest {
             }
         }
         // Check current value
-        Assert.assertEquals(val, counter.getCount(), 0.0);
+        Assert.assertEquals(val, counter.get(), 0.0);
 
         // Check using rate
         final InternalCounterAdapter adapter = (InternalCounterAdapter) counter;
@@ -63,7 +63,7 @@ public class MeterDataBaseTest {
             }
         }
         // Check current value
-        Assert.assertEquals(val, gauge.getCount(), 0.0);
+        Assert.assertEquals(val, gauge.get(), 0.0);
     }
 
     /**

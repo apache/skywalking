@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.agent.core.meter.adapter;
 
 public interface CounterAdapter extends MeterAdapter {
-    double getCount();
+    double get();
 
     /**
      * Is counter using rate mode

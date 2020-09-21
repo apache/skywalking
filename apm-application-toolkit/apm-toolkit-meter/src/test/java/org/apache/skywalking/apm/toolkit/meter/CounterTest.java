@@ -39,13 +39,13 @@ public class CounterTest {
     public void testIncrement() {
         Counter counter = MeterFactory.counter("test_counter1").tag("k1", "v1").build();
         counter.increment(1);
-        Assert.assertEquals(counter.getCount(), 1d, 0.0);
+        Assert.assertEquals(counter.get(), 1d, 0.0);
 
         counter.increment(1.5);
-        Assert.assertEquals(counter.getCount(), 2.5d, 0.0);
+        Assert.assertEquals(counter.get(), 2.5d, 0.0);
 
         counter.increment(-1d);
-        Assert.assertEquals(counter.getCount(), 1.5d, 0.0);
+        Assert.assertEquals(counter.get(), 1.5d, 0.0);
     }
 
     @Test

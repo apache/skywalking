@@ -25,7 +25,7 @@ public interface Counter extends BaseMeter {
 
     void increment(double count);
 
-    double getCount();
+    double get();
 
     /**
      * Counter mode

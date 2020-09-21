@@ -237,7 +237,7 @@ public class MeterServiceTest {
         }
 
         @Override
-        public double getCount() {
+        public double get() {
             return 2d;
         }
 

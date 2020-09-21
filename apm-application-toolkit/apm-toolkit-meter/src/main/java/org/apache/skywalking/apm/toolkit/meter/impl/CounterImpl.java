@@ -48,7 +48,7 @@ public class CounterImpl extends AbstractMeter implements Counter {
     /**
      * Get count value
      */
-    public double getCount() {
+    public double get() {
         return this.count.doubleValue();
     }
 

@@ -36,7 +36,7 @@ public class GaugeTransformer extends MeterTransformer<GaugeAdapter> {
         // get count
         Double count;
         try {
-            count = adapter.getCount();
+            count = adapter.get();
         } catch (Exception e) {
             LOGGER.warn(e, "Cannot get the count in meter:{}", adapter.getId().getName());
             return null;

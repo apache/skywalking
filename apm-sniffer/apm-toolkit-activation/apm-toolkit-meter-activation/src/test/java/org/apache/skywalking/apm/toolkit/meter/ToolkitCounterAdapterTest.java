@@ -36,10 +36,10 @@ public class ToolkitCounterAdapterTest {
         counter.increment(1d);
         counter.increment(2d);
 
-        Assert.assertEquals(adapter.getCount(), 3d, 0.0);
+        Assert.assertEquals(adapter.get(), 3d, 0.0);
 
         counter.increment(-4d);
-        Assert.assertEquals(adapter.getCount(), -1d, 0.0);
+        Assert.assertEquals(adapter.get(), -1d, 0.0);
     }
 
     @Test

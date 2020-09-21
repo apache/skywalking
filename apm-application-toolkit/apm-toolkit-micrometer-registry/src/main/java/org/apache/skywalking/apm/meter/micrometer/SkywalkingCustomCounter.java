@@ -37,7 +37,7 @@ public class SkywalkingCustomCounter extends CounterImpl {
     }
 
     @Override
-    public double getCount() {
+    public double get() {
         return measurement.getValue();
     }
 

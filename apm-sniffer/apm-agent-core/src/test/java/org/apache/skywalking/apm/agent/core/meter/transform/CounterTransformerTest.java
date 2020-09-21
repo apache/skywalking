@@ -117,7 +117,7 @@ public class CounterTransformerTest {
         }
 
         @Override
-        public double getCount() {
+        public double get() {
             return counter.doubleValue();
         }
 

@@ -34,8 +34,8 @@ public class ToolkitGaugeAdapter implements GaugeAdapter {
     }
 
     @Override
-    public double getCount() {
-        return gauge.getCount();
+    public double get() {
+        return gauge.get();
     }
 
     @Override
