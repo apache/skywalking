@@ -30,6 +30,7 @@
 
     <properties>
         <thrift.version>0.12.0</thrift.version>
+        <jettyserver.version>9.4.31.v20200723</jettyserver.version>
     </properties>
 
     <dependencies>
@@ -37,6 +38,18 @@
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
             <version>${thrift.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jettyserver.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jettyserver.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
