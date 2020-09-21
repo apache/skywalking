@@ -35,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -85,8 +86,7 @@ public class AgentClassLoader extends ClassLoader {
         super(parent);
         File agentDictionary = AgentPackagePath.getPath();
         classpath = new LinkedList<>();
-        classpath.add(new File(agentDictionary, "plugins"));
-        classpath.add(new File(agentDictionary, "activations"));
+        Config.Plugin.MOUNT.forEach(mountFolder -> classpath.add(new File(agentDictionary, mountFolder)));
     }
 
     @Override

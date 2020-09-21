@@ -113,6 +113,7 @@ property key | Description | Default |
 `meter.active`|If true, the agent collects and reports metrics to the backend.|`true`|
 `meter.report_interval`|Report meters interval. The unit is second|`20`|
 `meter.max_meter_size`| Max size of the meter pool |`500`|
+`plugin.mount` | Mount the specific folders of the plugins. Plugins in mounted folders would work. | `plugins,activations` |
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.exclude_plugins `|Exclude some plugins define in plugins dir.Plugin names is defined in [Agent plugin list](Plugin-list.md)|`""`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|

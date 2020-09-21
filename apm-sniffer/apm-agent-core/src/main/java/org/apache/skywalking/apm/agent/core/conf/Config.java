@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
@@ -122,7 +124,6 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
-
     }
 
     public static class OsInfo {
@@ -292,6 +293,11 @@ public class Config {
          * Exclude activated plugins
          */
         public static String EXCLUDE_PLUGINS = "";
+
+        /**
+         * Mount the folders of the plugins. The folder path is relative to agent.jar.
+         */
+        public static List<String> MOUNT = Arrays.asList("plugins", "activations");
     }
 
     public static class Correlation {
