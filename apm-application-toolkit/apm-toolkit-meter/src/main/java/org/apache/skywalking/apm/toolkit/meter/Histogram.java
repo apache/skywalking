@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.toolkit.meter;
 import java.util.List;
 
 /**
- * Similar to a histogram, a summary sample observations (usual things like request durations and response sizes).
+ * A summary sample observations (usual things like request durations and response sizes).
  * While it also provides a total count of observations and a sum of all observed values, it calculates configurable quartiles over a sliding time window.
  * The histogram provides detailed data in each data group.
  */

@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
- * Custom bucket as the steps.
+ * Using {@link Bucket} to save bucket and count
  */
 public class HistogramImpl extends AbstractMeter implements Histogram {
 

@@ -444,8 +444,8 @@ Please follow there steps:
 1. The plugin committers approve your plugins, plugin CI-with-IT, e2e and plugin tests passed.
 1. The plugin accepted by SkyWalking. 
 
-### Plugin Meter reporter
-Java agent also supports customize meter report to backend. We provide Java Agent Core level API such as [Application Toolkit meter](../setup/service-agent/java-agent/Application-toolkit-meter.md).
+### Plugin Meter Plugin
+Java agent plugin could use meter APIs to collect the metrics for backend analysis.
 
 * `Counter` API represents a single monotonically increasing counter, automatic collect data and report to backend.
 ```java
@@ -458,7 +458,7 @@ counter.increment(1d);
 1. `Counter.Builder.tag(String key, String value)` Mark a tag key/value pair.
 1. `Counter.Builder.mode(Counter.Mode mode)` Change the counter mode, `RATE` mode means reporting rate to the backend.
 1. `Counter.Builder.build()` Build a new `Counter` which is collected and reported to the backend.
-1. `Counter.increment(double count)` Increment count to the `Counter`, It could be a positive/negative value.
+1. `Counter.increment(double count)` Increment count to the `Counter`, It could be a positive value.
 
 * `Gauge` API represents a single numerical value.
 ```java
