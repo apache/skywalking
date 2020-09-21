@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.testcase.thrift.client.service;
 import org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
@@ -28,14 +29,14 @@ public class SyncClient implements IClient {
     private final TTransport transport;
     private final GreeterService.Client client;
 
-    public SyncClient(TTransport transport) {
-        this.transport = transport;
-        client = new GreeterService.Client(new TCompactProtocol(transport));
+    public SyncClient(int port) throws TTransportException {
+        this.transport = new TSocket("localhost", port);
+        client = new GreeterService.Client(new TCompactProtocol(this.transport));
     }
 
     @Override
     public void start() throws TTransportException {
-        transport.open();
+        this.transport.open();
     }
 
     @Override
@@ -43,9 +44,8 @@ public class SyncClient implements IClient {
         transport.close();
     }
 
-
     @Override
     public String echo(String message) throws TException {
-        return null;
+        return client.echo(message);
     }
 }

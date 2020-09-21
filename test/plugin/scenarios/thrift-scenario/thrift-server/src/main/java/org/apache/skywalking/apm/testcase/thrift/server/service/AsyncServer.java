@@ -29,11 +29,11 @@ public class AsyncServer implements IServer {
 
     @Override
     public void start() throws TTransportException {
-        TNonblockingServerSocket serverSocket = new TNonblockingServerSocket(9092);
+        TNonblockingServerSocket serverSocket = new TNonblockingServerSocket(9091);
         server = new TNonblockingServer(new TNonblockingServer.Args(serverSocket)
                                             .processor(new GreeterService.AsyncProcessor<>(new AsyncHandler()))
                                             .protocolFactory(TCompactProtocol::new));
-        server.serve();
+        new Thread(() -> server.serve()).start();
     }
 
     @Override

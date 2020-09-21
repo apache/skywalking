@@ -20,18 +20,32 @@ package org.apache.skywalking.apm.testcase.thrift.client.service;
 
 import org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.THttpClient;
+import org.apache.thrift.transport.TTransportException;
 
-public class HttpClient {
-    public static void main(String[] args) throws TException {
-        THttpClient transport = new THttpClient("http://localhost:18080/thrift");
+public class HttpClient implements IClient {
+    private final THttpClient transport;
+    private final GreeterService.Client client;
+
+    public HttpClient() throws TTransportException {
+        transport = new THttpClient("http://localhost:9080/thrift");
+        client = new GreeterService.Client(new TCompactProtocol(transport));
+    }
+
+    @Override
+    public void start() throws TTransportException {
         transport.open();
+    }
 
-        GreeterService.Client client = new GreeterService.Client(new TCompactProtocol(transport));
-        client.echo("skywakling");
-
+    @Override
+    public void close() {
         transport.close();
+    }
+
+
+    @Override
+    public String echo(String message) throws TException {
+        return client.echo(message);
     }
 }

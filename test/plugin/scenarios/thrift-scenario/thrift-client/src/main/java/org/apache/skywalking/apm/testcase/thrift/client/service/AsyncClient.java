@@ -29,7 +29,6 @@ import org.apache.thrift.transport.TNonblockingSocket;
 import org.apache.thrift.transport.TTransportException;
 
 import java.io.IOException;
-import java.lang.ref.Reference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,18 +38,18 @@ public class AsyncClient implements IClient {
     private final TNonblockingSocket transport;
     private final GreeterService.AsyncClient client;
 
-    public AsyncClient(TNonblockingSocket transport) throws IOException {
-        this.transport = transport;
+    public AsyncClient(final int port) throws IOException {
+        this.transport = new TNonblockingSocket("localhost", port);
         this.client = new GreeterService.AsyncClient(
             TCompactProtocol::new,
             new TAsyncClientManager(),
-            transport
+            this.transport
         );
     }
 
     @Override
     public void start() throws TTransportException {
-        transport.open();
+
     }
 
     @Override

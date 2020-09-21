@@ -23,6 +23,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
 public class SyncServer implements IServer {
@@ -30,11 +31,11 @@ public class SyncServer implements IServer {
 
     @Override
     public void start() throws TTransportException {
-        TServerSocket serverSocket = new TServerSocket(9091);
-        server = new TSimpleServer(new TServer.Args(serverSocket)
+        TServerTransport transport = new TServerSocket(9090);
+        server = new TSimpleServer(new TServer.Args(transport)
                 .processor(new GreeterService.Processor<>(new Handler()))
                 .protocolFactory(TCompactProtocol::new));
-        server.serve();
+        new Thread(() -> server.serve()).start();
     }
 
     @Override

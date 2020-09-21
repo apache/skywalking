@@ -18,8 +18,16 @@
 
 package org.apache.skywalking.apm.testcase.thrift.server;
 
-public class Application {
-    public static void main(String[] args) {
+import org.apache.skywalking.apm.testcase.thrift.server.service.AsyncServer;
+import org.apache.skywalking.apm.testcase.thrift.server.service.HahsServer;
+import org.apache.skywalking.apm.testcase.thrift.server.service.HttpServer;
+import org.apache.skywalking.apm.testcase.thrift.server.service.SyncServer;
 
+public class Application {
+    public static void main(String[] args) throws Exception {
+        new HttpServer().start();
+        new AsyncServer().start();
+        new SyncServer().start();
+        new HahsServer().start();
     }
 }

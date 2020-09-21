@@ -21,19 +21,18 @@ package org.apache.skywalking.apm.testcase.thrift.server.service;
 import org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.transport.TTransportException;
 
 public interface IServer {
     void start() throws Exception;
 
-    void close();
+    void close() throws Exception;
 
 
     final class AsyncHandler implements GreeterService.AsyncIface {
 
         @Override
         public void echo(final String message, final AsyncMethodCallback<String> resultHandler) throws TException {
-
+            resultHandler.onComplete("echo async: " + message);
         }
     }
 
@@ -41,8 +40,7 @@ public interface IServer {
 
         @Override
         public String echo(final String message) throws TException {
-            System.out.println("message");
-            return "echo " + message;
+            return "echo sync: " + message;
         }
     }
 }

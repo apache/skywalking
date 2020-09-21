@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.testcase.thrift.server.service;
 import org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.THsHaServer;
-import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
@@ -30,7 +29,7 @@ public class HahsServer implements IServer {
 
     @Override
     public void start() throws TTransportException {
-        TNonblockingServerSocket serverSocket = new TNonblockingServerSocket(9092);
+        TNonblockingServerSocket serverSocket = new TNonblockingServerSocket(9099);
         server = new THsHaServer(new THsHaServer.Args(serverSocket)
                                             .processor(new GreeterService.AsyncProcessor<>(new AsyncHandler()))
                                             .protocolFactory(TCompactProtocol::new));

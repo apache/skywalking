@@ -19,12 +19,15 @@
 package org.apache.skywalking.apm.testcase.thrift.client.controller;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.skywalking.apm.testcase.thrift.client.service.AsyncClient;
+import org.apache.skywalking.apm.testcase.thrift.client.service.HttpClient;
 import org.apache.skywalking.apm.testcase.thrift.client.service.IClient;
 import org.apache.skywalking.apm.testcase.thrift.client.service.SyncClient;
 import org.apache.thrift.TException;
-import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -36,23 +39,51 @@ public class CaseController {
     private static final Logger logger = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
-    private IClient client = new SyncClient(new TSocket("localhost", 9091));
-    private IClient client = new SyncClient(new TSocket("localhost", 9091));
-    private IClient client = new SyncClient(new TSocket("localhost", 9091));
-    private IClient client = new SyncClient(new TSocket("localhost", 9091));
+    private IClient async;
+    private IClient sync;
+    private IClient client;
+
+    private IClient hasync;
 
     @RequestMapping("/thrift-scenario")
     @ResponseBody
-    public String testcase() throws IOException, TException {
-        client.echo("skywalking");
+    public String testcase() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(4);
+
+        call(hasync, latch);
+        call(async, latch);
+        call(sync, latch);
+        call(client, latch);
+
+        latch.await();
         return SUCCESS;
     }
 
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() throws IOException, TTransportException {
-        client.start();
+        async = new AsyncClient(9091);
+        sync = new SyncClient(9090);
+        async.start();
+        sync.start();
+
+        hasync = new AsyncClient(9099);
+        hasync.start();
+
+        client = new HttpClient();
         return SUCCESS;
+    }
+
+    private void call(IClient client, CountDownLatch latch) {
+        new Thread(() -> {
+            try {
+                client.echo("skywalking");
+            } catch (TException e) {
+                e.printStackTrace();
+            } finally {
+                latch.countDown();
+            }
+        }).start();
     }
 
 }

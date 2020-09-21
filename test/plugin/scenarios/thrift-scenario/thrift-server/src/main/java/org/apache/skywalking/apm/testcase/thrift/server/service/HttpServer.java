@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.testcase.thrift.server.service;
 
 import org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService;
-import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServlet;
 import org.eclipse.jetty.server.Server;
@@ -36,7 +35,7 @@ public class HttpServer implements IServer {
 
     @Override
     public void start() throws Exception {
-        Server jettyServer = new Server(new InetSocketAddress("0.0.0.0", Integer.valueOf(18080)));
+        Server jettyServer = new Server(new InetSocketAddress("0.0.0.0", Integer.valueOf(9080)));
 
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath("/");
