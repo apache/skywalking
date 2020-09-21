@@ -64,7 +64,7 @@
     </dependencies>
 
     <build>
-        <finalName>avro-scenario</finalName>
+        <finalName>thrift-scenario</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

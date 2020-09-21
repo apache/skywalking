@@ -47,36 +47,36 @@
                 </configuration>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <version>1.6.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>initialize</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <executable>docker</executable>-->
-<!--                    <arguments>-->
-<!--                        <argument>run</argument>-->
-<!--                        <argument>-v</argument>-->
-<!--                        <argument>${project.basedir}/src/main/thrift:/data</argument>-->
-<!--                        <argument>-v</argument>-->
-<!--                        <argument>${project.basedir}/target/generated-sources/thrift:/out</argument>-->
-<!--                        <argument>thrift:${thrift.version}</argument>-->
-<!--                        <argument>thrift</argument>-->
-<!--                        <argument>-o</argument>-->
-<!--                        <argument>/out</argument>-->
-<!--                        <argument>&#45;&#45;gen</argument>-->
-<!--                        <argument>java</argument>-->
-<!--                        <argument>/data/greeter.thrift</argument>-->
-<!--                    </arguments>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>docker</executable>
+                    <arguments>
+                        <argument>run</argument>
+                        <argument>-v</argument>
+                        <argument>${project.basedir}/src/main/thrift:/data</argument>
+                        <argument>-v</argument>
+                        <argument>${project.basedir}/target/generated-sources/thrift:/out</argument>
+                        <argument>thrift:${thrift.version}</argument>
+                        <argument>thrift</argument>
+                        <argument>-o</argument>
+                        <argument>/out</argument>
+                        <argument>--gen</argument>
+                        <argument>java</argument>
+                        <argument>/data/greeter.thrift</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>

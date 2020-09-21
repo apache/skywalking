@@ -33,7 +33,12 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/thrift-scenario.jar</source>
+            <source>${project.basedir}/../thrift-client/target/thrift-client.jar</source>
+            <outputDirectory>./libs</outputDirectory>
+            <fileMode>0775</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../thrift-server/target/thrift-server.jar</source>
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>
