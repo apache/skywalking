@@ -32,7 +32,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: CreateCollectionOperation testCollection}
+              - {key: db.bind_vars, value: 'testCollection'}
             skipAnalysis: 'false'
           - operationName: MongoDB/MixedBulkWriteOperation
             operationId: 0
@@ -47,7 +47,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: not null}
+              - {key: db.bind_vars, value: not null}
             skipAnalysis: 'false'
           - operationName: MongoDB/FindOperation
             operationId: 0
@@ -62,7 +62,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: FindOperation {"name": "org"}}
+              - {key: db.bind_vars, value: '{"name": "org"}'}
             skipAnalysis: 'false'
           - operationName: MongoDB/MixedBulkWriteOperation
             operationId: 0
@@ -77,7 +77,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: MixedBulkWriteOperation {"name": "org"},}
+              - {key: db.bind_vars, value: '{"name": "org"},'}
             skipAnalysis: 'false'
           - operationName: MongoDB/FindOperation
             operationId: 0
@@ -92,7 +92,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: FindOperation {"name": "testA"}}
+              - {key: db.bind_vars, value: '{"name": "testA"}'}
             skipAnalysis: 'false'
           - operationName: MongoDB/MixedBulkWriteOperation
             operationId: 0
@@ -107,7 +107,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: MixedBulkWriteOperation {"id": "1"},}
+              - {key: db.bind_vars, value: '{"id": "1"},'}
             skipAnalysis: 'false'
           - operationName: MongoDB/DropDatabaseOperation
             operationId: 0
@@ -122,7 +122,7 @@ segmentItems:
             peer: mongodb-server:27017
             tags:
               - {key: db.type, value: MongoDB}
-              - {key: db.statement, value: DropDatabaseOperation }
+              - {key: db.bind_vars, value: null}
             skipAnalysis: 'false'
           - operationName: /mongodb-4.x-scenario/case/mongodb-4.x-scenario
             operationId: 0
