@@ -56,9 +56,9 @@ public class SkywalkingMeterBaseTest {
         Assert.assertEquals(MeterId.MeterType.GAUGE, gauge.getMeterId().getType());
 
         if (greaterThanValueMode) {
-            Assert.assertTrue(gauge.get() > value);
+            Assert.assertTrue(gauge.getCount() > value);
         } else {
-            Assert.assertEquals(value, gauge.get(), 0.0);
+            Assert.assertEquals(value, gauge.getCount(), 0.0);
         }
     }
 

@@ -43,21 +43,6 @@ public class ToolkitCounterAdapterTest {
     }
 
     @Test
-    public void testGetCountWithRate() {
-        final Counter counter = MeterFactory.counter("test_with_rate").mode(Counter.Mode.RATE).build();
-        final ToolkitCounterAdapter adapter = new ToolkitCounterAdapter((CounterImpl) counter);
-
-        counter.increment(1d);
-        counter.increment(2d);
-
-        Assert.assertEquals(adapter.getCount(), 3d, 0.0);
-        Assert.assertEquals(adapter.getCount(), 0d, 0.0);
-
-        counter.increment(-4d);
-        Assert.assertEquals(adapter.getCount(), -4d, 0.0);
-    }
-
-    @Test
     public void testGetId() {
         final Counter counter = MeterFactory.counter("test").tag("k1", "v1").build();
         final ToolkitCounterAdapter adapter = new ToolkitCounterAdapter((CounterImpl) counter);

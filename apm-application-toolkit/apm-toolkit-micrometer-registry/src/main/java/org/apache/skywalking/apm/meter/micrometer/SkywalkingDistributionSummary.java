@@ -94,6 +94,6 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
 
     @Override
     public double max() {
-        return max.get();
+        return max.getCount();
     }
 }

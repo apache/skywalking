@@ -94,6 +94,6 @@ public class SkywalkingTimer extends AbstractTimer {
 
     @Override
     public double max(TimeUnit unit) {
-        return unit.convert((long) max.get(), TimeUnit.MILLISECONDS);
+        return unit.convert((long) max.getCount(), TimeUnit.MILLISECONDS);
     }
 }

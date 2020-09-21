@@ -26,7 +26,7 @@ public interface Gauge extends BaseMeter {
     /**
      * Get count
      */
-    double get();
+    double getCount();
 
     interface Builder extends BaseBuilder<Builder, Gauge> {
     }

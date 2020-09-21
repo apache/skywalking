@@ -56,12 +56,12 @@ public class GaugeTest {
     @Test
     public void testGet() {
         Gauge gauge = MeterFactory.gauge("test_gauge3", () -> 1d).tag("k1", "v1").build();
-        Assert.assertEquals(gauge.get(), 1d, 0.0);
+        Assert.assertEquals(gauge.getCount(), 1d, 0.0);
 
         // Need throw exception
         gauge = MeterFactory.gauge("test_gauge4", () -> Double.valueOf(1 / 0)).build();
         try {
-            gauge.get();
+            gauge.getCount();
             throw new IllegalStateException();
         } catch (IllegalStateException e) {
             throw e;
