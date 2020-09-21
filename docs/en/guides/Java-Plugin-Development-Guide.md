@@ -5,7 +5,7 @@ There are 2 kinds of plugin
 1. [Tracing plugin](#tracing-plugin). Follow the distributed tracing concept to collect spans with tags and logs.
 1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Guage, and Histogram formats.
 
-We also provide the [plugin test tool](plugin-test-tool) to verify the data collected and reported by the plugin. If you plan to contribute any plugin to our main repo, the data would be verified by this tool too.
+We also provide the [plugin test tool](#plugin-test-tool) to verify the data collected and reported by the plugin. If you plan to contribute any plugin to our main repo, the data would be verified by this tool too.
 
 # Tracing plugin
 ## Concepts
