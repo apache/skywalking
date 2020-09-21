@@ -128,7 +128,7 @@ public class MongoDBInterceptorTest {
         assertThat(span.getOperationName(), is("MongoDB/FindOperation"));
         assertThat(SpanHelper.getComponentId(span), is(42));
         List<TagValuePair> tags = SpanHelper.getTags(span);
-        assertThat(tags.get(1).getValue(), is("FindOperation {\"name\": \"by\"}"));
+        assertThat(tags.get(1).getValue(), is("{\"name\": \"by\"}"));
         assertThat(tags.get(0).getValue(), is("MongoDB"));
         assertThat(span.isExit(), is(true));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.DB));
