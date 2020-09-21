@@ -1,6 +1,13 @@
 # Plugin Development Guide
-This document describe how to understand, develop and contribute plugin.
+This document describe how to understand, develop and contribute plugin. 
 
+There are 2 kinds of plugin
+1. [Tracing plugin](#tracing-plugin). Follow the distributed tracing concept to collect spans with tags and logs.
+1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Guage, and Histogram formats.
+
+We also provide the [plugin test tool](plugin-test-tool) to verify the data collected and reported by the plugin. If you plan to contribute any plugin to our main repo, the data would be verified by this tool too.
+
+# Tracing plugin
 ## Concepts
 ### Span
 Span is an important and common concept in distributed tracing system. Learn **Span** from 
@@ -423,28 +430,8 @@ public class SpringMVCPluginConfig {
 }
 ```
 
-### Plugin Test Tool
-[Apache SkyWalking Agent Test Tool Suite](https://github.com/apache/skywalking-agent-test-tool)
-a tremendously useful test tools suite in a wide variety of languages of Agent. Includes mock collector and validator. 
-The mock collector is a SkyWalking receiver, like OAP server.
 
-You could learn how to use this tool to test the plugin in [this doc](Plugin-test.md). If you want to contribute plugins
-to SkyWalking official repo, this is required.
-
-### Contribute plugins into Apache SkyWalking repository
-We are welcome everyone to contribute plugins.
-
-Please follow there steps:
-1. Submit an issue about which plugins you are going to contribute, including supported version.
-1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
-1. Follow this guide to develop. Make sure comments and test cases are provided.
-1. Develop and test.
-1. Provide the automatic test cases. Learn `how to write the plugin test case` from this [doc](Plugin-test.md)
-1. Send the pull request and ask for review. 
-1. The plugin committers approve your plugins, plugin CI-with-IT, e2e and plugin tests passed.
-1. The plugin accepted by SkyWalking. 
-
-### Plugin Meter Plugin
+# Meter Plugin
 Java agent plugin could use meter APIs to collect the metrics for backend analysis.
 
 * `Counter` API represents a single monotonically increasing counter, automatic collect data and report to backend.
@@ -484,3 +471,24 @@ histogram.addValue(3);
 1. `Histogram.Builder.minValue(double value)` Set up the minimal value of this histogram, default is `0`.
 1. `Histogram.Builder.build()` Build a new `Histogram` which is collected and reported to the backend.
 1. `Histogram.addValue(double value)` Add value into the histogram, automatically analyze what bucket count needs to be increment. rule: count into [step1, step2).
+
+# Plugin Test Tool
+[Apache SkyWalking Agent Test Tool Suite](https://github.com/apache/skywalking-agent-test-tool)
+a tremendously useful test tools suite in a wide variety of languages of Agent. Includes mock collector and validator. 
+The mock collector is a SkyWalking receiver, like OAP server.
+
+You could learn how to use this tool to test the plugin in [this doc](Plugin-test.md). If you want to contribute plugins
+to SkyWalking official repo, this is required.
+
+# Contribute plugins into Apache SkyWalking repository
+We are welcome everyone to contribute plugins.
+
+Please follow there steps:
+1. Submit an issue about which plugins you are going to contribute, including supported version.
+1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
+1. Follow this guide to develop. Make sure comments and test cases are provided.
+1. Develop and test.
+1. Provide the automatic test cases. Learn `how to write the plugin test case` from this [doc](Plugin-test.md)
+1. Send the pull request and ask for review. 
+1. The plugin committers approve your plugins, plugin CI-with-IT, e2e and plugin tests passed.
+1. The plugin accepted by SkyWalking. 
