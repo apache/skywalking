@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/mongodb-3.x-scenario.jar &
+java -jar -Dskywalking.plugin.mongodb.trace_param=true ${agent_opts} ${home}/../libs/mongodb-3.x-scenario.jar &
