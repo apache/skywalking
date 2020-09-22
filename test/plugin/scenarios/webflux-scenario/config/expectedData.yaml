@@ -335,6 +335,7 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      - {key: status_code, value:'200'}
       skipAnalysis: 'false'
     - operationName: /projectA/testcase
       operationId: 0
