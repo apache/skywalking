@@ -48,6 +48,7 @@ public class AbstractBuilderTest extends MeterDataBaseTest {
 
     @Before
     public void beforeTest() {
+        MeterFactory.counter("test_counter").build();
         MeterService meterService = Whitebox.getInternalState(AbstractBuilder.class, "METER_SERVICE");
         meterMap = Whitebox.getInternalState(meterService, "meterMap");
         meterMap.clear();
