@@ -30,10 +30,12 @@ public class ToolkitCounterAdapter implements CounterAdapter {
 
     private final CounterImpl counter;
     private final MeterId id;
+    private boolean usingRate;
 
-    public ToolkitCounterAdapter(CounterImpl counter) {
+    public ToolkitCounterAdapter(CounterImpl counter, Counter.Mode mode) {
         this.counter = counter;
         this.id = MeterIdConverter.convert(counter.getMeterId());
+        this.usingRate = Objects.equals(mode, Counter.Mode.RATE);
     }
 
     @Override
@@ -43,7 +45,7 @@ public class ToolkitCounterAdapter implements CounterAdapter {
 
     @Override
     public boolean usingRate() {
-        return Objects.equals(counter.getMode(), Counter.Mode.RATE);
+        return usingRate;
     }
 
     @Override

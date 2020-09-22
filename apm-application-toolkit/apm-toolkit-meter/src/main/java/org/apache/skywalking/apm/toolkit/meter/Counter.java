@@ -27,8 +27,6 @@ public interface Counter extends BaseMeter {
 
     double get();
 
-    Mode getMode();
-
     /**
      * Counter mode
      */

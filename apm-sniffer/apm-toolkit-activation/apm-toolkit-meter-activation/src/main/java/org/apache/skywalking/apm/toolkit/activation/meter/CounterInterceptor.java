@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitCounterAdapter;
 
@@ -32,8 +33,9 @@ public class CounterInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         final CounterImpl toolkitCounter = (CounterImpl) objInst;
+        final Counter.Mode mode = (Counter.Mode) allArguments[1];
 
-        final ToolkitCounterAdapter counterAdapter = new ToolkitCounterAdapter(toolkitCounter);
+        final ToolkitCounterAdapter counterAdapter = new ToolkitCounterAdapter(toolkitCounter, mode);
         final CounterTransformer counterTransformer = new CounterTransformer(counterAdapter);
 
         if (METER_SERVICE == null) {

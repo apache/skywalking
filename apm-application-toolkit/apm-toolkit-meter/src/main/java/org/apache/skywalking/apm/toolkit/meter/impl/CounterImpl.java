@@ -52,11 +52,6 @@ public class CounterImpl extends AbstractMeter implements Counter {
         return this.count.doubleValue();
     }
 
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
-
     public static class Builder extends AbstractBuilder<Counter.Builder, Counter, CounterImpl> implements Counter.Builder {
         private Counter.Mode mode = Counter.Mode.INCREMENT;
 

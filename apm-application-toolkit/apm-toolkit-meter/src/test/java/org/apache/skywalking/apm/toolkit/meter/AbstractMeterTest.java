@@ -166,11 +166,6 @@ public class AbstractMeterTest {
             return 0;
         }
 
-        @Override
-        public Mode getMode() {
-            return Mode.INCREMENT;
-        }
-
         public static class Builder extends AbstractBuilder<Builder, Counter, TestCounter> {
 
             public Builder(String name) {
