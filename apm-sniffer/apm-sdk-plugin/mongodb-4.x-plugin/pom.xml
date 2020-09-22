@@ -32,15 +32,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongo-java-driver.version>4.1.0</mongo-java-driver.version>
+        <mongodb-driver.version>4.1.0</mongodb-driver.version>
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>${mongo-java-driver.version}</version>
+            <version>${mongodb-driver.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
