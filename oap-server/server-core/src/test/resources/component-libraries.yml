@@ -275,6 +275,9 @@ quartz-scheduler:
 xxl-job:
   id: 98
   languages: Java
+spring-webflux-5.x-webclient:
+  id: 99
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
