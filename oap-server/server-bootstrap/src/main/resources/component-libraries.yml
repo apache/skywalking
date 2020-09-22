@@ -326,7 +326,7 @@ quartz-scheduler:
 xxl-job:
   id: 98
   languages: Java
-spring-webflux-5.x-webclient:
+spring-webflux-webclient:
   id: 99
   languages: Java
 
