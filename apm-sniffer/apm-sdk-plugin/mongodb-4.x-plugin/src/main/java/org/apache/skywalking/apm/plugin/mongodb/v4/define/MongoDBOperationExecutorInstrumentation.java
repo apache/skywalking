@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.define.v38;
+package org.apache.skywalking.apm.plugin.mongodb.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,17 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 /**
- * same whit {@link org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation}
+ * same with org.apache.skywalking.apm.plugin.mongodb.v3.define.v38.MongoDBOperationExecutorInstrumentation
  * <p>
- * support: 3.8.x or higher
+ * support: 4.0.x or higher
  */
 public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String WITNESS_CLASS = "com.mongodb.operation.AggregateOperationImpl";
+    private static final String WITNESS_CLASS = "com.mongodb.internal.operation.FindOperation";
 
     private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate$DelegateOperationExecutor";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBOperationExecutorInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v4.interceptor.MongoDBOperationExecutorInterceptor";
 
     private static final String METHOD_NAME = "execute";
 
@@ -67,7 +67,6 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return ElementMatchers
-                        // 3.8.x~3.11.x
                         .named(METHOD_NAME)
                         .and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
                         .or(ElementMatchers.<MethodDescription>named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(3, ARGUMENT_TYPE)));

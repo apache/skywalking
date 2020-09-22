@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.support;
+package org.apache.skywalking.apm.plugin.mongodb.v4.support;
 
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -24,13 +24,18 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
 
 public class MongoSpanHelper {
 
     private MongoSpanHelper() {
     }
 
+    /**
+     * createExitSpan
+     * @param executeMethod executeMethod
+     * @param remotePeer remotePeer
+     * @param operation operation
+     */
     public static void createExitSpan(String executeMethod, String remotePeer, Object operation) {
         AbstractSpan span = ContextManager.createExitSpan(
             MongoConstants.MONGO_DB_OP_PREFIX + executeMethod, new ContextCarrier(), remotePeer);

@@ -16,15 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37;
+package org.apache.skywalking.apm.plugin.mongodb.v4;
 
 import com.mongodb.MongoNamespace;
 import com.mongodb.ReadConcern;
 import com.mongodb.client.internal.OperationExecutor;
-import com.mongodb.operation.FindOperation;
-import com.mongodb.operation.WriteOperation;
-import java.lang.reflect.Method;
-import java.util.List;
+import com.mongodb.internal.operation.FindOperation;
+import com.mongodb.internal.operation.WriteOperation;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -38,7 +36,8 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
+import org.apache.skywalking.apm.plugin.mongodb.v4.interceptor.MongoDBOperationExecutorInterceptor;
+import org.apache.skywalking.apm.plugin.mongodb.v4.support.MongoPluginConfig;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
@@ -52,6 +51,9 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -104,7 +106,7 @@ public class MongoDBOperationExecutorInterceptorTest {
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertRedisSpan(spans.get(0));
+        assertMongoSpan(spans.get(0));
     }
 
     @Test
@@ -117,13 +119,13 @@ public class MongoDBOperationExecutorInterceptorTest {
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertRedisSpan(spans.get(0));
+        assertMongoSpan(spans.get(0));
         List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
         assertThat(logDataEntities.size(), is(1));
         SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);
     }
 
-    private void assertRedisSpan(AbstractTracingSpan span) {
+    private void assertMongoSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("MongoDB/FindOperation"));
         assertThat(SpanHelper.getComponentId(span), is(42));
         List<TagValuePair> tags = SpanHelper.getTags(span);

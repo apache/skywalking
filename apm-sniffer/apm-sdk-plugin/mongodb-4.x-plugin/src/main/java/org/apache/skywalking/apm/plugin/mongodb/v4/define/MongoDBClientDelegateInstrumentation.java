@@ -16,34 +16,37 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.define.v38;
+package org.apache.skywalking.apm.plugin.mongodb.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
-import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.plugin.mongodb.v4.interceptor.MongoDBClientDelegateInterceptor;
+
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * same whit {@link org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation}
+ * Enhance {@code com.mongodb.client.internal.MongoClientDelegate} instance, and intercept {@code
+ * com.mongodb.client.internal.MongoClientDelegate#getOperationExecutor()}, this is the only way to get
+ * OperationExecutor which is unified entrance of execute mongo command. Inject the remotePeer into enhanced OperationExecutor.
  * <p>
- * support: 3.8.x or higher
+ * support: 4.0.0 or higher
+ *
+ * @see MongoDBOperationExecutorInstrumentation
+ * @see MongoDBClientDelegateInterceptor
  */
-public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MongoDBClientDelegateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String WITNESS_CLASS = "com.mongodb.operation.AggregateOperationImpl";
+    private static final String WITNESS_CLASS = "com.mongodb.internal.connection.Cluster";
 
-    private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate$DelegateOperationExecutor";
+    private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBOperationExecutorInterceptor";
-
-    private static final String METHOD_NAME = "execute";
-
-    private static final String ARGUMENT_TYPE = "com.mongodb.client.ClientSession";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v4.interceptor.MongoDBClientDelegateInterceptor";
 
     @Override
     protected String[] witnessClasses() {
@@ -52,12 +55,24 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, "com.mongodb.internal.connection.Cluster");
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            }
+        };
     }
 
     @Override
@@ -66,11 +81,7 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return ElementMatchers
-                        // 3.8.x~3.11.x
-                        .named(METHOD_NAME)
-                        .and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
-                        .or(ElementMatchers.<MethodDescription>named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(3, ARGUMENT_TYPE)));
+                    return named("getOperationExecutor");
                 }
 
                 @Override
@@ -85,4 +96,5 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
             }
         };
     }
+
 }
