@@ -39,7 +39,7 @@ public class MongoSpanHelper {
         SpanLayer.asDB(span);
 
         if (MongoPluginConfig.Plugin.MongoDB.TRACE_PARAM) {
-            Tags.DB_STATEMENT.set(span, executeMethod + " " + MongoOperationHelper.getTraceParam(operation));
+            Tags.DB_BIND_VARIABLES.set(span, MongoOperationHelper.getTraceParam(operation));
         }
     }
 }
