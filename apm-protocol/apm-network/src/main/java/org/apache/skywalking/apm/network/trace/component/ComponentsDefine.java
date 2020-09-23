@@ -178,4 +178,6 @@ public class ComponentsDefine {
     public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(97, "quartz-scheduler");
 
     public static final OfficialComponent XXL_JOB = new OfficialComponent(98, "xxl-job");
+
+    public static final OfficialComponent DBCP = new OfficialComponent(99, "dbcp");
 }
