@@ -35,6 +35,9 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+/**
+ * Collect and process the error log
+ */
 @Slf4j
 public abstract class BrowserErrorLogReportBaseServletHandler extends JettyHandler {
     private final ModuleManager moduleManager;
@@ -84,6 +87,7 @@ public abstract class BrowserErrorLogReportBaseServletHandler extends JettyHandl
                 ErrorLogAnalyzer analyzer = new ErrorLogAnalyzer(moduleManager, errorLogListenerManager, config);
                 analyzer.doAnalysis(browserErrorLog);
             }
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             logErrorCounter.inc();

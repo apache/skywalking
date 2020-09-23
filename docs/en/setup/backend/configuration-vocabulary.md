@@ -198,6 +198,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | topicNameOfProfiling | Specifying Kafka topic name for Profiling data. | - | skywalking-profilings |
 | - | - | topicNameOfTracingSegments | Specifying Kafka topic name for Tracing data. | - | skywalking-segments |
 | - | - | topicNameOfManagements | Specifying Kafka topic name for service instance reporting and registering. | - | skywalking-managements |
+| receiver-browser | default | Read [receiver doc](backend-receivers.md) for more details | - | - | - |
+| - | - | sampleRate | Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default. | SW_RECEIVER_BROWSER_SAMPLE_RATE | 10000 |
 | query | graphql | - | GraphQL query implementation | - |
 | - | - | path | Root path of GraphQL query and mutation. | SW_QUERY_GRAPHQL_PATH | /graphql|
 | alarm | default | - | Read [alarm doc](backend-alarm.md) for more details. | - |
