@@ -52,19 +52,10 @@ public class SQLExecutor implements AutoCloseable {
         preparedStatement.close();
     }
 
-    public void insertData(String sql, String id, String value) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(1, id);
-        preparedStatement.setString(2, value);
-        preparedStatement.execute();
-        preparedStatement.close();
-    }
-
     public void dropTable(String sql) throws SQLException {
         executeStatement(sql);
     }
 
-    
     public void executeStatement(String sql) throws SQLException {
         Statement preparedStatement = connection.createStatement();
         preparedStatement.execute(sql);

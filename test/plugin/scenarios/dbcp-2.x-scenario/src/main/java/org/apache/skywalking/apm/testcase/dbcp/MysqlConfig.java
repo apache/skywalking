@@ -38,7 +38,6 @@ public class MysqlConfig {
         } catch (IOException e) {
             logger.error("Failed to load config", e);
         }
-
         url = properties.getProperty("mysql.url");
         userName = properties.getProperty("mysql.username");
         password = properties.getProperty("mysql.password");
