@@ -62,6 +62,9 @@ public abstract class RateMetrics extends Metrics implements IntValueHolder {
 
     @Override
     public void calculate() {
+        if (denominator == 0) {
+            return;
+        }
         percentage = (int) (numerator * 10000 / denominator);
     }
 
