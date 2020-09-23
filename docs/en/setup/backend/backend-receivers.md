@@ -65,6 +65,7 @@ receiver-profile:
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
   default:
+    sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
 ```
 
 ## gRPC/HTTP server for receiver
