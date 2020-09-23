@@ -32,7 +32,6 @@ public class ActiveSpanErrorThrowableInteceptor implements StaticMethodsAroundIn
         AbstractSpan activeSpan = null;
         try {
             activeSpan = ContextManager.activeSpan();
-            activeSpan.errorOccurred();
             activeSpan.log((Throwable) allArguments[0]);
         } catch (NullPointerException e) {
         }

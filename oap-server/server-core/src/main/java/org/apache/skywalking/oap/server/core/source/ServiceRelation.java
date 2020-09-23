@@ -93,6 +93,9 @@ public class ServiceRelation extends Source {
     @Getter
     @Setter
     private DetectPoint detectPoint;
+    @Getter
+    @Setter
+    private String tlsMode;
 
     @Override
     public void prepare() {

@@ -26,41 +26,53 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 class DockerComposeFileTest {
-    private static DockerComposeFile COMPOSE_FILE = null;
+    private static DockerComposeFile COMPOSE_FILE_ONE = null;
+    private static DockerComposeFile COMPOSE_FILE_TWO = null;
 
     @BeforeAll
     static void setUp() throws Exception {
-        COMPOSE_FILE = Yamls.load("docker-compose.yml").as(DockerComposeFile.class);
+        COMPOSE_FILE_ONE = Yamls.load("docker-compose.one.yml").as(DockerComposeFile.class);
+        COMPOSE_FILE_TWO = Yamls.load("docker-compose.two.yml").as(DockerComposeFile.class);
     }
 
     @Test
     void getAllConfigInfo() throws IOException, InterruptedException, URISyntaxException {
-        File file = new File(DockerComposeFileTest.class
+        File composeOne = new File(DockerComposeFileTest.class
                 .getClassLoader()
-                .getResource("docker-compose.yml")
+                .getResource("docker-compose.one.yml")
                 .toURI());
-        DockerComposeFile testFile = DockerComposeFile.getAllConfigInfo(file.getAbsolutePath());
+
+        File composeTwo = new File(DockerComposeFileTest.class
+                .getClassLoader()
+                .getResource("docker-compose.two.yml")
+                .toURI());
+
+        List<String> filePathList = new ArrayList<>();
+        filePathList.add(composeOne.getAbsolutePath());
+        filePathList.add(composeTwo.getAbsolutePath());
+        DockerComposeFile testFile = DockerComposeFile.getAllConfigInfo(filePathList);
         Assert.assertNotNull(testFile);
         Assert.assertNotNull(testFile.getServices());
-        Assert.assertEquals(COMPOSE_FILE.getServices().size(), testFile.getServices().size());
-        Assert.assertEquals(COMPOSE_FILE.getVersion(), testFile.getVersion());
+        Assert.assertEquals(COMPOSE_FILE_ONE.getServices().size() + COMPOSE_FILE_TWO.getServices().size(),
+                testFile.getServices().size());
     }
 
     @Test
     void getServiceExposedPort() {
-        List<String> ports = COMPOSE_FILE.getServiceExposedPorts("oap");
+        List<String> ports = COMPOSE_FILE_TWO.getServiceExposedPorts("oap");
         Assert.assertNotNull(ports);
         Assert.assertEquals(3, ports.size());
     }
 
     @Test
     void isExposedPort() {
-        boolean result = COMPOSE_FILE.isExposedPort("oap", 5005);
+        boolean result = COMPOSE_FILE_TWO.isExposedPort("oap", 5005);
         Assert.assertTrue(result);
-        result = COMPOSE_FILE.isExposedPort("oap", 5006);
+        result = COMPOSE_FILE_TWO.isExposedPort("oap", 5006);
         Assert.assertFalse(result);
     }
 }

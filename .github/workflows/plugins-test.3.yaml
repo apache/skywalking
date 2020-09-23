@@ -58,6 +58,7 @@ jobs:
           - { name: 'spring-scheduled-scenario', title: 'Spring Scheduled 3.1.x-5.2.x (9)' }
           - { name: 'elasticjob-2.x-scenario', title: 'elasticjob-2.x-scenario (2)' }
           - { name: 'quartz-scheduler-2.x-scenario', title: 'quartz-scheduler-2.x-scenario (5)' }
+          - { name: 'xxl-job-2.x-scenario', title: 'xxl-job-2.x-scenario (1)' }
     steps:
       - uses: actions/checkout@v2
         with:
@@ -92,7 +93,7 @@ jobs:
       - name: Oracle 10.2.0.4.0 (1)
         run: |
           curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
-          curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
+          curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-2.0.0.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/2.0.0/apm-oracle-10.x-plugin-2.0.0.jar
           ./mvnw --batch-mode install:install-file -Dfile=ojdbc14-10.2.0.4.0.jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
           bash test/plugin/run.sh oracle-scenario
       - name: Report Coverage

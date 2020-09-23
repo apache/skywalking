@@ -34,7 +34,8 @@ metricsPath: /metrics
 staticConfig:
   # targets will be labeled as "instance"
   targets:
-    - localhost:1234
+    - url: http://localhost:1234
+      sslCaFilePath:
   labels:
     service: oap-server
 metricsRules:

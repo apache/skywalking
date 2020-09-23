@@ -83,7 +83,6 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
 
                 @Override
                 public void onFailure(Throwable cause) {
-                    finagleSpan.errorOccurred();
                     finagleSpan.log(cause);
                     finagleSpan.asyncFinish();
                 }
@@ -94,6 +93,6 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
 
     @Override
     public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
-        ContextManager.activeSpan().errorOccurred().log(throwable);
+        ContextManager.activeSpan().log(throwable);
     }
 }

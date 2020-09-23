@@ -84,7 +84,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
                                             Class<?>[] argumentsTypes, Throwable t) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject != null && cacheObject.getConnectionInfo() != null) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

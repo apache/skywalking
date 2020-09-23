@@ -41,6 +41,7 @@
 - memcache-2.x
 - mongodb-2.x
 - mongodb-3.x
+- mongodb-4.x
 - motan-0.x
 - mysql-5.x
 - mysql-6.x
@@ -99,6 +100,8 @@
 - toolkit-opentracing
 - toolkit-tag
 - toolkit-trace
+- toolkit-exception
 - undertow-2.x-plugin
 - vertx-core-3.x
+- xxl-job-2.x
 - zookeeper-3.4.x
