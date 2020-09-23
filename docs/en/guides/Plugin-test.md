@@ -95,7 +95,7 @@ File Name | Descriptions
 `support-version.list` | List the target versions for this case
 `startup.sh` |`JVM-container` only, don't need this when use`Tomcat-container`
 
-`*` support-version.list format requires every line for a single version. Could use `#` to comment out this version.
+`*` support-version.list format requires every line for a single version(Contains only the last version number of each minor version). Could use `#` to comment out this version.
 
 ### configuration.yml
 
