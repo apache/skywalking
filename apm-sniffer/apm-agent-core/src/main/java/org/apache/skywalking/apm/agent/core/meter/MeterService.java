@@ -32,6 +32,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
+/**
+ * Agent core level service. It provides the register map for all available metrics and send them through meter sender.
+ */
 @DefaultImplementor
 public class MeterService implements BootService, Runnable {
     private static final ILog LOGGER = LogManager.getLogger(MeterService.class);

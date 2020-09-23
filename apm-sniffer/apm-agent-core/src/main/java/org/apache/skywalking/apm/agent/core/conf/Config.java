@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
@@ -123,7 +124,6 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
-
     }
 
     public static class OsInfo {
@@ -268,6 +268,21 @@ public class Config {
         public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
     }
 
+    public static class StatusCheck {
+        /**
+         * Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a
+         * way of controlling business flow.
+         */
+        public static String IGNORED_EXCEPTIONS = "";
+
+        /**
+         * The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend
+         * setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored,
+         * which means all exceptions would make the span tagged in error status.
+         */
+        public static Integer MAX_RECURSIVE_DEPTH = 1;
+    }
+
     public static class Plugin {
         /**
          * Control the length of the peer field.
@@ -278,6 +293,11 @@ public class Config {
          * Exclude activated plugins
          */
         public static String EXCLUDE_PLUGINS = "";
+
+        /**
+         * Mount the folders of the plugins. The folder path is relative to agent.jar.
+         */
+        public static List<String> MOUNT = Arrays.asList("plugins", "activations");
     }
 
     public static class Correlation {

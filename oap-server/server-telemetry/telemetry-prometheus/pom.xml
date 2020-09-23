@@ -31,6 +31,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>telemetry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -40,16 +45,15 @@
             <artifactId>simpleclient</artifactId>
             <version>0.6.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_common</artifactId>
+            <version>0.6.0</version>
+        </dependency>
         <!-- Hotspot JVM metrics-->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_hotspot</artifactId>
-            <version>0.6.0</version>
-        </dependency>
-        <!-- Exposition HTTPServer-->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_httpserver</artifactId>
             <version>0.6.0</version>
         </dependency>
     </dependencies>

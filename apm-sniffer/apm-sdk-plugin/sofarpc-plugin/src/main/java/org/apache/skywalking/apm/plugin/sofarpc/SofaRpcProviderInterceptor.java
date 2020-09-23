@@ -84,7 +84,6 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
      */
     private void dealException(Throwable throwable) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(throwable);
     }
 

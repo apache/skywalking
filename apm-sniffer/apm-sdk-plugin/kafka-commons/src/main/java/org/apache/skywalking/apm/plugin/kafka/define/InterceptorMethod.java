@@ -42,7 +42,7 @@ public class InterceptorMethod {
     public static void handleMethodException(Throwable t) {
         KafkaContext context = (KafkaContext) ContextManager.getRuntimeContext().get(Constants.KAFKA_FLAG);
         if (context != null && context.isNeedStop()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 }

@@ -55,11 +55,11 @@ public class CallbackAdapterInterceptor implements Callback {
         try {
             callbackCache.getCallback().onCompletion(metadata, exception);
         } catch (Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
             throw t;
         } finally {
             if (exception != null) {
-                ContextManager.activeSpan().errorOccurred().log(exception);
+                ContextManager.activeSpan().log(exception);
             }
             ContextManager.stopSpan();
         }

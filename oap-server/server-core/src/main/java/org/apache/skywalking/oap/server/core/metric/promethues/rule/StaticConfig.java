@@ -26,6 +26,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class StaticConfig {
-    private List<String> targets;
+    private List<Target> targets;
     private Map<String, String> labels;
 }

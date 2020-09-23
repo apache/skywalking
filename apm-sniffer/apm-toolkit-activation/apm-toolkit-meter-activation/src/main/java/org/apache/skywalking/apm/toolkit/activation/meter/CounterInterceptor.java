@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
-import org.apache.skywalking.apm.toolkit.activation.meter.adapter.TookitCounterAdapter;
+import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitCounterAdapter;
 
 public class CounterInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
@@ -33,7 +33,7 @@ public class CounterInterceptor implements InstanceConstructorInterceptor {
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         final CounterImpl toolkitCounter = (CounterImpl) objInst;
 
-        final TookitCounterAdapter counterAdapter = new TookitCounterAdapter(toolkitCounter);
+        final ToolkitCounterAdapter counterAdapter = new ToolkitCounterAdapter(toolkitCounter);
         final CounterTransformer counterTransformer = new CounterTransformer(counterAdapter);
 
         if (METER_SERVICE == null) {

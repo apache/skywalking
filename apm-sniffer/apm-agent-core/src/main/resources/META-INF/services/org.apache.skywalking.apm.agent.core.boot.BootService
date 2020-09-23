@@ -31,3 +31,4 @@ org.apache.skywalking.apm.agent.core.profile.ProfileSnapshotSender
 org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService
 org.apache.skywalking.apm.agent.core.meter.MeterService
 org.apache.skywalking.apm.agent.core.meter.MeterSender
+org.apache.skywalking.apm.agent.core.context.status.StatusCheckService

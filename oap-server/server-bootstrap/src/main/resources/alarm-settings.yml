@@ -59,3 +59,13 @@ slackHooks:
   webhooks:
 #    - https://hooks.slack.com/services/x/y/zssss
 
+wechatHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key

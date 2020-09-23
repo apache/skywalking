@@ -406,7 +406,7 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      isError: false
+      isError: true
       spanType: Local
       peer: ''
       logs:

@@ -30,4 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class PrometheusConfig extends ModuleConfig {
     private String host = "0.0.0.0";
     private int port = 1234;
+    private boolean sslEnabled = false;
+    private String sslKeyPath;
+    private String sslCertChainPath;
 }
