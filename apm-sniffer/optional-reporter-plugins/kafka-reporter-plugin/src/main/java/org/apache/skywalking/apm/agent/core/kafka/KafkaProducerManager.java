@@ -18,6 +18,14 @@
 
 package org.apache.skywalking.apm.agent.core.kafka;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -29,15 +37,6 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 /**
  * Configuring, initializing and holding a KafkaProducer instance for reporters.
@@ -53,29 +52,33 @@ public class KafkaProducerManager implements BootService, Runnable {
     public void prepare() throws Throwable {
         Properties properties = new Properties();
         properties.setProperty(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
         KafkaReporterPluginConfig.Plugin.Kafka.PRODUCER_CONFIG.forEach((k, v) -> properties.setProperty(k, v));
 
         AdminClient adminClient = AdminClient.create(properties);
         DescribeTopicsResult topicsResult = adminClient.describeTopics(Arrays.asList(
-                KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT,
-                KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS,
-                KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING,
-                KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_SEGMENT,
-                KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METER
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_SEGMENT,
+            KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METER
         ));
         Set<String> topics = topicsResult.values().entrySet().stream()
-                .map(entry -> {
-                    try {
-                        entry.getValue().get(KafkaReporterPluginConfig.Plugin.Kafka.GET_TOPIC_TIMEOUT, TimeUnit.SECONDS);
-                        return null;
-                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                        LOGGER.error(e, "Get KAFKA topic:{} error.", entry.getKey());
-                    }
-                    return entry.getKey();
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                                         .map(entry -> {
+                                             try {
+                                                 entry.getValue()
+                                                      .get(
+                                                          KafkaReporterPluginConfig.Plugin.Kafka.GET_TOPIC_TIMEOUT,
+                                                          TimeUnit.SECONDS
+                                                      );
+                                                 return null;
+                                             } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                                                 LOGGER.error(e, "Get KAFKA topic:{} error.", entry.getKey());
+                                             }
+                                             return entry.getKey();
+                                         })
+                                         .filter(Objects::nonNull)
+                                         .collect(Collectors.toSet());
         if (!topics.isEmpty()) {
             throw new Exception("These topics" + topics + " don't exist.");
         }

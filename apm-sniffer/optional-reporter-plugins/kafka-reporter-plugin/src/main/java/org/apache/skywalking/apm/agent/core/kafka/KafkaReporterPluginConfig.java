@@ -27,8 +27,8 @@ public class KafkaReporterPluginConfig {
         @PluginConfig(root = KafkaReporterPluginConfig.class)
         public static class Kafka {
             /**
-             * <B>bootstrap.servers</B>: A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
-             * This list should be in the form host1:port1,host2:port2,...
+             * <B>bootstrap.servers</B>: A list of host/port pairs to use for establishing the initial connection to
+             * the Kafka cluster. This list should be in the form host1:port1,host2:port2,...
              */
             public static String BOOTSTRAP_SERVERS = "localhost:9092";
 
@@ -45,7 +45,7 @@ public class KafkaReporterPluginConfig {
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
 
             /**
-             * this config for how long does kafka query server topic will trigger timeout.
+             * Timeout period of reading topics from the Kafka server, the unit is second.
              */
             public static int GET_TOPIC_TIMEOUT = 5;
         }
