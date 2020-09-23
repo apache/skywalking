@@ -43,6 +43,11 @@ public class KafkaReporterPluginConfig {
             public static String TOPIC_METER = "skywalking-meters";
 
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
+
+            /**
+             * this config for how long does kafka query server topic will trigger timeout.
+             */
+            public static int GET_TOPIC_TIMEOUT = 5;
         }
     }
 }
