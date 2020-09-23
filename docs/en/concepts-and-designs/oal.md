@@ -120,12 +120,6 @@ endpoint_percentile = from(Endpoint.latency).percentile(10)
 // Caculate the percent of response status is true, for each service.
 endpoint_success = from(Endpoint.*).filter(status == true).percent()
 
-// Caculate the percent of response code in [200, 299], for each service.
-endpoint_200 = from(Endpoint.*).filter(responseCode like "2%").percent()
-
-// Caculate the percent of response code in [500, 599], for each service.
-endpoint_500 = from(Endpoint.*).filter(responseCode like "5%").percent()
-
 // Caculate the sum of response code in [404, 500, 503], for each service.
 endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).sum()
 
