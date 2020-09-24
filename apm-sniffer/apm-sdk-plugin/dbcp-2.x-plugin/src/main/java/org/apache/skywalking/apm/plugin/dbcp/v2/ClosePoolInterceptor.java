@@ -31,23 +31,21 @@ public class ClosePoolInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        if (objInst != null) {
-            AbstractSpan span = ContextManager.createLocalSpan("DBCP/Pool/" + method.getName());
-            span.setComponent(ComponentsDefine.DBCP);
-            SpanLayer.asDB(span);
-        }
+        AbstractSpan span = ContextManager.createLocalSpan("DBCP/Pool/" + method.getName());
+        span.setComponent(ComponentsDefine.DBCP);
+        SpanLayer.asDB(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (objInst != null) {
-            ContextManager.stopSpan();
-        }
-        return null;
+        ContextManager.stopSpan();
+        return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 }

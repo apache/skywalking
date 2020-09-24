@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class BasicDataSourceInstrumentation extends ClassEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.commons.dbcp2.BasicDataSource";
     private static final String POOL_CLOSE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.ClosePoolInterceptor";
-    private static final String CREATE_POOL_INTECEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.CreatePoolInterceptor";
+    private static final String CREATE_POOL_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.CreatePoolInterceptor";
     private static final String CONNECT_CLOSE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.PoolingGetConnectInterceptor";
 
     @Override
@@ -71,7 +71,7 @@ public class BasicDataSourceInstrumentation extends ClassEnhancePluginDefine {
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return CREATE_POOL_INTECEPTOR;
+                        return CREATE_POOL_INTERCEPTOR;
                     }
 
                     @Override
