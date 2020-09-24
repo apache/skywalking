@@ -78,16 +78,17 @@ public class ErrorLogRecordListener implements ErrorLogAnalysisListener {
 
         // service
         String serviceName = namingControl.formatServiceName(decorator.getService());
-        errorLog.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Browser));
+        String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Browser);
+        errorLog.setServiceId(serviceId);
 
         // service version
-        String serviceVersionName = namingControl.formatInstanceName(decorator.getServiceVersion());
-        errorLog.setServiceVersionId(IDManager.ServiceInstanceID.buildId(serviceName, serviceVersionName));
+        errorLog.setServiceVersionId(IDManager.ServiceInstanceID.buildId(serviceId, namingControl.formatInstanceName(
+            decorator.getServiceVersion())));
 
         // page
         String pagePath = namingControl.formatEndpointName(serviceName, decorator.getPagePath());
         errorLog.setPagePath(pagePath);
-        errorLog.setPagePathId(IDManager.EndpointID.buildId(serviceName, pagePath));
+        errorLog.setPagePathId(IDManager.EndpointID.buildId(serviceId, pagePath));
 
         // raw data
         errorLog.setErrorCategory(BrowserErrorCategory.fromErrorCategory(decorator.getCategory()));

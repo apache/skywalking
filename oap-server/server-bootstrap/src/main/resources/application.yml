@@ -284,6 +284,8 @@ receiver_jaeger:
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
   default:
+    # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
 
 query:
   selector: ${SW_QUERY:graphql}
