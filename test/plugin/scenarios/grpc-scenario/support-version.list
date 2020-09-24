@@ -18,6 +18,7 @@
 # So these versions were not included in support-version.list. if you know what caused it, please help us.
 
 # Contains only the last version number of each minor version
+
 1.25.0
 1.24.2
 1.23.1
@@ -37,6 +38,4 @@
 1.9.1
 1.8.0
 1.7.1
-1.7.0
 1.6.1
-1.6.0
