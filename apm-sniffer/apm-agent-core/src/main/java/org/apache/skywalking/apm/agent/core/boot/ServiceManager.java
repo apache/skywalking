@@ -106,6 +106,7 @@ public enum ServiceManager {
                 LOGGER.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
             }
         }
+        LOGGER.info("ServiceManager prepare success");
     }
 
     private void startup() {

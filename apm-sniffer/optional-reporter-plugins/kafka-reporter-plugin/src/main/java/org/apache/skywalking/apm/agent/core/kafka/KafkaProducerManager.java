@@ -23,8 +23,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;
@@ -69,12 +67,9 @@ public class KafkaProducerManager implements BootService, Runnable {
                                          .map(entry -> {
                                              try {
                                                  entry.getValue()
-                                                      .get(
-                                                          KafkaReporterPluginConfig.Plugin.Kafka.GET_TOPIC_TIMEOUT,
-                                                          TimeUnit.SECONDS
-                                                      );
+                                                      .get();
                                                  return null;
-                                             } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                                             } catch (InterruptedException | ExecutionException e) {
                                                  LOGGER.error(e, "Get KAFKA topic:{} error.", entry.getKey());
                                              }
                                              return entry.getKey();
@@ -84,7 +79,7 @@ public class KafkaProducerManager implements BootService, Runnable {
         if (!topics.isEmpty()) {
             throw new Exception("These topics" + topics + " don't exist.");
         }
-
+        LOGGER.info("after KafkaProducerManager {}", KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
         producer = new KafkaProducer<>(properties, new StringSerializer(), new BytesSerializer());
     }
 
