@@ -37,9 +37,7 @@ Input:
 
 OutPut:
 
-```json
-
-```
+Http Status: 204
 
 ## Error Log Report
 
@@ -80,6 +78,10 @@ Input:
 ]
 ```
 
+OutPut:
+
+Http Status: 204
+
 ### POST http://localhost:12800/browser/errorLog
 
 Send a single error log object with JSON format.
@@ -103,6 +105,4 @@ Input:
 
 OutPut:
 
-```json
-
-```
+Http Status: 204
