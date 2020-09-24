@@ -149,6 +149,7 @@ property key | Description | Default |
 `plugin.dubbo.collect_provider_arguments`| Apache Dubbo provider collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
 `plugin.dubbo.consumer_provider_length_threshold`| When `plugin.dubbo.provider_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
 `plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
+`plugin.kafka.get_topic_timeout`| Timeout period of reading topics from the Kafka server, the unit is second. |`5`|
 `plugin.kafka.consumer_config`| Kafka producer configuration. ||
 `plugin.kafka.producer_config`| Kafka producer configuration. Read [producer configure](http://kafka.apache.org/24/documentation.html#producerconfigs) to get more details. Check [Kafka report doc](How-to-enable-kafka-reporter.md) for more details and examples. | |
 `plugin.kafka.topic_meter` | Specify which Kafka topic name for Meter System data to report to. | `skywalking_meters` |
