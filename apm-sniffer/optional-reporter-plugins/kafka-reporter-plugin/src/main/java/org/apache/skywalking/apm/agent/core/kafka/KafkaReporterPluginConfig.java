@@ -47,7 +47,7 @@ public class KafkaReporterPluginConfig {
             /**
              * Timeout period of reading topics from the Kafka server, the unit is second.
              */
-            public static int GET_TOPIC_TIMEOUT = 5;
+            public static int GET_TOPIC_TIMEOUT = 10;
         }
     }
 }
