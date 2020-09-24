@@ -8,6 +8,7 @@
 - brpc-java
 - canal-1.x
 - cassandra-java-driver-3.x
+- dbcp-2.x
 - dubbo
 - ehcache-2.x
 - elastic-job-2.x
