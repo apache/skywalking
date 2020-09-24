@@ -44,9 +44,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 @DefaultImplementor
 public class KafkaProducerManager implements BootService, Runnable {
 
-    private KafkaProducer<String, Bytes> producer;
-
     private static final ILog LOGGER = LogManager.getLogger(KafkaProducerManager.class);
+
+    private KafkaProducer<String, Bytes> producer;
 
     @Override
     public void prepare() throws Throwable {
