@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -48,7 +47,7 @@ public class HistogramConstructInterceptorTest {
     public void testConstruct() {
         histogramConstructInterceptor.onConstruct(enhancedInstance, new Object[] {
             new MeterId("test", MeterId.MeterType.HISTOGRAM, Arrays.asList(new MeterId.Tag("k1", "v1"))),
-            Counter.Mode.RATE});
+            Arrays.asList(1d, 5d, 10d)});
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
         final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");

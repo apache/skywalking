@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.agent.core.meter;
 /**
  * Counter mode
  */
-public enum  CounterMode {
+public enum CounterMode {
     /**
      * Increase single value, report the real value
      */
