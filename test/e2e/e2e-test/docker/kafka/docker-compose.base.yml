@@ -49,6 +49,7 @@ services:
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       SW_KAFKA_BOOTSTRAP_SERVERS: broker-a:9092,broker-b:9092
+      SW_GET_TOPIC_TIMEOUT: 60
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE

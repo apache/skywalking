@@ -36,6 +36,9 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+/**
+ * Collect and process the performance data
+ */
 @Slf4j
 public class BrowserPerfDataReportServletHandler extends JettyHandler {
     private final ModuleManager moduleManager;
@@ -55,7 +58,6 @@ public class BrowserPerfDataReportServletHandler extends JettyHandler {
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
-
         perfHistogram = metricsCreator.createHistogramMetric(
             "browser_perf_data_in_latency", "The process latency of browser performance data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
@@ -84,6 +86,7 @@ public class BrowserPerfDataReportServletHandler extends JettyHandler {
             BrowserPerfData browserPerfData = parseBrowserPerfData(req);
             PerfDataAnalyzer analyzer = new PerfDataAnalyzer(moduleManager, perfDataListenerManager, config);
             analyzer.doAnalysis(browserPerfData);
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             perfErrorCounter.inc();
