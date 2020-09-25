@@ -22,5 +22,3 @@ Meter System supports following binding functions
 - **percentile**. Read [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile). Unlike in the OAL, we provide
 50/75/90/95/99 in default, in the meter system function, percentile function accepts several ranks, which should be in
 the (0, 100) range.
-
-## 

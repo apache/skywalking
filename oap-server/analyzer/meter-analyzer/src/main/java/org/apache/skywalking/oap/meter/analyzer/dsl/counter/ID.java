@@ -16,38 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.dsl;
+package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
 
 import com.google.common.collect.ImmutableMap;
-import io.vavr.Function2;
-import io.vavr.Tuple2;
-import java.time.Duration;
-import java.util.function.Function;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.meter.analyzer.dsl.counter.Window;
 
-@Builder
+@RequiredArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class Sample {
-    final String name;
-    final ImmutableMap<String, String> labels;
-    final double value;
-    final long timestamp;
+class ID {
 
-    Sample newValue(Function<Double, Double> transform) {
-        return Sample.builder().name(name)
-            .timestamp(timestamp)
-            .labels(labels)
-            .value(transform.apply(value))
-            .build();
-    }
+    private final String name;
 
-    Sample increase(String range, Function2<Double, Long, Double> transform) {
-        Tuple2<Long, Double> i = Window.INSTANCE.increase(name, labels, value, Duration.parse(range).toMillis(), timestamp);
-        double nv = transform.apply(i._2, i._1);
-        return newValue(ignored -> nv);
-    }
+    private final ImmutableMap<String, String> labels;
 }

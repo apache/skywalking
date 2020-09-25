@@ -19,17 +19,29 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import groovy.lang.Closure;
 import io.vavr.Function2;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
@@ -38,6 +50,8 @@ public class SampleFamily {
     public static final SampleFamily EMPTY = new SampleFamily(new Sample[0]);
 
     public static SampleFamily build(Sample... samples) {
+        Preconditions.checkNotNull(samples);
+        Preconditions.checkArgument(samples.length > 0);
         return new SampleFamily(samples);
     }
 
@@ -81,60 +95,117 @@ public class SampleFamily {
         return newValue(v -> v / number.doubleValue());
     }
 
-    public SampleFamily plus(SampleFamily number) {
-        return this;
+    public SampleFamily negative() {
+        return newValue(v -> -v);
     }
 
-    public SampleFamily minus(SampleFamily number) {
-        return this;
+    public SampleFamily plus(SampleFamily another) {
+        if (this == EMPTY && another == EMPTY) {
+            return SampleFamily.EMPTY;
+        }
+        if (this == EMPTY) {
+            return another;
+        }
+        if (another == EMPTY) {
+            return this;
+        }
+        return newValue(another, Double::sum);
     }
 
-    public SampleFamily multiply(SampleFamily number) {
-        return this;
+    public SampleFamily minus(SampleFamily another) {
+        if (this == EMPTY && another == EMPTY) {
+            return SampleFamily.EMPTY;
+        }
+        if (this == EMPTY) {
+            return another.negative();
+        }
+        if (another == EMPTY) {
+            return this;
+        }
+        return newValue(another, (a, b) -> a - b);
     }
 
-    public SampleFamily div(SampleFamily number) {
-        return this;
+    public SampleFamily multiply(SampleFamily another) {
+        if (this == EMPTY || another == EMPTY) {
+            return SampleFamily.EMPTY;
+        }
+        return newValue(another, (a, b) -> a * b);
+    }
+
+    public SampleFamily div(SampleFamily another) {
+        if (this == EMPTY) {
+            return SampleFamily.EMPTY;
+        }
+        if (another == EMPTY) {
+            return div(0.0);
+        }
+        return newValue(another, (a, b) -> a / b);
     }
 
     /* Aggregation operators */
-    @RequiredArgsConstructor
-    public static class AggregationParameter {
-        private final String[] by;
-    }
-
-    public SampleFamily sum(AggregationParameter parameter) {
-        return this;
+    public SampleFamily sum(List<String> by) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        if (by == null) {
+            double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(Double::sum).orElse(0.0D);
+            return SampleFamily.build(newSample(ImmutableMap.of(), samples[0].timestamp, result));
+        }
+        return SampleFamily.build(Arrays.stream(samples)
+            .map(sample -> Tuple.of(by.stream()
+                .collect(ImmutableMap
+                    .toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
+            .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
+            .entrySet().stream()
+            .map(entry -> newSample(entry.getKey(), entry.getValue().get(0).timestamp, entry.getValue().stream()
+                .mapToDouble(s -> s.value).reduce(Double::sum).orElse(0.0D)))
+            .toArray(Sample[]::new));
     }
 
     /* Function */
     public SampleFamily increase(String range) {
-        return this;
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
+        return SampleFamily.build(Arrays.stream(samples).map(sample -> sample
+            .increase(range, (lowerBoundValue, lowerBoundTime) ->
+                sample.value - lowerBoundValue))
+            .toArray(Sample[]::new));
     }
 
     public SampleFamily rate(String range) {
-        return this;
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
+        return SampleFamily.build(Arrays.stream(samples).map(sample -> sample
+            .increase(range, (lowerBoundValue, lowerBoundTime) ->
+                sample.timestamp - lowerBoundTime < 1L ? 0.0D
+                    : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
+            .toArray(Sample[]::new));
     }
 
     public SampleFamily irate() {
+        return SampleFamily.build(Arrays.stream(samples).map(sample -> sample
+            .increase("PT1S", (lowerBoundValue, lowerBoundTime) ->
+                sample.timestamp - lowerBoundTime < 1L ? 0.0D
+                    : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
+            .toArray(Sample[]::new));
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    public SampleFamily tag(Closure<?> cl) {
+        return SampleFamily.build(Arrays.stream(samples).map(sample -> {
+            Object delegate = new Object();
+            Closure<?> c = cl.rehydrate(delegate, sample, delegate);
+            Map<String, String> arg = Maps.newHashMap(sample.labels);
+            Object r = c.call(arg);
+            return newSample(ImmutableMap.copyOf(Optional.ofNullable((r instanceof Map) ? (Map<String, String>) r : null)
+                .orElse(arg)), sample.timestamp, sample.value);
+        }).toArray(Sample[]::new));
+    }
+
+    public SampleFamily histogram(String le, TimeUnit unit) {
         return this;
     }
 
-    public SampleFamily tag(Closure cl) {
+    public SampleFamily histogram_percentile(int[] range) {
         return this;
-    }
-
-    @RequiredArgsConstructor
-    public static class HistogramParameter {
-        private final String le;
-    }
-
-    public  SampleFamily histogram(HistogramParameter parameter) {
-       return this;
-    }
-
-    public SampleFamily histogram_quantile(int[] range) {
-        return  this;
     }
 
     private SampleFamily match(String[] labels, Function2<String, String, Boolean> op) {
@@ -159,5 +230,23 @@ public class SampleFamily {
             ss[i] = samples[i].newValue(transform);
         }
         return SampleFamily.build(ss);
+    }
+
+    private SampleFamily newValue(SampleFamily another, Function2<Double, Double, Double> transform) {
+        Sample[] ss = Arrays.stream(samples)
+            .flatMap(cs -> io.vavr.collection.Stream.of(another.samples)
+                .find(as -> cs.labels.equals(as.labels))
+                .map(as -> newSample(cs.labels, cs.timestamp, transform.apply(cs.value, as.value)))
+                .toJavaStream())
+            .toArray(Sample[]::new);
+        return ss.length > 0 ? SampleFamily.build(ss) : EMPTY;
+    }
+
+    private Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
+        return Sample.builder()
+            .value(newValue)
+            .labels(labels)
+            .timestamp(timestamp)
+            .build();
     }
 }

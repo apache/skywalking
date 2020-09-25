@@ -21,16 +21,19 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collection;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
+@Slf4j
 @RunWith(Parameterized.class)
-public class DSLTest {
+public class BasicTest {
 
     @Parameterized.Parameter
     public String name;
@@ -44,53 +47,25 @@ public class DSLTest {
     @Parameterized.Parameter(3)
     public Result want;
 
+    @Parameterized.Parameter(4)
+    public boolean isThrow;
+
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
+        return Arrays.asList(new Object[][] {
             {
-               "default",
+                "default",
                 of("instance_cpu_percentage", SampleFamily.EMPTY),
                 "instance_cpu_percentage",
                 Result.success(SampleFamily.EMPTY),
+                false,
             },
             {
                 "single-value",
                 of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
                 "instance_cpu_percentage",
                 Result.success(SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
-            },
-            {
-                "label-equal",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
-                "instance_cpu_percentage.tagEqual('idc','t1')",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build()
-                )),
-            },
-            {
-                "label-not-equal",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
-                "instance_cpu_percentage.tagNotEqual('idc','t2')",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build()
-                )),
-            },
-            {
-                "plus",
-                of("instance_cpu_percentage", SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
-                )),
-                "instance_cpu_percentage.tagEqual('idc','t1') + 1000",
-                Result.success(SampleFamily.build(
-                    Sample.builder().labels(of("idc", "t1")).value(1600592419480.0).build()
-                )),
+                false,
             },
         });
     }
@@ -98,7 +73,19 @@ public class DSLTest {
     @Test
     public void test() {
         Expression e = DSL.parse(expression);
-        Result r = e.run(input);
+        Result r = null;
+        try {
+            r = e.run(input);
+        } catch (Throwable t) {
+            if (isThrow) {
+                return;
+            }
+            log.error("Test failed", t);
+            fail("Should not throw anything");
+        }
+        if (isThrow) {
+            fail("Should throw something");
+        }
         assertThat(r, is(want));
     }
 }

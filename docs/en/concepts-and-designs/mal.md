@@ -1,7 +1,7 @@
 # Meter Analysis Language
 
 Meter system provides a functional analysis language called MAL(Meter Analysis Language) that lets the user analyze and 
-aggregate meter metric data in OAP streaming system. The result of an expression can either be ingested by agent analyzer,
+aggregate meter data in OAP streaming system. The result of an expression can either be ingested by agent analyzer,
 or OC/Prometheus analyzer.
 
 ## Language data type
@@ -158,8 +158,8 @@ Examples:
 `histogram(le: '<the tag name of le>')`. Transforms less based histogram buckets to meter system histogram buckets. 
 `le` parameter hints the tag name of a bucket. 
 
-#### histogram_quantile
-`histogram_quantile([<φ scalar>])`. Hints meter-system to calculates the φ-quantile (0 ≤ φ ≤ 100) from the buckets. 
+#### histogram_percentile
+`histogram_percentile([<p scalar>])`. Hints meter-system to calculates the p-percentile (0 ≤ p ≤ 100) from the buckets. 
 
 ## Down Sampling Operation
 MAL should instruct meter-system how to do downsampling for metrics. It doesn't only refer to aggregate raw samples to 
