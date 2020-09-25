@@ -16,38 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.builder;
+package org.apache.skywalking.apm.toolkit.meter;
 
 /**
- * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
+ * Management the meter.
  */
-public interface Counter extends BaseMeter {
-
-    void increment(double count);
-
-    double get();
+public class MeterCenter {
 
     /**
-     * Counter mode
+     * Remove meter
+     * @return Meter reference if exists
      */
-    enum Mode {
-        /**
-         * Increase single value, report the real value
-         */
-        INCREMENT,
-
-        /**
-         * Rate with previous value when report
-         */
-        RATE
-    }
-
-    interface Builder extends BaseBuilder<Builder, Counter> {
-
-        /**
-         * Setting counter mode
-         */
-        Builder mode(Counter.Mode mode);
-
+    public static BaseMeter removeMeter(MeterId id) {
+        return null;
     }
 }

@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -32,7 +33,7 @@ public class HistogramActivation extends ClassInstanceMethodsEnhancePluginDefine
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl");
+        return byName("org.apache.skywalking.apm.toolkit.meter.Histogram");
     }
 
     @Override
@@ -46,7 +47,7 @@ public class HistogramActivation extends ClassInstanceMethodsEnhancePluginDefine
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramInterceptor";
+                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramConstructInterceptor";
                 }
             }
         };
@@ -54,6 +55,23 @@ public class HistogramActivation extends ClassInstanceMethodsEnhancePluginDefine
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[0];
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("addValue");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramAddValueInterceptor";
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
     }
 }

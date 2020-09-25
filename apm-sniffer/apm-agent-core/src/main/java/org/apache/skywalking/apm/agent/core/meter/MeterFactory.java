@@ -18,18 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.builder.BaseBuilder;
-import org.apache.skywalking.apm.agent.core.meter.builder.Counter;
-import org.apache.skywalking.apm.agent.core.meter.builder.Gauge;
-import org.apache.skywalking.apm.agent.core.meter.builder.Histogram;
-import org.apache.skywalking.apm.agent.core.meter.builder.adapter.InternalCounterAdapter;
-import org.apache.skywalking.apm.agent.core.meter.builder.adapter.InternalGaugeAdapter;
-import org.apache.skywalking.apm.agent.core.meter.builder.adapter.InternalHistogramAdapter;
-
 import java.util.function.Supplier;
 
 /**
- * Help to create meter build, and use {@link BaseBuilder#build()} to build the meter
+ * Help to create meter build, and use {@link AbstractBuilder#build()} to build the meter
  */
 public class MeterFactory {
 
@@ -37,21 +29,21 @@ public class MeterFactory {
      * Create a counter builder by name
      */
     public static Counter.Builder counter(String name) {
-        return new InternalCounterAdapter.Builder(name);
+        return new Counter.Builder(name);
     }
 
     /**
      * Create a gauge builder by name and getter
      */
     public static Gauge.Builder gauge(String name, Supplier<Double> supplier) {
-        return new InternalGaugeAdapter.Builder(name, supplier);
+        return new Gauge.Builder(name, supplier);
     }
 
     /**
      * Create a histogram builder by name
      */
     public static Histogram.Builder histogram(String name) {
-        return new InternalHistogramAdapter.Builder(name);
+        return new Histogram.Builder(name);
     }
 
 }

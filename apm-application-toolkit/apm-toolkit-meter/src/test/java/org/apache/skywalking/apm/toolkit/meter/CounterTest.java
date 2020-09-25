@@ -18,65 +18,13 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class CounterTest {
 
     @Test
     public void testBuild() {
-        Counter counter1 = MeterFactory.counter("test_counter").tag("k1", "v1").build();
-        Assert.assertNotNull(counter1);
-
-        final Counter counter2 = MeterFactory.counter(new MeterId("test_counter", MeterId.MeterType.COUNTER, Arrays.asList(new MeterId.Tag("k1", "v1")))).build();
-        Assert.assertNotNull(counter2);
-        Assert.assertEquals(counter1, counter2);
-    }
-
-    @Test
-    public void testIncrement() {
-        Counter counter = MeterFactory.counter("test_counter1").tag("k1", "v1").build();
-        counter.increment(1);
-        Assert.assertEquals(counter.get(), 1d, 0.0);
-
-        counter.increment(1.5);
-        Assert.assertEquals(counter.get(), 2.5d, 0.0);
-
-        counter.increment(-1d);
-        Assert.assertEquals(counter.get(), 1.5d, 0.0);
-    }
-
-    @Test
-    public void testAccept() {
-        Counter counter = MeterFactory.counter("test_counter_accept")
-            .tag("k1", "v1")
-            .mode(Counter.Mode.INCREMENT)
-            .build();
-
-        // Check the same mode
-        try {
-            MeterFactory.counter("test_counter_accept")
-                .tag("k1", "v1")
-                .mode(Counter.Mode.INCREMENT)
-                .build();
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-        }
-
-        // Check the different mode
-        try {
-            MeterFactory.counter("test_counter_accept")
-                .tag("k1", "v1")
-                .mode(Counter.Mode.RATE)
-                .build();
-            throw new IllegalStateException();
-        } catch (IllegalStateException e) {
-            throw e;
-        } catch (Exception e) {
-        }
+        MeterFactory.counter("test_counter").tag("k1", "v1").build();
     }
 
 }

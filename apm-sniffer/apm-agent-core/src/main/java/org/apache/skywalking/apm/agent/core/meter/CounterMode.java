@@ -16,8 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.adapter;
+package org.apache.skywalking.apm.agent.core.meter;
 
-public interface GaugeAdapter extends MeterAdapter {
-    double get();
+/**
+ * Counter mode
+ */
+public enum  CounterMode {
+    /**
+     * Increase single value, report the real value
+     */
+    INCREMENT,
+
+    /**
+     * Rate with previous value when report
+     */
+    RATE
 }

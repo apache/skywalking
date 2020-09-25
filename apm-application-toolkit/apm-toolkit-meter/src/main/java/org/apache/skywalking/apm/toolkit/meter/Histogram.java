@@ -18,52 +18,80 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A summary sample observations (usual things like request durations and response sizes).
  * While it also provides a total count of observations and a sum of all observed values, it calculates configurable quartiles over a sliding time window.
  * The histogram provides detailed data in each data group.
  */
-public interface Histogram extends BaseMeter {
+public class Histogram extends BaseMeter {
+
+    protected Histogram(MeterId meterId, List<Double> steps) {
+        super(meterId);
+    }
 
     /**
      * Add value into the histogram, automatic analyze what bucket count need to be increment
      * [step1, step2)
      */
-    void addValue(double value);
+    public void addValue(double value) {
+    }
 
-    /**
-     * Get all buckets
-     */
-    Bucket[] getBuckets();
+    public static class Builder extends BaseBuilder<Builder, Histogram> {
+        private double minValue = 0;
+        private List<Double> steps;
 
-    interface Builder extends BaseBuilder<Builder, Histogram> {
+        public Builder(String name) {
+            super(name);
+        }
+
+        public Builder(MeterId meterId) {
+            super(meterId);
+        }
 
         /**
          * Setting bucket steps
          */
-        Builder steps(List<Double> steps);
+        public Builder steps(List<Double> steps) {
+            this.steps = new ArrayList<>(steps);
+            return this;
+        }
 
         /**
          * Setting min value, default is zero
          */
-        Builder minValue(double minValue);
+        public Builder minValue(double minValue) {
+            this.minValue = minValue;
+            return this;
+        }
+
+        @Override
+        protected MeterId.MeterType getType() {
+            return MeterId.MeterType.HISTOGRAM;
+        }
+
+        @Override
+        protected Histogram create() {
+            if (steps == null || steps.isEmpty()) {
+                throw new IllegalArgumentException("Missing steps setting");
+            }
+
+            // sort and distinct the steps
+            steps = steps.stream().distinct().sorted().collect(Collectors.toList());
+
+            // verify steps with except min value
+            if (steps.get(0) < minValue) {
+                throw new IllegalArgumentException("First step must bigger than min value");
+            } else if (steps.get(0) != minValue) {
+                // add the min value to the steps
+                steps.add(0, minValue);
+            }
+
+            return new Histogram(meterId, steps);
+        }
     }
 
-    /**
-     * Histogram bucket
-     */
-    interface Bucket {
-
-        /**
-         * Get bucket key
-         */
-        double getBucket();
-
-        /**
-         * Get bucket count
-         */
-        long getCount();
-    }
 }

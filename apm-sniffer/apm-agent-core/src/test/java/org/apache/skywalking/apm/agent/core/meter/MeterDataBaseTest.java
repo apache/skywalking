@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.builder.Counter;
-import org.apache.skywalking.apm.agent.core.meter.builder.Gauge;
-import org.apache.skywalking.apm.agent.core.meter.builder.Histogram;
-import org.apache.skywalking.apm.agent.core.meter.builder.adapter.InternalCounterAdapter;
-import org.apache.skywalking.apm.agent.core.meter.builder.adapter.InternalHistogramAdapter;
 import org.junit.Assert;
 
 /**
@@ -33,7 +28,7 @@ public class MeterDataBaseTest {
     /**
      * Check Counter values
      */
-    public void testCounter(Counter counter, String name, String[] tags, double val, boolean usingRate) {
+    public void testCounter(Counter counter, String name, String[] tags, double val, CounterMode counterMode) {
         // Check meter name
         Assert.assertEquals(name, counter.getName());
         // Check tags
@@ -45,9 +40,8 @@ public class MeterDataBaseTest {
         // Check current value
         Assert.assertEquals(val, counter.get(), 0.0);
 
-        // Check using rate
-        final InternalCounterAdapter adapter = (InternalCounterAdapter) counter;
-        Assert.assertEquals(usingRate, adapter.usingRate());
+        // Check mode
+        Assert.assertEquals(counterMode, counter.mode);
     }
 
     /**
@@ -80,17 +74,8 @@ public class MeterDataBaseTest {
         }
         // Check buckets
         for (int i = 0; i < data.length / 2; i++) {
-            Assert.assertEquals(data[i * 2], histogram.getBuckets()[i].getBucket(), 0.0);
-            Assert.assertEquals(data[i * 2 + 1].longValue(), histogram.getBuckets()[i].getCount());
-        }
-
-        // Check adapter buckets
-        final InternalHistogramAdapter adapter = (InternalHistogramAdapter) histogram;
-        for (int bucketInx = 0; bucketInx < adapter.getAllBuckets().length; bucketInx++) {
-            Assert.assertEquals(data[bucketInx * 2].doubleValue(), adapter.getAllBuckets()[bucketInx], 0.0);
-        }
-        for (int valueInx = 0; valueInx < adapter.getBucketValues().length; valueInx++) {
-            Assert.assertEquals(data[valueInx * 2 + 1].longValue(), adapter.getBucketValues()[valueInx]);
+            Assert.assertEquals(data[i * 2], histogram.buckets[i].bucket, 0.0);
+            Assert.assertEquals(data[i * 2 + 1].longValue(), histogram.buckets[i].count.get());
         }
     }
 }

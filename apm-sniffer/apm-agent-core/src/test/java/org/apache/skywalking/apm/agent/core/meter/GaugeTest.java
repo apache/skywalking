@@ -16,40 +16,54 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterTag;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class GaugeTransformerTest {
+public class GaugeTest {
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
+    }
+
+    @After
+    public void after() {
+        final MeterService meterService = ServiceManager.INSTANCE.findService(MeterService.class);
+        ((ConcurrentHashMap<MeterId, BaseMeter>) Whitebox.getInternalState(meterService, "meterMap")).clear();
+    }
 
     @Test
     public void testTransform() {
-        final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
         final List<Label> labels = Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build());
 
         // Normal
-        GaugeTransformer transformer1 = new GaugeTransformer(new TestGaugeAdapter(meterId, () -> 2d));
-        validateMeterData("test", labels, 2d, transformer1.transform());
+        final Gauge gauge1 = MeterFactory.gauge("test1", () -> 2d).tag("k1", "v1").build();
+        validateMeterData("test1", labels, 2d, gauge1.transform());
 
         // Exception
-        GaugeTransformer transformer2 = new GaugeTransformer(new TestGaugeAdapter(meterId, () -> Double.valueOf(2 / 0)));
-        Assert.assertNull(transformer2.transform());
+        final Gauge gauge2 = MeterFactory.gauge("test2", () -> Double.valueOf(2 / 0)).tag("k1", "v1").build();
+        Assert.assertNull(gauge2.transform());
 
         // Null
-        GaugeTransformer transformer3 = new GaugeTransformer(new TestGaugeAdapter(meterId, () -> null));
-        Assert.assertNull(transformer3.transform());
+        final Gauge gauge3 = MeterFactory.gauge("test3", () -> null).tag("k1", "v1").build();
+        validateMeterData("test3", labels, 0d, gauge3.transform());
     }
 
     /**
@@ -63,28 +77,5 @@ public class GaugeTransformerTest {
         Assert.assertEquals(singleValue.getValue(), value, 0.0);
         Assert.assertEquals(singleValue.getName(), name);
         Assert.assertEquals(singleValue.getLabelsList(), labels);
-    }
-
-    /**
-     * Custom {@link GaugeAdapter} using {@link Supplier} as data getter
-     */
-    private static class TestGaugeAdapter implements GaugeAdapter {
-        private final MeterId meterId;
-        private Supplier<Double> supplier;
-
-        public TestGaugeAdapter(MeterId meterId, Supplier<Double> supplier) {
-            this.meterId = meterId;
-            this.supplier = supplier;
-        }
-
-        @Override
-        public double get() {
-            return supplier.get();
-        }
-
-        @Override
-        public MeterId getId() {
-            return meterId;
-        }
     }
 }

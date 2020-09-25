@@ -16,32 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter.impl;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.toolkit.meter.Histogram;
-import org.apache.skywalking.apm.toolkit.meter.MeterId;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
- * Using {@link Bucket} to save bucket and count
+ * A summary sample observations (usual things like request durations and response sizes).
+ * While it also provides a total count of observations and a sum of all observed values, it calculates configurable quartiles over a sliding time window.
+ * The histogram provides detailed data in each data group.
  */
-public class HistogramImpl extends AbstractMeter implements Histogram {
-
+public class Histogram extends BaseMeter {
     protected final Bucket[] buckets;
-    protected final List<Double> steps;
 
-    public static HistogramImpl.Builder create(String name) {
-        return new Builder(name);
-    }
-
-    protected HistogramImpl(MeterId meterId, List<Double> steps) {
+    public Histogram(MeterId meterId, List<Double> steps) {
         super(meterId);
-        this.steps = steps;
         this.buckets = initBuckets(steps);
     }
 
@@ -56,13 +53,6 @@ public class HistogramImpl extends AbstractMeter implements Histogram {
         }
 
         bucket.increment(1L);
-    }
-
-    /**
-     * Getting all buckets
-     */
-    public Bucket[] getBuckets() {
-        return buckets;
     }
 
     /**
@@ -88,27 +78,34 @@ public class HistogramImpl extends AbstractMeter implements Histogram {
         return low < buckets.length && low >= 0 ? buckets[low] : null;
     }
 
-    private Bucket[] initBuckets(List<Double> buckets) {
-        final Bucket[] list = new Bucket[buckets.size()];
-        for (int i = 0; i < buckets.size(); i++) {
-            list[i] = new Bucket(buckets.get(i));
-        }
-        return list;
+    private Bucket[] initBuckets(List<Double> steps) {
+        return steps.stream().map(Bucket::new).toArray(Bucket[]::new);
     }
 
-    /**
-     * Histogram builder
-     */
-    public static class Builder extends AbstractBuilder<Histogram.Builder, Histogram, HistogramImpl> implements Histogram.Builder {
+    @Override
+    public MeterData.Builder transform() {
+        final MeterData.Builder builder = MeterData.newBuilder();
+
+        // get all values
+        List<MeterBucketValue> values = Arrays.stream(buckets)
+            .map(Histogram.Bucket::transform).collect(Collectors.toList());
+
+        return builder.setHistogram(MeterHistogram.newBuilder()
+            .setName(getName())
+            .addAllLabels(transformTags())
+            .addAllValues(values)
+            .build());
+    }
+
+    public static class Builder extends AbstractBuilder<Builder, Histogram> {
         private double minValue = 0;
         private List<Double> steps;
 
+        /**
+         * Build a new meter build, meter name is required
+         */
         public Builder(String name) {
             super(name);
-        }
-
-        public Builder(MeterId meterId) {
-            super(meterId);
         }
 
         /**
@@ -128,24 +125,12 @@ public class HistogramImpl extends AbstractMeter implements Histogram {
         }
 
         @Override
-        public void accept(HistogramImpl meter) {
-            if (this.steps.get(0) != minValue) {
-                this.steps.add(0, minValue);
-            }
-            if (meter.buckets.length != this.steps.size()) {
-                throw new IllegalArgumentException("Steps are not has the same size");
-            }
-            List<Double> meterSteps = new ArrayList<>(meter.buckets.length);
-            for (Bucket bucket : meter.buckets) {
-                meterSteps.add(bucket.bucket);
-            }
-            if (!Objects.equals(meterSteps, this.steps)) {
-                throw new IllegalArgumentException("Steps are not the same");
-            }
+        protected MeterType getType() {
+            return MeterType.HISTOGRAM;
         }
 
         @Override
-        public HistogramImpl create(MeterId meterId) {
+        protected Histogram create(MeterId meterId) {
             if (steps == null || steps.isEmpty()) {
                 throw new IllegalArgumentException("Missing steps setting");
             }
@@ -161,19 +146,14 @@ public class HistogramImpl extends AbstractMeter implements Histogram {
                 steps.add(0, minValue);
             }
 
-            return new HistogramImpl(meterId, steps);
-        }
-
-        @Override
-        public MeterId.MeterType getType() {
-            return MeterId.MeterType.HISTOGRAM;
+            return new Histogram(meterId, steps);
         }
     }
 
     /**
      * Histogram bucket
      */
-    private static class Bucket implements Histogram.Bucket {
+    protected static class Bucket {
         protected double bucket;
         protected AtomicLong count = new AtomicLong();
 
@@ -185,12 +165,11 @@ public class HistogramImpl extends AbstractMeter implements Histogram {
             this.count.addAndGet(count);
         }
 
-        public double getBucket() {
-            return bucket;
-        }
-
-        public long getCount() {
-            return count.get();
+        public MeterBucketValue transform() {
+            return MeterBucketValue.newBuilder()
+                .setBucket(bucket)
+                .setCount(count.get())
+                .build();
         }
 
         @Override

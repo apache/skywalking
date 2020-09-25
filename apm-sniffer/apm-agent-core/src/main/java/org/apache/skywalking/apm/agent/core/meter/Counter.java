@@ -16,34 +16,44 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.DoubleAdder;
 
-public class CounterTransformer extends MeterTransformer<CounterAdapter> {
-    private static MeterService METER_SERVICE;
+/**
+ * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
+ */
+public class Counter extends BaseMeter {
+
+    protected final DoubleAdder count;
+    protected final CounterMode mode;
     private final AtomicReference<Double> previous = new AtomicReference();
 
-    public CounterTransformer(CounterAdapter adapter) {
-        super(adapter);
+    public Counter(MeterId meterId, CounterMode mode) {
+        super(meterId);
+        this.count = new DoubleAdder();
+        this.mode = mode;
+    }
+
+    public void increment(double count) {
+        this.count.add(count);
+    }
+
+    public double get() {
+        return count.doubleValue();
     }
 
     @Override
     public MeterData.Builder transform() {
-        if (METER_SERVICE == null) {
-            METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
-        }
-
         // using rate mode or increase
-        final double currentValue = adapter.get();
+        final double currentValue = get();
         double count;
-        if (adapter.usingRate()) {
+        if (Objects.equals(mode, CounterMode.RATE)) {
             final Double previousValue = previous.getAndSet(currentValue);
 
             // calculate the add count
@@ -65,4 +75,45 @@ public class CounterTransformer extends MeterTransformer<CounterAdapter> {
         return builder;
     }
 
+    /**
+     * Counter mode
+     */
+    public enum Mode {
+        /**
+         * Increase single value, report the real value
+         */
+        INCREMENT,
+
+        /**
+         * Rate with previous value when report
+         */
+        RATE
+    }
+
+    public static class Builder extends AbstractBuilder<Builder, Counter> {
+        private CounterMode mode = CounterMode.INCREMENT;
+
+        public Builder(String name) {
+            super(name);
+        }
+
+        /**
+         * Setting counter mode
+         */
+        public Builder mode(CounterMode mode) {
+            this.mode = mode;
+            return this;
+        }
+
+        @Override
+        protected Counter create(MeterId meterId) {
+            return new Counter(meterId, mode);
+        }
+
+        @Override
+        protected MeterType getType() {
+            return MeterType.COUNTER;
+        }
+
+    }
 }

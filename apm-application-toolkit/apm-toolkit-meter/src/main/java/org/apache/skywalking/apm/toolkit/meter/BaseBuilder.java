@@ -18,16 +18,63 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-public interface BaseBuilder<Builder extends BaseBuilder, Meter extends BaseMeter> {
+import java.util.Objects;
+
+/**
+ * Help to build the meter
+ */
+public abstract class BaseBuilder<BUILDER extends BaseBuilder, METER extends BaseMeter> {
+    protected final MeterId meterId;
+
+    /**
+     * Build a new meter build, meter name is required
+     */
+    public BaseBuilder(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Meter name cannot be null");
+        }
+        this.meterId = new MeterId(name, getType());
+    }
+
+    /**
+     * Build a new meter build from exists meter id
+     */
+    public BaseBuilder(MeterId meterId) {
+        if (meterId == null) {
+            throw new IllegalArgumentException("Meter id cannot be null");
+        }
+        if (!Objects.equals(meterId.getType(), getType())) {
+            throw new IllegalArgumentException("Meter id type is not matches");
+        }
+        this.meterId = meterId;
+    }
+
+    /**
+     * Get supported build meter type
+     */
+    protected abstract MeterId.MeterType getType();
+
+    /**
+     * Create a meter
+     */
+    protected abstract METER create();
 
     /**
      * append new tags to this meter
      */
-    Builder tag(String name, String value);
+    public BUILDER tag(String name, String value) {
+        meterId.getTags().add(new MeterId.Tag(name, value));
+        return (BUILDER) this;
+    }
 
     /**
      * Build a new meter object
      */
-    Meter build();
+    public METER build() {
+        // sort the tags
+        this.meterId.getTags().sort(MeterId.Tag::compareTo);
+        // create or get the meter
+        return create();
+    }
 
 }

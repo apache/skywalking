@@ -16,21 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.builder.adapter;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterTag;
+import org.apache.skywalking.apm.network.language.agent.v3.Label;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-/**
- * Base meter implementation bean
- */
-public class InternalBaseAdapter {
-
+public abstract class BaseMeter {
     protected final MeterId meterId;
 
-    public InternalBaseAdapter(MeterId meterId) {
+    // cache the gRPC label message
+    private List<Label> labels;
+
+    public BaseMeter(MeterId meterId) {
         this.meterId = meterId;
     }
 
@@ -53,16 +54,35 @@ public class InternalBaseAdapter {
         return null;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        InternalBaseAdapter abstractMeter = (InternalBaseAdapter) o;
-        return Objects.equals(meterId, abstractMeter.meterId);
+    /**
+     * Transform the meter to gRPC message bean
+     * @return if dont need to transform or no changed, return null to ignore
+     */
+    public abstract MeterData.Builder transform();
+
+    /**
+     * Transform all tags to gRPC message
+     */
+    public List<Label> transformTags() {
+        if (labels != null) {
+            return labels;
+        }
+
+        return labels = getId().getTags().stream()
+            .map(t -> Label.newBuilder().setName(t.getKey()).setValue(t.getValue()).build())
+            .collect(Collectors.toList());
     }
 
     public MeterId getId() {
         return meterId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseMeter baseMeter = (BaseMeter) o;
+        return Objects.equals(meterId, baseMeter.meterId);
     }
 
     @Override

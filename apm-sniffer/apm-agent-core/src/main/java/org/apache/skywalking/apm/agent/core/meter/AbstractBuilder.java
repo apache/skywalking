@@ -16,24 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.builder.adapter;
+package org.apache.skywalking.apm.agent.core.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.MeterTag;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.adapter.MeterAdapter;
-import org.apache.skywalking.apm.agent.core.meter.builder.BaseBuilder;
-import org.apache.skywalking.apm.agent.core.meter.builder.BaseMeter;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 
 import java.util.ArrayList;
 
 /**
  * Help to build the meter
  */
-public abstract class AbstractBuilder<BUILDER extends BaseBuilder, METER extends BaseMeter, ADAPTER extends MeterAdapter> implements BaseBuilder<BUILDER, METER> {
+public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER extends BaseMeter> {
 
     private static MeterService METER_SERVICE;
     protected final MeterId meterId;
@@ -64,12 +56,7 @@ public abstract class AbstractBuilder<BUILDER extends BaseBuilder, METER extends
     /**
      * Create a meter adapter
      */
-    protected abstract ADAPTER create(MeterId meterId);
-
-    /**
-     * Wrapper the adapter to the transformer
-     */
-    protected abstract MeterTransformer<ADAPTER> wrapperTransformer(ADAPTER adapter);
+    protected abstract METER create(MeterId meterId);
 
     /**
      * Build a new meter object
@@ -81,11 +68,9 @@ public abstract class AbstractBuilder<BUILDER extends BaseBuilder, METER extends
         if (METER_SERVICE == null) {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        final ADAPTER adapter = this.create(meterId);
+        final METER adapter = this.create(meterId);
 
-        // wrapper to transformer and register
-        final MeterTransformer<ADAPTER> transformer = wrapperTransformer(adapter);
-        METER_SERVICE.register(transformer);
+        METER_SERVICE.register(adapter);
 
         return (METER) adapter;
     }

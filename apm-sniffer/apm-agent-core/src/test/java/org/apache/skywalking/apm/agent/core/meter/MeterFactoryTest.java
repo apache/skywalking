@@ -19,9 +19,6 @@
 package org.apache.skywalking.apm.agent.core.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.builder.Counter;
-import org.apache.skywalking.apm.agent.core.meter.builder.Gauge;
-import org.apache.skywalking.apm.agent.core.meter.builder.Histogram;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
 import org.junit.AfterClass;
@@ -48,13 +45,13 @@ public class MeterFactoryTest extends MeterDataBaseTest {
         final Counter counter1 = MeterFactory.counter("test_counter1")
             .tag("testA", "testB")
             .build();
-        testCounter(counter1, "test_counter1", new String[] {"testA", "testB"}, 0.0, false);
+        testCounter(counter1, "test_counter1", new String[] {"testA", "testB"}, 0.0, CounterMode.INCREMENT);
 
         final Counter counter2 = MeterFactory.counter("test_counter2")
             .tag("testA", "testB")
-            .mode(Counter.Mode.RATE)
+            .mode(CounterMode.RATE)
             .build();
-        testCounter(counter2, "test_counter2", new String[] {"testA", "testB"}, 0.0, true);
+        testCounter(counter2, "test_counter2", new String[] {"testA", "testB"}, 0.0, CounterMode.RATE);
     }
 
     @Test

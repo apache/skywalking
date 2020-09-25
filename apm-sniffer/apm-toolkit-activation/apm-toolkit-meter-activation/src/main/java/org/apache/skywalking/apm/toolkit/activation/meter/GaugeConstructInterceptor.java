@@ -19,29 +19,29 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
+import org.apache.skywalking.apm.agent.core.meter.Gauge;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.toolkit.meter.Counter;
-import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
-import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitCounterAdapter;
+import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
-public class CounterInterceptor implements InstanceConstructorInterceptor {
+import java.util.function.Supplier;
+
+public class GaugeConstructInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final CounterImpl toolkitCounter = (CounterImpl) objInst;
-        final Counter.Mode mode = (Counter.Mode) allArguments[1];
+        final MeterId meterId = (MeterId) allArguments[0];
+        final Supplier<Double> getter = (Supplier<Double>) allArguments[1];
 
-        final ToolkitCounterAdapter counterAdapter = new ToolkitCounterAdapter(toolkitCounter, mode);
-        final CounterTransformer counterTransformer = new CounterTransformer(counterAdapter);
+        final Gauge gauge = new Gauge(MeterIdConverter.convert(meterId), getter);
 
         if (METER_SERVICE == null) {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        METER_SERVICE.register(counterTransformer);
+        objInst.setSkyWalkingDynamicField(METER_SERVICE.register(gauge));
     }
 
 }
