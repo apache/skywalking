@@ -20,7 +20,7 @@ counter.increment(1d);
 1. `Counter.Builder.tag(String key, String value)` Mark a tag key/value pair.
 1. `Counter.Builder.mode(Counter.Mode mode)` Change the counter mode, `RATE` mode means reporting rate to the backend.
 1. `Counter.Builder.build()` Build a new `Counter` which is collected and reported to the backend.
-1. `Counter.increment(double count)` Increment count to the `Counter`, It could be a positive/negative value.
+1. `Counter.increment(double count)` Increment count to the `Counter`, It could be a positive value.
 
 * `Gauge` API represents a single numerical value.
 ```java

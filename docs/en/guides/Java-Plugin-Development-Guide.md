@@ -1,6 +1,13 @@
 # Plugin Development Guide
-This document describe how to understand, develop and contribute plugin.
+This document describe how to understand, develop and contribute plugin. 
 
+There are 2 kinds of plugin
+1. [Tracing plugin](#tracing-plugin). Follow the distributed tracing concept to collect spans with tags and logs.
+1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Guage, and Histogram formats.
+
+We also provide the [plugin test tool](#plugin-test-tool) to verify the data collected and reported by the plugin. If you plan to contribute any plugin to our main repo, the data would be verified by this tool too.
+
+# Tracing plugin
 ## Concepts
 ### Span
 Span is an important and common concept in distributed tracing system. Learn **Span** from 
@@ -423,7 +430,49 @@ public class SpringMVCPluginConfig {
 }
 ```
 
-### Plugin Test Tool
+
+# Meter Plugin
+Java agent plugin could use meter APIs to collect the metrics for backend analysis.
+
+* `Counter` API represents a single monotonically increasing counter, automatic collect data and report to backend.
+```java
+import org.apache.skywalking.apm.agent.core.meter.MeterFactory;
+
+Counter counter = MeterFactory.counter(meterName).tag("tagKey", "tagValue").mode(Counter.Mode.INCREMENT).build();
+counter.increment(1d);
+```
+1. `MeterFactory.counter` Create a new counter builder with the meter name.
+1. `Counter.Builder.tag(String key, String value)` Mark a tag key/value pair.
+1. `Counter.Builder.mode(Counter.Mode mode)` Change the counter mode, `RATE` mode means reporting rate to the backend.
+1. `Counter.Builder.build()` Build a new `Counter` which is collected and reported to the backend.
+1. `Counter.increment(double count)` Increment count to the `Counter`, It could be a positive value.
+
+* `Gauge` API represents a single numerical value.
+```java
+import org.apache.skywalking.apm.agent.core.meter.MeterFactory;
+
+ThreadPoolExecutor threadPool = ...;
+Gauge gauge = MeterFactory.gauge(meterName, () -> threadPool.getActiveCount()).tag("tagKey", "tagValue").build();
+```
+1. `MeterFactory.gauge(String name, Supplier<Double> getter)` Create a new gauge builder with the meter name and supplier function, this function need to return a `double` value.
+1. `Gauge.Builder.tag(String key, String value)` Mark a tag key/value pair.
+1. `Gauge.Builder.build()` Build a new `Gauge` which is collected and reported to the backend.
+
+* `Histogram` API represents a summary sample observations with customize buckets.
+```java
+import org.apache.skywalking.apm.agent.core.meter.MeterFactory;
+
+Histogram histogram = MeterFactory.histogram("test").tag("tagKey", "tagValue").steps(Arrays.asList(1, 5, 10)).minValue(0).build();
+histogram.addValue(3);
+```
+1. `MeterFactory.histogram(String name)` Create a new histogram builder with the meter name.
+1. `Histogram.Builder.tag(String key, String value)` Mark a tag key/value pair.
+1. `Histogram.Builder.steps(List<Double> steps)` Set up the max values of every histogram buckets.
+1. `Histogram.Builder.minValue(double value)` Set up the minimal value of this histogram, default is `0`.
+1. `Histogram.Builder.build()` Build a new `Histogram` which is collected and reported to the backend.
+1. `Histogram.addValue(double value)` Add value into the histogram, automatically analyze what bucket count needs to be increment. rule: count into [step1, step2).
+
+# Plugin Test Tool
 [Apache SkyWalking Agent Test Tool Suite](https://github.com/apache/skywalking-agent-test-tool)
 a tremendously useful test tools suite in a wide variety of languages of Agent. Includes mock collector and validator. 
 The mock collector is a SkyWalking receiver, like OAP server.
@@ -431,7 +480,7 @@ The mock collector is a SkyWalking receiver, like OAP server.
 You could learn how to use this tool to test the plugin in [this doc](Plugin-test.md). If you want to contribute plugins
 to SkyWalking official repo, this is required.
 
-### Contribute plugins into Apache SkyWalking repository
+# Contribute plugins into Apache SkyWalking repository
 We are welcome everyone to contribute plugins.
 
 Please follow there steps:

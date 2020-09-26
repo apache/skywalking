@@ -16,10 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.MeterAdapter;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 
@@ -27,37 +25,40 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Meter transformer base data
- *
- * @see CounterTransformer
- * @see GaugeTransformer
- * @see HistogramTransformer
- */
-public abstract class MeterTransformer<T extends MeterAdapter> {
-
-    protected T adapter;
+public abstract class BaseMeter {
+    protected final MeterId meterId;
 
     // cache the gRPC label message
     private List<Label> labels;
 
-    public MeterTransformer(T adapter) {
-        this.adapter = adapter;
-    }
-
-    /**
-     * Identity the meter
-     */
-    public MeterId getId() {
-        return adapter.getId();
+    public BaseMeter(MeterId meterId) {
+        this.meterId = meterId;
     }
 
     /**
      * Get meter name
      */
     public String getName() {
-        return getId().getName();
+        return meterId.getName();
     }
+
+    /**
+     * Get tag value
+     */
+    public String getTag(String tagKey) {
+        for (MeterTag tag : meterId.getTags()) {
+            if (tag.getKey().equals(tagKey)) {
+                return tag.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Transform the meter to gRPC message bean
+     * @return if dont need to transform or no changed, return null to ignore
+     */
+    public abstract MeterData.Builder transform();
 
     /**
      * Transform all tags to gRPC message
@@ -72,22 +73,21 @@ public abstract class MeterTransformer<T extends MeterAdapter> {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Transform the meter to gRPC message bean
-     * @return if dont need to transform or no changed, return null to ignore
-     */
-    public abstract MeterData.Builder transform();
+    public MeterId getId() {
+        return meterId;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MeterTransformer meterTransformer = (MeterTransformer) o;
-        return Objects.equals(getId(), meterTransformer.getId());
+        BaseMeter baseMeter = (BaseMeter) o;
+        return Objects.equals(meterId, baseMeter.meterId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(meterId);
     }
+
 }

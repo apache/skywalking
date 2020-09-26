@@ -22,12 +22,11 @@ import io.micrometer.core.instrument.DistributionSummary;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class SkywalkingDistributionSummaryTest extends SkywalkingMeterBaseTest {
+public class SkywalkingDistributionSummaryTest {
 
     @Test
     public void testSimple() {
@@ -43,17 +42,6 @@ public class SkywalkingDistributionSummaryTest extends SkywalkingMeterBaseTest {
         summary.record(10d);
         summary.record(13d);
         summary.record(2d);
-
-        // Check micrometer data
-        Assert.assertEquals(3, summary.count());
-        Assert.assertEquals(25d, summary.totalAmount(), 0.0);
-        Assert.assertEquals(13d, summary.max(), 0.0);
-
-        // Check Skywalking data
-        assertCounter(Whitebox.getInternalState(summary, "counter"), "test_simple_distribution_summary_count", tags, 3d);
-        assertCounter(Whitebox.getInternalState(summary, "sum"), "test_simple_distribution_summary_sum", tags, 25d);
-        assertGauge(Whitebox.getInternalState(summary, "max"), "test_simple_distribution_summary_max", tags, 13d);
-        assertHistogramNull(Whitebox.getInternalState(summary, "histogram"));
     }
 
     @Test
@@ -73,16 +61,5 @@ public class SkywalkingDistributionSummaryTest extends SkywalkingMeterBaseTest {
         summary.record(10d);
         summary.record(13d);
         summary.record(2d);
-
-        // Check micrometer data
-        Assert.assertEquals(3, summary.count());
-        Assert.assertEquals(25d, summary.totalAmount(), 0.0);
-        Assert.assertEquals(13d, summary.max(), 0.0);
-
-        // Check Skywalking data
-        assertCounter(Whitebox.getInternalState(summary, "counter"), "test_complex_distribution_summary_count", tags, 3d);
-        assertCounter(Whitebox.getInternalState(summary, "sum"), "test_complex_distribution_summary_sum", tags, 25d);
-        assertGauge(Whitebox.getInternalState(summary, "max"), "test_complex_distribution_summary_max", tags, 13d);
-        assertHistogram(Whitebox.getInternalState(summary, "histogram"), "test_complex_distribution_summary_histogram", tags, 1, 1, 10, 2, 20, 0);
     }
 }

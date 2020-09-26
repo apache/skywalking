@@ -16,28 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.agent.core.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterTag;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class CounterTransformerTest {
-
+public class CounterTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
@@ -46,15 +43,47 @@ public class CounterTransformerTest {
         ServiceManager.INSTANCE.shutdown();
     }
 
+    @After
+    public void after() {
+        final MeterService meterService = ServiceManager.INSTANCE.findService(MeterService.class);
+        ((ConcurrentHashMap<MeterId, BaseMeter>) Whitebox.getInternalState(meterService, "meterMap")).clear();
+    }
+
     @Test
     public void testTransform() {
-        final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
-        final DoubleAdder counter = new DoubleAdder();
-        CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter));
+        final Counter counter = MeterFactory.counter("test").tag("k1", "v1").build();
 
-        counter.add(2d);
+        counter.increment(2d);
 
-        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, counter.transform());
+    }
+
+    @Test
+    public void testTransformWithRate() {
+        final Counter counter = MeterFactory.counter("test").tag("k1", "v1").mode(CounterMode.RATE).build();
+
+        counter.increment(1d);
+        counter.increment(2d);
+
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 3d, counter.transform());
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 0d, counter.transform());
+
+        counter.increment(-4d);
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), -4d, counter.transform());
+    }
+
+    @Test
+    public void testGetCountWithoutRate() {
+        final Counter counter = MeterFactory.counter("test").tag("k1", "v1").mode(CounterMode.INCREMENT).build();
+
+        counter.increment(1d);
+        counter.increment(2d);
+
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 3d, counter.transform());
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 3d, counter.transform());
+
+        counter.increment(-4d);
+        validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), -1d, counter.transform());
     }
 
     /**
@@ -70,26 +99,4 @@ public class CounterTransformerTest {
         Assert.assertEquals(labels, singleValue.getLabelsList());
     }
 
-    /**
-     * Custom {@link CounterAdapter} using {@link DoubleAdder} as the counter value
-     */
-    private static class TestCounterAdapter implements CounterAdapter {
-        private final MeterId meterId;
-        private DoubleAdder counter;
-
-        public TestCounterAdapter(MeterId meterId, DoubleAdder counter) {
-            this.meterId = meterId;
-            this.counter = counter;
-        }
-
-        @Override
-        public Double getCount() {
-            return counter.doubleValue();
-        }
-
-        @Override
-        public MeterId getId() {
-            return meterId;
-        }
-    }
 }
