@@ -16,34 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.meter.Histogram;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
-public class CounterTransformer extends MeterTransformer<CounterAdapter> {
+import java.util.List;
+
+public class HistogramConstructInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
 
-    public CounterTransformer(CounterAdapter adapter) {
-        super(adapter);
-    }
-
     @Override
-    public MeterData.Builder transform() {
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        final MeterId meterId = (MeterId) allArguments[0];
+        final List<Double> steps = (List<Double>) allArguments[1];
+
+        final Histogram histogram = new Histogram(MeterIdConverter.convert(meterId), steps);
+
+        // register the meter
         if (METER_SERVICE == null) {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-
-        final MeterData.Builder builder = MeterData.newBuilder();
-        builder.setSingleValue(MeterSingleValue.newBuilder()
-            .setName(getName())
-            .addAllLabels(transformTags())
-            .setValue(adapter.getCount()).build());
-
-        return builder;
+        objInst.setSkyWalkingDynamicField(METER_SERVICE.register(histogram));
     }
 
 }

@@ -16,31 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
+/**
+ * Counter mode
+ */
+public enum CounterMode {
+    /**
+     * Increase single value, report the real value
+     */
+    INCREMENT,
 
-public class ToolkitGaugeAdapter implements GaugeAdapter {
-
-    private final Gauge gauge;
-    private final MeterId id;
-
-    public ToolkitGaugeAdapter(Gauge gauge) {
-        this.gauge = gauge;
-        this.id = MeterIdConverter.convert(gauge.getMeterId());
-    }
-
-    @Override
-    public Double getCount() {
-        return gauge.get();
-    }
-
-    @Override
-    public MeterId getId() {
-        return id;
-    }
-
+    /**
+     * Rate with previous value when report
+     */
+    RATE
 }

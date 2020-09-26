@@ -16,8 +16,34 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.adapter;
+package org.apache.skywalking.apm.agent.core.meter;
 
-public interface GaugeAdapter extends MeterAdapter {
-    Double getCount();
+import java.util.function.Supplier;
+
+/**
+ * Help to create meter build, and use {@link AbstractBuilder#build()} to build the meter
+ */
+public class MeterFactory {
+
+    /**
+     * Create a counter builder by name
+     */
+    public static Counter.Builder counter(String name) {
+        return new Counter.Builder(name);
+    }
+
+    /**
+     * Create a gauge builder by name and getter
+     */
+    public static Gauge.Builder gauge(String name, Supplier<Double> supplier) {
+        return new Gauge.Builder(name, supplier);
+    }
+
+    /**
+     * Create a histogram builder by name
+     */
+    public static Histogram.Builder histogram(String name) {
+        return new Histogram.Builder(name);
+    }
+
 }
