@@ -19,13 +19,13 @@
 package org.apache.skywalking.apm.toolkit.meter;
 
 /**
- * Management the meter.
+ * Management the meter. No implementation yet. As meter typically is not deleted/removed by the user codes manually, we
+ * don't support this.
  */
 public class MeterCenter {
 
     /**
-     * Remove meter
-     * @return Meter reference if exists
+     * @return NULL always, no real operation.
      */
     public static BaseMeter removeMeter(MeterId id) {
         return null;
