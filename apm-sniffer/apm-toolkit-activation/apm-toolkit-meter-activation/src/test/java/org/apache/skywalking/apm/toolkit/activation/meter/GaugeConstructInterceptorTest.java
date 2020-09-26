@@ -19,14 +19,13 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
+import org.apache.skywalking.apm.agent.core.meter.Gauge;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -34,50 +33,51 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
-public class HistogramInterceptorTest {
+public class GaugeConstructInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private HistogramInterceptor histogramInterceptor = new HistogramInterceptor();
-    private EnhancedInstance enhancedInstance = new HistogramEnhance(
-        new MeterId("test", MeterId.MeterType.HISTOGRAM, Arrays.asList(new MeterId.Tag("k1", "v1"))),
-        Arrays.asList(1d, 2d, 3d));
+    private GaugeConstructInterceptor gaugeConstructInterceptor = new GaugeConstructInterceptor();
+    private EnhancedInstance enhancedInstance = new GaugeEnhance();
 
     @Test
     public void testConstruct() {
-        histogramInterceptor.onConstruct(enhancedInstance, null);
+        gaugeConstructInterceptor.onConstruct(enhancedInstance, new Object[] {
+            new MeterId("test", MeterId.MeterType.GAUGE, Arrays.asList(new MeterId.Tag("k1", "v1"))),
+            (Supplier<Double>) () -> 1d
+        });
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
-        final Map<MeterId, MeterTransformer> meterMap = (Map<MeterId, MeterTransformer>) Whitebox.getInternalState(service, "meterMap");
+        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");
         Assert.assertEquals(1, meterMap.size());
 
         final Object field = meterMap.values().iterator().next();
         Assert.assertNotNull(field);
-        Assert.assertTrue(field instanceof HistogramTransformer);
-        final HistogramTransformer histogramTransformer = (HistogramTransformer) field;
+        Assert.assertTrue(field instanceof Gauge);
+        final Gauge gauge = (Gauge) field;
 
-        Assert.assertNotNull(histogramTransformer.getId());
-        Assert.assertEquals("test", histogramTransformer.getId().getName());
-        Assert.assertEquals(MeterType.HISTOGRAM, histogramTransformer.getId().getType());
-        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), histogramTransformer.getId().getTags());
+        Assert.assertNotNull(gauge.getId());
+        Assert.assertEquals("test", gauge.getId().getName());
+        Assert.assertEquals(MeterType.GAUGE, gauge.getId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), gauge.getId().getTags());
     }
 
-    private static class HistogramEnhance extends HistogramImpl implements EnhancedInstance {
-        protected HistogramEnhance(MeterId meterId, List<Double> steps) {
-            super(meterId, steps);
-        }
+    private static class GaugeEnhance implements EnhancedInstance {
+        private Object data;
 
         @Override
         public Object getSkyWalkingDynamicField() {
-            return null;
+            return data;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
+            this.data = value;
         }
     }
+
 }

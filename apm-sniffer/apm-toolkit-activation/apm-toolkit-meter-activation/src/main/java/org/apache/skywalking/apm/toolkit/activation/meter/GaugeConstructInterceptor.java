@@ -19,28 +19,29 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer;
+import org.apache.skywalking.apm.agent.core.meter.Gauge;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl;
-import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitHistogramAdapter;
+import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
-public class HistogramInterceptor implements InstanceConstructorInterceptor {
+import java.util.function.Supplier;
+
+public class GaugeConstructInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final HistogramImpl toolkitHistogram = (HistogramImpl) objInst;
+        final MeterId meterId = (MeterId) allArguments[0];
+        final Supplier<Double> getter = (Supplier<Double>) allArguments[1];
 
-        final ToolkitHistogramAdapter histogramAdapter = new ToolkitHistogramAdapter(toolkitHistogram);
-        final HistogramTransformer histogramTransformer = new HistogramTransformer(histogramAdapter);
+        final Gauge gauge = new Gauge(MeterIdConverter.convert(meterId), getter);
 
-        // register the meter
         if (METER_SERVICE == null) {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        METER_SERVICE.register(histogramTransformer);
+        objInst.setSkyWalkingDynamicField(METER_SERVICE.register(gauge));
     }
 
 }

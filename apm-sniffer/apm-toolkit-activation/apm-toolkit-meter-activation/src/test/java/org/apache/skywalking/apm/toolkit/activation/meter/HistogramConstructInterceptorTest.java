@@ -19,14 +19,13 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
+import org.apache.skywalking.apm.agent.core.meter.Histogram;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -36,46 +35,46 @@ import org.mockito.internal.util.reflection.Whitebox;
 import java.util.Arrays;
 import java.util.Map;
 
-public class CounterInterceptorTest {
+public class HistogramConstructInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private CounterInterceptor counterInterceptor = new CounterInterceptor();
-    private EnhancedInstance enhancedInstance = new CounterEnhance(
-        new MeterId("test", MeterId.MeterType.COUNTER, Arrays.asList(new MeterId.Tag("k1", "v1"))));
+    private HistogramConstructInterceptor histogramConstructInterceptor = new HistogramConstructInterceptor();
+    private EnhancedInstance enhancedInstance = new HistogramEnhance();
 
     @Test
     public void testConstruct() {
-        counterInterceptor.onConstruct(enhancedInstance, null);
+        histogramConstructInterceptor.onConstruct(enhancedInstance, new Object[] {
+            new MeterId("test", MeterId.MeterType.HISTOGRAM, Arrays.asList(new MeterId.Tag("k1", "v1"))),
+            Arrays.asList(1d, 5d, 10d)});
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
-        final Map<MeterId, MeterTransformer> meterMap = (Map<MeterId, MeterTransformer>) Whitebox.getInternalState(service, "meterMap");
+        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");
         Assert.assertEquals(1, meterMap.size());
 
-        final MeterTransformer transformer = meterMap.values().iterator().next();
-        Assert.assertTrue(transformer instanceof CounterTransformer);
-        final CounterTransformer counterTransformer = (CounterTransformer) transformer;
+        final Object field = meterMap.values().iterator().next();
+        Assert.assertNotNull(field);
+        Assert.assertTrue(field instanceof Histogram);
+        final Histogram histogramTransformer = (Histogram) field;
 
-        Assert.assertNotNull(counterTransformer.getId());
-        Assert.assertEquals("test", counterTransformer.getId().getName());
-        Assert.assertEquals(MeterType.COUNTER, counterTransformer.getId().getType());
-        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), counterTransformer.getId().getTags());
+        Assert.assertNotNull(histogramTransformer.getId());
+        Assert.assertEquals("test", histogramTransformer.getId().getName());
+        Assert.assertEquals(MeterType.HISTOGRAM, histogramTransformer.getId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), histogramTransformer.getId().getTags());
     }
 
-    private static class CounterEnhance extends CounterImpl implements EnhancedInstance {
-        protected CounterEnhance(MeterId meterId) {
-            super(meterId, Mode.INCREMENT);
-        }
+    private static class HistogramEnhance implements EnhancedInstance {
+        private Object data;
 
         @Override
         public Object getSkyWalkingDynamicField() {
-            return null;
+            return data;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
+            this.data = value;
         }
     }
-
 }

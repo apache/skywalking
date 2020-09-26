@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.agent.core.meter;
 
 import java.util.Objects;
 
-public class MeterTag {
+public class MeterTag implements Comparable<MeterTag> {
 
     private String key;
     private String value;
@@ -58,5 +58,10 @@ public class MeterTag {
     @Override
     public int hashCode() {
         return Objects.hash(key, value);
+    }
+
+    @Override
+    public int compareTo(MeterTag o) {
+        return this.key.compareTo(o.key);
     }
 }

@@ -16,8 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.adapter;
+package org.apache.skywalking.apm.toolkit.meter;
 
-public interface CounterAdapter extends MeterAdapter {
-    Double getCount();
+/**
+ * Management the meter.
+ */
+public class MeterCenter {
+
+    /**
+     * Remove meter
+     * @return Meter reference if exists
+     */
+    public static BaseMeter removeMeter(MeterId id) {
+        return null;
+    }
 }

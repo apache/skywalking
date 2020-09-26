@@ -16,65 +16,62 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import java.util.Objects;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+
+import java.util.ArrayList;
 
 /**
  * Help to build the meter
  */
-public abstract class BaseBuilder<BUILDER extends BaseBuilder, METER extends BaseMeter> {
+public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER extends BaseMeter> {
+
+    private static MeterService METER_SERVICE;
     protected final MeterId meterId;
 
     /**
      * Build a new meter build, meter name is required
      */
-    public BaseBuilder(String name) {
+    public AbstractBuilder(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Meter name cannot be null");
         }
-        this.meterId = new MeterId(name, getType());
+        this.meterId = new MeterId(name, getType(), new ArrayList<>());
     }
 
     /**
-     * Build a new meter build from exists meter id
+     * append new tag to this meter
      */
-    public BaseBuilder(MeterId meterId) {
-        if (meterId == null) {
-            throw new IllegalArgumentException("Meter id cannot be null");
-        }
-        if (!Objects.equals(meterId.getType(), getType())) {
-            throw new IllegalArgumentException("Meter id type is not matches");
-        }
-        this.meterId = meterId;
+    public BUILDER tag(String name, String value) {
+        meterId.getTags().add(new MeterTag(name, value));
+        return (BUILDER) this;
     }
 
     /**
      * Get supported build meter type
      */
-    protected abstract MeterId.MeterType getType();
+    protected abstract MeterType getType();
 
     /**
-     * Create a meter
+     * Create a meter adapter
      */
-    protected abstract METER create();
-
-    /**
-     * append new tags to this meter
-     */
-    public BUILDER tag(String name, String value) {
-        meterId.getTags().add(new MeterId.Tag(name, value));
-        return (BUILDER) this;
-    }
+    protected abstract METER create(MeterId meterId);
 
     /**
      * Build a new meter object
      */
     public METER build() {
         // sort the tags
-        this.meterId.getTags().sort(MeterId.Tag::compareTo);
+        this.meterId.getTags().sort(MeterTag::compareTo);
         // create or get the meter
-        return create();
-    }
+        if (METER_SERVICE == null) {
+            METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
+        }
+        final METER adapter = this.create(meterId);
 
+        METER_SERVICE.register(adapter);
+
+        return (METER) adapter;
+    }
 }
