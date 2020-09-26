@@ -62,7 +62,8 @@ public class KafkaFetcherHandlerRegister implements Runnable {
 
     public KafkaFetcherHandlerRegister(KafkaFetcherConfig config) throws ModuleStartException {
         this.config = config;
-        Properties properties = new Properties(config.getKafkaConsumerConfig());
+        Properties properties = new Properties();
+        properties.putAll(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
 
