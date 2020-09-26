@@ -18,33 +18,35 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
 
 /**
- * A summary sample observations (usual things like request durations and response sizes).
- * While it also provides a total count of observations and a sum of all observed values, it calculates configurable quartiles over a sliding time window.
- * The histogram provides detailed data in each data group.
+ * Histogram represents the distribution of data. It includes the buckets representing continuous ranges of values, with
+ * the num of collected values in every specific range. The ranges could start from any value(default 0) to positive
+ * infinitive. They can be set through the constructor and immutable after that.
  */
 public class Histogram extends BaseMeter {
     protected final Bucket[] buckets;
 
+    /**
+     * @param meterId as the unique id of this meter instance
+     * @param steps presents the minimal value of every step
+     */
     public Histogram(MeterId meterId, List<Double> steps) {
         super(meterId);
         this.buckets = initBuckets(steps);
     }
 
     /**
-     * Add value into the histogram, automatic analyze what bucket count need to be increment
-     * [step1, step2)
+     * Add value into the histogram, automatic analyze what bucket count need to be increment [step1, step2)
      */
     public void addValue(double value) {
         Bucket bucket = findBucket(value);
@@ -88,13 +90,13 @@ public class Histogram extends BaseMeter {
 
         // get all values
         List<MeterBucketValue> values = Arrays.stream(buckets)
-            .map(Histogram.Bucket::transform).collect(Collectors.toList());
+                                              .map(Histogram.Bucket::transform).collect(Collectors.toList());
 
         return builder.setHistogram(MeterHistogram.newBuilder()
-            .setName(getName())
-            .addAllLabels(transformTags())
-            .addAllValues(values)
-            .build());
+                                                  .setName(getName())
+                                                  .addAllLabels(transformTags())
+                                                  .addAllValues(values)
+                                                  .build());
     }
 
     public static class Builder extends AbstractBuilder<Builder, Histogram> {
@@ -109,7 +111,7 @@ public class Histogram extends BaseMeter {
         }
 
         /**
-         * Setting bucket steps
+         * Set bucket steps, the minimal values of every buckets besides the {@link #minValue}.
          */
         public Builder steps(List<Double> steps) {
             this.steps = new ArrayList<>(steps);
@@ -117,7 +119,7 @@ public class Histogram extends BaseMeter {
         }
 
         /**
-         * Setting min value, default is zero
+         * Set min value, default is zero
          */
         public Builder minValue(double minValue) {
             this.minValue = minValue;
@@ -140,7 +142,7 @@ public class Histogram extends BaseMeter {
 
             // verify steps with except min value
             if (steps.get(0) < minValue) {
-                throw new IllegalArgumentException("First step must bigger than min value");
+                throw new IllegalArgumentException("Step[0] must be bigger than min value");
             } else if (steps.get(0) != minValue) {
                 // add the min value to the steps
                 steps.add(0, minValue);
@@ -167,15 +169,17 @@ public class Histogram extends BaseMeter {
 
         public MeterBucketValue transform() {
             return MeterBucketValue.newBuilder()
-                .setBucket(bucket)
-                .setCount(count.get())
-                .build();
+                                   .setBucket(bucket)
+                                   .setCount(count.get())
+                                   .build();
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             Bucket bucket1 = (Bucket) o;
             return bucket == bucket1.bucket;
         }
