@@ -451,6 +451,7 @@
                         <exclude>**/.git/**</exclude>
 
                         <!-- CI files -->
+                        <exclude>**/.muse/**</exclude>
                         <exclude>**/.travis.yml</exclude>
 
                         <!-- GitHub files -->
