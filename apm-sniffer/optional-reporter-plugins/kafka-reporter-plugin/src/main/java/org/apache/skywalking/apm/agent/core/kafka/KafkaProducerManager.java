@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;
@@ -33,12 +35,16 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * Configuring, initializing and holding a KafkaProducer instance for reporters.
  */
 @DefaultImplementor
 public class KafkaProducerManager implements BootService, Runnable {
+
+    private static final ILog LOGGER = LogManager.getLogger(KafkaProducerManager.class);
 
     private KafkaProducer<String, Bytes> producer;
 
@@ -60,9 +66,13 @@ public class KafkaProducerManager implements BootService, Runnable {
         Set<String> topics = topicsResult.values().entrySet().stream()
                                          .map(entry -> {
                                              try {
-                                                 entry.getValue().get();
+                                                 entry.getValue().get(
+                                                     KafkaReporterPluginConfig.Plugin.Kafka.GET_TOPIC_TIMEOUT,
+                                                     TimeUnit.SECONDS
+                                                 );
                                                  return null;
-                                             } catch (InterruptedException | ExecutionException e) {
+                                             } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                                                 LOGGER.error(e, "Get KAFKA topic:{} error.", entry.getKey());
                                              }
                                              return entry.getKey();
                                          })

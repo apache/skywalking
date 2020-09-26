@@ -43,6 +43,11 @@ public class KafkaReporterPluginConfig {
             public static String TOPIC_METER = "skywalking-meters";
 
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
+
+            /**
+             * Timeout period of reading topics from the Kafka server, the unit is second.
+             */
+            public static int GET_TOPIC_TIMEOUT = 10;
         }
     }
 }
