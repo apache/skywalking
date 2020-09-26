@@ -33,7 +33,7 @@ public class MeterId {
     private final MeterType type;
     private final List<MeterTag> tags;
 
-    // cache the gRPC label message
+    // Labels are used to report meter to the backend.
     private List<Label> labels;
 
     public MeterId(String name, MeterType type, List<MeterTag> tags) {

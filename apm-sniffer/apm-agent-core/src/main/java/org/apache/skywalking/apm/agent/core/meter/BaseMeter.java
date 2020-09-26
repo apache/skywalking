@@ -18,18 +18,17 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
+import java.util.List;
+import java.util.Objects;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+/**
+ * BaseMeter is the basic class of all available meter implementations.
+ * It includes all labels and unique id representing this meter.
+ */
 public abstract class BaseMeter {
     protected final MeterId meterId;
-
-    // cache the gRPC label message
-    private List<Label> labels;
 
     public BaseMeter(MeterId meterId) {
         this.meterId = meterId;
@@ -64,13 +63,7 @@ public abstract class BaseMeter {
      * Transform all tags to gRPC message
      */
     public List<Label> transformTags() {
-        if (labels != null) {
-            return labels;
-        }
-
-        return labels = getId().getTags().stream()
-            .map(t -> Label.newBuilder().setName(t.getKey()).setValue(t.getValue()).build())
-            .collect(Collectors.toList());
+        return getId().transformTags();
     }
 
     public MeterId getId() {

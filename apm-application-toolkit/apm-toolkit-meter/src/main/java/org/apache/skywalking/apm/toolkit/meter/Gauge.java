@@ -22,6 +22,8 @@ import java.util.function.Supplier;
 
 /**
  * A gauge is a metric that represents a single numerical value that can arbitrarily go up and down.
+ *
+ * The source code of this class doesn't include the implementation, all logic are injected from its activation.
  */
 public class Gauge extends BaseMeter {
 

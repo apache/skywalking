@@ -47,7 +47,6 @@ public class Gauge extends BaseMeter {
 
     @Override
     public MeterData.Builder transform() {
-        // get count
         double count;
         try {
             count = get();

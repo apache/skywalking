@@ -32,7 +32,8 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
- * Agent core level service. It provides the register map for all available metrics and send them through meter sender.
+ * Agent core level service. It provides the register map for all available {@link BaseMeter} instances and schedules
+ * the {@link MeterSender}
  */
 @DefaultImplementor
 public class MeterService implements BootService, Runnable {
