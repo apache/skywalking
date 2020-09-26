@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.spring.webflux.v5.webclient;
 
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -61,17 +60,15 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         Tags.HTTP.METHOD.set(span, request.method().toString());
         SpanLayer.asHttp(span);
 
+        if (request instanceof EnhancedInstance) {
+            ((EnhancedInstance) request).setSkyWalkingDynamicField(contextCarrier);
+        }
+        
         //user async interface
         span.prepareForAsync();
         ContextManager.stopSpan();
 
         objInst.setSkyWalkingDynamicField(span);
-
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            request.headers().add(next.getHeadKey(), next.getHeadValue());
-        }
     }
 
     @Override
