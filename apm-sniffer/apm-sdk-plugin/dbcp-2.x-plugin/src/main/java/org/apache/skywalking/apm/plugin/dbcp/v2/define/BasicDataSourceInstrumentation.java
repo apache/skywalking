@@ -30,9 +30,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class BasicDataSourceInstrumentation extends ClassEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.commons.dbcp2.BasicDataSource";
-    private static final String POOL_CLOSE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.ClosePoolInterceptor";
-    private static final String CREATE_POOL_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.CreatePoolInterceptor";
-    private static final String CONNECT_CLOSE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.PoolingGetConnectInterceptor";
+    private static final String CONNECT_GET_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dbcp.v2.PoolingGetConnectInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -50,44 +48,12 @@ public class BasicDataSourceInstrumentation extends ClassEnhancePluginDefine {
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("close");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return POOL_CLOSE_INTERCEPTOR;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("createConnectionPool");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return CREATE_POOL_INTERCEPTOR;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
                         return named("getConnection");
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return CONNECT_CLOSE_INTERCEPTOR;
+                        return CONNECT_GET_INTERCEPTOR;
                     }
 
                     @Override

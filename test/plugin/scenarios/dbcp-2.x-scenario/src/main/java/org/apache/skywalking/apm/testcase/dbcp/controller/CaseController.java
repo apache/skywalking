@@ -33,8 +33,8 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
-    private static final String DROP_TABLE_SQL = "DROP table test_007";
+    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_DBCP(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
+    private static final String DROP_TABLE_SQL = "DROP table test_DBCP";
     
     @RequestMapping("/dbcp-2.x-scenario")
     @ResponseBody

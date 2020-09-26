@@ -48,18 +48,6 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
         - {key: db.statement, value: ''}
-    - operationName: DBCP/Pool/createConnectionPool
-      operationId: 0
-      parentSpanId: 1
-      spanId: 3
-      spanLayer: Database
-      startTime: gt 0
-      endTime: gt 0
-      componentId: 94
-      isError: false
-      spanType: Local
-      peer: ''
-      skipAnalysis: false
     - operationName: DBCP/Connection/getConnection
       operationId: 0
       parentSpanId: 0
@@ -67,15 +55,15 @@ segmentItems:
       spanLayer: Database
       startTime: gt 0
       endTime: gt 0
-      componentId: 94
+      componentId: 99
       isError: false
       spanType: Local
       peer: ''
       skipAnalysis: false
-    - operationName: Mysql/JDBI/PreparedStatement/execute
+    - operationName: Mysql/JDBI/Statement/execute
       operationId: 0
       parentSpanId: 0
-      spanId: 4
+      spanId: 3
       spanLayer: Database
       startTime: gt 0
       endTime: gt 0
@@ -88,12 +76,36 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
         - key: db.statement
-          value: "CREATE TABLE test_007(\nid VARCHAR(1) PRIMARY KEY, \nvalue VARCHAR(1)\
+          value: "CREATE TABLE test_DBCP(\nid VARCHAR(1) PRIMARY KEY, \nvalue VARCHAR(1)\
           \ NOT NULL)"
-    - operationName: Mysql/JDBI/Statement/execute
+    - operationName: DBCP/Connection/close
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 99
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+    - operationName: DBCP/Connection/getConnection
       operationId: 0
       parentSpanId: 0
       spanId: 5
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 99
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+    - operationName: Mysql/JDBI/Statement/execute
+      operationId: 0
+      parentSpanId: 0
+      spanId: 6
       spanLayer: Database
       startTime: gt 0
       endTime: gt 0
@@ -105,22 +117,23 @@ segmentItems:
       tags:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
-        - {key: db.statement, value: DROP table test_007}
+        - key: db.statement
+          value: "DROP table test_DBCP"
     - operationName: DBCP/Connection/close
       operationId: 0
       parentSpanId: 0
-      spanId: 6
+      spanId: 7
       spanLayer: Database
       startTime: gt 0
       endTime: gt 0
-      componentId: 94
+      componentId: 99
       isError: false
       spanType: Local
       peer: ''
       skipAnalysis: false
     - operationName: Mysql/JDBI/Connection/close
       operationId: 0
-      parentSpanId: 7
+      parentSpanId: 0
       spanId: 8
       spanLayer: Database
       startTime: gt 0
@@ -134,18 +147,6 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
         - {key: db.statement, value: ''}
-    - operationName: DBCP/Pool/close
-      operationId: 0
-      parentSpanId: 0
-      spanId: 7
-      spanLayer: Database
-      startTime: gt 0
-      endTime: gt 0
-      componentId: 94
-      isError: false
-      spanType: Local
-      peer: ''
-      skipAnalysis: false
     - operationName: /dbcp-2.x-scenario/case/dbcp-2.x-scenario
       operationId: 0
       parentSpanId: -1

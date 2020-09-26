@@ -38,7 +38,9 @@ public class PoolingCloseConnectInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
