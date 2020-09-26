@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.network.language.agent.v3.Label;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
-
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import org.apache.skywalking.apm.network.language.agent.v3.Label;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 
 /**
  * BaseMeter is the basic class of all available meter implementations.
