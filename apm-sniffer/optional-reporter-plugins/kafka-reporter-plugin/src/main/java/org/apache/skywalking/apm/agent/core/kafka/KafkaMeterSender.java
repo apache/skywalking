@@ -53,6 +53,7 @@ public class KafkaMeterSender extends MeterSender {
         producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
     }
 
+    @Override
     public void send(Map<MeterId, BaseMeter> meterMap, MeterService meterService) {
         MeterDataCollection.Builder builder = MeterDataCollection.newBuilder();
         transform(meterMap, meterData -> {
