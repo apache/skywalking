@@ -193,6 +193,28 @@ segmentItems:
         parentSpanId: 8, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: /testcase/webclient/server
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 67
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:18080/testcase/webclient/server'}
+      - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
+      refs:
+      - {parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
+        parentSpanId: 9, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: not null, traceId: not null}
+      skipAnalysis: 'false'
 - serviceName: webflux-projectA-scenario
   segmentSize: nq 0
   segments:
@@ -320,6 +342,22 @@ segmentItems:
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+    - operationName: /testcase/webclient/server
+      operationId: 0
+      parentSpanId: 0
+      spanId: 9
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 99
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      - {key: status_code, value:'200'}
       skipAnalysis: 'false'
     - operationName: /projectA/testcase
       operationId: 0
