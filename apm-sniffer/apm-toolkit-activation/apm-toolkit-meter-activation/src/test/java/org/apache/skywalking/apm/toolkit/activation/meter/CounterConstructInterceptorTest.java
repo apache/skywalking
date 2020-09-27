@@ -19,14 +19,13 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.transform.GaugeTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -35,48 +34,46 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Supplier;
 
-public class GaugeInterceptorTest {
+public class CounterConstructInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private GaugeInterceptor gaugeInterceptor = new GaugeInterceptor();
-    private EnhancedInstance enhancedInstance = new GaugeEnhance(
-        new MeterId("test", MeterId.MeterType.GAUGE, Arrays.asList(new MeterId.Tag("k1", "v1"))), () -> 1d);
+    private CounterConstructInterceptor counterConstructInterceptor = new CounterConstructInterceptor();
+    private EnhancedInstance enhancedInstance = new CounterEnhance();
 
     @Test
     public void testConstruct() {
-        gaugeInterceptor.onConstruct(enhancedInstance, null);
+        counterConstructInterceptor.onConstruct(enhancedInstance, new Object[] {
+            new MeterId("test", MeterId.MeterType.COUNTER, Arrays.asList(new MeterId.Tag("k1", "v1"))),
+            Counter.Mode.RATE});
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
-        final Map<MeterId, MeterTransformer> meterMap = (Map<MeterId, MeterTransformer>) Whitebox.getInternalState(service, "meterMap");
+        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");
         Assert.assertEquals(1, meterMap.size());
 
-        final Object field = meterMap.values().iterator().next();
-        Assert.assertNotNull(field);
-        Assert.assertTrue(field instanceof GaugeTransformer);
-        final GaugeTransformer gaugeTransformer = (GaugeTransformer) field;
+        final BaseMeter meterData = meterMap.values().iterator().next();
+        Assert.assertTrue(meterData instanceof org.apache.skywalking.apm.agent.core.meter.Counter);
+        final org.apache.skywalking.apm.agent.core.meter.Counter counter = (org.apache.skywalking.apm.agent.core.meter.Counter) meterData;
 
-        Assert.assertNotNull(gaugeTransformer.getId());
-        Assert.assertEquals("test", gaugeTransformer.getId().getName());
-        Assert.assertEquals(MeterType.GAUGE, gaugeTransformer.getId().getType());
-        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), gaugeTransformer.getId().getTags());
+        Assert.assertNotNull(counter.getId());
+        Assert.assertEquals("test", counter.getId().getName());
+        Assert.assertEquals(MeterType.COUNTER, counter.getId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), counter.getId().getTags());
     }
 
-    private static class GaugeEnhance extends GaugeImpl implements EnhancedInstance {
-        protected GaugeEnhance(MeterId meterId, Supplier<Double> getter) {
-            super(meterId, getter);
-        }
+    private static class CounterEnhance implements EnhancedInstance {
+        private Object data;
 
         @Override
         public Object getSkyWalkingDynamicField() {
-            return null;
+            return data;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
+            this.data = value;
         }
     }
 

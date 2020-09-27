@@ -16,52 +16,44 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter.impl;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.toolkit.meter.Counter;
-import org.apache.skywalking.apm.toolkit.meter.MeterId;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.DoubleAdder;
 
 /**
- * Using {@link DoubleAdder} to add count
+ * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase.
  */
-public class CounterImpl extends AbstractMeter implements Counter {
+public class Counter extends BaseMeter {
 
     protected final DoubleAdder count;
-    protected final Mode mode;
-
+    protected final CounterMode mode;
     private final AtomicReference<Double> previous = new AtomicReference();
 
-    protected CounterImpl(MeterId meterId, Mode mode) {
+    public Counter(MeterId meterId, CounterMode mode) {
         super(meterId);
         this.count = new DoubleAdder();
         this.mode = mode;
     }
 
-    /**
-     * Increment count
-     */
     public void increment(double count) {
         this.count.add(count);
     }
 
-    /**
-     * Get count value
-     */
     public double get() {
-        return this.count.doubleValue();
+        return count.doubleValue();
     }
 
-    /**
-     * Using at the Skywalking agent get, make is support {@link Mode#RATE}
-     */
-    public double agentGet() {
+    @Override
+    public MeterData.Builder transform() {
+        // using rate mode or increase
         final double currentValue = get();
         double count;
-        if (Objects.equals(Mode.RATE, this.mode)) {
+        if (Objects.equals(mode, CounterMode.RATE)) {
             final Double previousValue = previous.getAndSet(currentValue);
 
             // calculate the add count
@@ -74,44 +66,54 @@ public class CounterImpl extends AbstractMeter implements Counter {
             count = currentValue;
         }
 
-        return count;
+        final MeterData.Builder builder = MeterData.newBuilder();
+        builder.setSingleValue(MeterSingleValue.newBuilder()
+            .setName(getName())
+            .addAllLabels(transformTags())
+            .setValue(count).build());
+
+        return builder;
     }
 
-    public static class Builder extends AbstractBuilder<Counter.Builder, Counter, CounterImpl> implements Counter.Builder {
-        private Counter.Mode mode = Counter.Mode.INCREMENT;
+    /**
+     * Counter mode
+     */
+    public enum Mode {
+        /**
+         * Increase single value, report the real value
+         */
+        INCREMENT,
+
+        /**
+         * Rate with previous value when report
+         */
+        RATE
+    }
+
+    public static class Builder extends AbstractBuilder<Builder, Counter> {
+        private CounterMode mode = CounterMode.INCREMENT;
 
         public Builder(String name) {
             super(name);
         }
 
-        public Builder(MeterId meterId) {
-            super(meterId);
-        }
-
         /**
          * Setting counter mode
          */
-        public Builder mode(Counter.Mode mode) {
+        public Builder mode(CounterMode mode) {
             this.mode = mode;
             return this;
         }
 
         @Override
-        protected void accept(CounterImpl meter) throws IllegalArgumentException {
-            // Rate mode must be same
-            if (!Objects.equals(meter.mode, this.mode)) {
-                throw new IllegalArgumentException("Mode is not same");
-            }
-        }
-
-        @Override
         protected Counter create(MeterId meterId) {
-            return new CounterImpl(meterId, mode);
+            return new Counter(meterId, mode);
         }
 
         @Override
-        protected MeterId.MeterType getType() {
-            return MeterId.MeterType.COUNTER;
+        protected MeterType getType() {
+            return MeterType.COUNTER;
         }
+
     }
 }

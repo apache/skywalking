@@ -16,33 +16,42 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.agent.core.meter;
 
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 
-public class GaugeTransformer extends MeterTransformer<GaugeAdapter> {
-    private static final ILog LOGGER = LogManager.getLogger(GaugeTransformer.class);
+import java.util.function.Supplier;
 
-    public GaugeTransformer(GaugeAdapter adapter) {
-        super(adapter);
+/**
+ * A gauge is a metric that represents a single numerical value that can arbitrarily go up and down.
+ */
+public class Gauge extends BaseMeter {
+    private static final ILog LOGGER = LogManager.getLogger(Gauge.class);
+    protected Supplier<Double> getter;
+
+    public Gauge(MeterId meterId, Supplier<Double> getter) {
+        super(meterId);
+        this.getter = getter;
+    }
+
+    /**
+     * Get value
+     */
+    public double get() {
+        final Double data = getter.get();
+        return data == null ? 0 : data;
     }
 
     @Override
     public MeterData.Builder transform() {
-        // get count
-        Double count;
+        double count;
         try {
-            count = adapter.getCount();
+            count = get();
         } catch (Exception e) {
-            LOGGER.warn(e, "Cannot get the count in meter:{}", adapter.getId().getName());
-            return null;
-        }
-
-        if (count == null) {
+            LOGGER.warn(e, "Cannot get the count in meter:{}", meterId.getName());
             return null;
         }
 
@@ -53,5 +62,27 @@ public class GaugeTransformer extends MeterTransformer<GaugeAdapter> {
             .setValue(count).build());
 
         return builder;
+    }
+
+    public static class Builder extends AbstractBuilder<Builder, Gauge> {
+        private final Supplier<Double> getter;
+
+        public Builder(String name, Supplier<Double> getter) {
+            super(name);
+            this.getter = getter;
+        }
+
+        @Override
+        protected MeterType getType() {
+            return MeterType.GAUGE;
+        }
+
+        @Override
+        protected Gauge create(MeterId meterId) {
+            if (getter == null) {
+                throw new IllegalArgumentException("getter cannot be null");
+            }
+            return new Gauge(meterId, getter);
+        }
     }
 }

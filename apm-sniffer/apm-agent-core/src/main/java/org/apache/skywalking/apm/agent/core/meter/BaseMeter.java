@@ -16,60 +16,41 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
-
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.MeterAdapter;
-import org.apache.skywalking.apm.network.language.agent.v3.Label;
-import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+package org.apache.skywalking.apm.agent.core.meter;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import org.apache.skywalking.apm.network.language.agent.v3.Label;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 
 /**
- * Meter transformer base data
- *
- * @see CounterTransformer
- * @see GaugeTransformer
- * @see HistogramTransformer
+ * BaseMeter is the basic class of all available meter implementations.
+ * It includes all labels and unique id representing this meter.
  */
-public abstract class MeterTransformer<T extends MeterAdapter> {
+public abstract class BaseMeter {
+    protected final MeterId meterId;
 
-    protected T adapter;
-
-    // cache the gRPC label message
-    private List<Label> labels;
-
-    public MeterTransformer(T adapter) {
-        this.adapter = adapter;
-    }
-
-    /**
-     * Identity the meter
-     */
-    public MeterId getId() {
-        return adapter.getId();
+    public BaseMeter(MeterId meterId) {
+        this.meterId = meterId;
     }
 
     /**
      * Get meter name
      */
     public String getName() {
-        return getId().getName();
+        return meterId.getName();
     }
 
     /**
-     * Transform all tags to gRPC message
+     * Get tag value
      */
-    public List<Label> transformTags() {
-        if (labels != null) {
-            return labels;
+    public String getTag(String tagKey) {
+        for (MeterTag tag : meterId.getTags()) {
+            if (tag.getKey().equals(tagKey)) {
+                return tag.getValue();
+            }
         }
-
-        return labels = getId().getTags().stream()
-            .map(t -> Label.newBuilder().setName(t.getKey()).setValue(t.getValue()).build())
-            .collect(Collectors.toList());
+        return null;
     }
 
     /**
@@ -78,16 +59,28 @@ public abstract class MeterTransformer<T extends MeterAdapter> {
      */
     public abstract MeterData.Builder transform();
 
+    /**
+     * Transform all tags to gRPC message
+     */
+    public List<Label> transformTags() {
+        return getId().transformTags();
+    }
+
+    public MeterId getId() {
+        return meterId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MeterTransformer meterTransformer = (MeterTransformer) o;
-        return Objects.equals(getId(), meterTransformer.getId());
+        BaseMeter baseMeter = (BaseMeter) o;
+        return Objects.equals(meterId, baseMeter.meterId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(meterId);
     }
+
 }

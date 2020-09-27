@@ -16,50 +16,65 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter.transform;
+package org.apache.skywalking.apm.agent.core.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterTag;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
-import org.apache.skywalking.apm.agent.core.meter.adapter.HistogramAdapter;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class HistogramTransformerTest {
+public class HistogramTest {
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
+    }
+
+    @After
+    public void after() {
+        final MeterService meterService = ServiceManager.INSTANCE.findService(MeterService.class);
+        ((ConcurrentHashMap<MeterId, BaseMeter>) Whitebox.getInternalState(meterService, "meterMap")).clear();
+    }
 
     @Test
     public void testBuckets() {
         final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
 
         // Check buckets
-        final TestHistogramAdapter adapter = new TestHistogramAdapter(meterId, new double[] {2d, 5d});
-        final HistogramTransformer transformer = new HistogramTransformer(adapter);
-        final HistogramTransformer.Bucket[] buckets = (HistogramTransformer.Bucket[]) Whitebox.getInternalState(transformer, "buckets");
+        final Histogram histogram = MeterFactory.histogram("test").steps(Arrays.asList(2d, 5d)).minValue(2d).build();
+        final Histogram.Bucket[] buckets = (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets");
         Assert.assertEquals(2, buckets.length);
-        Assert.assertEquals(buckets[0], new HistogramTransformer.Bucket(2));
-        Assert.assertEquals(buckets[1], new HistogramTransformer.Bucket(5));
+        Assert.assertEquals(buckets[0], new Histogram.Bucket(2));
+        Assert.assertEquals(buckets[1], new Histogram.Bucket(5));
     }
 
     @Test
     public void testTransform() {
-        final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
         final List<Label> labels = Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build());
 
         // Check histogram message
-        final TestHistogramAdapter adapter = new TestHistogramAdapter(meterId, new double[] {2d, 5d});
-        final HistogramTransformer transformer = new HistogramTransformer(adapter);
-        adapter.setValues(new long[] {5L, 10L});
-        verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(5L, 10L), transformer.transform());
+        final Histogram histogram = MeterFactory.histogram("test").steps(Arrays.asList(2d, 5d)).minValue(1d).tag("k1", "v1").build();
+        histogram.addValue(1);
+        histogram.addValue(3);
+        histogram.addValue(3);
+        histogram.addValue(7);
+        verifyHistogram("test", labels, Arrays.asList(1d, 2d, 5d), Arrays.asList(1L, 2L, 1L), histogram.transform());
 
-        adapter.setValues(new long[] {6L, 12L});
-        verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(6L, 12L), transformer.transform());
+        histogram.addValue(9);
+        verifyHistogram("test", labels, Arrays.asList(1d, 2d, 5d), Arrays.asList(1L, 2L, 2L), histogram.transform());
     }
 
     /**
@@ -80,39 +95,6 @@ public class HistogramTransformerTest {
             Assert.assertNotNull(histogram.getValues(i));
             Assert.assertEquals(histogram.getValues(i).getBucket(), buckets.get(i).doubleValue(), 0.0);
             Assert.assertEquals(histogram.getValues(i).getCount(), bucketValues.get(i).longValue());
-        }
-    }
-
-    /**
-     * Custom {@link HistogramAdapter} with appoint buckets and values
-     */
-    private static class TestHistogramAdapter implements HistogramAdapter {
-        private final MeterId meterId;
-        private final double[] buckets;
-        private long[] values;
-
-        public TestHistogramAdapter(MeterId meterId, double[] buckets) {
-            this.meterId = meterId;
-            this.buckets = buckets;
-        }
-
-        @Override
-        public double[] getAllBuckets() {
-            return buckets;
-        }
-
-        @Override
-        public long[] getBucketValues() {
-            return values;
-        }
-
-        @Override
-        public MeterId getId() {
-            return meterId;
-        }
-
-        public void setValues(long[] values) {
-            this.values = values;
         }
     }
 

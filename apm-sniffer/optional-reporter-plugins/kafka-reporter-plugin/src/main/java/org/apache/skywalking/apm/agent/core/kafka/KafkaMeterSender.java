@@ -27,10 +27,10 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 import org.apache.skywalking.apm.agent.core.meter.MeterSender;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
 
 /**
@@ -53,7 +53,8 @@ public class KafkaMeterSender extends MeterSender {
         producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
     }
 
-    public void send(Map<MeterId, MeterTransformer> meterMap, MeterService meterService) {
+    @Override
+    public void send(Map<MeterId, BaseMeter> meterMap, MeterService meterService) {
         MeterDataCollection.Builder builder = MeterDataCollection.newBuilder();
         transform(meterMap, meterData -> {
             if (LOGGER.isDebugEnable()) {
