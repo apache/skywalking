@@ -22,14 +22,13 @@ import io.micrometer.core.instrument.Timer;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class SkywalkingTimerTest extends SkywalkingMeterBaseTest {
+public class SkywalkingTimerTest {
 
     @Test
     public void testSimpleTimer() {
@@ -45,17 +44,6 @@ public class SkywalkingTimerTest extends SkywalkingMeterBaseTest {
         timer.record(10, TimeUnit.MILLISECONDS);
         timer.record(20, TimeUnit.MILLISECONDS);
         timer.record(3, TimeUnit.MILLISECONDS);
-
-        // Check micrometer data
-        Assert.assertEquals(3, timer.count());
-        Assert.assertEquals(33d, timer.totalTime(TimeUnit.MILLISECONDS), 0.0);
-        Assert.assertEquals(20d, timer.max(TimeUnit.MILLISECONDS), 0.0);
-
-        // Check Skywalking data
-        assertCounter(Whitebox.getInternalState(timer, "counter"), "test_simple_timer_count", tags, 3d);
-        assertCounter(Whitebox.getInternalState(timer, "sum"), "test_simple_timer_sum", tags, 33d);
-        assertGauge(Whitebox.getInternalState(timer, "max"), "test_simple_timer_max", tags, 20d);
-        assertHistogramNull(Whitebox.getInternalState(timer, "histogram"));
     }
 
     @Test
@@ -77,16 +65,5 @@ public class SkywalkingTimerTest extends SkywalkingMeterBaseTest {
         timer.record(10, TimeUnit.MILLISECONDS);
         timer.record(22, TimeUnit.MILLISECONDS);
         timer.record(13, TimeUnit.MILLISECONDS);
-
-        // Check micrometer data
-        Assert.assertEquals(3, timer.count());
-        Assert.assertEquals(45d, timer.totalTime(TimeUnit.MILLISECONDS), 0.0);
-        Assert.assertEquals(22d, timer.max(TimeUnit.MILLISECONDS), 0.0);
-
-        // Check Skywalking data
-        assertCounter(Whitebox.getInternalState(timer, "counter"), "test_complex_timer_count", tags, 3d);
-        assertCounter(Whitebox.getInternalState(timer, "sum"), "test_complex_timer_sum", tags, 45d);
-        assertGauge(Whitebox.getInternalState(timer, "max"), "test_complex_timer_max", tags, 22d);
-        assertHistogram(Whitebox.getInternalState(timer, "histogram"), "test_complex_timer_histogram", tags, 1, 0, 10, 2, 20, 1);
     }
 }

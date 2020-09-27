@@ -19,27 +19,30 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.transform.GaugeTransformer;
+import org.apache.skywalking.apm.agent.core.meter.CounterMode;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
-import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitGaugeAdapter;
+import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
-public class GaugeInterceptor implements InstanceConstructorInterceptor {
+public class CounterConstructInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final GaugeImpl toolkitGauge = (GaugeImpl) objInst;
+        final MeterId meterId = (MeterId) allArguments[0];
+        final Counter.Mode mode = (Counter.Mode) allArguments[1];
 
-        final ToolkitGaugeAdapter gaugeAdapter = new ToolkitGaugeAdapter(toolkitGauge);
-        final GaugeTransformer gaugeTransformer = new GaugeTransformer(gaugeAdapter);
+        final org.apache.skywalking.apm.agent.core.meter.Counter counter =
+            new org.apache.skywalking.apm.agent.core.meter.Counter(MeterIdConverter.convert(meterId),
+                mode == Counter.Mode.RATE ? CounterMode.RATE : CounterMode.INCREMENT);
 
         if (METER_SERVICE == null) {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        METER_SERVICE.register(gaugeTransformer);
+        objInst.setSkyWalkingDynamicField(METER_SERVICE.register(counter));
     }
 
 }

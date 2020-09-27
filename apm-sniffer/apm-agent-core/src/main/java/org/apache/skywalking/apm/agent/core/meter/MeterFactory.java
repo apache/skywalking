@@ -16,52 +16,39 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter;
+package org.apache.skywalking.apm.agent.core.meter;
 
 import java.util.function.Supplier;
 
+/**
+ * The main entrance API of the plugin meter system. {@link Counter}, {@link Gauge}, and {@link Histogram} are created
+ * through the MeterFactory.
+ */
 public class MeterFactory {
 
     /**
-     * Create a counter builder by name
+     * Create a counter builder by given meter name
+     * @param name meter name
      */
     public static Counter.Builder counter(String name) {
         return new Counter.Builder(name);
     }
 
     /**
-     * Create a counter builder by meter id
+     * Create a gauge builder by given meter name and supplier
+     * @param name meter name
+     * @param supplier returns the latest value of this gauge
      */
-    public static Counter.Builder counter(MeterId meterId) {
-        return new Counter.Builder(meterId);
+    public static Gauge.Builder gauge(String name, Supplier<Double> supplier) {
+        return new Gauge.Builder(name, supplier);
     }
 
     /**
-     * Create a gauge builder by name and getter
-     */
-    public static Gauge.Builder gauge(String name, Supplier<Double> getter) {
-        return new Gauge.Builder(name, getter);
-    }
-
-    /**
-     * Create a gauge builder by meter id and getter
-     */
-    public static Gauge.Builder gauge(MeterId meterId, Supplier<Double> getter) {
-        return new Gauge.Builder(meterId, getter);
-    }
-
-    /**
-     * Create a histogram builder by name
+     * Create a counter builder by given meter name
+     * @param name meter name
      */
     public static Histogram.Builder histogram(String name) {
         return new Histogram.Builder(name);
-    }
-
-    /**
-     * Create a histogram builder by meterId
-     */
-    public static Histogram.Builder histogram(MeterId meterId) {
-        return new Histogram.Builder(meterId);
     }
 
 }

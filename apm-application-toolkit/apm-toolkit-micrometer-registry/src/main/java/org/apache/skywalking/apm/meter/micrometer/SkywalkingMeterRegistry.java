@@ -36,7 +36,7 @@ import io.micrometer.core.instrument.distribution.pause.PauseDetector;
 import io.micrometer.core.instrument.internal.DefaultGauge;
 import io.micrometer.core.instrument.internal.DefaultMeter;
 import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
-import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
+import org.apache.skywalking.apm.toolkit.meter.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.concurrent.TimeUnit;
