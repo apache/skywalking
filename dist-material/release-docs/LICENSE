@@ -226,12 +226,11 @@ The following components are provided under the Apache License. See project link
 The text of each license is the standard Apache 2.0 license.
 
     raphw (byte-buddy) 1.10.14: http://bytebuddy.net/ , Apache 2.0
-    Google: gprc-java 1.26.0: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: gprc-java 1.32.1: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 28.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.6: https://github.com/google/gson , Apache 2.0
-    Google: opencensus-java 0.24.0: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
-    Google: proto-google-common-protos 1.12.0: https://github.com/googleapis/googleapis , Apache 2.0
+    Google: proto-google-common-protos 1.17.0: https://github.com/googleapis/googleapis , Apache 2.0
     Google: jsr305 3.0.2: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Elasticsearch BV (Elasticsearch) 6.3.2: https://www.elastic.co/products/elasticsearch , Apache 2.0
     Elasticsearch BV (Elasticsearch) 7.0.0: https://www.elastic.co/products/elasticsearch , Apache 2.0
@@ -241,8 +240,6 @@ The text of each license is the standard Apache 2.0 license.
     percolator-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/percolator , Apache 2.0
     rest 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/rest , Apache 2.0
     transport 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/transport , Apache 2.0
-    transport-netty3-client 5.5.0: http://central.maven.org/maven2/org/elasticsearch/plugin/transport-netty3-client/5.5.0/transport-netty3-client-5.5.0.pom , Apache 2.0
-    transport-netty4-client 5.5.0: http://central.maven.org/maven2/org/elasticsearch/plugin/transport-netty4-client/5.5.0/transport-netty4-client-5.5.0.pom , Apache 2.0
     securesm 1.1: https://github.com/elastic/securesm/blob/master/pom.xml , Apache 2.0
     LMAX Ltd.(disruptor) 3.3.6: https://github.com/LMAX-Exchange/disruptor , Apache 2.0
     Eclipse (Jetty) 9.4.28.v20200408: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
@@ -271,7 +268,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections4 4.1: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
-    netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
+    netty 4.1.12: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
     error_prone_annotations 2.3.2: https://github.com/google/error-prone, Apache 2.0
@@ -378,8 +375,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     asm 8.0.1:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.5.1: http://www.antlr.org/license.html, BSD-3-Clause
     jline 0.9.94: http://mvnrepository.com/artifact/jline/jline/0.9.94, BSD
-    Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
-    Google: protobuf-java-util 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java 3.13.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
+    Google: protobuf-java-util 3.12.4: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.3: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
 
     proto files from gogo: https://github.com/gogo/protobuf  BSD-2
