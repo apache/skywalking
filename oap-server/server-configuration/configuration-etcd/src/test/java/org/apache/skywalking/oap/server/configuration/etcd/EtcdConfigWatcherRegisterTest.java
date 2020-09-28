@@ -54,7 +54,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
     EtcdClient.class,
     URI.class
 })
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class EtcdConfigWatcherRegisterTest {
 
     @Before

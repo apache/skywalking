@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
 
 import static org.mockito.Mockito.when;
 
@@ -90,19 +90,32 @@ public abstract class MeterBaseTest {
         timestamp = System.currentTimeMillis();
         // single value
         processor.read(MeterData.newBuilder()
-            .setService("service").setServiceInstance("instance").setTimestamp(timestamp)
-            .setSingleValue(MeterSingleValue.newBuilder().setName("test_count1")
-                .addLabels(Label.newBuilder().setName("k1").setValue("v1").build()).setValue(1).build())
-            .build());
+                                .setService("service").setServiceInstance("instance").setTimestamp(timestamp)
+                                .setSingleValue(MeterSingleValue.newBuilder().setName("test_count1")
+                                                                .addLabels(Label.newBuilder()
+                                                                                .setName("k1")
+                                                                                .setValue("v1")
+                                                                                .build()).setValue(1).build())
+                                .build());
 
         // histogram
         processor.read(MeterData.newBuilder()
-            .setHistogram(MeterHistogram.newBuilder().setName("test_histogram")
-                .addLabels(Label.newBuilder().setName("k2").setValue("v2").build())
-                .addValues(MeterBucketValue.newBuilder().setBucket(1).setCount(10).build())
-                .addValues(MeterBucketValue.newBuilder().setBucket(5).setCount(15).build())
-                .addValues(MeterBucketValue.newBuilder().setBucket(10).setCount(3).build())
-                .build())
-            .build());
+                                .setHistogram(MeterHistogram.newBuilder().setName("test_histogram")
+                                                            .addLabels(
+                                                                Label.newBuilder().setName("k2").setValue("v2").build())
+                                                            .addValues(MeterBucketValue.newBuilder()
+                                                                                       .setBucket(1)
+                                                                                       .setCount(10)
+                                                                                       .build())
+                                                            .addValues(MeterBucketValue.newBuilder()
+                                                                                       .setBucket(5)
+                                                                                       .setCount(15)
+                                                                                       .build())
+                                                            .addValues(MeterBucketValue.newBuilder()
+                                                                                       .setBucket(10)
+                                                                                       .setCount(3)
+                                                                                       .build())
+                                                            .build())
+                                .build());
     }
 }
