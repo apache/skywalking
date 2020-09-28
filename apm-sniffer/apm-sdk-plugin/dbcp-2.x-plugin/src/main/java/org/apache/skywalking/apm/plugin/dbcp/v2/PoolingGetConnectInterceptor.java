@@ -19,7 +19,6 @@ package org.apache.skywalking.apm.plugin.dbcp.v2;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -33,7 +32,6 @@ public class PoolingGetConnectInterceptor implements InstanceMethodsAroundInterc
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         AbstractSpan span = ContextManager.createLocalSpan("DBCP/Connection/" + method.getName());
         span.setComponent(ComponentsDefine.DBCP);
-        SpanLayer.asDB(span);
     }
 
     @Override

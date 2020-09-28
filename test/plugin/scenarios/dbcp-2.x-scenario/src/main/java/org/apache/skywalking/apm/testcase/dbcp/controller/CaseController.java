@@ -20,7 +20,8 @@ package org.apache.skywalking.apm.testcase.dbcp.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.skywalking.apm.testcase.dbcp.SQLExecutor;
+import org.apache.skywalking.apm.testcase.dbcp.service.CaseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,19 +30,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/case")
 public class CaseController {
 
+    @Autowired
+    CaseService caseService;
+
     private static final Logger logger = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
-
-    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_DBCP(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
-    private static final String DROP_TABLE_SQL = "DROP table test_DBCP";
     
     @RequestMapping("/dbcp-2.x-scenario")
     @ResponseBody
     public String testcase() throws Exception {
-        try (SQLExecutor sqlExecute = new SQLExecutor()) {
-            sqlExecute.createTable(CREATE_TABLE_SQL);
-            sqlExecute.dropTable(DROP_TABLE_SQL);
+        try {
+            caseService.testCase();
         } catch (Exception e) {
             logger.error("Failed to execute sql.", e);
             throw e;
