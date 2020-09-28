@@ -23,12 +23,12 @@ package org.apache.skywalking.apm.agent.core.meter;
  */
 public enum CounterMode {
     /**
-     * Increase single value, report the real value
+     * INCREMENT mode represents reporting the latest value.
      */
     INCREMENT,
 
     /**
-     * Rate with previous value when report
+     * RATE mode represents reporting the increment rate. Value = latest value - last reported value.
      */
     RATE
 }

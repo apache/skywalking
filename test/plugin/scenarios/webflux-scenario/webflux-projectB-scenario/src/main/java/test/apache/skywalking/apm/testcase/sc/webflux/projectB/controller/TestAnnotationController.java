@@ -44,6 +44,11 @@ public class TestAnnotationController {
         }
         return "1";
     }
+    
+    @RequestMapping("/testcase/webclient/server")
+    public String webclientServer(){
+        return "success";
+    }
 
     @GetMapping("/testcase/annotation/{test}")
     public Mono<String> urlPattern(@PathVariable("test") String var) {

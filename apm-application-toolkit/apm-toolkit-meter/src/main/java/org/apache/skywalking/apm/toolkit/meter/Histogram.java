@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A summary sample observations (usual things like request durations and response sizes).
- * While it also provides a total count of observations and a sum of all observed values, it calculates configurable quartiles over a sliding time window.
- * The histogram provides detailed data in each data group.
+ * Histogram represents the distribution of data. It includes the buckets representing continuous ranges of values, with
+ * the num of collected values in every specific range. The ranges could start from any value(default 0) to positive
+ * infinitive. They can be set through the constructor and immutable after that.
+ *
+ * The source code of this class doesn't include the implementation, all logic are injected from its activation.
  */
 public class Histogram extends BaseMeter {
 
@@ -34,8 +36,7 @@ public class Histogram extends BaseMeter {
     }
 
     /**
-     * Add value into the histogram, automatic analyze what bucket count need to be increment
-     * [step1, step2)
+     * Add value into the histogram, automatic analyze what bucket count need to be increment [step1, step2)
      */
     public void addValue(double value) {
     }
@@ -53,7 +54,7 @@ public class Histogram extends BaseMeter {
         }
 
         /**
-         * Setting bucket steps
+         * Set bucket steps, the minimal values of every buckets besides the {@link #minValue}.
          */
         public Builder steps(List<Double> steps) {
             this.steps = new ArrayList<>(steps);
@@ -61,7 +62,7 @@ public class Histogram extends BaseMeter {
         }
 
         /**
-         * Setting min value, default is zero
+         * Set min value, default is zero
          */
         public Builder minValue(double minValue) {
             this.minValue = minValue;
@@ -84,7 +85,7 @@ public class Histogram extends BaseMeter {
 
             // verify steps with except min value
             if (steps.get(0) < minValue) {
-                throw new IllegalArgumentException("First step must bigger than min value");
+                throw new IllegalArgumentException("Step[0] must be  bigger than min value");
             } else if (steps.get(0) != minValue) {
                 // add the min value to the steps
                 steps.add(0, minValue);

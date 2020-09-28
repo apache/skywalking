@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.toolkit.meter;
 
 /**
- * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
+ * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase.
+ *
+ * The source code of this class doesn't include the implementation, all logic are injected from its activation.
  */
 public class Counter extends BaseMeter {
 

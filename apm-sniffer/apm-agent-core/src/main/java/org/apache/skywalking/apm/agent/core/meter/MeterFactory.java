@@ -21,26 +21,31 @@ package org.apache.skywalking.apm.agent.core.meter;
 import java.util.function.Supplier;
 
 /**
- * Help to create meter build, and use {@link AbstractBuilder#build()} to build the meter
+ * The main entrance API of the plugin meter system. {@link Counter}, {@link Gauge}, and {@link Histogram} are created
+ * through the MeterFactory.
  */
 public class MeterFactory {
 
     /**
-     * Create a counter builder by name
+     * Create a counter builder by given meter name
+     * @param name meter name
      */
     public static Counter.Builder counter(String name) {
         return new Counter.Builder(name);
     }
 
     /**
-     * Create a gauge builder by name and getter
+     * Create a gauge builder by given meter name and supplier
+     * @param name meter name
+     * @param supplier returns the latest value of this gauge
      */
     public static Gauge.Builder gauge(String name, Supplier<Double> supplier) {
         return new Gauge.Builder(name, supplier);
     }
 
     /**
-     * Create a histogram builder by name
+     * Create a counter builder by given meter name
+     * @param name meter name
      */
     public static Histogram.Builder histogram(String name) {
         return new Histogram.Builder(name);
