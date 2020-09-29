@@ -206,10 +206,10 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
         verify(mysqlPreparedStatement).setBlob(anyInt(), any(InputStream.class), anyLong());
         verify(mysqlPreparedStatement).setClob(anyInt(), any(Clob.class));
         verify(mysqlPreparedStatement).setClob(anyInt(), any(Reader.class));
-        verify(mysqlPreparedStatement).setClob(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlPreparedStatement).setClob(anyInt(), any(Reader.class), anyLong());
         verify(mysqlPreparedStatement).setNString(anyInt(), anyString());
         verify(mysqlPreparedStatement).setNCharacterStream(anyInt(), any(Reader.class));
-        verify(mysqlPreparedStatement).setNCharacterStream(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlPreparedStatement).setNCharacterStream(anyInt(), any(Reader.class), anyLong());
         verify(mysqlPreparedStatement).setNClob(27, nClob);
         verify(mysqlPreparedStatement).setNClob(28, reader, 1);
         verify(mysqlPreparedStatement).setObject(anyInt(), Matchers.anyObject());

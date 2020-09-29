@@ -56,8 +56,8 @@ public class TimeBucketTest {
                 DownSampling.Day,
                 DAYS,
                 MILLISECONDS.toDays(NOW)
-            },
-            };
+            }
+        };
     }
 
     private DownSampling downSampling;

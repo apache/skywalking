@@ -31,27 +31,28 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class MeterBuilderTest extends MeterBaseTest {
 
     @Test
     public void testBuildAndSend() throws ModuleStartException {
         List<AcceptableValue> values = new ArrayList<>();
         doAnswer(invocationOnMock -> {
-            values.add(invocationOnMock.getArgumentAt(0, AcceptableValue.class));
+            values.add(invocationOnMock.getArgument(0, AcceptableValue.class));
             return null;
         }).when(meterSystem).doStreamingCalculation(any());
 
-        final MeterProcessService context = (MeterProcessService) Whitebox.getInternalState(processor, "processService");
+        final MeterProcessService context = (MeterProcessService) Whitebox.getInternalState(
+            processor, "processService");
         context.enabledBuilders().stream().peek(b -> doCallRealMethod().when(b).buildAndSend(any(), any()));
         context.initMeters();
 
@@ -91,7 +92,8 @@ public class MeterBuilderTest extends MeterBaseTest {
     private void verifyDataTable(DataTable table, Object... data) {
         Assert.assertEquals(data.length / 2, table.size());
         for (int i = 0; i < data.length; i += 2) {
-            Assert.assertEquals(Long.parseLong(String.valueOf(data[i + 1])), table.get(String.valueOf(data[i])).longValue());
+            Assert.assertEquals(
+                Long.parseLong(String.valueOf(data[i + 1])), table.get(String.valueOf(data[i])).longValue());
         }
     }
 }
