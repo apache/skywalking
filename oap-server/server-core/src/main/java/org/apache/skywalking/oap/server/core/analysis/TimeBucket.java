@@ -18,6 +18,8 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.Calendar;
+import java.util.TimeZone;
+
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 public class TimeBucket {
@@ -97,13 +99,14 @@ public class TimeBucket {
     /**
      * Convert TimeBucket to Timestamp in millisecond.
      *
-     * @param timeBucket   long
-     * @param downsampling Downsampling
      * @return timestamp in millisecond unit
      */
     public static long getTimestamp(long timeBucket, DownSampling downsampling) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
 
         switch (downsampling) {
             case Second:
@@ -130,12 +133,10 @@ public class TimeBucket {
     /**
      * Record timestamp bucket format in Downsampling Unit.
      *
-     * @param timestamp    Timestamp
-     * @param downsampling Downsampling
      * @return timestamp in downsampling format
      */
     public static long getTimeBucket(long timestamp, DownSampling downsampling) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.setTimeInMillis(timestamp);
 
         long year = calendar.get(Calendar.YEAR);
