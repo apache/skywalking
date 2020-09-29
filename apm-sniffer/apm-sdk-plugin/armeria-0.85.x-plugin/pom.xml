@@ -28,9 +28,6 @@
     <name>armeria-0.85.x-plugin</name>
     <packaging>jar</packaging>
     <description>SkyWalking Agent Plugin for Armeria 0.85.0 ~ 0.98.0</description>
-    <properties>
-        <compiler.version>1.8</compiler.version>
-    </properties>
 
     <dependencies>
         <dependency>

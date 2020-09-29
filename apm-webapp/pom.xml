@@ -29,7 +29,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <compiler.version>1.8</compiler.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>1.5.11.RELEASE</spring.boot.version>
         <log4j.version>2.6.2</log4j.version>
