@@ -46,7 +46,7 @@ import org.powermock.reflect.Whitebox;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 @PrepareForTest({NamespacedPodListInformer.class})
 public class KubernetesCoordinatorTest {
 

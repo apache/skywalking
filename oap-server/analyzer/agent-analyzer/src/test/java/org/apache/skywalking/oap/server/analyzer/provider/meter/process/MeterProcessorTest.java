@@ -18,18 +18,17 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class MeterProcessorTest extends MeterBaseTest {
 
     @Test
@@ -49,15 +48,18 @@ public class MeterProcessorTest extends MeterBaseTest {
         Assert.assertEquals(timestamp, processor.timestamp().longValue());
 
         // meters check
-        final Map<String, EvalMultipleData> meters = (Map<String, EvalMultipleData>) Whitebox.getInternalState(processor, "meters");
+        final Map<String, EvalMultipleData> meters = (Map<String, EvalMultipleData>) Whitebox.getInternalState(
+            processor, "meters");
         Assert.assertEquals(2, meters.size());
 
         // single value
-        EvalSingleData singleData = verifyBaseData(meters.get("test_count1"), "test_count1", Collections.singletonMap("k1", "v1"));
+        EvalSingleData singleData = verifyBaseData(
+            meters.get("test_count1"), "test_count1", Collections.singletonMap("k1", "v1"));
         Assert.assertEquals(1, singleData.getValue(), 0.0);
 
         // histogram
-        EvalHistogramData histogramData = verifyBaseData(meters.get("test_histogram"), "test_histogram", Collections.singletonMap("k2", "v2"));
+        EvalHistogramData histogramData = verifyBaseData(
+            meters.get("test_histogram"), "test_histogram", Collections.singletonMap("k2", "v2"));
         Assert.assertEquals(3, histogramData.getBuckets().size());
         Assert.assertEquals(10, histogramData.getBuckets().get(1d).longValue());
         Assert.assertEquals(15, histogramData.getBuckets().get(5d).longValue());
@@ -68,8 +70,11 @@ public class MeterProcessorTest extends MeterBaseTest {
     public void testProcess() {
         // each builder has build and send
         MeterProcessService context = (MeterProcessService) Whitebox.getInternalState(processor, "processService");
-        List<MeterBuilder> builders = context.enabledBuilders().stream().map(Mockito::spy)
-            .peek(builder -> doNothing().when(builder).buildAndSend(any(), any())).collect(Collectors.toList());
+        List<MeterBuilder> builders = context.enabledBuilders()
+                                             .stream()
+                                             .map(Mockito::spy)
+                                             .peek(builder -> doNothing().when(builder).buildAndSend(any(), any()))
+                                             .collect(Collectors.toList());
         Whitebox.setInternalState(context, "meterBuilders", builders);
         processor.process();
         builders.stream().forEach(b -> verify(b, times(1)).buildAndSend(any(), any()));

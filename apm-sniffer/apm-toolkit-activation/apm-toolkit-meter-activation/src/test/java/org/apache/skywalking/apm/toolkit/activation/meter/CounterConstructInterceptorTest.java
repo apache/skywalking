@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
@@ -30,10 +32,7 @@ import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.util.Arrays;
-import java.util.Map;
+import org.powermock.reflect.Whitebox;
 
 public class CounterConstructInterceptorTest {
 
@@ -47,10 +46,12 @@ public class CounterConstructInterceptorTest {
     public void testConstruct() {
         counterConstructInterceptor.onConstruct(enhancedInstance, new Object[] {
             new MeterId("test", MeterId.MeterType.COUNTER, Arrays.asList(new MeterId.Tag("k1", "v1"))),
-            Counter.Mode.RATE});
+            Counter.Mode.RATE
+        });
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
-        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");
+        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(
+            service, "meterMap");
         Assert.assertEquals(1, meterMap.size());
 
         final BaseMeter meterData = meterMap.values().iterator().next();

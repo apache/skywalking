@@ -91,7 +91,7 @@ public class TransportClientHandlerInterceptorTest {
         nextInterceptor = new TransportClientHandlerInterceptor();
         PowerMockito.mock(Invocation.class);
         when(operationMeta.getSchemaMeta()).thenReturn(schemaMeta);
-        when(endpoint.getAddress()).thenReturn("0.0.0.0:7777");
+        when(endpoint.toString()).thenReturn("/bmi");
         when(invocation.getEndpoint()).thenReturn(endpoint);
         when(invocation.getMicroserviceQualifiedName()).thenReturn("consumerTest");
         when(operationMeta.getOperationPath()).thenReturn("/bmi");

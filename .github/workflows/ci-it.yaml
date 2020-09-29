@@ -48,6 +48,19 @@ jobs:
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
 
+  CI-on-JDK11:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: 'Install & Test'
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+
   CI-on-Windows:
     runs-on: windows-latest
     timeout-minutes: 90

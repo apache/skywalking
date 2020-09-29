@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
 import org.apache.skywalking.apm.agent.core.meter.Histogram;
@@ -30,10 +32,7 @@ import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.util.Arrays;
-import java.util.Map;
+import org.powermock.reflect.Whitebox;
 
 public class HistogramConstructInterceptorTest {
 
@@ -47,10 +46,12 @@ public class HistogramConstructInterceptorTest {
     public void testConstruct() {
         histogramConstructInterceptor.onConstruct(enhancedInstance, new Object[] {
             new MeterId("test", MeterId.MeterType.HISTOGRAM, Arrays.asList(new MeterId.Tag("k1", "v1"))),
-            Arrays.asList(1d, 5d, 10d)});
+            Arrays.asList(1d, 5d, 10d)
+        });
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
-        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");
+        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(
+            service, "meterMap");
         Assert.assertEquals(1, meterMap.size());
 
         final Object field = meterMap.values().iterator().next();

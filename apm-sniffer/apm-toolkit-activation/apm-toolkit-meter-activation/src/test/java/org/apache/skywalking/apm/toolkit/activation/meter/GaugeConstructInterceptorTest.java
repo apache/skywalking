@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Supplier;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.meter.BaseMeter;
 import org.apache.skywalking.apm.agent.core.meter.Gauge;
@@ -30,11 +33,7 @@ import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Supplier;
+import org.powermock.reflect.Whitebox;
 
 public class GaugeConstructInterceptorTest {
 
@@ -52,7 +51,8 @@ public class GaugeConstructInterceptorTest {
         });
 
         final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
-        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(service, "meterMap");
+        final Map<MeterId, BaseMeter> meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(
+            service, "meterMap");
         Assert.assertEquals(1, meterMap.size());
 
         final Object field = meterMap.values().iterator().next();
