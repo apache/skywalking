@@ -64,7 +64,7 @@ public class MeterId {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || !(o instanceof MeterId)) return false;
         MeterId meterId = (MeterId) o;
         return Objects.equals(name, meterId.name) &&
             type == meterId.type &&
@@ -108,7 +108,7 @@ public class MeterId {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || !(o instanceof Tag)) return false;
             Tag tag = (Tag) o;
             return Objects.equals(name, tag.name) &&
                 Objects.equals(value, tag.value);
