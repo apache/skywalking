@@ -19,10 +19,10 @@
 package org.apache.skywalking.apm.plugin.avro;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.avro.ipc.RPCContext;
 import org.apache.avro.ipc.RPCPlugin;
-import org.apache.avro.util.Utf8;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -43,14 +43,27 @@ public class SWServerRPCPlugin extends RPCPlugin {
 
     @Override
     public void serverReceiveRequest(RPCContext context) {
-        Map meta = context.requestCallMeta();
+        Map<String, ByteBuffer> meta = context.requestCallMeta();
 
         ContextCarrier carrier = new ContextCarrier();
         CarrierItem items = carrier.items();
         while (items.hasNext()) {
             items = items.next();
-            ByteBuffer buffer = (ByteBuffer) meta.get(new Utf8(items.getHeadKey()));
-            items.setHeadValue(new String(buffer.array()));
+            ByteBuffer buffer = meta.get(items.getHeadKey());
+            String headValue;
+            if (buffer.hasArray()) {
+                headValue = new String(buffer.array());
+            } else {
+                buffer.mark();
+
+                byte[] bs = new byte[buffer.remaining()];
+                buffer.get(bs);
+
+                headValue = new String(bs, StandardCharsets.UTF_8);
+
+                buffer.reset();
+            }
+            items.setHeadValue(headValue);
         }
 
         String operationName = prefix + context.getMessage().getName();
