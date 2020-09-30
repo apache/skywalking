@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 public enum MockContextSnapshot {
     INSTANCE;
 
-    private ContextSnapshot contextSnapshot;
+    private final ContextSnapshot contextSnapshot;
 
     MockContextSnapshot() {
         List<DistributedTraceId> distributedTraceIds = new ArrayList<DistributedTraceId>();

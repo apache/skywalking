@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
 public enum ConsumerPoolFactory {
     INSTANCE;
 
+    @SuppressWarnings("ImmutableEnumChecker")
     private final Map<String, ConsumerPool> pools;
 
     ConsumerPoolFactory() {
