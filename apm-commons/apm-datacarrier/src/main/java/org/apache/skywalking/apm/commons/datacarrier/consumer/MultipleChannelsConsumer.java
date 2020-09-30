@@ -110,8 +110,8 @@ public class MultipleChannelsConsumer extends Thread {
         running = false;
     }
 
-    private class Group {
-        private Channels channels;
+    private static class Group {
+        private  Channels channels;
         private IConsumer consumer;
 
         public Group(Channels channels, IConsumer consumer) {
