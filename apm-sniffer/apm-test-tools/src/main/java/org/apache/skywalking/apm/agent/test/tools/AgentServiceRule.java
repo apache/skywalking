@@ -38,7 +38,7 @@ public class AgentServiceRule extends ExternalResource {
         super.after();
         try {
             FieldSetter.setValue(
-                ServiceManager.INSTANCE.getClass(), "bootedServices", new HashMap<Class, BootService>());
+                ServiceManager.INSTANCE.getDeclaringClass(), "bootedServices", new HashMap<Class, BootService>());
             FieldSetter.setValue(
                 IgnoredTracerContext.ListenerManager.class, "LISTENERS", new ArrayList<TracingContextListener>());
             FieldSetter.setValue(
