@@ -82,11 +82,8 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
                 isEntry = false;
                 isExit = false;
             }
-        } else if (Tags.PEER_HOST_IPV4.getKey().equals(key) || Tags.PEER_HOST_IPV6.getKey()
-                                                                                  .equals(
-                                                                                      key) || Tags.PEER_HOSTNAME.getKey()
-                                                                                                                .equals(
-                                                                                                                    key)) {
+        } else if (Tags.PEER_HOST_IPV4.getKey().equals(key) ||
+            Tags.PEER_HOST_IPV6.getKey().equals(key) || Tags.PEER_HOSTNAME.getKey().equals(key)) {
             peer = value;
         } else if (Tags.PEER_SERVICE.getKey().equals(key)) {
             operationName = value;
