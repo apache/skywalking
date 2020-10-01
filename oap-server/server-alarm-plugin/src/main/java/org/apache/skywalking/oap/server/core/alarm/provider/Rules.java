@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSetting
 @Getter
 @ToString
 public class Rules {
+    private List<CompositeAlarmRule> compositeRules;
     private List<AlarmRule> rules;
     private List<String> webhooks;
     private GRPCAlarmSetting grpchookSetting;
@@ -38,6 +39,7 @@ public class Rules {
     private WechatSettings wecchats;
 
     public Rules() {
+        this.compositeRules = new ArrayList<>();
         this.rules = new ArrayList<>();
         this.webhooks = new ArrayList<>();
     }

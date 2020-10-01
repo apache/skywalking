@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -221,8 +222,9 @@ public class RunningRule {
         List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
 
         windows.forEach((meta, window) -> {
-            AlarmMessage alarmMessage = window.checkAlarm();
-            if (alarmMessage != AlarmMessage.NONE) {
+            Optional<AlarmMessage> alarmMessageOptional = window.checkAlarm();
+            if (alarmMessageOptional.isPresent()) {
+                AlarmMessage alarmMessage = alarmMessageOptional.get();
                 alarmMessage.setScopeId(meta.getScopeId());
                 alarmMessage.setScope(meta.getScope());
                 alarmMessage.setName(meta.getName());
@@ -323,7 +325,7 @@ public class RunningRule {
             }
         }
 
-        public AlarmMessage checkAlarm() {
+        public Optional<AlarmMessage> checkAlarm() {
             if (isMatch()) {
                 /*
                  * When
@@ -334,9 +336,7 @@ public class RunningRule {
                 counter++;
                 if (counter >= countThreshold && silenceCountdown < 1) {
                     silenceCountdown = silencePeriod;
-
-                    // set empty message, but new message
-                    return new AlarmMessage();
+                    return Optional.of(new AlarmMessage());
                 } else {
                     silenceCountdown--;
                 }
@@ -346,7 +346,7 @@ public class RunningRule {
                     counter--;
                 }
             }
-            return AlarmMessage.NONE;
+            return Optional.empty();
         }
 
         private boolean isMatch() {
