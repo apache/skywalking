@@ -44,7 +44,7 @@ rules:
     # Metrics value need to be long, double or int
     metrics-name: endpoint_percent
     threshold: 60
-    op: >
+    op: ">"
     # The length of time to evaluate the metrics
     period: 10
     # How many times after the metrics match the condition, will trigger alarm
