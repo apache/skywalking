@@ -33,7 +33,7 @@ with open('license-file-section.csv', 'wb') as csvfile:
     with open('licenses.csv') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            license = row['licenses']
+            license: str = row['licenses']
             combinedName = row['module name']
             repoUrl = row['repository']
             if combinedName.startswith('@'):
