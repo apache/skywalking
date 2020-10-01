@@ -41,7 +41,7 @@ public enum WitnessClassFinder {
                 }
             }
         }
-        synchronized (poolMap){
+        synchronized (poolMap) {
             TypePool typePool = poolMap.get(mappingKey);
             TypePool.Resolution witnessClassResolution = typePool.describe(witnessClass);
             return witnessClassResolution.isResolved();
