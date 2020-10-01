@@ -91,7 +91,7 @@ public class ConsumeDriver<T> implements IDriver {
     }
 
     @Override
-    public boolean isRunning(Channels channels) {
+    public synchronized boolean isRunning(Channels channels) {
         return running;
     }
 

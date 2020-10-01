@@ -38,7 +38,7 @@ public class AuthenticationInterceptor implements ServerInterceptor {
         this.expectedToken = expectedToken;
     }
 
-    public void setExpectedToken(String expectedToken) {
+    public synchronized void setExpectedToken(String expectedToken) {
         this.expectedToken = expectedToken;
     }
 

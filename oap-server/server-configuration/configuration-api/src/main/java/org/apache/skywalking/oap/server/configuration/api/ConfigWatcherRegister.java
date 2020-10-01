@@ -75,7 +75,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                      ), syncPeriod, syncPeriod, TimeUnit.SECONDS);
     }
 
-    void configSync() {
+    synchronized void configSync() {
         Optional<ConfigTable> configTable = readConfig(register.keys());
 
         // Config table would be null if no change detected from the implementation.

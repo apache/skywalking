@@ -22,10 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import net.bytebuddy.pool.TypePool;
 
-/**
- * The <code>WitnessClassFinder</code> represents a pool of {@link TypePool}s, each {@link TypePool} matches a {@link
- * ClassLoader}, which helps to find the class define existed or not.
- */
 public enum WitnessClassFinder {
     INSTANCE;
 
@@ -45,9 +41,11 @@ public enum WitnessClassFinder {
                 }
             }
         }
-        TypePool typePool = poolMap.get(mappingKey);
-        TypePool.Resolution witnessClassResolution = typePool.describe(witnessClass);
-        return witnessClassResolution.isResolved();
+        synchronized (poolMap){
+            TypePool typePool = poolMap.get(mappingKey);
+            TypePool.Resolution witnessClassResolution = typePool.describe(witnessClass);
+            return witnessClassResolution.isResolved();
+        }
     }
 }
 

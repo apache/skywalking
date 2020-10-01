@@ -99,7 +99,7 @@ public class GRPCRemoteClient implements RemoteClient {
      *
      * @return a channel when the state to be ready
      */
-    ManagedChannel getChannel() {
+    synchronized ManagedChannel getChannel() {
         return getClient().getChannel();
     }
 
@@ -218,7 +218,7 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         if (Objects.nonNull(this.carrier)) {
             this.carrier.shutdownConsumers();
         }

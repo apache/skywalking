@@ -319,7 +319,9 @@ public class RunningRule {
                 this.lock.unlock();
             }
             if (log.isTraceEnabled()) {
-                log.trace("Add metric {} to window {}", metrics, transformValues(this.values));
+                synchronized (this) {
+                    log.trace("Add metric {} to window {}", metrics, transformValues(this.values));
+                }
             }
         }
 
