@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore.conf;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
-
-import lombok.var;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
@@ -88,12 +89,10 @@ public class IgnoreConfigInitializer {
     private static InputStream loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException {
         File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
         if (configFile.exists() && configFile.isFile()) {
-            try(var configFileStream = new FileInputStream(configFile)) {
+            try {
                 LOGGER.info("Ignore config file found in {}.", configFile);
-                return configFileStream;
+                return new FileInputStream(configFile);
             } catch (FileNotFoundException e) {
-                throw new ConfigNotFoundException("Fail not found to load apm-trace-ignore-plugin.config", e);
-            } catch (IOException e) {
                 throw new ConfigNotFoundException("Fail to load apm-trace-ignore-plugin.config", e);
             }
         }
