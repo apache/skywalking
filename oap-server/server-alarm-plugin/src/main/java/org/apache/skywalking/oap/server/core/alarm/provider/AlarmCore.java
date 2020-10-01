@@ -80,7 +80,7 @@ public class AlarmCore {
                         List<AlarmMessage> messages = alarmRulesWatcher.getCompositeRuleEvaluator().evaluator(alarmRulesWatcher.getCompositeRules(), alarmMessageList);
                         alarmMessageList.addAll(messages);
                     }
-                    List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsGroupCondition()).collect(Collectors.toList());
+                    List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsCondition()).collect(Collectors.toList());
                     allCallbacks.forEach(callback -> callback.doAlarm(filteredMessages));
                 }
             } catch (Exception e) {

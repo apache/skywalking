@@ -35,5 +35,5 @@ public class AlarmMessage {
     private String ruleName;
     private String alarmMessage;
     private long startTime;
-    private transient boolean onlyAsGroupCondition;
+    private transient boolean onlyAsCondition;
 }

@@ -66,11 +66,11 @@ public class CompositeRuleEvaluator {
                 allRuleNames.forEach(ruleName -> {
                     dataContext.put(ruleName, false);
                 });
-                Boolean matched = (Boolean) expression.eval(expr, dataContext);
-                if (matched != null && matched) {
+                Object matched = expression.eval(expr, dataContext);
+                if (matched instanceof Boolean && (Boolean) matched) {
                     AlarmMessage headMsg = alarmMessageList.iterator().next();
                     AlarmMessage message = new AlarmMessage();
-                    message.setOnlyAsGroupCondition(false);
+                    message.setOnlyAsCondition(false);
                     message.setScopeId(headMsg.getScopeId());
                     message.setScope(headMsg.getScope());
                     message.setName(headMsg.getName());

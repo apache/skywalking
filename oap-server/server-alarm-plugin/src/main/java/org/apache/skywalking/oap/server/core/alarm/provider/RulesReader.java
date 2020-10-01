@@ -116,7 +116,7 @@ public class RulesReader {
                 alarmRule.setCount((Integer) settings.getOrDefault("count", 1));
                 // How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
-                alarmRule.setOnlyAsGroupCondition((Boolean) settings.getOrDefault("only-as-group-condition", false));
+                alarmRule.setOnlyAsCondition((Boolean) settings.getOrDefault("only-as-condition", false));
                 alarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));

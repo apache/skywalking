@@ -51,7 +51,7 @@ public class AlarmRule {
     private int count;
     private int silencePeriod;
     private String message;
-    private boolean onlyAsGroupCondition;
+    private boolean onlyAsCondition;
 
     @Override
     public boolean equals(final Object o) {

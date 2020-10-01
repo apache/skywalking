@@ -52,11 +52,31 @@ public class CompositeRuleEvaluatorTest {
         assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
     }
 
+    @Test
+    public void testEvaluatorMessageWithNotExistsRule() {
+        List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && not_exist_rule", "composite rule triggered!");
+        compositeAlarmRules.add(compositeAlarmRule);
+        List<AlarmMessage> alarmMessages = getAlarmMessages();
+        List<AlarmMessage> compositeMsgs = ruleEvaluator.evaluator(compositeAlarmRules, alarmMessages);
+        assertThat(compositeMsgs.size(), is(0));
+    }
+
+    @Test
+    public void testEvaluatorMessageWithException() {
+        List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule + b_rule", "composite rule triggered!");
+        compositeAlarmRules.add(compositeAlarmRule);
+        List<AlarmMessage> alarmMessages = getAlarmMessages();
+        List<AlarmMessage> compositeMsgs = ruleEvaluator.evaluator(compositeAlarmRules, alarmMessages);
+        assertThat(compositeMsgs.size(), is(0));
+    }
+
     private List<AlarmMessage> getAlarmMessages() {
         List<AlarmMessage> alarmMessages = new ArrayList<>();
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setRuleName("a_rule");
-        alarmMessage.setOnlyAsGroupCondition(true);
+        alarmMessage.setOnlyAsCondition(true);
         alarmMessage.setId0("11");
         alarmMessage.setName("");
         alarmMessage.setScope("");
@@ -64,7 +84,7 @@ public class CompositeRuleEvaluatorTest {
         alarmMessages.add(alarmMessage);
         alarmMessage = new AlarmMessage();
         alarmMessage.setRuleName("b_rule");
-        alarmMessage.setOnlyAsGroupCondition(true);
+        alarmMessage.setOnlyAsCondition(true);
         alarmMessage.setId0("11");
         alarmMessage.setName("");
         alarmMessage.setScope("");
