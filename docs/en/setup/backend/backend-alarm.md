@@ -16,6 +16,8 @@ Define the relation between scope and entity name.
 - **Endpoint Relation**: {Source endpoint name} in {Source Service name} to {Dest endpoint name} in {Dest service name}
 
 ## Rules
+**There are two types of rules, individual rule and composite rule, composite rule is the combination of individual rules**
+### Individual rules
 Alarm rule is constituted by following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
 - **Metrics name**. A.K.A. metrics name in oal script. Only long, double, int types are supported. See
@@ -41,10 +43,16 @@ Such as in **percentile**, `value1` is threshold of P50, and `-, -, value3, valu
 backend deployment env time.
 - **Count**. In the period window, if the number of **value**s over threshold(by OP), reaches count, alarm
 should send.
+- **Only as condition**. Specify if the rule can send notfiy or just as an conditon of composite rule
 - **Silence period**. After alarm is triggered in Time-N, then keep silence in the **TN -> TN + period**.
 By default, it is as same as **Period**, which means in a period, same alarm(same ID in same 
 metrics name) will be trigger once. 
 
+### Composite rules
+Composite rule is constituted by following keys
+- **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
+- **Expression**. Specify how to compose rules, support and/or expression
+- **Message**. Specify the notification message when rule triggered.
 
 ```yaml
 rules:
@@ -60,6 +68,8 @@ rules:
     count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
+    # Specify if the rule can send notfiy or just as an conditon of composite rule
+    only-as-condition: false
   service_percent_rule:
     metrics-name: service_percent
     # [Optional] Default, match all services in this metrics
@@ -73,6 +83,7 @@ rules:
     op: <
     period: 10
     count: 4
+    only-as-condition: false
   service_resp_time_percentile_rule:
     # Metrics value need to be long, double or int
     metrics-name: service_percentile
@@ -83,6 +94,7 @@ rules:
     count: 3
     silence-period: 5
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
+    only-as-condition: false
   meter_service_status_code_rule:
     metrics-name: meter_status_code
     exclude-labels:
@@ -93,17 +105,24 @@ rules:
     count: 3
     silence-period: 5
     message: The request number of entity {name} non-200 status is more than expected.
+    only-as-condition: false
+composite-rules:
+  comp_rule:
+    # Must satisfied percent rule and resp time rule 
+    expression: service_percent_rule && service_resp_time_percentile_rule
+    message: Service percent less than 80% and response time p50 > 1000
 ```
+
 
 ### Default alarm rules
 We provided a default `alarm-setting.yml` in our distribution only for convenience, which including following rules
 1. Service average response time over 1s in last 3 minutes.
-1. Service success rate lower than 80% in last 2 minutes.
-1. Percentile of service response time is over 1s in last 3 minutes
-1. Service Instance average response time over 1s in last 2 minutes, and the instance name matches the regex.
-1. Endpoint average response time over 1s in last 2 minutes.
-1. Database access average response time over 1s in last 2 minutes.
-1. Endpoint relation average response time over 1s in last 2 minutes.
+2. Service success rate lower than 80% in last 2 minutes.
+3. Percentile of service response time is over 1s in last 3 minutes
+4. Service Instance average response time over 1s in last 2 minutes, and the instance name matches the regex.
+5. Endpoint average response time over 1s in last 2 minutes.
+6. Database access average response time over 1s in last 2 minutes.
+7. Endpoint relation average response time over 1s in last 2 minutes.
 
 ### List of all potential metrics name
 The metrics names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
