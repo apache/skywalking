@@ -55,15 +55,19 @@ public class TimeBucketTest {
         switch (downSampling) {
             case Day: {
                 instance.set(Calendar.HOUR_OF_DAY, 0);
+                // Fall through
             }
             case Hour: {
                 instance.set(Calendar.MINUTE, 0);
+                // Fall through
             }
             case Minute: {
                 instance.set(Calendar.SECOND, 0);
+                // Fall through
             }
             case Second: {
                 instance.set(Calendar.MILLISECOND, 0);
+                // Fall through
             }
         }
         Assert.assertEquals(instance.getTimeInMillis(), timestamp);

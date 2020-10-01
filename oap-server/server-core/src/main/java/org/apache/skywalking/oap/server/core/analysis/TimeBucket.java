@@ -113,12 +113,15 @@ public class TimeBucket {
             case Second:
                 calendar.set(Calendar.SECOND, (int) (timeBucket % 100));
                 timeBucket /= 100;
+                // Fall through
             case Minute:
                 calendar.set(Calendar.MINUTE, (int) (timeBucket % 100));
                 timeBucket /= 100;
+                // Fall through
             case Hour:
                 calendar.set(Calendar.HOUR_OF_DAY, (int) (timeBucket % 100));
                 timeBucket /= 100;
+                // Fall through
             case Day:
                 calendar.set(Calendar.DAY_OF_MONTH, (int) (timeBucket % 100));
                 timeBucket /= 100;
