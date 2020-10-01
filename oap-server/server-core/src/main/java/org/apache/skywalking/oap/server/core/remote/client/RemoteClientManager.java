@@ -98,7 +98,7 @@ public class RemoteClientManager implements Service {
      * Query OAP server list from the cluster module and create a new connection for the new node. Make the OAP server
      * orderly because of each of the server will send stream data to each other by hash code.
      */
-    void refresh() {
+    synchronized void refresh() {
         if (gauge == null) {
             gauge = moduleDefineHolder.find(TelemetryModule.NAME)
                                       .provider()

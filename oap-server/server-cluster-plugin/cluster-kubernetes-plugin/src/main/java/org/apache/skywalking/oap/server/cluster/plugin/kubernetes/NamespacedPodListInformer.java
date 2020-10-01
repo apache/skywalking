@@ -91,7 +91,7 @@ public enum NamespacedPodListInformer {
         podLister = new Lister<>(podSharedIndexInformer.getIndexer());
     }
 
-    public Optional<List<V1Pod>> listPods() {
+    public synchronized Optional<List<V1Pod>> listPods() {
 
         return Optional.ofNullable(podLister.list().size() != 0
                                        ? podLister.list()
