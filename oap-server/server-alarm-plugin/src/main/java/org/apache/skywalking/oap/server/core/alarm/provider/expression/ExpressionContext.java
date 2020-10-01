@@ -16,24 +16,33 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.alarm.provider.expression;
 
 import lombok.Getter;
-import lombok.Setter;
+import org.mvel2.ParserContext;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
-/**
- * Alarm message represents the details of each alarm.
- */
-@Setter
-@Getter
-public class AlarmMessage {
-    private int scopeId;
-    private String scope;
-    private String name;
-    private String id0;
-    private String id1;
-    private String ruleName;
-    private String alarmMessage;
-    private long startTime;
-    private transient boolean onlyAsGroupCondition;
+public class ExpressionContext {
+
+    @Getter
+    private ParserContext context;
+
+    public ExpressionContext() {
+        context = new ParserContext();
+    }
+
+    public void registerFunc(String func, Method method) {
+        context.addImport(func, method);
+    }
+
+    public void registerFunc(Class<?> clz) {
+        Method[] methods = clz.getDeclaredMethods();
+        for (Method method : methods) {
+            int mod = method.getModifiers();
+            if (Modifier.isStatic(mod) && Modifier.isPublic(mod)) {
+                registerFunc(method.getName(), method);
+            }
+        }
+    }
 }

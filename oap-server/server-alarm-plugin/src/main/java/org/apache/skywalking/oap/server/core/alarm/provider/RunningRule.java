@@ -73,6 +73,7 @@ public class RunningRule {
     private final Pattern includeLabelsRegex;
     private final Pattern excludeLabelsRegex;
     private final AlarmMessageFormatter formatter;
+    private final boolean onlyAsGroupCondition;
 
     public RunningRule(AlarmRule alarmRule) {
         metricsName = alarmRule.getMetricsName();
@@ -102,6 +103,7 @@ public class RunningRule {
         this.excludeLabelsRegex = StringUtil.isNotEmpty(alarmRule.getExcludeLabelsRegex()) ?
             Pattern.compile(alarmRule.getExcludeLabelsRegex()) : null;
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
+        this.onlyAsGroupCondition = alarmRule.isOnlyAsGroupCondition();
     }
 
     /**
@@ -232,6 +234,7 @@ public class RunningRule {
                 alarmMessage.setId1(meta.getId1());
                 alarmMessage.setRuleName(this.ruleName);
                 alarmMessage.setAlarmMessage(formatter.format(meta));
+                alarmMessage.setOnlyAsGroupCondition(this.onlyAsGroupCondition);
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
             }
