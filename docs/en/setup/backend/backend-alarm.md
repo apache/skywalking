@@ -117,12 +117,12 @@ composite-rules:
 ### Default alarm rules
 We provided a default `alarm-setting.yml` in our distribution only for convenience, which including following rules
 1. Service average response time over 1s in last 3 minutes.
-2. Service success rate lower than 80% in last 2 minutes.
-3. Percentile of service response time is over 1s in last 3 minutes
-4. Service Instance average response time over 1s in last 2 minutes, and the instance name matches the regex.
-5. Endpoint average response time over 1s in last 2 minutes.
-6. Database access average response time over 1s in last 2 minutes.
-7. Endpoint relation average response time over 1s in last 2 minutes.
+1. Service success rate lower than 80% in last 2 minutes.
+1. Percentile of service response time is over 1s in last 3 minutes
+1. Service Instance average response time over 1s in last 2 minutes, and the instance name matches the regex.
+1. Endpoint average response time over 1s in last 2 minutes.
+1. Database access average response time over 1s in last 2 minutes.
+1. Endpoint relation average response time over 1s in last 2 minutes.
 
 ### List of all potential metrics name
 The metrics names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
