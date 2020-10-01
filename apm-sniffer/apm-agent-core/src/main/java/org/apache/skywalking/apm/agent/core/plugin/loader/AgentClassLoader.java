@@ -32,7 +32,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
@@ -103,7 +102,7 @@ public class AgentClassLoader extends ClassLoader {
                 URL classFileUrl = new URL("jar:file:" + jar.sourceFile.getAbsolutePath() + "!/" + path);
                 byte[] data;
                 try (final BufferedInputStream is = new BufferedInputStream(
-                    classFileUrl.openStream()); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                        classFileUrl.openStream()); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     int ch;
                     while ((ch = is.read()) != -1) {
                         baos.write(ch);
@@ -193,11 +192,9 @@ public class AgentClassLoader extends ClassLoader {
                 for (String fileName : jarFileNames) {
                     try {
                         File file = new File(path, fileName);
-                        try(var jarFile = new JarFile(file)){
-                            Jar jar = new Jar(jarFile, file);
-                            jars.add(jar);
-                            LOGGER.info("{} loaded.", file.toString());
-                        }
+                        Jar jar = new Jar(new JarFile(file), file);
+                        jars.add(jar);
+                        LOGGER.info("{} loaded.", file.toString());
                     } catch (IOException e) {
                         LOGGER.error(e, "{} jar file can't be resolved", fileName);
                     }
