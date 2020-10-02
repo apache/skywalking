@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -70,7 +71,11 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
                     topic,
                     metrics.getServiceInstance(),
                     Bytes.wrap(metrics.toByteArray())
-                ));
+                ), (metadata, exception) -> {
+                    if (Objects.nonNull(exception)) {
+                        LOGGER.error("JVM Metrics fails to report.", exception);
+                    }
+                });
                 producer.flush();
             }
         }

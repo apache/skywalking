@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -93,7 +94,9 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
                                                             Config.OsInfo.IPV4_LIST_SIZE))
                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                                         .build();
-        producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(), Bytes.wrap(instance.toByteArray())));
+        producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(),
+                                           Bytes.wrap(instance.toByteArray())
+        ));
         producer.flush();
     }
 
@@ -106,7 +109,14 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
         if (LOGGER.isDebugEnable()) {
             LOGGER.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
         }
-        producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
+        producer.send(
+            new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())),
+            (metadata, exception) -> {
+                if (Objects.nonNull(exception)) {
+                    LOGGER.error("JVM Metrics fails to report.", exception);
+                }
+            }
+        );
     }
 
     @Override

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.kafka;
 
+import java.util.Objects;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -33,7 +34,7 @@ import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
 /**
- *  A tracing segment data reporter.
+ * A tracing segment data reporter.
  */
 @OverrideImplementor(TraceSegmentServiceClient.class)
 public class KafkaTraceSegmentServiceClient implements BootService, TracingContextListener {
@@ -78,7 +79,11 @@ public class KafkaTraceSegmentServiceClient implements BootService, TracingConte
             upstreamSegment.getTraceSegmentId(),
             Bytes.wrap(upstreamSegment.toByteArray())
         );
-        producer.send(record);
+        producer.send(record, (metadata, exception) -> {
+            if (Objects.nonNull(exception)) {
+                LOGGER.error("JVM Metrics fails to report.", exception);
+            }
+        });
     }
 
 }

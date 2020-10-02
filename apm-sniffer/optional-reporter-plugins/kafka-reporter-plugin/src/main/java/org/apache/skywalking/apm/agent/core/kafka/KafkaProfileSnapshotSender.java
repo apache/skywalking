@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.List;
+import java.util.Objects;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -65,7 +66,11 @@ public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
                 topic,
                 object.getTaskId() + object.getSequence(),
                 Bytes.wrap(object.toByteArray())
-            ));
+            ), (metadata, exception) -> {
+                if (Objects.nonNull(exception)) {
+                    LOGGER.error("JVM Metrics fails to report.", exception);
+                }
+            });
         }
     }
 

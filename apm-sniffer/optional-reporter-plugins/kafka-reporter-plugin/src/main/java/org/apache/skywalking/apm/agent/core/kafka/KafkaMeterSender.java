@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.Map;
+import java.util.Objects;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -63,7 +64,13 @@ public class KafkaMeterSender extends MeterSender {
             builder.addMeterData(meterData);
         });
         producer.send(
-            new ProducerRecord<>(topic, Config.Agent.INSTANCE_NAME, Bytes.wrap(builder.build().toByteArray())));
+            new ProducerRecord<>(topic, Config.Agent.INSTANCE_NAME, Bytes.wrap(builder.build().toByteArray())),
+            (metadata, exception) -> {
+                if (Objects.nonNull(exception)) {
+                    LOGGER.error("JVM Metrics fails to report.", exception);
+                }
+            }
+        );
 
         producer.flush();
     }
