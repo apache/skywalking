@@ -68,10 +68,15 @@ public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePl
     }
 
     public static ElementMatcher<MethodDescription> getRoutingHandlerMethodMatcher() {
-        final ElementMatcher.Junction<MethodDescription> basicMatcher = named(ENHANCE_METHOD).and(takesArgumentWithType(0, "io.undertow.util.HttpString"))
-                                                                                             .and(takesArgumentWithType(1, "java.lang.String"));
+        final ElementMatcher.Junction<MethodDescription> basicMatcher = named(ENHANCE_METHOD).and(
+            takesArgumentWithType(0, "io.undertow.util.HttpString"))
+                                                                                             .and(takesArgumentWithType(
+                                                                                                 1,
+                                                                                                 "java.lang.String"
+                                                                                             ));
         final String httpHandlerClassName = "io.undertow.server.HttpHandler";
-        return (basicMatcher.and(takesArgumentWithType(2, httpHandlerClassName))).or(basicMatcher.and(takesArgumentWithType(3, httpHandlerClassName)));
+        return basicMatcher.and(takesArgumentWithType(2, httpHandlerClassName))
+                           .or(basicMatcher.and(takesArgumentWithType(3, httpHandlerClassName)));
     }
 
 }
