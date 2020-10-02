@@ -99,26 +99,28 @@ public class GRPCRemoteClient implements RemoteClient {
      *
      * @return a channel when the state to be ready
      */
-    synchronized ManagedChannel getChannel() {
+    ManagedChannel getChannel() {
         return getClient().getChannel();
     }
 
     GRPCClient getClient() {
-        if (Objects.isNull(client)) {
-            synchronized (GRPCRemoteClient.class) {
-                if (Objects.isNull(client)) {
-                    this.client = new GRPCClient(address.getHost(), address.getPort(), sslContext);
+        synchronized (this){
+            if (Objects.isNull(client)) {
+                synchronized (GRPCRemoteClient.class) {
+                    if (Objects.isNull(client)) {
+                        this.client = new GRPCClient(address.getHost(), address.getPort(), sslContext);
+                    }
                 }
             }
+            return client;
         }
-        return client;
     }
 
     RemoteServiceGrpc.RemoteServiceStub getStub() {
         return RemoteServiceGrpc.newStub(getChannel());
     }
 
-    DataCarrier<RemoteMessage> getDataCarrier() {
+    synchronized DataCarrier<RemoteMessage> getDataCarrier() {
         if (Objects.isNull(this.carrier)) {
             synchronized (GRPCRemoteClient.class) {
                 if (Objects.isNull(this.carrier)) {

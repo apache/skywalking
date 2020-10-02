@@ -58,11 +58,13 @@ public class AuthenticationInterceptor implements ServerInterceptor {
     public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> serverCall,
         Metadata metadata, ServerCallHandler<REQUEST, RESPONSE> serverCallHandler) {
         String token = metadata.get(AUTH_HEAD_HEADER_NAME);
-        if (expectedToken.equals(token)) {
-            return serverCallHandler.startCall(serverCall, metadata);
-        } else {
-            serverCall.close(Status.PERMISSION_DENIED, new Metadata());
-            return listener;
+        synchronized (expectedToken){
+            if (expectedToken.equals(token)) {
+                return serverCallHandler.startCall(serverCall, metadata);
+            } else {
+                serverCall.close(Status.PERMISSION_DENIED, new Metadata());
+                return listener;
+            }
         }
     }
 }

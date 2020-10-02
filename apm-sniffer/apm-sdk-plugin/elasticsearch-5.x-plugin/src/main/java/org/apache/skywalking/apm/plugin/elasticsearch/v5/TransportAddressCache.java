@@ -54,7 +54,7 @@ public class TransportAddressCache {
         return stringBuilder.toString();
     }
 
-    public String transportAddress() {
+    public synchronized String transportAddress() {
         return transportAddressesStr;
     }
 }

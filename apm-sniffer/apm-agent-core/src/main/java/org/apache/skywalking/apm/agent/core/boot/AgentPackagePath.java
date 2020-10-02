@@ -36,10 +36,12 @@ public class AgentPackagePath {
     private static File AGENT_PACKAGE_PATH;
 
     public static File getPath() throws AgentPackageNotFoundException {
-        if (AGENT_PACKAGE_PATH == null) {
-            AGENT_PACKAGE_PATH = findPath();
+        synchronized (AGENT_PACKAGE_PATH){
+            if (AGENT_PACKAGE_PATH == null) {
+                AGENT_PACKAGE_PATH = findPath();
+            }
+            return AGENT_PACKAGE_PATH;
         }
-        return AGENT_PACKAGE_PATH;
     }
 
     public static boolean isPathFound() {

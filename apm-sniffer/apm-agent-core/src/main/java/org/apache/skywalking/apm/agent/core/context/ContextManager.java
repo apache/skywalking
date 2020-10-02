@@ -52,11 +52,12 @@ public class ContextManager implements BootService {
                 }
                 context = new IgnoredTracerContext();
             } else {
-                if (EXTEND_SERVICE == null) {
-                    EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+                synchronized (EXTEND_SERVICE){
+                    if (EXTEND_SERVICE == null) {
+                        EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+                    }
+                    context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
                 }
-                context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
-
             }
             CONTEXT.set(context);
         }

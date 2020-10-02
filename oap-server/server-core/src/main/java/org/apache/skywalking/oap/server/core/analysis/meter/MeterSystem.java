@@ -26,6 +26,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -63,7 +65,7 @@ public class MeterSystem implements Service {
      * Host the dynamic meter prototype classes. These classes could be create dynamically through {@link
      * Object#clone()} in the runtime;
      */
-    private Map<String, MeterDefinition> meterPrototypes = new HashMap<>();
+    private final ConcurrentHashMap<String, MeterDefinition> meterPrototypes = new ConcurrentHashMap<>();
 
     public MeterSystem(final ModuleManager manager) {
         this.manager = manager;

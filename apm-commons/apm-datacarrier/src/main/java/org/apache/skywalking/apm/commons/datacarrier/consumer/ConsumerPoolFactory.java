@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Consumer Pool Factory provides global management for all Consumer Pool.
@@ -28,10 +27,10 @@ import java.util.concurrent.Callable;
 public enum ConsumerPoolFactory {
     INSTANCE;
 
-    private final Map<String, ConsumerPool> pools;
+    private final ConcurrentHashMap<String, ConsumerPool> pools;
 
     ConsumerPoolFactory() {
-        pools = new HashMap<>();
+        pools = new ConcurrentHashMap<>();
     }
 
     public synchronized boolean createIfAbsent(String poolName, Callable<ConsumerPool> creator) throws Exception {
