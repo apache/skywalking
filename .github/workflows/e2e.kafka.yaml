@@ -69,12 +69,12 @@ jobs:
         with:
           submodules: true
       - name: Cache local Maven repository
-          uses: actions/cache@v2
-          with:
-            path: ~/.m2/repository
-            key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-            restore-keys: |
-              ${{ runner.os }}-maven-
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
@@ -97,12 +97,12 @@ jobs:
         with:
           submodules: true
       - name: Cache local Maven repository
-          uses: actions/cache@v2
-          with:
-            path: ~/.m2/repository
-            key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-            restore-keys: |
-              ${{ runner.os }}-maven-
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
