@@ -130,7 +130,7 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
 
             boolean override = false;
             for (Method m2 : methods) {
-                if (m != m2 && m.getName().equals(m2.getName())) {
+                if (!m.equals(m2) && m.getName().equals(m2.getName())) {
                     override = true;
                     break;
                 }
@@ -252,7 +252,7 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             int ix = 0;
             for (Method m : ms.values())
                 wc.getField("mts" + ix++).set(null, m.getParameterTypes());
-            return (Wrapper) wc.newInstance();
+            return (Wrapper) wc.getDeclaredConstructor().newInstance();
         } catch (RuntimeException e) {
             throw e;
         } catch (Throwable e) {
