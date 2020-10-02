@@ -37,8 +37,8 @@ jobs:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
       - uses: actions/checkout@v2
-          with:
-            submodules: true
+        with:
+          submodules: true
       - name: Cache local Maven repository
         uses: actions/cache@v2
         with:
