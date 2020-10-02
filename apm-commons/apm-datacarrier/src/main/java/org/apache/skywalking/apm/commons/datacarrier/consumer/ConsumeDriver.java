@@ -78,8 +78,8 @@ public class ConsumeDriver<T> implements IDriver {
         if (running) {
             return;
         }
+        lock.lock();
         try {
-            lock.lock();
             this.allocateBuffer2Thread();
             for (ConsumerThread consumerThread : consumerThreads) {
                 consumerThread.start();
@@ -116,8 +116,8 @@ public class ConsumeDriver<T> implements IDriver {
 
     @Override
     public void close(Channels channels) {
+        lock.lock();
         try {
-            lock.lock();
             this.running = false;
             for (ConsumerThread consumerThread : consumerThreads) {
                 consumerThread.shutdown();
