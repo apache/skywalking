@@ -52,7 +52,7 @@ public class ContextManager implements BootService {
                 }
                 context = new IgnoredTracerContext();
             } else {
-                synchronized (EXTEND_SERVICE){
+                synchronized (EXTEND_SERVICE) {
                     if (EXTEND_SERVICE == null) {
                         EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
                     }

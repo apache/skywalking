@@ -104,7 +104,7 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     GRPCClient getClient() {
-        synchronized (this){
+        synchronized (this) {
             if (Objects.isNull(client)) {
                 synchronized (GRPCRemoteClient.class) {
                     if (Objects.isNull(client)) {
