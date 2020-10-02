@@ -77,7 +77,7 @@ public class AlarmCore {
 
                 if (alarmMessageList.size() > 0) {
                     if (alarmRulesWatcher.getCompositeRules().size() > 0) {
-                        List<AlarmMessage> messages = alarmRulesWatcher.getCompositeRuleEvaluator().evaluator(alarmRulesWatcher.getCompositeRules(), alarmMessageList);
+                        List<AlarmMessage> messages = alarmRulesWatcher.getCompositeRuleEvaluate().evaluate(alarmRulesWatcher.getCompositeRules(), alarmMessageList);
                         alarmMessageList.addAll(messages);
                     }
                     List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsCondition()).collect(Collectors.toList());

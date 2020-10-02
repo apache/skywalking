@@ -30,23 +30,23 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CompositeRuleEvaluatorTest {
+public class CompositeRuleEvaluateTest {
 
-    private CompositeRuleEvaluator ruleEvaluator;
+    private CompositeRuleEvaluate ruleEvaluate;
 
     @Before
     public void init() {
         Expression expression = new Expression(new ExpressionContext());
-        ruleEvaluator = new CompositeRuleEvaluator(expression);
+        ruleEvaluate = new CompositeRuleEvaluate(expression);
     }
 
     @Test
-    public void testEvaluatorMessageWithAndOp() {
+    public void testEvaluateMessageWithAndOp() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && b_rule", "composite rule triggered!");
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
-        List<AlarmMessage> compositeMsgs = ruleEvaluator.evaluator(compositeAlarmRules, alarmMessages);
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
         assertThat(compositeMsgs.size(), is(1));
         assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
         assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
@@ -56,22 +56,22 @@ public class CompositeRuleEvaluatorTest {
     }
 
     @Test
-    public void testEvaluatorMessageWithNotExistsRule() {
+    public void testEvaluateMessageWithNotExistsRule() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && not_exist_rule", "composite rule triggered!");
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
-        List<AlarmMessage> compositeMsgs = ruleEvaluator.evaluator(compositeAlarmRules, alarmMessages);
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
         assertThat(compositeMsgs.size(), is(0));
     }
 
     @Test
-    public void testEvaluatorMessageWithException() {
+    public void testEvaluateMessageWithException() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule + b_rule", "composite rule triggered!");
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
-        List<AlarmMessage> compositeMsgs = ruleEvaluator.evaluator(compositeAlarmRules, alarmMessages);
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
         assertThat(compositeMsgs.size(), is(0));
     }
 
@@ -95,17 +95,52 @@ public class CompositeRuleEvaluatorTest {
         alarmMessage.setScope("");
         alarmMessage.setScopeId(1);
         alarmMessages.add(alarmMessage);
+        alarmMessage = new AlarmMessage();
+        alarmMessage.setRuleName("c_rule");
+        alarmMessage.setOnlyAsCondition(true);
+        alarmMessage.setId0("id0");
+        alarmMessage.setId1("id1");
+        alarmMessage.setName("");
+        alarmMessage.setScope("");
+        alarmMessage.setScopeId(1);
+        alarmMessages.add(alarmMessage);
         return alarmMessages;
     }
 
     @Test
-    public void testEvaluatorMessageWithOrOp() {
+    public void testEvaluateMessageWithOrOp() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule || b_rule", "composite rule triggered!");
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         alarmMessages.remove(0);
-        List<AlarmMessage> compositeMsgs = ruleEvaluator.evaluator(compositeAlarmRules, alarmMessages);
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
+        assertThat(compositeMsgs.size(), is(1));
+        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
+        assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
+        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
+        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
+    }
+
+    @Test
+    public void testEvaluateMessageWithParenthesisAndOp() {
+        List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "(a_rule || b_rule) && c_rule", "composite rule triggered!");
+        compositeAlarmRules.add(compositeAlarmRule);
+        List<AlarmMessage> alarmMessages = getAlarmMessages();
+        alarmMessages.remove(alarmMessages.size() - 1);
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
+        assertThat(compositeMsgs.size(), is(0));
+    }
+
+    @Test
+    public void testEvaluateMessageWithParenthesisAndOrOp() {
+        List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "(a_rule && b_rule) || c_rule", "composite rule triggered!");
+        compositeAlarmRules.add(compositeAlarmRule);
+        List<AlarmMessage> alarmMessages = getAlarmMessages();
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
         assertThat(compositeMsgs.size(), is(1));
         assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
         assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));

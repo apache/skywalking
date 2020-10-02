@@ -43,15 +43,18 @@ Such as in **percentile**, `value1` is threshold of P50, and `-, -, value3, valu
 backend deployment env time.
 - **Count**. In the period window, if the number of **value**s over threshold(by OP), reaches count, alarm
 should send.
-- **Only as condition**. Specify if the rule can send notfiy or just as an conditon of composite rule
+- **Only as condition**. Specify if the rule can send notification or just as an condition of composite rule.
 - **Silence period**. After alarm is triggered in Time-N, then keep silence in the **TN -> TN + period**.
 By default, it is as same as **Period**, which means in a period, same alarm(same ID in same 
 metrics name) will be trigger once. 
 
 ### Composite rules
+**NOTE**. Composite rules only work for alarm rules targeting the same entity level, such as alarm rules of the service level. 
+For example, `service_percent_rule && service_resp_time_percentile_rule`. You shouldn't compose alarm rules of different entities, 
+such as one alarm rule of the service metrics with another rule of the endpoint metrics.
 Composite rule is constituted by following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
-- **Expression**. Specify how to compose rules, support and/or expression
+- **Expression**. Specify how to compose rules, support `&&`, `||`, `()`.
 - **Message**. Specify the notification message when rule triggered.
 
 ```yaml

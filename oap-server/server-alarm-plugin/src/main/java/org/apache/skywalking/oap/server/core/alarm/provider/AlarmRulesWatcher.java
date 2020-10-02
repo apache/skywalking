@@ -49,21 +49,16 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     private volatile Rules rules;
     private volatile String settingsString;
     @Getter
-    private volatile CompositeRuleEvaluator compositeRuleEvaluator;
+    private final CompositeRuleEvaluate compositeRuleEvaluate;
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
         this.alarmRuleRunningRuleMap = new HashMap<>();
         this.settingsString = Const.EMPTY_STRING;
-        initCompositeRuleEvaluator();
+        Expression expression = new Expression(new ExpressionContext());
+        this.compositeRuleEvaluate = new CompositeRuleEvaluate(expression);
         notify(defaultRules);
-    }
-
-    private void initCompositeRuleEvaluator() {
-        ExpressionContext context = new ExpressionContext();
-        Expression expression = new Expression(context);
-        this.compositeRuleEvaluator = new CompositeRuleEvaluator(expression);
     }
 
     @Override

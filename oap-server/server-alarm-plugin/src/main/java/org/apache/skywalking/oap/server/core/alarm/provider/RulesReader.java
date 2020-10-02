@@ -51,11 +51,11 @@ public class RulesReader {
 
         if (Objects.nonNull(yamlData)) {
             readRulesConfig(rules);
-            readCompositeRuleConfig(rules);
             readWebHookConfig(rules);
             readGrpcConfig(rules);
             readSlackConfig(rules);
             readWechatConfig(rules);
+            readCompositeRuleConfig(rules);
         }
         return rules;
     }

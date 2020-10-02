@@ -33,25 +33,26 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Evaluator composite rule using expression eval
+ * Evaluate composite rule using expression eval
  *
  * @since 8.2.0
  */
 @AllArgsConstructor
-public class CompositeRuleEvaluator {
+public class CompositeRuleEvaluate {
 
     private Expression expression;
 
     /**
-     * Evaluator composite rule
+     * Evaluate composite rule
      *
      * @param compositeAlarmRules compositeRules
      * @param alarmMessages       triggered alarm messages
      * @return
      */
-    public List<AlarmMessage> evaluator(List<CompositeAlarmRule> compositeAlarmRules, List<AlarmMessage> alarmMessages) {
+    public List<AlarmMessage> evaluate(List<CompositeAlarmRule> compositeAlarmRules, List<AlarmMessage> alarmMessages) {
         final List<AlarmMessage> compositeRuleMessages = new ArrayList<>();
-        ImmutableListMultimap<String, AlarmMessage> messageMap = Multimaps.index(alarmMessages, alarmMessage -> Joiner.on(Const.ID_CONNECTOR).useForNull(Const.EMPTY_STRING).join(alarmMessage.getId0(), alarmMessage.getId1()));
+        ImmutableListMultimap<String, AlarmMessage> messageMap = Multimaps.index(alarmMessages, alarmMessage ->
+                Joiner.on(Const.ID_CONNECTOR).useForNull(Const.EMPTY_STRING).join(alarmMessage.getId0(), alarmMessage.getId1()));
         for (CompositeAlarmRule compositeAlarmRule : compositeAlarmRules) {
             String expr = compositeAlarmRule.getExpression();
             Set<String> dependencyRules = expression.analysisInputs(expr);
