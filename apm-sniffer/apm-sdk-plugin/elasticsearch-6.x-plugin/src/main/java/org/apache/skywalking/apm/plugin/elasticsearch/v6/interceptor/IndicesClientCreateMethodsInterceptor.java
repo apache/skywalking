@@ -40,7 +40,7 @@ public class IndicesClientCreateMethodsInterceptor implements InstanceMethodsAro
         MethodInterceptResult result) throws Throwable {
         CreateIndexRequest createIndexRequest = (CreateIndexRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             AbstractSpan span = ContextManager.createExitSpan(Constants.CREATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
             span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
