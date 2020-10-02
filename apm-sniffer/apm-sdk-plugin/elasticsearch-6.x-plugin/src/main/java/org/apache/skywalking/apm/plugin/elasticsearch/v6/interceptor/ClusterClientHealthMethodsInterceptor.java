@@ -36,7 +36,7 @@ public class ClusterClientHealthMethodsInterceptor implements InstanceMethodsAro
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             AbstractSpan span = ContextManager.createExitSpan(Constants.CLUSTER_HEALTH_NAME, restClientEnhanceInfo.getPeers());
             span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
