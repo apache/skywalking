@@ -36,6 +36,13 @@ public class JDBCPluginConfig {
              * Set a negative number to save the complete parameter string to the tag.
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+            /**
+             * For the sake of performance, SkyWalking won't save the entire sql body into the tag, but only the first
+             * {@code SQL_BODY_MAX_LENGTH} characters.
+             * <p>
+             * Set a negative number to save the complete sql body to the tag.
+             */
+            public static int SQL_BODY_MAX_LENGTH = 2048;
         }
 
         @PluginConfig(root = JDBCPluginConfig.class)
@@ -53,6 +60,13 @@ public class JDBCPluginConfig {
              * Set a negative number to save the complete parameter string to the tag.
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+            /**
+             * For the sake of performance, SkyWalking won't save the entire sql body into the tag, but only the first
+             * {@code SQL_BODY_MAX_LENGTH} characters.
+             * <p>
+             * Set a negative number to save the complete sql body to the tag.
+             */
+            public static int SQL_BODY_MAX_LENGTH = 2048;
         }
 
         public static class MARIADB {
@@ -69,6 +83,13 @@ public class JDBCPluginConfig {
              * Set a negative number to save the complete parameter string to the tag.
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+            /**
+             * For the sake of performance, SkyWalking won't save the entire sql body into the tag, but only the first
+             * {@code SQL_BODY_MAX_LENGTH} characters.
+             * <p>
+             * Set a negative number to save the complete sql body to the tag.
+             */
+            public static int SQL_BODY_MAX_LENGTH = 2048;
         }
     }
 }
