@@ -130,7 +130,7 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
 
             boolean override = false;
             for (Method m2 : methods) {
-                if (m != m2 && m.getName().equals(m2.getName())) {
+                if (!m.equals(m2) && m.getName().equals(m2.getName())) {
                     override = true;
                     break;
                 }
