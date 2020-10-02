@@ -71,7 +71,7 @@ rules:
     count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
-    # Specify if the rule can send notfiy or just as an conditon of composite rule
+    # Specify if the rule can send notification or just as an condition of composite rule
     only-as-condition: false
   service_percent_rule:
     metrics-name: service_percent
