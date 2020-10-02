@@ -83,6 +83,7 @@ public class ExecuteEventListener {
                 if (event.getException().isPresent()) {
                     span.log(event.getException().get());
                 }
+                // fall through
             case EXECUTE_SUCCESS:
                 ContextManager.stopSpan();
         }
