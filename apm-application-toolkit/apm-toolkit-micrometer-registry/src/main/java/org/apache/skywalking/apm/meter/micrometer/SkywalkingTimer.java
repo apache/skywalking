@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.DoubleAccumulator;
 
+@SuppressWarnings("HidingField")
 public class SkywalkingTimer extends AbstractTimer {
 
     /**

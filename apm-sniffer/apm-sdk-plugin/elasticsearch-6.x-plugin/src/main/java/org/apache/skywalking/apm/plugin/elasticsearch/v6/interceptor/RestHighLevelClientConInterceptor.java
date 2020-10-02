@@ -29,7 +29,7 @@ import org.elasticsearch.client.RestClientBuilder;
 public class RestHighLevelClientConInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        RestClientBuilder restClientBuilder = (RestClientBuilder) (allArguments[0]);
+        RestClientBuilder restClientBuilder = (RestClientBuilder) allArguments[0];
         RestClient restClient = restClientBuilder.build();
 
         RestClientEnhanceInfo restClientEnhanceInfo = new RestClientEnhanceInfo();
