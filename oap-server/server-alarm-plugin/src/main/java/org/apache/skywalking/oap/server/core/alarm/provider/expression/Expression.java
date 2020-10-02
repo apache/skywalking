@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.expression;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class Expression {
     private Map<String, Object> expressionCache;
     private ExpressionContext context;
@@ -43,6 +45,7 @@ public class Expression {
         try {
             return MVEL.executeExpression(obj, vars);
         } catch (Throwable e) {
+            log.error("eval expression {} error", expression, e);
             return null;
         }
     }

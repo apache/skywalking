@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -56,5 +57,24 @@ public class ExpressionTest {
         Set<String> inputs = expression.analysisInputs(expr);
         assertThat(inputs.size(), is(2));
         assertThat(inputs, is(Sets.newHashSet("a", "b")));
+    }
+
+    @Test
+    public void testEvalWithEmptyContext() {
+        String expr = " a && b ";
+        Object flag = expression.eval(expr);
+        assertNull(flag);
+        flag = expression.eval(" 1 > 0");
+        assertThat(flag, is(true));
+    }
+
+    @Test
+    public void testCompile() {
+        String expr = " a && b ";
+        ExpressionContext context = new ExpressionContext();
+        Object compiledExpression = expression.compile(expr, context);
+        assertNotNull(compiledExpression);
+        Object sameExpression = expression.compile(expr, context);
+        assertThat(compiledExpression, is(sameExpression));
     }
 }

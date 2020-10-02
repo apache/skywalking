@@ -50,6 +50,9 @@ public class CompositeRuleEvaluatorTest {
         assertThat(compositeMsgs.size(), is(1));
         assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
         assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
+        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
+        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
     }
 
     @Test
@@ -77,7 +80,8 @@ public class CompositeRuleEvaluatorTest {
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setRuleName("a_rule");
         alarmMessage.setOnlyAsCondition(true);
-        alarmMessage.setId0("11");
+        alarmMessage.setId0("id0");
+        alarmMessage.setId1("id1");
         alarmMessage.setName("");
         alarmMessage.setScope("");
         alarmMessage.setScopeId(1);
@@ -85,7 +89,8 @@ public class CompositeRuleEvaluatorTest {
         alarmMessage = new AlarmMessage();
         alarmMessage.setRuleName("b_rule");
         alarmMessage.setOnlyAsCondition(true);
-        alarmMessage.setId0("11");
+        alarmMessage.setId0("id0");
+        alarmMessage.setId1("id1");
         alarmMessage.setName("");
         alarmMessage.setScope("");
         alarmMessage.setScopeId(1);
@@ -104,5 +109,8 @@ public class CompositeRuleEvaluatorTest {
         assertThat(compositeMsgs.size(), is(1));
         assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
         assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
+        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
+        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
     }
 }
