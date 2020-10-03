@@ -46,6 +46,9 @@ public class RulesReader {
         yamlData = yaml.loadAs(io, Map.class);
     }
 
+    /**
+     * Read rule config file to {@link Rules}
+     */
     public Rules readRules() {
         Rules rules = new Rules();
 
@@ -60,29 +63,9 @@ public class RulesReader {
         return rules;
     }
 
-    private void readCompositeRuleConfig(Rules rules) {
-        Map compositeRulesData = (Map) yamlData.get("composite-rules");
-        if (compositeRulesData == null) {
-            return;
-        }
-        compositeRulesData.forEach((k, v) -> {
-            String ruleName = (String) k;
-            if (ruleName.endsWith("_rule")) {
-                Map settings = (Map) v;
-                CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule();
-                compositeAlarmRule.setAlarmRuleName(ruleName);
-                String expression = (String) settings.get("expression");
-                if (expression == null) {
-                    throw new IllegalArgumentException("expression can't be null");
-                }
-                compositeAlarmRule.setExpression(expression);
-                compositeAlarmRule.setMessage(
-                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
-                rules.getCompositeRules().add(compositeAlarmRule);
-            }
-        });
-    }
-
+    /**
+     * Read rule config into {@link AlarmRule}
+     */
     private void readRulesConfig(Rules rules) {
         Map rulesData = (Map) yamlData.get("rules");
         if (rulesData == null) {
@@ -126,6 +109,9 @@ public class RulesReader {
         });
     }
 
+    /**
+     * Read web hook config
+     */
     private void readWebHookConfig(Rules rules) {
         List webhooks = (List) yamlData.get("webhooks");
         if (webhooks != null) {
@@ -136,6 +122,9 @@ public class RulesReader {
         }
     }
 
+    /**
+     * Read grpc hook config into {@link GRPCAlarmSetting}
+     */
     private void readGrpcConfig(Rules rules) {
         Map grpchooks = (Map) yamlData.get("gRPCHook");
         if (grpchooks != null) {
@@ -154,6 +143,9 @@ public class RulesReader {
         }
     }
 
+    /**
+     * Read slack hook config into {@link SlackSettings}
+     */
     private void readSlackConfig(Rules rules) {
         Map slacks = (Map) yamlData.get("slackHooks");
         if (slacks != null) {
@@ -169,6 +161,9 @@ public class RulesReader {
         }
     }
 
+    /**
+     * Read wechat hook config into {@link WechatSettings}
+     */
     private void readWechatConfig(Rules rules) {
         Map wechatConfig = (Map) yamlData.get("wechatHooks");
         if (wechatConfig != null) {
@@ -181,5 +176,31 @@ public class RulesReader {
             }
             rules.setWecchats(wechatSettings);
         }
+    }
+
+    /**
+     * Read composite rule config into {@link CompositeAlarmRule}
+     */
+    private void readCompositeRuleConfig(Rules rules) {
+        Map compositeRulesData = (Map) yamlData.get("composite-rules");
+        if (compositeRulesData == null) {
+            return;
+        }
+        compositeRulesData.forEach((k, v) -> {
+            String ruleName = (String) k;
+            if (ruleName.endsWith("_rule")) {
+                Map settings = (Map) v;
+                CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule();
+                compositeAlarmRule.setAlarmRuleName(ruleName);
+                String expression = (String) settings.get("expression");
+                if (expression == null) {
+                    throw new IllegalArgumentException("expression can't be null");
+                }
+                compositeAlarmRule.setExpression(expression);
+                compositeAlarmRule.setMessage(
+                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
+                rules.getCompositeRules().add(compositeAlarmRule);
+            }
+        });
     }
 }

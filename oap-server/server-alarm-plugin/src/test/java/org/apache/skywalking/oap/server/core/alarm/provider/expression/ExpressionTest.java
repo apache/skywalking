@@ -70,7 +70,7 @@ public class ExpressionTest {
 
     @Test
     public void testCompile() {
-        String expr = " a && b ";
+        String expr = " a && * b ";
         ExpressionContext context = new ExpressionContext();
         Object compiledExpression = expression.compile(expr, context);
         assertNotNull(compiledExpression);

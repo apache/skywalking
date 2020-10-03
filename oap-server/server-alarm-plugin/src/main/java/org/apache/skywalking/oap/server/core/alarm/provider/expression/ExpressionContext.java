@@ -23,6 +23,10 @@ import org.mvel2.ParserContext;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+/***
+ * Expression context can support custom function in expression,
+ * for example `md5(a) == '111111'`, the md5 function add register in the context
+ */
 public class ExpressionContext {
 
     @Getter
@@ -32,10 +36,16 @@ public class ExpressionContext {
         context = new ParserContext();
     }
 
+    /**
+     * Register a single method in the context
+     */
     public void registerFunc(String func, Method method) {
         context.addImport(func, method);
     }
 
+    /**
+     * Register hole class public static methods in the context
+     */
     public void registerFunc(Class<?> clz) {
         Method[] methods = clz.getDeclaredMethods();
         for (Method method : methods) {

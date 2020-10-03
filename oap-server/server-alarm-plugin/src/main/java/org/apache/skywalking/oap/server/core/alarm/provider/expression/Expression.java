@@ -26,6 +26,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Expression support eval java basic expressions, just like groovy script
+ * The internal detail is it first compile the expression to a pareTree then execute the parseTree with data
+ * It caches the compiled expression for sake of performance
+ */
 @Slf4j
 public class Expression {
     private Map<String, Object> expressionCache;
@@ -36,13 +41,19 @@ public class Expression {
         this.expressionCache = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Eval the given expression using empty data context
+     */
     public Object eval(String expression) {
         return eval(expression, null);
     }
 
+    /**
+     * Eval the given expression with data context
+     */
     public Object eval(String expression, Map<String, Object> vars) {
-        Object obj = compile(expression, context);
         try {
+            Object obj = compile(expression, context);
             return MVEL.executeExpression(obj, vars);
         } catch (Throwable e) {
             log.error("eval expression {} error", expression, e);
@@ -50,6 +61,9 @@ public class Expression {
         }
     }
 
+    /**
+     * Compile the given expression to a parseTree
+     */
     public Object compile(String expression, ExpressionContext pctx) {
         Object o = expressionCache.get(expression);
         if (o == null) {
@@ -59,9 +73,12 @@ public class Expression {
         return o;
     }
 
-    public Set<String> analysisInputs(String exp) {
+    /**
+     * Analysis expression dependencies
+     */
+    public Set<String> analysisInputs(String expression) {
         ParserContext pCtx = ParserContext.create();
-        MVEL.analysisCompile(exp, pCtx);
+        MVEL.analysisCompile(expression, pCtx);
         Map<String, Class> inputsMap = pCtx.getInputs();
         return inputsMap.keySet();
     }

@@ -82,7 +82,7 @@ public class CompositeRuleEvaluator {
                     message.setId1(headMsg.getId1());
                     message.setStartTime(System.currentTimeMillis());
                     message.setRuleName(compositeAlarmRule.getAlarmRuleName());
-                    String alarmMessage = formatMessage(message, compositeAlarmRule.getMessage());
+                    String alarmMessage = formatMessage(message, compositeAlarmRule.getMessage(), compositeAlarmRule.getExpression());
                     message.setAlarmMessage(alarmMessage);
                     compositeRuleMessages.add(message);
                 }
@@ -91,11 +91,14 @@ public class CompositeRuleEvaluator {
         return compositeRuleMessages;
     }
 
-    private String formatMessage(AlarmMessage alarmMessage, String message) {
+    /**
+     * Format alarm message using {@link AlarmMessageFormatter}, only support name and id0 meta
+     */
+    private String formatMessage(AlarmMessage alarmMessage, String message, String metricName) {
         return messageFormatterCache.computeIfAbsent(message, AlarmMessageFormatter::new).format(new MetaInAlarm() {
             @Override
             public String getScope() {
-                return null;
+                return alarmMessage.getScope();
             }
 
             @Override
@@ -110,7 +113,7 @@ public class CompositeRuleEvaluator {
 
             @Override
             public String getMetricsName() {
-                return null;
+                return metricName;
             }
 
             @Override

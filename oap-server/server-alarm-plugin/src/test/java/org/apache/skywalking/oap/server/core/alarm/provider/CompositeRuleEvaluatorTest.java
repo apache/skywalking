@@ -56,6 +56,21 @@ public class CompositeRuleEvaluatorTest {
     }
 
     @Test
+    public void testEvaluateMessageWithFormatMessage() {
+        List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && b_rule", "composite rule {name} triggered!");
+        compositeAlarmRules.add(compositeAlarmRule);
+        List<AlarmMessage> alarmMessages = getAlarmMessages();
+        List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
+        assertThat(compositeMsgs.size(), is(1));
+        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule demo service triggered!"));
+        assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
+        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
+        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
+    }
+
+    @Test
     public void testEvaluateMessageWithNotExistsRule() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && not_exist_rule", "composite rule triggered!");
