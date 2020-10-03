@@ -28,13 +28,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Expression support eval java basic expressions, just like groovy script
- * The internal detail is it first compile the expression to a pareTree then execute the parseTree with data
+ * The internal detail is it first compile the expression to a parseTree then execute the parseTree with data
  * It caches the compiled expression for sake of performance
  */
 @Slf4j
 public class Expression {
-    private Map<String, Object> expressionCache;
-    private ExpressionContext context;
+    private final Map<String, Object> expressionCache;
+    private final ExpressionContext context;
 
     public Expression(ExpressionContext context) {
         this.context = context;
@@ -65,12 +65,7 @@ public class Expression {
      * Compile the given expression to a parseTree
      */
     public Object compile(String expression, ExpressionContext pctx) {
-        Object o = expressionCache.get(expression);
-        if (o == null) {
-            o = MVEL.compileExpression(expression, pctx.getContext());
-            expressionCache.put(expression, o);
-        }
-        return o;
+        return expressionCache.computeIfAbsent(expression, s -> MVEL.compileExpression(expression, pctx.getContext()));
     }
 
     /**
