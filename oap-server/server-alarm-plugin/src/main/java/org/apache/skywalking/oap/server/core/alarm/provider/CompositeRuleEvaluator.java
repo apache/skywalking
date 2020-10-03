@@ -21,9 +21,9 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimaps;
-import lombok.AllArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
 
 import java.util.ArrayList;
@@ -31,16 +31,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Evaluate composite rule using expression eval
  *
  * @since 8.2.0
  */
-@AllArgsConstructor
-public class CompositeRuleEvaluate {
+public class CompositeRuleEvaluator {
 
     private Expression expression;
+    private Map<String, AlarmMessageFormatter> messageFormatterCache;
+
+    public CompositeRuleEvaluator(Expression expression) {
+        this.expression = expression;
+        this.messageFormatterCache = new ConcurrentHashMap<>();
+    }
 
     /**
      * Evaluate composite rule
@@ -76,11 +82,46 @@ public class CompositeRuleEvaluate {
                     message.setId1(headMsg.getId1());
                     message.setStartTime(System.currentTimeMillis());
                     message.setRuleName(compositeAlarmRule.getAlarmRuleName());
-                    message.setAlarmMessage(compositeAlarmRule.getMessage());
+                    String alarmMessage = formatMessage(message, compositeAlarmRule.getMessage());
+                    message.setAlarmMessage(alarmMessage);
                     compositeRuleMessages.add(message);
                 }
             });
         }
         return compositeRuleMessages;
+    }
+
+    private String formatMessage(AlarmMessage alarmMessage, String message) {
+        return messageFormatterCache.computeIfAbsent(message, AlarmMessageFormatter::new).format(new MetaInAlarm() {
+            @Override
+            public String getScope() {
+                return null;
+            }
+
+            @Override
+            public int getScopeId() {
+                return alarmMessage.getScopeId();
+            }
+
+            @Override
+            public String getName() {
+                return alarmMessage.getName();
+            }
+
+            @Override
+            public String getMetricsName() {
+                return null;
+            }
+
+            @Override
+            public String getId0() {
+                return alarmMessage.getId0();
+            }
+
+            @Override
+            public String getId1() {
+                return alarmMessage.getId1();
+            }
+        });
     }
 }

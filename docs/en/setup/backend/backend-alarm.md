@@ -113,7 +113,7 @@ composite-rules:
   comp_rule:
     # Must satisfied percent rule and resp time rule 
     expression: service_percent_rule && service_resp_time_percentile_rule
-    message: Service percent less than 80% and response time p50 > 1000
+    message: Service {name} successful rate is less than 80% and P50 of response time is over 1000ms
 ```
 
 

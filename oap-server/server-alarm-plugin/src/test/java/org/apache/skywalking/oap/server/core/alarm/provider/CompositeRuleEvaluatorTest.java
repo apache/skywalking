@@ -30,25 +30,25 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CompositeRuleEvaluateTest {
+public class CompositeRuleEvaluatorTest {
 
-    private CompositeRuleEvaluate ruleEvaluate;
+    private CompositeRuleEvaluator ruleEvaluate;
 
     @Before
     public void init() {
         Expression expression = new Expression(new ExpressionContext());
-        ruleEvaluate = new CompositeRuleEvaluate(expression);
+        ruleEvaluate = new CompositeRuleEvaluator(expression);
     }
 
     @Test
     public void testEvaluateMessageWithAndOp() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
-        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && b_rule", "composite rule triggered!");
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && b_rule", "composite rule {name},{id} triggered!");
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
         assertThat(compositeMsgs.size(), is(1));
-        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
+        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule demo service,id0 triggered!"));
         assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
         assertThat(compositeMsgs.get(0).getId0(), is("id0"));
         assertThat(compositeMsgs.get(0).getId1(), is("id1"));
@@ -82,7 +82,7 @@ public class CompositeRuleEvaluateTest {
         alarmMessage.setOnlyAsCondition(true);
         alarmMessage.setId0("id0");
         alarmMessage.setId1("id1");
-        alarmMessage.setName("");
+        alarmMessage.setName("demo service");
         alarmMessage.setScope("");
         alarmMessage.setScopeId(1);
         alarmMessages.add(alarmMessage);
@@ -91,7 +91,7 @@ public class CompositeRuleEvaluateTest {
         alarmMessage.setOnlyAsCondition(true);
         alarmMessage.setId0("id0");
         alarmMessage.setId1("id1");
-        alarmMessage.setName("");
+        alarmMessage.setName("demo service");
         alarmMessage.setScope("");
         alarmMessage.setScopeId(1);
         alarmMessages.add(alarmMessage);
@@ -100,7 +100,7 @@ public class CompositeRuleEvaluateTest {
         alarmMessage.setOnlyAsCondition(true);
         alarmMessage.setId0("id0");
         alarmMessage.setId1("id1");
-        alarmMessage.setName("");
+        alarmMessage.setName("demo service");
         alarmMessage.setScope("");
         alarmMessage.setScopeId(1);
         alarmMessages.add(alarmMessage);
