@@ -113,4 +113,34 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
         SpanAssert.assertTag(span, 3, "[abcd,efgh]");
     }
 
+    @Test
+    public void testExecutePreparedStatementWithLimitSqlBody() throws Throwable {
+        JDBCPluginConfig.Plugin.MARIADB.SQL_BODY_MAX_LENGTH = 10;
+
+        preparedStatementSetterInterceptor.beforeMethod(
+                objectInstance, method, new Object[] {
+                        1,
+                        "abcd"
+                }, null, null);
+        preparedStatementSetterInterceptor.beforeMethod(
+                objectInstance, method, new Object[] {
+                        2,
+                        "efgh"
+                }, null, null);
+
+        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {SQL}, null, null);
+        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {SQL}, null, null);
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment segment = segmentStorage.getTraceSegments().get(0);
+        assertThat(SegmentHelper.getSpans(segment).size(), is(1));
+        AbstractTracingSpan span = SegmentHelper.getSpans(segment).get(0);
+        SpanAssert.assertLayer(span, SpanLayer.DB);
+        assertThat(span.getOperationName(), is("Mariadb/JDBI/PreparedStatement/"));
+        SpanAssert.assertTag(span, 0, "sql");
+        SpanAssert.assertTag(span, 1, "test");
+        SpanAssert.assertTag(span, 2, "Select * f...");
+        SpanAssert.assertTag(span, 3, "[abcd,efgh]");
+    }
+
 }

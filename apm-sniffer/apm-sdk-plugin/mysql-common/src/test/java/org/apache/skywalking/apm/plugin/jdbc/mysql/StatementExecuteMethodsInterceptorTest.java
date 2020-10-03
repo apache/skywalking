@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.junit.Before;
@@ -47,6 +48,8 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class StatementExecuteMethodsInterceptorTest {
+
+    private static final String SQL = "SELECT * FROM test";
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -90,7 +93,25 @@ public class StatementExecuteMethodsInterceptorTest {
         assertThat(span.getOperationName(), is("H2/JDBI/CallableStatement/"));
         SpanAssert.assertTag(span, 0, "sql");
         SpanAssert.assertTag(span, 1, "test");
-        SpanAssert.assertTag(span, 2, "SELECT * FROM test");
+        SpanAssert.assertTag(span, 2, SQL);
+    }
+
+    @Test
+    public void testCreateDatabaseSpanWithLimitSqlBody() throws Throwable {
+        JDBCPluginConfig.Plugin.MySQL.SQL_BODY_MAX_LENGTH = 10;
+
+        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
+        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment segment = segmentStorage.getTraceSegments().get(0);
+        assertThat(SegmentHelper.getSpans(segment).size(), is(1));
+        AbstractTracingSpan span = SegmentHelper.getSpans(segment).get(0);
+        SpanAssert.assertLayer(span, SpanLayer.DB);
+        assertThat(span.getOperationName(), is("H2/JDBI/CallableStatement/"));
+        SpanAssert.assertTag(span, 0, "sql");
+        SpanAssert.assertTag(span, 1, "test");
+        SpanAssert.assertTag(span, 2, "SELECT * F...");
     }
 
 }

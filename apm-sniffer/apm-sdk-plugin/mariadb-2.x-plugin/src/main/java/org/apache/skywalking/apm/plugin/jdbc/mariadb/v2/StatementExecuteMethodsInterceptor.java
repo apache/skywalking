@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
+import org.apache.skywalking.apm.plugin.jdbc.SqlBodyBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
@@ -42,6 +44,7 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             String sql = allArguments.length > 0 ? (String) allArguments[0] : "";
+            sql = new SqlBodyBuilder().setMaxLength(JDBCPluginConfig.Plugin.MARIADB.SQL_BODY_MAX_LENGTH).setSqlBody(sql).build();
             Tags.DB_STATEMENT.set(span, sql);
             span.setComponent(connectInfo.getComponent());
             SpanLayer.asDB(span);

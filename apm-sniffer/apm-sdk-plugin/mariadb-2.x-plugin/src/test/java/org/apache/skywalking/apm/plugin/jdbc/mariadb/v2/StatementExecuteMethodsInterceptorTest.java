@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.junit.Before;
@@ -94,6 +95,23 @@ public class StatementExecuteMethodsInterceptorTest {
         SpanAssert.assertTag(span, 0, "sql");
         SpanAssert.assertTag(span, 1, "test");
         SpanAssert.assertTag(span, 2, SQL);
+    }
+
+    @Test
+    public void testExecuteStatementWithLimitSqlBody() {
+        JDBCPluginConfig.Plugin.MARIADB.SQL_BODY_MAX_LENGTH = 10;
+        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[]{SQL}, null, null);
+        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[]{SQL}, null, null);
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment segment = segmentStorage.getTraceSegments().get(0);
+        assertThat(SegmentHelper.getSpans(segment).size(), is(1));
+        AbstractTracingSpan span = SegmentHelper.getSpans(segment).get(0);
+        SpanAssert.assertLayer(span, SpanLayer.DB);
+        assertThat(span.getOperationName(), is("Mariadb/JDBI/CallableStatement/"));
+        SpanAssert.assertTag(span, 0, "sql");
+        SpanAssert.assertTag(span, 1, "test");
+        SpanAssert.assertTag(span, 2, "Select * f...");
     }
 
 }

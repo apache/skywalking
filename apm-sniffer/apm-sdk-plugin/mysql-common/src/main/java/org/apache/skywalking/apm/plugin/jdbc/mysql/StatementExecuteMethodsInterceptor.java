@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
+import org.apache.skywalking.apm.plugin.jdbc.SqlBodyBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
@@ -57,8 +59,9 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
             String sql = "";
             if (allArguments.length > 0) {
                 sql = (String) allArguments[0];
+                sql = new SqlBodyBuilder().setMaxLength(JDBCPluginConfig.Plugin.MySQL.SQL_BODY_MAX_LENGTH)
+                        .setSqlBody(sql).build();
             }
-
             Tags.DB_STATEMENT.set(span, sql);
             span.setComponent(connectInfo.getComponent());
 
