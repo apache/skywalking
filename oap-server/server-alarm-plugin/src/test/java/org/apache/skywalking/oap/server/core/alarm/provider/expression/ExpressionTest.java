@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider.expression;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import org.mvel2.CompileException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,11 +71,18 @@ public class ExpressionTest {
 
     @Test
     public void testCompile() {
-        String expr = " a && * b ";
+        String expr = " a && b ";
         ExpressionContext context = new ExpressionContext();
         Object compiledExpression = expression.compile(expr, context);
         assertNotNull(compiledExpression);
         Object sameExpression = expression.compile(expr, context);
         assertThat(compiledExpression, is(sameExpression));
+    }
+
+    @Test(expected = CompileException.class)
+    public void testCompileWithException() {
+        String expr = " a && * b ";
+        ExpressionContext context = new ExpressionContext();
+        expression.compile(expr, context);
     }
 }
