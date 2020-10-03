@@ -337,6 +337,7 @@ The text of each license is the standard Apache 2.0 license.
     lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
     snappy-java 1.1.7.3: https://github.com/xerial/snappy-java, Apache 2.0
     slf4j-api 1.7.28: http://www.slf4j.org, Apache 2.0
+    mvel 2.4.8: https://github.com/mvel/mvel, Apache 2.0
 
 ========================================================================
 MIT licenses

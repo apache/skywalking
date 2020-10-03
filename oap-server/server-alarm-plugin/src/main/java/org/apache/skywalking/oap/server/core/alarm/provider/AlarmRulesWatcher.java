@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
+import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
@@ -46,13 +48,16 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     private volatile Map<AlarmRule, RunningRule> alarmRuleRunningRuleMap;
     private volatile Rules rules;
     private volatile String settingsString;
+    @Getter
+    private final CompositeRuleEvaluator compositeRuleEvaluator;
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
         this.alarmRuleRunningRuleMap = new HashMap<>();
         this.settingsString = Const.EMPTY_STRING;
-
+        Expression expression = new Expression(new ExpressionContext());
+        this.compositeRuleEvaluator = new CompositeRuleEvaluator(expression);
         notify(defaultRules);
     }
 
@@ -102,6 +107,10 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     public List<AlarmRule> getRules() {
         return this.rules.getRules();
+    }
+
+    public List<CompositeAlarmRule> getCompositeRules() {
+        return this.rules.getCompositeRules();
     }
 
     public List<String> getWebHooks() {
