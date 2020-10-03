@@ -52,7 +52,8 @@ metrics name) will be trigger once.
 **NOTE**. Composite rules only work for alarm rules targeting the same entity level, such as alarm rules of the service level. 
 For example, `service_percent_rule && service_resp_time_percentile_rule`. You shouldn't compose alarm rules of different entity levels. 
 such as one alarm rule of the service metrics with another rule of the endpoint metrics.
-Composite rule is constituted by following keys
+
+Composite rule is constituted by the following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
 - **Expression**. Specify how to compose rules, support `&&`, `||`, `()`.
 - **Message**. Specify the notification message when rule triggered.
