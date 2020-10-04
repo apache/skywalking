@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,6 +29,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -52,6 +56,23 @@ public class RulesReaderTest {
         List<String> rulesWebhooks = rules.getWebhooks();
         Assert.assertEquals(2, rulesWebhooks.size());
         Assert.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.get(1));
+
+        GRPCAlarmSetting grpcAlarmSetting = rules.getGrpchookSetting();
+        assertNotNull(grpcAlarmSetting);
+        assertThat(grpcAlarmSetting.getTargetHost(), is("127.0.0.1"));
+        assertThat(grpcAlarmSetting.getTargetPort(), is(9888));
+
+        SlackSettings slackSettings = rules.getSlacks();
+        assertNotNull(slackSettings);
+        assertThat(slackSettings.getWebhooks().size(), is(1));
+        assertThat(slackSettings.getWebhooks().get(0), is("https://hooks.slack.com/services/x/y/zssss"));
+        assertThat(slackSettings.getTextTemplate(), any(String.class));
+
+        WechatSettings wechatSettings = rules.getWecchats();
+        assertNotNull(wechatSettings);
+        assertThat(wechatSettings.getWebhooks().size(), is(1));
+        assertThat(wechatSettings.getWebhooks().get(0), is("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key"));
+        assertThat(slackSettings.getTextTemplate(), any(String.class));
 
         List<CompositeAlarmRule> compositeRules = rules.getCompositeRules();
         Assert.assertEquals(1, compositeRules.size());
