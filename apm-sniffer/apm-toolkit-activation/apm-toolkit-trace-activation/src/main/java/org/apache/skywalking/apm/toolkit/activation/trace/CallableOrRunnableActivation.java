@@ -65,8 +65,10 @@ public class CallableOrRunnableActivation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return (named(CALL_METHOD_NAME).and(takesArguments(0))).or(named(RUN_METHOD_NAME).and(takesArguments(0)))
-                                                                           .or(named(GET_METHOD_NAME).and(takesArguments(0)));
+                    return named(CALL_METHOD_NAME)
+                        .and(takesArguments(0))
+                        .or(named(RUN_METHOD_NAME).and(takesArguments(0)))
+                        .or(named(GET_METHOD_NAME).and(takesArguments(0)));
                 }
 
                 @Override
