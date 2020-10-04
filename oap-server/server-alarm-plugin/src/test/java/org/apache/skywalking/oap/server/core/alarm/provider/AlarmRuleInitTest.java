@@ -31,7 +31,7 @@ public class AlarmRuleInitTest {
         Rules rules = reader.readRules();
 
         List<AlarmRule> ruleList = rules.getRules();
-        Assert.assertEquals(2, ruleList.size());
+        Assert.assertEquals(3, ruleList.size());
         Assert.assertEquals("85", ruleList.get(1).getThreshold());
         Assert.assertEquals("endpoint_percent_rule", ruleList.get(0).getAlarmRuleName());
         Assert.assertEquals(0, ruleList.get(0).getIncludeNames().size());
@@ -46,5 +46,8 @@ public class AlarmRuleInitTest {
         Assert.assertEquals(2, rulesWebhooks.size());
         Assert.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.get(1));
 
+        List<CompositeAlarmRule> compositeRules = rules.getCompositeRules();
+        Assert.assertEquals(1, compositeRules.size());
+        Assert.assertEquals("endpoint_percent_more_rule && endpoint_percent_rule", compositeRules.get(0).getExpression());
     }
 }

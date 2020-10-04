@@ -94,6 +94,7 @@
         <javaassist.version>3.25.0-GA</javaassist.version>
         <vavr.version>0.10.3</vavr.version>
         <groovy.version>3.0.3</groovy.version>
+        <mvel.version>2.4.8.Final</mvel.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
@@ -530,6 +531,11 @@
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
