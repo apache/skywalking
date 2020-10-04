@@ -75,9 +75,7 @@ public class AdapterActionFutureActionGetMethodsInterceptor implements InstanceM
     }
 
     private boolean isTrace(EnhancedInstance objInst) {
-
         return objInst.getSkyWalkingDynamicField() != null && (boolean) objInst.getSkyWalkingDynamicField();
-
     }
 
     private void parseResponseInfo(ActionResponse response, AbstractSpan span) {
