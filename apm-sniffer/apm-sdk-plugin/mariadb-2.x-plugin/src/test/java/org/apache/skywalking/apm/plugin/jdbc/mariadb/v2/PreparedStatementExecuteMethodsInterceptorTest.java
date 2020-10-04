@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInterceptor;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
 
     @Before
     public void setUp() {
-        JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS = true;
+        JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS = true;
         preparedStatementSetterInterceptor = new JDBCPreparedStatementSetterInterceptor();
         serviceMethodInterceptor = new PreparedStatementExecuteMethodsInterceptor();
 
@@ -83,6 +84,12 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
         when(connectionInfo.getDBType()).thenReturn("Mariadb");
         when(connectionInfo.getDatabaseName()).thenReturn("test");
         when(connectionInfo.getDatabasePeer()).thenReturn("localhost:3306");
+    }
+
+    @After
+    public void clean() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
+        JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS = false;
     }
 
     @Test
@@ -110,6 +117,36 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
         SpanAssert.assertTag(span, 0, "sql");
         SpanAssert.assertTag(span, 1, "test");
         SpanAssert.assertTag(span, 2, SQL);
+        SpanAssert.assertTag(span, 3, "[abcd,efgh]");
+    }
+
+    @Test
+    public void testExecutePreparedStatementWithLimitSqlBody() throws Throwable {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 10;
+
+        preparedStatementSetterInterceptor.beforeMethod(
+                objectInstance, method, new Object[] {
+                        1,
+                        "abcd"
+                }, null, null);
+        preparedStatementSetterInterceptor.beforeMethod(
+                objectInstance, method, new Object[] {
+                        2,
+                        "efgh"
+                }, null, null);
+
+        serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {SQL}, null, null);
+        serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {SQL}, null, null);
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment segment = segmentStorage.getTraceSegments().get(0);
+        assertThat(SegmentHelper.getSpans(segment).size(), is(1));
+        AbstractTracingSpan span = SegmentHelper.getSpans(segment).get(0);
+        SpanAssert.assertLayer(span, SpanLayer.DB);
+        assertThat(span.getOperationName(), is("Mariadb/JDBI/PreparedStatement/"));
+        SpanAssert.assertTag(span, 0, "sql");
+        SpanAssert.assertTag(span, 1, "test");
+        SpanAssert.assertTag(span, 2, "Select * f...");
         SpanAssert.assertTag(span, 3, "[abcd,efgh]");
     }
 
