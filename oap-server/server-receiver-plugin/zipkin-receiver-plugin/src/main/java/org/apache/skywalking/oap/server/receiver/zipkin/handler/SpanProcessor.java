@@ -39,7 +39,7 @@ public class SpanProcessor {
     }
 
     void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request) throws IOException {
-        try(InputStream inputStream = getInputStream(request)) {
+        try (InputStream inputStream = getInputStream(request)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[2048];
             int readCntOnce;
@@ -63,7 +63,7 @@ public class SpanProcessor {
     private InputStream getInputStream(HttpServletRequest request) throws IOException {
         String headEncoding = request.getHeader("accept-encoding");
         if (headEncoding != null && (headEncoding.indexOf("gzip") != -1)) {
-            try(InputStream requestInStream = new GZIPInputStream(request.getInputStream());){
+            try (InputStream requestInStream = new GZIPInputStream(request.getInputStream());) {
                 return requestInStream;
             }
         } else {
