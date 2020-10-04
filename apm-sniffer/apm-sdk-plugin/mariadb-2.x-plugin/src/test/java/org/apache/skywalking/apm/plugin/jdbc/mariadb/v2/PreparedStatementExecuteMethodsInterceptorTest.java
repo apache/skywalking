@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInterceptor;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,6 +84,12 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
         when(connectionInfo.getDBType()).thenReturn("Mariadb");
         when(connectionInfo.getDatabaseName()).thenReturn("test");
         when(connectionInfo.getDatabasePeer()).thenReturn("localhost:3306");
+    }
+
+    @After
+    public void clean() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
+        JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS = false;
     }
 
     @Test

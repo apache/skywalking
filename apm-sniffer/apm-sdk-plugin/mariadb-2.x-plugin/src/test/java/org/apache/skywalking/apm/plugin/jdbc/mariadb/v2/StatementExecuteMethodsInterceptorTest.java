@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,6 +80,11 @@ public class StatementExecuteMethodsInterceptorTest {
         when(connectionInfo.getDBType()).thenReturn("Mariadb");
         when(connectionInfo.getDatabaseName()).thenReturn("test");
         when(connectionInfo.getDatabasePeer()).thenReturn("localhost:3306");
+    }
+
+    @After
+    public void clean() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
     }
 
     @Test

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.jdbc;
 
+import org.junit.After;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -43,5 +44,10 @@ public class SqlBodyUtilTest {
         JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 10;
         String sql = SqlBodyUtil.limitSqlBodySize("select * from dual");
         assertThat(sql, is("select * f..."));
+    }
+
+    @After
+    public void clean() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
     }
 }

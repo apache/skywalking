@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,8 +81,14 @@ public class StatementExecuteMethodsInterceptorTest {
         when(connectionInfo.getDatabasePeer()).thenReturn("localhost:3307");
     }
 
+    @After
+    public void clean() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
+    }
+
     @Test
     public void testCreateDatabaseSpan() throws Throwable {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
         serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
         serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
 
