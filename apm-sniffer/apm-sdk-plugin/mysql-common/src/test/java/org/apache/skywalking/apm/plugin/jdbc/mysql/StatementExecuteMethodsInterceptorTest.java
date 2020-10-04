@@ -98,7 +98,7 @@ public class StatementExecuteMethodsInterceptorTest {
 
     @Test
     public void testCreateDatabaseSpanWithLimitSqlBody() throws Throwable {
-        JDBCPluginConfig.Plugin.MySQL.SQL_BODY_MAX_LENGTH = 10;
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 10;
 
         serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);
         serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[] {"SELECT * FROM test"}, null, null);

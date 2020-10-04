@@ -99,7 +99,7 @@ public class StatementExecuteMethodsInterceptorTest {
 
     @Test
     public void testExecuteStatementWithLimitSqlBody() {
-        JDBCPluginConfig.Plugin.MARIADB.SQL_BODY_MAX_LENGTH = 10;
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 10;
         serviceMethodInterceptor.beforeMethod(objectInstance, method, new Object[]{SQL}, null, null);
         serviceMethodInterceptor.afterMethod(objectInstance, method, new Object[]{SQL}, null, null);
 

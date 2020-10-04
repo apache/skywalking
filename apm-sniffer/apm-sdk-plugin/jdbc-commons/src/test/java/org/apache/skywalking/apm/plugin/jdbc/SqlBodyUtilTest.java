@@ -18,28 +18,30 @@
 
 package org.apache.skywalking.apm.plugin.jdbc;
 
-public class SqlBodyBuilder {
-    private static final String EMPTY_STRING = "";
-    private int maxLength = 0;
-    private String sql;
+import org.junit.Test;
 
-    public SqlBodyBuilder setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-        return this;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public class SqlBodyUtilTest {
+
+    @Test
+    public void testBuildWithEmptySqlBody() {
+        String sql = SqlBodyUtil.limitSqlBodySize(null);
+        assertThat(sql, is(""));
     }
 
-    public SqlBodyBuilder setSqlBody(String sqlBody) {
-        this.sql = sqlBody;
-        return this;
+    @Test
+    public void testBuildWithDefaultLength() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 2048;
+        String sql = SqlBodyUtil.limitSqlBodySize("select * from dual");
+        assertThat(sql, is("select * from dual"));
     }
 
-    public String build() {
-        if (sql == null) {
-            return EMPTY_STRING;
-        }
-        if (maxLength > 0 && sql.length() > maxLength) {
-            return sql.substring(0, maxLength) + "...";
-        }
-        return sql;
+    @Test
+    public void testBuildWithMaxLength() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 10;
+        String sql = SqlBodyUtil.limitSqlBodySize("select * from dual");
+        assertThat(sql, is("select * f..."));
     }
 }

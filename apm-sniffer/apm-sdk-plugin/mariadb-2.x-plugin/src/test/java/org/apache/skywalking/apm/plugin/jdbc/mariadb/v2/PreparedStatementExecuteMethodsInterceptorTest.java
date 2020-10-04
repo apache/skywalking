@@ -72,7 +72,7 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
 
     @Before
     public void setUp() {
-        JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS = true;
+        JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS = true;
         preparedStatementSetterInterceptor = new JDBCPreparedStatementSetterInterceptor();
         serviceMethodInterceptor = new PreparedStatementExecuteMethodsInterceptor();
 
@@ -115,7 +115,7 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
 
     @Test
     public void testExecutePreparedStatementWithLimitSqlBody() throws Throwable {
-        JDBCPluginConfig.Plugin.MARIADB.SQL_BODY_MAX_LENGTH = 10;
+        JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH = 10;
 
         preparedStatementSetterInterceptor.beforeMethod(
                 objectInstance, method, new Object[] {

@@ -18,28 +18,22 @@
 
 package org.apache.skywalking.apm.plugin.jdbc;
 
-import org.junit.Test;
+/**
+ * Sql body utility
+ */
+public class SqlBodyUtil {
+    private static final String EMPTY_STRING = "";
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-public class SqlBodyBuilderTest {
-
-    @Test
-    public void testBuildWithEmptySqlBody() {
-        String sql = new SqlBodyBuilder().build();
-        assertThat(sql, is(""));
-    }
-
-    @Test
-    public void testBuildWithDefaultLength() {
-        String sql = new SqlBodyBuilder().setSqlBody("select * from dual").build();
-        assertThat(sql, is("select * from dual"));
-    }
-
-    @Test
-    public void testBuildWithMaxLength() {
-        String sql = new SqlBodyBuilder().setSqlBody("select * from dual").setMaxLength(10).build();
-        assertThat(sql, is("select * f..."));
+    /**
+     * Limit sql body size to specify {@link JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH}
+     */
+    public static String limitSqlBodySize(String sql) {
+        if (sql == null) {
+            return EMPTY_STRING;
+        }
+        if (JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH > 0 && sql.length() > JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH) {
+            return sql.substring(0, JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH) + "...";
+        }
+        return sql;
     }
 }
