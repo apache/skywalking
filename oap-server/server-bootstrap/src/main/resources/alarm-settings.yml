@@ -81,5 +81,3 @@ dingtalkHooks:
   webhooks:
 #    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
 #      secret: dummysecret
-#    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
-#      secret:

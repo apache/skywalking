@@ -222,7 +222,7 @@ wechatHooks:
 ## Dingtalk Hook
 To do this you need to follow the [Dingtalk Webhooks guide](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/uKPlK) and create new Webhooks.
 For security issue, you can config optional secret for individual webhook url.
-The alarm message will send through HTTP post by `application/json` content type if you configured Slack Incoming Webhooks as following:
+The alarm message will send through HTTP post by `application/json` content type if you configured Dingtalk Webhooks as following:
 ```yml
 dingtalkHooks:
   textTemplate: |-
@@ -235,8 +235,6 @@ dingtalkHooks:
   webhooks:
     - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
       secret: dummysecret
-    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
-      secret:
 ```
 
 
