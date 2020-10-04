@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 class BaseInterceptorMethods {
 
@@ -57,7 +56,7 @@ class BaseInterceptorMethods {
                     }
                 }
                 if (tags != null && !tags.isEmpty()) {
-                    for (Map.Entry<String, String> expression: tags.entrySet()){
+                    for (Map.Entry<String, String> expression: tags.entrySet()) {
                         spanTags.put(expression.getKey(), CustomizeExpression.parseExpression(expression.getValue(), context));
                     }
                 }
