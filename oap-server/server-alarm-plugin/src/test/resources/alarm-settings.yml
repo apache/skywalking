@@ -71,3 +71,16 @@ gRPCHook:
   target_host: 127.0.0.1
   target_port: 9888
 
+dingtalkHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
+      secret: dummysecret
+    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
+      secret:

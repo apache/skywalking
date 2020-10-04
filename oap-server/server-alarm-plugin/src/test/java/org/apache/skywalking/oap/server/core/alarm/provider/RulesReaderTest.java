@@ -18,16 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.List;
+import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AlarmRuleInitTest {
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
+public class RulesReaderTest {
     @Test
-    public void testInit() {
+    public void testReadRules() {
         RulesReader reader = new RulesReader(this.getClass()
-                                                 .getClassLoader()
-                                                 .getResourceAsStream("alarm-settings.yml"));
+                .getClassLoader()
+                .getResourceAsStream("alarm-settings.yml"));
         Rules rules = reader.readRules();
 
         List<AlarmRule> ruleList = rules.getRules();
@@ -49,5 +56,14 @@ public class AlarmRuleInitTest {
         List<CompositeAlarmRule> compositeRules = rules.getCompositeRules();
         Assert.assertEquals(1, compositeRules.size());
         Assert.assertEquals("endpoint_percent_more_rule && endpoint_percent_rule", compositeRules.get(0).getExpression());
+
+        DingtalkSettings dingtalkSettings = rules.getDingtalks();
+        assertThat(dingtalkSettings.getTextTemplate(), any(String.class));
+        List<DingtalkSettings.WebHookUrl> webHookUrls = dingtalkSettings.getWebhooks();
+        assertThat(webHookUrls.size(), is(2));
+        assertThat(webHookUrls.get(0).getUrl(), is("https://oapi.dingtalk.com/robot/send?access_token=dummy_token"));
+        assertThat(webHookUrls.get(0).getSecret(), is("dummysecret"));
+        assertThat(webHookUrls.get(1).getUrl(), is("https://oapi.dingtalk.com/robot/send?access_token=dummy_token2"));
+        assertNull(webHookUrls.get(1).getSecret());
     }
 }
