@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.joda.time.LocalDateTime;
@@ -52,10 +54,10 @@ public class AlarmCore {
         lastExecuteTime = now;
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
+                final List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
                 LocalDateTime checkTime = LocalDateTime.now();
                 int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
-                boolean[] hasExecute = new boolean[] {false};
+                boolean[] hasExecute = new boolean[]{false};
                 alarmRulesWatcher.getRunningContext().values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                     if (minutes > 0) {
                         runningRule.moveTo(checkTime);
@@ -74,7 +76,12 @@ public class AlarmCore {
                 }
 
                 if (alarmMessageList.size() > 0) {
-                    allCallbacks.forEach(callback -> callback.doAlarm(alarmMessageList));
+                    if (alarmRulesWatcher.getCompositeRules().size() > 0) {
+                        List<AlarmMessage> messages = alarmRulesWatcher.getCompositeRuleEvaluator().evaluate(alarmRulesWatcher.getCompositeRules(), alarmMessageList);
+                        alarmMessageList.addAll(messages);
+                    }
+                    List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsCondition()).collect(Collectors.toList());
+                    allCallbacks.forEach(callback -> callback.doAlarm(filteredMessages));
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);

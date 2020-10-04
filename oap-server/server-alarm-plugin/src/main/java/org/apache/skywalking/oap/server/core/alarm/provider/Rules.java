@@ -36,9 +36,11 @@ public class Rules {
     private GRPCAlarmSetting grpchookSetting;
     private SlackSettings slacks;
     private WechatSettings wecchats;
+    private List<CompositeAlarmRule> compositeRules;
 
     public Rules() {
         this.rules = new ArrayList<>();
         this.webhooks = new ArrayList<>();
+        this.compositeRules = new ArrayList<>();
     }
 }
