@@ -208,7 +208,7 @@ public class RulesReader {
     }
 
     /**
-     * Read composite rule config into {@link DingtalkSettings}
+     * Read dingtalk hook config into {@link DingtalkSettings}
      */
     private void readDingtalkConfig(Rules rules) {
         Map dingtalkConfig = (Map) yamlData.get("dingtalkHooks");
