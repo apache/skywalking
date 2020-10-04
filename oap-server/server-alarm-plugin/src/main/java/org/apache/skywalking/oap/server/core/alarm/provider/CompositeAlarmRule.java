@@ -16,24 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-/**
- * Alarm message represents the details of each alarm.
- */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
-public class AlarmMessage {
-    private int scopeId;
-    private String scope;
-    private String name;
-    private String id0;
-    private String id1;
-    private String ruleName;
-    private String alarmMessage;
-    private long startTime;
-    private transient boolean onlyAsCondition;
+@ToString
+public class CompositeAlarmRule {
+    private String alarmRuleName;
+    private String expression;
+    private String message;
 }

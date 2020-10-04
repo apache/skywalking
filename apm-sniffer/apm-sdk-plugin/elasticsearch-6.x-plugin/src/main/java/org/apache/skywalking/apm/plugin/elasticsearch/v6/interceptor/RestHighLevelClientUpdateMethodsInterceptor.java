@@ -40,7 +40,7 @@ public class RestHighLevelClientUpdateMethodsInterceptor implements InstanceMeth
         MethodInterceptResult result) throws Throwable {
         UpdateRequest updateRequest = (UpdateRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         AbstractSpan span = ContextManager.createExitSpan(Constants.UPDATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
         span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 

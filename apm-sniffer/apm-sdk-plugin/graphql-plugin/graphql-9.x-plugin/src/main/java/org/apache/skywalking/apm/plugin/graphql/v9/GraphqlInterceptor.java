@@ -35,7 +35,7 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ExecutionStrategyParameters parameters = (ExecutionStrategyParameters) allArguments[1];
-        if (parameters == null || parameters.getParent().getPath() != ExecutionPath.rootPath()) {
+        if (parameters == null || !parameters.getParent().getPath().equals(ExecutionPath.rootPath())) {
             return;
         }
         AbstractSpan span = ContextManager.createLocalSpan(parameters.getField().get(0).getName());
@@ -46,7 +46,7 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ExecutionStrategyParameters parameters = (ExecutionStrategyParameters) allArguments[1];
-        if (parameters == null || parameters.getParent().getPath() != ExecutionPath.rootPath()) {
+        if (parameters == null || !parameters.getParent().getPath().equals(ExecutionPath.rootPath())) {
             return ret;
         }
         ContextManager.stopSpan();
@@ -56,7 +56,7 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
         ExecutionStrategyParameters parameters = (ExecutionStrategyParameters) allArguments[1];
-        if (parameters == null || parameters.getParent().getPath() != ExecutionPath.rootPath()) {
+        if (parameters == null || !parameters.getParent().getPath().equals(ExecutionPath.rootPath())) {
             return;
         }
         dealException(t);
