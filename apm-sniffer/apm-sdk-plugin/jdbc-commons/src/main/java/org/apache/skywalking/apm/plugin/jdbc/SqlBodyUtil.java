@@ -25,7 +25,8 @@ public class SqlBodyUtil {
     private static final String EMPTY_STRING = "";
 
     /**
-     * Limit sql body size to specify {@link JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH}
+     * Limit sql body size to specify {@code JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH}
+     * @param sql Sql to limit
      */
     public static String limitSqlBodySize(String sql) {
         if (sql == null) {
