@@ -16,24 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
-
-import lombok.Getter;
-import lombok.Setter;
+package org.apache.skywalking.apm.plugin.jdbc;
 
 /**
- * Alarm message represents the details of each alarm.
+ * Sql body utility
  */
-@Setter
-@Getter
-public class AlarmMessage {
-    private int scopeId;
-    private String scope;
-    private String name;
-    private String id0;
-    private String id1;
-    private String ruleName;
-    private String alarmMessage;
-    private long startTime;
-    private transient boolean onlyAsCondition;
+public class SqlBodyUtil {
+    private static final String EMPTY_STRING = "";
+
+    /**
+     * Limit sql body size to specify {@code JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH}
+     * @param sql Sql to limit
+     */
+    public static String limitSqlBodySize(String sql) {
+        if (sql == null) {
+            return EMPTY_STRING;
+        }
+        if (JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH > 0 && sql.length() > JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH) {
+            return sql.substring(0, JDBCPluginConfig.Plugin.JDBC.SQL_BODY_MAX_LENGTH) + "...";
+        }
+        return sql;
+    }
 }
