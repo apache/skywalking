@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
-import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
-import org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl;
-
 import java.util.function.Supplier;
 
 public class MeterFactory {
@@ -30,42 +26,42 @@ public class MeterFactory {
      * Create a counter builder by name
      */
     public static Counter.Builder counter(String name) {
-        return new CounterImpl.Builder(name);
+        return new Counter.Builder(name);
     }
 
     /**
      * Create a counter builder by meter id
      */
     public static Counter.Builder counter(MeterId meterId) {
-        return new CounterImpl.Builder(meterId);
+        return new Counter.Builder(meterId);
     }
 
     /**
      * Create a gauge builder by name and getter
      */
     public static Gauge.Builder gauge(String name, Supplier<Double> getter) {
-        return new GaugeImpl.Builder(name, getter);
+        return new Gauge.Builder(name, getter);
     }
 
     /**
      * Create a gauge builder by meter id and getter
      */
     public static Gauge.Builder gauge(MeterId meterId, Supplier<Double> getter) {
-        return new GaugeImpl.Builder(meterId, getter);
+        return new Gauge.Builder(meterId, getter);
     }
 
     /**
      * Create a histogram builder by name
      */
     public static Histogram.Builder histogram(String name) {
-        return new HistogramImpl.Builder(name);
+        return new Histogram.Builder(name);
     }
 
     /**
      * Create a histogram builder by meterId
      */
     public static Histogram.Builder histogram(MeterId meterId) {
-        return new HistogramImpl.Builder(meterId);
+        return new Histogram.Builder(meterId);
     }
 
 }

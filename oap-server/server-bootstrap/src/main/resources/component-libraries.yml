@@ -187,10 +187,10 @@ RabbitMQ:
   languages: Java
 rabbitmq-producer:
   id: 52
-  languages: Java,Python
+  languages: Java,Python,PHP
 rabbitmq-consumer:
   id: 53
-  languages: Java,Python
+  languages: Java,Python,PHP
 Canal:
   id: 54
   languages: Java
@@ -326,6 +326,9 @@ quartz-scheduler:
 xxl-job:
   id: 98
   languages: Java
+spring-webflux-webclient:
+  id: 99
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -416,6 +419,12 @@ Gin:
 Gear:
   id: 5007
   languages: Golang
+GoMicroClient:
+  id: 5008
+  languages: Golang
+GoMicroServer:
+  id: 5009
+  languages: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent
@@ -468,6 +477,11 @@ Predis:
   id: 8006
   languages: PHP
 
+# C++ components
+# [9000, 10000) for C++ agent
+EnvoyProxy:
+  id: 9000
+  languages: C++
 
 # Component Server mapping defines the server display names of some components
 # e.g.

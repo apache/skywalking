@@ -19,29 +19,12 @@
 package org.apache.skywalking.apm.meter.micrometer;
 
 import io.micrometer.core.instrument.LongTaskTimer;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
-import org.apache.skywalking.apm.toolkit.meter.impl.AbstractMeter;
-import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
-import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
-
-    private Map<MeterId, AbstractMeter> meterMap;
-
-    @Before
-    public void setup() {
-        // Need to clear all of the meter, long task timer has some meter not field field reference
-        meterMap = Whitebox.getInternalState(MeterCenter.class, "METER_MAP");
-        meterMap.clear();
-    }
+public class SkywalkingLongTaskTimerTest {
 
     @Test
     public void testSimple() throws InterruptedException {
@@ -65,13 +48,6 @@ public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
         Assert.assertTrue(timer.duration(TimeUnit.MILLISECONDS) > 0);
         Assert.assertTrue(timer.max(TimeUnit.MILLISECONDS) > 0);
 
-        // Check Skywalking data
-        assertGauge((Gauge) meterMap.values().stream().filter(m -> m.getName().endsWith("_active_count")).findFirst().orElse(null),
-            "test_simple_long_task_timer_active_count", Arrays.asList(new MeterId.Tag("skywalking", "test")), 1);
-        assertGauge((Gauge) meterMap.values().stream().filter(m -> m.getName().endsWith("_duration_sum")).findFirst().orElse(null),
-            "test_simple_long_task_timer_duration_sum", Arrays.asList(new MeterId.Tag("skywalking", "test")), 0, true);
-        assertGauge((Gauge) meterMap.values().stream().filter(m -> m.getName().endsWith("_max")).findFirst().orElse(null),
-            "test_simple_long_task_timer_max", Arrays.asList(new MeterId.Tag("skywalking", "test")), 0, true);
     }
 
     // Add long time task

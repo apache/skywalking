@@ -18,21 +18,29 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-public interface BaseMeter {
+public abstract class BaseMeter {
+    public BaseMeter(MeterId meterId) {
+    }
 
     /**
      * Get meter name
      */
-    String getName();
+    public String getName() {
+        return "";
+    }
 
     /**
      * Get tag value
      */
-    String getTag(String tagKey);
+    public String getTag(String tagKey) {
+        return "";
+    }
 
     /**
      * Get meter Id
      */
-    MeterId getMeterId();
+    public MeterId getMeterId() {
+        return null;
+    }
 
 }

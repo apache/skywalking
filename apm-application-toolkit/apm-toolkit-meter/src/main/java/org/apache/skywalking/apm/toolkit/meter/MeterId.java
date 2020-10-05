@@ -79,7 +79,7 @@ public class MeterId {
     /**
      * The meter type
      */
-    public static enum MeterType {
+    public enum MeterType {
         COUNTER,
         GAUGE,
         HISTOGRAM

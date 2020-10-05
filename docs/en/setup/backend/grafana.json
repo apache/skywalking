@@ -381,7 +381,7 @@
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
-          "legendFormat": "{{sw_backend_instance}}",
+          "legendFormat": "{{sw_backend_instance}}-{{protocol}}",
           "refId": "A"
         }
       ],
@@ -532,7 +532,7 @@
           "expr": "rate(trace_analysis_error_count[1m]) ",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{sw_backend_instance}}",
+          "legendFormat": "{{sw_backend_instance}}-{{protocol}}",
           "refId": "A"
         }
       ],
@@ -618,7 +618,7 @@
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
-          "legendFormat": "{{sw_backend_instance}}",
+          "legendFormat": "{{sw_backend_instance}}-{{protocol}}",
           "refId": "A"
         }
       ],

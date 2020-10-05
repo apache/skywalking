@@ -19,18 +19,33 @@
 package org.apache.skywalking.apm.toolkit.meter;
 
 /**
- * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
+ * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase.
+ *
+ * The source code of this class doesn't include the implementation, all logic are injected from its activation.
  */
-public interface Counter extends BaseMeter {
+public class Counter extends BaseMeter {
 
-    void increment(double count);
+    protected Counter(MeterId meterId, Mode mode) {
+        super(meterId);
+    }
 
-    double get();
+    /**
+     * Increase count
+     */
+    public void increment(double count) {
+    }
+
+    /**
+     * Get current value
+     */
+    public double get() {
+        return 0;
+    }
 
     /**
      * Counter mode
      */
-    enum Mode {
+    public enum Mode {
         /**
          * Increase single value, report the real value
          */
@@ -42,10 +57,33 @@ public interface Counter extends BaseMeter {
         RATE
     }
 
-    interface Builder extends BaseBuilder<Builder, Counter> {
+    public static class Builder extends BaseBuilder<Builder, Counter> {
+        private Counter.Mode mode = Counter.Mode.INCREMENT;
+
+        public Builder(String name) {
+            super(name);
+        }
+
+        public Builder(MeterId meterId) {
+            super(meterId);
+        }
+
         /**
          * Setting counter mode
          */
-        Builder mode(Mode mode);
+        public Builder mode(Mode mode) {
+            this.mode = mode;
+            return this;
+        }
+
+        @Override
+        protected MeterId.MeterType getType() {
+            return MeterId.MeterType.COUNTER;
+        }
+
+        @Override
+        protected Counter create() {
+            return new Counter(meterId, mode);
+        }
     }
 }
