@@ -19,12 +19,12 @@
 package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.impl.launcher.commands.VersionCommand;
+import java.util.Deque;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
 
 class VertxContext {
 
@@ -41,17 +41,17 @@ class VertxContext {
     }
 
     public static final String STOP_SPAN_NECESSARY = "VERTX_STOP_SPAN_NECESSARY";
-    private static final Map<String, Stack<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, Deque<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<>();
 
     static void pushContext(String identifier, VertxContext vertxContext) {
         if (!CONTEXT_MAP.containsKey(identifier)) {
-            CONTEXT_MAP.put(identifier, new Stack<>());
+            CONTEXT_MAP.put(identifier, new LinkedBlockingDeque<>());
         }
         CONTEXT_MAP.get(identifier).push(vertxContext);
     }
 
     static VertxContext popContext(String identifier) {
-        final Stack<VertxContext> stack = CONTEXT_MAP.get(identifier);
+        final Deque<VertxContext> stack = CONTEXT_MAP.get(identifier);
         final VertxContext context = stack.pop();
         if (stack.isEmpty()) {
             CONTEXT_MAP.remove(identifier);

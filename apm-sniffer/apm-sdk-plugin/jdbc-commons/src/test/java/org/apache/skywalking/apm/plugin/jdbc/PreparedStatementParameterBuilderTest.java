@@ -69,6 +69,7 @@ public class PreparedStatementParameterBuilderTest {
 
     @Test
     public void testParametersString() {
+        JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH = 0;
         builder = new PreparedStatementParameterBuilder();
         Object[] parameters = new Object[]{
                 "",
@@ -87,7 +88,7 @@ public class PreparedStatementParameterBuilderTest {
     public void testMaxLength() {
         builder = new PreparedStatementParameterBuilder();
         builder.setParameters(PARAMETERS);
-        builder.setMaxLength(10);
+        JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH = 10;
         assertThat(builder.build(), is("[test,1234..."));
     }
 
@@ -95,7 +96,7 @@ public class PreparedStatementParameterBuilderTest {
     public void testMaxLengthZero() {
         builder = new PreparedStatementParameterBuilder();
         builder.setParameters(PARAMETERS);
-        builder.setMaxLength(0);
+        JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH = 0;
         assertThat(builder.build(), is("[test,1234]"));
     }
 
@@ -103,7 +104,7 @@ public class PreparedStatementParameterBuilderTest {
     public void testMaxLengthOutOfRange() {
         builder = new PreparedStatementParameterBuilder();
         builder.setParameters(PARAMETERS);
-        builder.setMaxLength(20);
+        JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH = 20;
         assertThat(builder.build(), is("[test,1234]"));
     }
 }

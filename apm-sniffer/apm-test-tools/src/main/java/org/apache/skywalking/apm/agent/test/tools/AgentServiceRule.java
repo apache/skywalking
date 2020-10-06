@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.agent.test.tools;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -38,11 +38,11 @@ public class AgentServiceRule extends ExternalResource {
         super.after();
         try {
             FieldSetter.setValue(
-                ServiceManager.INSTANCE.getClass(), "bootedServices", new HashMap<Class, BootService>());
+                ServiceManager.INSTANCE.getDeclaringClass(), "bootedServices", new HashMap<Class, BootService>());
             FieldSetter.setValue(
-                IgnoredTracerContext.ListenerManager.class, "LISTENERS", new LinkedList<TracingContextListener>());
+                IgnoredTracerContext.ListenerManager.class, "LISTENERS", new ArrayList<TracingContextListener>());
             FieldSetter.setValue(
-                TracingContext.ListenerManager.class, "LISTENERS", new LinkedList<TracingContextListener>());
+                TracingContext.ListenerManager.class, "LISTENERS", new ArrayList<TracingContextListener>());
             ServiceManager.INSTANCE.shutdown();
         } catch (Exception e) {
         }

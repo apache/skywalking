@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
@@ -28,11 +31,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import org.powermock.reflect.Whitebox;
 
 public class HistogramTest {
     @Rule
@@ -66,7 +65,11 @@ public class HistogramTest {
         final List<Label> labels = Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build());
 
         // Check histogram message
-        final Histogram histogram = MeterFactory.histogram("test").steps(Arrays.asList(2d, 5d)).minValue(1d).tag("k1", "v1").build();
+        final Histogram histogram = MeterFactory.histogram("test")
+                                                .steps(Arrays.asList(2d, 5d))
+                                                .minValue(1d)
+                                                .tag("k1", "v1")
+                                                .build();
         histogram.addValue(1);
         histogram.addValue(3);
         histogram.addValue(3);

@@ -36,14 +36,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.management.*"})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class BrowserReportServletHandlerTest {
     @Mock
     private HttpServletRequest request;
