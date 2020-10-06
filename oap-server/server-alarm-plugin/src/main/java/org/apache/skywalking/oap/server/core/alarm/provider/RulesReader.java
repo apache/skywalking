@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
-import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
@@ -59,9 +60,11 @@ public class RulesReader {
             readSlackConfig(rules);
             readWechatConfig(rules);
             readCompositeRuleConfig(rules);
+            readDingtalkConfig(rules);
         }
         return rules;
     }
+
 
     /**
      * Read rule config into {@link AlarmRule}
@@ -202,5 +205,26 @@ public class RulesReader {
                 rules.getCompositeRules().add(compositeAlarmRule);
             }
         });
+    }
+
+    /**
+     * Read dingtalk hook config into {@link DingtalkSettings}
+     */
+    private void readDingtalkConfig(Rules rules) {
+        Map dingtalkConfig = (Map) yamlData.get("dingtalkHooks");
+        if (dingtalkConfig != null) {
+            DingtalkSettings dingtalkSettings = new DingtalkSettings();
+            Object textTemplate = dingtalkConfig.getOrDefault("textTemplate", "");
+            dingtalkSettings.setTextTemplate((String) textTemplate);
+            List<Map<String, Object>> wechatWebhooks = (List<Map<String, Object>>) dingtalkConfig.get("webhooks");
+            if (wechatWebhooks != null) {
+                wechatWebhooks.forEach(wechatWebhook -> {
+                    Object secret = wechatWebhook.getOrDefault("secret", "");
+                    Object url = wechatWebhook.getOrDefault("url", "");
+                    dingtalkSettings.getWebhooks().add(new DingtalkSettings.WebHookUrl((String) secret, (String) url));
+                });
+            }
+            rules.setDingtalks(dingtalkSettings);
+        }
     }
 }
