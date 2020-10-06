@@ -16,33 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.alarm.provider.dingtalk;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
-import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
 @ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
-    private GRPCAlarmSetting grpchookSetting;
-    private SlackSettings slacks;
-    private WechatSettings wecchats;
-    private List<CompositeAlarmRule> compositeRules;
-    private DingtalkSettings dingtalks;
+public class DingtalkSettings {
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
-        this.compositeRules = new ArrayList<>();
+    private String textTemplate;
+    @Builder.Default
+    private List<WebHookUrl> webhooks = new ArrayList<>();
+
+    @AllArgsConstructor
+    @Setter
+    @Getter
+    @ToString
+    public static class WebHookUrl {
+        private final String secret;
+        private final String url;
     }
 }
