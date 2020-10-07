@@ -14,11 +14,11 @@ they could start the process.
 The following steps are recommended, and could only be started by existing PMC member.
 1. Send the `[DISCUSS] Promote xxx as new committer` mail to `private@skywalking.a.o`. List the important contributions of the candidates,
 in order to help the PMC members supporting your proposal.
-2. Keep discussion open in more than 3 days, but not more than 1 week, unless there is any explicit objection or concern.
-3. Send the `[VOTE] Promote xxx as new committer` mail to `private@skywalking.a.o`, when the PMC seems to agree the proposal.
-4. Keep vote more than 3 days, but not more than 1 week. Consider the result as `Consensus Approval` if there 3 +1 votes and
+1. Keep discussion open in more than 3 days, but not more than 1 week, unless there is any explicit objection or concern.
+1. Send the `[VOTE] Promote xxx as new committer` mail to `private@skywalking.a.o`, when the PMC seems to agree the proposal.
+1. Keep vote more than 3 days, but not more than 1 week. Consider the result as `Consensus Approval` if there 3 +1 votes and
 +1 votes > -1 votes
-5. Send the `[RESULT][VOTE] Promote xxx as new committer` mail to `private@skywalking.a.o`, and list the vote detail including
+1. Send the `[RESULT][VOTE] Promote xxx as new committer` mail to `private@skywalking.a.o`, and list the vote detail including
 the voters.
 
 ### Invite new committer
@@ -83,14 +83,11 @@ Then this invitation will be treated as accepted by project PMC. Of course, the 
 
 If they accepted, then they need to do the following things.
 1. Make sure they have subscribed the `dev@skywalking.apache.org`. Usually they already have.
-1. Sign the ICLA(Individual Contributor License Agreement), which could be found [here](http://www.apache.org/licenses/contributor-agreements.html#clas).
-1. If you are going to contribute to the project as day job, CCLA  is expected.
-1. About the ICLA sign, you need to print the ICLA, sign it manually(by hand), and scan it as an pdf. 
-1. Choose your Apache ID and fill it into the ICLA, all existing Apache IDs could be found [here](http://people.apache.org/committer-index.html)
-1. Sign the gpg to your icla.pdf.
-1. Send both `icla.pdf` and `icla.pdf.asc` to `secretary@apache.org` and `private@skywalking.apache.org`.
+1. Choose a Apache ID that is not in the [apache committers list page](http://people.apache.org/committer-index.html).
+1. Download the [ICLA](https://www.apache.org/licenses/icla.pdf) (If they are going to contribute to the project as day job, [CCLA](http://www.apache.org/licenses/cla-corporate.pdf)  is expected).
+1. After filling the `icla.pdf` (or `ccla.pdf`) with information correctly, print, sign it manually (by hand),  scan it as an pdf, and send it in mail as an attachment to the [secretary@apache.org](mailto:secretary@apache.org). (If they prefer to sign electronically, please follow the steps of [this page](http://www.apache.org/licenses/contributor-agreements.html#submitting))
+1. Then the PMC will wait the Apache secretary confirmed the ICLA (or CCLA) filed. The new committer and PMC will receive the mail like following
 
-Then the PMC will wait the Apache secretary confirmed the ICLA filed. The new committer and PMC will receive the mail like following
 ```
 Dear XXX,
 
@@ -112,11 +109,11 @@ At this point, congratulate! You have the official Apache ID.
 The PMC member should add the new committer to official committer list through [roster](https://whimsy.apache.org/roster/committee/skywalking). 
 
 ### Set up the Apache ID and dev env
-1. Go to [Apache Account Utility Platform](https://id.apache.org/), initial your password, set up your personal mailbox(`Forwarding email address`) 
-and GitHub account(`Your GitHub Username`).
-1. If you want to use `xxx@apache.org` to send mail, you need to use GMail, and following [this guide](https://reference.apache.org/committer/email).
-1. Use [GitBox Account Linking Utility](https://gitbox.apache.org/setup/) to make your GitHub account to join Apache GitHub org.
-Notice, if never got your GitHub invitation? Visit github.com/apache to see if you have an invitation pending. Also, your GitHub MFA Status is required.
+1. Go to [Apache Account Utility Platform](https://id.apache.org/), initial your password, set up your personal mailbox(`Forwarding email address`) and GitHub account(`Your GitHub Username`). An organisational invite will be sent to you via email shortly thereafter (within 2 hours).
+1. If you want to use `xxx@apache.org` to send mail, please refer to [here](https://infra.apache.org/committer-email.html). Gmail is recommended, because in other mailbox service settings, this forwarding mode is not easy to find.
+1. Following the [authorized GitHub 2FA wiki](https://help.github.com/articles/configuring-two-factor-authentication-via-a-totp-mobile-app/) to enable two-factors authorization (2FA) on [github](http://github.com/). When you set 2FA to "off", it will be delisted by the corresponding Apache committer write permission group until you set it up again. (**NOTE: Treat your recovery codes with the same level of attention as you would your password !**)
+1. Use [GitBox Account Linking Utility](https://gitbox.apache.org/setup/) to obtain write permission of the SkyWalking project.
+1. Follow this [doc](https://github.com/apache/skywalking-website#how-to-add-a-new-committer) to update the website.
 
 If you want others could see you are in the Apache GitHub org, you need to go to [Apache GitHub org people page](https://github.com/orgs/apache/people), 
 search for yourself, and choose `Organization visibility` to `Public`.
