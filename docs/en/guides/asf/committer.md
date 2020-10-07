@@ -83,10 +83,9 @@ Then this invitation will be treated as accepted by project PMC. Of course, the 
 
 If they accepted, then they need to do the following things.
 1. Make sure they have subscribed the `dev@skywalking.apache.org`. Usually they already have.
-1. Choose a Apache ID that is not in the [apache committers list page](http://people.apache.org/committer-index.html).
-1. Download the [ICLA](https://www.apache.org/licenses/icla.pdf) (If they are going to contribute to the project as day job, [CCLA](http://www.apache.org/licenses/cla-corporate.pdf)  is expected).
-1. After filling the `icla.pdf` (or `ccla.pdf`) with information correctly, print, sign it manually (by hand),  scan it as an pdf, and send it in mail as an attachment to the [secretary@apache.org](mailto:secretary@apache.org). (If they prefer to sign electronically, please follow the steps of [this page](http://www.apache.org/licenses/contributor-agreements.html#submitting))
-
+2. Choose a Apache ID that is not in the [apache committers list page](http://people.apache.org/committer-index.html).
+3. Download the [ICLA](https://www.apache.org/licenses/icla.pdf) (If they are going to contribute to the project as day job, [CCLA](http://www.apache.org/licenses/cla-corporate.pdf)  is expected).
+4. After filling the `icla.pdf` (or `ccla.pdf`) with information correctly, print, sign it manually (by hand),  scan it as an pdf, and send it in mail as an attachment to the [secretary@apache.org](mailto:secretary@apache.org). (If they prefer to sign electronically, please follow the steps of [this page](http://www.apache.org/licenses/contributor-agreements.html#submitting))
 5. Then the PMC will wait the Apache secretary confirmed the ICLA (or CCLA) filed. The new committer and PMC will receive the mail like following
 
 ```
@@ -111,12 +110,10 @@ The PMC member should add the new committer to official committer list through [
 
 ### Set up the Apache ID and dev env
 1. Go to [Apache Account Utility Platform](https://id.apache.org/), initial your password, set up your personal mailbox(`Forwarding email address`) and GitHub account(`Your GitHub Username`). An organisational invite will be sent to you via email shortly thereafter (within 2 hours).
-
-1. If you want to use `xxx@apache.org` to send mail, please refer to [here](https://infra.apache.org/committer-email.html). Gmail is recommended, because in other mailbox service settings, this forwarding mode is not easy to find.
-2.  Following the [authorized GitHub 2FA wiki](https://help.github.com/articles/configuring-two-factor-authentication-via-a-totp-mobile-app/) to enable two-factors authorization (2FA) on [github](http://github.com/). When you set 2FA to "off", it will be delisted by the corresponding Apache committer write permission group until you set it up again. (**NOTE: Treat your recovery codes with the same level of attention as you would your password !**)
-3.  Use [GitBox Account Linking Utility](https://gitbox.apache.org/setup/) to obtain write permission of the SkyWalking project.
-    
-1. Follow this [doc](https://github.com/apache/skywalking-website#how-to-add-a-new-committer) to update the website.
+2. If you want to use `xxx@apache.org` to send mail, please refer to [here](https://infra.apache.org/committer-email.html). Gmail is recommended, because in other mailbox service settings, this forwarding mode is not easy to find.
+3. Following the [authorized GitHub 2FA wiki](https://help.github.com/articles/configuring-two-factor-authentication-via-a-totp-mobile-app/) to enable two-factors authorization (2FA) on [github](http://github.com/). When you set 2FA to "off", it will be delisted by the corresponding Apache committer write permission group until you set it up again. (**NOTE: Treat your recovery codes with the same level of attention as you would your password !**)
+4. Use [GitBox Account Linking Utility](https://gitbox.apache.org/setup/) to obtain write permission of the SkyWalking project.
+5. Follow this [doc](https://github.com/apache/skywalking-website#how-to-add-a-new-committer) to update the website.
 
 #### Note: 
 
