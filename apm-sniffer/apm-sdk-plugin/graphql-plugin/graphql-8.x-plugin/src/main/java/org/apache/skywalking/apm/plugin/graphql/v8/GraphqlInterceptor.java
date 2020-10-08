@@ -65,7 +65,7 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
             Field field = ExecutionPath.class.getDeclaredField("parent");
             field.setAccessible(true);
             ExecutionPath parentPath = (ExecutionPath) field.get(path);
-            if (parentPath != ExecutionPath.rootPath()) {
+            if (!parentPath.equals(ExecutionPath.rootPath())) {
                 return ret;
             }
             ContextManager.stopSpan();
@@ -85,7 +85,7 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
             Field field = ExecutionPath.class.getDeclaredField("parent");
             field.setAccessible(true);
             ExecutionPath parentPath = (ExecutionPath) field.get(path);
-            if (parentPath != ExecutionPath.rootPath()) {
+            if (!parentPath.equals(ExecutionPath.rootPath())) {
                 return;
             }
             dealException(t);

@@ -43,6 +43,14 @@
             <artifactId>struts2-core</artifactId>
             <version>${struts2-core.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <!-- The default javassist is not compatible with 3.x power mock. -->
+                <!-- Manually add the dependency back for test below. -->
+                <exclusion>
+                    <groupId>javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -54,6 +62,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jsp-api</artifactId>
             <version>${jsp-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.24.0-GA</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
+import org.apache.skywalking.apm.plugin.jdbc.SqlBodyUtil;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
@@ -53,10 +54,10 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
                     .getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-            Tags.DB_STATEMENT.set(span, cacheObject.getSql());
+            Tags.DB_STATEMENT.set(span, SqlBodyUtil.limitSqlBodySize(cacheObject.getSql()));
             span.setComponent(connectInfo.getComponent());
 
-            if (JDBCPluginConfig.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+            if (JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS) {
                 final Object[] parameters = cacheObject.getParameters();
                 if (parameters != null && parameters.length > 0) {
                     int maxIndex = cacheObject.getMaxIndex();
@@ -96,7 +97,6 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         return new PreparedStatementParameterBuilder()
             .setParameters(parameters)
             .setMaxIndex(maxIndex)
-            .setMaxLength(JDBCPluginConfig.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH)
             .build();
     }
 }
