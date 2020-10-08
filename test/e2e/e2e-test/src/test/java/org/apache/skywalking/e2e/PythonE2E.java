@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.e2e;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -41,13 +40,7 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.Call;
-import org.apache.skywalking.e2e.topo.ServiceInstanceTopology;
-import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyMatcher;
-import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyQuery;
-import org.apache.skywalking.e2e.topo.TopoMatcher;
-import org.apache.skywalking.e2e.topo.TopoQuery;
-import org.apache.skywalking.e2e.topo.Topology;
+import org.apache.skywalking.e2e.topo.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -55,14 +48,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.DockerComposeContainer;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
@@ -95,8 +85,8 @@ public class PythonE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     void services() throws Exception {
-        final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
-
+        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/python/services.yml").as(ServicesMatcher.class).verify(services);
@@ -105,6 +95,7 @@ public class PythonE2E extends SkyWalkingTestAdapter {
             if ("Your_ApplicationName".equals(service.getLabel())) {
                 continue;
             }
+
             LOGGER.info("verifying service instances: {}", service);
 
             verifyServiceMetrics(service);

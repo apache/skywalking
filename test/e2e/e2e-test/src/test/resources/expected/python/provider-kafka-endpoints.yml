@@ -13,19 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.7
-
-ENV COMMIT_HASH=b2978a4d09a660a1e488941d2fd04a2f904ef0a4
-
-WORKDIR /app
-
-RUN git clone https://github.com/humbertzhang/skywalking-python.git $(pwd)
-
-RUN git reset --hard ${COMMIT_HASH} && git submodule update --init
-
-RUN make setup install
-RUN python3 -m pip install kafka-python
-
-ADD ./consumer.py /consumer.py
-ADD ./provider.py /provider.py
-ADD ./provider-kafka.py /provider-kafka.py
+endpoints:
+  - key: not null
+    label: /users
