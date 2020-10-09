@@ -22,20 +22,26 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -47,15 +53,30 @@ import static java.util.stream.Collectors.toList;
 @EqualsAndHashCode
 @ToString
 public class SampleFamily {
-    public static final SampleFamily EMPTY = new SampleFamily(new Sample[0]);
+    public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], Context.EMPTY);
 
     public static SampleFamily build(Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        return new SampleFamily(samples);
+        return new SampleFamily(samples, new Context());
+    }
+
+    static SampleFamily buildHistogram(Sample... samples) {
+        Preconditions.checkNotNull(samples);
+        Preconditions.checkArgument(samples.length > 0);
+        return new SampleFamily(samples, new Context(true, new int[0]));
+    }
+
+    static SampleFamily buildHistogramPercentile(SampleFamily histogram, int[] percentiles) {
+        Preconditions.checkNotNull(histogram);
+        Preconditions.checkArgument(histogram.context.isHistogram);
+        histogram.context.percentiles = percentiles;
+        return new SampleFamily(histogram.samples, histogram.context);
     }
 
     private final Sample[] samples;
+
+    private final Context context;
 
     /**
      * Following operations are used in DSL
@@ -200,12 +221,35 @@ public class SampleFamily {
         }).toArray(Sample[]::new));
     }
 
-    public SampleFamily histogram(String le, TimeUnit unit) {
-        return this;
+    public SampleFamily histogram() {
+        return histogram("le", TimeUnit.SECONDS);
     }
 
-    public SampleFamily histogram_percentile(int[] range) {
-        return this;
+    public SampleFamily histogram(String le) {
+        return histogram(le, TimeUnit.SECONDS);
+    }
+
+    public SampleFamily histogram(String le, TimeUnit unit) {
+        long scale = unit.toMillis(1);
+        Preconditions.checkArgument(scale > 0);
+        AtomicDouble pre = new AtomicDouble();
+        AtomicReference<String> preLe = new AtomicReference<>("0");
+        return SampleFamily.buildHistogram(Arrays.stream(samples)
+            .filter(s -> s.labels.containsKey(le))
+            .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
+            .map(s -> {
+                double r = s.value - pre.get();
+                pre.set(s.value);
+                ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                    .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
+                    .put("le", String.valueOf((long) (Double.parseDouble(preLe.get()) * scale))).build();
+                preLe.set(s.labels.get(le));
+                return newSample(ll, s.timestamp, r);
+            }).toArray(Sample[]::new));
+    }
+
+    public SampleFamily histogram_percentile(List<Integer> percentiles) {
+        return SampleFamily.buildHistogramPercentile(this, percentiles.stream().mapToInt(i -> i).toArray());
     }
 
     private SampleFamily match(String[] labels, Function2<String, String, Boolean> op) {
@@ -248,5 +292,18 @@ public class SampleFamily {
             .labels(labels)
             .timestamp(timestamp)
             .build();
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    private static class Context {
+
+        static Context EMPTY = new Context();
+
+        boolean isHistogram;
+
+        int[] percentiles;
     }
 }

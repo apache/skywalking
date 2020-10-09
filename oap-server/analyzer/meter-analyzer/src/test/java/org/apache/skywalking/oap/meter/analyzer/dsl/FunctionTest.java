@@ -81,6 +81,40 @@ public class FunctionTest {
                 Result.success(SampleFamily.build(Sample.builder().labels(of("region", "zh")).build())),
                 false,
             },
+            {
+                "histogram",
+                of("instance_cpu_percentage", SampleFamily.build(
+                    Sample.builder().labels(of("le", "0.025")).value(100).build(),
+                    Sample.builder().labels(of("le", "1.25")).value(300).build(),
+                    Sample.builder().labels(of("le", "0.75")).value(122).build(),
+                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).build())
+                ),
+                "instance_cpu_percentage.histogram()",
+                Result.success(SampleFamily.buildHistogram(
+                    Sample.builder().labels(of("le", "0")).value(100).build(),
+                    Sample.builder().labels(of("le", "25")).value(22).build(),
+                    Sample.builder().labels(of("le", "750")).value(178).build(),
+                    Sample.builder().labels(of("le", "1250")).value(110).build())
+                ),
+                false,
+            },
+            {
+                "histogram_percentile",
+                of("instance_cpu_percentage", SampleFamily.build(
+                    Sample.builder().labels(of("le", "0.025")).value(100).build(),
+                    Sample.builder().labels(of("le", "1.25")).value(300).build(),
+                    Sample.builder().labels(of("le", "0.75")).value(122).build(),
+                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).build())
+                ),
+                "instance_cpu_percentage.histogram().histogram_percentile([75,99])",
+                Result.success(SampleFamily.buildHistogramPercentile(SampleFamily.buildHistogram(
+                    Sample.builder().labels(of("le", "0")).value(100).build(),
+                    Sample.builder().labels(of("le", "25")).value(22).build(),
+                    Sample.builder().labels(of("le", "750")).value(178).build(),
+                    Sample.builder().labels(of("le", "1250")).value(110).build())
+                , new int[]{75, 99})),
+                false,
+            },
         });
     }
 
