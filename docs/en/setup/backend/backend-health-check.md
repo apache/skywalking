@@ -50,7 +50,7 @@ Once some modules are unhealthy, for instance, storage H2 is down. The result mi
   }
 }
 ```
-You could refer to [checkHealth query](https://github.com/apache/skywalking-query-protocol/blob/master/common.graphql)
+You could refer to [checkHealth query](https://github.com/apache/skywalking-query-protocol/blob/master/common.graphqls)
 for more details.
 
 ## The readiness of GraphQL and gRPC
