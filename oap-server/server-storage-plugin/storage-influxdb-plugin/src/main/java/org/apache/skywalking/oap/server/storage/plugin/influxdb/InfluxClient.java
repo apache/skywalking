@@ -238,7 +238,6 @@ public class InfluxClient implements Client, HealthCheckable {
 
     /**
      * Check influx health, Ignore grammar related exception
-     * @param e
      */
     private void checkHealth(Throwable e) {
         if (e instanceof InfluxDBIOException) {
