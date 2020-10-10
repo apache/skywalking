@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.thrift.client;
 
-import java.lang.reflect.Method;
-import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -36,6 +34,9 @@ import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 
+import java.lang.reflect.Method;
+import java.util.Objects;
+
 /**
  * @see TServiceClient is synchronized client.
  */
@@ -48,10 +49,10 @@ public class TServiceClientInterceptor implements InstanceConstructorInterceptor
         if (!(allArguments[1] instanceof ClientOutProtocolWrapper)) {
             TProtocol protocol = (TProtocol) allArguments[1];
             ReflectionUtils.setValue(
-                TServiceClient.class,
-                objInst,
-                "oprot_",
-                new ClientOutProtocolWrapper(protocol)
+                    TServiceClient.class,
+                    objInst,
+                    "oprot_",
+                    new ClientOutProtocolWrapper(protocol)
             );
             Object dynamicField = ((EnhancedInstance) protocol.getTransport()).getSkyWalkingDynamicField();
             objInst.setSkyWalkingDynamicField(Objects.isNull(dynamicField) ? "UNKNOWN" : dynamicField);
@@ -65,8 +66,8 @@ public class TServiceClientInterceptor implements InstanceConstructorInterceptor
                              Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         AbstractSpan span = ContextManager.createExitSpan(
-            objInst.getClass().getName() + "." + allArguments[0],
-            (String) objInst.getSkyWalkingDynamicField()
+                objInst.getClass().getName() + "." + allArguments[0],
+                (String) objInst.getSkyWalkingDynamicField()
         );
         SpanLayer.asRPCFramework(span);
         span.setComponent(ComponentsDefine.THRIFT_CLIENT);
@@ -95,7 +96,7 @@ public class TServiceClientInterceptor implements InstanceConstructorInterceptor
 
     private String getArguments(String method, TBase base) {
         int idx = 0;
-        StringBuffer buffer = new StringBuffer(method).append("(");
+        StringBuilder buffer = new StringBuilder(method).append("(");
         while (true) {
             TFieldIdEnum field = base.fieldForId(++idx);
             if (field == null) {

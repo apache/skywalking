@@ -51,7 +51,7 @@ public class CaseController {
     @RequestMapping("/thrift-scenario")
     @ResponseBody
     public String testcase() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(4);
+        final CountDownLatch latch = new CountDownLatch(3);
 
         call(hasync, latch);
         call(async, latch);

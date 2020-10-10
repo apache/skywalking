@@ -333,7 +333,7 @@ thrift-server:
   id: 100
   languages: Java
 thrift-client:
-  id: 100
+  id: 101
   languages: Java
 
 
@@ -533,5 +533,3 @@ Component-Server-Mappings:
   Predis: Redis
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
-  thrift-server: Thrift
-  thrift-client: Thrift

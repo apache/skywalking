@@ -28,10 +28,12 @@ public class Context extends AbstractContext {
         this.processMapView = processMapView;
     }
 
+    @Override
     public String getArguments() {
         return processMapView.get(methodName).getEmptyArgsInstance().toString();
     }
 
+    @Override
     public String getOperatorName() {
         return processMapView.get(methodName).getClass().getName();
     }
