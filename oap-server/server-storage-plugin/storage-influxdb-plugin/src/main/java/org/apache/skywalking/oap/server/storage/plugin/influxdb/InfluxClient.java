@@ -27,9 +27,7 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckab
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBException;
 import org.influxdb.InfluxDBFactory;
-import org.influxdb.InfluxDBIOException;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
@@ -86,7 +84,7 @@ public class InfluxClient implements Client, HealthCheckable {
             influx.setDatabase(database);
             healthChecker.health();
         } catch (Throwable e) {
-            checkHealth(e);
+            healthChecker.unHealth(e);
             throw e;
         }
     }
@@ -116,7 +114,7 @@ public class InfluxClient implements Client, HealthCheckable {
             healthChecker.health();
             return result.getResults();
         } catch (Throwable e) {
-            checkHealth(e);
+            healthChecker.unHealth(e);
             throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + query.getCommand(), e);
         }
     }
@@ -188,7 +186,7 @@ public class InfluxClient implements Client, HealthCheckable {
             getInflux().write(point);
             this.healthChecker.health();
         } catch (Throwable e) {
-            checkHealth(e);
+            healthChecker.unHealth(e);
             throw e;
         }
     }
@@ -201,7 +199,7 @@ public class InfluxClient implements Client, HealthCheckable {
             getInflux().write(points);
             this.healthChecker.health();
         } catch (Throwable e) {
-            checkHealth(e);
+            healthChecker.unHealth(e);
             throw e;
         }
     }
@@ -212,7 +210,7 @@ public class InfluxClient implements Client, HealthCheckable {
             getInflux().close();
             this.healthChecker.health();
         } catch (Throwable e) {
-            checkHealth(e);
+            healthChecker.unHealth(e);
             throw e;
         }
     }
@@ -234,16 +232,5 @@ public class InfluxClient implements Client, HealthCheckable {
     @Override
     public void registerChecker(HealthChecker healthChecker) {
         this.healthChecker.register(healthChecker);
-    }
-
-    /**
-     * Check influx health, Ignore grammar related exception
-     */
-    private void checkHealth(Throwable e) {
-        if (e instanceof InfluxDBIOException) {
-            healthChecker.unHealth(e);
-        } else if (!(e instanceof InfluxDBException)) {
-            healthChecker.unHealth(e);
-        }
     }
 }
