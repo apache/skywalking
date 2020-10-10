@@ -15,11 +15,11 @@
 
 FROM python:3.7
 
-ENV COMMIT_HASH=b2978a4d09a660a1e488941d2fd04a2f904ef0a4
+ENV COMMIT_HASH=50388c55428d742d73d9733278f04173585de80d
 
 WORKDIR /app
 
-RUN git clone https://github.com/humbertzhang/skywalking-python.git $(pwd)
+RUN git clone https://github.com/apache/skywalking-python.git $(pwd)
 
 RUN git reset --hard ${COMMIT_HASH} && git submodule update --init
 
