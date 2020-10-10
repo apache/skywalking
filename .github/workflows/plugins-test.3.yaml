@@ -59,6 +59,7 @@ jobs:
           - { name: 'elasticjob-2.x-scenario', title: 'elasticjob-2.x-scenario (2)' }
           - { name: 'quartz-scheduler-2.x-scenario', title: 'quartz-scheduler-2.x-scenario (5)' }
           - { name: 'xxl-job-2.x-scenario', title: 'xxl-job-2.x-scenario (1)' }
+          - { name: 'thrift-scenario', title: 'thrift-scenario (13)' }
     steps:
       - uses: actions/checkout@v2
         with:

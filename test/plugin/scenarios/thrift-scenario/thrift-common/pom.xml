@@ -58,7 +58,7 @@
                 <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <phase>initialize</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
