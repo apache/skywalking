@@ -41,8 +41,10 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -56,15 +58,25 @@ public class SampleFamily {
     public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], Context.EMPTY);
 
     public static SampleFamily build(Sample... samples) {
+        return build(null, samples);
+    }
+    
+    static SampleFamily build(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        return new SampleFamily(samples, new Context());
+        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(Context::new));
     }
 
     static SampleFamily buildHistogram(Sample... samples) {
+        return buildHistogram(null, samples);
+    }
+
+    static SampleFamily buildHistogram(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        return new SampleFamily(samples, new Context(true, new int[0]));
+        ctx = Optional.ofNullable(ctx).orElseGet(Context::new);
+        ctx.isHistogram = true;
+        return new SampleFamily(samples, ctx);
     }
 
     static SampleFamily buildHistogramPercentile(SampleFamily histogram, int[] percentiles) {
@@ -74,9 +86,9 @@ public class SampleFamily {
         return new SampleFamily(histogram.samples, histogram.context);
     }
 
-    private final Sample[] samples;
+    public final Sample[] samples;
 
-    private final Context context;
+    public final Context context;
 
     /**
      * Following operations are used in DSL
@@ -170,9 +182,9 @@ public class SampleFamily {
         }
         if (by == null) {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(Double::sum).orElse(0.0D);
-            return SampleFamily.build(newSample(ImmutableMap.of(), samples[0].timestamp, result));
+            return SampleFamily.build(this.context,  newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
-        return SampleFamily.build(Arrays.stream(samples)
+        return SampleFamily.build(this.context,  Arrays.stream(samples)
             .map(sample -> Tuple.of(by.stream()
                 .collect(ImmutableMap
                     .toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
@@ -186,7 +198,7 @@ public class SampleFamily {
     /* Function */
     public SampleFamily increase(String range) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
-        return SampleFamily.build(Arrays.stream(samples).map(sample -> sample
+        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> sample
             .increase(range, (lowerBoundValue, lowerBoundTime) ->
                 sample.value - lowerBoundValue))
             .toArray(Sample[]::new));
@@ -194,7 +206,7 @@ public class SampleFamily {
 
     public SampleFamily rate(String range) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
-        return SampleFamily.build(Arrays.stream(samples).map(sample -> sample
+        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> sample
             .increase(range, (lowerBoundValue, lowerBoundTime) ->
                 sample.timestamp - lowerBoundTime < 1L ? 0.0D
                     : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
@@ -202,7 +214,7 @@ public class SampleFamily {
     }
 
     public SampleFamily irate() {
-        return SampleFamily.build(Arrays.stream(samples).map(sample -> sample
+        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> sample
             .increase("PT1S", (lowerBoundValue, lowerBoundTime) ->
                 sample.timestamp - lowerBoundTime < 1L ? 0.0D
                     : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
@@ -211,7 +223,7 @@ public class SampleFamily {
 
     @SuppressWarnings(value = "unchecked")
     public SampleFamily tag(Closure<?> cl) {
-        return SampleFamily.build(Arrays.stream(samples).map(sample -> {
+        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> {
             Object delegate = new Object();
             Closure<?> c = cl.rehydrate(delegate, sample, delegate);
             Map<String, String> arg = Maps.newHashMap(sample.labels);
@@ -234,7 +246,7 @@ public class SampleFamily {
         Preconditions.checkArgument(scale > 0);
         AtomicDouble pre = new AtomicDouble();
         AtomicReference<String> preLe = new AtomicReference<>("0");
-        return SampleFamily.buildHistogram(Arrays.stream(samples)
+        return SampleFamily.buildHistogram(this.context, Arrays.stream(samples)
             .filter(s -> s.labels.containsKey(le))
             .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
             .map(s -> {
@@ -265,7 +277,7 @@ public class SampleFamily {
         if (sArr.length < 1) {
             return SampleFamily.EMPTY;
         }
-        return SampleFamily.build(sArr);
+        return SampleFamily.build(this.context,  sArr);
     }
 
     private SampleFamily newValue(Function<Double, Double> transform) {
@@ -273,7 +285,7 @@ public class SampleFamily {
         for (int i = 0; i < ss.length; i++) {
             ss[i] = samples[i].newValue(transform);
         }
-        return SampleFamily.build(ss);
+        return SampleFamily.build(this.context,  ss);
     }
 
     private SampleFamily newValue(SampleFamily another, Function2<Double, Double, Double> transform) {
@@ -283,7 +295,7 @@ public class SampleFamily {
                 .map(as -> newSample(cs.labels, cs.timestamp, transform.apply(cs.value, as.value)))
                 .toJavaStream())
             .toArray(Sample[]::new);
-        return ss.length > 0 ? SampleFamily.build(ss) : EMPTY;
+        return ss.length > 0 ? SampleFamily.build(this.context,  ss) : EMPTY;
     }
 
     private Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
@@ -298,12 +310,16 @@ public class SampleFamily {
     @NoArgsConstructor
     @ToString
     @EqualsAndHashCode
-    private static class Context {
+    @Getter
+    @Setter
+    public static class Context {
 
         static Context EMPTY = new Context();
 
         boolean isHistogram;
 
         int[] percentiles;
+
+        DownsamplingType downsampling = DownsamplingType.AVG;
     }
 }

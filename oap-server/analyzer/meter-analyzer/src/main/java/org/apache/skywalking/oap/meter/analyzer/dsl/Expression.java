@@ -45,9 +45,14 @@ public class Expression {
                 throw new IllegalArgumentException("[" + metricName + "] can't be found");
             }
 
-            @Override public Object invokeMethod(String name, Object args) {
-                //TODO: Validate the name is one of meter functions
-                return super.invokeMethod(name, args);
+            public SampleFamily avg(SampleFamily sf) {
+                sf.context.downsampling = DownsamplingType.AVG;
+                return sf;
+            }
+
+            public SampleFamily latest(SampleFamily sf) {
+                sf.context.downsampling = DownsamplingType.LATEST;
+                return sf;
             }
 
         });

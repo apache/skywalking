@@ -67,6 +67,22 @@ public class BasicTest {
                 Result.success(SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
                 false,
             },
+            {
+                "downsampling-avg",
+                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
+                "avg instance_cpu_percentage",
+                Result.success(SampleFamily.build(new SampleFamily.Context(false, null, DownsamplingType.AVG)
+                    , Sample.builder().value(1600592418480.0).build())),
+                false,
+            },
+            {
+                "downsampling-latest",
+                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
+                "latest instance_cpu_percentage",
+                Result.success(SampleFamily.build(new SampleFamily.Context(false, null, DownsamplingType.LATEST)
+                    , Sample.builder().value(1600592418480.0).build())),
+                false,
+            }
         });
     }
 
