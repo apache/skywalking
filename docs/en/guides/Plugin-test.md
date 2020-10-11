@@ -294,6 +294,54 @@ The verify description for SegmentRef
 | networkAddress | The peer value of parent exit span.
 | refType | Ref type, options, CrossProcess or CrossThread.
 
+**Meter verify description format**
+```yml
+meterItems:
+-
+  serviceName: SERVICE_NAME(string)
+  meterSize: SEGMENT_SIZE(int)
+  meters:
+  - ...
+```
+
+| Field |  Description
+| --- | ---  
+| serviceName | Service Name.
+| meterSize | The number of meters is expected.
+| meters | meter list. Follow the next section to see how to describe every meter.
+
+**Meter data verify description format**
+
+```yml
+    meterId: 
+        name: NAME(string)
+        tags:
+        - {
+            name: NAME(string),
+            value: VALUE(string)
+        }
+    singleValue: SINGLE_VALUE(double)
+    histogram:
+    - {
+        bucket: BUCKET(double)
+        count: COUNT(long)
+    }
+    ...
+```
+
+The verify description for MeterId
+
+| Field | Description 
+|--- |--- 
+| name | meter name.
+| tags | meter tags.
+| tags.name | tag name.
+| tags.value | tag value.
+| singleValue | counter or gauge value. If current meter is histogram, don't need to write this field.
+| histogram | histogram value. If current meter is counter or gauge, don't need to write this field.
+| histogram.bucket | histogram bucket. The bucket list must be ordered.
+| histogram.count | histogram bucket count.
+
 ### startup.sh
 
 This script provide a start point to JVM based service, most of them starts by a `java -jar`, with some variables.
