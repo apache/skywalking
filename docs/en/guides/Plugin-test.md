@@ -316,16 +316,10 @@ meterItems:
     meterId: 
         name: NAME(string)
         tags:
-        - {
-            name: NAME(string),
-            value: VALUE(string)
-        }
+        - {name: TAG_NAME(string), value: TAG_VALUE(string)}
     singleValue: SINGLE_VALUE(double)
     histogram:
-    - {
-        bucket: BUCKET(double)
-        count: COUNT(long)
-    }
+    - {bucket: HISTOGRAM_BUCKET(double), count: HISTOGRAM_BUCKET_COUNT(long)}
     ...
 ```
 
