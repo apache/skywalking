@@ -16,11 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
@@ -28,9 +30,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramFunction.DATASET;
-import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgLabeledFunction.COUNT;
-import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgLabeledFunction.SUMMATION;
+import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramFunction.DATASET;
+import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.COUNT;
+import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.SUMMATION;
 
 public class AvgHistogramFunctionTest {
     private static final long[] BUCKETS = new long[] {

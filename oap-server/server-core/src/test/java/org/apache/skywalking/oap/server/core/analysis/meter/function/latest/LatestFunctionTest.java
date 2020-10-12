@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.latest;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;

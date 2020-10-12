@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraf
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -237,11 +237,11 @@ public class PrometheusMetricConverter {
                                         heatmapMetrics.accept(smm.getKey().getEntity(), bv);
                                         service.doStreamingCalculation(heatmapMetrics);
                                     } else {
-                                        AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument> percentileMetrics =
-                                            service.buildMetrics(formatMetricName(operation.getMetricName()), AvgHistogramPercentileFunction.AvgPercentileArgument.class);
+                                        AcceptableValue<PercentileArgument> percentileMetrics =
+                                            service.buildMetrics(formatMetricName(operation.getMetricName()), PercentileArgument.class);
                                         percentileMetrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(smm.getKey().getTimestamp()));
                                         percentileMetrics.accept(smm.getKey().getEntity(),
-                                            new AvgHistogramPercentileFunction.AvgPercentileArgument(bv, operation.getPercentiles().stream().mapToInt(Integer::intValue).toArray()));
+                                            new PercentileArgument(bv, operation.getPercentiles().stream().mapToInt(Integer::intValue).toArray()));
                                         service.doStreamingCalculation(percentileMetrics);
                                     }
 

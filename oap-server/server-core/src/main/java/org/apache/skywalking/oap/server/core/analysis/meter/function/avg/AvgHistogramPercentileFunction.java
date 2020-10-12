@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import com.google.common.base.Strings;
 import io.vavr.Tuple;
@@ -30,12 +30,14 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -61,7 +63,7 @@ import static java.util.stream.Collectors.mapping;
  */
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
-public abstract class AvgHistogramPercentileFunction extends Metrics implements AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument>, MultiIntValuesHolder {
+public abstract class AvgHistogramPercentileFunction extends Metrics implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
@@ -100,7 +102,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     private boolean isCalculated = false;
 
     @Override
-    public void accept(final MeterEntity entity, final AvgPercentileArgument value) {
+    public void accept(final MeterEntity entity, final PercentileArgument value) {
         if (dataset.size() > 0) {
             if (!value.getBucketedValues().isCompatible(dataset)) {
                 throw new IllegalArgumentException(
@@ -313,20 +315,13 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         return AvgPercentileFunctionBuilder.class;
     }
 
-    @RequiredArgsConstructor
-    @Getter
-    public static class AvgPercentileArgument {
-        private final BucketedValues bucketedValues;
-        private final int[] ranks;
-    }
-
     public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgHistogramPercentileFunction> {
 
         @Override
         public AvgHistogramPercentileFunction map2Data(final Map<String, Object> dbMap) {
             AvgHistogramPercentileFunction metrics = new AvgHistogramPercentileFunction() {
                 @Override
-                public AcceptableValue<AvgPercentileArgument> createNew() {
+                public AcceptableValue<PercentileArgument> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
@@ -356,10 +351,12 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof AvgHistogramPercentileFunction))
+        }
+        if (!(o instanceof AvgHistogramPercentileFunction)) {
             return false;
+        }
         AvgHistogramPercentileFunction function = (AvgHistogramPercentileFunction) o;
         return Objects.equals(entityId, function.entityId) &&
             getTimeBucket() == function.getTimeBucket();

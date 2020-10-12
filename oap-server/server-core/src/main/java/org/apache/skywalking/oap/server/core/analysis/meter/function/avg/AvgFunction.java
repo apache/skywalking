@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
@@ -195,10 +197,12 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof AvgFunction))
+        }
+        if (!(o instanceof AvgFunction)) {
             return false;
+        }
         AvgFunction function = (AvgFunction) o;
         return Objects.equals(entityId, function.entityId) &&
             getTimeBucket() == function.getTimeBucket();

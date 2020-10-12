@@ -25,12 +25,14 @@ import java.time.Duration;
 import java.util.function.Function;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.meter.analyzer.dsl.counter.Window;
 
 @Builder
 @EqualsAndHashCode
 @ToString
+@Getter
 public class Sample {
     final String name;
     final ImmutableMap<String, String> labels;

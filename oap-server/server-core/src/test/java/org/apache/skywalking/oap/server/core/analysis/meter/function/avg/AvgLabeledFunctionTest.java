@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import io.vavr.collection.Stream;
 import java.util.Comparator;
@@ -29,11 +29,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgLabeledFunction.COUNT;
-import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgLabeledFunction.SUMMATION;
-import static org.apache.skywalking.oap.server.core.analysis.meter.function.AvgLabeledFunction.VALUE;
+import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.COUNT;
+import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.SUMMATION;
+import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.VALUE;
 import static org.hamcrest.core.Is.is;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertThat;

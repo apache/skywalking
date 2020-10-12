@@ -16,34 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.dsl;
+package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode
-@ToString
+@RequiredArgsConstructor
 @Getter
-public class Result {
-    public static Result fail(final Throwable throwable) {
-        log.error("Result is failure", throwable);
-        return new Result(false, SampleFamily.EMPTY);
-    }
-
-    public static Result success(SampleFamily sf) {
-        if (log.isDebugEnabled()) {
-            log.debug("Result is successful, sample family is {}", sf);
-        }
-        return new Result(true, sf);
-    }
-
-    private final boolean success;
-
-    private final SampleFamily data;
+public class PercentileArgument {
+    private final BucketedValues bucketedValues;
+    private final int[] ranks;
 }

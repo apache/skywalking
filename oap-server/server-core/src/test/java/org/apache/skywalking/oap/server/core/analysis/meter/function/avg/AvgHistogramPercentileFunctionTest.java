@@ -16,10 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -45,7 +48,7 @@ public class AvgHistogramPercentileFunctionTest {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
-            new AvgHistogramPercentileFunction.AvgPercentileArgument(
+            new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -61,7 +64,7 @@ public class AvgHistogramPercentileFunctionTest {
 
         inst.accept(
             MeterEntity.newService("service-test"),
-            new AvgHistogramPercentileFunction.AvgPercentileArgument(
+            new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -97,7 +100,7 @@ public class AvgHistogramPercentileFunctionTest {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
-            new AvgHistogramPercentileFunction.AvgPercentileArgument(
+            new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -126,7 +129,7 @@ public class AvgHistogramPercentileFunctionTest {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test"),
-            new AvgHistogramPercentileFunction.AvgPercentileArgument(
+            new PercentileArgument(
                 new BucketedValues(
                     BUCKETS,
                     new long[] {
@@ -161,7 +164,7 @@ public class AvgHistogramPercentileFunctionTest {
 
     private static class PercentileFunctionInst extends AvgHistogramPercentileFunction {
         @Override
-        public AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument> createNew() {
+        public AcceptableValue<PercentileArgument> createNew() {
             return new AvgHistogramPercentileFunctionTest.PercentileFunctionInst();
         }
     }
