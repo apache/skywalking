@@ -33,8 +33,7 @@ import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.async.TAsyncMethodCall;
 
 /**
- * @see TAsyncMethodCall is asynchronized client.
- * @see TServiceClientInterceptor to know synchronized client.
+ * Here is asynchronized client.
  */
 public class TAsyncMethodCallInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     private String remotePeer = "UNKNOWN";
@@ -43,7 +42,7 @@ public class TAsyncMethodCallInterceptor implements InstanceConstructorIntercept
     public void onConstruct(EnhancedInstance objInst,
                             Object[] allArguments) throws NoSuchFieldException, IllegalAccessException {
         ReflectionUtils.setValue(TAsyncMethodCall.class, objInst, "callback", new AsyncMethodCallback<Object>() {
-            final AsyncMethodCallback callback = (AsyncMethodCallback) allArguments[3];
+            final AsyncMethodCallback<Object> callback = (AsyncMethodCallback) allArguments[3];
 
             @Override
             public void onComplete(final Object response) {
@@ -76,7 +75,6 @@ public class TAsyncMethodCallInterceptor implements InstanceConstructorIntercept
                              Object[] allArguments,
                              Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        // TODO: It is hard to get arguments of method. So, currently, we don't do that. If you have a good idea, please fix it.
         AbstractSpan span = ContextManager.createExitSpan(objInst.getClass().getName(), remotePeer);
         span.setComponent(ComponentsDefine.THRIFT_CLIENT);
         SpanLayer.asRPCFramework(span);

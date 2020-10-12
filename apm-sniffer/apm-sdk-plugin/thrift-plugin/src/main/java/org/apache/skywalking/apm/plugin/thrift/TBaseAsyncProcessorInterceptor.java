@@ -33,10 +33,12 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer;
 
 /**
+ * To transparent the AsyncProcessFunction for getting arguments of method.
+ *
  * @see TBaseAsyncProcessor
  */
 public class TBaseAsyncProcessorInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
-    private Map<String, AsyncProcessFunction> processMapView = null;
+    private Map processMapView = null;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {

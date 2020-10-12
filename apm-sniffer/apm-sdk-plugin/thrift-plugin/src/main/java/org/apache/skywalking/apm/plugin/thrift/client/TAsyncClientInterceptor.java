@@ -28,9 +28,9 @@ import org.apache.thrift.async.TAsyncClient;
 import org.apache.thrift.protocol.TProtocolFactory;
 
 /**
- * @see TAsyncClient
- *
  * Hijack the TProtocolFactory for wrapping the Protocol object to propagate trace context(write out).
+ *
+ * @see TAsyncClient
  */
 public class TAsyncClientInterceptor implements InstanceConstructorInterceptor {
     private static final ILog LOGGER = LogManager.getLogger(TAsyncClientInterceptor.class);

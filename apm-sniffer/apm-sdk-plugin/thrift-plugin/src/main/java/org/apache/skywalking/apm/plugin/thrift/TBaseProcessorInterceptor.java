@@ -28,10 +28,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.plugin.thrift.wrapper.Context;
 import org.apache.skywalking.apm.plugin.thrift.wrapper.ServerInProtocolWrapper;
 import org.apache.thrift.ProcessFunction;
+import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TBaseProcessor;
 
 /**
- * @see TBaseProcessor
+ * To transparent the ProcessFunction for getting arguments of method.
+ *
+ * @see TBaseAsyncProcessor
+ * @see TBaseProcessorInterceptor
  */
 public class TBaseProcessorInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     private Map<String, ProcessFunction> processMap;

@@ -60,14 +60,11 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
         if (field.id == SW_MAGIC_FIELD_ID && field.type == TType.MAP) {
             try {
                 TMap tMap = super.readMapBegin();
-                Map<String, String> header = new HashMap(tMap.size);
+                Map<String, String> header = new HashMap<>(tMap.size);
 
                 for (int i = 0; i < tMap.size; i++) {
                     header.put(readString(), readString());
                 }
-
-                super.readMessageEnd();
-                super.readFieldEnd();
 
                 AbstractSpan span = ContextManager.createEntrySpan(
                     context.getOperatorName(), createContextCarrier(header));
@@ -76,11 +73,13 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
                 span.setComponent(ComponentsDefine.THRIFT_SERVER);
                 SpanLayer.asRPCFramework(span);
             } catch (Throwable throwable) {
-                LOGGER.error("Failed to create EntrySpan.", throwable);
+                LOGGER.error("Failed to resolve header or create EntrySpan.", throwable);
             } finally {
                 context = null;
-                return readFieldBegin();
+                super.readMapEnd();
+                super.readFieldEnd();
             }
+            return readFieldBegin();
         }
         return field;
     }
@@ -100,11 +99,10 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
     @Override
     public TMessage readMessageBegin() throws TException {
         final TMessage message = super.readMessageBegin();
-        try {
+        if (Objects.nonNull(message)) {
             context.setup(message.name);
-        } finally {
-            return message;
         }
+        return message;
     }
 
 }

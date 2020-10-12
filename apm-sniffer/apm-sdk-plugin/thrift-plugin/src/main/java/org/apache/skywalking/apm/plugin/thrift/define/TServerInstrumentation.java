@@ -27,9 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-/**
- * @see org.apache.thrift.server.TServer
- */
 public class TServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.thrift.TServerInterceptor";
     private static final String ENHANCE_CLASS = "org.apache.thrift.server.TServer";

@@ -27,10 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-/**
- * @see org.apache.thrift.TBaseAsyncProcessor
- * @see org.apache.skywalking.apm.plugin.thrift.TBaseAsyncProcessorInterceptor
- */
 public class TBaseAsyncProcessorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.thrift.TBaseAsyncProcessorInterceptor";
     private static final String ENHANCE_CLASS = "org.apache.thrift.TBaseAsyncProcessor";

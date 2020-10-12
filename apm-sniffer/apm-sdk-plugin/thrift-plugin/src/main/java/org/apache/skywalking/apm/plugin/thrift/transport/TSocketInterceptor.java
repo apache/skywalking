@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * For getting remote peer
+ * For getting remote peer.
  */
 public class TSocketInterceptor implements InstanceConstructorInterceptor {
 

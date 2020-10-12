@@ -38,7 +38,9 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 /**
- * @see TServiceClient is synchronized client.
+ * Here is synchronized client.
+ *
+ * @see TServiceClient
  */
 public class TServiceClientInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     private static final StringTag TAG_ARGS = new StringTag("args");

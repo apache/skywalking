@@ -28,9 +28,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 /**
+ * Hijack the TProtocolFactory.(Synchronized Client)
+ *
  * @see org.apache.thrift.TServiceClient
- * @see org.apache.skywalking.apm.plugin.thrift.client.TServiceClientInterceptor
- * @see org.apache.skywalking.apm.plugin.thrift.client.TServiceClientReceiveInterceptor
  */
 public class TServiceClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.thrift.client.TServiceClientInterceptor";

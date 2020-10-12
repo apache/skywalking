@@ -28,6 +28,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 /**
+ * Hijack the TProtocolFactory.(Asynchronized Client)
+ *
  * @see org.apache.thrift.async.TAsyncClient
  */
 public class TAsyncClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {

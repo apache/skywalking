@@ -46,7 +46,7 @@ public class CaseController {
     private IClient hasync;
 
     private final AtomicInteger status = new AtomicInteger(0);
-    private final CountDownLatch initialed = new CountDownLatch(1);
+    private final CountDownLatch initialized = new CountDownLatch(1);
 
     @RequestMapping("/thrift-scenario")
     @ResponseBody
@@ -74,10 +74,10 @@ public class CaseController {
             hasync = new AsyncClient(9099);
             hasync.start();
 
-            initialed.countDown();
+            initialized.countDown();
         }
         try {
-            initialed.await(2000, TimeUnit.SECONDS);
+            initialized.await(2000, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new IOException("pending");
         }

@@ -65,19 +65,16 @@ public class ClientOutProtocolWrapper extends AbstractProtocolWrapper {
                     header.put(items.getHeadKey(), items.getHeadValue());
                 }
                 writeHeader(header);
-                injected = true;
             } catch (Throwable throwable) {
                 LOGGER.error("Failed to propagating CarrierItems.", throwable);
+            } finally {
+                injected = true;
             }
-
         }
         super.writeFieldStop();
     }
 
     private void writeHeader(Map<String, String> header) throws TException {
-        if (header.isEmpty()) {
-            return;
-        }
         super.writeFieldBegin(new TField(SW_MAGIC_FIELD, TType.MAP, SW_MAGIC_FIELD_ID));
         super.writeMapBegin(new TMap(TType.STRING, TType.STRING, header.size()));
 

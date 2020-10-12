@@ -28,10 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.thrift.client.TAsyncMethodCallInterceptor;
 
-/**
- * @see org.apache.thrift.async.TAsyncMethodCall
- * @see TAsyncMethodCallInterceptor
- */
 public class TAsyncMethodCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.thrift.client.TAsyncMethodCallInterceptor";
     private static final String ENHANCE_CLASS = "org.apache.thrift.async.TAsyncMethodCall";

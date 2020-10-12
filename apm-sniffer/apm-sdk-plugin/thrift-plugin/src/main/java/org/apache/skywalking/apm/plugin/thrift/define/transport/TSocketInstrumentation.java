@@ -27,10 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
-/**
- * @see org.apache.thrift.transport.TSocket
- * @see org.apache.thrift.transport.TNonblockingSocket
- */
 public class TSocketInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
