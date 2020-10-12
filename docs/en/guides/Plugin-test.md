@@ -211,7 +211,7 @@ as the version number, it will be changed in the test for every version.
 | `null` | Null or empty String |
 | `eq` | Equal(default) |
 
-**Segment verify description format**
+**Expected Data Format Of The Segment**
 ```yml
 segmentItems:
 -
@@ -231,7 +231,7 @@ segmentItems:
 | segmentId | trace ID.
 | spans | segment span list. Follow the next section to see how to describe every span.
 
-**Span verify description format**
+**Expected Data Format Of The Span**
 
 **Notice**: The order of span list should follow the order of the span finish time.
 
@@ -294,7 +294,7 @@ The verify description for SegmentRef
 | networkAddress | The peer value of parent exit span.
 | refType | Ref type, options, CrossProcess or CrossThread.
 
-**Meter verify description format**
+**Expected Data Format Of The Meter Items**
 ```yml
 meterItems:
 -
@@ -310,7 +310,7 @@ meterItems:
 | meterSize | The number of meters is expected.
 | meters | meter list. Follow the next section to see how to describe every meter.
 
-**Meter data verify description format**
+**Expected Data Format Of The Meter**
 
 ```yml
     meterId: 
@@ -319,7 +319,7 @@ meterItems:
         - {name: TAG_NAME(string), value: TAG_VALUE(string)}
     singleValue: SINGLE_VALUE(double)
     histogram:
-    - {bucket: HISTOGRAM_BUCKET(double), count: HISTOGRAM_BUCKET_COUNT(long)}
+    - HISTOGRAM_BUCKET(double)
     ...
 ```
 
@@ -333,8 +333,7 @@ The verify description for MeterId
 | tags.value | tag value.
 | singleValue | counter or gauge value. Using condition operate of the number to validate, such as `gt`, `ge`. If current meter is histogram, don't need to write this field.
 | histogram | histogram value. If current meter is counter or gauge, don't need to write this field.
-| histogram.bucket | histogram bucket. The bucket list must be ordered.
-| histogram.count | histogram bucket count. Using condition operate of the number to validate, such as `gt`, `ge`. 
+| histogram.bucket | histogram bucket. The bucket list must be ordered. The tool assert at least one bucket of the histogram having nonzero count.
 
 ### startup.sh
 
@@ -531,7 +530,7 @@ SegmentB span list should like following
 
 Expected data file, `expectedData.yaml`, include `MeterItems` part.
 
-We are using the toolkit plugin to show how to write the expected data. You could write the meter in the plugin, please follow [this document](Java-Plugin-Development-Guide.md#meter-plugin).
+We are using the toolkit plugin to demonstrate how to write the expected data. When write the [meter plugin](Java-Plugin-Development-Guide.md#meter-plugin), the expected data file keeps the same.
 
 There is one key point of testing
 1. Build a meter and operate it.
@@ -595,10 +594,10 @@ MeterB should like following.
     tags:
       - {name: hk1, value: hv1}
   histogram:
-    - {bucket: 0.0, count: ge 0}
-    - {bucket: 1.0, count: ge 0}
-    - {bucket: 5.0, count: ge 0}
-    - {bucket: 10.0, count: ge 0}
+    - 0.0
+    - 1.0
+    - 5.0
+    - 10.0
 ```
 
 ## Local Test and Pull Request To The Upstream
