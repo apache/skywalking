@@ -318,7 +318,7 @@ meterItems:
         tags:
         - {name: TAG_NAME(string), value: TAG_VALUE(string)}
     singleValue: SINGLE_VALUE(double)
-    histogram:
+    histogramBuckets:
     - HISTOGRAM_BUCKET(double)
     ...
 ```
@@ -332,8 +332,7 @@ The verify description for MeterId
 | tags.name | tag name.
 | tags.value | tag value.
 | singleValue | counter or gauge value. Using condition operate of the number to validate, such as `gt`, `ge`. If current meter is histogram, don't need to write this field.
-| histogram | histogram value. If current meter is counter or gauge, don't need to write this field.
-| histogram.bucket | histogram bucket. The bucket list must be ordered. The tool assert at least one bucket of the histogram having nonzero count.
+| histogramBuckets | histogram bucket. The bucket list must be ordered. The tool assert at least one bucket of the histogram having nonzero count. If current meter is counter or gauge, don't need to write this field.
 
 ### startup.sh
 
@@ -593,7 +592,7 @@ MeterB should like following.
     name: test_histogram
     tags:
       - {name: hk1, value: hv1}
-  histogram:
+  histogramBuckets:
     - 0.0
     - 1.0
     - 5.0
