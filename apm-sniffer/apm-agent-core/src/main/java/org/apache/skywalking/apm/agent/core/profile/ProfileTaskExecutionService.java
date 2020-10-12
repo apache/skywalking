@@ -186,7 +186,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
      */
     private CheckResult checkProfileTaskSuccess(ProfileTask task) {
         // endpoint name
-        if (StringUtil.isEmpty(task.getFistSpanOPName())) {
+        if (StringUtil.isEmpty(task.getFirstSpanOPName())) {
             return new CheckResult(false, "endpoint name cannot be empty");
         }
 
@@ -234,7 +234,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
                 return new CheckResult(
                     false,
                     "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: "
-                        + profileTask.getFistSpanOPName()
+                        + profileTask.getFirstSpanOPName()
                 );
             }
         }

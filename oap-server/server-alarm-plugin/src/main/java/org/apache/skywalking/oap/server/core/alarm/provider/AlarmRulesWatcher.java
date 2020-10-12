@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
@@ -128,4 +129,9 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     public WechatSettings getWechatSettings() {
         return this.rules.getWecchats();
     }
+
+    public DingtalkSettings getDingtalkSettings() {
+        return this.rules.getDingtalks();
+    }
+
 }
