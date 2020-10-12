@@ -58,7 +58,7 @@ public class TAsyncMethodCallInterceptor implements InstanceConstructorIntercept
             public void onError(final Exception exception) {
                 try {
                     AsyncSpan span = (AsyncSpan) objInst.getSkyWalkingDynamicField();
-                    span.asyncFinish().errorOccurred().log(exception);
+                    span.asyncFinish().log(exception);
                 } finally {
                     callback.onError(exception);
                 }
@@ -89,9 +89,7 @@ public class TAsyncMethodCallInterceptor implements InstanceConstructorIntercept
                               Object[] allArguments,
                               Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (ContextManager.isActive()) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
@@ -101,8 +99,6 @@ public class TAsyncMethodCallInterceptor implements InstanceConstructorIntercept
                                       Object[] allArguments,
                                       Class<?>[] argumentsTypes,
                                       Throwable t) {
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
-        }
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

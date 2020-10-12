@@ -38,7 +38,7 @@ import org.apache.thrift.server.AbstractNonblockingServer;
  * @see TBaseAsyncProcessor
  */
 public class TBaseAsyncProcessorInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
-    private Map processMapView = null;
+    private Map<String, AsyncProcessFunction> processMapView = null;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -61,9 +61,7 @@ public class TBaseAsyncProcessorInterceptor implements InstanceConstructorInterc
                               Object[] allArguments,
                               Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (ContextManager.isActive()) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
@@ -73,8 +71,6 @@ public class TBaseAsyncProcessorInterceptor implements InstanceConstructorInterc
                                       Object[] allArguments,
                                       Class<?>[] argumentsTypes,
                                       Throwable t) {
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
-        }
+        ContextManager.activeSpan().log(t);
     }
 }

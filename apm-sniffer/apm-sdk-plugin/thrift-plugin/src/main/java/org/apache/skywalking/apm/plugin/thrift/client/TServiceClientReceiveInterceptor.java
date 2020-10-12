@@ -57,8 +57,6 @@ public class TServiceClientReceiveInterceptor implements InstanceMethodsAroundIn
                                       final Object[] objects,
                                       final Class<?>[] classes,
                                       final Throwable throwable) {
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(throwable);
-        }
+        ContextManager.activeSpan().log(throwable);
     }
 }
