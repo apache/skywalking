@@ -299,7 +299,7 @@ The verify description for SegmentRef
 meterItems:
 -
   serviceName: SERVICE_NAME(string)
-  meterSize: SEGMENT_SIZE(int)
+  meterSize: METER_SIZE(int)
   meters:
   - ...
 ```
@@ -331,10 +331,10 @@ The verify description for MeterId
 | tags | meter tags.
 | tags.name | tag name.
 | tags.value | tag value.
-| singleValue | counter or gauge value. If current meter is histogram, don't need to write this field.
+| singleValue | counter or gauge value. Using condition operate of the number to validate, such as `gt`, `ge`. If current meter is histogram, don't need to write this field.
 | histogram | histogram value. If current meter is counter or gauge, don't need to write this field.
 | histogram.bucket | histogram bucket. The bucket list must be ordered.
-| histogram.count | histogram bucket count.
+| histogram.count | histogram bucket count. Using condition operate of the number to validate, such as `gt`, `ge`. 
 
 ### startup.sh
 
@@ -420,9 +420,9 @@ dependent services are database or cluster.
 Notice, because heartbeat service could be traced fully or partially, so, segmentSize in `expectedData.yaml` should use `ge` as the operator,
 and don't include the segments of heartbeat service in the expected segment data.
 
-### The example Process of Writing Expected Data
+### The example Process of Writing Tracing Expected Data
 
-Expected data file, `expectedData.yaml`, include `SegmentItems`.
+Expected data file, `expectedData.yaml`, include `SegmentItems` part.
 
 We are using the HttpClient plugin to show how to write the expected data.
 
@@ -525,6 +525,80 @@ SegmentB span list should like following
    peer: null
    refs:
     - {parentEndpoint: /httpclient-case/case/httpclient, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+```
+
+### The example Process of Writing Meter Expected Data
+
+Expected data file, `expectedData.yaml`, include `MeterItems` part.
+
+We are using the toolkit plugin to show how to write the expected data. You could write the meter in the plugin, please follow [this document](Java-Plugin-Development-Guide.md#meter-plugin).
+
+There is one key point of testing
+1. Build a meter and operate it.
+
+Such as `Counter`:
+```java
+MeterFactory.counter("test_counter").tag("ck1", "cv1").build().increment(1d);
+MeterFactory.histogram("test_histogram").tag("hk1", "hv1").steps(1d, 5d, 10d).build().addValue(2d);
+```
+
+```
++-------------+         +------------------+
+|   Plugin    |         |    Agent core    |
+|             |         |                  |
++-----|-------+         +---------|--------+
+      |                           |         
+      |                           |         
+      |    Build or operate      +-+        
+      +------------------------> |-|        
+      |                          |-]
+      |                          |-|        
+      |                          |-|        
+      |                          |-|
+      |                          |-|        
+      | <--------------------------|        
+      |                          +-+        
+      |                           |         
+      |                           |         
+      |                           |         
+      |                           |         
+      +                           +         
+```
+
+#### meterItems
+
+By following the flow of the toolkit case,  there should be two meters created.
+1. Meter `test_counter` created from `MeterFactory#counter`. Let's name it as `MeterA`.
+1. Meter `test_histogram` created from `MeterFactory#histogram`. Let's name it as `MeterB`.
+
+```yml
+meterItems:
+  - serviceName: toolkit-case
+    meterSize: 2
+```
+
+They're showing two kinds of meter, MeterA has a single value, MeterB has a histogram value.
+
+MeterA should like following, `counter` and `gauge` use the same data format.
+```yaml
+- meterId:
+    name: test_counter
+    tags:
+      - {name: ck1, value: cv1}
+  singleValue: gt 0
+```
+
+MeterB should like following.
+```yaml
+- meterId:
+    name: test_histogram
+    tags:
+      - {name: hk1, value: hv1}
+  histogram:
+    - {bucket: 0.0, count: ge 0}
+    - {bucket: 1.0, count: ge 0}
+    - {bucket: 5.0, count: ge 0}
+    - {bucket: 10.0, count: ge 0}
 ```
 
 ## Local Test and Pull Request To The Upstream

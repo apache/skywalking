@@ -318,18 +318,18 @@ meterItems:
         name: test_counter
         tags:
           - {name: ck1, value: cv1}
-      singleValue: 2.0
+      singleValue: gt 0
     - meterId:
         name: test_gauge
         tags:
           - {name: gk1, value: gv1}
-      singleValue: 1.0
+      singleValue: gt 0
     - meterId:
         name: test_histogram
         tags:
           - {name: hk1, value: hv1}
       histogram:
-        - {bucket: 0.0, count: 0}
-        - {bucket: 1.0, count: 1}
-        - {bucket: 5.0, count: 0}
-        - {bucket: 10.0, count: 0}
+        - {bucket: 0.0, count: ge 0}
+        - {bucket: 1.0, count: ge 0}
+        - {bucket: 5.0, count: ge 0}
+        - {bucket: 10.0, count: ge 0}
