@@ -42,4 +42,9 @@ public class MeterDataConfig {
      */
     private List<Integer> percentile;
 
+    /**
+     * Aggregate meter group by dedicated labels
+     */
+    private List<String> groupBy;
+
 }
