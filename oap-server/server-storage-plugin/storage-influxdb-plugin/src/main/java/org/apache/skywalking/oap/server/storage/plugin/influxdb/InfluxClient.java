@@ -108,9 +108,11 @@ public class InfluxClient implements Client, HealthCheckable {
         if (log.isDebugEnabled()) {
             log.debug("SQL Statement: {}", query.getCommand());
         }
-
         try {
             QueryResult result = getInflux().query(new Query(query.getCommand()));
+            if (result.hasError()) {
+                throw new IOException(result.getError());
+            }
             healthChecker.health();
             return result.getResults();
         } catch (Throwable e) {
