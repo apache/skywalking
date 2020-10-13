@@ -18,18 +18,21 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
+@Slf4j
 public class AnalyzerModuleConfig extends ModuleConfig {
     /**
      * The sample rate precision is 1/10000. 10000 means 100% sample in default.
@@ -44,7 +47,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
      * Read component-libraries.yml for more details.
      */
     @Getter
-    private final List<Integer> noUpstreamRealAddressAgents = Collections.singletonList(6000);
+    private String noUpstreamRealAddressAgents = Const.EMPTY_STRING;
     /**
      * The threshold used to check the slow database access. Unit, millisecond.
      */
@@ -98,4 +101,26 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String segmentStatusAnalysisStrategy = FROM_SPAN_STATUS.name();
+
+    private List<Integer> virtualPeers;
+
+    /**
+     * @param componentId of the exit span
+     * @return true, means should not generate the instance relationship for the client-side exit span.
+     */
+    public boolean shouldIgnorePeerIPDue2Virtual(int componentId) {
+        if (virtualPeers == null) {
+            virtualPeers = new ArrayList<>(20);
+            for (final String component : noUpstreamRealAddressAgents.split(",")) {
+                try {
+                    virtualPeers.add(Integer.parseInt(component));
+                } catch (NumberFormatException e) {
+                    log.warn("noUpstreamRealAddressAgents config {} includes illegal value {}",
+                             noUpstreamRealAddressAgents, component
+                    );
+                }
+            }
+        }
+        return virtualPeers.contains(componentId);
+    }
 }
