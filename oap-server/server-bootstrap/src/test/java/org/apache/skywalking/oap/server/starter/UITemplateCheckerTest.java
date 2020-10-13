@@ -16,22 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.management.ui.template;
+package org.apache.skywalking.oap.server.starter;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UITemplateInitializerTest {
+/**
+ * @since 8.2.0 SkyWalking supports multiple UI initialized templates, this check is avoiding the duplicated definitions
+ * in the multiple files.
+ *
+ * If the codes include duplicate template name in same or different template files in `ui-initialized-templates`
+ * folder, this test case would fail, in order to block the merge.
+ */
+public class UITemplateCheckerTest {
     @Test
-    public void testReadFile() throws FileNotFoundException {
-        final File[] templateFiles = ResourceUtils.getPathFiles("test-ui-templates");
+    public void testNoTemplateConflict() throws FileNotFoundException {
+        final File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates");
         final List<UITemplate> uiTemplates = new ArrayList<>();
         for (final File templateFile : templateFiles) {
             UITemplateInitializer initializer = new UITemplateInitializer(
@@ -39,17 +48,7 @@ public class UITemplateInitializerTest {
             uiTemplates.addAll(initializer.read());
         }
 
-        Assert.assertEquals(2, uiTemplates.size());
-        UITemplate uiTemplate = uiTemplates.get(0);
-        Assert.assertEquals("APM (Agent based)", uiTemplate.getName());
-        Assert.assertTrue(uiTemplate.getConfiguration().length() > 0);
-        Assert.assertEquals(BooleanUtils.TRUE, uiTemplate.getActivated());
-        Assert.assertEquals(BooleanUtils.FALSE, uiTemplate.getDisabled());
-
-        uiTemplate = uiTemplates.get(1);
-        Assert.assertEquals("APM (Service Mesh)", uiTemplate.getName());
-        Assert.assertTrue(uiTemplate.getConfiguration().length() > 0);
-        Assert.assertEquals(BooleanUtils.FALSE, uiTemplate.getActivated());
-        Assert.assertEquals(BooleanUtils.TRUE, uiTemplate.getDisabled());
+        final List<UITemplate> distinct = uiTemplates.stream().distinct().collect(Collectors.toList());
+        Assert.assertEquals(distinct.size(), uiTemplates.size());
     }
 }
