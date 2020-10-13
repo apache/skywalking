@@ -30,10 +30,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>YOUR VERSION</test.framework.version>
+        <test.framework.version>0.12.0</test.framework.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
         <lombok.version>1.18.10</lombok.version>
-        <thrift.version>0.12.0</thrift.version>
+        <thrift.version>${test.framework.version}</thrift.version>
     </properties>
 
     <name>skywalking-thrift-scenario</name>

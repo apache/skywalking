@@ -62,7 +62,7 @@ segmentItems:
                  parentServiceInstance: not null, parentService: thrift-client-scenario,
                  traceId: not null }
   - serviceName: thrift-client-scenario
-    segmentSize: 4
+    segmentSize: ge 4
     segments:
       - segmentId: not null
         spans:
