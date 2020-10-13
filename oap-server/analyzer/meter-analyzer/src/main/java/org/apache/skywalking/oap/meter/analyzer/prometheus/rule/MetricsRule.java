@@ -16,22 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.metric.promethues.rule;
+package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @Data
 @NoArgsConstructor
 public class MetricsRule {
     private String name;
-    private ScopeType scope;
-    private String operation;
-    private List<Integer> percentiles;
-    private TimeUnit bucketUnit = TimeUnit.SECONDS;
-    private Map<String, PrometheusMetric> sources;
+    private String exp;
 }

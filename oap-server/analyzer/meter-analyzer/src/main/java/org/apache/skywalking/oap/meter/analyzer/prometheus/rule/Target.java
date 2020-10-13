@@ -16,27 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.metric.promethues.rule;
+package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class Relabel {
-    private List<String> service;
-    private List<String> instance;
-    private List<String> endpoint;
-
-    public List<String> labelKeys() {
-        List<String> result = new ArrayList<>();
-        result.addAll(Optional.ofNullable(service).orElse(Collections.emptyList()));
-        result.addAll(Optional.ofNullable(instance).orElse(Collections.emptyList()));
-        result.addAll(Optional.ofNullable(endpoint).orElse(Collections.emptyList()));
-        return result;
-    }
+public class Target {
+    private String url;
+    private String sslCaFilePath;
 }

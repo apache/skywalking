@@ -16,19 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.metric.promethues.rule;
+package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PrometheusMetric {
-    private CounterFunction counterFunction;
-    private String range;
-    private List<LabelMatchRule> labelFilter;
-    private List<String> groupBy;
-    private Relabel relabel;
-    private int scale = 0;
+public class StaticConfig {
+    private List<Target> targets;
+    private Map<String, String> labels;
 }

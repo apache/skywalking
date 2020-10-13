@@ -37,15 +37,16 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -64,7 +65,7 @@ public class SampleFamily {
     static SampleFamily build(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(Context::new));
+        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(() -> Context.builder().build()));
     }
 
     static SampleFamily buildHistogram(Sample... samples) {
@@ -74,7 +75,7 @@ public class SampleFamily {
     static SampleFamily buildHistogram(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        ctx = Optional.ofNullable(ctx).orElseGet(Context::new);
+        ctx = Optional.ofNullable(ctx).orElseGet(() -> Context.builder().build());
         ctx.isHistogram = true;
         return new SampleFamily(samples, ctx);
     }
@@ -264,6 +265,36 @@ public class SampleFamily {
         return SampleFamily.buildHistogramPercentile(this, percentiles.stream().mapToInt(i -> i).toArray());
     }
 
+    public SampleFamily service(List<String> labelKeys) {
+        this.context.setMeterEntity(MeterEntity.newService(dim(labelKeys)));
+        return left(labelKeys);
+    }
+
+    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
+        this.context.setMeterEntity(MeterEntity.newServiceInstance(dim(serviceKeys), dim(instanceKeys)));
+        return left(io.vavr.collection.Stream.concat(serviceKeys, instanceKeys).asJava());
+    }
+
+    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
+        this.context.setMeterEntity(MeterEntity.newEndpoint(dim(serviceKeys), dim(endpointKeys)));
+        return left(io.vavr.collection.Stream.concat(serviceKeys, endpointKeys).asJava());
+    }
+
+    private String dim(List<String> labelKeys) {
+        return labelKeys.stream().map(k -> samples[0].labels.getOrDefault(k, "")).collect(Collectors.joining("."));
+    }
+
+    private SampleFamily left(List<String> labelKeys) {
+        return SampleFamily.build(this.context, Arrays.stream(samples)
+            .map(s -> {
+                ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                    .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
+                    .build();
+                return newSample(ll, s.timestamp, s.value);
+            })
+            .toArray(Sample[]::new));
+    }
+
     private SampleFamily match(String[] labels, Function2<String, String, Boolean> op) {
         Preconditions.checkArgument(labels.length % 2 == 0);
         Map<String, String> ll = new HashMap<>(labels.length / 2);
@@ -306,20 +337,21 @@ public class SampleFamily {
             .build();
     }
 
-    @AllArgsConstructor
-    @NoArgsConstructor
     @ToString
     @EqualsAndHashCode
     @Getter
     @Setter
+    @Builder
     public static class Context {
 
-        static Context EMPTY = new Context();
+        static Context EMPTY = Context.builder().build();
 
         boolean isHistogram;
 
         int[] percentiles;
 
         DownsamplingType downsampling = DownsamplingType.AVG;
+
+        MeterEntity meterEntity;
     }
 }

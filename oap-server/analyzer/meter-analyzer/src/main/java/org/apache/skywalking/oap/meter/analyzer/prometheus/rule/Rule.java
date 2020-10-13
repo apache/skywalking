@@ -16,30 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.metric.promethues.operation;
+package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode
-@ToString
-@Getter
-@RequiredArgsConstructor
-public class Operation {
-
-    private final String name;
-
-    private final String metricName;
-
-    private final ScopeType scope;
-
-    private final List<Integer> percentiles;
-
-    private final TimeUnit bucketUnit;
-
+@Data
+@NoArgsConstructor
+public class Rule {
+    private String name;
+    private String fetcherInterval;
+    private String fetcherTimeout;
+    private String metricsPath;
+    private StaticConfig staticConfig;
+    private List<MetricsRule> metricsRules;
 }

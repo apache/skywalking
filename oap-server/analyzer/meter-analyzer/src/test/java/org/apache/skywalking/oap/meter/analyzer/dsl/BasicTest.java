@@ -71,7 +71,7 @@ public class BasicTest {
                 "downsampling-avg",
                 of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
                 "avg instance_cpu_percentage",
-                Result.success(SampleFamily.build(new SampleFamily.Context(false, null, DownsamplingType.AVG)
+                Result.success(SampleFamily.build(SampleFamily.Context.builder().downsampling(DownsamplingType.AVG).build()
                     , Sample.builder().value(1600592418480.0).build())),
                 false,
             },
@@ -79,7 +79,7 @@ public class BasicTest {
                 "downsampling-latest",
                 of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
                 "latest instance_cpu_percentage",
-                Result.success(SampleFamily.build(new SampleFamily.Context(false, null, DownsamplingType.LATEST)
+                Result.success(SampleFamily.build(SampleFamily.Context.builder().downsampling(DownsamplingType.LATEST).build()
                     , Sample.builder().value(1600592418480.0).build())),
                 false,
             }

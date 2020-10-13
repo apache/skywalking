@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 
 import java.util.Map;
@@ -116,9 +116,9 @@ public class MeterBuilder {
                         avgHistogramValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
                         meterSystem.doStreamingCalculation(avgHistogramValue);
                     } else {
-                        final AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument> percentileValue =
-                            meterSystem.buildMetrics(metricsName, AvgHistogramPercentileFunction.AvgPercentileArgument.class);
-                        percentileValue.accept(entity, new AvgHistogramPercentileFunction.AvgPercentileArgument(new BucketedValues(buckets, bucketValues),
+                        final AcceptableValue<PercentileArgument> percentileValue =
+                            meterSystem.buildMetrics(metricsName, PercentileArgument.class);
+                        percentileValue.accept(entity, new PercentileArgument(new BucketedValues(buckets, bucketValues),
                             config.getMeter().getPercentile().stream().mapToInt(Integer::intValue).toArray()));
                         percentileValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
                         meterSystem.doStreamingCalculation(percentileValue);

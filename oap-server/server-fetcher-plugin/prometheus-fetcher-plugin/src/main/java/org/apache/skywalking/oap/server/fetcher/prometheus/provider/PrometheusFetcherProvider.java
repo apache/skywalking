@@ -32,12 +32,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.codec.Charsets;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.MetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.StaticConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.metric.promethues.PrometheusMetricConverter;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rule;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.StaticConfig;
 import org.apache.skywalking.oap.server.fetcher.prometheus.http.HttpClient;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -104,7 +104,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         rules.forEach(r -> {
             ses.scheduleAtFixedRate(new Runnable() {
 
-                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), service);
+                private final MetricConverter converter = new MetricConverter(r.getMetricsRules(), service);
 
                 @Override public void run() {
                     if (Objects.isNull(r.getStaticConfig())) {
@@ -140,7 +140,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                             }
                             return result;
                         }))
-                        .flatMap(tryIt -> PrometheusMetricConverter.log(tryIt, "Load metric"))
+                        .flatMap(tryIt -> MetricConverter.log(tryIt, "Load metric"))
                         .flatMap(Collection::stream));
                     }
             }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);

@@ -28,13 +28,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
@@ -42,25 +47,26 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableV
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.elasticsearch.common.Strings;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString(of = {"metricName", "expression"})
 public class Analyzer {
 
-    public static Analyzer build(final ScopeType scopeType, final String metricName, final String expression,
+    public static Analyzer build(final String metricName, final String expression,
         final MeterSystem meterSystem) {
         Expression e = DSL.parse(expression);
-        return new Analyzer(scopeType, metricName, e, meterSystem);
+        return new Analyzer(metricName, e, meterSystem);
     }
 
     private static final String FUNCTION_NAME_TEMP = "%s%sFunction";
-
-    private final ScopeType scopeType;
 
     private final String metricName;
 
@@ -70,14 +76,14 @@ public class Analyzer {
 
     private boolean createdMetric;
 
-    public void analyse(final MeterEntity meterEntity,
-        final ImmutableMap<String, SampleFamily> sampleFamilies) {
+    public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
         Result r = expression.run(sampleFamilies);
         if (!r.isSuccess()) {
             return;
         }
         SampleFamily.Context ctx = r.getData().context;
         Sample[] ss = r.getData().samples;
+        generateTraffic(ctx.getMeterEntity());
         if (ctx.isHistogram()) {
             Stream.of(ss).map(s -> Tuple.of(composeGroup(s.getLabels(), k -> !Objects.equals("le", k)), s))
                 .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
@@ -95,33 +101,33 @@ public class Analyzer {
                     BucketedValues bv = new BucketedValues(bb, vv);
                     long time = subSs.get(0).getTimestamp();
                     if (ctx.getPercentiles() == null || ctx.getPercentiles().length < 1) {
-                        Preconditions.checkState(createMetric("histogram", ctx));
+                        Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "histogram", ctx));
                         AcceptableValue<BucketedValues> v = meterSystem.buildMetrics(metricName, BucketedValues.class);
-                        v.accept(meterEntity, bv);
+                        v.accept(ctx.getMeterEntity(), bv);
                         send(v, time);
                         return;
                     }
-                    Preconditions.checkState(createMetric("histogramPercentile", ctx));
+                    Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "histogramPercentile", ctx));
                     AcceptableValue<PercentileArgument> v = meterSystem.buildMetrics(metricName, PercentileArgument.class);
-                    v.accept(meterEntity, new PercentileArgument(bv, ctx.getPercentiles()));
+                    v.accept(ctx.getMeterEntity(), new PercentileArgument(bv, ctx.getPercentiles()));
                     send(v, time);
                 });
             return;
         }
         if (ss.length == 1) {
-            Preconditions.checkState(createMetric("", ctx));
+            Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "", ctx));
             AcceptableValue<Long> v = meterSystem.buildMetrics(metricName, Long.class);
-            v.accept(meterEntity, (long) ss[0].getValue());
+            v.accept(ctx.getMeterEntity(), (long) ss[0].getValue());
             send(v, ss[0].getTimestamp());
             return;
         }
-        Preconditions.checkState(createMetric("labeled", ctx));
+        Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "labeled", ctx));
         AcceptableValue<DataTable> v = meterSystem.buildMetrics(metricName, DataTable.class);
         DataTable dt = new DataTable();
         for (Sample each : ss) {
             dt.put(composeGroup(each.getLabels()), (long) each.getValue());
         }
-        v.accept(meterEntity, dt);
+        v.accept(ctx.getMeterEntity(), dt);
         send(v, ss[0].getTimestamp());
     }
 
@@ -134,7 +140,7 @@ public class Analyzer {
             .collect(Collectors.joining("-"));
     }
 
-    private boolean createMetric(final String dataType, final SampleFamily.Context ctx) {
+    private boolean createMetric(final ScopeType scopeType, final String dataType, final SampleFamily.Context ctx) {
         if (createdMetric) {
             return true;
         }
@@ -145,5 +151,28 @@ public class Analyzer {
     private void send(final AcceptableValue<?> v, final long time) {
         v.setTimeBucket(TimeBucket.getMinuteTimeBucket(time));
         meterSystem.doStreamingCalculation(v);
+    }
+
+    private void generateTraffic(MeterEntity entity) {
+        ServiceTraffic s = new ServiceTraffic();
+        s.setName(requireNonNull(entity.getServiceName()));
+        s.setNodeType(NodeType.Normal);
+        s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        MetricsStreamProcessor.getInstance().in(s);
+        if (!com.google.common.base.Strings.isNullOrEmpty(entity.getInstanceName())) {
+            InstanceTraffic instanceTraffic = new InstanceTraffic();
+            instanceTraffic.setName(entity.getInstanceName());
+            instanceTraffic.setServiceId(entity.serviceId());
+            instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            MetricsStreamProcessor.getInstance().in(instanceTraffic);
+        }
+        if (!com.google.common.base.Strings.isNullOrEmpty(entity.getEndpointName())) {
+            EndpointTraffic endpointTraffic = new EndpointTraffic();
+            endpointTraffic.setName(entity.getEndpointName());
+            endpointTraffic.setServiceId(entity.serviceId());
+            endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            MetricsStreamProcessor.getInstance().in(endpointTraffic);
+        }
     }
 }
