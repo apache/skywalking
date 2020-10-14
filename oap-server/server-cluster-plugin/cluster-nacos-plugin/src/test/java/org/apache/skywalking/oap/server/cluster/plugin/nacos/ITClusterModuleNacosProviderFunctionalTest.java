@@ -48,7 +48,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.security.*"})
+@PowerMockIgnore({"javax.security.*", "javax.net.ssl.*"})
 public class ITClusterModuleNacosProviderFunctionalTest {
 
     private String nacosAddress;
@@ -209,7 +209,7 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-
+        provider.setManager(moduleManager);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();
