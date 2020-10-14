@@ -133,7 +133,7 @@ public class EvalMultipleData extends EvalData<EvalMultipleData> {
     Map<String, EvalData> combineAndGroupBy(List<String> labelNames) {
         return dataList.stream()
             // group by label
-            .collect(groupingBy(m -> labelNames.stream().map(m.getLabels()::get).map(Objects::toString).collect(Collectors.joining("-"))))
+            .collect(groupingBy(m -> labelNames.stream().map(l -> m.getLabels().getOrDefault(l, "")).map(Objects::toString).collect(Collectors.joining("-"))))
             .entrySet().stream().collect(
                 // combine labeled values
                 Collectors.toMap(

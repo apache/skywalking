@@ -105,7 +105,7 @@ public class MeterBuilder {
                 break;
             case "avgLabeled":
                 final DataTable dt = new DataTable();
-                values.combineAndGroupBy(Optional.of(config.getMeter().getGroupBy()).orElse(DEFAULT_GROUP_LIST)).entrySet().stream()
+                values.combineAndGroupBy(Optional.ofNullable(config.getMeter().getGroupBy()).orElse(DEFAULT_GROUP_LIST)).entrySet().stream()
                     .forEach(e -> dt.put(e.getKey(), (long) ((EvalSingleData) e.getValue()).getValue()));
                 AcceptableValue<DataTable> value = meterSystem.buildMetrics(metricsName, DataTable.class);
                 value.accept(entity, dt);
@@ -114,7 +114,7 @@ public class MeterBuilder {
                 break;
             case "avgHistogram":
             case "avgHistogramPercentile":
-                values.combineAndGroupBy(Optional.of(config.getMeter().getGroupBy()).orElse(DEFAULT_GROUP_LIST)).entrySet().stream()
+                values.combineAndGroupBy(Optional.ofNullable(config.getMeter().getGroupBy()).orElse(DEFAULT_GROUP_LIST)).entrySet().stream()
                     .forEach(e -> {
                         final String group = e.getKey();
                         final EvalData combinedHistogramData = e.getValue();
