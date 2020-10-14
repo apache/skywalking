@@ -63,7 +63,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.build.directory}/generated-sources</source>
+                                <source>${project.basedir}/generated-sources</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -88,7 +88,7 @@
                         <argument>-v</argument>
                         <argument>${project.basedir}/src/main/thrift:/data</argument>
                         <argument>-v</argument>
-                        <argument>${project.basedir}/target/generated-sources:/out</argument>
+                        <argument>${project.basedir}/generated-sources:/out</argument>
                         <argument>thrift:${thrift.version}</argument>
                         <argument>thrift</argument>
                         <argument>-o</argument>
