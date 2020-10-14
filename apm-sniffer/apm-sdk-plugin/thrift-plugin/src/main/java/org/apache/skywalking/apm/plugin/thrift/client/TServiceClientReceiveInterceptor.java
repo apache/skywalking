@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * TAsyncClient will create a TServiceClient for receiving the response. So splitting the this method,
+ * TAsyncClient creates a TServiceClient for receiving the response. So splitting this method,
  * TAsyncClient#receiveBase(...), into here for more efficiency.
  */
 public class TServiceClientReceiveInterceptor implements InstanceMethodsAroundInterceptor {
