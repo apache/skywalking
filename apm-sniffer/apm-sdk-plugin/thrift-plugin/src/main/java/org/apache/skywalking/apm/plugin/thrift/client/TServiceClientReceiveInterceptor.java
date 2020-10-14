@@ -45,7 +45,8 @@ public class TServiceClientReceiveInterceptor implements InstanceMethodsAroundIn
                               final Object[] objects,
                               final Class<?>[] classes,
                               final Object ret) throws Throwable {
-        if (ContextManager.isActive() && Objects.nonNull(objInst.getSkyWalkingDynamicField())) {
+        // Have to stop only when the span is created by TServiceClientInterceptor#beforeMethod(...).
+        if (Objects.nonNull(objInst.getSkyWalkingDynamicField())) {
             ContextManager.stopSpan();
         }
         return ret;
