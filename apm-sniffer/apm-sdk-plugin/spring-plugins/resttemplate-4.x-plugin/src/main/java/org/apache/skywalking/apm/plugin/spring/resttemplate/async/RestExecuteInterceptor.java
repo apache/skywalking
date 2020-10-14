@@ -26,8 +26,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -37,8 +35,6 @@ import org.apache.skywalking.apm.plugin.spring.resttemplate.helper.RestTemplateR
 import org.springframework.http.HttpMethod;
 
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final ILog LOGGER = LogManager.getLogger(RestExecuteInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -69,12 +65,12 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
             ContextSnapshot contextSnapshot = ContextManager.capture();
             if (ret != null) {
                 String uri = RestTemplateRuntimeContextHelper.getUri();
-                ((EnhancedInstance) ret).setSkyWalkingDynamicField(new EnhanceCacheObjects(uri, ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, contextSnapshot));
+                ((EnhancedInstance) ret).setSkyWalkingDynamicField(
+                    new EnhanceCacheObjects(uri, ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, contextSnapshot)
+                );
             }
-        } catch (Throwable e){
-            LOGGER.warn("resttemplate plugin has error: ", e);
-        } finally {
             ContextManager.stopSpan();
+        } finally {
             RestTemplateRuntimeContextHelper.cleanUri();
             RestTemplateRuntimeContextHelper.cleanContextCarrier();
         }
