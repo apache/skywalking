@@ -77,6 +77,8 @@ public final class Tags {
      */
     public static final StringTag MQ_TOPIC = new StringTag(9, "mq.topic");
 
+    public static final StringTag TRANSMISSION_LATENCY = new StringTag(15, "transmission.latency");
+
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag(10, "http.method");
 

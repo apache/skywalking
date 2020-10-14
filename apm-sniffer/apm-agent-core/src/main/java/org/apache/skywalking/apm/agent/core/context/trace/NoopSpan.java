@@ -124,6 +124,11 @@ public class NoopSpan implements AbstractSpan {
     }
 
     @Override
+    public long getStartTime() {
+        return 0;
+    }
+
+    @Override
     public AbstractSpan prepareForAsync() {
         return this;
     }

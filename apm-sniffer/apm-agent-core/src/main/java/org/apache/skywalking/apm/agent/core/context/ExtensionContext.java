@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.Objects;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -34,12 +36,17 @@ public class ExtensionContext {
     private boolean skipAnalysis;
 
     /**
+     * The downstream send timestamp. Only works in {@link ContextCarrier#extensionContext}.
+     */
+    private long downStreamTimestamp;
+
+    /**
      * Serialize this {@link ExtensionContext} to a {@link String}
      *
      * @return the serialization string.
      */
     String serialize() {
-        return skipAnalysis ? "1" : "0";
+        return skipAnalysis ? "1" : "0" + "-" + downStreamTimestamp;
     }
 
     /**
@@ -54,6 +61,7 @@ public class ExtensionContext {
         // only try to read it when it exist.
         if (extensionParts.length > 0) {
             this.skipAnalysis = Objects.equals(extensionParts[0], "1");
+            this.downStreamTimestamp = Long.parseLong(extensionParts[1]);
         }
     }
 
@@ -62,6 +70,10 @@ public class ExtensionContext {
      */
     void inject(ContextCarrier carrier) {
         carrier.getExtensionContext().skipAnalysis = this.skipAnalysis;
+        AbstractSpan activeSpan = ContextManager.activeSpan();
+        if (activeSpan instanceof ExitSpan) {
+            carrier.getExtensionContext().downStreamTimestamp = System.currentTimeMillis();
+        }
     }
 
     /**
@@ -69,6 +81,8 @@ public class ExtensionContext {
      */
     void extract(ContextCarrier carrier) {
         this.skipAnalysis = carrier.getExtensionContext().skipAnalysis;
+        AbstractSpan activeSpan = ContextManager.activeSpan();
+        Tags.TRANSMISSION_LATENCY.set(activeSpan, String.valueOf(activeSpan.getStartTime() - carrier.getExtensionContext().downStreamTimestamp));
     }
 
     /**
@@ -86,11 +100,13 @@ public class ExtensionContext {
     public ExtensionContext clone() {
         final ExtensionContext context = new ExtensionContext();
         context.skipAnalysis = this.skipAnalysis;
+        context.downStreamTimestamp = this.downStreamTimestamp;
         return context;
     }
 
     void continued(ContextSnapshot snapshot) {
         this.skipAnalysis = snapshot.getExtensionContext().skipAnalysis;
+        this.downStreamTimestamp = snapshot.getExtensionContext().downStreamTimestamp;
     }
 
     @Override
@@ -100,11 +116,11 @@ public class ExtensionContext {
         if (o == null || getClass() != o.getClass())
             return false;
         ExtensionContext that = (ExtensionContext) o;
-        return skipAnalysis == that.skipAnalysis;
+        return skipAnalysis == that.skipAnalysis && downStreamTimestamp == that.downStreamTimestamp;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(skipAnalysis);
+        return Objects.hash(skipAnalysis, downStreamTimestamp);
     }
 }
