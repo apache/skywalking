@@ -22,19 +22,23 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
-public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCoordinator.class);
+public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
 
     private static final String REMOTE_NAME_PATH = "remote";
 
@@ -42,6 +46,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private final ServiceCache<RemoteInstance> serviceCache;
     private volatile Address selfAddress;
+    private DelegatedHealthChecker healthChecker;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
                          ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
@@ -49,6 +54,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
         this.serviceCache.start();
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -73,7 +79,9 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
             serviceDiscovery.registerService(thisInstance);
 
             this.selfAddress = remoteInstance.getAddress();
-        } catch (Exception e) {
+            this.healthChecker.health();
+        } catch (Throwable e) {
+            this.healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
         }
     }
@@ -81,20 +89,37 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(20);
-        List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
-        serviceInstances.forEach(serviceInstance -> {
-            RemoteInstance instance = serviceInstance.getPayload();
-            if (instance.getAddress().equals(selfAddress)) {
-                instance.getAddress().setSelf(true);
+        try {
+            List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
+            serviceInstances.forEach(serviceInstance -> {
+                RemoteInstance instance = serviceInstance.getPayload();
+                if (instance.getAddress().equals(selfAddress)) {
+                    instance.getAddress().setSelf(true);
+                } else {
+                    instance.getAddress().setSelf(false);
+                }
+                remoteInstanceDetails.add(instance);
+            });
+            List<RemoteInstance> selfInstances = remoteInstanceDetails.stream().
+                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                this.healthChecker.health();
             } else {
-                instance.getAddress().setSelf(false);
+                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
             }
-            remoteInstanceDetails.add(instance);
-        });
+        } catch (Throwable e) {
+            this.healthChecker.unHealth(e);
+            throw new ServiceQueryException(e.getMessage());
+        }
         return remoteInstanceDetails;
     }
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }

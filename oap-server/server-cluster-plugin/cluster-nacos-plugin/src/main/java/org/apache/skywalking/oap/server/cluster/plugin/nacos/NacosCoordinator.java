@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
-import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -31,17 +31,22 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
-public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
+public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
 
     private final NamingService namingService;
     private final ClusterModuleNacosConfig config;
     private volatile Address selfAddress;
+    private DelegatedHealthChecker healthChecker;
 
     public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config) {
         this.namingService = namingService;
         this.config = config;
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -58,8 +63,16 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
                     result.add(new RemoteInstance(address));
                 });
             }
-        } catch (NacosException e) {
-            throw new ServiceQueryException(e.getErrMsg());
+            List<RemoteInstance> selfInstances = result.stream().
+                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                this.healthChecker.health();
+            } else {
+                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+            }
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
+            throw new ServiceQueryException(e.getMessage());
         }
         return result;
     }
@@ -73,7 +86,9 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
         int port = remoteInstance.getAddress().getPort();
         try {
             namingService.registerInstance(config.getServiceName(), host, port);
-        } catch (Exception e) {
+            healthChecker.health();
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
         }
         this.selfAddress = remoteInstance.getAddress();
@@ -81,5 +96,10 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }

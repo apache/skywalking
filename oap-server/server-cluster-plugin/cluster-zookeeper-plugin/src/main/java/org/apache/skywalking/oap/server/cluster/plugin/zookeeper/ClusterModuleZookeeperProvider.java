@@ -37,6 +37,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
@@ -131,6 +135,9 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             client.blockUntilConnected();
             serviceDiscovery.start();
             coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
+            MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            coordinator.registerChecker(healthChecker);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);

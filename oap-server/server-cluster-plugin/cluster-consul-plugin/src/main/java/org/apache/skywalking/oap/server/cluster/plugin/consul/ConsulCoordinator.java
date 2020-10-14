@@ -27,44 +27,62 @@ import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.ServiceHealth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
-public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
+public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
 
     private final Consul client;
     private final String serviceName;
     private final ClusterModuleConsulConfig config;
     private volatile Address selfAddress;
+    private DelegatedHealthChecker healthChecker;
 
     public ConsulCoordinator(ClusterModuleConsulConfig config, Consul client) {
         this.config = config;
         this.client = client;
         this.serviceName = config.getServiceName();
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-        HealthClient healthClient = client.healthClient();
-
-        // Discover only "passing" nodes
-        List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances(serviceName).getResponse();
-
         List<RemoteInstance> remoteInstances = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(nodes)) {
-            nodes.forEach(node -> {
-                if (!Strings.isNullOrEmpty(node.getService().getAddress())) {
-                    Address address = new Address(node.getService().getAddress(), node.getService().getPort(), false);
-                    if (address.equals(selfAddress)) {
-                        address.setSelf(true);
+        try {
+            HealthClient healthClient = client.healthClient();
+            // Discover only "passing" nodes
+            List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances(serviceName).getResponse();
+            if (CollectionUtils.isNotEmpty(nodes)) {
+                nodes.forEach(node -> {
+                    if (!Strings.isNullOrEmpty(node.getService().getAddress())) {
+                        Address address = new Address(node.getService().getAddress(), node.getService().getPort(), false);
+                        if (address.equals(selfAddress)) {
+                            address.setSelf(true);
+                        }
+                        remoteInstances.add(new RemoteInstance(address));
                     }
-                    remoteInstances.add(new RemoteInstance(address));
-                }
-            });
+                });
+            }
+            List<RemoteInstance> selfInstances = remoteInstances.stream().
+                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                this.healthChecker.health();
+            } else {
+                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+            }
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
+            throw new ServiceQueryException(e.getMessage());
         }
         return remoteInstances;
     }
@@ -74,26 +92,36 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         if (needUsingInternalAddr()) {
             remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
         }
+        try {
+            AgentClient agentClient = client.agentClient();
 
-        AgentClient agentClient = client.agentClient();
+            this.selfAddress = remoteInstance.getAddress();
 
-        this.selfAddress = remoteInstance.getAddress();
+            Registration registration = ImmutableRegistration.builder()
+                    .id(remoteInstance.getAddress().toString())
+                    .name(serviceName)
+                    .address(remoteInstance.getAddress().getHost())
+                    .port(remoteInstance.getAddress().getPort())
+                    .check(Registration.RegCheck.grpc(remoteInstance.getAddress()
+                            .getHost() + ":" + remoteInstance
+                            .getAddress()
+                            .getPort(), 5)) // registers with a TTL of 5 seconds
+                    .build();
 
-        Registration registration = ImmutableRegistration.builder()
-                                                         .id(remoteInstance.getAddress().toString())
-                                                         .name(serviceName)
-                                                         .address(remoteInstance.getAddress().getHost())
-                                                         .port(remoteInstance.getAddress().getPort())
-                                                         .check(Registration.RegCheck.grpc(remoteInstance.getAddress()
-                                                                                                         .getHost() + ":" + remoteInstance
-                                                             .getAddress()
-                                                             .getPort(), 5)) // registers with a TTL of 5 seconds
-                                                         .build();
-
-        agentClient.register(registration);
+            agentClient.register(registration);
+            healthChecker.health();
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
+            throw new ServiceRegisterException(e.getMessage());
+        }
     }
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }

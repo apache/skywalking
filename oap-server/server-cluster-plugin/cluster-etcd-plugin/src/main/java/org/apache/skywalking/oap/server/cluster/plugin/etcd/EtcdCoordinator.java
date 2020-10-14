@@ -25,18 +25,25 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
+public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtcdCoordinator.class);
 
     private ClusterModuleEtcdConfig config;
@@ -51,16 +58,18 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private static final Integer KEY_TTL = 45;
 
+    private DelegatedHealthChecker healthChecker;
+
     public EtcdCoordinator(ClusterModuleEtcdConfig config, EtcdClient client) {
         this.config = config;
         this.client = client;
         this.serviceName = config.getServiceName();
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-
-        List<RemoteInstance> res = new ArrayList<>();
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
             EtcdKeysResponse response = client.get(serviceName + "/").send().get();
             List<EtcdKeysResponse.EtcdNode> nodes = response.getNode().getNodes();
@@ -73,15 +82,21 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
                     if (!address.equals(selfAddress)) {
                         address.setSelf(false);
                     }
-                    res.add(new RemoteInstance(address));
+                    remoteInstances.add(new RemoteInstance(address));
                 });
             }
-
-        } catch (Exception e) {
+            List<RemoteInstance> selfInstances = remoteInstances.stream().
+                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                this.healthChecker.health();
+            } else {
+                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+            }
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
             throw new RuntimeException(e);
         }
-
-        return res;
+        return remoteInstances;
     }
 
     @Override
@@ -105,7 +120,9 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             //check register.
             promise.get();
             renew(client, key, json);
-        } catch (Exception e) {
+            healthChecker.health();
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
         }
 
@@ -135,5 +152,10 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }
