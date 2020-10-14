@@ -30,6 +30,9 @@ import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 import org.junit.Assert;
@@ -102,7 +105,9 @@ public class KubernetesCoordinatorTest {
         CoreModuleConfig config = PowerMockito.mock(CoreModuleConfig.class);
         when(config.getGRPCHost()).thenReturn(LOCAL_HOST);
         when(config.getGRPCPort()).thenReturn(GRPC_PORT);
+        moduleManagerTesting.put(TelemetryModule.NAME, coreModuleDefine);
         coreModuleDefine.provider().registerServiceImplementation(ConfigService.class, new ConfigService(config));
+        coreModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
         return moduleManagerTesting;
     }
 

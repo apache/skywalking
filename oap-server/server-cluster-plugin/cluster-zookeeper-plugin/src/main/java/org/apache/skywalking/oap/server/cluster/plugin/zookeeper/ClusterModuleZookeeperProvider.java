@@ -157,6 +157,6 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[0];
+        return new String[]{TelemetryModule.NAME};
     }
 }
