@@ -1,4 +1,4 @@
-# Server Mesh Probe
+# Service Mesh Probe
 Service Mesh probes use the extendable mechanism provided in Service Mesh implementor, like Istio.
 
 ## What is Service Mesh?
