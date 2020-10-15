@@ -85,10 +85,10 @@ public class ExtensionContextTest {
         verify(span, times(0)).skipAnalysis();
 
         PowerMockito.mockStatic(System.class);
-        PowerMockito.when(System.currentTimeMillis()).thenReturn(1602743904804L+500);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(1602743904804L + 500);
         span = PowerMockito.mock(NoopSpan.class);
         context.deserialize("0-1602743904804");
         context.handle(span);
-        verify(span, times(0)).tag(Tags.TRANSMISSION_LATENCY,"500");
+        verify(span, times(0)).tag(Tags.TRANSMISSION_LATENCY, "500");
     }
 }
