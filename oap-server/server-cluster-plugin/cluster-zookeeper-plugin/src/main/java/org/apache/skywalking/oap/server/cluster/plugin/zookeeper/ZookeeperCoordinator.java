@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
@@ -46,7 +45,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery,
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private final ServiceCache<RemoteInstance> serviceCache;
     private volatile Address selfAddress;
-    private DelegatedHealthChecker healthChecker;
+    private HealthChecker healthChecker;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
                          ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
@@ -54,7 +53,6 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery,
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
         this.serviceCache.start();
-        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -120,6 +118,6 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery,
 
     @Override
     public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker.register(healthChecker);
+        this.healthChecker = healthChecker;
     }
 }

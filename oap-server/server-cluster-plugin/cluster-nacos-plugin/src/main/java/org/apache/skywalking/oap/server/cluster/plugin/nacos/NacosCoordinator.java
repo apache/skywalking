@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
@@ -41,12 +40,11 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery, Hea
     private final NamingService namingService;
     private final ClusterModuleNacosConfig config;
     private volatile Address selfAddress;
-    private DelegatedHealthChecker healthChecker;
+    private HealthChecker healthChecker;
 
     public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config) {
         this.namingService = namingService;
         this.config = config;
-        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -100,6 +98,6 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery, Hea
 
     @Override
     public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker.register(healthChecker);
+        this.healthChecker = healthChecker;
     }
 }

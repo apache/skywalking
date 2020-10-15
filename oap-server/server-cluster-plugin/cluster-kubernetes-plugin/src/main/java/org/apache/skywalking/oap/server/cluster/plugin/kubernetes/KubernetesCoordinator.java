@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
@@ -53,13 +52,12 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private final String uid;
 
-    private DelegatedHealthChecker healthChecker;
+    private HealthChecker healthChecker;
 
     public KubernetesCoordinator(final ModuleDefineHolder manager,
                                  final ClusterModuleKubernetesConfig config) {
         this.uid = new UidEnvSupplier(config.getUidEnvName()).get();
         this.manager = manager;
-        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -110,6 +108,6 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     @Override
     public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker.register(healthChecker);
+        this.healthChecker = healthChecker;
     }
 }

@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
@@ -58,13 +57,12 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery, Heal
 
     private static final Integer KEY_TTL = 45;
 
-    private DelegatedHealthChecker healthChecker;
+    private HealthChecker healthChecker;
 
     public EtcdCoordinator(ClusterModuleEtcdConfig config, EtcdClient client) {
         this.config = config;
         this.client = client;
         this.serviceName = config.getServiceName();
-        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -156,6 +154,6 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery, Heal
 
     @Override
     public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker.register(healthChecker);
+        this.healthChecker = healthChecker;
     }
 }
