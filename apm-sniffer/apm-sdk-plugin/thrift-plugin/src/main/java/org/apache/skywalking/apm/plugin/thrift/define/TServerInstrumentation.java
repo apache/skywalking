@@ -25,15 +25,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 public class TServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.thrift.TServerInterceptor";
-    private static final String ENHANCE_CLASS = "org.apache.thrift.server.TServer";
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(
+            "org.apache.thrift.server.TServer",
+            "org.apache.thrift.server.TServlet"
+        );
     }
 
     @Override

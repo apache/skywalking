@@ -33,7 +33,19 @@ public class TBaseProcessorInstrumentation extends ClassInstanceMethodsEnhancePl
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {};
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return ElementMatchers.any();
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            }
+        };
     }
 
     @Override

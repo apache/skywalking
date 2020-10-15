@@ -53,7 +53,6 @@ public class CaseController {
     public String testcase() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(3);
 
-        call(hasync, latch);
         call(async, latch);
         call(sync, latch);
 
@@ -65,14 +64,10 @@ public class CaseController {
     @ResponseBody
     public String healthCheck() throws IOException, TTransportException {
         if (status.compareAndSet(0, 1)) {
-
             async = new AsyncClient(9091);
             sync = new SyncClient(9090);
             async.start();
             sync.start();
-
-            hasync = new AsyncClient(9099);
-            hasync.start();
 
             initialized.countDown();
         }

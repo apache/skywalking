@@ -41,7 +41,7 @@ segmentItems:
                  traceId: not null }
       - segmentId: not null
         spans:
-          - operationName: org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService$AsyncProcessor$echo
+          - operationName: org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService$Processor$echo
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -56,13 +56,13 @@ segmentItems:
             tags:
               - {key: args, value: 'echo_args(message:null)'}
             refs:
-              - {parentEndpoint: org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService$AsyncClient$echo_call,
-                 networkAddress: 'localhost:9099', refType: CrossProcess, parentSpanId: 0,
+              - {parentEndpoint: org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService$Client.echo,
+                 networkAddress: 'localhost:9090', refType: CrossProcess, parentSpanId: 0,
                  parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: thrift-client-scenario,
                  traceId: not null }
   - serviceName: thrift-client-scenario
-    segmentSize: ge 4
+    segmentSize: ge 2
     segments:
       - segmentId: not null
         spans:
@@ -93,18 +93,4 @@ segmentItems:
             isError: false
             spanType: Exit
             peer: 'localhost:9091'
-            skipAnalysis: false
-      - segmentId: not null
-        spans:
-          - operationName: org.apache.skywalking.apm.testcase.thrift.protocol.GreeterService$AsyncClient$echo_call
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 101
-            isError: false
-            spanType: Exit
-            peer: 'localhost:9099'
             skipAnalysis: false
