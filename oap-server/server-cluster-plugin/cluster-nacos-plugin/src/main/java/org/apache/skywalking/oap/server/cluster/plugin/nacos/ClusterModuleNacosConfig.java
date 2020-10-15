@@ -38,4 +38,16 @@ public class ClusterModuleNacosConfig extends ModuleConfig {
     @Setter
     @Getter
     private int internalComPort = -1;
+    @Setter
+    @Getter
+    private String username;
+    @Setter
+    @Getter
+    private String password;
+    @Setter
+    @Getter
+    private String accessKey;
+    @Setter
+    @Getter
+    private String secretKey;
 }
