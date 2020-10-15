@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 public class MultipleChannelsConsumer extends Thread {
     private volatile boolean running;
     private volatile ArrayList<Group> consumeTargets;
+    @SuppressWarnings("NonAtomicVolatileUpdate")
     private volatile long size;
     private final long consumeCycle;
 
@@ -110,8 +111,8 @@ public class MultipleChannelsConsumer extends Thread {
         running = false;
     }
 
-    private class Group {
-        private Channels channels;
+    private static class Group {
+        private  Channels channels;
         private IConsumer consumer;
 
         public Group(Channels channels, IConsumer consumer) {

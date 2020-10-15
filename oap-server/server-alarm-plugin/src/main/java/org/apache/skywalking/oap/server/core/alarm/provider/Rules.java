@@ -23,6 +23,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
@@ -36,9 +37,12 @@ public class Rules {
     private GRPCAlarmSetting grpchookSetting;
     private SlackSettings slacks;
     private WechatSettings wecchats;
+    private List<CompositeAlarmRule> compositeRules;
+    private DingtalkSettings dingtalks;
 
     public Rules() {
         this.rules = new ArrayList<>();
         this.webhooks = new ArrayList<>();
+        this.compositeRules = new ArrayList<>();
     }
 }

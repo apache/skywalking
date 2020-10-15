@@ -40,7 +40,7 @@ public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsI
     public ElementMatcher<MethodDescription> getMethodsMatcher() {
         ElementMatcher.Junction<MethodDescription> matcher = none();
 
-        if (JDBCPluginConfig.Plugin.MySQL.TRACE_SQL_PARAMETERS || JDBCPluginConfig.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS || JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS) {
+        if (JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS) {
             final Set<String> setters = ignorable ? PS_IGNORABLE_SETTERS : PS_SETTERS;
             for (String setter : setters) {
                 matcher = matcher.or(named(setter));

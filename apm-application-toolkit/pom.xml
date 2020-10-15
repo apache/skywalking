@@ -26,10 +26,6 @@
     <artifactId>apm-application-toolkit</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <compiler.version>1.8</compiler.version>
-    </properties>
-
     <modules>
         <module>apm-toolkit-log4j-1.x</module>
         <module>apm-toolkit-log4j-2.x</module>

@@ -126,6 +126,8 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
                 case DURATION:
                     meterName = baseName + "_duration_sum";
                     break;
+                default:
+                    break;
             }
 
             if (isCounter) {

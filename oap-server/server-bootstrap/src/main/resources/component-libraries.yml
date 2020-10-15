@@ -477,6 +477,11 @@ Predis:
   id: 8006
   languages: PHP
 
+# C++ components
+# [9000, 10000) for C++ agent
+EnvoyProxy:
+  id: 9000
+  languages: C++
 
 # Component Server mapping defines the server display names of some components
 # e.g.

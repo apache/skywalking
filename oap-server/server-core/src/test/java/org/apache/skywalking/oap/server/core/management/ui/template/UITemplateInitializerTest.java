@@ -18,19 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class UITemplateInitializerTest {
     @Test
-    public void testReadFile() {
-        UITemplateInitializer initializer = new UITemplateInitializer(this.getClass()
-                .getClassLoader()
-                .getResourceAsStream(
-                        "ui-initialized-templates.yml"));
-        final List<UITemplate> uiTemplates = initializer.read();
+    public void testReadFile() throws FileNotFoundException {
+        final File[] templateFiles = ResourceUtils.getPathFiles("test-ui-templates");
+        final List<UITemplate> uiTemplates = new ArrayList<>();
+        for (final File templateFile : templateFiles) {
+            UITemplateInitializer initializer = new UITemplateInitializer(
+                new FileInputStream(templateFile));
+            uiTemplates.addAll(initializer.read());
+        }
 
         Assert.assertEquals(2, uiTemplates.size());
         UITemplate uiTemplate = uiTemplates.get(0);
@@ -44,14 +51,5 @@ public class UITemplateInitializerTest {
         Assert.assertTrue(uiTemplate.getConfiguration().length() > 0);
         Assert.assertEquals(BooleanUtils.FALSE, uiTemplate.getActivated());
         Assert.assertEquals(BooleanUtils.TRUE, uiTemplate.getDisabled());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTemplateConflict() {
-        UITemplateInitializer initializer = new UITemplateInitializer(this.getClass()
-                .getClassLoader()
-                .getResourceAsStream(
-                        "ui-initialized-templates-conflict.yml"));
-        final List<UITemplate> uiTemplates = initializer.read();
     }
 }

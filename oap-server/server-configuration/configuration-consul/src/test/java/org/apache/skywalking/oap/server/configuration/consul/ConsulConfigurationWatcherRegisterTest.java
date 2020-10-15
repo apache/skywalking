@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.configuration.consul;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.io.BaseEncoding;
-import com.orbitz.consul.KeyValueClient;
 import com.orbitz.consul.cache.ConsulCache;
 import com.orbitz.consul.cache.KVCache;
 import com.orbitz.consul.model.kv.ImmutableValue;
@@ -35,6 +34,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -48,6 +48,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(KVCache.class)
+@PowerMockIgnore({
+    "com.sun.org.apache.xerces.*",
+    "javax.xml.*",
+    "org.xml.*",
+    "javax.management.*",
+    "org.w3c.*"
+})
 @SuppressWarnings({
     "unchecked",
     "OptionalGetWithoutIsPresent"
@@ -77,8 +84,8 @@ public class ConsulConfigurationWatcherRegisterTest {
         ArgumentCaptor<ConsulCache.Listener> listener2 = ArgumentCaptor.forClass(ConsulCache.Listener.class);
 
         PowerMockito.mockStatic(KVCache.class);
-        PowerMockito.when(KVCache.newCache(any(KeyValueClient.class), eq("key1"))).thenReturn(cache1);
-        PowerMockito.when(KVCache.newCache(any(KeyValueClient.class), eq("key2"))).thenReturn(cache2);
+        PowerMockito.when(KVCache.newCache(any(), eq("key1"))).thenReturn(cache1);
+        PowerMockito.when(KVCache.newCache(any(), eq("key2"))).thenReturn(cache2);
 
         when(register.readConfig(any(Set.class))).thenCallRealMethod();
 
@@ -128,8 +135,8 @@ public class ConsulConfigurationWatcherRegisterTest {
         ArgumentCaptor<ConsulCache.Listener> listener2 = ArgumentCaptor.forClass(ConsulCache.Listener.class);
 
         PowerMockito.mockStatic(KVCache.class);
-        PowerMockito.when(KVCache.newCache(any(KeyValueClient.class), eq("key1"))).thenReturn(cache1);
-        PowerMockito.when(KVCache.newCache(any(KeyValueClient.class), eq("key2"))).thenReturn(cache2);
+        PowerMockito.when(KVCache.newCache(any(), eq("key1"))).thenReturn(cache1);
+        PowerMockito.when(KVCache.newCache(any(), eq("key2"))).thenReturn(cache2);
 
         when(register.readConfig(any(Set.class))).thenCallRealMethod();
 

@@ -80,6 +80,7 @@ export agent_opts="
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
     -Dskywalking.logging.dir=${LOGS_HOME}
     -Dskywalking.agent.authentication=test-token
+    -Dskywalking.meter.report_interval=1
     -Xms256m -Xmx256m ${agent_opts}"
 exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${LOGS_HOME}/scenario.out &
 

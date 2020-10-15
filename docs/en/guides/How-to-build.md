@@ -16,7 +16,7 @@ If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and pu
 ```
 
 ### Build from GitHub
-1. Prepare git, JDK8 and Maven 3.6+
+1. Prepare git, JDK8+ and Maven 3.6+
 1. Clone project
 
     If you want to build a release from source codes, provide a `tag name` by using `git clone -b [tag_name] ...` while cloning.
@@ -41,7 +41,7 @@ If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and pu
 
 For each official Apache release, there is a complete and independent source code tar, which is including all source codes. You could download it from [SkyWalking Apache download page](http://skywalking.apache.org/downloads/). No git related stuff required when compiling this. Just follow these steps.
 
-1. Prepare JDK8 and Maven 3.6+
+1. Prepare JDK8+ and Maven 3.6+
 1. Run `./mvnw clean package -DskipTests`
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 

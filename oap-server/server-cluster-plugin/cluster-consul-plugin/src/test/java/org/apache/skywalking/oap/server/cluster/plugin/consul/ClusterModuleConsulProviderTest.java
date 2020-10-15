@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Consul.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class ClusterModuleConsulProviderTest {
 
     private ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();

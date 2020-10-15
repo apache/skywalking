@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
@@ -28,11 +31,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import org.powermock.reflect.Whitebox;
 
 public class GaugeTest {
     @Rule
