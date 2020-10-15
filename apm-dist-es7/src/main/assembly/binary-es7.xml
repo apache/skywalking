@@ -51,14 +51,11 @@
                 <include>gateways.yml</include>
                 <include>service-apdex-threshold.yml</include>
                 <include>endpoint-name-grouping.yml</include>
-                <include>ui-initialized-templates.yml</include>
-                <include>oal/browser.oal</include>
-                <include>oal/core.oal</include>
-                <include>oal/java-agent.oal</include>
-                <include>oal/dotnet-agent.oal</include>
-                <include>oal/envoy.oal</include>
-                <include>fetcher-prom-rules/self.yaml</include>
-                <include>meter-receive-config/spring-sleuth.yaml</include>
+                <include>oal/*.oal</include>
+                <include>fetcher-prom-rules/*.yaml</include>
+                <include>meter-receive-config/*.yaml</include>
+                <include>oc-rules/*</include>
+                <include>ui-initialized-templates/*</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>

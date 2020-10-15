@@ -31,7 +31,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -47,8 +49,6 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 
@@ -184,7 +184,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
              * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
              * Keeping dest instance name as NULL makes no instance relation generate from this exit span.
              */
-            if (!config.getNoUpstreamRealAddressAgents().contains(span.getComponentId())) {
+            if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())) {
                 sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
             }
             sourceBuilder.setDestNodeType(NodeType.Normal);

@@ -16,17 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.elasticsearch;
+package org.apache.skywalking.oap.server.library.module;
 
-import org.apache.skywalking.oap.server.library.client.ClientException;
+import lombok.Getter;
 
-public class ElasticSearchClientException extends ClientException {
-
-    public ElasticSearchClientException(String message) {
-        super(message);
-    }
-
-    public ElasticSearchClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public class ModuleAProviderConfig extends ModuleConfig {
+    @Getter private String attr1;
+    @Getter private Integer attr2;
+    @Getter private Long attr3;
+    @Getter private boolean attr4;
 }

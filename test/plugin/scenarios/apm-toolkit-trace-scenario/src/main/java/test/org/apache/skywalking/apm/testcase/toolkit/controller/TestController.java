@@ -18,18 +18,21 @@
 
 package test.org.apache.skywalking.apm.testcase.toolkit.controller;
 
-import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/case")
@@ -75,6 +78,12 @@ public class TestController {
             }
             return true;
         });
+
+        // meter
+        MeterFactory.counter("test_counter").tag("ck1", "cv1").build().increment(2d);
+        MeterFactory.gauge("test_gauge", () -> 1d).tag("gk1", "gv1").build();
+        MeterFactory.histogram("test_histogram").tag("hk1", "hv1").steps(Arrays.asList(1d, 5d, 10d))
+            .build().addValue(4d);
         return SUCCESS;
     }
 

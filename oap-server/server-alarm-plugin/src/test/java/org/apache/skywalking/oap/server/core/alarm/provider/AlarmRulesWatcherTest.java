@@ -82,6 +82,9 @@ public class AlarmRulesWatcherTest {
         assertNotNull(alarmRulesWatcher.getGrpchookSetting());
         assertEquals(9888, alarmRulesWatcher.getGrpchookSetting().getTargetPort());
         assertEquals(2, alarmRulesWatcher.getRunningContext().size());
+        assertNotNull(alarmRulesWatcher.getDingtalkSettings());
+        assertNotNull(alarmRulesWatcher.getWechatSettings());
+        assertNotNull(alarmRulesWatcher.getSlackSettings());
     }
 
     @Test
