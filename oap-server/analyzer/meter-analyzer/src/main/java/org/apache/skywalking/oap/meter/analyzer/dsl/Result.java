@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public class Result {
     public static Result fail(final Throwable throwable) {
-        log.error("Result is failure", throwable);
+        log.info("Expression fails: {}", throwable.getMessage());
         return new Result(false, SampleFamily.EMPTY);
     }
 

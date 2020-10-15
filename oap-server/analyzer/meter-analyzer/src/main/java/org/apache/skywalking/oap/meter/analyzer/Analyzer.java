@@ -60,13 +60,15 @@ import static java.util.stream.Collectors.toList;
 @ToString(of = {"metricName", "expression"})
 public class Analyzer {
 
+    public static final Tuple2<String, SampleFamily> NIL = Tuple.of("", null);
+
     public static Analyzer build(final String metricName, final String expression,
         final MeterSystem meterSystem) {
         Expression e = DSL.parse(expression);
         return new Analyzer(metricName, e, meterSystem);
     }
 
-    private static final String FUNCTION_NAME_TEMP = "%s%sFunction";
+    private static final String FUNCTION_NAME_TEMP = "%s%s";
 
     private final String metricName;
 
@@ -144,7 +146,7 @@ public class Analyzer {
         if (createdMetric) {
             return true;
         }
-        String functionName = String.format(FUNCTION_NAME_TEMP, ctx.getDownsampling(), Strings.capitalize(dataType));
+        String functionName = String.format(FUNCTION_NAME_TEMP, ctx.getDownsampling().toString().toLowerCase(), Strings.capitalize(dataType));
         return meterSystem.create(metricName, functionName, scopeType) && (createdMetric = true);
     }
 

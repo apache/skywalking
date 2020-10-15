@@ -35,7 +35,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.MetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
@@ -45,7 +46,7 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 @Slf4j
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
 
-    private final MetricConverter prometheusMetric;
+    private final PrometheusMetricConverter prometheusMetric;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
@@ -79,7 +80,7 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
                                 throw new UnsupportedOperationException("Unsupported OC type:" + t._1.getType());
                         }
                     }))
-                    .flatMap(tryIt -> MetricConverter.log(tryIt, "Convert OC metric to prometheus metric")));
+                    .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OC metric to prometheus metric")));
             }
 
             @Override public void onError(Throwable throwable) {

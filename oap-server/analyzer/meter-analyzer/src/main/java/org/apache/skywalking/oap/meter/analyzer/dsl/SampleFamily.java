@@ -65,7 +65,7 @@ public class SampleFamily {
     static SampleFamily build(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(() -> Context.builder().build()));
+        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(Context::instance));
     }
 
     static SampleFamily buildHistogram(Sample... samples) {
@@ -75,7 +75,7 @@ public class SampleFamily {
     static SampleFamily buildHistogram(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        ctx = Optional.ofNullable(ctx).orElseGet(() -> Context.builder().build());
+        ctx = Optional.ofNullable(ctx).orElseGet(Context::instance);
         ctx.isHistogram = true;
         return new SampleFamily(samples, ctx);
     }
@@ -105,11 +105,11 @@ public class SampleFamily {
     }
 
     public SampleFamily tagMatch(String[] labels) {
-        return match(labels, (sv, lv) -> lv.matches(sv));
+        return match(labels, String::matches);
     }
 
     public SampleFamily tagNotMatch(String[] labels) {
-        return match(labels, (sv, lv) -> !lv.matches(sv));
+        return match(labels, (sv, lv) -> !sv.matches(lv));
     }
 
     /* Operator overloading*/
@@ -247,18 +247,20 @@ public class SampleFamily {
         Preconditions.checkArgument(scale > 0);
         AtomicDouble pre = new AtomicDouble();
         AtomicReference<String> preLe = new AtomicReference<>("0");
-        return SampleFamily.buildHistogram(this.context, Arrays.stream(samples)
-            .filter(s -> s.labels.containsKey(le))
-            .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
-            .map(s -> {
-                double r = s.value - pre.get();
-                pre.set(s.value);
-                ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                    .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                    .put("le", String.valueOf((long) (Double.parseDouble(preLe.get()) * scale))).build();
-                preLe.set(s.labels.get(le));
-                return newSample(ll, s.timestamp, r);
-            }).toArray(Sample[]::new));
+        return SampleFamily.buildHistogram(this.context, Stream.concat(
+            Arrays.stream(samples).filter(s -> !s.labels.containsKey(le)),
+            Arrays.stream(samples)
+                .filter(s -> s.labels.containsKey(le))
+                .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
+                .map(s -> {
+                    double r = s.value - pre.get();
+                    pre.set(s.value);
+                    ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                        .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
+                        .put("le", String.valueOf((long) (Double.parseDouble(preLe.get()) * scale))).build();
+                    preLe.set(s.labels.get(le));
+                    return newSample(ll, s.timestamp, r);
+            })).toArray(Sample[]::new));
     }
 
     public SampleFamily histogram_percentile(List<Integer> percentiles) {
@@ -346,11 +348,15 @@ public class SampleFamily {
 
         static Context EMPTY = Context.builder().build();
 
+        static Context instance() {
+            return Context.builder().downsampling(DownsamplingType.AVG).build();
+        }
+
         boolean isHistogram;
 
         int[] percentiles;
 
-        DownsamplingType downsampling = DownsamplingType.AVG;
+        DownsamplingType downsampling;
 
         MeterEntity meterEntity;
     }
