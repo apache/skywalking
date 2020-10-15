@@ -116,6 +116,10 @@ to improve the meaning of the metrics.
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
 we provide the telemetry for OAP backend itself. Follow [document](backend-telemetry.md) to use it.
 
+At the same time, we provide [Health Check](backend-health-check.md) to get a score for the health status.
+> 0 means healthy, more than 0 means unhealthy 
+> and less than 0 means oap doesn't startup.
+
 ## FAQs
 #### When and why do we need to set Timezone?
 SkyWalking provides downsampling time series metrics features. 

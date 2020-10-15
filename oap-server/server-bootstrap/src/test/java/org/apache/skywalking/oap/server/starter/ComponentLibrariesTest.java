@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
  * component-libraries.yml}, note that this test only verifies Java components.
  */
 @SuppressWarnings("rawtypes")
-public class TestComponentLibraries {
+public class ComponentLibrariesTest {
     @Test
     public void testComponentsAreInSync() throws Exception {
         final Reader reader = ResourceUtils.read("component-libraries.yml");

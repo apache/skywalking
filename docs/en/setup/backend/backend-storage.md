@@ -176,7 +176,7 @@ storage:
 ```
 
 ### ElasticSearch 6 with Jaeger trace extension
-This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
+This implementation shares most of `elasticsearch`, just extend to support jaeger span storage.
 It has all same configs.
 ```yaml
 storage:

@@ -219,6 +219,24 @@ wechatHooks:
     - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 ```
 
+## Dingtalk Hook
+To do this you need to follow the [Dingtalk Webhooks guide](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/uKPlK) and create new Webhooks.
+For security issue, you can config optional secret for individual webhook url.
+The alarm message will send through HTTP post by `application/json` content type if you configured Dingtalk Webhooks as following:
+```yml
+dingtalkHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
+      secret: dummysecret
+```
+
 
 ## Update the settings dynamically
 Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
