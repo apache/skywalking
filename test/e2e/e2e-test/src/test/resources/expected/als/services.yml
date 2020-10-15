@@ -13,25 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Patterns to ignore when building packages.
-# This supports shell glob matching, relative path matching, and
-# negation (prefixed with !). Only one pattern per line.
-.DS_Store
-# Common VCS dirs
-.git/
-.gitignore
-.bzr/
-.bzrignore
-.hg/
-.hgignore
-.svn/
-# Common backup files
-*.swp
-*.bak
-*.tmp
-*~
-# Various IDEs
-.project
-.idea/
-*.tmproj
-OWNERS
+services:
+  - key: not null
+    label: re(ratings-v1.*)
+  - key: not null
+    label: re(reviews-v1.*)
+  - key: not null
+    label: re(reviews-v2.*)
+  - key: not null
+    label: re(reviews-v3.*)
+  - key: not null
+    label: re(productpage-v1.*)
+  - key: not null
+    label: re(details-v1.*)
+  - key: not null
+    label: re(istio-ingressgateway.*)

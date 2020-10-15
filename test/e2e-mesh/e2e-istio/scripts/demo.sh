@@ -19,12 +19,12 @@
 # under the License.
 # ----------------------------------------------------------------------------
 
-set -e
+set -ex
 
-TAG="ci"
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/bookinfo-gateway.yaml
 
-git rev-parse HEAD
-git submodule init
-git submodule update
-
-SKIP_TEST=true make build.all && make docker.oap -e TAG=$TAG
+sleep 3
+kubectl wait --for=condition=Ready pods --all --timeout=1200s
+kubectl get pods -A -o wide --show-labels
+kubectl get rs -A
