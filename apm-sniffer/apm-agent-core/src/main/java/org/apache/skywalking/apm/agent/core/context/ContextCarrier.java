@@ -43,6 +43,7 @@ public class ContextCarrier implements Serializable {
 
     private CorrelationContext correlationContext = new CorrelationContext();
     private ExtensionContext extensionContext = new ExtensionContext();
+    private ExtensionInjector extensionInjector = new ExtensionInjector(extensionContext);
 
     public CarrierItem items() {
         SW8ExtensionCarrierItem sw8ExtensionCarrierItem = new SW8ExtensionCarrierItem(extensionContext, null);
@@ -122,10 +123,6 @@ public class ContextCarrier implements Serializable {
                 && StringUtil.isNotEmpty(addressUsedAtClient);
         }
         return false;
-    }
-
-    public CorrelationContext getCorrelationContext() {
-        return correlationContext;
     }
 
     public enum HeaderVersion {

@@ -43,5 +43,7 @@ The current value includes fields.
 1. Tracing Mode. empty, 0 or 1. empty or 0 is default. 1 represents all spans generated in this context should skip analysis,
 `spanObject#skipAnalysis=true`. This context should be propagated to upstream in the default, unless it is changed in the 
 tracing process.
+2. The Exit span sending timestamp.  0 is the default. If the timestamp were not equal to 0, the latency cost between downstream and upstream services
+   should be tagged in the entry spans of the upstream services.
 
 

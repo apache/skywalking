@@ -234,6 +234,12 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
     private void setPublicAttrs(SourceBuilder sourceBuilder, SpanObject span) {
         long latency = span.getEndTime() - span.getStartTime();
+        for (final KeyStringValuePair keyStringValuePair : span.getTagsList()) {
+            if (keyStringValuePair.getKey().equals(SpanTags.TRANSMISSION_LATENCY)) {
+                latency += Integer.parseInt(keyStringValuePair.getValue());
+                break;
+            }
+        }
         sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
         sourceBuilder.setLatency((int) latency);
         sourceBuilder.setResponseCode(Const.NONE);
