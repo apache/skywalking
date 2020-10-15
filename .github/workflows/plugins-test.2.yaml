@@ -18,11 +18,6 @@ name: PluginsTest
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
 
 jobs:
   PluginsTest:
