@@ -201,6 +201,8 @@ public class SimpleQueryClient {
     }
 
     public Topology topo(final TopoQuery query) throws Exception {
+        LOGGER.info("topo {}", query);
+
         final URL queryFileUrl = Resources.getResource("topo.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream()
@@ -209,17 +211,27 @@ public class SimpleQueryClient {
                                             .replace("{step}", query.step())
                                             .replace("{start}", query.start())
                                             .replace("{end}", query.end());
-        final ResponseEntity<GQLResponse<TopologyResponse>> responseEntity = restTemplate.exchange(
-            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
-            new ParameterizedTypeReference<GQLResponse<TopologyResponse>>() {
+
+        LOGGER.info("query string {}", queryString);
+
+        try {
+            final ResponseEntity<GQLResponse<TopologyResponse>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<TopologyResponse>>() {
+                }
+            );
+
+            LOGGER.info("response {}", responseEntity);
+
+            if (responseEntity.getStatusCode() != HttpStatus.OK) {
+                throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
             }
-        );
 
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+            return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
-
-        return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+        return new Topology();
     }
 
     public ServiceInstanceTopology serviceInstanceTopo(final ServiceInstanceTopologyQuery query) throws Exception {
