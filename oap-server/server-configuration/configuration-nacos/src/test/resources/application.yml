@@ -34,8 +34,8 @@ configuration:
     # the name of current cluster, set the name if you want to upstream system known.
     clusterName: "default"
       # Nacos auth username
-    username: ''
-    password: ''
+    username: 'nacos'
+    password: 'nacos'
     # Nacos auth accessKey
     accessKey: ''
     secretKey: ''
