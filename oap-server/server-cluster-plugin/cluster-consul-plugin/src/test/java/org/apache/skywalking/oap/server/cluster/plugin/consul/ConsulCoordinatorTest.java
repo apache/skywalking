@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,7 +38,9 @@ import org.mockito.ArgumentCaptor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,7 +52,7 @@ public class ConsulCoordinatorTest {
     private ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
 
     private ConsulCoordinator coordinator;
-
+    private HealthChecker healthChecker = mock(HealthChecker.class);
     private ConsulResponse<List<ServiceHealth>> consulResponse;
 
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
@@ -75,6 +78,10 @@ public class ConsulCoordinatorTest {
 
         when(consul.healthClient()).thenReturn(healthClient);
         when(consul.agentClient()).thenReturn(agentClient);
+
+        doNothing().when(healthChecker).health();
+        doNothing().when(healthChecker).unHealth(any());
+        coordinator.registerChecker(healthChecker);
     }
 
     @Test

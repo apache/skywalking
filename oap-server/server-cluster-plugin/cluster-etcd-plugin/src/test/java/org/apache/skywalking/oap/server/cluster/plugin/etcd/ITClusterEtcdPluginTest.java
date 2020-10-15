@@ -25,6 +25,7 @@ import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
 public class ITClusterEtcdPluginTest {
 
@@ -41,6 +45,8 @@ public class ITClusterEtcdPluginTest {
     private ClusterModuleEtcdConfig etcdConfig;
 
     private EtcdClient client;
+
+    private HealthChecker healthChecker = mock(HealthChecker.class);
 
     private EtcdCoordinator coordinator;
 
@@ -63,6 +69,9 @@ public class ITClusterEtcdPluginTest {
         etcdConfig.setServiceName(SERVICE_NAME);
         client = new EtcdClient(URI.create(baseUrl));
         coordinator = new EtcdCoordinator(etcdConfig, client);
+        doNothing().when(healthChecker).health();
+        doNothing().when(healthChecker).unHealth(any());
+        coordinator.registerChecker(healthChecker);
     }
 
     @After

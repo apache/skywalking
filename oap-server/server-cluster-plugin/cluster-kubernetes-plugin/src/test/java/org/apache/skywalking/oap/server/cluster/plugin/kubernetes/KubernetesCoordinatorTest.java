@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
@@ -46,6 +47,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -54,6 +58,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class KubernetesCoordinatorTest {
 
     private KubernetesCoordinator coordinator;
+    private HealthChecker healthChecker = mock(HealthChecker.class);
 
     public static final String LOCAL_HOST = "127.0.0.1";
     public static final Integer GRPC_PORT = 8454;
@@ -69,7 +74,9 @@ public class KubernetesCoordinatorTest {
         selfAddress = new Address(LOCAL_HOST, GRPC_PORT, true);
         informer = PowerMockito.mock(NamespacedPodListInformer.class);
         Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
-
+        doNothing().when(healthChecker).health();
+        doNothing().when(healthChecker).unHealth(any());
+        coordinator.registerChecker(healthChecker);
     }
 
     @Test
