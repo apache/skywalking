@@ -1,0 +1,142 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "Database"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "name": "Database",
+          "type": "database",
+          "children": [
+            {
+              "name": "Database",
+              "children": [
+                {
+                  "width": 3,
+                  "title": "Database Avg Response Time",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_resp_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "Database Access Successful Rate",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_sla",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": 3,
+                  "title": "Database Traffic",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_cpm",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Database Access Latency Percentile",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "database_access_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0, 1, 2, 3, 4",
+                  "unit": "ms"
+                },
+                {
+                  "width": "6",
+                  "title": "Slow Statements",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "SAMPLED_RECORD",
+                  "metricName": "top_n_database_statement",
+                  "queryMetricType": "readSampledRecords",
+                  "chartType": "ChartSlow",
+                  "parentService": true,
+                  "sortOrder": "DES",
+                  "unit": "ms"
+                },
+                {
+                  "width": 3,
+                  "title": "All Database Loads",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_cpm",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "sortOrder": "DES",
+                  "unit": "CPM - calls per minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Un-Health Databases (Successful Rate)",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "database_access_sla",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "parentService": false,
+                  "sortOrder": "ASC",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
