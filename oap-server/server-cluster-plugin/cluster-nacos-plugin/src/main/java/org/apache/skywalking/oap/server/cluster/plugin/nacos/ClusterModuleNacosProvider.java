@@ -66,7 +66,7 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
             properties.put(PropertyKeyConst.SERVER_ADDR, config.getHostPort());
             properties.put(PropertyKeyConst.NAMESPACE, config.getNamespace());
             if (StringUtil.isNotEmpty(config.getUsername()) && StringUtil.isNotEmpty(config.getAccessKey())) {
-                throw new IllegalArgumentException("should choose auth either username or accessKey, not both");
+                throw new ModuleStartException("Nacos Auth method should choose either username or accessKey, not both");
             }
             if (StringUtil.isNotEmpty(config.getUsername())) {
                 properties.put(PropertyKeyConst.USERNAME, config.getUsername());
