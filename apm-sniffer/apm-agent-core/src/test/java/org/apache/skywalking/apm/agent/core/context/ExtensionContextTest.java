@@ -18,14 +18,19 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@RunWith(PowerMockRunner.class)
 public class ExtensionContextTest {
 
     @Test
@@ -35,6 +40,7 @@ public class ExtensionContextTest {
 
         context.deserialize("1");
         Assert.assertEquals(context.serialize(), "1");
+
     }
 
     @Test
@@ -48,6 +54,12 @@ public class ExtensionContextTest {
 
         context.deserialize("test");
         Assert.assertEquals(context.serialize(), "0");
+
+        context.deserialize("0-test");
+        Assert.assertEquals(context.serialize(), "0");
+
+        context.deserialize("0-1602743904804");
+        Assert.assertEquals(context.serialize(), "0-1602743904804");
     }
 
     @Test
@@ -55,12 +67,12 @@ public class ExtensionContextTest {
         final ExtensionContext context = new ExtensionContext();
         Assert.assertEquals(context, context.clone());
 
-        context.deserialize("1");
+        context.deserialize("0-1602743904804");
         Assert.assertEquals(context, context.clone());
     }
 
     @Test
-    public void testHandle() {
+    public void testHandle() throws Exception {
         final ExtensionContext context = new ExtensionContext();
         context.deserialize("1");
         NoopSpan span = Mockito.mock(NoopSpan.class);
@@ -71,5 +83,12 @@ public class ExtensionContextTest {
         span = Mockito.mock(NoopSpan.class);
         context.handle(span);
         verify(span, times(0)).skipAnalysis();
+
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(1602743904804L+500);
+        span = PowerMockito.mock(NoopSpan.class);
+        context.deserialize("0-1602743904804");
+        context.handle(span);
+        verify(span, times(0)).tag(Tags.TRANSMISSION_LATENCY,"500");
     }
 }

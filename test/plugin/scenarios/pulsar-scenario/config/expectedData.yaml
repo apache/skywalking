@@ -85,6 +85,7 @@ segmentItems:
       tags:
       - {key: mq.broker, value: not null}
       - {key: mq.topic, value: test}
+      - {key: transmission.latency, value: not null}
       refs:
       - {parentEndpoint: /case/pulsar-case, networkAddress: not null, refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not

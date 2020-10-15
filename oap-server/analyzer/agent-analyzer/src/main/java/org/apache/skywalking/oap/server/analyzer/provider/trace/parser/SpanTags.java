@@ -46,6 +46,4 @@ public class SpanTags {
      * </pre>
      */
     public static final String LOGIC_ENDPOINT = "x-le";
-
-    public static final String TRANSMISSION_LATENCY = "transmission.latency";
 }

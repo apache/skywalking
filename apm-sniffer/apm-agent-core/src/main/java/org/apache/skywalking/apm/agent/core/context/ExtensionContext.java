@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -31,6 +33,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class ExtensionContext {
 
+    private static final ILog LOGGER = LogManager.getLogger(ExtensionContext.class);
     /**
      * Tracing Mode. If true means represents all spans generated in this context should skip analysis.
      */
@@ -49,7 +52,11 @@ public class ExtensionContext {
      * @return the serialization string.
      */
     String serialize() {
-        return skipAnalysis ? "1" : "0" + "-" + sendingTimestamp;
+        String res = skipAnalysis ? "1" : "0";
+        if (sendingTimestamp != 0) {
+            res += "-" + sendingTimestamp;
+        }
+        return res;
     }
 
     /**
@@ -64,7 +71,13 @@ public class ExtensionContext {
         // only try to read it when it exist.
         if (extensionParts.length > 0) {
             this.skipAnalysis = Objects.equals(extensionParts[0], "1");
-            this.sendingTimestamp = Long.parseLong(extensionParts[1]);
+            if (extensionParts.length > 1) {
+                try {
+                    this.sendingTimestamp = Long.parseLong(extensionParts[1]);
+                } catch (NumberFormatException e) {
+                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionParts[1]);
+                }
+            }
         }
     }
 
@@ -90,7 +103,7 @@ public class ExtensionContext {
             span.skipAnalysis();
         }
         if (this.sendingTimestamp != 0) {
-            Tags.TRANSMISSION_LATENCY.set(span, String.valueOf(span.getStartTime() - sendingTimestamp));
+            Tags.TRANSMISSION_LATENCY.set(span, String.valueOf(System.currentTimeMillis() - sendingTimestamp));
         }
     }
 

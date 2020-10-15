@@ -125,9 +125,4 @@ public interface AbstractSpan extends AsyncSpan {
      */
     void skipAnalysis();
 
-    /**
-     * Get the start time stamp of this span.
-     */
-    long getStartTime();
-
 }
