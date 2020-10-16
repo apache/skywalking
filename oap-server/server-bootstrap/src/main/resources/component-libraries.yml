@@ -329,6 +329,13 @@ xxl-job:
 spring-webflux-webclient:
   id: 99
   languages: Java
+thrift-server:
+  id: 100
+  languages: Java
+thrift-client:
+  id: 101
+  languages: Java
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
