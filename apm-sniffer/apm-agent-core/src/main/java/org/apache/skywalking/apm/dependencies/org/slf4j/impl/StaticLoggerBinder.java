@@ -22,8 +22,11 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
 
 /**
- * SLF4J LoggerFactoryBinder implementation using Log4j. This class is part of the required classes used to specify an
- * SLF4J logger provider implementation.
+ * The slf4j-api would try to load org.slf4j.impl.StaticLoggerBinder internal. In the agent core, we add our own implementation
+ * for bridging to SkyWalking internal log component. 
+ * Therefore, logs of netty/grpc/kafka(agent shaded components) would output through the SkyWalking's log.
+ *
+ * Don't move this class to any other package, its package must be as same as the shaded org.apache.skywalking.apm.dependencies.org.slf4j.impl 
  */
 public final class StaticLoggerBinder implements LoggerFactoryBinder {
 
