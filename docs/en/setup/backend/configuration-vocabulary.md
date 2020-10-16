@@ -66,6 +66,10 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | namespace| Namespace used by SkyWalking node coordination.| SW_CLUSTER_NACOS_NAMESPACE|public|
 | - | - | internalComHost| The hostname registered in the Nacos for the internal communication of OAP cluster.| - | -|
 | - | - | internalComPort| The port registered in the Nacos for the internal communication of OAP cluster.| - | -1|
+| - | - | username | Nacos Auth username | SW_CLUSTER_NACOS_USERNAME | - |
+| - | - | password | Nacos Auth password | SW_CLUSTER_NACOS_PASSWORD | - |
+| - | - | accessKey | Nacos Auth accessKey | SW_CLUSTER_NACOS_ACCESSKEY | - |
+| - | - | secretKey | Nacos Auth secretKey  | SW_CLUSTER_NACOS_SECRETKEY | - |
 | storage|elasticsearch| - | ElasticSearch 6 storage implementation | - | - |
 | - | - | nameSpace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
@@ -236,7 +240,11 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | nacos | serverAddr | Nacos Server Host | SW_CONFIG_NACOS_SERVER_ADDR | 127.0.0.1|
 | - | - | port | Nacos Server Port | SW_CONFIG_NACOS_SERVER_PORT | 8848 |
 | - | - | group | Nacos Configuration namespace | SW_CONFIG_NACOS_SERVER_NAMESPACE | - |
-| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 |
+| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_CONFIG_NACOS_PERIOD | 60 |
+| - | - | username | Nacos Auth username | SW_CONFIG_NACOS_USERNAME | - |
+| - | - | password | Nacos Auth password | SW_CONFIG_NACOS_PASSWORD | - |
+| - | - | accessKey | Nacos Auth accessKey | SW_CONFIG_NACOS_ACCESSKEY | - |
+| - | - | secretKey | Nacos Auth secretKey  | SW_CONFIG_NACOS_SECRETKEY | - |
 | exporter | grpc | targetHost | The host of target grpc server for receiving export data. | SW_EXPORTER_GRPC_HOST | 127.0.0.1 |
 | - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
 | health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
