@@ -22,6 +22,8 @@ import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import java.util.Properties;
+
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -63,6 +65,16 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
             Properties properties = new Properties();
             properties.put(PropertyKeyConst.SERVER_ADDR, config.getHostPort());
             properties.put(PropertyKeyConst.NAMESPACE, config.getNamespace());
+            if (StringUtil.isNotEmpty(config.getUsername()) && StringUtil.isNotEmpty(config.getAccessKey())) {
+                throw new ModuleStartException("Nacos Auth method should choose either username or accessKey, not both");
+            }
+            if (StringUtil.isNotEmpty(config.getUsername())) {
+                properties.put(PropertyKeyConst.USERNAME, config.getUsername());
+                properties.put(PropertyKeyConst.PASSWORD, config.getPassword());
+            } else if (StringUtil.isNotEmpty(config.getAccessKey())) {
+                properties.put(PropertyKeyConst.ACCESS_KEY, config.getAccessKey());
+                properties.put(PropertyKeyConst.SECRET_KEY, config.getSecretKey());
+            }
             namingService = NamingFactory.createNamingService(properties);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
