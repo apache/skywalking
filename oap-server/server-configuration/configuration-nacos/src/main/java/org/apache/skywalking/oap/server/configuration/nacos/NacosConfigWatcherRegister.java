@@ -61,8 +61,7 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
         if (StringUtil.isNotEmpty(settings.getUsername())) {
             properties.put(PropertyKeyConst.USERNAME, settings.getUsername());
             properties.put(PropertyKeyConst.PASSWORD, settings.getPassword());
-        }
-        if (StringUtil.isNotEmpty(settings.getAccessKey())) {
+        } else if (StringUtil.isNotEmpty(settings.getAccessKey())) {
             properties.put(PropertyKeyConst.ACCESS_KEY, settings.getAccessKey());
             properties.put(PropertyKeyConst.SECRET_KEY, settings.getSecretKey());
         }

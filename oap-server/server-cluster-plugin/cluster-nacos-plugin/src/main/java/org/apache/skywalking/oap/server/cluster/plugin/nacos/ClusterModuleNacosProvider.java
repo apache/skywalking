@@ -71,8 +71,7 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
             if (StringUtil.isNotEmpty(config.getUsername())) {
                 properties.put(PropertyKeyConst.USERNAME, config.getUsername());
                 properties.put(PropertyKeyConst.PASSWORD, config.getPassword());
-            }
-            if (StringUtil.isNotEmpty(config.getAccessKey())) {
+            } else if (StringUtil.isNotEmpty(config.getAccessKey())) {
                 properties.put(PropertyKeyConst.ACCESS_KEY, config.getAccessKey());
                 properties.put(PropertyKeyConst.SECRET_KEY, config.getSecretKey());
             }
