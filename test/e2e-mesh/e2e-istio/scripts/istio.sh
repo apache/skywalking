@@ -19,10 +19,9 @@
 # under the License.
 # ----------------------------------------------------------------------------
 
-set -e
+set -ex
 
-CONTAINER_NAME=$1
-[[ "${CONTAINER_NAME}" == "" ]] && exit 1
-
-docker ps | grep -e ${CONTAINER_NAME} | awk '{print $1}' | xargs docker stop
-docker ps -a | grep -e ${CONTAINER_NAME} | awk '{print $1}' | xargs docker rm
+curl -L https://istio.io/downloadIstio | sh -
+sudo mv $PWD/istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin/
+istioctl install $@
+kubectl label namespace default istio-injection=enabled

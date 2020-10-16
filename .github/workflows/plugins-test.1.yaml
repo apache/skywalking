@@ -18,11 +18,6 @@ name: PluginsTest
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
 
 jobs:
   PluginsTest:
@@ -33,23 +28,23 @@ jobs:
       fail-fast: true
       matrix:
         case:
-          - { name: 'h2-scenario', title: 'H2 (24)' }
-          - { name: 'httpasyncclient-scenario', title: 'HttpAsyncClient 4.0-4.1.3 (7)' }
-          - { name: 'httpclient-3.x-scenario', title: 'HttpClient 2.0-3.1 (5)' }
-          - { name: 'httpclient-4.3.x-scenario', title: 'HttpClient 4.3.x-4.5.x (14)' }
-          - { name: 'hystrix-scenario', title: 'Hystrix 1.4.20-1.5.12 (20)' }
-          - { name: 'influxdb-scenario', title: 'InfluxDB Java 2.5-2.17 (12)' }
-          - { name: 'jdk-http-scenario', title: 'JDK http (1)' }
-          - { name: 'jdk-threading-scenario', title: 'JDK Threading (1)' }
-          - { name: 'jedis-scenario', title: 'Jedis 2.4.0-2.9.0 (18)' }
-          - { name: 'jetty-scenario', title: 'Jetty 9.x (63)' }
-          - { name: 'kafka-scenario', title: 'Kafka 0.11.0.0-2.3.0 (16)' }
-          - { name: 'kotlin-coroutine-scenario', title: 'Kotlin Coroutine 1.0.1-1.3.3 (4)' }
-          - { name: 'lettuce-scenario', title: 'Lettuce 5.x (17)' }
-          - { name: 'mongodb-3.x-scenario', title: 'Mongodb 3.4.0-3.12.7 (31)' }
-          - { name: 'mongodb-4.x-scenario', title: 'Mongodb 4.0.0-4.1.0 (7)' }
-          - { name: 'netty-socketio-scenario', title: 'Netty-SocketIO 1.x (4)' }
-          - { name: 'postgresql-above9.4.1207-scenario', title: 'PostgreSQL 9.4.1207+ (62)' }
+          - h2-scenario
+          - httpasyncclient-scenario
+          - httpclient-3.x-scenario
+          - httpclient-4.3.x-scenario
+          - hystrix-scenario
+          - influxdb-scenario
+          - jdk-http-scenario
+          - jdk-threading-scenario
+          - jedis-scenario
+          - jetty-scenario
+          - kafka-scenario
+          - kotlin-coroutine-scenario
+          - lettuce-scenario
+          - mongodb-3.x-scenario
+          - mongodb-4.x-scenario
+          - netty-socketio-scenario
+          - postgresql-above9.4.1207-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -68,7 +63,7 @@ jobs:
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case.title }}
-        run: bash test/plugin/run.sh ${{ matrix.case.name }}
+      - name: ${{ matrix.case }}
+        run: bash test/plugin/run.sh ${{ matrix.case }}
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
