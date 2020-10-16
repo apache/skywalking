@@ -67,8 +67,6 @@ import org.slf4j.LoggerFactory;
 public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     private static final Logger LOGGER = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
 
-    private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
-
     private static final String VALID_PHASE = "Running";
 
     private static final String NON_TLS = "NONE";
