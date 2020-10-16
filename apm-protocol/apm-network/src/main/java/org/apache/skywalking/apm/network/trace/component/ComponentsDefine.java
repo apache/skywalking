@@ -180,4 +180,9 @@ public class ComponentsDefine {
     public static final OfficialComponent XXL_JOB = new OfficialComponent(98, "xxl-job");
 
     public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(99, "spring-webflux-webclient");
+
+    public static final OfficialComponent MQTT_PRODUCER = new OfficialComponent(101, "mqtt-producer");
+
+    public static final OfficialComponent MQTT_CONSUMER = new OfficialComponent(102, "mqtt-consumer");
+
 }

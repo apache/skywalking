@@ -329,6 +329,16 @@ xxl-job:
 spring-webflux-webclient:
   id: 99
   languages: Java
+Mqtt:
+  id: 100
+  languages: Java
+mqtt-producer:
+  id: 101
+  languages: Java
+mqtt-consumer:
+  id: 102
+  languages: Java
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -526,3 +536,5 @@ Component-Server-Mappings:
   Predis: Redis
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
+  mqtt-producer: Mqtt
+  mqtt-consumer: Mqtt
