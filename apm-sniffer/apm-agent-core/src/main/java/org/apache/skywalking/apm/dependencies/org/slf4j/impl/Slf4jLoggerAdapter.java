@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.dependencies.org.slf4j.impl;
+package org.apache.skywalking.apm.dependencies.org.slf4j.impl;
 
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.slf4j.Logger;

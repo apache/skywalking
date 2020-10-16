@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.dependencies.org.slf4j.impl;
+package org.apache.skywalking.apm.dependencies.org.slf4j.impl;
 
 import org.slf4j.ILoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
