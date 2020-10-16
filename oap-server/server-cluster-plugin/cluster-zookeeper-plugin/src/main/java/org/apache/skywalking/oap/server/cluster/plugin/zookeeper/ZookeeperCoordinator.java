@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
 public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
