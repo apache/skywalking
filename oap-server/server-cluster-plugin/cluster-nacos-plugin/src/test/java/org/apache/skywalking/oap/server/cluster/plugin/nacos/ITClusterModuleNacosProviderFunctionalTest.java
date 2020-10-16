@@ -52,6 +52,8 @@ import static org.junit.Assert.assertTrue;
 public class ITClusterModuleNacosProviderFunctionalTest {
 
     private String nacosAddress;
+    private String username;
+    private String password;
 
     @Mock
     private ModuleManager moduleManager;
@@ -60,6 +62,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
     @Before
     public void before() {
+        username = "nacos";
+        password = "nacos";
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                 .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
@@ -187,6 +191,9 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         config.setHostPort(nacosAddress);
         config.setServiceName(servicName);
         provider.setManager(moduleManager);
+        config.setUsername(username);
+        config.setPassword(password);
+
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();
@@ -201,6 +208,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
         config.setHostPort(nacosAddress);
         config.setServiceName(serviceName);
+        config.setUsername(username);
+        config.setPassword(password);
 
         if (!StringUtil.isEmpty(internalComHost)) {
             config.setInternalComHost(internalComHost);

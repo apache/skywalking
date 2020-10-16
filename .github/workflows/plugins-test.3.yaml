@@ -18,11 +18,6 @@ name: PluginsTest
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
 
 jobs:
   PluginsTest:
@@ -33,32 +28,33 @@ jobs:
       fail-fast: true
       matrix:
         case:
-          - { name: 'mysql-scenario', title: 'MySQL 5.1.2-8.0.15 (30)' }
-          - { name: 'undertow-scenario', title: 'Undertow 1.3.0-2.0.27 (23)' }
-          - { name: 'webflux-scenario', title: 'Spring-WebFlux 2.x (7)' }
-          - { name: 'zookeeper-scenario', title: 'Zookeeper 3.4.x (14)' }
-          - { name: 'spring-3.1.x-scenario', title: 'Spring 3.1.x-4.0.x (25)' }
-          - { name: 'spring-4.1.x-scenario', title: 'Spring 4.1.x-4.2.x (20)' }
-          - { name: 'spring-4.3.x-scenario', title: 'Spring 4.3.x-5.2.x (54)' }
-          - { name: 'spring-async-scenario', title: 'Spring Async 4.3.x-5.1.x (35)' }
-          - { name: 'vertx-eventbus-3.x-scenario', title: 'Vert.x EventBus 3.2.0-3.9.1 (28)' }
-          - { name: 'vertx-web-3.54minus-scenario', title: 'Vert.x Web 3.0.0-3.5.4 (16)' }
-          - { name: 'vertx-web-3.6plus-scenario', title: 'Vert.x Web 3.6.0-3.9.1 (14)' }
-          - { name: 'mariadb-scenario', title: 'Mariadb 2.x (8)' }
-          - { name: 'quasar-scenario', title: 'quasar 0.7.x (5)' }
-          - { name: 'baidu-brpc-scenario', title: 'baidu-brpc 2.3.7-2.5.3 (12)' }
-          - { name: 'retransform-class-scenario', title: 'Retransform class (1)' }
-          - { name: 'retransform-class-tomcat-scenario', title: 'Retransform class (1)' }
-          - { name: 'graphql-8.x-scenario', title: 'graphql-8.x 8.0 (1)' }
-          - { name: 'graphql-9.x-scenario', title: 'graphql-9.x 9.0-11.0 (3)' }
-          - { name: 'graphql-12.x-scenario', title: 'graphql-12.x 12.0-15.0 (4)' }
-          - { name: 'hbase-scenario', title: 'hbase-scenario (5)' }
-          - { name: 'spring-kafka-2.2.x-scenario', title: 'Spring-Kafka 2.2.x (7)' }
-          - { name: 'spring-kafka-2.3.x-scenario', title: 'Spring-Kafka 2.3.x (7)' }
-          - { name: 'spring-scheduled-scenario', title: 'Spring Scheduled 3.1.x-5.2.x (9)' }
-          - { name: 'elasticjob-2.x-scenario', title: 'elasticjob-2.x-scenario (2)' }
-          - { name: 'quartz-scheduler-2.x-scenario', title: 'quartz-scheduler-2.x-scenario (5)' }
-          - { name: 'xxl-job-2.x-scenario', title: 'xxl-job-2.x-scenario (1)' }
+          - mysql-scenario
+          - undertow-scenario
+          - webflux-scenario
+          - zookeeper-scenario
+          - spring-3.1.x-scenario
+          - spring-4.1.x-scenario
+          - spring-4.3.x-scenario
+          - spring-async-scenario
+          - vertx-eventbus-3.x-scenario
+          - vertx-web-3.54minus-scenario
+          - vertx-web-3.6plus-scenario
+          - mariadb-scenario
+          - quasar-scenario
+          - baidu-brpc-scenario
+          - retransform-class-scenario
+          - retransform-class-tomcat-scenario
+          - graphql-8.x-scenario
+          - graphql-9.x-scenario
+          - graphql-12.x-scenario
+          - hbase-scenario
+          - spring-kafka-2.2.x-scenario
+          - spring-kafka-2.3.x-scenario
+          - spring-scheduled-scenario
+          - elasticjob-2.x-scenario
+          - quartz-scheduler-2.x-scenario
+          - xxl-job-2.x-scenario
+          - thrift-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -77,8 +73,8 @@ jobs:
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case.title }}
-        run: bash test/plugin/run.sh ${{ matrix.case.name }}
+      - name: ${{ matrix.case }}
+        run: bash test/plugin/run.sh ${{ matrix.case }}
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
 
