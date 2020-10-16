@@ -90,6 +90,7 @@
 - spring-webflux-5.x-webclient
 - spymemcached-2.x
 - struts2-2.x
+- thrift
 - tomcat-7.x/8.x
 - toolkit-counter
 - toolkit-gauge

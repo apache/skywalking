@@ -26,3 +26,4 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Use the profile exporter tool if the profile analysis is not right](../guides/backend-profile-export.md)
 * [Compatible with other javaagent bytecode processing](Compatible-with-other-javaagent-bytecode-processing.md)
 * [**Java agent memory leak** when enhance `Worker thread` at use Thread Pool](Memory-leak-enhance-Worker-thread.md)
+* [Thrift plugin](thrift-plugin.md)
