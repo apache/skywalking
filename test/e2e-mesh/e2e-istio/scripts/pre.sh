@@ -37,5 +37,4 @@ curl -sSL "https://storage.googleapis.com/kubernetes-release/release/${K8SVERSIO
 chmod +x /tmp/kubectl
 sudo mv /tmp/kubectl /usr/local/bin/kubectl
 
-sudo apt-get update
 sudo apt-get install -y socat conntrack
