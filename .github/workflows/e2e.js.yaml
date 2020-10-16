@@ -21,8 +21,7 @@ on:
   push:
     branches:
       - master
-    tags:
-      - 'v*'
+
 env:
   SKIP_TEST: true
 
