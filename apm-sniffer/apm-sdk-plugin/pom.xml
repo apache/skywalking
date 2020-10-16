@@ -100,6 +100,7 @@
         <module>hbase-1.x-plugin</module>
         <module>graphql-plugin</module>
         <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
