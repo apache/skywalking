@@ -42,62 +42,62 @@ public class Slf4jLoggerAdapter implements Logger {
 
     @Override
     public boolean isTraceEnabled() {
-        return false;
+        return log.isTraceEnabled();
     }
 
     @Override
     public void trace(final String msg) {
-
+        log.trace(msg);
     }
 
     @Override
     public void trace(final String format, final Object arg) {
-
+        log.trace(format, arg);
     }
 
     @Override
     public void trace(final String format, final Object arg1, final Object arg2) {
-
+        log.trace(format, arg1, arg2);
     }
 
     @Override
     public void trace(final String format, final Object... arguments) {
-
+        log.trace(format, arguments);
     }
 
     @Override
     public void trace(final String msg, final Throwable t) {
-
+        log.trace(t, msg);
     }
 
     @Override
     public boolean isTraceEnabled(final Marker marker) {
-        return false;
+        return log.isTraceEnabled();
     }
 
     @Override
     public void trace(final Marker marker, final String msg) {
-
+        log.trace(msg);
     }
 
     @Override
     public void trace(final Marker marker, final String format, final Object arg) {
-
+        log.trace(format, arg);
     }
 
     @Override
     public void trace(final Marker marker, final String format, final Object arg1, final Object arg2) {
-
+        log.trace(format, arg1, arg2);
     }
 
     @Override
     public void trace(final Marker marker, final String format, final Object... argArray) {
-
+        log.trace(format, argArray);
     }
 
     @Override
     public void trace(final Marker marker, final String msg, final Throwable t) {
-
+        log.trace(t, msg);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class Slf4jLoggerAdapter implements Logger {
 
     @Override
     public void info(final String msg, final Throwable t) {
-        log.error(t, msg);
+        log.info(t, msg);
     }
 
     @Override
@@ -217,7 +217,7 @@ public class Slf4jLoggerAdapter implements Logger {
 
     @Override
     public void info(final Marker marker, final String msg, final Throwable t) {
-        log.error(t, msg);
+        log.info(t, msg);
     }
 
     @Override
@@ -292,17 +292,17 @@ public class Slf4jLoggerAdapter implements Logger {
 
     @Override
     public void error(final String format, final Object arg) {
-
+        log.error(null, format, arg);
     }
 
     @Override
     public void error(final String format, final Object arg1, final Object arg2) {
-
+        log.error(null, format, arg1, arg2);
     }
 
     @Override
     public void error(final String format, final Object... arguments) {
-
+        log.error(null, format, arguments);
     }
 
     @Override
@@ -322,21 +322,21 @@ public class Slf4jLoggerAdapter implements Logger {
 
     @Override
     public void error(final Marker marker, final String format, final Object arg) {
-
+        log.error(null, format, arg);
     }
 
     @Override
     public void error(final Marker marker, final String format, final Object arg1, final Object arg2) {
-
+        log.error(null, format, arg1, arg2);
     }
 
     @Override
     public void error(final Marker marker, final String format, final Object... arguments) {
-
+        log.error(null, format, arguments);
     }
 
     @Override
     public void error(final Marker marker, final String msg, final Throwable t) {
-
+        log.error(t, msg);
     }
 }

@@ -70,10 +70,6 @@
                                     <shadedPattern>${shade.package}/org.slf4j</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.skywalking.apm.agent.dependencies.org.slf4j.impl</pattern>
-                                    <shadedPattern>${shade.package}/org.slf4j.impl</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.xerial</pattern>
                                     <shadedPattern>${shade.package}/org.xerial</shadedPattern>
                                 </relocation>
