@@ -30,7 +30,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
