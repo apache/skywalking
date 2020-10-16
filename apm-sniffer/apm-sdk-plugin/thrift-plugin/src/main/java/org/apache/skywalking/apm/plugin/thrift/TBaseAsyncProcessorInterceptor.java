@@ -33,7 +33,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer;
 
 /**
- * To transparent the AsyncProcessFunction for getting arguments of method.
+ * To wrap the AsyncProcessFunction for getting arguments of method.
  *
  * @see TBaseAsyncProcessor
  */

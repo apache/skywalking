@@ -32,7 +32,7 @@ import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TBaseProcessor;
 
 /**
- * To transparent the ProcessFunction for getting arguments of method.
+ * To wrap the ProcessFunction for getting arguments of method.
  *
  * @see TBaseAsyncProcessor
  * @see TBaseProcessorInterceptor
