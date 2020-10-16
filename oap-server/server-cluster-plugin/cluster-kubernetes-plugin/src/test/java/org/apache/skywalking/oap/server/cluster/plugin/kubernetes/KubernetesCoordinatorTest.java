@@ -25,13 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
@@ -58,7 +59,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class KubernetesCoordinatorTest {
 
     private KubernetesCoordinator coordinator;
-    private HealthChecker healthChecker = mock(HealthChecker.class);
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
     public static final String LOCAL_HOST = "127.0.0.1";
     public static final Integer GRPC_PORT = 8454;
@@ -76,7 +77,7 @@ public class KubernetesCoordinatorTest {
         Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test

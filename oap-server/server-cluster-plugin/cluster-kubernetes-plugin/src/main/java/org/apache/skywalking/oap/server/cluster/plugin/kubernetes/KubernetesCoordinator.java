@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -35,16 +36,15 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
 /**
  * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
  * {@link RemoteInstance}.
  */
 @Slf4j
-public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
+public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final ModuleDefineHolder manager;
 
@@ -52,7 +52,8 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private final String uid;
 
-    private HealthChecker healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
     public KubernetesCoordinator(final ModuleDefineHolder manager,
                                  final ClusterModuleKubernetesConfig config) {
@@ -104,10 +105,5 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
         v1Pod.getMetadata().setUid(uid);
         v1Pod.getStatus().setPodIP("127.0.0.1");
         return Collections.singletonList(v1Pod);
-    }
-
-    @Override
-    public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker = healthChecker;
     }
 }

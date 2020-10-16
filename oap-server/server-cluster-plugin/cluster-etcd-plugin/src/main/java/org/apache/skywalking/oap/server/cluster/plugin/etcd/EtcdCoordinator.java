@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -36,13 +37,12 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
+public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtcdCoordinator.class);
 
     private ClusterModuleEtcdConfig config;
@@ -57,7 +57,8 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery, Heal
 
     private static final Integer KEY_TTL = 45;
 
-    private HealthChecker healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
     public EtcdCoordinator(ClusterModuleEtcdConfig config, EtcdClient client) {
         this.config = config;
@@ -150,10 +151,5 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery, Heal
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
-    }
-
-    @Override
-    public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker = healthChecker;
     }
 }

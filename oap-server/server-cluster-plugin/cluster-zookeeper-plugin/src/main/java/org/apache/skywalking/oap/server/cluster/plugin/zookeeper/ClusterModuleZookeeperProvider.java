@@ -138,7 +138,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
             MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
             HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            coordinator.registerChecker(healthChecker);
+            coordinator.setHealthChecker(healthChecker);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);

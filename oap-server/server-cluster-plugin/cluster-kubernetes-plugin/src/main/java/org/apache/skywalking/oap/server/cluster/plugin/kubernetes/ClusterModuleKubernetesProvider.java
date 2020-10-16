@@ -65,7 +65,7 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
         coordinator = new KubernetesCoordinator(getManager(), config);
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

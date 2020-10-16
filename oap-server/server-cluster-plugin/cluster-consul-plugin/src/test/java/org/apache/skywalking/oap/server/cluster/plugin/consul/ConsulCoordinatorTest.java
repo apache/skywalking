@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -52,7 +53,7 @@ public class ConsulCoordinatorTest {
     private ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
 
     private ConsulCoordinator coordinator;
-    private HealthChecker healthChecker = mock(HealthChecker.class);
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
     private ConsulResponse<List<ServiceHealth>> consulResponse;
 
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
@@ -81,7 +82,7 @@ public class ConsulCoordinatorTest {
 
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test

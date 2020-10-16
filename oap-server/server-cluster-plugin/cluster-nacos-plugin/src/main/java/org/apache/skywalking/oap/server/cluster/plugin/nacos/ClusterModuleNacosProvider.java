@@ -86,7 +86,7 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
         NacosCoordinator coordinator = new NacosCoordinator(namingService, config);
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_nacos", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

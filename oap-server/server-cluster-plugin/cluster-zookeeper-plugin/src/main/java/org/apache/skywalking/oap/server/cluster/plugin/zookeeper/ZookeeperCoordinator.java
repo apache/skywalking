@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
@@ -33,11 +34,11 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
-public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
+public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private static final String REMOTE_NAME_PATH = "remote";
 
@@ -45,7 +46,8 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery,
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private final ServiceCache<RemoteInstance> serviceCache;
     private volatile Address selfAddress;
-    private HealthChecker healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
                          ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
@@ -114,10 +116,5 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery,
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
-    }
-
-    @Override
-    public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker = healthChecker;
     }
 }

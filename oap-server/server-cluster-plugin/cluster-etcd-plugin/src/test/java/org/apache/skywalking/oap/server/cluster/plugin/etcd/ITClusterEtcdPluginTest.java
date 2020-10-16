@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import com.google.gson.Gson;
 import java.net.URI;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,11 +45,9 @@ public class ITClusterEtcdPluginTest {
 
     private EtcdClient client;
 
-    private HealthChecker healthChecker = mock(HealthChecker.class);
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
     private EtcdCoordinator coordinator;
-
-    private Gson gson = new Gson();
 
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
     private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
@@ -71,7 +68,7 @@ public class ITClusterEtcdPluginTest {
         coordinator = new EtcdCoordinator(etcdConfig, client);
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @After

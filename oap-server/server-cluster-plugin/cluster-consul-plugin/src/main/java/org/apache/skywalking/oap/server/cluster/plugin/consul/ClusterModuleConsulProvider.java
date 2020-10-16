@@ -97,7 +97,7 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
         ConsulCoordinator coordinator = new ConsulCoordinator(config, client);
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_consul", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

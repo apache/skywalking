@@ -25,7 +25,7 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,7 +46,7 @@ public class ZookeeperCoordinatorTest {
 
     private ServiceCacheBuilder cacheBuilder = mock(ServiceCacheBuilder.class);
 
-    private HealthChecker healthChecker = mock(HealthChecker.class);
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
     private ServiceCache serviceCache = mock(ServiceCache.class);
 
@@ -67,7 +67,7 @@ public class ZookeeperCoordinatorTest {
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
         coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test

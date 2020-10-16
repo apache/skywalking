@@ -74,7 +74,7 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
         EtcdCoordinator coordinator = new EtcdCoordinator(config, client);
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

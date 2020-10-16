@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -44,7 +44,7 @@ public class NacosCoordinatorTest {
     private NamingService namingService = mock(NamingService.class);
     private ClusterModuleNacosConfig nacosConfig = new ClusterModuleNacosConfig();
     private NacosCoordinator coordinator;
-    private HealthChecker healthChecker = mock(HealthChecker.class);
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
     private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
 
@@ -58,7 +58,7 @@ public class NacosCoordinatorTest {
         doNothing().when(healthChecker).unHealth(any());
         nacosConfig.setServiceName(SERVICE_NAME);
         coordinator = new NacosCoordinator(namingService, nacosConfig);
-        coordinator.registerChecker(healthChecker);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test

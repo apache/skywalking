@@ -25,22 +25,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
-public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery, HealthCheckable {
+public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final NamingService namingService;
     private final ClusterModuleNacosConfig config;
     private volatile Address selfAddress;
-    private HealthChecker healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
     public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config) {
         this.namingService = namingService;
@@ -94,10 +95,5 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery, Hea
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
-    }
-
-    @Override
-    public void registerChecker(HealthChecker healthChecker) {
-        this.healthChecker = healthChecker;
     }
 }
