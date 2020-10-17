@@ -18,11 +18,6 @@ name: PluginsTest
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
 
 jobs:
   PluginsTest:
@@ -33,32 +28,32 @@ jobs:
       fail-fast: true
       matrix:
         case:
-          - { name: 'activemq-scenario', title: 'ActiveMQ 5.10.0-5.15.4 (22)' }
-          - { name: 'apm-toolkit-trace-scenario', title: 'apm-toolkit-trace (1)' }
-          - { name: 'armeria-0.96minus-scenario', title: 'Armeria 0.63.0-0.95.0 (20)' }
-          - { name: 'armeria-0.96plus-scenario', title: 'Armeria 0.96.0-0.97.0 (2)' }
-          - { name: 'avro-scenario', title: 'Avro 1.7.0-1.8.2 (10)' }
-          - { name: 'canal-scenario', title: 'Canal 1.0.24-1.1.2 (5)' }
-          - { name: 'cassandra-java-driver-3.x-scenario', title: 'Cassandra 3.7.0-3.7.2 (3)' }
-          - { name: 'customize-scenario', title: 'customize (1)' }
-          - { name: 'dubbo-2.5.x-scenario', title: 'Dubbo 2.5.x-2.6.x (10)' }
-          - { name: 'dubbo-2.7.x-scenario', title: 'Dubbo 2.7.x (4)' }
-          - { name: 'ehcache-2.x-scenario', title: 'Ehcache 2.8.x-2.10.x (19)' }
-          - { name: 'elasticsearch-5.x-scenario', title: 'ElasticSearch 5.x (3)' }
-          - { name: 'elasticsearch-6.x-scenario', title: 'ElasticSearch 6.7.1-6.8.4 (7)' }
-          - { name: 'elasticsearch-7.x-scenario', title: 'ElasticSearch 7.0.0-7.5.2 (14)' }
-          - { name: 'exception-checker-spring-scenario', title: 'SpringBoot exception checker 1.0.0 (1)' }
-          - { name: 'exception-checker-tomcat-scenario', title: 'Tomcat exception checker 1.0.0 (1)' }
-          - { name: 'feign-scenario', title: 'Feign 9.0.0-9.5.1 (8)' }
-          - { name: 'finagle-17.10.x-scenario', title: 'Finagle 17.10.0-20.1.0(19)' }
-          - { name: 'finagle-6.25.x-scenario', title: 'Finagle 6.25.0-6.43.0 (18)' }
-          - { name: 'finagle-6.44.x-scenario', title: 'Finagle 6.44.0-7.1.0 (4)' }
-          - { name: 'gateway-2.1.x-scenario', title: 'Spring-Cloud-Gateway 2.1.x (7)' }
-          - { name: 'gateway-2.0.x-scenario', title: 'Spring-Cloud-Gateway 2.0.x (3)' }
-          - { name: 'grpc-scenario', title: 'gRPC 1.6.0-1.25.0 (22)' }
-          - { name: 'gson-scenario', title: 'Gson (7)' }
-          - { name: 'elasticjob-3.x-scenario', title: 'elasticjob-3.x-scenario (1)' }
-          - { name: 'springmvc-reactive-scenario', title: 'springmvc-reactive-scenario (7)' }
+          - activemq-scenario
+          - apm-toolkit-trace-scenario
+          - armeria-0.96minus-scenario
+          - armeria-0.96plus-scenario
+          - avro-scenario
+          - canal-scenario
+          - cassandra-java-driver-3.x-scenario
+          - customize-scenario
+          - dubbo-2.5.x-scenario
+          - dubbo-2.7.x-scenario
+          - ehcache-2.x-scenario
+          - elasticsearch-5.x-scenario
+          - elasticsearch-6.x-scenario
+          - elasticsearch-7.x-scenario
+          - exception-checker-spring-scenario
+          - exception-checker-tomcat-scenario
+          - feign-scenario
+          - finagle-17.10.x-scenario
+          - finagle-6.25.x-scenario
+          - finagle-6.44.x-scenario
+          - gateway-2.1.x-scenario
+          - gateway-2.0.x-scenario
+          - grpc-scenario
+          - gson-scenario
+          - elasticjob-3.x-scenario
+          - springmvc-reactive-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -77,7 +72,7 @@ jobs:
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case.title }}
-        run: bash test/plugin/run.sh ${{ matrix.case.name }}
+      - name: ${{ matrix.case }}
+        run: bash test/plugin/run.sh ${{ matrix.case }}
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh

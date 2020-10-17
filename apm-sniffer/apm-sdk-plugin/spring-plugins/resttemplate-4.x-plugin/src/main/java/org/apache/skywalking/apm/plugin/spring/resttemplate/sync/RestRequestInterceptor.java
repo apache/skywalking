@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.resttemplate.helper.RestTemplateRuntimeContextHelper;
 import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
 
@@ -41,7 +42,7 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
         ClientHttpRequest clientHttpRequest = (ClientHttpRequest) ret;
         if (clientHttpRequest instanceof AbstractClientHttpRequest) {
             AbstractClientHttpRequest httpRequest = (AbstractClientHttpRequest) clientHttpRequest;
-            ContextCarrier contextCarrier = (ContextCarrier) objInst.getSkyWalkingDynamicField();
+            ContextCarrier contextCarrier = RestTemplateRuntimeContextHelper.getContextCarrier();
             CarrierItem next = contextCarrier.items();
             while (next.hasNext()) {
                 next = next.next();
