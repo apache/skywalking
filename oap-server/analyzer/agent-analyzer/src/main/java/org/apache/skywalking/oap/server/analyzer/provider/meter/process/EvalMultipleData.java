@@ -22,7 +22,11 @@ import io.vavr.Function2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Combined meter data, has multiple meter data. Support batch process the express on meter
@@ -120,6 +124,21 @@ public class EvalMultipleData extends EvalData<EvalMultipleData> {
      */
     EvalData combineAsSingleData() {
         return dataList.stream().reduce(EvalData::combine).orElseThrow(IllegalArgumentException::new);
+    }
+
+    /**
+     * Combine all of the meter and group by labeled names
+     * @return Same labeled names and values
+     */
+    Map<String, EvalData> combineAndGroupBy(List<String> labelNames) {
+        return dataList.stream()
+            // group by label
+            .collect(groupingBy(m -> labelNames.stream().map(l -> m.getLabels().getOrDefault(l, "")).map(Objects::toString).collect(Collectors.joining("-"))))
+            .entrySet().stream().collect(
+                // combine labeled values
+                Collectors.toMap(
+                    e -> e.getKey(),
+                    e -> e.getValue().stream().reduce(EvalData::combine).orElse(null)));
     }
 
     /**
