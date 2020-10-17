@@ -27,6 +27,7 @@ import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.ServiceHealth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
@@ -37,6 +38,7 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthCheckUtil;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
 public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
@@ -72,12 +74,21 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
                     }
                 });
             }
-            List<RemoteInstance> selfInstances = remoteInstances.stream().
-                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
-                this.healthChecker.health();
-            } else {
-                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+            if (remoteInstances.size() > 1) {
+                Set<String> remoteAddressSet = remoteInstances.stream().map(remoteInstance ->
+                        remoteInstance.getAddress().getHost()).collect(Collectors.toSet());
+                boolean hasUnHealthAddress = HealthCheckUtil.hasUnHealthAddress(remoteAddressSet);
+                if (hasUnHealthAddress) {
+                    this.healthChecker.unHealth(new ServiceQueryException("found 127.0.0.1 or localhost in cluster mode"));
+                } else {
+                    List<RemoteInstance> selfInstances = remoteInstances.stream().
+                            filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                        this.healthChecker.health();
+                    } else {
+                        this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+                    }
+                }
             }
         } catch (Throwable e) {
             healthChecker.unHealth(e);

@@ -22,6 +22,7 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -33,6 +34,7 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthCheckUtil;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
 public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
@@ -50,7 +52,7 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-        List<RemoteInstance> result = new ArrayList<>();
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
             List<Instance> instances = namingService.selectInstances(config.getServiceName(), true);
             if (CollectionUtils.isNotEmpty(instances)) {
@@ -59,21 +61,30 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
                     if (address.equals(selfAddress)) {
                         address.setSelf(true);
                     }
-                    result.add(new RemoteInstance(address));
+                    remoteInstances.add(new RemoteInstance(address));
                 });
             }
-            List<RemoteInstance> selfInstances = result.stream().
-                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
-                this.healthChecker.health();
-            } else {
-                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+            if (remoteInstances.size() > 1) {
+                Set<String> remoteAddressSet = remoteInstances.stream().map(remoteInstance ->
+                        remoteInstance.getAddress().getHost()).collect(Collectors.toSet());
+                boolean hasUnHealthAddress = HealthCheckUtil.hasUnHealthAddress(remoteAddressSet);
+                if (hasUnHealthAddress) {
+                    this.healthChecker.unHealth(new ServiceQueryException("found 127.0.0.1 or localhost in cluster mode"));
+                } else {
+                    List<RemoteInstance> selfInstances = remoteInstances.stream().
+                            filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                        this.healthChecker.health();
+                    } else {
+                        this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+                    }
+                }
             }
         } catch (Throwable e) {
             healthChecker.unHealth(e);
             throw new ServiceQueryException(e.getMessage());
         }
-        return result;
+        return remoteInstances;
     }
 
     @Override

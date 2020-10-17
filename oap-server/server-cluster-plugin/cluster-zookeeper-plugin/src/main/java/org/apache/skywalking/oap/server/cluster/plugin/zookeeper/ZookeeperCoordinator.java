@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.HealthCheckUtil;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 
 public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
@@ -87,30 +89,37 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-        List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(20);
+        List<RemoteInstance> remoteInstances = new ArrayList<>(20);
         try {
             List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();
                 if (instance.getAddress().equals(selfAddress)) {
                     instance.getAddress().setSelf(true);
-                } else {
-                    instance.getAddress().setSelf(false);
                 }
-                remoteInstanceDetails.add(instance);
+                remoteInstances.add(instance);
             });
-            List<RemoteInstance> selfInstances = remoteInstanceDetails.stream().
-                    filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
-                this.healthChecker.health();
-            } else {
-                this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+            if (remoteInstances.size() > 1) {
+                Set<String> remoteAddressSet = remoteInstances.stream().map(remoteInstance ->
+                        remoteInstance.getAddress().getHost()).collect(Collectors.toSet());
+                boolean hasUnHealthAddress = HealthCheckUtil.hasUnHealthAddress(remoteAddressSet);
+                if (hasUnHealthAddress) {
+                    this.healthChecker.unHealth(new ServiceQueryException("found 127.0.0.1 or localhost in cluster mode"));
+                } else {
+                    List<RemoteInstance> selfInstances = remoteInstances.stream().
+                            filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
+                        this.healthChecker.health();
+                    } else {
+                        this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+                    }
+                }
             }
         } catch (Throwable e) {
             this.healthChecker.unHealth(e);
             throw new ServiceQueryException(e.getMessage());
         }
-        return remoteInstanceDetails;
+        return remoteInstances;
     }
 
     private boolean needUsingInternalAddr() {
