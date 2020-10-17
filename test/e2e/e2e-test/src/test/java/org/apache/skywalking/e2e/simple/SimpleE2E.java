@@ -187,11 +187,11 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
     @RetryableTest
     void serviceInstances() throws Exception {
         final ServiceInstanceTopology topology = graphql.serviceInstanceTopo(
-                new ServiceInstanceTopologyQuery().stepByMinute()
-                        .start(startTime.minusDays(1))
-                        .end(now())
-                        .clientServiceId("VXNlcg==.0")
-                        .serverServiceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1"));
+            new ServiceInstanceTopologyQuery().stepByMinute()
+                                              .start(startTime.minusDays(1))
+                                              .end(now())
+                                              .clientServiceId("VXNlcg==.0")
+                                              .serverServiceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1"));
 
         LOGGER.info("instance topology: {}", topology);
 
@@ -209,7 +209,7 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
         load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
         for (final Service service : services) {
             final Instances instances = graphql.instances(
-                    new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
+                new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
             );
 
             LOGGER.info("instances: {}", instances);
@@ -219,8 +219,8 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
                 for (String metricsName : ALL_SO11Y_LINER_METRICS) {
                     LOGGER.info("verifying service instance response time: {}", instance);
                     final ReadMetrics instanceMetrics = graphql.readMetrics(
-                            new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
-                                    .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
                     );
 
                     LOGGER.info("{}: {}", metricsName, instanceMetrics);
@@ -233,8 +233,8 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
                 for (String metricsName : ALL_SO11Y_LABELED_METRICS) {
                     LOGGER.info("verifying service instance response time: {}", instance);
                     final List<ReadMetrics> instanceMetrics = graphql.readLabeledMetrics(
-                            new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
-                                    .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
                     );
 
                     LOGGER.info("{}: {}", metricsName, instanceMetrics);
@@ -254,7 +254,7 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
         final Instances instances = graphql.instances(
-                new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
+            new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
         );
 
         LOGGER.info("instances: {}", instances);
@@ -279,7 +279,7 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
                 final Metrics instanceMetrics = graphql.metrics(
-                        new MetricsQuery().stepByMinute().metricsName(metricsName).id(instance.getKey())
+                    new MetricsQuery().stepByMinute().metricsName(metricsName).id(instance.getKey())
                 );
 
                 LOGGER.info("instance metrics: {}", instanceMetrics);
@@ -299,7 +299,7 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
             for (String metricsName : ALL_INSTANCE_JVM_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
                 final Metrics instanceJVMMetrics = graphql.metrics(
-                        new MetricsQuery().stepByMinute().metricsName(metricsName).id(instance.getKey())
+                    new MetricsQuery().stepByMinute().metricsName(metricsName).id(instance.getKey())
                 );
 
                 LOGGER.info("instance jvm metrics: {}", instanceJVMMetrics);
@@ -323,7 +323,7 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
                 LOGGER.info("verifying endpoint {}: {}", endpoint, metricName);
 
                 final Metrics metrics = graphql.metrics(
-                        new MetricsQuery().stepByMinute().metricsName(metricName).id(endpoint.getKey())
+                    new MetricsQuery().stepByMinute().metricsName(metricName).id(endpoint.getKey())
                 );
 
                 LOGGER.info("metrics: {}", metrics);
@@ -364,8 +364,8 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
 
     private void verifyServiceInstanceRelationMetrics(final List<Call> calls) throws Exception {
         verifyRelationMetrics(
-                calls, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS,
-                ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS
+            calls, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS,
+            ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS
         );
     }
 
