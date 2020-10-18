@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.browser.source;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
@@ -27,6 +29,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @ScopeDeclaration(id = BROWSER_APP_TRAFFIC, name = "BrowserAppTraffic", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class BrowserAppTraffic extends BrowserAppTrafficSource {
+    @Setter
+    @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    private String name;
+
     @Override
     public int scope() {
         return BROWSER_APP_TRAFFIC;
