@@ -52,7 +52,7 @@ public class ExtensionContext {
      * @return the serialization string.
      */
     String serialize() {
-        String res = (skipAnalysis ? "1" : "0");
+        String res = skipAnalysis ? "1" : "0";
         res += sendingTimestamp == 0 ? "-" : ("-" + sendingTimestamp);
         return res;
     }
