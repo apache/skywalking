@@ -53,6 +53,7 @@ public class BrowserLogQueryService implements Service {
                                                   final Pagination paging) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
         BrowserErrorCategory errorCategory = Optional.ofNullable(category)
+                                                     .filter(c -> !c.equals(ErrorCategory.ALL)) // ErrorCategory.All stands for query all.
                                                      .map(c -> BrowserErrorCategory.valueOf(c.name()))
                                                      .orElse(null);
 

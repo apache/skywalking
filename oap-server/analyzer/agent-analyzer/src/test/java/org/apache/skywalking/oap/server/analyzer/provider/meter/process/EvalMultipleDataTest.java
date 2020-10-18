@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import io.vavr.Function2;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class EvalMultipleDataTest extends EvalDataBaseTest {
 
@@ -102,6 +104,30 @@ public class EvalMultipleDataTest extends EvalDataBaseTest {
         Assert.assertEquals(30, combinedHistogramData.getBuckets().get(1d).longValue());
         Assert.assertEquals(50, combinedHistogramData.getBuckets().get(5d).longValue());
         Assert.assertEquals(35, combinedHistogramData.getBuckets().get(10d).longValue());
+    }
+
+    @Test
+    public void testCombineAndGroupBy() {
+        final Map<String, EvalData> singleValueCombineAndGroupBy = singleMultiple.combineAndGroupBy(Arrays.asList("k1"));
+        Assert.assertEquals(3, singleValueCombineAndGroupBy.size());
+        Assert.assertEquals(10d, ((EvalSingleData) singleValueCombineAndGroupBy.get("v1")).getValue(), 0.0);
+        Assert.assertEquals(20d, ((EvalSingleData) singleValueCombineAndGroupBy.get("v2")).getValue(), 0.0);
+        Assert.assertEquals(30d, ((EvalSingleData) singleValueCombineAndGroupBy.get("v3")).getValue(), 0.0);
+
+        final Map<String, EvalData> histogramCombineAndGroupBy = histogramMultiple.combineAndGroupBy(Arrays.asList("k1"));
+        Assert.assertEquals(3, histogramCombineAndGroupBy.size());
+        Assert.assertEquals(10, ((EvalHistogramData) histogramCombineAndGroupBy.get("v1")).getBuckets().get(1d).longValue());
+        Assert.assertEquals(20, ((EvalHistogramData) histogramCombineAndGroupBy.get("v1")).getBuckets().get(5d).longValue());
+        Assert.assertEquals(3, ((EvalHistogramData) histogramCombineAndGroupBy.get("v1")).getBuckets().get(10d).longValue());
+
+        Assert.assertEquals(5, ((EvalHistogramData) histogramCombineAndGroupBy.get("v2")).getBuckets().get(1d).longValue());
+        Assert.assertEquals(10, ((EvalHistogramData) histogramCombineAndGroupBy.get("v2")).getBuckets().get(5d).longValue());
+        Assert.assertEquals(7, ((EvalHistogramData) histogramCombineAndGroupBy.get("v2")).getBuckets().get(10d).longValue());
+
+        Assert.assertEquals(15, ((EvalHistogramData) histogramCombineAndGroupBy.get("v3")).getBuckets().get(1d).longValue());
+        Assert.assertEquals(20, ((EvalHistogramData) histogramCombineAndGroupBy.get("v3")).getBuckets().get(5d).longValue());
+        Assert.assertEquals(25, ((EvalHistogramData) histogramCombineAndGroupBy.get("v3")).getBuckets().get(10d).longValue());
+
     }
 
     /**
