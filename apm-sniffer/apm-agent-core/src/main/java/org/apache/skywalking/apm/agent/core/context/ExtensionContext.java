@@ -44,7 +44,7 @@ public class ExtensionContext {
      */
     @Getter
     @Setter
-    private long sendingTimestamp = 0;
+    private long sendingTimestamp;
 
     /**
      * Serialize this {@link ExtensionContext} to a {@link String}
@@ -52,7 +52,9 @@ public class ExtensionContext {
      * @return the serialization string.
      */
     String serialize() {
-        return (skipAnalysis ? "1" : "0") + "-" + sendingTimestamp;
+        String res = (skipAnalysis ? "1" : "0");
+        res += sendingTimestamp == 0 ? "-" : ("-" + sendingTimestamp);
+        return res;
     }
 
     /**
@@ -62,15 +64,19 @@ public class ExtensionContext {
         if (StringUtil.isEmpty(value)) {
             return;
         }
-        final String[] extensionParts = value.split("-");
+        String[] extensionParts = value.replaceAll("-", "- ").split("-");
         // All parts of the extension header are optional.
         // only try to read it when it exist.
         if (extensionParts.length == 2) {
-            this.skipAnalysis = Objects.equals(extensionParts[0], "1");
-            try {
-                this.sendingTimestamp = Long.parseLong(extensionParts[1]);
-            } catch (NumberFormatException e) {
-                LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionParts[1]);
+            String extensionPart = extensionParts[0].trim();
+            this.skipAnalysis = Objects.equals(extensionPart, "1");
+            extensionPart = extensionParts[1].trim();
+            if (StringUtil.isNotEmpty(extensionPart)) {
+                try {
+                    this.sendingTimestamp = Long.parseLong(extensionPart);
+                } catch (NumberFormatException e) {
+                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionParts[1]);
+                }
             }
         }
     }
