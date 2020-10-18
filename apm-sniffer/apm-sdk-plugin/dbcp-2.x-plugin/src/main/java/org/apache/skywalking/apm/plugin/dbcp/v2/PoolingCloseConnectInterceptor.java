@@ -26,6 +26,9 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
+/**
+ * {@link PoolingCloseConnectInterceptor} intercepted the method of DBCP closing/returning connection.
+ */
 public class PoolingCloseConnectInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

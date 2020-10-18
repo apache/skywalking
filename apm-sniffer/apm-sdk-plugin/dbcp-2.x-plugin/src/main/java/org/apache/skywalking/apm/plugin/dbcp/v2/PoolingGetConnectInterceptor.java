@@ -26,6 +26,9 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
+/**
+ * {@link PoolingGetConnectInterceptor} intercepted the method of DBCP getting connection.
+ */
 public class PoolingGetConnectInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
