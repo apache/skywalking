@@ -52,11 +52,7 @@ public class ExtensionContext {
      * @return the serialization string.
      */
     String serialize() {
-        String res = skipAnalysis ? "1" : "0";
-        if (sendingTimestamp != 0) {
-            res += "-" + sendingTimestamp;
-        }
-        return res;
+        return (skipAnalysis ? "1" : "0") + "-" + sendingTimestamp;
     }
 
     /**
@@ -69,14 +65,12 @@ public class ExtensionContext {
         final String[] extensionParts = value.split("-");
         // All parts of the extension header are optional.
         // only try to read it when it exist.
-        if (extensionParts.length > 0) {
+        if (extensionParts.length == 2) {
             this.skipAnalysis = Objects.equals(extensionParts[0], "1");
-            if (extensionParts.length > 1) {
-                try {
-                    this.sendingTimestamp = Long.parseLong(extensionParts[1]);
-                } catch (NumberFormatException e) {
-                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionParts[1]);
-                }
+            try {
+                this.sendingTimestamp = Long.parseLong(extensionParts[1]);
+            } catch (NumberFormatException e) {
+                LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionParts[1]);
             }
         }
     }
