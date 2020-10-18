@@ -67,10 +67,13 @@ public class ExtensionContext {
         String[] extensionParts = value.replaceAll("-", "- ").split("-");
         // All parts of the extension header are optional.
         // only try to read it when it exist.
-        if (extensionParts.length == 2) {
+        if (extensionParts.length > 0) {
             String extensionPart = extensionParts[0].trim();
             this.skipAnalysis = Objects.equals(extensionPart, "1");
-            extensionPart = extensionParts[1].trim();
+        }
+
+        if (extensionParts.length > 1) {
+            String extensionPart = extensionParts[1].trim();
             if (StringUtil.isNotEmpty(extensionPart)) {
                 try {
                     this.sendingTimestamp = Long.parseLong(extensionPart);
