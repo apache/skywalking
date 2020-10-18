@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.source.Source;
 @Setter
 @Getter
 public abstract class BrowserAppTrafficSource extends Source {
+    protected String name;
     protected final NodeType nodeType = NodeType.Browser;
 
     private final int count = 1;
