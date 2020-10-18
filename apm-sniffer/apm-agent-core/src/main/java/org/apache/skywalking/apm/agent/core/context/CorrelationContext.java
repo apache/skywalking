@@ -17,15 +17,21 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.base64.Base64;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.util.StringUtil;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.util.StringUtil;
+
+import static org.apache.skywalking.apm.agent.core.conf.Config.Correlation.INJECTION_TAGS;
 
 /**
  * Correlation context, use to propagation user custom data.
@@ -35,8 +41,15 @@ public class CorrelationContext {
 
     private final Map<String, String> data;
 
+    private final List<String> injectionTags;
+
     public CorrelationContext() {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
+        if (StringUtil.isNotEmpty(INJECTION_TAGS)) {
+            injectionTags = Arrays.asList(INJECTION_TAGS.split(","));
+        } else {
+            injectionTags = new ArrayList<>();
+        }
     }
 
     public Optional<String> put(String key, String value) {
@@ -148,6 +161,10 @@ public class CorrelationContext {
 
     void continued(ContextSnapshot snapshot) {
         this.data.putAll(snapshot.getCorrelationContext().data);
+    }
+
+    void handle(AbstractSpan span) {
+        injectionTags.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
     }
 
     @Override

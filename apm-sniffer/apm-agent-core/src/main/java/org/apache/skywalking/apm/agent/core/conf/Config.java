@@ -310,5 +310,10 @@ public class Config {
          * Max value length of each element.
          */
         public static int VALUE_MAX_LENGTH = 128;
+
+        /**
+         * Extract tags from the correlation.
+         */
+        public static String INJECTION_TAGS = "";
     }
 }

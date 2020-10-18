@@ -102,6 +102,9 @@ property key | Description | Default |
 `logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
 `statuscheck.ignored_exceptions`|Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a way of controlling business flow.|`""`|
 `statuscheck.max_recursive_depth`|The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored, which means all exceptions would make the span tagged in error status.|`1`|
+`correlation.element_max_number`|Max element count in the correlation context.|3|
+`correlation.value_max_length`|Max value length of each element.|`128`|
+`correlation.injection_tags`|These tags of the span are derived from correlations with the same name.|`""`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|
@@ -115,6 +118,10 @@ property key | Description | Default |
 `meter.max_meter_size`| Max size of the meter pool |`500`|
 `plugin.mount` | Mount the specific folders of the plugins. Plugins in mounted folders would work. | `plugins,activations` |
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
+`plugin.extendcontextmanager.injection_tags `|These tags of the span are derived from correlations with the same name.|`""`|
+`plugin.extendcontextmanager.external_injection_switch `|The external injection switch.(Please notice the injection security)|`false`|
+`plugin.extendcontextmanager.external_injection_key`|The correlation data which made up of external_injection_key and external_injection_token allows the other correlation data injected by external passing.|`"sw-injection-key"`|
+`plugin.extendcontextmanager.external_injection_token `|The correlation data which made up of external_injection_key and external_injection_token allows the other correlation data injected by external passing.|`"sw-injection-token"`|
 `plugin.exclude_plugins `|Exclude some plugins define in plugins dir.Plugin names is defined in [Agent plugin list](Plugin-list.md)|`""`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|
