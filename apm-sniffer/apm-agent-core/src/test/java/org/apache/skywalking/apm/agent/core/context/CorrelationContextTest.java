@@ -18,12 +18,17 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.Optional;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.util.Optional;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 public class CorrelationContextTest {
 
@@ -119,6 +124,23 @@ public class CorrelationContextTest {
         Assert.assertNull(context.get("test1").orElse(null));
         context.deserialize(null);
         Assert.assertNull(context.get("test1").orElse(null));
+    }
+
+    @Test
+    public void testHandle() {
+        Config.Correlation.INJECTION_TAGS = "";
+        CorrelationContext context = new CorrelationContext();
+        context.put("a", "b");
+        EntrySpan span = mock(EntrySpan.class);
+        context.handle(span);
+        Mockito.verify(span, times(0)).tag(new StringTag("a"), "b");
+
+        Config.Correlation.INJECTION_TAGS = "a";
+        context = new CorrelationContext();
+        context.put("a", "b");
+        span = mock(EntrySpan.class);
+        context.handle(span);
+        Mockito.verify(span, times(1)).tag(new StringTag("a"), "b");
     }
 
 }
