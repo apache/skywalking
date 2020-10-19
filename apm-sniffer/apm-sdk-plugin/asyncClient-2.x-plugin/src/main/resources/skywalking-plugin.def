@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-asyncClient-2.x=org.apache.skywalking.apm.plugin.asyncClient.v1.define.NettyRequestSenderInstrumentation
+asyncClient-2.x=org.apache.skywalking.apm.plugin.asyncClientHttp.v1.define.NettyRequestSenderInstrumentation

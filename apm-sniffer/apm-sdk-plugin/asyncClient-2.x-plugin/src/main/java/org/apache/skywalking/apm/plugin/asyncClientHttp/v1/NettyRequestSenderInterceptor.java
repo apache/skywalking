@@ -1,4 +1,21 @@
-package org.apache.skywalking.apm.plugin.asyncClient.v1;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.skywalking.apm.plugin.asyncClientHttp.v1;
 
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -12,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 import org.asynchttpclient.DefaultRequest;
 import org.asynchttpclient.netty.NettyResponseFuture;
 import org.asynchttpclient.netty.request.NettyRequest;
@@ -41,14 +58,11 @@ public class NettyRequestSenderInterceptor implements InstanceMethodsAroundInter
         ContextManager.continued((ContextSnapshot) objInst.getSkyWalkingDynamicField());
         ContextCarrier contextCarrier = new ContextCarrier();
         ContextManager.inject(contextCarrier);
-        span.setComponent(ComponentsDefine.ASYNC_HTTP_CLIENT);
+        span.setComponent(new OfficialComponent(102, "AsyncHttpClient"));
         Tags.HTTP.METHOD.set(span, defaultHttpRequest.getMethod());
         Tags.URL.set(span, defaultHttpRequest.getUrl());
         SpanLayer.asHttp(span);
 
-        /**
-         * 增加header
-         */
         DefaultHttpHeaders defaultHttpHeaders = (DefaultHttpHeaders) request.headers();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
