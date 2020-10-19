@@ -35,6 +35,14 @@ public class ExtensionContext {
 
     private static final ILog LOGGER = LogManager.getLogger(ExtensionContext.class);
     /**
+     * The extendable fields are split by the space.
+     */
+    private static final String SEPARATOR = " ";
+    /**
+     * The default value of extendable fields.
+     */
+    private static final String PLACEHOLDER = "-";
+    /**
      * Tracing Mode. If true means represents all spans generated in this context should skip analysis.
      */
     private boolean skipAnalysis;
@@ -44,7 +52,7 @@ public class ExtensionContext {
      */
     @Getter
     @Setter
-    private long sendingTimestamp;
+    private Long sendingTimestamp;
 
     /**
      * Serialize this {@link ExtensionContext} to a {@link String}
@@ -53,7 +61,8 @@ public class ExtensionContext {
      */
     String serialize() {
         String res = skipAnalysis ? "1" : "0";
-        res += sendingTimestamp == 0 ? "-" : ("-" + sendingTimestamp);
+        res += SEPARATOR;
+        res += Objects.isNull(sendingTimestamp) ? PLACEHOLDER : sendingTimestamp;
         return res;
     }
 
@@ -64,7 +73,7 @@ public class ExtensionContext {
         if (StringUtil.isEmpty(value)) {
             return;
         }
-        String[] extensionParts = value.replaceAll("-", "- ").split("-");
+        String[] extensionParts = value.split(SEPARATOR);
         // All parts of the extension header are optional.
         // only try to read it when it exist.
         if (extensionParts.length > 0) {
@@ -74,7 +83,7 @@ public class ExtensionContext {
 
         if (extensionParts.length > 1) {
             String extensionPart = extensionParts[1].trim();
-            if (StringUtil.isNotEmpty(extensionPart)) {
+            if (StringUtil.isNotEmpty(extensionPart) && !extensionPart.equals(PLACEHOLDER)) {
                 try {
                     this.sendingTimestamp = Long.parseLong(extensionPart);
                 } catch (NumberFormatException e) {
@@ -105,7 +114,7 @@ public class ExtensionContext {
         if (this.skipAnalysis) {
             span.skipAnalysis();
         }
-        if (this.sendingTimestamp != 0) {
+        if (Objects.nonNull(sendingTimestamp)) {
             Tags.TRANSMISSION_LATENCY.set(span, String.valueOf(System.currentTimeMillis() - sendingTimestamp));
         }
     }

@@ -36,14 +36,14 @@ service.
 Extension header item is designed for the advanced features. It provides the interaction capabilities between the agents
 deployed in upstream and downstream services.
 * Header Name: `sw8-x`
-* Header Value: Split by `-`. The fields are extendable.
+* Header Value: Split by space. The fields are extendable.
 
 #### Values
 The current value includes fields.
 1. Tracing Mode. empty, 0 or 1. empty or 0 is default. 1 represents all spans generated in this context should skip analysis,
 `spanObject#skipAnalysis=true`. This context should be propagated to upstream in the default, unless it is changed in the 
 tracing process.
-2. The Exit span sending timestamp.  0 is the default. If the timestamp were not equal to 0, the latency cost between downstream and upstream services
+2. The Exit span sending timestamp.  - is the default. If the downstream timestamp was not `-`, the latency cost between downstream and upstream services
    should be tagged in the entry spans of the upstream services.
 
 
