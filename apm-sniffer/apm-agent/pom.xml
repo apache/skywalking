@@ -85,6 +85,7 @@
                                     <exclude>org.checkerframework:checker-compat-qual</exclude>
                                     <exclude>org.codehaus.mojo:animal-sniffer-annotations</exclude>
                                     <exclude>io.perfmark:*</exclude>
+                                    <exclude>org.slf4j:*</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
