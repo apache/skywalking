@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.core.cluster;
 
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -26,33 +26,33 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 
-public class HealthCheckUtilTest {
+public class OAPNodeCheckerTest {
 
     @Test
     public void hasUnHealthAddressFalse() {
         Set<String> address = Sets.newHashSet("123.23.4.2");
-        boolean flag = HealthCheckUtil.hasUnHealthAddress(address);
+        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
         Assert.assertThat(flag, is(false));
     }
 
     @Test
     public void hasUnHealthAddressWithNull() {
         Set<String> address = null;
-        boolean flag = HealthCheckUtil.hasUnHealthAddress(address);
+        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
         Assert.assertThat(flag, is(false));
     }
 
     @Test
     public void hasUnHealthAddressWithEmptySet() {
         Set<String> address = Sets.newHashSet();
-        boolean flag = HealthCheckUtil.hasUnHealthAddress(address);
+        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
         Assert.assertThat(flag, is(false));
     }
 
     @Test
     public void hasUnHealthAddressTrue() {
         Set<String> address = Sets.newHashSet("123.23.4.2", "127.0.0.1");
-        boolean flag = HealthCheckUtil.hasUnHealthAddress(address);
+        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
         Assert.assertThat(flag, is(true));
     }
 }

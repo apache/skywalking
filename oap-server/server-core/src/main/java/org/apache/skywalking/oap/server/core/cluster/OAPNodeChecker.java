@@ -16,19 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.core.cluster;
 
 import com.google.common.collect.Sets;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.Set;
 
-public class HealthCheckUtil {
-    private static final Set<String> UN_HEALTH_ADDRESS = Sets.newHashSet("127.0.0.1", "localhost");
+public class OAPNodeChecker {
+    private static final Set<String> ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE = Sets.newHashSet("127.0.0.1", "localhost");
 
     public static boolean hasUnHealthAddress(Set<String> addressSet) {
         if (CollectionUtils.isEmpty(addressSet)) {
             return false;
         }
-        return !Sets.intersection(UN_HEALTH_ADDRESS, addressSet).isEmpty();
+        return !Sets.intersection(ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE, addressSet).isEmpty();
     }
 }
