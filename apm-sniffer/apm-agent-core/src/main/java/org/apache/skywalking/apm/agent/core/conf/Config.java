@@ -143,6 +143,10 @@ public class Config {
          */
         public static long HEARTBEAT_PERIOD = 30;
         /**
+         * How many times do report a properties to the backend, Each time interval is {@link Collector#HEARTBEAT_PERIOD}
+         */
+        public static int TIMES_SEND_PROPERTIES = 10;
+        /**
          * Collector skywalking trace receiver service addresses.
          */
         public static String BACKEND_SERVICE = "";
