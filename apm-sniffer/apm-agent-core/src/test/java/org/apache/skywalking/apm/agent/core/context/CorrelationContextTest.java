@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +37,11 @@ public class CorrelationContextTest {
     public void setupConfig() {
         Config.Correlation.ELEMENT_MAX_NUMBER = 2;
         Config.Correlation.VALUE_MAX_LENGTH = 8;
+    }
+
+    @After
+    public void after() {
+        Config.Correlation.AUTO_TAG_KEYS = "";
     }
 
     @Test
@@ -127,18 +133,22 @@ public class CorrelationContextTest {
     }
 
     @Test
-    public void testHandle() {
-        Config.Correlation.INJECTION_TAGS = "";
+    public void testHandleWhenAutoTagKeysEmpty() {
+        Config.Correlation.AUTO_TAG_KEYS = "";
         CorrelationContext context = new CorrelationContext();
         context.put("a", "b");
         EntrySpan span = mock(EntrySpan.class);
         context.handle(span);
         Mockito.verify(span, times(0)).tag(new StringTag("a"), "b");
 
-        Config.Correlation.INJECTION_TAGS = "a";
-        context = new CorrelationContext();
+    }
+
+    @Test
+    public void testHandleWhenAutoTagKeysNotEmpty() {
+        Config.Correlation.AUTO_TAG_KEYS = "a";
+        CorrelationContext context = new CorrelationContext();
         context.put("a", "b");
-        span = mock(EntrySpan.class);
+        EntrySpan span = mock(EntrySpan.class);
         context.handle(span);
         Mockito.verify(span, times(1)).tag(new StringTag("a"), "b");
     }

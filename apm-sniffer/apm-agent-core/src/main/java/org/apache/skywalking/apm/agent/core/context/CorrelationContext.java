@@ -31,24 +31,23 @@ import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Correlation.INJECTION_TAGS;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Correlation.AUTO_TAG_KEYS;
 
 /**
- * Correlation context, use to propagation user custom data.
- * Working on the protocol and delegate set/get method.
+ * Correlation context, use to propagation user custom data. Working on the protocol and delegate set/get method.
  */
 public class CorrelationContext {
 
     private final Map<String, String> data;
 
-    private final List<String> injectionTags;
+    private final List<String> autoTagKeys;
 
     public CorrelationContext() {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
-        if (StringUtil.isNotEmpty(INJECTION_TAGS)) {
-            injectionTags = Arrays.asList(INJECTION_TAGS.split(","));
+        if (StringUtil.isNotEmpty(AUTO_TAG_KEYS)) {
+            autoTagKeys = Arrays.asList(AUTO_TAG_KEYS.split(","));
         } else {
-            injectionTags = new ArrayList<>();
+            autoTagKeys = new ArrayList<>();
         }
     }
 
@@ -103,8 +102,8 @@ public class CorrelationContext {
         }
 
         return data.entrySet().stream()
-            .map(entry -> Base64.encode(entry.getKey()) + ":" + Base64.encode(entry.getValue()))
-            .collect(Collectors.joining(","));
+                   .map(entry -> Base64.encode(entry.getKey()) + ":" + Base64.encode(entry.getValue()))
+                   .collect(Collectors.joining(","));
     }
 
     /**
@@ -164,13 +163,15 @@ public class CorrelationContext {
     }
 
     void handle(AbstractSpan span) {
-        injectionTags.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
+        autoTagKeys.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         CorrelationContext that = (CorrelationContext) o;
         return Objects.equals(data, that.data);
     }

@@ -312,8 +312,8 @@ public class Config {
         public static int VALUE_MAX_LENGTH = 128;
 
         /**
-         * Extract tags from the correlation.
+         * Tag the span by the key/value in the correlation context, when the keys listed here exist.
          */
-        public static String INJECTION_TAGS = "";
+        public static String AUTO_TAG_KEYS = "";
     }
 }
