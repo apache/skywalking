@@ -91,7 +91,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void run() {
-        if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.TIMES_SEND_PROPERTIES == 0) {
+        if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
             InstanceProperties instance = InstanceProperties.newBuilder()
                                                             .setService(Config.Agent.SERVICE_NAME)
                                                             .setServiceInstance(Config.Agent.INSTANCE_NAME)
