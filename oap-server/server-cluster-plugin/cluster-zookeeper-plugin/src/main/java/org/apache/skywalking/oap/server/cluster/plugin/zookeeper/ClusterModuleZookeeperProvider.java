@@ -135,10 +135,9 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             client.start();
             client.blockUntilConnected();
             serviceDiscovery.start();
-            coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
             MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
             HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            coordinator.setHealthChecker(healthChecker);
+            coordinator = new ZookeeperCoordinator(config, serviceDiscovery, healthChecker);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);

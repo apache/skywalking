@@ -71,10 +71,9 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
 
         //TODO check isSSL
         client = new EtcdClient(uris.toArray(new URI[] {}));
-        EtcdCoordinator coordinator = new EtcdCoordinator(config, client);
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.setHealthChecker(healthChecker);
+        EtcdCoordinator coordinator = new EtcdCoordinator(config, client, healthChecker);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

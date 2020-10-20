@@ -22,11 +22,8 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
@@ -42,12 +39,12 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
     private final NamingService namingService;
     private final ClusterModuleNacosConfig config;
     private volatile Address selfAddress;
-    @Setter
-    private HealthCheckMetrics healthChecker;
+    private final HealthCheckMetrics healthChecker;
 
-    public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config) {
+    public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config, HealthCheckMetrics healthChecker) {
         this.namingService = namingService;
         this.config = config;
+        this.healthChecker = healthChecker;
     }
 
     @Override
@@ -65,18 +62,15 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
                 });
             }
             if (remoteInstances.size() > 1) {
-                Set<String> remoteAddressSet = remoteInstances.stream().map(remoteInstance ->
-                        remoteInstance.getAddress().getHost()).collect(Collectors.toSet());
-                boolean hasUnHealthAddress = OAPNodeChecker.hasUnHealthAddress(remoteAddressSet);
+                boolean hasUnHealthAddress = OAPNodeChecker.hasUnHealthAddress(remoteInstances);
                 if (hasUnHealthAddress) {
                     this.healthChecker.unHealth(new ServiceQueryException("found 127.0.0.1 or localhost in cluster mode"));
                 } else {
-                    List<RemoteInstance> selfInstances = remoteInstances.stream().
-                            filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
-                    if (CollectionUtils.isNotEmpty(selfInstances) && selfInstances.size() == 1) {
-                        this.healthChecker.health();
-                    } else {
+                    boolean hasDuplicateSelfAddress = OAPNodeChecker.hasDuplicateSelfAddress(remoteInstances);
+                    if (hasDuplicateSelfAddress) {
                         this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
+                    } else {
+                        this.healthChecker.health();
                     }
                 }
             }

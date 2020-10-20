@@ -57,8 +57,7 @@ public class NacosCoordinatorTest {
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
         nacosConfig.setServiceName(SERVICE_NAME);
-        coordinator = new NacosCoordinator(namingService, nacosConfig);
-        coordinator.setHealthChecker(healthChecker);
+        coordinator = new NacosCoordinator(namingService, nacosConfig, healthChecker);
     }
 
     @Test

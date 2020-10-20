@@ -69,7 +69,7 @@ public class ConsulCoordinatorTest {
 
         consulConfig.setServiceName(SERVICE_NAME);
 
-        coordinator = new ConsulCoordinator(consulConfig, consul);
+        coordinator = new ConsulCoordinator(consulConfig, consul, healthChecker);
 
         consulResponse = mock(ConsulResponse.class);
 
@@ -81,7 +81,6 @@ public class ConsulCoordinatorTest {
 
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test

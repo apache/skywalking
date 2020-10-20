@@ -61,11 +61,9 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-
-        coordinator = new KubernetesCoordinator(getManager(), config);
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.setHealthChecker(healthChecker);
+        coordinator = new KubernetesCoordinator(getManager(), config, healthChecker);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

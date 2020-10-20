@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.server.core.cluster;
 import com.google.common.collect.Sets;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class OAPNodeChecker {
     private static final Set<String> ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE = Sets.newHashSet("127.0.0.1", "localhost");
@@ -31,5 +33,17 @@ public class OAPNodeChecker {
             return false;
         }
         return !Sets.intersection(ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE, addressSet).isEmpty();
+    }
+
+    public static boolean hasUnHealthAddress(List<RemoteInstance> remoteInstances) {
+        Set<String> remoteAddressSet = remoteInstances.stream().map(remoteInstance ->
+                remoteInstance.getAddress().getHost()).collect(Collectors.toSet());
+        return hasUnHealthAddress(remoteAddressSet);
+    }
+
+    public static boolean hasDuplicateSelfAddress(List<RemoteInstance> remoteInstances) {
+        List<RemoteInstance> selfInstances = remoteInstances.stream().
+                filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
+        return selfInstances.size() != 1;
     }
 }

@@ -65,10 +65,9 @@ public class ITClusterEtcdPluginTest {
         etcdConfig = new ClusterModuleEtcdConfig();
         etcdConfig.setServiceName(SERVICE_NAME);
         client = new EtcdClient(URI.create(baseUrl));
-        coordinator = new EtcdCoordinator(etcdConfig, client);
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator.setHealthChecker(healthChecker);
+        coordinator = new EtcdCoordinator(etcdConfig, client, healthChecker);
     }
 
     @After

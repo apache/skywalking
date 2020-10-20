@@ -70,14 +70,13 @@ public class KubernetesCoordinatorTest {
 
     @Before
     public void prepare() throws IllegalAccessException {
-        coordinator = new KubernetesCoordinator(getManager(), new ClusterModuleKubernetesConfig());
+        coordinator = new KubernetesCoordinator(getManager(), new ClusterModuleKubernetesConfig(), healthChecker);
         MemberModifier.field(KubernetesCoordinator.class, "uid").set(coordinator, String.valueOf(SELF_UID));
         selfAddress = new Address(LOCAL_HOST, GRPC_PORT, true);
         informer = PowerMockito.mock(NamespacedPodListInformer.class);
         Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test
