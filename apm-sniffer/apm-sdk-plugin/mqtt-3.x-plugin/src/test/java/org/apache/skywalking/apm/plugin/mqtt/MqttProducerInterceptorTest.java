@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.mqtt.v3.MqttEnhanceRequiredInfo;
 import org.apache.skywalking.apm.plugin.mqtt.v3.MqttProducerInterceptor;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,9 +43,6 @@ import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * Created by yuanguohua on 2020/10/16 10:18
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class MqttProducerInterceptorTest {
@@ -78,9 +76,14 @@ public class MqttProducerInterceptorTest {
     public void setUp() throws Exception {
         mqttProducerInterceptor = new MqttProducerInterceptor();
         MqttEnhanceRequiredInfo mqttEnhanceRequiredInfo = new MqttEnhanceRequiredInfo();
-        mqttEnhanceRequiredInfo.setBrokerServers(new String[] {"tcp://127.0.0.1:1883"});
+
+        mqttEnhanceRequiredInfo.setBrokerServers(StringUtil.join(';', new String[] {"tcp://127.0.0.1:1883"}));
         enhancedInstance.setSkyWalkingDynamicField(mqttEnhanceRequiredInfo);
-        arguments = new Object[] {"sw-mqtt"};
+        arguments = new Object[] {
+            "sw-mqtt",
+            null,
+            1
+        };
     }
 
     @Test
@@ -101,7 +104,7 @@ public class MqttProducerInterceptorTest {
         SpanAssert.assertTag(span, 1, "sw-mqtt");
         SpanAssert.assertComponent(span, MQTT_PRODUCER);
         SpanAssert.assertLayer(span, SpanLayer.MQ);
-        assertThat(span.getOperationName(), is("Mqtt/sw-mqtt/Producer"));
+        assertThat(span.getOperationName(), is("Mqtt/sw-mqtt/Producer/1"));
     }
 
 }

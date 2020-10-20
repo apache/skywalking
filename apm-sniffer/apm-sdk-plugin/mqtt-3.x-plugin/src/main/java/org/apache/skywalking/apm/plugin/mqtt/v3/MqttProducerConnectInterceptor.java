@@ -23,11 +23,9 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
-/**
- * Created by yuanguohua on 2020/8/21 10:02
- */
 public class MqttProducerConnectInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override
@@ -35,7 +33,7 @@ public class MqttProducerConnectInterceptor implements InstanceMethodsAroundInte
                              Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
         MqttConnectOptions mqttConnectOptions = (MqttConnectOptions) allArguments[0];
         MqttEnhanceRequiredInfo requiredInfo = new MqttEnhanceRequiredInfo();
-        requiredInfo.setBrokerServers(mqttConnectOptions.getServerURIs());
+        requiredInfo.setBrokerServers(StringUtil.join(';', mqttConnectOptions.getServerURIs()));
         requiredInfo.setStartTime(System.currentTimeMillis());
         enhancedInstance.setSkyWalkingDynamicField(requiredInfo);
 

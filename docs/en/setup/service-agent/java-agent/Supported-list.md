@@ -54,6 +54,7 @@
   * [ActiveMQ](https://github.com/apache/activemq) 5.10.0 -> 5.15.4
   * [RabbitMQ](https://www.rabbitmq.com/) 5.x
   * [Pulsar](http://pulsar.apache.org) 2.2.x -> 2.4.x
+  * [Mqtt](https://mqtt.org/) 3.x
 * NoSQL
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x

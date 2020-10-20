@@ -28,9 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * Created by yuanguohua on 2020/8/21 10:53
- */
 public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String OPERATE_NAME_PREFIX = "Mqtt/";

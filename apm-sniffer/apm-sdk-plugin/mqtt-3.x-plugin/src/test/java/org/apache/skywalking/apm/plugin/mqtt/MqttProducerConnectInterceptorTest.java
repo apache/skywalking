@@ -32,9 +32,6 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * Created by yuanguohua on 2020/10/16 10:18
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class MqttProducerConnectInterceptorTest {
@@ -62,7 +59,7 @@ public class MqttProducerConnectInterceptorTest {
     public void setUp() throws Exception {
         mqttProducerConnectInterceptor = new MqttProducerConnectInterceptor();
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setServerURIs(new String[]{"tcp://127.0.0.1:1883"});
+        mqttConnectOptions.setServerURIs(new String[] {"tcp://127.0.0.1:1883"});
         arguments = new Object[] {mqttConnectOptions};
     }
 
@@ -70,8 +67,10 @@ public class MqttProducerConnectInterceptorTest {
     public void testMqttProducerConnectInterceptor() throws Throwable {
         mqttProducerConnectInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
         mqttProducerConnectInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
-        assertThat(((MqttEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField()).getBrokerServers(), Is.is("tcp://127.0.0.1:1883"));
+        assertThat(
+            ((MqttEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField()).getBrokerServers(),
+            Is.is("tcp://127.0.0.1:1883")
+        );
     }
-
 
 }

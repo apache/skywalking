@@ -18,53 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.mqtt.v3;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import org.apache.skywalking.apm.util.StringUtil;
+import lombok.Data;
 
-/**
- * Created by @author yuanguohua on 2020/8/21 13:49
- */
+@Data
 public class MqttEnhanceRequiredInfo {
-    
+
     private String brokerServers;
-    
-    private String topics;
-    
-    private String qos;
-    
+
     private long startTime;
-    
-    public void setBrokerServers(String[] brokerServers) {
-        this.brokerServers = StringUtil.join(';', brokerServers);
-    }
-    
-    public void setTopics(String[] topics) {
-        this.topics = StringUtil.join(';', topics);
-    }
-    
-    public String getBrokerServers() {
-        return brokerServers;
-    }
-    
-    public String getTopics() {
-        return topics;
-    }
-    
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-    
-    public long getStartTime() {
-        return startTime;
-    }
-    
-    public String getQos() {
-        return qos;
-    }
-    
-    public void setQos(int[] qos) {
-        this.qos = Arrays.stream(qos).boxed().map(q -> q.toString()).collect(Collectors.joining(";"));
-    }
-    
+
 }

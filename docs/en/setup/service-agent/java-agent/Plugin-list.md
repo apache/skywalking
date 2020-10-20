@@ -107,3 +107,4 @@
 - vertx-core-3.x
 - xxl-job-2.x
 - zookeeper-3.4.x
+- mqtt-3.x

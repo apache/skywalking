@@ -29,21 +29,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * Created by yuanguohua on 2020/8/21 10:02
- */
 public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String OPERATE_NAME_PREFIX = "Mqtt/";
 
-    private static final String OPERATE_NAME = "/Producer";
+    private static final String OPERATE_NAME = "/Producer/";
 
     @Override
     public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                              MethodInterceptResult methodInterceptResult) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
         String topic = (String) objects[0];
-        String operationName = OPERATE_NAME_PREFIX + topic + OPERATE_NAME;
+        String operationName = OPERATE_NAME_PREFIX + topic + OPERATE_NAME + objects[2];
         MqttEnhanceRequiredInfo requiredInfo = (MqttEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createExitSpan(
             operationName, contextCarrier, requiredInfo.getBrokerServers());

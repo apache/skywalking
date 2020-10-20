@@ -29,9 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-/**
- * Created by yuanguohua on 2020/8/21 10:04
- */
 public class MqttProducerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "org.eclipse.paho.client.mqttv3.MqttAsyncClient";
