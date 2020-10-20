@@ -329,14 +329,20 @@ xxl-job:
 spring-webflux-webclient:
   id: 99
   languages: Java
-Mqtt:
+thrift-server:
   id: 100
   languages: Java
-mqtt-producer:
+thrift-client:
   id: 101
   languages: Java
-mqtt-consumer:
+Mqtt:
   id: 102
+  languages: Java
+mqtt-producer:
+  id: 103
+  languages: Java
+mqtt-consumer:
+  id: 104
   languages: Java
 
 

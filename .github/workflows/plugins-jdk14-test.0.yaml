@@ -18,11 +18,6 @@ name: PluginsJDK14Test
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
 
 jobs:
   PluginsJDK14Test:

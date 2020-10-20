@@ -46,6 +46,7 @@
   * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
   * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
   * [Brpc-Java](https://github.com/baidu/brpc-java) 2.3.7 -> 2.5.3
+  * [Thrift](https://github.com/apache/thrift/tree/master/lib/java) 0.10.0 -> 0.12.0
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
