@@ -89,6 +89,7 @@ property key | Description | Default |
 `osinfo.ipv4_list_size`| Limit the length of the ipv4 list size. |`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.heartbeat_period`|agent heartbeat report period. Unit, second.|`30`|
+`collector.properties_report_period_factor`|The agent sends the instance properties to the backend every `collector.heartbeat_period * collector.properties_report_period_factor` seconds |`10`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 `collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
