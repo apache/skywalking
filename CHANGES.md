@@ -91,6 +91,7 @@ Release Notes.
 * Fix end time bug in the query process.
 * Fix `Exporter INCREMENT mode` is not working.
 * Fix an error when executing startup.bat when the log directory exists
+* Add syncBulkActions config to avoid the large amount of metrics data written ES in a single sync bulk request.
 
 #### UI
 * Add browser dashboard.
