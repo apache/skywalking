@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * MetricsRule holds the parsing expression.
+ */
 @Data
 @NoArgsConstructor
 public class MetricsRule {

@@ -45,6 +45,9 @@ import static io.vavr.Predicates.instanceOf;
 import static java.util.stream.Collectors.toList;
 import static org.apache.skywalking.oap.meter.analyzer.Analyzer.NIL;
 
+/**
+ * PrometheusMetricConverter converts prometheus metrics to meter-system metrics, then store them to backend storage.
+ */
 @Slf4j
 public class PrometheusMetricConverter {
 
@@ -54,6 +57,11 @@ public class PrometheusMetricConverter {
         this.convert = new MetricConvert(rules, defaultMetricLevel, service);
     }
 
+    /**
+     * toMeter transforms prometheus metrics to meter-system metrics.
+     *
+     * @param metricStream prometheus metrics stream.
+     */
     public void toMeter(Stream<Metric> metricStream) {
         ImmutableMap<String, SampleFamily> data = convertPromMetricToSampleFamily(metricStream);
         convert.toMeter(data);

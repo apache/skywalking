@@ -27,8 +27,11 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.skywalking.oap.meter.analyzer.dsl.counter.Window;
+import org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow;
 
+/**
+ * Sample represents the metric data point in a range of time.
+ */
 @Builder
 @EqualsAndHashCode
 @ToString
@@ -48,7 +51,7 @@ public class Sample {
     }
 
     Sample increase(String range, Function2<Double, Long, Double> transform) {
-        Tuple2<Long, Double> i = Window.INSTANCE.increase(name, labels, value, Duration.parse(range).toMillis(), timestamp);
+        Tuple2<Long, Double> i = CounterWindow.INSTANCE.increase(name, labels, value, Duration.parse(range).toMillis(), timestamp);
         double nv = transform.apply(i._2, i._1);
         return newValue(ignored -> nv);
     }

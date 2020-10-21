@@ -55,6 +55,9 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Analyzer analyses DSL expression with input samples, then to generate meter-system metrics.
+ */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString(of = {"metricName", "expression"})
@@ -78,6 +81,11 @@ public class Analyzer {
 
     private boolean createdMetric;
 
+    /**
+     * analyse intends to parse expression with input samples to meter-system metrics.
+     *
+     * @param sampleFamilies input samples.
+     */
     public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
         Result r = expression.run(sampleFamilies);
         if (!r.isSuccess()) {

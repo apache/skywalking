@@ -52,6 +52,9 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * SampleFamily represents a collection of {@link Sample}.
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
@@ -112,7 +115,7 @@ public class SampleFamily {
         return match(labels, (sv, lv) -> !sv.matches(lv));
     }
 
-    /* Operator overloading*/
+    /* Binary operator overloading*/
     public SampleFamily plus(Number number) {
         return newValue(v -> v + number.doubleValue());
     }
@@ -381,6 +384,9 @@ public class SampleFamily {
         return a.equals(b);
     }
 
+    /**
+     * The parsing context holds key results more than sample collection.
+     */
     @ToString
     @EqualsAndHashCode
     @Getter

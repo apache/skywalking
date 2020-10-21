@@ -33,6 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+/**
+ * Rules is factory to instance {@link Rule} from a local file.
+ */
 public class Rules {
     private static final Logger LOG = LoggerFactory.getLogger(Rule.class);
 

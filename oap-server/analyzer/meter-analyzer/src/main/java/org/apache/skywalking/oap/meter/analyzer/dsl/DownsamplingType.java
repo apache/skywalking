@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+/**
+ * DownsamplingType indicates the downsampling type of meter function
+ */
 public enum DownsamplingType {
     AVG, LATEST
 }

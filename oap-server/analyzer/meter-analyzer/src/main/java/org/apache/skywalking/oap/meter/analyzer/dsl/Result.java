@@ -25,27 +25,54 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Result indicates the parsing result of expression.
+ */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
 @Getter
 public class Result {
+
+    /**
+     * fail is a static factory method builds failed result based on {@link Throwable}.
+     *
+     * @param throwable to build failed result.
+     * @return failed result.
+     */
     public static Result fail(final Throwable throwable) {
         log.info("Expression fails: {}", throwable.getMessage());
         return new Result(false, SampleFamily.EMPTY);
     }
 
+    /**
+     * fail is a static factory method builds failed result based on error message.
+     *
+     * @param message is the error details why the result is failed.
+     * @return failed result.
+     */
     public static Result fail(String message) {
         log.info("Expression fails: {}", message);
         return new Result(false, SampleFamily.EMPTY);
     }
 
+    /**
+     * fail is a static factory method builds failed result.
+     *
+     * @return failed result.
+     */
     public static Result fail() {
         log.info("Expression fails");
         return new Result(false, SampleFamily.EMPTY);
     }
 
+    /**
+     * success is a static factory method builds successful result.
+     *
+     * @param sf is the parsed result.
+     * @return successful result.
+     */
     public static Result success(SampleFamily sf) {
         if (log.isDebugEnabled()) {
             log.debug("Result is successful, sample family is {}", sf);

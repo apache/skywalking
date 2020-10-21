@@ -23,7 +23,17 @@ import groovy.lang.GroovyShell;
 import groovy.util.DelegatingScript;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
+/**
+ * DSL combines methods to parse groovy based DSL expression.
+ */
 public final class DSL {
+
+    /**
+     * Parse string literal to Expression object, which can be reused.
+     *
+     * @param expression string literal represents the DSL expression.
+     * @return Expression object could be executed.
+     */
     public static Expression parse(final String expression) {
         CompilerConfiguration cc = new CompilerConfiguration();
         cc.setScriptBaseClass(DelegatingScript.class.getName());

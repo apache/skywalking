@@ -23,6 +23,9 @@ import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * StaticConfig introduces the fetching targets.
+ */
 @Data
 @NoArgsConstructor
 public class StaticConfig {

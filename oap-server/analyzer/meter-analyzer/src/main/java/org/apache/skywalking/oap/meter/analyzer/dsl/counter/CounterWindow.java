@@ -31,15 +31,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Window stores a series of counter samples in order to calculate the increase
+ * CounterWindow stores a series of counter samples in order to calculate the increase
  * or instant rate of increase.
+ *
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @EqualsAndHashCode
-public class Window {
+public class CounterWindow {
 
-    public static final Window INSTANCE = new Window();
+    public static final CounterWindow INSTANCE = new CounterWindow();
 
     private final Map<ID, Queue<Tuple2<Long, Double>>> windows = Maps.newHashMap();
 

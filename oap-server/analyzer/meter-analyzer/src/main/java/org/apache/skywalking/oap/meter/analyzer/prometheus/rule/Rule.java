@@ -22,6 +22,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Rule contains the global configuration of prometheus fetcher.
+ */
 @Data
 @NoArgsConstructor
 public class Rule {

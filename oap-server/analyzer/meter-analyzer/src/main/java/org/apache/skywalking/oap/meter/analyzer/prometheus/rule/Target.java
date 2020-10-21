@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Target is the HTTP fetching endpoint.
+ */
 @Data
 @NoArgsConstructor
 public class Target {

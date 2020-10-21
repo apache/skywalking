@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.meter.analyzer.dsl.counter.Window;
+import org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -233,7 +233,7 @@ public class IncreaseTest {
     @Test
     public void test() {
         Expression e = DSL.parse(expression);
-        Window.INSTANCE.reset();
+        CounterWindow.INSTANCE.reset();
         for (int i = 0; i < input.size(); i++) {
             Result r = null;
             try {

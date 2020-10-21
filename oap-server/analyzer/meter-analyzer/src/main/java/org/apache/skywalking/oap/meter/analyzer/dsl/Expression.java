@@ -25,6 +25,9 @@ import groovy.util.DelegatingScript;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Expression is a reusable monadic container type which represents a DSL expression.
+ */
 @Slf4j
 public class Expression {
 
@@ -34,6 +37,12 @@ public class Expression {
         this.expression = expression;
     }
 
+    /**
+     * Run the expression with a data map.
+     *
+     * @param sampleFamilies a data map includes all of candidates to be analysis.
+     * @return The result of execution.
+     */
     public Result run(final ImmutableMap<String, SampleFamily> sampleFamilies) {
         expression.setDelegate(new GroovyObjectSupport() {
 
@@ -92,5 +101,4 @@ public class Expression {
         expando.registerInstanceMethod("div", new NumberClosure(this, (n, s) -> s.newValue(v -> n.doubleValue() / v)));
         expando.initialize();
     }
-
 }

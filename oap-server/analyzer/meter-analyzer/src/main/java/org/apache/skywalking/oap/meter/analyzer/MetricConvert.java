@@ -32,6 +32,9 @@ import org.elasticsearch.common.Strings;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * MetricConvert converts {@link SampleFamily} collection to meter-system metrics, then store them to backend storage.
+ */
 @Slf4j
 public class MetricConvert {
 
@@ -50,6 +53,11 @@ public class MetricConvert {
             .collect(toList());
     }
 
+    /**
+     * toMeter transforms {@link SampleFamily} collection  to meter-system metrics.
+     *
+     * @param sampleFamilies {@link SampleFamily} collection.
+     */
     public void toMeter(final ImmutableMap<String, SampleFamily> sampleFamilies) {
         Preconditions.checkNotNull(sampleFamilies);
         if (sampleFamilies.size() < 1) {

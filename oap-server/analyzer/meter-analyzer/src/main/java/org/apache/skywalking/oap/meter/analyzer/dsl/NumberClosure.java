@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 import groovy.lang.Closure;
 import io.vavr.Function2;
 
+/**
+ * NumberClosure intends to extend primitive Number to do binary operation with {@link SampleFamily}
+ */
 public class NumberClosure extends Closure<SampleFamily> {
 
     private final Function2<Number, SampleFamily, SampleFamily> fn;
@@ -30,11 +33,23 @@ public class NumberClosure extends Closure<SampleFamily> {
         this.fn = fn;
     }
 
+    /**
+     * Call binary operation, for instances, {@code 100 + server_cpu_seconds}. {@code server_cpu_seconds}'s type
+     * should be {@link SampleFamily}
+     *
+     * @param arguments the right-hand side of binary operation, usually a {@link SampleFamily} object.
+     * @return the result of binary operation.
+     */
     @Override
     public SampleFamily call(Object arguments) {
         return fn.apply((Number) this.getDelegate(), (SampleFamily) arguments);
     }
 
+    /**
+     * getParameterTypes hints the right-hand side should be {@link SampleFamily}.
+     *
+     * @return the class array contains argument type.
+     */
     @Override
     public Class[] getParameterTypes() {
         return new Class[] { SampleFamily.class};
