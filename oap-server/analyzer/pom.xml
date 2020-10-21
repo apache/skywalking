@@ -30,6 +30,7 @@
 
     <modules>
         <module>agent-analyzer</module>
+        <module>meter-analyzer</module>
     </modules>
 
     <dependencies>
