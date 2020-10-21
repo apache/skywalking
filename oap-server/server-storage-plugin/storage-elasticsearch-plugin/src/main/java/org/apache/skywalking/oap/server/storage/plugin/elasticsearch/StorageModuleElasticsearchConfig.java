@@ -52,6 +52,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int superDatasetIndexShardsFactor = 5;
     private int indexRefreshInterval = 2;
     private int bulkActions = 2000;
+    private int syncBulkActions = 50000;
     private int flushInterval = 10;
     private int concurrentRequests = 2;
     /**
