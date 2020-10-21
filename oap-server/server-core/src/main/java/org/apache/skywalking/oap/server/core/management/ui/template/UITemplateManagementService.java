@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -37,14 +39,18 @@ public class UITemplateManagementService implements Service {
     private UITemplateManagementDAO getUITemplateManagementDAO() {
         if (uiTemplateManagementDAO == null) {
             this.uiTemplateManagementDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(UITemplateManagementDAO.class);
+                                                        .provider()
+                                                        .getService(UITemplateManagementDAO.class);
         }
         return uiTemplateManagementDAO;
     }
 
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        return getUITemplateManagementDAO().getAllTemplates(includingDisabled);
+        final List<DashboardConfiguration> allTemplates =
+            getUITemplateManagementDAO().getAllTemplates(includingDisabled);
+        // Make sure the template in A-Za-z
+        Collections.sort(allTemplates, Comparator.comparing(DashboardConfiguration::getName));
+        return allTemplates;
     }
 
     public TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException {

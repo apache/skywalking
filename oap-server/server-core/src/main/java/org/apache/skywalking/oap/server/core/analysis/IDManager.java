@@ -39,7 +39,7 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return buildId(name, type.equals(NodeType.Normal));
+            return buildId(name, type.equals(NodeType.Normal) || type.equals(NodeType.Browser));
         }
 
         public static String buildId(String name, boolean isNormal) {

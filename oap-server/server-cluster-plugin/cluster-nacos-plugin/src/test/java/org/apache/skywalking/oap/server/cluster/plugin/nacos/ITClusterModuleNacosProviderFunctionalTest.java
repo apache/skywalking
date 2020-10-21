@@ -40,9 +40,13 @@ import static org.junit.Assert.assertTrue;
 public class ITClusterModuleNacosProviderFunctionalTest {
 
     private String nacosAddress;
+    private String username;
+    private String password;
 
     @Before
     public void before() {
+        username = "nacos";
+        password = "nacos";
         nacosAddress = System.getProperty("nacos.address");
         assertFalse(StringUtil.isEmpty(nacosAddress));
     }
@@ -164,6 +168,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
         config.setHostPort(nacosAddress);
         config.setServiceName(servicName);
+        config.setUsername(username);
+        config.setPassword(password);
 
         provider.prepare();
         provider.start();
@@ -179,6 +185,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
 
         config.setHostPort(nacosAddress);
         config.setServiceName(serviceName);
+        config.setUsername(username);
+        config.setPassword(password);
 
         if (!StringUtil.isEmpty(internalComHost)) {
             config.setInternalComHost(internalComHost);
