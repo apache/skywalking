@@ -46,9 +46,9 @@ instance_trace_count.tagMatch("region", "us-west|asia-north").tagEqual("az", "az
 
 The following binary arithmetic operators are available in MAL:
 
- - + (addition)
- - - (subtraction)
- - * (multiplication)
+ - \+ (addition)
+ - \- (subtraction)
+ - \* (multiplication)
  - / (division)
 
 Binary operators are defined between scalar/scalar, sampleFamily/scalar and sampleFamily/sampleFamily value pairs.
@@ -110,9 +110,9 @@ Sample family supports the following aggregation operations that can be used to 
 resulting in a new sample family of fewer samples(even single one) with aggregated values:
 
  - sum (calculate sum over dimensions)
- - min (select minimum over dimensions) (TBD)
- - max (select maximum over dimensions) (TBD)
- - avg (calculate the average over dimensions) (TBD)
+ - min (select minimum over dimensions) (TODO)
+ - max (select maximum over dimensions) (TODO)
+ - avg (calculate the average over dimensions) (TODO)
  
 These operations can be used to aggregate over all label dimensions or preserve distinct dimensions by inputting `by` parameter. 
 
@@ -177,12 +177,12 @@ MAL should instruct meter-system how to do downsampling for metrics. It doesn't 
 Down sampling operations are as global function in MAL:
 
  - avg
- - latest (TBD)
- - min (TBD)
- - max (TBD)
- - mean (TBD)
- - sum (TBD)
- - count (TBD)
+ - latest (TODO)
+ - min (TODO)
+ - max (TODO)
+ - mean (TODO)
+ - sum (TODO)
+ - count (TODO)
 
 The default one is `avg` if not specific an operation.
 
