@@ -92,6 +92,7 @@ Release Notes.
 * Fix `Exporter INCREMENT mode` is not working.
 * Fix an error when executing startup.bat when the log directory exists
 * Add syncBulkActions configuration to set up the batch size of the metrics persistent.
+* Meter Analysis Language.
 
 #### UI
 * Add browser dashboard.
