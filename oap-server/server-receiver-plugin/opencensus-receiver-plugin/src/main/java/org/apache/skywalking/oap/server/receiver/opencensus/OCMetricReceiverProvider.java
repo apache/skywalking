@@ -21,11 +21,11 @@ package org.apache.skywalking.oap.server.receiver.opencensus;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.MetricsRule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.metric.promethues.PrometheusMetricConverter;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.MetricsRule;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -85,7 +85,7 @@ public class OCMetricReceiverProvider extends ModuleProvider {
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         if (Objects.nonNull(grpcServer)) {
             final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-            grpcServer.addHandler(new OCMetricHandler(new PrometheusMetricConverter(rules, service)));
+            grpcServer.addHandler(new OCMetricHandler(new PrometheusMetricConverter(rules, null, service)));
         }
     }
 
