@@ -57,7 +57,7 @@ public class BasicTest {
                 "default",
                 of("instance_cpu_percentage", SampleFamily.EMPTY),
                 "instance_cpu_percentage",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {

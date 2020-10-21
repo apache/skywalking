@@ -36,6 +36,16 @@ public class Result {
         return new Result(false, SampleFamily.EMPTY);
     }
 
+    public static Result fail(String message) {
+        log.info("Expression fails: {}", message);
+        return new Result(false, SampleFamily.EMPTY);
+    }
+
+    public static Result fail() {
+        log.info("Expression fails");
+        return new Result(false, SampleFamily.EMPTY);
+    }
+
     public static Result success(SampleFamily sf) {
         if (log.isDebugEnabled()) {
             log.debug("Result is successful, sample family is {}", sf);

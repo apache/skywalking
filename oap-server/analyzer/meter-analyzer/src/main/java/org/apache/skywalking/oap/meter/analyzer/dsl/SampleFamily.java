@@ -61,7 +61,7 @@ public class SampleFamily {
     public static SampleFamily build(Sample... samples) {
         return build(null, samples);
     }
-    
+
     static SampleFamily build(Context ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
@@ -97,11 +97,11 @@ public class SampleFamily {
 
     /* tag filter operations*/
     public SampleFamily tagEqual(String... labels) {
-        return match(labels, String::equals);
+        return match(labels, this::stringComp);
     }
 
     public SampleFamily tagNotEqual(String[] labels) {
-        return match(labels, (sv, lv) -> !sv.equals(lv));
+        return match(labels, (sv, lv) -> !stringComp(sv, lv));
     }
 
     public SampleFamily tagMatch(String[] labels) {
@@ -183,9 +183,9 @@ public class SampleFamily {
         }
         if (by == null) {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(Double::sum).orElse(0.0D);
-            return SampleFamily.build(this.context,  newSample(ImmutableMap.of(), samples[0].timestamp, result));
+            return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
-        return SampleFamily.build(this.context,  Arrays.stream(samples)
+        return SampleFamily.build(this.context, Arrays.stream(samples)
             .map(sample -> Tuple.of(by.stream()
                 .collect(ImmutableMap
                     .toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
@@ -199,7 +199,10 @@ public class SampleFamily {
     /* Function */
     public SampleFamily increase(String range) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
-        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> sample
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> sample
             .increase(range, (lowerBoundValue, lowerBoundTime) ->
                 sample.value - lowerBoundValue))
             .toArray(Sample[]::new));
@@ -207,7 +210,10 @@ public class SampleFamily {
 
     public SampleFamily rate(String range) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
-        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> sample
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> sample
             .increase(range, (lowerBoundValue, lowerBoundTime) ->
                 sample.timestamp - lowerBoundTime < 1L ? 0.0D
                     : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
@@ -215,7 +221,10 @@ public class SampleFamily {
     }
 
     public SampleFamily irate() {
-        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> sample
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> sample
             .increase("PT1S", (lowerBoundValue, lowerBoundTime) ->
                 sample.timestamp - lowerBoundTime < 1L ? 0.0D
                     : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
@@ -224,7 +233,10 @@ public class SampleFamily {
 
     @SuppressWarnings(value = "unchecked")
     public SampleFamily tag(Closure<?> cl) {
-        return SampleFamily.build(this.context,  Arrays.stream(samples).map(sample -> {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> {
             Object delegate = new Object();
             Closure<?> c = cl.rehydrate(delegate, sample, delegate);
             Map<String, String> arg = Maps.newHashMap(sample.labels);
@@ -245,6 +257,9 @@ public class SampleFamily {
     public SampleFamily histogram(String le, TimeUnit unit) {
         long scale = unit.toMillis(1);
         Preconditions.checkArgument(scale > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
         AtomicDouble pre = new AtomicDouble();
         AtomicReference<String> preLe = new AtomicReference<>("0");
         return SampleFamily.buildHistogram(this.context, Stream.concat(
@@ -260,24 +275,42 @@ public class SampleFamily {
                         .put("le", String.valueOf((long) (Double.parseDouble(preLe.get()) * scale))).build();
                     preLe.set(s.labels.get(le));
                     return newSample(ll, s.timestamp, r);
-            })).toArray(Sample[]::new));
+                })).toArray(Sample[]::new));
     }
 
     public SampleFamily histogram_percentile(List<Integer> percentiles) {
+        Preconditions.checkArgument(percentiles.size() > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
         return SampleFamily.buildHistogramPercentile(this, percentiles.stream().mapToInt(i -> i).toArray());
     }
 
     public SampleFamily service(List<String> labelKeys) {
+        Preconditions.checkArgument(labelKeys.size() > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
         this.context.setMeterEntity(MeterEntity.newService(dim(labelKeys)));
         return left(labelKeys);
     }
 
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
+        Preconditions.checkArgument(serviceKeys.size() > 0);
+        Preconditions.checkArgument(instanceKeys.size() > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
         this.context.setMeterEntity(MeterEntity.newServiceInstance(dim(serviceKeys), dim(instanceKeys)));
         return left(io.vavr.collection.Stream.concat(serviceKeys, instanceKeys).asJava());
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
+        Preconditions.checkArgument(serviceKeys.size() > 0);
+        Preconditions.checkArgument(endpointKeys.size() > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
         this.context.setMeterEntity(MeterEntity.newEndpoint(dim(serviceKeys), dim(endpointKeys)));
         return left(io.vavr.collection.Stream.concat(serviceKeys, endpointKeys).asJava());
     }
@@ -304,21 +337,20 @@ public class SampleFamily {
             ll.put(labels[i], labels[i + 1]);
         }
         Stream<Sample> ss = Arrays.stream(samples).filter(sample ->
-            ll.entrySet().stream().allMatch(entry ->
-                sample.labels.containsKey(entry.getKey()) && op.apply(sample.labels.get(entry.getKey()), entry.getValue())));
+            ll.entrySet().stream().allMatch(entry -> op.apply(sample.labels.getOrDefault(entry.getKey(), ""), entry.getValue())));
         Sample[] sArr = ss.toArray(Sample[]::new);
         if (sArr.length < 1) {
             return SampleFamily.EMPTY;
         }
-        return SampleFamily.build(this.context,  sArr);
+        return SampleFamily.build(this.context, sArr);
     }
 
-    private SampleFamily newValue(Function<Double, Double> transform) {
+    SampleFamily newValue(Function<Double, Double> transform) {
         Sample[] ss = new Sample[samples.length];
         for (int i = 0; i < ss.length; i++) {
             ss[i] = samples[i].newValue(transform);
         }
-        return SampleFamily.build(this.context,  ss);
+        return SampleFamily.build(this.context, ss);
     }
 
     private SampleFamily newValue(SampleFamily another, Function2<Double, Double, Double> transform) {
@@ -328,7 +360,7 @@ public class SampleFamily {
                 .map(as -> newSample(cs.labels, cs.timestamp, transform.apply(cs.value, as.value)))
                 .toJavaStream())
             .toArray(Sample[]::new);
-        return ss.length > 0 ? SampleFamily.build(this.context,  ss) : EMPTY;
+        return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
 
     private Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
@@ -337,6 +369,16 @@ public class SampleFamily {
             .labels(labels)
             .timestamp(timestamp)
             .build();
+    }
+
+    private boolean stringComp(String a, String b) {
+        if (Strings.isNullOrEmpty(a) && Strings.isNullOrEmpty(b)) {
+            return true;
+        }
+        if (Strings.isNullOrEmpty(a)) {
+            return false;
+        }
+        return a.equals(b);
     }
 
     @ToString

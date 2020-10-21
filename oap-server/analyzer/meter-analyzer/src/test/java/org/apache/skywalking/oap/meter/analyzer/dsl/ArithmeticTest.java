@@ -54,6 +54,18 @@ public class ArithmeticTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
+                "plus-scalar-1",
+                of("instance_cpu_percentage", SampleFamily.build(
+                    Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
+                    Sample.builder().labels(of("idc", "t2")).value(1600592418481.0).build()
+                )),
+                "1000 + instance_cpu_percentage.tagEqual('idc','t1')",
+                Result.success(SampleFamily.build(
+                    Sample.builder().labels(of("idc", "t1")).value(1600592419480.0).build()
+                )),
+                false,
+            },
+            {
                 "plus-scalar",
                 of("instance_cpu_percentage", SampleFamily.build(
                     Sample.builder().labels(of("idc", "t1")).value(1600592418480.0).build(),
@@ -118,7 +130,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request + http_error_request",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {
@@ -174,7 +186,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request - http_error_request",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {
@@ -230,7 +242,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request * http_error_request",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {
@@ -241,7 +253,7 @@ public class ArithmeticTest {
                         Sample.builder().labels(of("idc", "t2")).value(3).build()
                     )),
                 "http_success_request * http_error_request",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {
@@ -252,7 +264,7 @@ public class ArithmeticTest {
                         Sample.builder().labels(of("idc", "t2")).value(3).build()
                     )),
                 "http_error_request * http_success_request ",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {
@@ -280,7 +292,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request / http_error_request",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {
@@ -291,7 +303,7 @@ public class ArithmeticTest {
                         Sample.builder().labels(of("idc", "t2")).value(3).build()
                     )),
                 "http_success_request / http_error_request",
-                Result.success(SampleFamily.EMPTY),
+                Result.fail(),
                 false,
             },
             {

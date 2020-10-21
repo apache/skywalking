@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
+import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,26 +44,53 @@ public class Expression {
                 if (log.isDebugEnabled()) {
                     log.debug("{} doesn't exist in {}", metricName, sampleFamilies.keySet());
                 }
-                throw new IllegalArgumentException("[" + metricName + "] can't be found");
+                return SampleFamily.EMPTY;
             }
 
             public SampleFamily avg(SampleFamily sf) {
+                if (sf == SampleFamily.EMPTY) {
+                    return SampleFamily.EMPTY;
+                }
                 sf.context.downsampling = DownsamplingType.AVG;
                 return sf;
             }
 
             public SampleFamily latest(SampleFamily sf) {
+                if (sf == SampleFamily.EMPTY) {
+                    return SampleFamily.EMPTY;
+                }
                 sf.context.downsampling = DownsamplingType.LATEST;
                 return sf;
             }
 
+            public Number time() {
+                return Instant.now().getEpochSecond();
+            }
+
+            public Number timestamp() {
+                return Instant.now().toEpochMilli();
+            }
+
         });
+        extendNumber(Number.class);
         try {
             SampleFamily sf = (SampleFamily) expression.run();
+            if (sf == SampleFamily.EMPTY) {
+                return Result.fail("Parsed result is an EMPTY sample family");
+            }
             return Result.success(sf);
         } catch (Throwable t) {
             return Result.fail(t);
         }
+    }
+
+    private void extendNumber(Class clazz) {
+        ExpandoMetaClass expando = new ExpandoMetaClass(clazz, true, false);
+        expando.registerInstanceMethod("plus", new NumberClosure(this, (n, s) -> s.plus(n)));
+        expando.registerInstanceMethod("minus", new NumberClosure(this, (n, s) -> s.minus(n).negative()));
+        expando.registerInstanceMethod("multiply", new NumberClosure(this, (n, s) -> s.multiply(n)));
+        expando.registerInstanceMethod("div", new NumberClosure(this, (n, s) -> s.newValue(v -> n.doubleValue() / v)));
+        expando.initialize();
     }
 
 }
