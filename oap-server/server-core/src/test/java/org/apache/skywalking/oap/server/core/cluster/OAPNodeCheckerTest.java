@@ -18,59 +18,88 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class OAPNodeCheckerTest {
 
     @Test
-    public void hasUnHealthAddressFalse() {
-        Set<String> address = Sets.newHashSet("123.23.4.2");
-        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
+    public void hasIllegalNodeAddressWithNull() {
+        boolean flag = OAPNodeChecker.hasIllegalNodeAddress(null);
         Assert.assertFalse(flag);
     }
 
     @Test
-    public void hasUnHealthAddressWithNull() {
-        Set<String> address = null;
-        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
+    public void hasIllegalNodeAddressWithEmptySet() {
+        boolean flag = OAPNodeChecker.hasIllegalNodeAddress(Lists.newArrayList());
         Assert.assertFalse(flag);
     }
 
     @Test
-    public void hasUnHealthAddressWithEmptySet() {
-        Set<String> address = Sets.newHashSet();
-        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
-        Assert.assertFalse(flag);
-    }
-
-    @Test
-    public void hasUnHealthAddressTrue() {
-        Set<String> address = Sets.newHashSet("123.23.4.2", "127.0.0.1");
-        boolean flag = OAPNodeChecker.hasUnHealthAddress(address);
+    public void hasIllegalNodeAddressTrue() {
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
+        remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8899, true)));
+        remoteInstances.add(new RemoteInstance(new Address("123.23.4.2", 8899, true)));
+        boolean flag = OAPNodeChecker.hasIllegalNodeAddress(remoteInstances);
         Assert.assertTrue(flag);
     }
 
     @Test
-    public void hasDuplicateSelfAddressTrue() {
+    public void hasIllegalNodeAddressFalse() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
-        remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8899, true)));
+        remoteInstances.add(new RemoteInstance(new Address("123.23.4.2", 8899, true)));
+        boolean flag = OAPNodeChecker.hasIllegalNodeAddress(remoteInstances);
+        Assert.assertFalse(flag);
+    }
+
+    @Test
+    public void unHealthWithEmptyInstance() {
+        boolean flag = OAPNodeChecker.isHealth(Lists.newArrayList());
+        Assert.assertFalse(flag);
+    }
+
+    @Test
+    public void unHealthWithNullInstance() {
+        boolean flag = OAPNodeChecker.isHealth(null);
+        Assert.assertFalse(flag);
+    }
+
+    @Test
+    public void unHealthWithEmptySelfInstance() {
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
+        remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8892, false)));
+        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertFalse(flag);
+    }
+
+    @Test
+    public void unHealthWithIllegalNodeInstance() {
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8892, true)));
-        boolean flag = OAPNodeChecker.hasDuplicateSelfAddress(remoteInstances);
+        remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8892, true)));
+        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertFalse(flag);
+    }
+
+    @Test
+    public void healthWithOnlySelf() {
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
+        remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8899, true)));
+        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
         Assert.assertTrue(flag);
     }
 
     @Test
-    public void hasDuplicateSelfAddressFalse() {
+    public void healthWithSelfAndNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
-        remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8899, true)));
-        boolean flag = OAPNodeChecker.hasDuplicateSelfAddress(remoteInstances);
-        Assert.assertFalse(flag);
+        remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8899, true)));
+        remoteInstances.add(new RemoteInstance(new Address("192.168.0.2", 8899, false)));
+        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertTrue(flag);
     }
 }

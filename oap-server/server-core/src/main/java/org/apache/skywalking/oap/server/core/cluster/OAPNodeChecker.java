@@ -28,22 +28,36 @@ import java.util.stream.Collectors;
 public class OAPNodeChecker {
     private static final Set<String> ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE = Sets.newHashSet("127.0.0.1", "localhost");
 
-    public static boolean hasUnHealthAddress(Set<String> addressSet) {
-        if (CollectionUtils.isEmpty(addressSet)) {
+    public static boolean hasIllegalNodeAddress(List<RemoteInstance> remoteInstances) {
+        if (CollectionUtils.isEmpty(remoteInstances)) {
             return false;
         }
-        return !Sets.intersection(ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE, addressSet).isEmpty();
-    }
-
-    public static boolean hasUnHealthAddress(List<RemoteInstance> remoteInstances) {
         Set<String> remoteAddressSet = remoteInstances.stream().map(remoteInstance ->
                 remoteInstance.getAddress().getHost()).collect(Collectors.toSet());
-        return hasUnHealthAddress(remoteAddressSet);
+        return !Sets.intersection(ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE, remoteAddressSet).isEmpty();
     }
 
-    public static boolean hasDuplicateSelfAddress(List<RemoteInstance> remoteInstances) {
+    /**
+     * Check the remote instance healthiness, set health to false for bellow conditions:
+     * 1.can't get the instance list
+     * 2.can't get itself
+     * 3.check for illegal node in cluster mode such as 127.0.0.1, localhost
+     *
+     * @param remoteInstances all the remote instances from cluster
+     * @return true health false unHealth
+     */
+    public static boolean isHealth(List<RemoteInstance> remoteInstances) {
+        if (CollectionUtils.isEmpty(remoteInstances)) {
+            return false;
+        }
         List<RemoteInstance> selfInstances = remoteInstances.stream().
                 filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
-        return selfInstances.size() != 1;
+        if (CollectionUtils.isEmpty(selfInstances)) {
+            return false;
+        }
+        if (remoteInstances.size() > 1 && hasIllegalNodeAddress(remoteInstances)) {
+            return false;
+        }
+        return true;
     }
 }

@@ -92,21 +92,16 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
                 RemoteInstance instance = serviceInstance.getPayload();
                 if (instance.getAddress().equals(selfAddress)) {
                     instance.getAddress().setSelf(true);
+                } else {
+                    instance.getAddress().setSelf(false);
                 }
                 remoteInstances.add(instance);
             });
-            if (remoteInstances.size() > 1) {
-                boolean hasUnHealthAddress = OAPNodeChecker.hasUnHealthAddress(remoteInstances);
-                if (hasUnHealthAddress) {
-                    this.healthChecker.unHealth(new ServiceQueryException("found 127.0.0.1 or localhost in cluster mode"));
-                } else {
-                    boolean hasDuplicateSelfAddress = OAPNodeChecker.hasDuplicateSelfAddress(remoteInstances);
-                    if (hasDuplicateSelfAddress) {
-                        this.healthChecker.unHealth(new ServiceQueryException("can't get self instance or multi self instances"));
-                    } else {
-                        this.healthChecker.health();
-                    }
-                }
+            boolean health = OAPNodeChecker.isHealth(remoteInstances);
+            if (health) {
+                this.healthChecker.health();
+            } else {
+                this.healthChecker.unHealth(new ServiceQueryException("found unHealth node"));
             }
         } catch (Throwable e) {
             this.healthChecker.unHealth(e);
