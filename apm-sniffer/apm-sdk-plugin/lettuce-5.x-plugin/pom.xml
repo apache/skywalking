@@ -32,7 +32,6 @@
     <url>http://maven.apache.org</url>
     <properties>
         <lettuce-core.version>5.1.3.RELEASE</lettuce-core.version>
-        <compiler.version>1.8</compiler.version>
     </properties>
 
     <dependencies>

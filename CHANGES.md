@@ -2,148 +2,110 @@ Changes by Version
 ==================
 Release Notes.
 
-8.1.0
+8.2.0
 ------------------
 #### Project
-* Support Kafka as an optional trace, JVM metrics, profiling snapshots and meter system data transport layer.
-* Support Meter system, including the native metrics APIs and the Spring Sleuth adoption.
-* Support JVM thread metrics.  
+* Support Browser monitoring.
+* Add e2e test for ALS solution of service mesh observability.
+* Support compiling(include testing) in JDK11.
+* Support build a single module.
 
 #### Java Agent
-* [**Core**] Fix the concurrency access bug in the Concurrency ClassLoader Case. 
-* [**Core**] Separate the config of the plugins from the core level.
-* [**Core**] Support instrumented class cached in memory or file, to be compatible with other agents, such as Arthas.
-* Add logic endpoint concept. Could analysis any span or tags flagged by the logic endpoint.
-* Add Spring annotation component name for UI visualization only.
-* Add support to trace `Call procedures` in MySQL plugin.
-* Support GraphQL plugin.
-* Support Quasar fiber plugin.
-* Support InfluxDB java client plugin.
-* Support brpc java plugin
-* Support `ConsoleAppender` in the logback v1 plugin.
-* Enhance vert.x endpoint names.
-* Optimize the code to prevent mongo statements from being too long.
-* Fix WebFlux plugin concurrency access bug.
-* Fix ShardingSphere plugins internal conflicts.
-* Fix duplicated Spring MVC endpoint.
-* Fix lettuce plugin sometimes trace doesn‘t show span layer. 
-* Fix `@Tag` returnedObject bug.
+* Support metrics plugin.
+* Support slf4j logs of gRPC and Kafka(when agent uses them) into the agent log files.
+* Add `PROPERTIES_REPORT_PERIOD_FACTOR` config to avoid the properties of instance cleared.
+* Limit the size of traced SQL to avoid OOM.
+* Support `mount` command to load a new set of plugins.
+* Add plugin selector mechanism.
+* Enhance the witness classes for MongoDB plugin.
+* Enhance the parameter truncate mechanism of SQL plugins.
+* Enhance the SpringMVC plugin in the reactive APIs.
+* Enhance the SpringMVC plugin to collect HTTP headers as the span tags.
+* Enhance the Kafka plugin, about `@KafkaPollAndInvoke`
+* Enhance the configuration initialization core. Plugin could have its own plugins.
+* Enhance Feign plugin to collect parameters.
+* Enhance Dubbo plugin to collect parameters.
+* Provide Thrift plugin.
+* Provide XXL-job plugin.
+* Provide MongoDB 4.x plugin.
+* Provide Kafka client 2.1+ plugin.
+* Provide WebFlux-WebClient plugin.
+* Provide ignore-exception plugin.
+* Provide quartz scheduler plugin.
+* Provide ElasticJob 2.x plugin.
+* Provide Spring @Scheduled plugin.
+* Provide Spring-Kafka plugin.
+* Provide HBase client plugin.
+* Provide JSON log format.
+* Move Spring WebFlux plugin to the optional plugin.
+* Fix inconsistent logic bug in PrefixMatch
+* Fix duplicate exit spans in Feign LoadBalancer mechanism.
+* Fix the target service blocked by the Kafka reporter.
+* Fix configurations of Kafka report don't work.
+* Fix rest template concurrent conflict.
+* Fix NPE in the ActiveMQ plugin.
+* Fix conflict between Kafka reporter and sampling plugin.
+* Fix NPE in the log formatter.
+* Fix span layer missing in certain cases, in the Kafka plugin.
+* Fix error format of time in serviceTraffic update.
+* Upgrade bytebuddy to 1.10.14
 
 #### OAP-Backend
-* Support Jetty Server advanced configurations.
-* Support label based filter in the prometheus fetcher and OpenCensus receiver.
-* Support using k8s configmap as the configuration center.
-* Support OAP health check, and storage module health check.
-* Support sampling rate in the dynamic configuration.
-* Add `endpoint_relation_sla` and `endpoint_relation_percentile` for endpoint relationship metrics.
-* Add components for Python plugins, including Kafka, Tornado, Redis, Django, PyMysql.
-* Add components for Golang SDK.
-* Add Nacos 1.3.1 back as an optional cluster coordinator and dynamic configuration center.
-* Enhance the metrics query for ElasticSearch implementation to increase the stability.
-* Reduce the length of storage entity names in the self-observability for MySQL and TiDB storage.
-* Fix labels are missing in Prometheus analysis context.
-* Fix column length issue in MySQL/TiDB storage.
-* Fix no data in 2nd level aggregation in self-observability. 
-* Fix searchService bug in ES implementation.
-* Fix wrong validation of endpoint relation entity query.
-* Fix the bug caused by the OAL debug flag.
-* Fix endpoint dependency bug in MQ and uninstrumented proxy cases.
-* Fix time bucket conversion issue in the InfluxDB storage implementation.
-* Update k8s client to 8.0.0
+* Support Nacos authentication.
+* Support labeled meter in the meter receiver.
+* Separate UI template into multiple files.
+* Provide support for Envoy tracing. Envoy tracer depends on the Envoy community.
+* Support query trace by tags.
+* Support composite alarm rules.
+* Support alarm messages to DingTalk.
+* Support alarm messages to WeChat.
+* Support alarm messages to Slack.
+* Support SSL for Prometheus fetcher and self telemetry.
+* Support labeled histogram in the prometheus format.
+* Support the status of segment based on entry span or first span only.
+* Support the error segment in the sampling mechanism.
+* Support SSL certs of gRPC server.
+* Support labeled metrics in the alarm rule setting.
+* Support to query all labeled data, if no explicit label in the query condition.
+* Add TLS parameters in the mesh analysis.
+* Add health check for InfluxDB storage.
+* Add `super dataset` concept for the traces/logs.
+* Add separate replicas configuration for super dataset.
+* Add `IN` operator in the OAL.
+* Add `!=` operator in the OAL.
+* Add `like` operator in the OAL.
+* Add `latest` function in the prometheus analysis.
+* Add more configurations in the gRPC server. 
+* Optimize the trace query performance.
+* Optimize the CPU usage rate calculation, at least to be 1.
+* Optimize the length of slow SQL column in the MySQL storage.
+* Optimize the topology query, use client side component name when no server side mapping.
+* Add component IDs for Python component.
+* Add component ID range for C++.
+* Fix Slack notification setting NPE.
+* Fix some module missing check of the module manager core.
+* Fix authentication doesn't work in sharing server.
+* Fix metrics batch persistent size bug.
+* Fix trace sampling bug.
+* Fix CLR receiver bug.
+* Fix end time bug in the query process.
+* Fix `Exporter INCREMENT mode` is not working.
+* Fix an error when executing startup.bat when the log directory exists
 
 #### UI
-* Support endpoint dependency graph.
-* Support x-scroll of trace/profile page
-* Fix database selector issue.
-* Add the bar chart in the UI templates.
+* Add browser dashboard.
+* Add browser log query page.
+* Support query trace by tags.
+* Fix JVM configuration.
+* Fix CLR configuration.
 
 #### Document
-* Update the user logo wall.
-* Add backend configuration vocabulary document.
-* Add agent installation doc for Tomcat9 on Windows.
-* Add istioctl ALS commands for the document.
-* Fix TTL documentation.
-* Add FAQ doc about thread instrumentation.
+* Add the document about `SW_NO_UPSTREAM_REAL_ADDRESS`.
+* Update ALS setup document.
+* Add Customization Config section for plugin development.
 
-#### CVE
-* Fix fuzzy query sql injection in the MySQL/TiDB storage. 
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/52?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/56?closed=1)
 
-8.0.1
 ------------------
-
-#### OAP-Backend
-* Fix `no-init` mode is not working in ElasticSearch storage.
-
-
-8.0.0
-------------------
-
-#### Project
-* v3 protocol is added and implemented. All previous releases are incompatible with 8.x releases.
-* Service, Instance, Endpoint register mechanism and inventory storage entities are removed.
-* New GraphQL query protocol is provided, the legacy procotol is still supported(plan to remove at the end of this year).
-* Support Prometheus network protocol. Metrics in Prometheus format could be transferred into SkyWalking.
-* Python agent provided.
-* All inventory caches have been removed.
-* Apache ShardingSphere(4.1.0, 4.1.1) agent plugin provided.
-
-#### Java Agent
-* Add MariaDB plugin.
-* Vert.x plugin enhancement. More cases are covered.
-* Support v3 extension header.
-* Fix ElasticSearch 5.x plugin TransportClient error.
-* Support Correlation protocol v1.
-* Fix Finagle plugin bug, in processing Noop Span.
-* Make `CommandService` daemon to avoid blocking target application shutting down gracefully.
-* Refactor spring cloud gateway plugin and support tracing spring cloud gateway 2.2.x 
-
-#### OAP-Backend
-* Support meter system for Prometheus adoption. In future releases, we will add native meter APIs and MicroMeter(Sleuth) system.
-* Support endpoint grouping.
-* Add **SuperDataSet** annotation for storage entity. 
-* Add **superDatasetIndexShardsFactor** in the ElasticSearch storage, to provide more shards for @SuperDataSet annotated entites. Typically TraceSegment.
-* Support alarm settings for relationship of service, instance, and endpoint level metrics.
-* Support alarm settings for database(conjecture node in tracing scenario).
-* Data Model could be added in the runtime, don't depend on the bootstrap sequence anymore.
-* Reduce the memory cost, due to no inventory caches.
-* No buffer files in tracing and service mesh cases.
-* New ReadWriteSafe cache implementation. Simplify codes.
-* Provide default way for metrics query, even the metrics doesn't exist.
-* New GraphQL query protocol is provided. Support the metrics type query.
-* Set up length rule of service, instance, and endpoint.
-* Adjust the default jks for ElasticSearch to empty.
-* Fix Apdex function integer overflow issue. 
-* Fix profile storage issue.
-* Fix TTL issue.
-* Fix H2 column type bug.
-* Add JRE 8-14 test for the backend. 
-
-#### UI
-* UI dashboard is 100% configurable to adopt new metrics definited in the backend.
-
-#### Document
-* Add v8 upgrade document.
-* Make the coverage accurate including UT and e2e tests.
-* Add miss doc about collecting parameters in the profiled traces.
-
-#### CVE
-* Fix SQL Injection vulnerability in H2/MySQL implementation.
-* Upgrade Nacos to avoid the FastJson CVE in high frequency.
-* Upgrade jasckson-databind to 2.9.10. 
-
-
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/45?closed=1)
-
-7.0.0 release
-------------------
-You could find all CHANGES of 7.0.0 at [here](https://github.com/apache/skywalking/blob/v7.0.0/CHANGES.md)
-
-6.x releases
-------------------
-You could find all CHANGES of 6.x at [here](https://github.com/apache/skywalking/blob/6.x/CHANGES.md)
-
-5.x releases
-------------------
-You could find all CHANGES of 5.x at [here](https://github.com/apache/skywalking/blob/5.x/CHANGES.md)
+Find change logs of all versions [here](changes).

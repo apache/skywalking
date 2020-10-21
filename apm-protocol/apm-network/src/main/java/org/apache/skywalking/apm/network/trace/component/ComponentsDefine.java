@@ -181,5 +181,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(99, "spring-webflux-webclient");
 
-    public static final OfficialComponent DBCP = new OfficialComponent(100, "dbcp");
+    public static final OfficialComponent THRIFT_SERVER = new OfficialComponent(100, "thrift-server");
+
+    public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(101, "thrift-client");
+
+    public static final OfficialComponent DBCP = new OfficialComponent(102, "dbcp");
 }

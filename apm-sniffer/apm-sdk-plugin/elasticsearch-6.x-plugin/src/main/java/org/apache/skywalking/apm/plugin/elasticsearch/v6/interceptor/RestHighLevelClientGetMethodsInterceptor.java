@@ -40,7 +40,7 @@ public class RestHighLevelClientGetMethodsInterceptor implements InstanceMethods
         MethodInterceptResult result) throws Throwable {
         GetRequest getRequest = (GetRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         AbstractSpan span = ContextManager.createExitSpan(Constants.GET_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
         span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 

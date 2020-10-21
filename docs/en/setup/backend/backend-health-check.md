@@ -50,7 +50,7 @@ Once some modules are unhealthy, for instance, storage H2 is down. The result mi
   }
 }
 ```
-You could refer to [checkHealth query](https://github.com/apache/skywalking-query-protocol/blob/master/common.graphql)
+You could refer to [checkHealth query](https://github.com/apache/skywalking-query-protocol/blob/master/common.graphqls)
 for more details.
 
 ## The readiness of GraphQL and gRPC
@@ -60,3 +60,6 @@ We could opt to above query to check the readiness of GraphQL.
 OAP has implemented [gRPC Health Checking Protocol](https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 We could use [grpc-health-probe](https://github.com/grpc-ecosystem/grpc-health-probe) or any other tools to check the
 health of OAP gRPC services.
+
+## CLI tool
+Please follow the [CLI doc](https://github.com/apache/skywalking-cli#checkhealth) to get the health status score directly through the `checkhealth` command.

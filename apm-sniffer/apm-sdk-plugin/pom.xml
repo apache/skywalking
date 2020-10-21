@@ -100,6 +100,7 @@
         <module>hbase-1.x-plugin</module>
         <module>graphql-plugin</module>
         <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
         <module>dbcp-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
@@ -126,6 +127,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${bytebuddy.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

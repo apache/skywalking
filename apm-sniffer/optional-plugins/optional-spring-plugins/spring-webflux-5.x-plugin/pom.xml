@@ -37,8 +37,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <compiler.version>1.8</compiler.version>
-    </properties>
 </project>

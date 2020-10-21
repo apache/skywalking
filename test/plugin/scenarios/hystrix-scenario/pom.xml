@@ -29,8 +29,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.version>1.8</compiler.version>
-
         <test.framework.version>1.4.20</test.framework.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
     </properties>

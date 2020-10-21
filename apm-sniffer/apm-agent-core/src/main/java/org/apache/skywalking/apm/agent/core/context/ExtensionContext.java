@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-
 import java.util.Objects;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * Extension context, It provides the interaction capabilities between the agents
- * deployed in upstream and downstream services.
+ * Extension context, It provides the interaction capabilities between the agents deployed in upstream and downstream
+ * services.
  */
 public class ExtensionContext {
 
@@ -46,7 +46,15 @@ public class ExtensionContext {
      * Deserialize data from {@link String}
      */
     void deserialize(String value) {
-        this.skipAnalysis = Objects.equals(value, "1");
+        if (StringUtil.isEmpty(value)) {
+            return;
+        }
+        final String[] extensionParts = value.split("-");
+        // All parts of the extension header are optional.
+        // only try to read it when it exist.
+        if (extensionParts.length > 0) {
+            this.skipAnalysis = Objects.equals(extensionParts[0], "1");
+        }
     }
 
     /**
@@ -87,8 +95,10 @@ public class ExtensionContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ExtensionContext that = (ExtensionContext) o;
         return skipAnalysis == that.skipAnalysis;
     }

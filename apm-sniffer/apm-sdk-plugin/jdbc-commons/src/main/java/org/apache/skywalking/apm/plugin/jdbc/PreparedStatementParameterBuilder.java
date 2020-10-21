@@ -22,7 +22,6 @@ public class PreparedStatementParameterBuilder {
     private static final String EMPTY_LIST = "[]";
     private Object[] parameters;
     private Integer maxIndex;
-    private int maxLength = 0;
 
     public PreparedStatementParameterBuilder setParameters(Object[] parameters) {
         this.parameters = parameters;
@@ -31,11 +30,6 @@ public class PreparedStatementParameterBuilder {
 
     public PreparedStatementParameterBuilder setMaxIndex(int maxIndex) {
         this.maxIndex = maxIndex;
-        return this;
-    }
-
-    public PreparedStatementParameterBuilder setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
         return this;
     }
 
@@ -57,10 +51,10 @@ public class PreparedStatementParameterBuilder {
             }
             stringBuilder.append(parameter);
             first = false;
-            
+
             //  cut the string as soon as it reached the length limitation
-            if (maxLength > 0 && (stringBuilder.length() + EMPTY_LIST.length()) > maxLength) {
-                return format(stringBuilder).substring(0, maxLength) + "...";
+            if (JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH > 0 && (stringBuilder.length() + EMPTY_LIST.length()) > JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH) {
+                return format(stringBuilder).substring(0, JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH) + "...";
             }
         }
         return format(stringBuilder);

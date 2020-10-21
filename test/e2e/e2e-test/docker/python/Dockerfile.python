@@ -15,7 +15,7 @@
 
 FROM python:3.7
 
-ENV COMMIT_HASH=2056144925a574d04c4a90914a82b8efce2375be
+ENV COMMIT_HASH=50388c55428d742d73d9733278f04173585de80d
 
 WORKDIR /app
 
@@ -24,6 +24,8 @@ RUN git clone https://github.com/apache/skywalking-python.git $(pwd)
 RUN git reset --hard ${COMMIT_HASH} && git submodule update --init
 
 RUN make setup install
+RUN python3 -m pip install kafka-python
 
 ADD ./consumer.py /consumer.py
 ADD ./provider.py /provider.py
+ADD ./provider-kafka.py /provider-kafka.py

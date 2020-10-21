@@ -21,8 +21,6 @@ on:
   push:
     branches:
       - master
-    tags:
-      - 'v*'
 
 env:
   SKIP_TEST: true
@@ -45,6 +43,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Compile and Build
         run: make docker && ES_VERSION=es7 TAG=latest-es7 make docker.oap
       - name: Copy dist package

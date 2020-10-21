@@ -143,6 +143,10 @@ public class Config {
          */
         public static long HEARTBEAT_PERIOD = 30;
         /**
+         * The agent sends the instance properties to the backend every `collector.heartbeat_period * collector.properties_report_period_factor` seconds
+         */
+        public static int PROPERTIES_REPORT_PERIOD_FACTOR = 10;
+        /**
          * Collector skywalking trace receiver service addresses.
          */
         public static String BACKEND_SERVICE = "";
