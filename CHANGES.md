@@ -91,6 +91,7 @@ Release Notes.
 * Fix end time bug in the query process.
 * Fix `Exporter INCREMENT mode` is not working.
 * Fix an error when executing startup.bat when the log directory exists
+* Add syncBulkActions configuration to set up the batch size of the metrics persistent.
 
 #### UI
 * Add browser dashboard.
