@@ -60,7 +60,7 @@ public class AnalyzerModuleConfig extends ModuleConfig {
      */
     @Setter
     @Getter
-    private int slowTraceSegmentThreshold = 500;
+    private int slowTraceSegmentThreshold = 2000;
     @Setter
     @Getter
     private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;

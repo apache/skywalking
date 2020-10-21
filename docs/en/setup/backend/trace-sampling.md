@@ -16,7 +16,7 @@ agent-analyzer:
     ...
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
     forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.
-    slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:500} # When sampling mechanism activated, this config would make the slow trace segment sampled, ignoring the sampling rate.
+    slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:2000} # When sampling mechanism activated, this config would make the slow trace segment sampled, ignoring the sampling rate.
 ```
 
 `sampleRate` is for you to set sample rate to this backend.

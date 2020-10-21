@@ -45,8 +45,8 @@ public class TraceLatencyThresholdsAndWatcherTest {
     @Test
     public void testInit() {
         TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher = new TraceLatencyThresholdsAndWatcher(provider);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 500);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "500");
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 2000);
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "2000");
     }
 
     @Test(timeout = 20000)
@@ -60,8 +60,8 @@ public class TraceLatencyThresholdsAndWatcherTest {
         while (watcher.getSlowTraceSegmentThreshold() == 10000) {
             Thread.sleep(2000);
         }
-        assertThat(watcher.getSlowTraceSegmentThreshold(), is(1000));
-        assertThat(provider.getModuleConfig().getSlowTraceSegmentThreshold(), is(500));
+        assertThat(watcher.getSlowTraceSegmentThreshold(), is(3000));
+        assertThat(provider.getModuleConfig().getSlowTraceSegmentThreshold(), is(2000));
     }
 
     @Test
@@ -78,8 +78,8 @@ public class TraceLatencyThresholdsAndWatcherTest {
             "8000", ConfigChangeWatcher.EventType.DELETE);
 
         traceLatencyThresholdsAndWatcher.notify(value2);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 500);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "500");
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 2000);
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "2000");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
             "800", ConfigChangeWatcher.EventType.ADD);
@@ -105,7 +105,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
-            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.slowTraceThreshold", "1000"));
+            table.add(new ConfigTable.ConfigItem("agent-analyzer.default.slowTraceSegmentThreshold", "3000"));
             return Optional.of(table);
         }
     }
