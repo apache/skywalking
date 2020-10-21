@@ -65,6 +65,12 @@ Between a sample family and a scalar, the operator is applied to the value of ev
 instance_trace_count + 2
 ``` 
 
+or 
+
+```
+2 + instance_trace_count
+``` 
+
 results in
 
 ```
@@ -104,9 +110,9 @@ Sample family supports the following aggregation operations that can be used to 
 resulting in a new sample family of fewer samples(even single one) with aggregated values:
 
  - sum (calculate sum over dimensions)
- - min (select minimum over dimensions)
- - max (select maximum over dimensions)
- - avg (calculate the average over dimensions)
+ - min (select minimum over dimensions) (TBD)
+ - max (select maximum over dimensions) (TBD)
+ - avg (calculate the average over dimensions) (TBD)
  
 These operations can be used to aggregate over all label dimensions or preserve distinct dimensions by inputting `by` parameter. 
 
@@ -161,6 +167,9 @@ Examples:
 #### histogram_percentile
 `histogram_percentile([<p scalar>])`. Hints meter-system to calculates the p-percentile (0 ≤ p ≤ 100) from the buckets. 
 
+#### time
+`time()`. returns the number of seconds since January 1, 1970 UTC.
+
 ## Down Sampling Operation
 MAL should instruct meter-system how to do downsampling for metrics. It doesn't only refer to aggregate raw samples to 
 `minute` level, but also hints data from `minute` to higher levels, for instance, `hour` and `day`. 
@@ -168,12 +177,12 @@ MAL should instruct meter-system how to do downsampling for metrics. It doesn't 
 Down sampling operations are as global function in MAL:
 
  - avg
- - latest
- - min
- - max
- - mean
- - sum
- - count
+ - latest (TBD)
+ - min (TBD)
+ - max (TBD)
+ - mean (TBD)
+ - sum (TBD)
+ - count (TBD)
 
 The default one is `avg` if not specific an operation.
 
@@ -186,3 +195,18 @@ or
 
 latest last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog')
 ```
+
+## Metric level function
+
+Metric has three level, service, instance and endpoint. They extract level relevant labels from metric labels, then
+ hints meter-system which level this metrics should be.
+
+ - `servcie([svc_label1, svc_label2...])` extracts service level labels from the array argument.
+ - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...])` extracts service level labels from the first array argument, 
+                                                                        extracts instance level labels from the second array argument.
+ - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...])` extracts service level labels from the first array argument, 
+                                                                      extracts endpoint level labels from the second array argument.
+
+## More Examples
+
+Please refer to [OAP Self-Observability](../../../oap-server/server-bootstrap/src/main/resources/fetcher-prom-rules/self.yaml)

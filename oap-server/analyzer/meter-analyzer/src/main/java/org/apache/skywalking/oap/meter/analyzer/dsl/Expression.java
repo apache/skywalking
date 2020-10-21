@@ -76,10 +76,6 @@ public class Expression {
                 return Instant.now().getEpochSecond();
             }
 
-            public Number timestamp() {
-                return Instant.now().toEpochMilli();
-            }
-
         });
         extendNumber(Number.class);
         try {
