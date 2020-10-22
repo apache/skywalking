@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 public class MqttProducerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -57,7 +58,8 @@ public class MqttProducerInstrumentation extends ClassInstanceMethodsEnhancePlug
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(SEND_MESSAGE_METHOD_NAME).and(takesArguments(4));
+                    return named(SEND_MESSAGE_METHOD_NAME).and(
+                        takesArguments(4).and(takesArgumentWithType(1, "org.eclipse.paho.client.mqttv3.MqttMessage")));
                 }
 
                 @Override

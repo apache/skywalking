@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -40,7 +41,8 @@ public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor
                              MethodInterceptResult methodInterceptResult) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
         String topic = (String) objects[0];
-        String operationName = OPERATE_NAME_PREFIX + topic + OPERATE_NAME + objects[2];
+        MqttMessage mqttMessages = (MqttMessage) objects[1];
+        String operationName = OPERATE_NAME_PREFIX + topic + OPERATE_NAME + mqttMessages.getQos();
         MqttEnhanceRequiredInfo requiredInfo = (MqttEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createExitSpan(
             operationName, contextCarrier, requiredInfo.getBrokerServers());
