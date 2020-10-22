@@ -36,6 +36,7 @@ jobs:
           - canal-scenario
           - cassandra-java-driver-3.x-scenario
           - customize-scenario
+          - correlation-autotag-scenario
           - dubbo-2.5.x-scenario
           - dubbo-2.7.x-scenario
           - ehcache-2.x-scenario

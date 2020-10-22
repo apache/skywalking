@@ -18,25 +18,45 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.List;
 import java.util.Optional;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
-import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.powermock.reflect.Whitebox;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-
+@RunWith(TracingSegmentRunner.class)
 public class CorrelationContextTest {
+
+    @SegmentStoragePoint
+    private SegmentStorage tracingData;
+
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
+    @BeforeClass
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
+    }
 
     @Before
     public void setupConfig() {
         Config.Correlation.ELEMENT_MAX_NUMBER = 2;
         Config.Correlation.VALUE_MAX_LENGTH = 8;
+
     }
 
     @After
@@ -135,22 +155,25 @@ public class CorrelationContextTest {
     @Test
     public void testHandleWhenAutoTagKeysEmpty() {
         Config.Correlation.AUTO_TAG_KEYS = "";
-        CorrelationContext context = new CorrelationContext();
-        context.put("a", "b");
-        EntrySpan span = mock(EntrySpan.class);
-        context.handle(span);
-        Mockito.verify(span, times(0)).tag(new StringTag("a"), "b");
-
+        ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
+        ContextManager.getCorrelationContext().put("a", "b");
+        ContextManager.stopSpan();
+        TraceSegment traceSegment = tracingData.getTraceSegments().get(0);
+        List<AbstractSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
+        Assert.assertNull(Whitebox.getInternalState(spans.get(0), "tags"));
     }
 
     @Test
     public void testHandleWhenAutoTagKeysNotEmpty() {
         Config.Correlation.AUTO_TAG_KEYS = "a";
-        CorrelationContext context = new CorrelationContext();
-        context.put("a", "b");
-        EntrySpan span = mock(EntrySpan.class);
-        context.handle(span);
-        Mockito.verify(span, times(1)).tag(new StringTag("a"), "b");
+        ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
+        ContextManager.getCorrelationContext().put("a", "b");
+        ContextManager.stopSpan();
+        TraceSegment traceSegment = tracingData.getTraceSegments().get(0);
+        List<AbstractSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
+        List<TagValuePair> tags = Whitebox.getInternalState(spans.get(0), "tags");
+        Assert.assertEquals(1, tags.size());
+        Assert.assertEquals(new TagValuePair(new StringTag("a"), "b"), tags.get(0));
     }
 
 }

@@ -31,8 +31,6 @@ import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Correlation.AUTO_TAG_KEYS;
-
 /**
  * Correlation context, use to propagation user custom data. Working on the protocol and delegate set/get method.
  */
@@ -40,15 +38,19 @@ public class CorrelationContext {
 
     private final Map<String, String> data;
 
-    private final List<String> autoTagKeys;
+    private static final List<String> AUTO_TAG_KEYS;
+
+    static {
+        if (StringUtil.isNotEmpty(Config.Correlation.AUTO_TAG_KEYS)) {
+            AUTO_TAG_KEYS = Arrays.asList(Config.Correlation.AUTO_TAG_KEYS.split(","));
+        } else {
+            AUTO_TAG_KEYS = new ArrayList<>();
+        }
+    }
 
     public CorrelationContext() {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
-        if (StringUtil.isNotEmpty(AUTO_TAG_KEYS)) {
-            autoTagKeys = Arrays.asList(AUTO_TAG_KEYS.split(","));
-        } else {
-            autoTagKeys = new ArrayList<>();
-        }
+
     }
 
     public Optional<String> put(String key, String value) {
@@ -77,7 +79,9 @@ public class CorrelationContext {
         if (data.size() >= Config.Correlation.ELEMENT_MAX_NUMBER) {
             return Optional.empty();
         }
-
+        if (AUTO_TAG_KEYS.contains(key) && Objects.nonNull(ContextManager.activeSpan())) {
+            ContextManager.activeSpan().tag(new StringTag(key), value);
+        }
         // setting
         data.put(key, value);
         return Optional.empty();
@@ -128,7 +132,8 @@ public class CorrelationContext {
     }
 
     /**
-     * Prepare for the cross-process propagation. Inject the {@link #data} into {@link ContextCarrier#getCorrelationContext()}
+     * Prepare for the cross-process propagation. Inject the {@link #data} into {@link
+     * ContextCarrier#getCorrelationContext()}
      */
     void inject(ContextCarrier carrier) {
         carrier.getCorrelationContext().data.putAll(this.data);
@@ -163,7 +168,7 @@ public class CorrelationContext {
     }
 
     void handle(AbstractSpan span) {
-        autoTagKeys.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
+        AUTO_TAG_KEYS.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
     }
 
     @Override
