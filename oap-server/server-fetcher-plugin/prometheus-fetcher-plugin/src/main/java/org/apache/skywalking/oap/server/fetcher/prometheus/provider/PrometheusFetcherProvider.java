@@ -23,21 +23,23 @@ import io.vavr.CheckedFunction1;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.StaticConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.metric.promethues.PrometheusMetricConverter;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rule;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.StaticConfig;
 import org.apache.skywalking.oap.server.fetcher.prometheus.http.HttpClient;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -49,13 +51,9 @@ import org.apache.skywalking.oap.server.library.util.prometheus.Parser;
 import org.apache.skywalking.oap.server.library.util.prometheus.Parsers;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static java.util.stream.Collectors.toList;
-
+@Slf4j
 public class PrometheusFetcherProvider extends ModuleProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(PrometheusFetcherProvider.class);
 
     private final PrometheusFetcherConfig config;
 
@@ -104,7 +102,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         rules.forEach(r -> {
             ses.scheduleAtFixedRate(new Runnable() {
 
-                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), service);
+                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service);
 
                 @Override public void run() {
                     if (Objects.isNull(r.getStaticConfig())) {
@@ -114,35 +112,33 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                     long now = System.currentTimeMillis();
                     converter.toMeter(sc.getTargets().stream()
                         .map(CheckedFunction1.liftTry(target -> {
-                            List<Metric> result = new LinkedList<>();
                             String content = HttpClient.builder().url(target.getUrl()).caFilePath(target.getSslCaFilePath()).build().request();
+                            List<Metric> result = new ArrayList<>();
                             try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
                                 Parser p = Parsers.text(targetStream);
                                 MetricFamily mf;
-
                                 while ((mf = p.parse(now)) != null) {
-                                    result.addAll(mf.getMetrics().stream()
-                                        .peek(metric -> {
-                                            if (Objects.isNull(sc.getLabels())) {
-                                                return;
+                                    mf.getMetrics().forEach(metric -> {
+                                        if (Objects.isNull(sc.getLabels())) {
+                                            return;
+                                        }
+                                        Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
+                                        extraLabels.put("instance", target.getUrl());
+                                        extraLabels.forEach((key, value) -> {
+                                            if (metric.getLabels().containsKey(key)) {
+                                                metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
                                             }
-                                            Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
-                                            extraLabels.put("instance", target.getUrl());
-                                            extraLabels.forEach((key, value) -> {
-                                                if (metric.getLabels().containsKey(key)) {
-                                                    metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
-                                                }
-                                                metric.getLabels().put(key, value);
-                                            });
-                                        })
-                                        .collect(toList()));
+                                            metric.getLabels().put(key, value);
+                                        });
+                                    });
+                                    result.addAll(mf.getMetrics());
                                 }
                             }
                             return result;
                         }))
-                        .flatMap(tryIt -> PrometheusMetricConverter.log(tryIt, "Load metric"))
+                        .flatMap(tryIt -> MetricConvert.log(tryIt, "Load metric"))
                         .flatMap(Collection::stream));
-                    }
+                }
             }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
         });
     }
@@ -151,5 +147,4 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
     }
-
 }
