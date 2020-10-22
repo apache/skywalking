@@ -36,13 +36,13 @@ public class ExtensionContextTest {
     @Test
     public void testSerialize() {
         final ExtensionContext context = new ExtensionContext();
-        Assert.assertEquals(context.serialize(), "0 -");
+        Assert.assertEquals(context.serialize(), "0- ");
 
-        context.deserialize("1 -");
-        Assert.assertEquals(context.serialize(), "1 -");
+        context.deserialize("1- ");
+        Assert.assertEquals(context.serialize(), "1- ");
 
-        context.deserialize("1 1");
-        Assert.assertEquals(context.serialize(), "1 1");
+        context.deserialize("1-1");
+        Assert.assertEquals(context.serialize(), "1-1");
 
     }
 
@@ -50,19 +50,19 @@ public class ExtensionContextTest {
     public void testDeSerialize() {
         final ExtensionContext context = new ExtensionContext();
         context.deserialize("");
-        Assert.assertEquals(context.serialize(), "0 -");
+        Assert.assertEquals(context.serialize(), "0- ");
 
-        context.deserialize("0 -");
-        Assert.assertEquals(context.serialize(), "0 -");
+        context.deserialize("0- ");
+        Assert.assertEquals(context.serialize(), "0- ");
 
-        context.deserialize("test -");
-        Assert.assertEquals(context.serialize(), "0 -");
+        context.deserialize("test- ");
+        Assert.assertEquals(context.serialize(), "0- ");
 
-        context.deserialize("1 test");
-        Assert.assertEquals(context.serialize(), "1 -");
+        context.deserialize("1-test");
+        Assert.assertEquals(context.serialize(), "1- ");
 
-        context.deserialize("0 1602743904804");
-        Assert.assertEquals(context.serialize(), "0 1602743904804");
+        context.deserialize("0-1602743904804");
+        Assert.assertEquals(context.serialize(), "0-1602743904804");
     }
 
     @Test
@@ -77,12 +77,12 @@ public class ExtensionContextTest {
     @Test
     public void testHandle() throws Exception {
         final ExtensionContext context = new ExtensionContext();
-        context.deserialize("1 -");
+        context.deserialize("1- ");
         NoopSpan span = Mockito.mock(NoopSpan.class);
         context.handle(span);
         verify(span, times(1)).skipAnalysis();
 
-        context.deserialize("0 -");
+        context.deserialize("0- ");
         span = Mockito.mock(NoopSpan.class);
         context.handle(span);
         verify(span, times(0)).skipAnalysis();
@@ -90,7 +90,7 @@ public class ExtensionContextTest {
         PowerMockito.mockStatic(System.class);
         PowerMockito.when(System.currentTimeMillis()).thenReturn(1602743904804L + 500);
         span = PowerMockito.mock(NoopSpan.class);
-        context.deserialize("0 1602743904804");
+        context.deserialize("0-1602743904804");
         context.handle(span);
         verify(span, times(0)).tag(Tags.TRANSMISSION_LATENCY, "500");
     }

@@ -35,13 +35,13 @@ public class ExtensionContext {
 
     private static final ILog LOGGER = LogManager.getLogger(ExtensionContext.class);
     /**
-     * The extendable fields are split by the space.
+     * The separator of extendable fields.
      */
-    private static final String SEPARATOR = " ";
+    private static final String SEPARATOR = "-";
     /**
      * The default value of extendable fields.
      */
-    private static final String PLACEHOLDER = "-";
+    private static final String PLACEHOLDER = " ";
     /**
      * Tracing Mode. If true means represents all spans generated in this context should skip analysis.
      */
@@ -77,13 +77,13 @@ public class ExtensionContext {
         // All parts of the extension header are optional.
         // only try to read it when it exist.
         if (extensionParts.length > 0) {
-            String extensionPart = extensionParts[0].trim();
+            String extensionPart = extensionParts[0];
             this.skipAnalysis = Objects.equals(extensionPart, "1");
         }
 
         if (extensionParts.length > 1) {
-            String extensionPart = extensionParts[1].trim();
-            if (StringUtil.isNotEmpty(extensionPart) && !extensionPart.equals(PLACEHOLDER)) {
+            String extensionPart = extensionParts[1];
+            if (StringUtil.isNotBlank(extensionPart)) {
                 try {
                     this.sendingTimestamp = Long.parseLong(extensionPart);
                 } catch (NumberFormatException e) {
