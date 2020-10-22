@@ -27,6 +27,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -37,7 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 @PropertySource("classpath:application.properties")
 public class CaseController {
 
-    private static final String BROKERURL = "tcp://127.0.0.1:1883";
+    @Value("${mqtt.server:tcp://127.0.0.1:1883}")
+    private String brokerUrl;
 
     public static final String CLIENTID = "mqtt_server_plugin_test";
 
@@ -51,7 +53,7 @@ public class CaseController {
 
     @PostConstruct
     public void init() throws MqttException {
-        mqttClient = new MqttClient(BROKERURL, CLIENTID, new MemoryPersistence());
+        mqttClient = new MqttClient(brokerUrl, CLIENTID, new MemoryPersistence());
         MqttConnectOptions options = new MqttConnectOptions();
         options.setCleanSession(true);
         options.setUserName(USERNAME);
@@ -83,7 +85,7 @@ public class CaseController {
     @ResponseBody
     public String mqttCase() throws MqttException {
         MqttMessage message = new MqttMessage();
-        message.setQos(1);
+        message.setQos(0);
         message.setRetained(true);
         message.setPayload("{\"info\":\"skywalking\"}".getBytes());
         MqttTopic mqttTopic = mqttClient.getTopic(TOPIC);
