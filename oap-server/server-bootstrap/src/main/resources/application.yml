@@ -262,6 +262,9 @@ kafka-fetcher:
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+    enableKafkaMessageAutoCommit: ${SW_ENABLE_KAFKA_MESSAGE_AUTO_COMMIT:false}
+    kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:0}
+    kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:0}
 
 receiver-meter:
   selector: ${SW_RECEIVER_METER:-}

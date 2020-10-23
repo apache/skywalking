@@ -79,4 +79,14 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private String topicNameOfManagements = "skywalking-managements";
 
     private String topicNameOfMeters = "skywalking-meters";
+
+    /**
+     * If true the consumer's offset will be periodically committed in the background.
+     */
+    private boolean enableKafkaMessageAutoCommit = false;
+
+    private int kafkaHandlerThreadPoolSize;
+
+    private int kafkaHandlerThreadPoolQueueSize;
+
 }

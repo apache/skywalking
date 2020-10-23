@@ -27,7 +27,7 @@ public class CustomThreadFactory implements ThreadFactory {
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     private final String namePrefix;
 
-    CustomThreadFactory(String name) {
+    public CustomThreadFactory(String name) {
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
         namePrefix = name + "-" + poolNumber.getAndIncrement() + "-thread-";
