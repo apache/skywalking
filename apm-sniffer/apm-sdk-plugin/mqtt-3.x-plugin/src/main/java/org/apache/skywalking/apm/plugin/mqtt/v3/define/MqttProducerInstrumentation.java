@@ -27,18 +27,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 public class MqttProducerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.eclipse.paho.client.mqttv3.MqttAsyncClient";
+    public static final String ENHANCE_CLASS = "org.eclipse.paho.client.mqttv3.internal.ClientComms";
 
-    public static final String CONNECT_METHOD_NAME = "connect";
+    public static final String CONNECT_METHOD_NAME = "setNetworkModules";
 
-    public static final String CONNECT_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mqtt.v3.MqttProducerConnectInterceptor";
+    public static final String CONNECT_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mqtt.v3.MqttNetworkInterceptor";
 
-    public static final String SEND_MESSAGE_METHOD_NAME = "publish";
+    public static final String SEND_MESSAGE_METHOD_NAME = "sendNoWait";
 
     public static final String SEND_MESSAGE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.mqtt.v3.MqttProducerInterceptor";
 
@@ -58,8 +56,7 @@ public class MqttProducerInstrumentation extends ClassInstanceMethodsEnhancePlug
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(SEND_MESSAGE_METHOD_NAME).and(
-                        takesArguments(4).and(takesArgumentWithType(1, "org.eclipse.paho.client.mqttv3.MqttMessage")));
+                    return named(SEND_MESSAGE_METHOD_NAME);
                 }
 
                 @Override
@@ -75,7 +72,7 @@ public class MqttProducerInstrumentation extends ClassInstanceMethodsEnhancePlug
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(CONNECT_METHOD_NAME).and(takesArguments(3));
+                    return named(CONNECT_METHOD_NAME);
                 }
 
                 @Override

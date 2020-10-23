@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 
 public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -39,13 +39,19 @@ public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor
     @Override
     public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                              MethodInterceptResult methodInterceptResult) throws Throwable {
-        ContextCarrier contextCarrier = new ContextCarrier();
-        String topic = (String) objects[0];
-        MqttMessage mqttMessages = (MqttMessage) objects[1];
-        String operationName = OPERATE_NAME_PREFIX + topic + OPERATE_NAME + mqttMessages.getQos();
+        String topic;
+        int qos;
+        if (objects[0] instanceof MqttPublish) {
+            MqttPublish mqttPublish = (MqttPublish) objects[0];
+            topic = mqttPublish.getTopicName();
+            qos = mqttPublish.getMessage().getQos();
+        } else {
+            return;
+        }
+        String operationName = OPERATE_NAME_PREFIX + topic + OPERATE_NAME + qos;
         MqttEnhanceRequiredInfo requiredInfo = (MqttEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createExitSpan(
-            operationName, contextCarrier, requiredInfo.getBrokerServers());
+            operationName, new ContextCarrier(), requiredInfo.getBrokerServers());
         Tags.MQ_BROKER.set(activeSpan, requiredInfo.getBrokerServers());
         Tags.MQ_TOPIC.set(activeSpan, topic);
         activeSpan.setLayer(SpanLayer.MQ);
@@ -55,12 +61,15 @@ public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor
     @Override
     public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                               Object o) throws Throwable {
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
         return o;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects,
                                       Class<?>[] classes, Throwable throwable) {
+        ContextManager.activeSpan().errorOccurred().log(throwable);
     }
 }

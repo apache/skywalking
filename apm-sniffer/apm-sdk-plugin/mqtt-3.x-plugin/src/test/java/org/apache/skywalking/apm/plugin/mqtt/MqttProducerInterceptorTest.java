@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.plugin.mqtt.v3.MqttEnhanceRequiredInfo;
 import org.apache.skywalking.apm.plugin.mqtt.v3.MqttProducerInterceptor;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,8 +84,7 @@ public class MqttProducerInterceptorTest {
         MqttMessage message = new MqttMessage();
         message.setQos(0);
         arguments = new Object[] {
-            "sw-mqtt",
-            message
+            new MqttPublish("sw-mqtt", message)
         };
     }
 

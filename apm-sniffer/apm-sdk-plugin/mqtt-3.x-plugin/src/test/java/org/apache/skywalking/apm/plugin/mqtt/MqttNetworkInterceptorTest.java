@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.mqtt;
 
+import java.net.URI;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.mqtt.v3.MqttEnhanceRequiredInfo;
-import org.apache.skywalking.apm.plugin.mqtt.v3.MqttProducerConnectInterceptor;
+import org.apache.skywalking.apm.plugin.mqtt.v3.MqttNetworkInterceptor;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.internal.NetworkModule;
+import org.eclipse.paho.client.mqttv3.internal.TCPNetworkModule;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class MqttProducerConnectInterceptorTest {
+public class MqttNetworkInterceptorTest {
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
 
@@ -51,22 +54,27 @@ public class MqttProducerConnectInterceptorTest {
         }
     };
 
-    private MqttProducerConnectInterceptor mqttProducerConnectInterceptor;
+    private MqttNetworkInterceptor mqttNetworkInterceptor;
 
     private Object[] arguments;
 
     @Before
     public void setUp() throws Exception {
-        mqttProducerConnectInterceptor = new MqttProducerConnectInterceptor();
+        mqttNetworkInterceptor = new MqttNetworkInterceptor();
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setServerURIs(new String[] {"tcp://127.0.0.1:1883"});
-        arguments = new Object[] {mqttConnectOptions};
+        URI uri = new URI("tcp://127.0.0.1:1883");
+        NetworkModule[] networkModules = new NetworkModule[] {
+            new TCPNetworkModule(
+                null, uri.getHost(), uri.getPort(), "clientId")
+        };
+        arguments = new Object[] {networkModules};
     }
 
     @Test
     public void testMqttProducerConnectInterceptor() throws Throwable {
-        mqttProducerConnectInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
-        mqttProducerConnectInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
+        mqttNetworkInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
+        mqttNetworkInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
         assertThat(
             ((MqttEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField()).getBrokerServers(),
             Is.is("tcp://127.0.0.1:1883")

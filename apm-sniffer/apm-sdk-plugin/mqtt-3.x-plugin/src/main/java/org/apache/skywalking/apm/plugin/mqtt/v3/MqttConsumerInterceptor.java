@@ -43,14 +43,14 @@ public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor
         activeSpan.setComponent(ComponentsDefine.MQTT_CONSUMER);
         Tags.MQ_TOPIC.set(activeSpan, topic);
     }
-    
+
     @Override
     public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                               Object o) throws Throwable {
         ContextManager.stopSpan();
         return o;
     }
-    
+
     @Override
     public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects,
                                       Class<?>[] classes, Throwable throwable) {
