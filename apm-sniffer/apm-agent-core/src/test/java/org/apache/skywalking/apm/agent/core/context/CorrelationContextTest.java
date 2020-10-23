@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -29,9 +30,8 @@ import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,18 +50,15 @@ public class CorrelationContextTest {
     @BeforeClass
     public static void beforeClass() {
         Config.Agent.KEEP_TRACING = true;
-    }
-
-    @Before
-    public void setupConfig() {
         Config.Correlation.ELEMENT_MAX_NUMBER = 2;
         Config.Correlation.VALUE_MAX_LENGTH = 8;
-
+        Config.Correlation.AUTO_TAG_KEYS = "autotag";
     }
 
-    @After
-    public void after() {
-        Config.Correlation.AUTO_TAG_KEYS = "";
+    @AfterClass
+    public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
@@ -154,7 +151,6 @@ public class CorrelationContextTest {
 
     @Test
     public void testHandleWhenAutoTagKeysEmpty() {
-        Config.Correlation.AUTO_TAG_KEYS = "";
         ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
         ContextManager.getCorrelationContext().put("a", "b");
         ContextManager.stopSpan();
@@ -165,15 +161,14 @@ public class CorrelationContextTest {
 
     @Test
     public void testHandleWhenAutoTagKeysNotEmpty() {
-        Config.Correlation.AUTO_TAG_KEYS = "a";
         ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
-        ContextManager.getCorrelationContext().put("a", "b");
+        ContextManager.getCorrelationContext().put("autotag", "b");
         ContextManager.stopSpan();
         TraceSegment traceSegment = tracingData.getTraceSegments().get(0);
         List<AbstractSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
         List<TagValuePair> tags = Whitebox.getInternalState(spans.get(0), "tags");
         Assert.assertEquals(1, tags.size());
-        Assert.assertEquals(new TagValuePair(new StringTag("a"), "b"), tags.get(0));
+        Assert.assertEquals(new TagValuePair(new StringTag("autotag"), "b"), tags.get(0));
     }
 
 }
