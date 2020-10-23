@@ -53,7 +53,7 @@ segmentItems:
       spanId: 1
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -81,7 +81,7 @@ segmentItems:
       spanId: 4
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -92,7 +92,7 @@ segmentItems:
       spanId: 5
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -112,14 +112,14 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
         - key: db.statement
-          value: "INSERT INTO test_DBCP(id, value) VALUES(1,1)"
+          value: 'INSERT INTO test_DBCP(id, value) VALUES(1,1)'
     - operationName: DBCP/Connection/close
       operationId: 0
       parentSpanId: 0
       spanId: 7
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -130,7 +130,7 @@ segmentItems:
       spanId: 8
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -150,14 +150,14 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
         - key: db.statement
-          value: "SELECT id, value FROM test_DBCP WHERE id\u003d1"
+          value: 'SELECT id, value FROM test_DBCP WHERE id=1'
     - operationName: DBCP/Connection/close
       operationId: 0
       parentSpanId: 0
       spanId: 10
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -168,7 +168,7 @@ segmentItems:
       spanId: 11
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -188,14 +188,14 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: test}
         - key: db.statement
-          value: "DELETE FROM test_DBCP WHERE id\u003d1"
+          value: "DELETE FROM test_DBCP WHERE id=1"
     - operationName: DBCP/Connection/close
       operationId: 0
       parentSpanId: 0
       spanId: 13
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -206,7 +206,7 @@ segmentItems:
       spanId: 14
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
@@ -233,7 +233,7 @@ segmentItems:
       spanId: 16
       startTime: gt 0
       endTime: gt 0
-      componentId: 99
+      componentId: 102
       isError: false
       spanType: Local
       peer: ''
