@@ -170,5 +170,4 @@ public class CorrelationContextTest {
         Assert.assertEquals(1, tags.size());
         Assert.assertEquals(new TagValuePair(new StringTag("autotag"), "b"), tags.get(0));
     }
-
 }
