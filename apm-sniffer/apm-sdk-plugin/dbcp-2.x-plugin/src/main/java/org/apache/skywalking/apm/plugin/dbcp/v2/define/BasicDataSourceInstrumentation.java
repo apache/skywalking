@@ -19,7 +19,6 @@ package org.apache.skywalking.apm.plugin.dbcp.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
@@ -30,8 +29,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link BasicDataSource} provides a "one stop shopping" solution for database connection pool solution
- * basic requirements. {@link BasicDataSource#getConnection()} creates (if necessary) and return a connection.
+ * BasicDataSource provides a "one stop shopping" solution for database connection pool solution
+ * basic requirements. BasicDataSource#getConnection() creates (if necessary) and return a connection.
  */
 public class BasicDataSourceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.commons.dbcp2.BasicDataSource";
