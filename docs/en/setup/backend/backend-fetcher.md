@@ -117,6 +117,6 @@ kafka-fetcher:
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
     kafkaConsumerConfig:
-      max.poll.records: 80
+      enable.auto.commit: true
       ...
 ```

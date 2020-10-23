@@ -63,21 +63,19 @@ public class KafkaFetcherHandlerRegister implements Runnable {
     private KafkaConsumer<String, Bytes> consumer = null;
     private final KafkaFetcherConfig config;
     private final boolean isSharding;
-    private final boolean enableKafkaMessageAutoCommit;
 
     private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
     private int threadPoolQueueSize = 10000;
     private final ThreadPoolExecutor executor;
+    private final boolean enableKafkaMessageAutoCommit;
 
     public KafkaFetcherHandlerRegister(KafkaFetcherConfig config) throws ModuleStartException {
         this.config = config;
-        this.enableKafkaMessageAutoCommit = config.isEnableKafkaMessageAutoCommit();
 
         Properties properties = new Properties();
         properties.putAll(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
-        properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(enableKafkaMessageAutoCommit));
 
         AdminClient adminClient = AdminClient.create(properties);
         Set<String> missedTopics = adminClient.describeTopics(Lists.newArrayList(
@@ -129,6 +127,8 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             threadPoolQueueSize = config.getKafkaHandlerThreadPoolQueueSize();
         }
 
+        enableKafkaMessageAutoCommit = (boolean) properties.getOrDefault(
+            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
         executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
                                           60, TimeUnit.SECONDS,
