@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
@@ -150,24 +150,23 @@ public class CorrelationContextTest {
     }
 
     @Test
-    public void testHandleWhenAutoTagKeysEmpty() {
-        ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
-        ContextManager.getCorrelationContext().put("a", "b");
-        ContextManager.stopSpan();
-        TraceSegment traceSegment = tracingData.getTraceSegments().get(0);
-        List<AbstractSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
-        Assert.assertNull(Whitebox.getInternalState(spans.get(0), "tags"));
-    }
-
-    @Test
     public void testHandleWhenAutoTagKeysNotEmpty() {
         ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
         ContextManager.getCorrelationContext().put("autotag", "b");
         ContextManager.stopSpan();
         TraceSegment traceSegment = tracingData.getTraceSegments().get(0);
-        List<AbstractSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
+        List<AbstractTracingSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
         List<TagValuePair> tags = Whitebox.getInternalState(spans.get(0), "tags");
-        Assert.assertEquals(1, tags.size());
         Assert.assertEquals(new TagValuePair(new StringTag("autotag"), "b"), tags.get(0));
+    }
+
+    @Test
+    public void testHandleWhenAutoTagKeysEmpty() {
+        ContextManager.createEntrySpan("/testFirstEntry", new ContextCarrier());
+        ContextManager.getCorrelationContext().put("a", "b");
+        ContextManager.stopSpan();
+        TraceSegment traceSegment = tracingData.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = Whitebox.getInternalState(traceSegment, "spans");
+        Assert.assertNull(Whitebox.getInternalState(spans.get(0), "tags"));
     }
 }
