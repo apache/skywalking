@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import static java.util.Objects.nonNull;
+
 @Getter
 @Setter
 @ToString
@@ -39,6 +41,13 @@ public class ServiceMetaInfo {
     public ServiceMetaInfo(String serviceName, String serviceInstanceName) {
         this.serviceName = serviceName;
         this.serviceInstanceName = serviceInstanceName;
+    }
+
+    /**
+     * @return {@code true} if this object is completely constructed, otherwise {@code false}.
+     */
+    public boolean isComplete() {
+        return nonNull(serviceName) && nonNull(serviceInstanceName);
     }
 
     @Setter

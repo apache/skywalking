@@ -28,7 +28,7 @@ env:
   ISTIO_VERSION: 1.7.1
   TAG: ${{ github.sha }}
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
-  SW_OAP_BASE_IMAGE: openjdk:8-jre-alpine
+  SW_OAP_BASE_IMAGE: openjdk:11-jdk
 
 jobs:
   als:
@@ -62,17 +62,22 @@ jobs:
         run: |
           git clone https://github.com/apache/skywalking-kubernetes.git
           cd skywalking-kubernetes
-          git reset --hard 419cd1aed8bb4ad972208e5a031527a25d2ae690
+          git reset --hard e29fa9c7dc16409af2cfb9c982c9840d8932c86a
           cd chart
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \
                --set fullnameOverride=skywalking \
                --set elasticsearch.replicas=1 \
+               --set elasticsearch.minimumMasterNodes=1 \
+               --set elasticsearch.imageTag=7.5.1 \
                --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
                --set oap.envoy.als.enabled=true \
                --set oap.replicas=1 \
+               --set ui.image.repository=skywalking/ui \
+               --set ui.image.tag=$TAG \
                --set oap.image.tag=$TAG \
-               --set oap.image.repository=skywalking/oap
+               --set oap.image.repository=skywalking/oap \
+               --set oap.storageType=elasticsearch7
           kubectl -n istio-system get pods
 
           sleep 3

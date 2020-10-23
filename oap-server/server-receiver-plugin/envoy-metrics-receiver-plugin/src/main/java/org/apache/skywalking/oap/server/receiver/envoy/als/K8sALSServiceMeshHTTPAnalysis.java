@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
 import com.google.common.base.Strings;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Duration;
 import com.google.protobuf.Timestamp;
 import io.envoyproxy.envoy.api.v2.core.Address;
@@ -31,58 +30,32 @@ import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.TLSProperties;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.openapi.models.V1OwnerReference;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodList;
-import io.kubernetes.client.util.Config;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Analysis log based on ingress and mesh scenarios.
  */
+@Slf4j
 public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
-    private static final Logger LOGGER = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
-
-    private static final String VALID_PHASE = "Running";
-
     private static final String NON_TLS = "NONE";
 
     private static final String M_TLS = "mTLS";
 
     private static final String TLS = "TLS";
 
-    @Getter(AccessLevel.PROTECTED)
-    private final AtomicReference<Map<String, ServiceMetaInfo>> ipServiceMap = new AtomicReference<>();
-
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(
-        1, new ThreadFactoryBuilder()
-            .setNameFormat("load-pod-%d")
-            .setDaemon(true)
-            .build());
+    protected K8SServiceRegistry serviceRegistry;
 
     @Override
     public String name() {
@@ -90,83 +63,15 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     }
 
     @Override
+    @SneakyThrows
     public void init(EnvoyMetricReceiverConfig config) {
-        executorService.scheduleAtFixedRate(this::loadPodInfo, 0, 15, TimeUnit.SECONDS);
-    }
-
-    private boolean invalidPodList() {
-        Map<String, ServiceMetaInfo> map = ipServiceMap.get();
-        return map == null || map.isEmpty();
-    }
-
-    private void loadPodInfo() {
-        try {
-            ApiClient client = Config.defaultClient();
-            CoreV1Api api = new CoreV1Api(client);
-
-            V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-            Map<String, ServiceMetaInfo> ipMap = new HashMap<>(list.getItems().size());
-            long startTime = System.nanoTime();
-            for (V1Pod item : list.getItems()) {
-                if (!item.getStatus().getPhase().equals(VALID_PHASE)) {
-                    LOGGER.debug("Invalid pod {} is not in a valid phase {}", item.getMetadata()
-                                                                                  .getName(), item.getStatus()
-                                                                                                  .getPhase());
-                    continue;
-                }
-                if (item.getStatus().getPodIP().equals(item.getStatus().getHostIP())) {
-                    LOGGER.debug(
-                        "Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata()
-                                                                                            .getName(),
-                        item.getMetadata()
-                            .getNamespace()
-                    );
-                    continue;
-                }
-                ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
-            }
-            LOGGER.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
-            ipServiceMap.set(ipMap);
-        } catch (Throwable th) {
-            LOGGER.error("run load pod error", th);
-        }
-    }
-
-    private ServiceMetaInfo createServiceMetaInfo(final V1ObjectMeta podMeta) {
-        ExtensionsV1beta1Api extensionsApi = new ExtensionsV1beta1Api();
-        DependencyResource dr = new DependencyResource(podMeta);
-        DependencyResource meta = dr.getOwnerResource(
-            "ReplicaSet", ownerReference -> extensionsApi.readNamespacedReplicaSet(
-                ownerReference
-                    .getName(), podMeta.getNamespace(), "", true, true)
-                                                         .getMetadata());
-        ServiceMetaInfo result = new ServiceMetaInfo();
-        if (meta.getMetadata().getOwnerReferences() != null && meta.getMetadata().getOwnerReferences().size() > 0) {
-            V1OwnerReference owner = meta.getMetadata().getOwnerReferences().get(0);
-            result.setServiceName(String.format("%s.%s", owner.getName(), meta.getMetadata().getNamespace()));
-        } else {
-            result.setServiceName(String.format("%s.%s", meta.getMetadata().getName(), meta.getMetadata()
-                                                                                           .getNamespace()));
-        }
-        result.setServiceInstanceName(String.format("%s.%s", podMeta.getName(), podMeta.getNamespace()));
-        result.setTags(transformLabelsToTags(podMeta.getLabels()));
-        return result;
-    }
-
-    private List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final Map<String, String> labels) {
-        if (labels == null || labels.size() < 1) {
-            return Collections.emptyList();
-        }
-        List<ServiceMetaInfo.KeyValue> result = new ArrayList<>(labels.size());
-        for (Map.Entry<String, String> each : labels.entrySet()) {
-            result.add(new ServiceMetaInfo.KeyValue(each.getKey(), each.getValue()));
-        }
-        return result;
+        serviceRegistry = new K8SServiceRegistry();
+        serviceRegistry.start();
     }
 
     @Override
     public List<Source> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role) {
-        if (invalidPodList()) {
+        if (serviceRegistry.isEmpty()) {
             return Collections.emptyList();
         }
         switch (role) {
@@ -209,95 +114,74 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                 boolean status = responseCode >= 200 && responseCode < 400;
 
                 Address downstreamRemoteAddress = properties.getDownstreamRemoteAddress();
-                ServiceMetaInfo downstreamService = find(
-                    downstreamRemoteAddress.getSocketAddress()
-                                           .getAddress(), downstreamRemoteAddress.getSocketAddress()
-                                                                                 .getPortValue());
+                ServiceMetaInfo downstreamService = find(downstreamRemoteAddress.getSocketAddress().getAddress());
                 Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
-                ServiceMetaInfo localService = find(
-                    downstreamLocalAddress.getSocketAddress()
-                                          .getAddress(), downstreamLocalAddress.getSocketAddress()
-                                                                               .getPortValue());
+                ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
                 String tlsMode = parseTLS(properties.getTlsProperties());
+
+                ServiceMeshMetric.Builder metric = null;
                 if (cluster.startsWith("inbound|")) {
                     // Server side
                     if (downstreamService.equals(ServiceMetaInfo.UNKNOWN)) {
                         // Ingress -> sidecar(server side)
                         // Mesh telemetry without source, the relation would be generated.
-                        ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
-                                                                            .setStartTime(startTime)
-                                                                            .setEndTime(startTime + duration)
-                                                                            .setDestServiceName(
-                                                                                localService.getServiceName())
-                                                                            .setDestServiceInstance(
-                                                                                localService.getServiceInstanceName())
-                                                                            .setEndpoint(endpoint)
-                                                                            .setLatency((int) duration)
-                                                                            .setResponseCode(
-                                                                                Math.toIntExact(responseCode))
-                                                                            .setStatus(status)
-                                                                            .setProtocol(protocol)
-                                                                            .setTlsMode(tlsMode)
-                                                                            .setDetectPoint(DetectPoint.server);
+                        metric = ServiceMeshMetric.newBuilder()
+                                                  .setStartTime(startTime)
+                                                  .setEndTime(startTime + duration)
+                                                  .setDestServiceName(localService.getServiceName())
+                                                  .setDestServiceInstance(localService.getServiceInstanceName())
+                                                  .setEndpoint(endpoint)
+                                                  .setLatency((int) duration)
+                                                  .setResponseCode(Math.toIntExact(responseCode))
+                                                  .setStatus(status)
+                                                  .setProtocol(protocol)
+                                                  .setTlsMode(tlsMode)
+                                                  .setDetectPoint(DetectPoint.server);
 
-                        LOGGER.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
-                        forward(metric);
+                        log.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
                     } else {
                         // sidecar -> sidecar(server side)
-                        ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
-                                                                            .setStartTime(startTime)
-                                                                            .setEndTime(startTime + duration)
-                                                                            .setSourceServiceName(
-                                                                                downstreamService.getServiceName())
-                                                                            .setSourceServiceInstance(
-                                                                                downstreamService.getServiceInstanceName())
-                                                                            .setDestServiceName(
-                                                                                localService.getServiceName())
-                                                                            .setDestServiceInstance(
-                                                                                localService.getServiceInstanceName())
-                                                                            .setEndpoint(endpoint)
-                                                                            .setLatency((int) duration)
-                                                                            .setResponseCode(
-                                                                                Math.toIntExact(responseCode))
-                                                                            .setStatus(status)
-                                                                            .setProtocol(protocol)
-                                                                            .setTlsMode(tlsMode)
-                                                                            .setDetectPoint(DetectPoint.server);
+                        metric = ServiceMeshMetric.newBuilder()
+                                                  .setStartTime(startTime)
+                                                  .setEndTime(startTime + duration)
+                                                  .setSourceServiceName(downstreamService.getServiceName())
+                                                  .setSourceServiceInstance(downstreamService.getServiceInstanceName())
+                                                  .setDestServiceName(localService.getServiceName())
+                                                  .setDestServiceInstance(localService.getServiceInstanceName())
+                                                  .setEndpoint(endpoint)
+                                                  .setLatency((int) duration)
+                                                  .setResponseCode(Math.toIntExact(responseCode))
+                                                  .setStatus(status)
+                                                  .setProtocol(protocol)
+                                                  .setTlsMode(tlsMode)
+                                                  .setDetectPoint(DetectPoint.server);
 
-                        LOGGER.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
-                        forward(metric);
+                        log.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
                     }
                 } else if (cluster.startsWith("outbound|")) {
                     // sidecar(client side) -> sidecar
                     Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
-                    ServiceMetaInfo destService = find(
-                        upstreamRemoteAddress.getSocketAddress()
-                                             .getAddress(), upstreamRemoteAddress.getSocketAddress()
-                                                                                 .getPortValue());
+                    ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());
 
-                    ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
-                                                                        .setStartTime(startTime)
-                                                                        .setEndTime(startTime + duration)
-                                                                        .setSourceServiceName(
-                                                                            downstreamService.getServiceName())
-                                                                        .setSourceServiceInstance(
-                                                                            downstreamService.getServiceInstanceName())
-                                                                        .setDestServiceName(
-                                                                            destService.getServiceName())
-                                                                        .setDestServiceInstance(
-                                                                            destService.getServiceInstanceName())
-                                                                        .setEndpoint(endpoint)
-                                                                        .setLatency((int) duration)
-                                                                        .setResponseCode(Math.toIntExact(responseCode))
-                                                                        .setStatus(status)
-                                                                        .setProtocol(protocol)
-                                                                        .setTlsMode(tlsMode)
-                                                                        .setDetectPoint(DetectPoint.client);
+                    metric = ServiceMeshMetric.newBuilder()
+                                              .setStartTime(startTime)
+                                              .setEndTime(startTime + duration)
+                                              .setSourceServiceName(downstreamService.getServiceName())
+                                              .setSourceServiceInstance(downstreamService.getServiceInstanceName())
+                                              .setDestServiceName(destService.getServiceName())
+                                              .setDestServiceInstance(destService.getServiceInstanceName())
+                                              .setEndpoint(endpoint)
+                                              .setLatency((int) duration)
+                                              .setResponseCode(Math.toIntExact(responseCode))
+                                              .setStatus(status)
+                                              .setProtocol(protocol)
+                                              .setTlsMode(tlsMode)
+                                              .setDetectPoint(DetectPoint.client);
 
-                    LOGGER.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
-                    forward(metric);
-
+                    log.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
                 }
+
+                Optional.ofNullable(metric).ifPresent(this::forward);
             }
         }
         return sources;
@@ -308,11 +192,11 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
             return NON_TLS;
         }
         if (Strings.isNullOrEmpty(Optional.ofNullable(properties.getLocalCertificateProperties())
-            .orElse(TLSProperties.CertificateProperties.newBuilder().build()).getSubject())) {
+                                          .orElse(TLSProperties.CertificateProperties.newBuilder().build()).getSubject())) {
             return NON_TLS;
         }
         if (Strings.isNullOrEmpty(Optional.ofNullable(properties.getPeerCertificateProperties())
-            .orElse(TLSProperties.CertificateProperties.newBuilder().build()).getSubject())) {
+                                          .orElse(TLSProperties.CertificateProperties.newBuilder().build()).getSubject())) {
             return TLS;
         }
         return M_TLS;
@@ -326,14 +210,10 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
             Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
             if (downstreamLocalAddress != null && downstreamRemoteAddress != null && upstreamRemoteAddress != null) {
                 SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
-                ServiceMetaInfo outside = find(
-                    downstreamRemoteAddressSocketAddress.getAddress(), downstreamRemoteAddressSocketAddress
-                        .getPortValue());
+                ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
 
                 SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
-                ServiceMetaInfo ingress = find(
-                    downstreamLocalAddressSocketAddress.getAddress(), downstreamLocalAddressSocketAddress
-                        .getPortValue());
+                ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
 
                 long startTime = formatAsLong(properties.getStartTime());
                 long duration = formatAsLong(properties.getTimeToLastDownstreamTxByte());
@@ -375,13 +255,11 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                     .setTlsMode(tlsMode)
                                                                     .setDetectPoint(DetectPoint.server);
 
-                LOGGER.debug("Transformed ingress inbound mesh metric {}", metric);
+                log.debug("Transformed ingress inbound mesh metric {}", metric);
                 forward(metric);
 
                 SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
-                ServiceMetaInfo targetService = find(
-                    upstreamRemoteAddressSocketAddress.getAddress(), upstreamRemoteAddressSocketAddress
-                        .getPortValue());
+                ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
 
                 long outboundStartTime = startTime + formatAsLong(properties.getTimeToFirstUpstreamTxByte());
                 long outboundEndTime = startTime + formatAsLong(properties.getTimeToLastUpstreamRxByte());
@@ -409,7 +287,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                             .setTlsMode(NON_TLS)
                                                                             .setDetectPoint(DetectPoint.client);
 
-                LOGGER.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
+                log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
                 forward(outboundMetric);
             }
         }
@@ -435,17 +313,8 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     /**
      * @return found service info, or {@link ServiceMetaInfo#UNKNOWN} to represent not found.
      */
-    protected ServiceMetaInfo find(String ip, int port) {
-        Map<String, ServiceMetaInfo> map = ipServiceMap.get();
-        if (map == null) {
-            LOGGER.debug("Unknown ip {}, ip -> service is null", ip);
-            return ServiceMetaInfo.UNKNOWN;
-        }
-        if (map.containsKey(ip)) {
-            return map.get(ip);
-        }
-        LOGGER.debug("Unknown ip {}, ip -> service is {}", ip, map);
-        return ServiceMetaInfo.UNKNOWN;
+    protected ServiceMetaInfo find(String ip) {
+        return serviceRegistry.findService(ip);
     }
 
     protected void forward(ServiceMeshMetric.Builder metric) {
