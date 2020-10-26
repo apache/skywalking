@@ -30,9 +30,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class NettyRequestSenderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.asynchttpclient.netty.request.NettyRequestSender";
-    private static final String NETTY_REQUEST_SENDER_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asyncClientHttp.v1.NettyRequestSenderInterceptor";
+    private static final String REAL_REQUEST_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asyncClientHttp.v1.RealRequestInterceptor";
     private static final String PREPARE_REQUEST_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asyncClientHttp.v1.PrepareRequestInterceptor";
-    private static final String NETTY_REQUEST_METHOD = "writeRequest";
+    private static final String REAL_REQUEST_METHOD = "writeRequest";
     private static final String PREPARE_REQUEST_METHOD = "sendRequest";
 
     @Override
@@ -51,12 +51,12 @@ public class NettyRequestSenderInstrumentation extends ClassInstanceMethodsEnhan
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(NETTY_REQUEST_METHOD);
+                        return named(REAL_REQUEST_METHOD);
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return NETTY_REQUEST_SENDER_INTERCEPTOR_CLASS;
+                        return REAL_REQUEST_INTERCEPTOR_CLASS;
                     }
 
                     @Override

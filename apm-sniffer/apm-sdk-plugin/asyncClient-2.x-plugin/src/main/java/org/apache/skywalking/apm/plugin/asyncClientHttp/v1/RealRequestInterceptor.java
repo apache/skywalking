@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.apm.plugin.asyncClientHttp.v1;
 
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -30,21 +29,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
+import org.apache.skywalking.apm.plugin.asyncClientHttp.v1.wrapper.AsyncCompletionHandlerWrapper;
 import org.asynchttpclient.DefaultRequest;
 import org.asynchttpclient.netty.NettyResponseFuture;
-import org.asynchttpclient.netty.request.NettyRequest;
 
 import java.lang.reflect.Method;
 import java.net.URL;
 
-public class NettyRequestSenderInterceptor implements InstanceMethodsAroundInterceptor {
+public class RealRequestInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         NettyResponseFuture responseFuture = (NettyResponseFuture) allArguments[0];
-        NettyRequest nettyRequest = (NettyRequest) responseFuture.getNettyRequest();
-        DefaultFullHttpRequest request = (DefaultFullHttpRequest) nettyRequest.getHttpRequest();
-
+        responseFuture.setAsyncHandler(new AsyncCompletionHandlerWrapper());
+        allArguments[0] = responseFuture;
         DefaultRequest defaultHttpRequest = (DefaultRequest) responseFuture.getTargetRequest();
         URL url = new URL(defaultHttpRequest.getUrl());
 
@@ -55,7 +53,9 @@ public class NettyRequestSenderInterceptor implements InstanceMethodsAroundInter
             operationName = "/";
         }
         AbstractSpan span = ContextManager.createExitSpan(operationName, remotePeer);
-        ContextManager.continued((ContextSnapshot) objInst.getSkyWalkingDynamicField());
+        if (objInst.getSkyWalkingDynamicField() != null) {
+            ContextManager.continued((ContextSnapshot) objInst.getSkyWalkingDynamicField());
+        }
         ContextCarrier contextCarrier = new ContextCarrier();
         ContextManager.inject(contextCarrier);
         span.setComponent(new OfficialComponent(102, "AsyncHttpClient"));
@@ -63,7 +63,7 @@ public class NettyRequestSenderInterceptor implements InstanceMethodsAroundInter
         Tags.URL.set(span, defaultHttpRequest.getUrl());
         SpanLayer.asHttp(span);
 
-        DefaultHttpHeaders defaultHttpHeaders = (DefaultHttpHeaders) request.headers();
+        DefaultHttpHeaders defaultHttpHeaders = (DefaultHttpHeaders) defaultHttpRequest.getHeaders();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -74,14 +74,11 @@ public class NettyRequestSenderInterceptor implements InstanceMethodsAroundInter
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan abstractSpan = ContextManager.activeSpan();
-        abstractSpan.errorOccurred();
-        abstractSpan.log(t);
+
     }
 }
