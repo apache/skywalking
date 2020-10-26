@@ -50,9 +50,11 @@ or providing commercial products including Apache SkyWalking.
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. DiDi 滴滴出行
 1. dxy.cn 丁香园  http://www.dxy.cn/
+1. Byte Dance 字节跳动 https://bytedance.com
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
 1. Enmonster 怪兽充电 http://www.enmonster.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
+1. essence.com.cn 安信证券股份有限公司 http://www.essence.com.cn/
 1. fangdd.com 房多多 https://www.fangdd.com
 1. fullgoal.com.cn 富国基金管理有限公司 https://www.fullgoal.com.cn/
 1. GTrace System. (No company provided)
