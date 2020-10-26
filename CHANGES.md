@@ -63,7 +63,7 @@ Release Notes.
 * Support SSL for Prometheus fetcher and self telemetry.
 * Support labeled histogram in the prometheus format.
 * Support the status of segment based on entry span or first span only.
-* Support the error or slowly segment in the sampling mechanism.
+* Support the error segment in the sampling mechanism.
 * Support SSL certs of gRPC server.
 * Support labeled metrics in the alarm rule setting.
 * Support to query all labeled data, if no explicit label in the query condition.
