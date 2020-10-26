@@ -133,7 +133,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
         executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
                                           60, TimeUnit.SECONDS,
                                           new ArrayBlockingQueue(threadPoolQueueSize),
-                                          new CustomThreadFactory("kafkaHandlerPool"),
+                                          new CustomThreadFactory("KafkaConsumer"),
                                           new ThreadPoolExecutor.CallerRunsPolicy()
         );
     }
@@ -151,7 +151,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             consumer.subscribe(handlerMap.keySet());
         }
         consumer.seekToEnd(consumer.assignment());
-        Executors.newSingleThreadExecutor(new DefaultThreadFactory("KafkaConsumer")).submit(this);
+        executor.submit(this);
     }
 
     @Override
