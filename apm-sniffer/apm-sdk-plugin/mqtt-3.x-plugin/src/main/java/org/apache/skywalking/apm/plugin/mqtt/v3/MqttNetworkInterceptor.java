@@ -52,6 +52,6 @@ public class MqttNetworkInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects,
                                       Class<?>[] classes, Throwable throwable) {
-        ContextManager.activeSpan().errorOccurred().log(throwable);
+        ContextManager.activeSpan().log(throwable);
     }
 }

@@ -55,7 +55,6 @@ jobs:
           - quartz-scheduler-2.x-scenario
           - xxl-job-2.x-scenario
           - thrift-scenario
-          - mqtt-scenario
     steps:
       - uses: actions/checkout@v2
         with:
