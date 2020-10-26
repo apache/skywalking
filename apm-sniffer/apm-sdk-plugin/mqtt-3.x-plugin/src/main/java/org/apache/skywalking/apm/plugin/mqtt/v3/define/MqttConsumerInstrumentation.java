@@ -63,6 +63,6 @@ public class MqttConsumerInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(new String[] {ENHANCE_CLASS});
+        return byHierarchyMatch(ENHANCE_CLASS);
     }
 }

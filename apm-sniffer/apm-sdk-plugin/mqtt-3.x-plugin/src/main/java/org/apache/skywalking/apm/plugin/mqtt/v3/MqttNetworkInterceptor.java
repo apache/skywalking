@@ -34,9 +34,7 @@ public class MqttNetworkInterceptor implements InstanceMethodsAroundInterceptor 
                              Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
         NetworkModule[] networkModules = (NetworkModule[]) allArguments[0];
         MqttEnhanceRequiredInfo requiredInfo = new MqttEnhanceRequiredInfo();
-        String[] serverURIs = Arrays.stream(networkModules)
-                                    .map(networkModule -> networkModule.getServerURI())
-                                    .toArray(String[]::new);
+        String[] serverURIs = Arrays.stream(networkModules).map(NetworkModule::getServerURI).toArray(String[]::new);
         requiredInfo.setBrokerServers(StringUtil.join(';', serverURIs));
         requiredInfo.setStartTime(System.currentTimeMillis());
         enhancedInstance.setSkyWalkingDynamicField(requiredInfo);

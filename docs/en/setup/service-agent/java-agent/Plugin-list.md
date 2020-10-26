@@ -46,6 +46,7 @@
 - mysql-5.x
 - mysql-6.x
 - mysql-8.x
+- mqtt-3.x
 - netty-socketio
 - nutz-http-1.x
 - nutz-mvc-annotation-1.x
@@ -107,4 +108,3 @@
 - vertx-core-3.x
 - xxl-job-2.x
 - zookeeper-3.4.x
-- mqtt-3.x
