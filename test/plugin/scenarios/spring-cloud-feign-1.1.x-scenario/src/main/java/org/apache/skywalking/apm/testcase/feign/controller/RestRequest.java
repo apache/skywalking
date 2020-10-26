@@ -22,7 +22,7 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(value = "spring-cloud-feign-1.1.x-scenario", url = "localhost:8080/spring-cloud-feign-1.1.x-scenario")
+@FeignClient(value = "spring-cloud-feign-1.1.x-scenario", path = "/spring-cloud-feign-1.1.x-scenario")
 public interface RestRequest {
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
