@@ -55,11 +55,11 @@ import static java.util.Objects.requireNonNull;
 class K8SServiceRegistry {
     final Map<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
 
-    final Map<String/* uuid */, V1Service> idServiceMap;
+    final Map<String/* namespace:serviceName */, V1Service> idServiceMap;
 
     final Map<String/* ip */, V1Pod> ipPodMap;
 
-    final Map<String/* ip */, String/* service uuid */> ipServiceIdMap;
+    final Map<String/* ip */, String/* namespace:serviceName */> ipServiceMap;
 
     final ExecutorService executor;
 
@@ -70,7 +70,7 @@ class K8SServiceRegistry {
         ipServiceMetaInfoMap = new ConcurrentHashMap<>();
         idServiceMap = new ConcurrentHashMap<>();
         ipPodMap = new ConcurrentHashMap<>();
-        ipServiceIdMap = new ConcurrentHashMap<>();
+        ipServiceMap = new ConcurrentHashMap<>();
         executor = Executors.newCachedThreadPool(
             new ThreadFactoryBuilder()
                 .setNameFormat("K8SServiceRegistry-%d")
@@ -201,7 +201,7 @@ class K8SServiceRegistry {
 
     private void addService(final V1Service service) {
         Optional.ofNullable(service.getMetadata()).ifPresent(
-            metadata -> idServiceMap.put(metadata.getUid(), service)
+            metadata -> idServiceMap.put(metadata.getNamespace() + ":" + metadata.getName(), service)
         );
 
         recompose();
@@ -228,11 +228,12 @@ class K8SServiceRegistry {
     }
 
     private void addEndpoints(final V1Endpoints endpoints) {
-        final String serviceUuid = requireNonNull(endpoints.getMetadata()).getUid();
+        final String namespace = requireNonNull(endpoints.getMetadata()).getNamespace();
+        final String name = requireNonNull(endpoints.getMetadata()).getName();
 
         requireNonNull(endpoints.getSubsets()).forEach(
             subset -> requireNonNull(subset.getAddresses()).forEach(
-                address -> ipServiceIdMap.put(address.getIp(), serviceUuid)
+                address -> ipServiceMap.put(address.getIp(), namespace + ":" + name)
             )
         );
 
@@ -242,7 +243,7 @@ class K8SServiceRegistry {
     private void removeEndpoints(final V1Endpoints endpoints) {
         requireNonNull(endpoints.getSubsets()).forEach(
             subset -> requireNonNull(subset.getAddresses()).forEach(
-                address -> ipServiceIdMap.remove(address.getIp())
+                address -> ipServiceMap.remove(address.getIp())
             )
         );
     }
@@ -268,9 +269,9 @@ class K8SServiceRegistry {
 
     private void recompose() {
         ipPodMap.forEach((ip, pod) -> {
-            final String serviceId = ipServiceIdMap.get(ip);
+            final String namespaceService = ipServiceMap.get(ip);
             final V1Service service;
-            if (isNullOrEmpty(serviceId) || isNull(service = idServiceMap.get(serviceId))) {
+            if (isNullOrEmpty(namespaceService) || isNull(service = idServiceMap.get(namespaceService))) {
                 return;
             }
 
