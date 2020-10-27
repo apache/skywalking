@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als;
+package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
 import com.google.common.base.Strings;
 import com.google.protobuf.Duration;
@@ -43,6 +43,9 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
+import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 /**
  * Analysis log based on ingress and mesh scenarios.
@@ -65,7 +68,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     @Override
     @SneakyThrows
     public void init(EnvoyMetricReceiverConfig config) {
-        serviceRegistry = new K8SServiceRegistry();
+        serviceRegistry = new K8SServiceRegistry(config);
         serviceRegistry.start();
     }
 

@@ -16,18 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als;
+package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.kubernetes.client.informer.ResourceEventHandler;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Endpoints;
 import io.kubernetes.client.openapi.models.V1EndpointsList;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
+import io.kubernetes.client.openapi.models.V1Service;
+import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.util.Config;
 import java.io.IOException;
 import java.util.Collections;
@@ -40,18 +44,33 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
 class K8SServiceRegistry {
-    final Map<String, ServiceMetaInfo> ipServiceMap;
+    final Map<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
+
+    final Map<String/* uuid */, V1Service> idServiceMap;
+
+    final Map<String/* ip */, V1Pod> ipPodMap;
+
+    final Map<String/* ip */, String/* service uuid */> ipServiceIdMap;
 
     final ExecutorService executor;
 
-    K8SServiceRegistry() {
-        ipServiceMap = new ConcurrentHashMap<>();
+    final ServiceNameFormatter serviceNameFormatter;
+
+    K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
+        serviceNameFormatter = new ServiceNameFormatter(config.getK8sServiceNameRule());
+        ipServiceMetaInfoMap = new ConcurrentHashMap<>();
+        idServiceMap = new ConcurrentHashMap<>();
+        ipPodMap = new ConcurrentHashMap<>();
+        ipServiceIdMap = new ConcurrentHashMap<>();
         executor = Executors.newCachedThreadPool(
             new ThreadFactoryBuilder()
                 .setNameFormat("K8SServiceRegistry-%d")
@@ -66,14 +85,50 @@ class K8SServiceRegistry {
                                          .newBuilder()
                                          .readTimeout(0, TimeUnit.SECONDS)
                                          .build());
+        Configuration.setDefaultApiClient(apiClient);
 
-        final CoreV1Api coreV1Api = new CoreV1Api(apiClient);
+        final CoreV1Api coreV1Api = new CoreV1Api();
         final SharedInformerFactory factory = new SharedInformerFactory(executor);
 
+        listenServiceEvents(coreV1Api, factory);
         listenEndpointsEvents(coreV1Api, factory);
         listenPodEvents(coreV1Api, factory);
 
         factory.startAllRegisteredInformers();
+    }
+
+    private void listenServiceEvents(final CoreV1Api coreV1Api, final SharedInformerFactory factory) {
+        factory.sharedIndexInformerFor(
+            params -> coreV1Api.listServiceForAllNamespacesCall(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                params.resourceVersion,
+                params.timeoutSeconds,
+                params.watch,
+                null
+            ),
+            V1Service.class,
+            V1ServiceList.class
+        ).addEventHandler(new ResourceEventHandler<V1Service>() {
+            @Override
+            public void onAdd(final V1Service service) {
+                addService(service);
+            }
+
+            @Override
+            public void onUpdate(final V1Service oldService, final V1Service newService) {
+                addService(newService);
+            }
+
+            @Override
+            public void onDelete(final V1Service service, final boolean deletedFinalStateUnknown) {
+                removeService(service);
+            }
+        });
     }
 
     private void listenEndpointsEvents(final CoreV1Api coreV1Api, final SharedInformerFactory factory) {
@@ -144,52 +199,52 @@ class K8SServiceRegistry {
         });
     }
 
-    private void removePod(final V1Pod pod) {
-        log.debug("Removing pod {}", pod);
+    private void addService(final V1Service service) {
+        Optional.ofNullable(service.getMetadata()).ifPresent(
+            metadata -> idServiceMap.put(metadata.getUid(), service)
+        );
 
-        Optional.ofNullable(pod.getStatus()).ifPresent(
-            status -> ipServiceMap.remove(status.getPodIP())
+        recompose();
+    }
+
+    private void removeService(final V1Service service) {
+        Optional.ofNullable(service.getMetadata()).ifPresent(
+            metadata -> idServiceMap.remove(metadata.getUid())
         );
     }
 
     private void addPod(final V1Pod pod) {
-        log.debug("Adding pod {}", pod);
-
         Optional.ofNullable(pod.getStatus()).ifPresent(
-            status -> {
-                final String ip = status.getPodIP();
-                final ServiceMetaInfo service = ipServiceMap.computeIfAbsent(ip, unused -> new ServiceMetaInfo());
+            status -> ipPodMap.put(status.getPodIP(), pod)
+        );
 
-                final V1ObjectMeta podMeta = requireNonNull(pod.getMetadata());
-                service.setServiceInstanceName(String.format("%s.%s", podMeta.getName(), podMeta.getNamespace()));
-                service.setTags(transformLabelsToTags(podMeta.getLabels()));
-            }
+        recompose();
+    }
+
+    private void removePod(final V1Pod pod) {
+        Optional.ofNullable(pod.getStatus()).ifPresent(
+            status -> ipPodMap.remove(status.getPodIP())
         );
     }
 
     private void addEndpoints(final V1Endpoints endpoints) {
-        log.debug("Adding endpoints {}", endpoints);
+        final String serviceUuid = requireNonNull(endpoints.getMetadata()).getUid();
 
-        final String serviceName = requireNonNull(endpoints.getMetadata()).getName();
+        requireNonNull(endpoints.getSubsets()).forEach(
+            subset -> requireNonNull(subset.getAddresses()).forEach(
+                address -> ipServiceIdMap.put(address.getIp(), serviceUuid)
+            )
+        );
 
-        requireNonNull(endpoints.getSubsets()).forEach(subset -> {
-            requireNonNull(subset.getAddresses()).forEach(address -> {
-                final String ip = address.getIp();
-                final ServiceMetaInfo service = ipServiceMap.computeIfAbsent(ip, unused -> new ServiceMetaInfo());
-                service.setServiceName(serviceName);
-            });
-        });
+        recompose();
     }
 
     private void removeEndpoints(final V1Endpoints endpoints) {
-        log.debug("Removing endpoints {}", endpoints);
-
-        requireNonNull(endpoints.getSubsets()).forEach(subset -> {
-            requireNonNull(subset.getAddresses()).forEach(address -> {
-                final String ip = address.getIp();
-                ipServiceMap.remove(ip);
-            });
-        });
+        requireNonNull(endpoints.getSubsets()).forEach(
+            subset -> requireNonNull(subset.getAddresses()).forEach(
+                address -> ipServiceIdMap.remove(address.getIp())
+            )
+        );
     }
 
     private List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final Map<String, String> labels) {
@@ -203,15 +258,43 @@ class K8SServiceRegistry {
     }
 
     ServiceMetaInfo findService(final String ip) {
-        final ServiceMetaInfo service = ipServiceMap.getOrDefault(ip, ServiceMetaInfo.UNKNOWN);
-        if (!service.isComplete()) {
-            log.debug("Unknown ip {}, ip -> service is null, service {}", ip, service);
+        final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
+        if (isNull(service)) {
+            log.debug("Unknown ip {}, ip -> service is null", ip);
             return ServiceMetaInfo.UNKNOWN;
         }
         return service;
     }
 
+    private void recompose() {
+        ipPodMap.forEach((ip, pod) -> {
+            final String serviceId = ipServiceIdMap.get(ip);
+            final V1Service service;
+            if (isNullOrEmpty(serviceId) || isNull(service = idServiceMap.get(serviceId))) {
+                return;
+            }
+
+            final Map<String, Object> context = ImmutableMap.of("service", service, "pod", pod);
+            final V1ObjectMeta podMetadata = requireNonNull(pod.getMetadata());
+
+            ipServiceMetaInfoMap.computeIfAbsent(ip, unused -> {
+                final ServiceMetaInfo serviceMetaInfo = new ServiceMetaInfo();
+
+                try {
+                    serviceMetaInfo.setServiceName(serviceNameFormatter.format(context));
+                } catch (Exception e) {
+                    log.error("Failed to evaluate service name.", e);
+                    serviceMetaInfo.setServiceName(requireNonNull(service.getMetadata()).getName());
+                }
+                serviceMetaInfo.setServiceInstanceName(String.format("%s.%s", podMetadata.getName(), podMetadata.getNamespace()));
+                serviceMetaInfo.setTags(transformLabelsToTags(podMetadata.getLabels()));
+
+                return serviceMetaInfo;
+            });
+        });
+    }
+
     boolean isEmpty() {
-        return ipServiceMap.isEmpty();
+        return ipServiceMetaInfoMap.isEmpty();
     }
 }
