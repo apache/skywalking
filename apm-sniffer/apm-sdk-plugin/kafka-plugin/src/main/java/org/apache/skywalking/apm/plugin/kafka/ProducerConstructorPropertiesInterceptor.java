@@ -23,16 +23,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.util.StringUtil;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
+public class ProducerConstructorPropertiesInterceptor implements InstanceConstructorInterceptor {
     private static final Pattern COMMA_WITH_WHITESPACE = Pattern.compile("\\s*,\\s*");
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-
-        Map<String, Object> config = (Map<String, Object>) allArguments[0];
+        Properties config = (Properties) allArguments[0];
         // prevent errors caused by secondary interception in kafkaTemplate
         if (objInst.getSkyWalkingDynamicField() == null) {
             Object bootstrapServers = config.get("bootstrap.servers");
