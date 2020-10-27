@@ -26,10 +26,14 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,6 +45,9 @@ public class MeterBuilder {
 
     private final MeterConfig config;
     private final MeterSystem meterSystem;
+
+    private final static String DEFAULT_GROUP = "default";
+    private final static List<String> DEFAULT_GROUP_LIST = Collections.singletonList(DEFAULT_GROUP);
 
     /**
      * Current meter has init finished.
@@ -96,36 +103,49 @@ public class MeterBuilder {
                     log.warn("avg function not support histogram value, please check meter:{}", combinedSingleAvgData.getName());
                 }
                 break;
+            case "avgLabeled":
+                final DataTable dt = new DataTable();
+                values.combineAndGroupBy(Optional.ofNullable(config.getMeter().getGroupBy()).orElse(DEFAULT_GROUP_LIST)).entrySet().stream()
+                    .forEach(e -> dt.put(e.getKey(), (long) ((EvalSingleData) e.getValue()).getValue()));
+                AcceptableValue<DataTable> value = meterSystem.buildMetrics(metricsName, DataTable.class);
+                value.accept(entity, dt);
+                value.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
+                meterSystem.doStreamingCalculation(value);
+                break;
             case "avgHistogram":
             case "avgHistogramPercentile":
-                final EvalData combinedHistogramData = values.combineAsSingleData();
-                if (combinedHistogramData instanceof EvalHistogramData) {
-                    final EvalHistogramData histogram = (EvalHistogramData) combinedHistogramData;
-                    long[] buckets = new long[histogram.getBuckets().size()];
-                    long[] bucketValues = new long[histogram.getBuckets().size()];
-                    int i = 0;
-                    for (Map.Entry<Double, Long> entry : histogram.getBuckets().entrySet()) {
-                        buckets[i] = entry.getKey().intValue();
-                        bucketValues[i] = entry.getValue();
-                        i++;
-                    }
+                values.combineAndGroupBy(Optional.ofNullable(config.getMeter().getGroupBy()).orElse(DEFAULT_GROUP_LIST)).entrySet().stream()
+                    .forEach(e -> {
+                        final String group = e.getKey();
+                        final EvalData combinedHistogramData = e.getValue();
+                        if (combinedHistogramData instanceof EvalHistogramData) {
+                            final EvalHistogramData histogram = (EvalHistogramData) combinedHistogramData;
+                            long[] buckets = new long[histogram.getBuckets().size()];
+                            long[] bucketValues = new long[histogram.getBuckets().size()];
+                            int i = 0;
+                            for (Map.Entry<Double, Long> entry : histogram.getBuckets().entrySet()) {
+                                buckets[i] = entry.getKey().intValue();
+                                bucketValues[i] = entry.getValue();
+                                i++;
+                            }
 
-                    if (config.getMeter().getOperation().equals("avgHistogram")) {
-                        AcceptableValue<BucketedValues> avgHistogramValue = meterSystem.buildMetrics(metricsName, BucketedValues.class);
-                        avgHistogramValue.accept(entity, new BucketedValues(buckets, bucketValues));
-                        avgHistogramValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
-                        meterSystem.doStreamingCalculation(avgHistogramValue);
-                    } else {
-                        final AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument> percentileValue =
-                            meterSystem.buildMetrics(metricsName, AvgHistogramPercentileFunction.AvgPercentileArgument.class);
-                        percentileValue.accept(entity, new AvgHistogramPercentileFunction.AvgPercentileArgument(new BucketedValues(buckets, bucketValues),
-                            config.getMeter().getPercentile().stream().mapToInt(Integer::intValue).toArray()));
-                        percentileValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
-                        meterSystem.doStreamingCalculation(percentileValue);
-                    }
-                } else {
-                    log.warn(config.getMeter().getOperation() + " function not support single value, please check meter:{}", combinedHistogramData.getName());
-                }
+                            final BucketedValues bucketedValues = new BucketedValues(buckets, bucketValues);
+                            bucketedValues.setGroup(group);
+                            if (config.getMeter().getOperation().equals("avgHistogram")) {
+                                AcceptableValue<BucketedValues> avgHistogramValue = meterSystem.buildMetrics(metricsName, BucketedValues.class);
+                                avgHistogramValue.accept(entity, bucketedValues);
+                                avgHistogramValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
+                                meterSystem.doStreamingCalculation(avgHistogramValue);
+                            } else {
+                                final AcceptableValue<PercentileArgument> percentileValue =
+                                    meterSystem.buildMetrics(metricsName, PercentileArgument.class);
+                                percentileValue.accept(entity, new PercentileArgument(bucketedValues,
+                                    config.getMeter().getPercentile().stream().mapToInt(Integer::intValue).toArray()));
+                                percentileValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
+                                meterSystem.doStreamingCalculation(percentileValue);
+                            }
+                        }
+                    });
                 break;
             default:
                 log.warn("Cannot support function:{}", config.getMeter().getOperation());

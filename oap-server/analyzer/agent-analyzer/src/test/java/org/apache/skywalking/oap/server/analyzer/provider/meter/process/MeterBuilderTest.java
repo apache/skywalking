@@ -18,14 +18,12 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.Assert;
@@ -34,6 +32,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;

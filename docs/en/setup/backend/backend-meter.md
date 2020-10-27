@@ -49,6 +49,9 @@ meters:
       operation: <string>
       # Meter value parse groovy script.
       value: <string>
+      # Aggregate metrics group by dedicated labels
+      groupBy:
+        - <labelName>
       # <Optional> Appoint percentiles if using avgHistogramPercentile operation.
       percentile:
         - <rank>
@@ -56,7 +59,7 @@ meters:
 
 #### Meter transform operation
 
-The available operations are `avg`, `avgHistogram` and `avgHistogramPercentile`. The `avg` and `avgXXX` mean to average
+The available operations are `avg`, `avgLabeled`, `avgHistogram` and `avgHistogramPercentile`. The `avg` and `avgXXX` mean to average
 the raw received metrics. 
 
 When you specify `avgHistogram` and `avgHistogramPercentile`, the source should be the type of `histogram`.

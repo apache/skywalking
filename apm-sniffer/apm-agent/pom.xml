@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-agent</artifactId>
@@ -85,6 +85,7 @@
                                     <exclude>org.checkerframework:checker-compat-qual</exclude>
                                     <exclude>org.codehaus.mojo:animal-sniffer-annotations</exclude>
                                     <exclude>io.perfmark:*</exclude>
+                                    <exclude>org.slf4j:*</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>

@@ -52,7 +52,8 @@ storage:
     indexShardsNumber: ${ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
+    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
+    syncBulkActions: ${SW_STORAGE_ES_SYNC_BULK_ACTIONS:50000} # Execute the sync bulk metrics data every ${SW_STORAGE_ES_SYNC_BULK_ACTIONS} requests
     bulkSize: ${ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests

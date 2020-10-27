@@ -31,6 +31,12 @@ You can go to their project repositories for additional info about guides and re
 
 - [SkyAPM GO2Sky](https://github.com/SkyAPM/go2sky). See GO2Sky project document for more details.
 
+## Browser Monitoring
+[Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js). Support collecting metrics and error logs
+for the Browser or JavaScript based mobile app. 
+
+Note, make sure the [`receiver-browser`](backend/backend-receivers.md) has been opened, default is **ON** since 8.2.0.
+
 ## Service Mesh
 
   - Istio

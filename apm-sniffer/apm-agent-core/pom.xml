@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-agent-core</artifactId>
@@ -48,7 +48,10 @@
         <shade.io.opencensus.target>${shade.package}.${shade.io.opencensus.source}</shade.io.opencensus.target>
         <shade.io.perfmark.source>io.perfmark</shade.io.perfmark.source>
         <shade.io.perfmark.target>${shade.package}.${shade.io.perfmark.source}</shade.io.perfmark.target>
+        <shade.org.slf4j.source>org.slf4j</shade.org.slf4j.source>
+        <shade.org.slf4j.target>${shade.package}.${shade.org.slf4j.source}</shade.org.slf4j.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
+        <slf4j.version>1.7.25</slf4j.version>
     </properties>
 
     <dependencies>
@@ -112,6 +115,11 @@
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>
@@ -178,6 +186,10 @@
                                 <relocation>
                                     <pattern>${shade.io.perfmark.source}</pattern>
                                     <shadedPattern>${shade.io.perfmark.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.org.slf4j.source}</pattern>
+                                    <shadedPattern>${shade.org.slf4j.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
