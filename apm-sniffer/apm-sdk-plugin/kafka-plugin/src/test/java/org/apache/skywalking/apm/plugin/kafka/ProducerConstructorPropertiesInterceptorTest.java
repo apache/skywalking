@@ -30,15 +30,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProducerConstructorPropertiesInterceptorTest {
-    private static Map<String, Object> PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS;
+    private static Properties PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS;
 
-    private static Map<String, Object> PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS;
+    private static Properties PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS;
 
     @Mock
     private ProducerConstructorPropertiesInterceptor constructorPropertiesInterceptor;
@@ -62,10 +63,10 @@ public class ProducerConstructorPropertiesInterceptorTest {
         List<String> mockBootstrapServers = new ArrayList<String>();
         mockBootstrapServers.add("localhost:9092");
         mockBootstrapServers.add("localhost:19092");
-        PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS = new HashMap<String, Object>() {{
+        PRODUCER_CONFIG_WITH_LIST_BOOTSTRAP_SERVERS = new Properties() {{
             put("bootstrap.servers", mockBootstrapServers);
         }};
-        PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS = new HashMap<String, Object>() {{
+        PRODUCER_CONFIG_WITH_STRING_BOOTSTRAP_SERVERS = new Properties() {{
             // deliberately add whitespaces
             put("bootstrap.servers", String.join(" , ", mockBootstrapServers));
         }};
