@@ -35,27 +35,19 @@ import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.security.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class ITClusterModuleEtcdProviderFunctionalTest {
 
     private String etcdAddress;
-
-    @Mock
-    private ModuleManager moduleManager;
-    @Mock
-    private NoneTelemetryProvider telemetryProvider;
+    private ModuleManager moduleManager = mock(ModuleManager.class);
+    private NoneTelemetryProvider telemetryProvider = mock(NoneTelemetryProvider.class);
 
     @Before
     public void before() {
