@@ -62,7 +62,7 @@ jobs:
         run: |
           git clone https://github.com/apache/skywalking-kubernetes.git
           cd skywalking-kubernetes
-          git reset --hard e29fa9c7dc16409af2cfb9c982c9840d8932c86a
+          git reset --hard dd749f25913830c47a97430618cefc4167612e75
           cd chart
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \
