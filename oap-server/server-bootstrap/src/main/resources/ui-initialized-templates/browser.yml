@@ -1,0 +1,366 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "Web Browser"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "name": "Web Browser",
+          "type": "browser",
+          "children": [
+            {
+              "name": "Web App",
+              "children": [
+                {
+                  "width": "4",
+                  "title": "All Browsers App Load (CPM - calls per minute)",
+                  "height": "250",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_pv"
+                },
+                {
+                  "width": "4",
+                  "title": "All Browsers App Error Rate",
+                  "height": "250",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_error_rate",
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": "4",
+                  "title": "All Browsers App Error Count",
+                  "height": "250",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_error_sum"
+                },
+                {
+                  "width": "4",
+                  "title": "App Load (CPM - calls per minute)",
+                  "height": "250",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_pv"
+                },
+                {
+                  "width": "4",
+                  "title": "App Error Rate",
+                  "height": "250",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_error_rate",
+                  "aggregation": "/",
+                  "aggregationNum": "100",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
+                  "title": "App Error Count",
+                  "height": "250",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "metricName": "browser_app_error_sum"
+                },
+                {
+                  "width": "4",
+                  "title": "Load of Versions In The Selected App (CPM - calls per minute)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_single_version_pv",
+                  "parentService": true
+                },
+                {
+                  "width": "4",
+                  "title": "Error Rate of Versions In The Selected App",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_single_version_error_rate",
+                  "parentService": true,
+                  "unit": "%",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": "4",
+                  "title": "Error Count of Versions In The Selected App",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_single_version_error_sum",
+                  "parentService": true
+                },
+                {
+                  "width": "4",
+                  "title": "Load of The Selected Version (CPM - calls per minute) ",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_single_version_pv"
+                },
+                {
+                  "width": "4",
+                  "title": "Error Rate  of The Selected Version",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_single_version_error_rate",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": "4",
+                  "title": "Error Count  of The Selected Version",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "metricName": "browser_app_single_version_error_sum"
+                }
+              ]
+            },
+            {
+              "name": "Pages",
+              "children": [
+                {
+                  "width": "4",
+                  "title": "Top Hot Pages  (CPM - calls per minute)",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_page_pv",
+                  "parentService": true
+                },
+                {
+                  "width": "4",
+                  "title": "Top Unstable Pages / Error Rate",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_page_error_rate",
+                  "unit": "%",
+                  "parentService": true,
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": "4",
+                  "title": "Top Unstable Pages / Error Count",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "sortMetrics",
+                  "chartType": "ChartSlow",
+                  "metricName": "browser_app_page_error_sum",
+                  "parentService": true
+                },
+                {
+                  "width": "6",
+                  "title": "Page Error Count Layout",
+                  "height": 350,
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "metricName": "browser_app_page_ajax_error_sum,browser_app_page_resource_error_sum,browser_app_page_js_error_sum,browser_app_page_unknown_error_sum"
+                },
+                {
+                  "width": "6",
+                  "title": "Page Performance",
+                  "height": 350,
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_redirect_avg,browser_app_page_dns_avg,browser_app_page_ttfb_avg,browser_app_page_tcp_avg,browser_app_page_trans_avg,browser_app_page_dom_analysis_avg,browser_app_page_fpt_avg,browser_app_page_dom_ready_avg,browser_app_page_load_page_avg,browser_app_page_res_avg,browser_app_page_ssl_avg,browser_app_page_ttl_avg,browser_app_page_first_pack_avg,browser_app_page_fmp_avg",
+                  "unit": "ms"
+                },
+                {
+                  "width": "4",
+                  "title": "Page FPT Latency",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_fpt_percentile",
+                  "unit": "ms",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0,1,2,3,4"
+                },
+                {
+                  "width": "4",
+                  "title": "Page TTL Latency",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_ttl_percentile",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0,1,2,3,4",
+                  "unit": "ms"
+                },
+                {
+                  "width": "4",
+                  "title": "Page DOM Ready Latency",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_dom_ready_percentile",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0,1,2,3,4",
+                  "unit": "ms"
+                },
+                {
+                  "width": "4",
+                  "title": "Page Load Latency",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_load_page_percentile",
+                  "unit": "ms",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0,1,2,3,4"
+                },
+                {
+                  "width": "4",
+                  "title": "Page First Pack Latency",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_first_pack_percentile",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0,1,2,3,4",
+                  "unit": "ms"
+                },
+                {
+                  "width": "4",
+                  "title": "Page FMP Latency",
+                  "height": "250",
+                  "entityType": "Endpoint",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "sortOrder": "DES",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "browser_app_page_fmp_percentile",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0,1,2,3,4",
+                  "unit": "ms"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
