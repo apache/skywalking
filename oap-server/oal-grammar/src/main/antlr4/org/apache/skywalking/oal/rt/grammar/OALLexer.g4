@@ -90,6 +90,8 @@ LESS_EQUAL:                          '<=';
 NOT_EQUAL:                           '!=';
 LIKE:                                'like';
 IN:                                  'in';
+INCLUDES:                            'includes';
+EXCLUDES:                            'excludes';
 
 // Literals
 

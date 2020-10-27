@@ -34,7 +34,7 @@ Read [Scope Definitions](scope-definitions.md), you can find all existing Scopes
 Use filter to build the conditions for the value of fields, by using field name and expression. 
 
 The expressions support to link by `and`, `or` and `(...)`. 
-The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `in [...]` ,`like %...`, `like ...%` and `like %...%`, with type detection based of field type. Trigger compile
+The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `in [...]` ,`like %...`, `like ...%` , `like %...%` , `inclueds` and `excludes`, with type detection based of field type. Trigger compile
  or code generation error if incompatible. 
 
 ## Aggregation Function
@@ -131,6 +131,9 @@ endpoint_url_sum = from(Endpoint.*).filter(endpointName in ["/v1", "/v2"]).sum()
 
 // Caculate the sum of calls for each service.
 endpoint_calls = from(Endpoint.*).sum()
+
+// Caculate the cpm with http get method for each service.The tag value is made up with `tagKey:tagValue`.
+service_cpm_http_get = from(Service.*).filter(tags includes "http.method:GET").cpm()
 
 disable(segment);
 disable(endpoint_relation_server_side);

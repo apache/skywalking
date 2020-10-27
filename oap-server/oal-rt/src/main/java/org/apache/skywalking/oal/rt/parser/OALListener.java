@@ -154,6 +154,16 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override
+    public void enterIncludesMatch(final OALParser.IncludesMatchContext ctx) {
+        conditionExpression.setExpressionType("includesMatch");
+    }
+
+    @Override
+    public void enterExcludesMatch(final OALParser.ExcludesMatchContext ctx) {
+        conditionExpression.setExpressionType("excludesMatch");
+    }
+
+    @Override
     public void enterInMatch(final OALParser.InMatchContext ctx) {
         conditionExpression.setExpressionType("inMatch");
     }
