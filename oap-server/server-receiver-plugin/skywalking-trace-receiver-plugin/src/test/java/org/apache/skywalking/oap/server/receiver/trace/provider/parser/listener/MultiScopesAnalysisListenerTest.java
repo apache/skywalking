@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.RefType;
@@ -105,7 +103,7 @@ public class MultiScopesAnalysisListenerTest {
             new MockReceiver(),
             CONFIG,
             CACHE,
-            NAMING_CONTROL, new ArrayList<>()
+            NAMING_CONTROL
         );
         Assert.assertTrue(listener.containsPoint(AnalysisListener.Point.Entry));
         Assert.assertTrue(listener.containsPoint(AnalysisListener.Point.Local));
@@ -124,8 +122,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL,
-            new ArrayList<>()
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
@@ -182,8 +179,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL,
-            Collections.singletonList("http.method")
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
@@ -239,9 +235,6 @@ public class MultiScopesAnalysisListenerTest {
         Assert.assertEquals("http.method:GET", service.getTags().get(0));
         Assert.assertEquals("http.method:GET", serviceInstance.getTags().get(0));
         Assert.assertEquals("http.method:GET", endpoint.getTags().get(0));
-        Assert.assertEquals("http.method:GET", serviceRelation.getTags().get(0));
-        Assert.assertEquals("http.method:GET", serviceInstanceRelation.getTags().get(0));
-        Assert.assertEquals("http.method:GET", endpointRelation.getTags().get(0));
     }
 
     /**
@@ -254,8 +247,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL,
-            new ArrayList<>()
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
@@ -315,8 +307,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL,
-            new ArrayList<>()
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
@@ -359,8 +350,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL,
-            new ArrayList<>()
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
@@ -405,8 +395,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL,
-            new ArrayList<>()
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
@@ -452,8 +441,7 @@ public class MultiScopesAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE2,
-            NAMING_CONTROL,
-            new ArrayList<>()
+            NAMING_CONTROL
         );
 
         final long startTime = System.currentTimeMillis();
