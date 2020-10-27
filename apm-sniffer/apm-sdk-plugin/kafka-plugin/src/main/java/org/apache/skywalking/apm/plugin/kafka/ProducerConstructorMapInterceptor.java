@@ -31,7 +31,6 @@ public class ProducerConstructorMapInterceptor implements InstanceConstructorInt
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-
         Map<String, Object> config = (Map<String, Object>) allArguments[0];
         // prevent errors caused by secondary interception in kafkaTemplate
         if (objInst.getSkyWalkingDynamicField() == null) {

@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 
 #### Java Agent
+Support Kafka client 2.1.0+
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
