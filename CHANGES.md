@@ -10,6 +10,7 @@ Release Notes.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
+* Support choose files to active the meter analyzer.
 
 #### UI
 
