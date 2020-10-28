@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import java.util.List;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -29,6 +28,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.List;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -36,11 +37,11 @@ import static org.mockito.Mockito.verify;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class MeterProcessContextTest extends MeterBaseTest {
-    private static final String CONFIG_PATH = "meter-receive-config";
+    private static final String CONFIG_PATH = "meter-analyzer-config";
 
     @Test
     public void testInitMeter() throws ModuleStartException {
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH, new String[] {"config.yaml"});
         final MeterProcessService service = new MeterProcessService(moduleManager);
         service.start(meterConfigs);
 
@@ -51,7 +52,7 @@ public class MeterProcessContextTest extends MeterBaseTest {
 
     @Test
     public void testCreateNewProcessor() throws ModuleStartException {
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH, new String[] {"config.yaml"});
         final MeterProcessService service = new MeterProcessService(moduleManager);
         service.start(meterConfigs);
 
