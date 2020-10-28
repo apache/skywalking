@@ -18,7 +18,6 @@ thrift=org.apache.skywalking.apm.plugin.thrift.define.TServerInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.define.client.TAsyncClientInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.define.client.TAsyncMethodCallInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.define.client.TServiceClientInstrumentation
-thrift=org.apache.skywalking.apm.plugin.thrift.define.client.TServiceClientReceiveInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.define.TBaseProcessorInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.define.TBaseAsyncProcessorInstrumentation
 thrift=org.apache.skywalking.apm.plugin.thrift.define.transport.TSocketInstrumentation
