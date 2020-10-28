@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.TimeUnit;
+
 @RestController
 @RequiredArgsConstructor
 @SuppressWarnings("SameReturnValue")
@@ -32,12 +34,14 @@ public class UserController {
     private final UserRepo userRepo;
 
     @PostMapping("/info")
-    public String info() {
+    public String info() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
         return "whatever";
     }
 
     @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) {
+    public User createAuthor(@RequestBody final User user) throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
         return userRepo.save(user);
     }
 }
