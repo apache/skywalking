@@ -11,6 +11,7 @@ plugin feign-default-http-9.x-plugin support java 14
 plugin okhttp-3.x-plugin support java 14
 
 #### OAP-Backend
+* Add the `@SuperDataset` annotation for BrowserErrorLog.
 
 #### UI
 
