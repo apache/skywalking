@@ -7,6 +7,8 @@ Release Notes.
 #### Project
 
 #### Java Agent
+plugin feign-default-http-9.x-plugin support java 14
+plugin okhttp-3.x-plugin support java 14
 
 #### OAP-Backend
 
