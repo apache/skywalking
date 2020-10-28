@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asyncClientHttp.v1;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
 
 import io.netty.channel.Channel;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
-import org.apache.skywalking.apm.plugin.asyncClientHttp.v1.wrapper.AsyncCompletionHandlerWrapper;
+import org.apache.skywalking.apm.plugin.asynchttpclient.v1.wrapper.AsyncCompletionHandlerWrapper;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;

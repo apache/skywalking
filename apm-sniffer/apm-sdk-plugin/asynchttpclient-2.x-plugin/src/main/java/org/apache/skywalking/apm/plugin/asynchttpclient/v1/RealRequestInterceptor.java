@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asyncClientHttp.v1;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
-import org.apache.skywalking.apm.plugin.asyncClientHttp.v1.wrapper.AsyncCompletionHandlerWrapper;
+import org.apache.skywalking.apm.plugin.asynchttpclient.v1.wrapper.AsyncCompletionHandlerWrapper;
 import org.asynchttpclient.DefaultRequest;
 import org.asynchttpclient.netty.NettyResponseFuture;
 

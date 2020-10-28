@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asyncClientHttp.v1.define;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v1.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -30,8 +30,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class NettyRequestSenderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.asynchttpclient.netty.request.NettyRequestSender";
-    private static final String REAL_REQUEST_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asyncClientHttp.v1.RealRequestInterceptor";
-    private static final String PREPARE_REQUEST_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asyncClientHttp.v1.PrepareRequestInterceptor";
+    private static final String REAL_REQUEST_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asynchttpclient.v1.RealRequestInterceptor";
+    private static final String PREPARE_REQUEST_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asynchttpclient.v1.PrepareRequestInterceptor";
     private static final String REAL_REQUEST_METHOD = "writeRequest";
     private static final String PREPARE_REQUEST_METHOD = "sendRequest";
 

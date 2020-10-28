@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asyncClientHttp.v1;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

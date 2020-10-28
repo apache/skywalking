@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asyncClientHttp.v1.wrapper;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v1.wrapper;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.asynchttpclient.AsyncCompletionHandler;
