@@ -9,6 +9,7 @@ Release Notes.
 #### Java Agent
 
 #### OAP-Backend
+* Add the `@SuperDataset` annotation for BrowserErrorLog.
 
 #### UI
 
