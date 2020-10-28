@@ -90,6 +90,7 @@ class K8SServiceRegistry {
         final CoreV1Api coreV1Api = new CoreV1Api();
         final SharedInformerFactory factory = new SharedInformerFactory(executor);
 
+        // TODO: also listen to the EndpointSlice event after the client supports us to do so
         listenServiceEvents(coreV1Api, factory);
         listenEndpointsEvents(coreV1Api, factory);
         listenPodEvents(coreV1Api, factory);
