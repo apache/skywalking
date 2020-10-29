@@ -13,14 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-services:
+instances:
   - key: not null
-    label: re(ratings.*)
+    label: not null
   - key: not null
-    label: re(reviews.*)
+    label: not null
   - key: not null
-    label: re(productpage.*)
-  - key: not null
-    label: re(details.*)
-  - key: not null
-    label: re(istio-ingressgateway.*)
+    label: not null
