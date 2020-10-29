@@ -169,3 +169,4 @@ lz4-java-1.6.0.jar
 snappy-java-1.1.7.3.jar
 zstd-jni-1.4.3-1.jar
 mvel2-2.4.8.Final.jar
+commons-beanutils-1.9.4.jar

@@ -22,7 +22,6 @@ import feign.Request;
 import feign.Response;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,10 +102,6 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         }
 
         Field headersField = Request.class.getDeclaredField("headers");
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
-
         headersField.setAccessible(true);
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
         CarrierItem next = contextCarrier.items();

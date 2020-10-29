@@ -256,6 +256,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
     Apache: commons-text 1.8: https://github.com/apache/commons-text, Apache 2.0
+    Apache: commons-beanutils 1.9.4: https://github.com/apache/commons-beanutils, Apache 2.0
     Apache: lucene 6.6.0: https://github.com/apache/lucene-solr/tree/master/lucene, Apache 2.0
     Apache: httpasyncclient 4.1.2: https://github.com/apache/httpasyncclient/tree/4.1.2, Apache 2.0
     Apache: log4j 1.2.16: http://logging.apache.org/log4j/1.2/, Apache 2.0
