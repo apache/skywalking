@@ -13,6 +13,7 @@ Release Notes.
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
 * Improve Kubernetes service registry for ALS analysis.
+* Fix "transaction too large error" when use TiDB as storage.
 
 #### UI
 
