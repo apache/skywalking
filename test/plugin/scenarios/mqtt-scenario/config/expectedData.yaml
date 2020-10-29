@@ -15,7 +15,7 @@
 # limitations under the License.
 segmentItems:
   - serviceName: mqtt-scenario
-    segmentSize: ge 2
+    segmentSize: ge 1
     segments:
       - segmentId: not null
         spans:
@@ -45,23 +45,6 @@ segmentItems:
             isError: false
             spanType: Exit
             peer: not null
-            tags:
-              - {key: mq.broker, value: not null}
-              - {key: mq.topic, value: 'skywalking-agent'}
-            skipAnalysis: 'false'
-      - segmentId: not null
-        spans:
-          - operationName: Mqtt/skywalking-agent/Consumer
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: MQ
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 104
-            isError: false
-            spanType: Entry
-            peer: ''
             tags:
               - {key: mq.broker, value: not null}
               - {key: mq.topic, value: 'skywalking-agent'}
