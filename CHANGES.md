@@ -7,11 +7,12 @@ Release Notes.
 #### Project
 
 #### Java Agent
-Make the Feign plugin to support Java 14
-Make the okhttp3 plugin to support Java 14
+* Make the Feign plugin to support Java 14
+* Make the okhttp3 plugin to support Java 14
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
+* Improve Kubernetes service registry for ALS analysis.
 
 #### UI
 
