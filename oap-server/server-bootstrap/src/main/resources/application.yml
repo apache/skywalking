@@ -191,7 +191,7 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
-    slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:2000} # The threshold is used to check the slow trace segment. Unit, millisecond.
+    slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:-1} # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
 
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}

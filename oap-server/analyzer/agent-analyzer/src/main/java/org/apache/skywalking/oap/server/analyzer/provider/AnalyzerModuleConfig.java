@@ -56,11 +56,11 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Getter
     private String slowDBAccessThreshold = "default:200";
     /**
-     * The threshold used to check the slow trace segment. Unit, millisecond.
+     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
      */
     @Setter
     @Getter
-    private int slowTraceSegmentThreshold = 2000;
+    private int slowTraceSegmentThreshold = -1;
     @Setter
     @Getter
     private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;

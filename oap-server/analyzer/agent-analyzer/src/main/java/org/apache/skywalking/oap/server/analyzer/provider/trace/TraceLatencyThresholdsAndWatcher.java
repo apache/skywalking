@@ -25,6 +25,10 @@ import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
+/**
+ * This threshold watcher about the latency would make the slow trace segments sampled if they cost more time,
+ * even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+ */
 @Slf4j
 public class TraceLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
     private AtomicReference<Integer> slowTraceSegmentThreshold;
@@ -66,5 +70,9 @@ public class TraceLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
 
     public int getSlowTraceSegmentThreshold() {
         return slowTraceSegmentThreshold.get();
+    }
+
+    public boolean shouldSample(int duration) {
+        return (slowTraceSegmentThreshold.get() > -1) && (duration >= slowTraceSegmentThreshold.get());
     }
 }

@@ -12,6 +12,7 @@ Make the okhttp3 plugin to support Java 14
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
+* Support the slowly segment in the sampling mechanism.
 
 #### UI
 

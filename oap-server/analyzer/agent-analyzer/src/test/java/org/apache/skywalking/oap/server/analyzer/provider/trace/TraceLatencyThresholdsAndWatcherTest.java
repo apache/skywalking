@@ -45,8 +45,8 @@ public class TraceLatencyThresholdsAndWatcherTest {
     @Test
     public void testInit() {
         TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher = new TraceLatencyThresholdsAndWatcher(provider);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 2000);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "2000");
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), -1);
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "-1");
     }
 
     @Test(timeout = 20000)
@@ -61,7 +61,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
             Thread.sleep(2000);
         }
         assertThat(watcher.getSlowTraceSegmentThreshold(), is(3000));
-        assertThat(provider.getModuleConfig().getSlowTraceSegmentThreshold(), is(2000));
+        assertThat(provider.getModuleConfig().getSlowTraceSegmentThreshold(), is(-1));
     }
 
     @Test
@@ -78,8 +78,8 @@ public class TraceLatencyThresholdsAndWatcherTest {
             "8000", ConfigChangeWatcher.EventType.DELETE);
 
         traceLatencyThresholdsAndWatcher.notify(value2);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), 2000);
-        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "2000");
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.getSlowTraceSegmentThreshold(), -1);
+        Assert.assertEquals(traceLatencyThresholdsAndWatcher.value(), "-1");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
             "800", ConfigChangeWatcher.EventType.ADD);
