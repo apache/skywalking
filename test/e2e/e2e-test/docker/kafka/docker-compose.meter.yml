@@ -21,12 +21,12 @@ services:
       file: ../base-compose.yml
       service: oap
     environment:
-      SW_RECEIVER_METER: default
       SW_KAFKA_FETCHER: default
       SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
       SW_KAFKA_FETCHER_PARTITIONS: 2
       SW_KAFKA_FETCHER_PARTITIONS_FACTOR: 1
       SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM: "true"
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth.yaml
     depends_on:
       broker-a:
         condition: service_healthy
