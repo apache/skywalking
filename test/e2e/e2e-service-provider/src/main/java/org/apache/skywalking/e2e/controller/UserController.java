@@ -32,7 +32,7 @@ import java.util.Random;
 @SuppressWarnings("SameReturnValue")
 public class UserController {
     private final UserRepo userRepo;
-    private final int sleepMin = 500, sleepMax=1000;
+    private final int sleepMin = 500, sleepMax = 1000;
 
     @PostMapping("/info")
     public String info() throws InterruptedException {
