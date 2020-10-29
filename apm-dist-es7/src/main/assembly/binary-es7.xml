@@ -53,7 +53,7 @@
                 <include>endpoint-name-grouping.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
-                <include>meter-receive-config/*.yaml</include>
+                <include>meter-analyzer-config/*.yaml</include>
                 <include>oc-rules/*</include>
                 <include>ui-initialized-templates/*</include>
             </includes>

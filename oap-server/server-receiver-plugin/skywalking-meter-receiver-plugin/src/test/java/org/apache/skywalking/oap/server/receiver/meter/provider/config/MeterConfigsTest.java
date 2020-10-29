@@ -29,11 +29,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MeterConfigsTest {
-    private static final String CONFIG_PATH = "meter-receive-config";
+    private static final String CONFIG_PATH = "meter-analyzer-config";
 
     @Test
     public void testLoadConfig() throws ModuleStartException {
-        final List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
+        final List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH, new String[] {"config.yaml"});
 
         Assert.assertEquals(3, meterConfigs.size());
 

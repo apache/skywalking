@@ -23,11 +23,11 @@ Meter receiver is configured via a configuration file. The configuration file de
  from agents, as well as which rule files to load.
  
 OAP can load the configuration at bootstrap. If the new configuration is not well-formed, OAP fails to start up. The files
-are located at `$CLASSPATH/meter-receive-config`.
+are located at `$CLASSPATH/meter-analyzer-config`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring-sleuth.yaml).
+A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
 If you're using Spring sleuth, you could use [Spring Sleuth Setup](spring-sleuth-setup.md).
 
 ### Meters configure
