@@ -46,7 +46,6 @@ jobs:
           - exception-checker-tomcat-scenario
           - feign-scenario
           - finagle-17.10.x-scenario
-          - finagle-6.25.x-scenario
           - finagle-6.44.x-scenario
           - gateway-2.1.x-scenario
           - gateway-2.0.x-scenario
