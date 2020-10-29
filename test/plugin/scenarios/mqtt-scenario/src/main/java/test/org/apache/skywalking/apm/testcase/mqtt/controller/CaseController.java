@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.mqtt.controller;
+package test.org.apache.skywalking.apm.testcase.mqtt.controller;
 
 import javax.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -85,7 +85,7 @@ public class CaseController {
     @ResponseBody
     public String mqttCase() throws MqttException {
         MqttMessage message = new MqttMessage();
-        message.setQos(0);
+        message.setQos(1);
         message.setRetained(true);
         message.setPayload("{\"info\":\"skywalking\"}".getBytes());
         MqttTopic mqttTopic = mqttClient.getTopic(TOPIC);

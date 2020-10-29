@@ -19,6 +19,38 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
+          - operationName: Mqtt/skywalking-agent/Consumer
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: MQ
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 104
+            isError: false
+            spanType: Entry
+            peer: ''
+            tags:
+              - {key: mq.broker, value: not null}
+              - {key: mq.queue, value: 'skywalking-agent'}
+            skipAnalysis: 'false'
+      - segmentId: not null
+        spans:
+          - operationName: Mqtt/skywalking-agent/Producer/1
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: MQ
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 103
+            isError: false
+            spanType: Exit
+            peer: not null
+            tags:
+              - {key: mq.broker, value: not null}
+              - {key: mq.topic, value: 'skywalking-agent'}
+            skipAnalysis: 'false'
           - operationName: /mqtt-scenario/case/mqtt
             operationId: 0
             parentSpanId: -1
@@ -33,19 +65,4 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/mqtt-scenario/case/mqtt'}
               - {key: http.method, value: GET}
-            skipAnalysis: 'false'
-          - operationName: Mqtt/skywalking-agent/Producer/0
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: MQ
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 103
-            isError: false
-            spanType: Exit
-            peer: not null
-            tags:
-              - {key: mq.broker, value: not null}
-              - {key: mq.topic, value: 'skywalking-agent'}
             skipAnalysis: 'false'
