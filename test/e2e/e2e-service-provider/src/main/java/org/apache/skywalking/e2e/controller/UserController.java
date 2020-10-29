@@ -50,6 +50,6 @@ public class UserController {
     private long randomSleepLong(int min, int max) {
         Random rand = new Random();
         int randomNumber = rand.nextInt((max - min) + 1) + min;
-        return (long) randomNumber;
+        return randomNumber;
     }
 }
