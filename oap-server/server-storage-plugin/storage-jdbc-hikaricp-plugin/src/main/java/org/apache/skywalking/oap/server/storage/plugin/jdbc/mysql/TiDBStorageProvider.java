@@ -7,7 +7,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 /**
  * TiDB storage enhanced and came from MySQLStorageProvider to support TiDB.
  *
- * cause: need add "useAffectedRows=true" to jdbc url.
+ * caution: need add "useAffectedRows=true" to jdbc url.
  */
 @Slf4j
 public class TiDBStorageProvider extends MySQLStorageProvider {
