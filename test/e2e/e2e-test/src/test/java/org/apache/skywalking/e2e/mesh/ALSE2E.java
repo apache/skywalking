@@ -66,7 +66,9 @@ import static org.apache.skywalking.e2e.utils.Yamls.load;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ALSE2E extends SkyWalkingTestAdapter {
     private final String swWebappHost = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_HOST"))).orElse("127.0.0.1");
-    private final String swWebappPort = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_PORT"))).orElse("8080");
+
+    private final String swWebappPort = Optional.ofNullable(Strings.emptyToNull(System.getenv("WEBAPP_PORT"))).orElse("12800");
+
     protected HostAndPort swWebappHostPort = HostAndPort.builder()
                                                         .host(swWebappHost)
                                                         .port(Integer.parseInt(swWebappPort))
@@ -74,10 +76,10 @@ public class ALSE2E extends SkyWalkingTestAdapter {
 
     private final Map<Predicate<Service>, String> serviceEndpointExpectedDataFiles =
         ImmutableMap.<Predicate<Service>, String>builder()
-            .put(service -> IDManager.ServiceID.analysisId(service.getKey()).getName().startsWith("ratings-v1"), "expected/als/endpoints-ratings.yml")
-            .put(service -> IDManager.ServiceID.analysisId(service.getKey()).getName().startsWith("details-v1"), "expected/als/endpoints-details.yml")
-            .put(service -> IDManager.ServiceID.analysisId(service.getKey()).getName().startsWith("reviews-v"), "expected/als/endpoints-reviews.yml")
-            .put(service -> IDManager.ServiceID.analysisId(service.getKey()).getName().startsWith("productpage-v1"), "expected/als/endpoints-productpage.yml")
+            .put(service -> service.getLabel().startsWith("ratings"), "expected/als/endpoints-ratings.yml")
+            .put(service -> service.getLabel().startsWith("details"), "expected/als/endpoints-details.yml")
+            .put(service -> service.getLabel().startsWith("reviews"), "expected/als/endpoints-reviews.yml")
+            .put(service -> service.getLabel().startsWith("productpage"), "expected/als/endpoints-productpage.yml")
             .build();
 
     @BeforeAll
@@ -151,7 +153,11 @@ public class ALSE2E extends SkyWalkingTestAdapter {
 
         LOGGER.info("instances: {}", instances);
 
-        load("expected/als/instances.yml").as(InstancesMatcher.class).verify(instances);
+        String file = "expected/als/instances.yml";
+        if (service.getLabel().equals("reviews")) {
+            file = "expected/als/instances-reviews.yml";
+        }
+        load(file).as(InstancesMatcher.class).verify(instances);
 
         return instances;
     }
