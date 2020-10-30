@@ -8,9 +8,14 @@ Release Notes.
 
 #### Java Agent
 * Add collect http param for HttpClient plugin.
+* Make the Feign plugin to support Java 14
+* Make the okhttp3 plugin to support Java 14
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
+* Support keeping collecting the slowly segments in the sampling mechanism.
+* Support choose files to active the meter analyzer.
+* Improve Kubernetes service registry for ALS analysis.
 
 #### UI
 

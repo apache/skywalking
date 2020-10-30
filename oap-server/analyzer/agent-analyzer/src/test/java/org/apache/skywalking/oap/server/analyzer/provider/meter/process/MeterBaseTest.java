@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import com.google.common.collect.Maps;
-import java.util.HashMap;
-import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
@@ -41,10 +39,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
+import java.util.HashMap;
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 
 public abstract class MeterBaseTest {
-    private static final String CONFIG_PATH = "meter-receive-config";
+    private static final String CONFIG_PATH = "meter-analyzer-config";
 
     @Mock
     protected CoreModuleProvider moduleProvider;
@@ -80,7 +81,7 @@ public abstract class MeterBaseTest {
         Whitebox.setInternalState(meterSystem, "functionRegister", map);
 
         // load context
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH, new String[] {"config.yaml"});
         final MeterProcessService service = new MeterProcessService(moduleManager);
         service.start(meterConfigs);
 
