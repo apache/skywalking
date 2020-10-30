@@ -13,6 +13,7 @@ Release Notes.
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
 * Support the slowly segment in the sampling mechanism.
+* Support choose files to active the meter analyzer.
 * Improve Kubernetes service registry for ALS analysis.
 
 #### UI

@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
@@ -30,6 +29,9 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGa
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
@@ -93,7 +95,13 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     private int maxSlowSQLLength = 2000;
 
     @Getter
-    private final String configPath = "meter-receive-config";
+    private final String configPath = "meter-analyzer-config";
+
+    /**
+     * Which files could be meter analyzed, files split by ","
+     */
+    @Setter
+    private String meterAnalyzerActiveFiles = Const.EMPTY_STRING;
 
     /**
      * Sample the trace segment if the segment has span(s) tagged as error status, and ignore the sampleRate
@@ -132,5 +140,15 @@ public class AnalyzerModuleConfig extends ModuleConfig {
             }
         }
         return virtualPeers.contains(componentId);
+    }
+
+    /**
+     * Get all files could be meter analyzed, files split by ","
+     */
+    public String[] meterAnalyzerActiveFileNames() {
+        if (StringUtils.isEmpty(this.meterAnalyzerActiveFiles)) {
+            return null;
+        }
+        return this.meterAnalyzerActiveFiles.split(",");
     }
 }
