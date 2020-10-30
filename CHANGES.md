@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 
 #### Java Agent
+* Add collect http param for HttpClient plugin.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
