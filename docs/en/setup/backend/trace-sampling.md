@@ -22,10 +22,10 @@ agent-analyzer:
 `sampleRate` is for you to set sample rate to this backend.
 The sample rate precision is 1/10000. 10000 means 100% sample in default.
 
-`forceSampleErrorSegment` is for you to open force save some error segment when sampling mechanism active.
+`forceSampleErrorSegment` is for you to save all error segments when sampling mechanism actived.
 When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.
 
-`slowTraceSegmentThreshold` is for you to open force save some slow trace segment when sampling mechanism active.
+`slowTraceSegmentThreshold` is for you to save all slow trace segments when sampling mechanism actived.
 Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
 
 # Recommendation
