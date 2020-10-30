@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,7 +44,9 @@ public class LuaController {
     }
 
     @PostMapping("/nginx/end/info")
-    private String nginxEnd() throws MalformedURLException, URISyntaxException {
+    private String nginxEnd() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+
         return TraceContext.getCorrelation("entry").orElse("")
             + "_" + TraceContext.getCorrelation("nginx").orElse("");
     }
