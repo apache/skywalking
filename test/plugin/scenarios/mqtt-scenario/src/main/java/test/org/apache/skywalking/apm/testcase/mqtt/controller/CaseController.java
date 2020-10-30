@@ -83,13 +83,14 @@ public class CaseController {
 
     @RequestMapping("/mqtt")
     @ResponseBody
-    public String mqttCase() throws MqttException {
+    public String mqttCase() throws MqttException, InterruptedException {
         MqttMessage message = new MqttMessage();
         message.setQos(1);
         message.setRetained(true);
         message.setPayload("{\"info\":\"skywalking\"}".getBytes());
         MqttTopic mqttTopic = mqttClient.getTopic(TOPIC);
         mqttTopic.publish(message);
+        Thread.sleep(5000);
         return "Success";
     }
 
