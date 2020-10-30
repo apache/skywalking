@@ -19,6 +19,14 @@
 package org.apache.skywalking.apm.plugin.mqtt.v3;
 
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -26,11 +34,14 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String OPERATE_NAME_PREFIX = "Mqtt/";
+    private static final String OPERATE_NAME_PREFIX = "Mqtt/";
 
     private static final String OPERATE_NAME = "/Consumer";
 
@@ -42,6 +53,27 @@ public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor
         activeSpan.setLayer(SpanLayer.MQ);
         activeSpan.setComponent(ComponentsDefine.MQTT_CONSUMER);
         Tags.MQ_TOPIC.set(activeSpan, topic);
+
+        MqttMessage message = (MqttMessage) objects[1];
+        String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
+        List<String> payloads = Arrays.stream(payload.split(MqttProducerInterceptor.MESSAGE_SUFFIX))
+                                      .collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(payloads) || payloads.size() == 1) {
+            return;
+        }
+        message.setPayload(payloads.get(0).getBytes(StandardCharsets.UTF_8));
+        Map<String, String> swHeaders = new HashMap<>();
+        parseSWHeaders(payloads.get(1), swHeaders);
+        ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            String propertyValue = swHeaders.get(next.getHeadKey());
+            if (StringUtil.isNotEmpty(propertyValue)) {
+                next.setHeadValue(propertyValue);
+            }
+        }
+        ContextManager.extract(contextCarrier);
     }
 
     @Override
@@ -56,4 +88,19 @@ public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor
                                       Class<?>[] classes, Throwable throwable) {
         ContextManager.activeSpan().errorOccurred().log(throwable);
     }
+
+    private void parseSWHeaders(String payload, Map<String, String> swHeaders) {
+        List<String> keyValue = Arrays.stream(payload.split(";"))
+                                      .filter(StringUtil::isNotEmpty)
+                                      .collect(Collectors.toList());
+        keyValue.forEach(kv -> {
+            List<String> kvs = Arrays.stream(kv.split("#"))
+                                     .filter(StringUtil::isNotEmpty)
+                                     .collect(Collectors.toList());
+            if (!CollectionUtil.isEmpty(kvs) && kvs.size() == 2) {
+                swHeaders.put(kvs.get(0), kvs.get(1));
+            }
+        });
+    }
+
 }
