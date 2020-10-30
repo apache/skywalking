@@ -89,7 +89,8 @@ public class CaseController {
         message.setRetained(true);
         message.setPayload("{\"info\":\"skywalking\"}".getBytes());
         MqttTopic mqttTopic = mqttClient.getTopic(TOPIC);
-        return mqttTopic.publish(message).getMessage().toString();
+        mqttTopic.publish(message);
+        return "Success";
     }
 
     @RequestMapping("/healthcheck")
