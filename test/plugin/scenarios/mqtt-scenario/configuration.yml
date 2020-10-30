@@ -16,6 +16,8 @@ type: jvm
 entryService: http://localhost:8080/mqtt-scenario/case/mqtt
 healthCheck: http://localhost:8080/mqtt-scenario/case/healthcheck
 startScript: ./bin/startup.sh
+runningMode: with_optional
+withPlugins: apm-mqtt-3.x-plugin-*.jar
 environment:
   - mqtt.server=tcp://mqtt-server:1883
 dependencies:
