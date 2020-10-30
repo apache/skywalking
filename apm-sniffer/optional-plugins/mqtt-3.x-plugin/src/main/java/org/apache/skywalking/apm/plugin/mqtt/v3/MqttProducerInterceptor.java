@@ -35,7 +35,7 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 
 public class MqttProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String OPERATE_NAME_PREFIX = "Mqtt/";
+    private static final String OPERATE_NAME_PREFIX = "Mqtt/";
 
     private static final String OPERATE_NAME = "/Producer/";
 

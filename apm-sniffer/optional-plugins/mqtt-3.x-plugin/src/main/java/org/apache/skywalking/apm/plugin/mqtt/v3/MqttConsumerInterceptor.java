@@ -49,7 +49,8 @@ public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor
     public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                              MethodInterceptResult methodInterceptResult) throws Throwable {
         String topic = (String) objects[0];
-        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + topic + OPERATE_NAME, null);
+        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + topic + OPERATE_NAME, null)
+                                                .start(System.currentTimeMillis());
         activeSpan.setLayer(SpanLayer.MQ);
         activeSpan.setComponent(ComponentsDefine.MQTT_CONSUMER);
         Tags.MQ_TOPIC.set(activeSpan, topic);
@@ -58,13 +59,14 @@ public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor
         String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
         List<String> payloads = Arrays.stream(payload.split(MqttProducerInterceptor.MESSAGE_SUFFIX))
                                       .collect(Collectors.toList());
+        ContextCarrier contextCarrier = new ContextCarrier();
         if (CollectionUtil.isEmpty(payloads) || payloads.size() == 1) {
+            ContextManager.extract(contextCarrier);
             return;
         }
         message.setPayload(payloads.get(0).getBytes(StandardCharsets.UTF_8));
         Map<String, String> swHeaders = new HashMap<>();
         parseSWHeaders(payloads.get(1), swHeaders);
-        ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -86,7 +88,7 @@ public class MqttConsumerInterceptor implements InstanceMethodsAroundInterceptor
     @Override
     public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects,
                                       Class<?>[] classes, Throwable throwable) {
-        ContextManager.activeSpan().errorOccurred().log(throwable);
+        ContextManager.activeSpan().log(throwable);
     }
 
     private void parseSWHeaders(String payload, Map<String, String> swHeaders) {
