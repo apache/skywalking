@@ -16,9 +16,8 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als;
+package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.util.JsonFormat;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import java.io.IOException;
@@ -30,9 +29,15 @@ import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
+import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class K8sHTTPAnalysisTest {
 
@@ -147,12 +152,12 @@ public class K8sHTTPAnalysisTest {
 
         @Override
         public void init(EnvoyMetricReceiverConfig config) {
-            getIpServiceMap().set(
-                ImmutableMap.of("10.44.2.56", new ServiceMetaInfo("ingress", "ingress-Inst"), "10.44.2.54",
-                                new ServiceMetaInfo("productpage", "productpage-Inst"), "10.44.6.66",
-                                new ServiceMetaInfo("detail", "detail-Inst"), "10.44.2.55",
-                                new ServiceMetaInfo("review", "detail-Inst")
-                ));
+            serviceRegistry = mock(K8SServiceRegistry.class);
+            when(serviceRegistry.findService(anyString())).thenReturn(ServiceMetaInfo.UNKNOWN);
+            when(serviceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));
+            when(serviceRegistry.findService("10.44.2.54")).thenReturn(new ServiceMetaInfo("productpage", "productpage-Inst"));
+            when(serviceRegistry.findService("10.44.6.66")).thenReturn(new ServiceMetaInfo("detail", "detail-Inst"));
+            when(serviceRegistry.findService("10.44.2.55")).thenReturn(new ServiceMetaInfo("review", "detail-Inst"));
         }
 
         @Override
