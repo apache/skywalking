@@ -19,23 +19,38 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: Mqtt/skywalking-agent/Consumer
+          - operationName: /case/healthcheck
             operationId: 0
             parentSpanId: -1
             spanId: 0
-            spanLayer: MQ
+            spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 104
+            componentId: not null
             isError: false
             spanType: Entry
             peer: ''
             tags:
-              - {key: mq.broker, value: not null}
-              - {key: mq.queue, value: 'skywalking-agent'}
+              - {key: url, value: 'http://localhost:8080/mqtt-scenario/case/healthcheck'}
+              - {key: http.method, value: HEAD}
             skipAnalysis: 'false'
       - segmentId: not null
         spans:
+          - operationName: /case/mqtt
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            isError: false
+            spanType: Entry
+            peer: ''
+            tags:
+              - {key: url, value: 'http://localhost:8080/mqtt-scenario/case/mqtt'}
+              - {key: http.method, value: GET}
+            skipAnalysis: 'false'
           - operationName: Mqtt/skywalking-agent/Producer/1
             operationId: 0
             parentSpanId: 0
@@ -50,19 +65,4 @@ segmentItems:
             tags:
               - {key: mq.broker, value: not null}
               - {key: mq.topic, value: 'skywalking-agent'}
-            skipAnalysis: 'false'
-          - operationName: /mqtt-scenario/case/mqtt
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            isError: false
-            spanType: Entry
-            peer: ''
-            tags:
-              - {key: url, value: 'http://localhost:8080/mqtt-scenario/case/mqtt'}
-              - {key: http.method, value: GET}
             skipAnalysis: 'false'
