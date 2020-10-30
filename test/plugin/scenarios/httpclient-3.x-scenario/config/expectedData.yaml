@@ -54,6 +54,10 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/httpclient-3.x-scenario/case/context-propagate'}
       - {key: http.method, value: GET}
+      - key: http.params
+          value: |-
+            q1=[v1]
+            chinese=[中文]
       skipAnalysis: 'false'
     - operationName: /httpclient-3.x-scenario/case/httpclient
       operationId: 0
