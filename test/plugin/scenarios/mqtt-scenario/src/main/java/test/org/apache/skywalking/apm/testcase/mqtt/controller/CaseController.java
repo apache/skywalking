@@ -90,7 +90,6 @@ public class CaseController {
         message.setPayload("{\"info\":\"skywalking\"}".getBytes());
         MqttTopic mqttTopic = mqttClient.getTopic(TOPIC);
         mqttTopic.publish(message);
-        Thread.sleep(5000);
         return "Success";
     }
 

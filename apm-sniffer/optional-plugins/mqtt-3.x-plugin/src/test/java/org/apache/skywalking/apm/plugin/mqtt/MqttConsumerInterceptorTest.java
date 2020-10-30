@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.mqtt;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,6 +27,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.mqtt.v3.MqttConsumerInterceptor;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,7 +67,14 @@ public class MqttConsumerInterceptorTest {
     @Before
     public void setUp() throws Exception {
         mqttConsumerInterceptor = new MqttConsumerInterceptor();
-        arguments = new Object[] {"sw-mqtt"};
+        MqttMessage message = new MqttMessage();
+        message.setPayload(
+            ("" + "#SW_HEADERS#sw8#1-NDJjMDIxMzdhNWYzNGY2MmE5Y2ExOTQyYzI1ZjdiZWIuMS4xNjAzNzk0NzkxOTg4MDI3Mw==-NDJjMDIxMzdhNWYzNGY2MmE5Y2ExOTQyYzI1ZjdiZWIuMS4xNjAzNzk0NzkxOTg4MDI3Mg==-0-c2FpYy1tcXR0-ZTgyN2Y0MzBkMjc5NGE3MThiYWU3MDhhMjIxZGRhMTlAMTkyLjE2OC4xMTEuMQ==-TXF0dC9za3l3YWxraW5nL2FnZW50L1Byb2R1Y2VyLzE=-dGNwOi8vc21hcml0YW4tcHJvLnNhaWNzdGFjay5jb206MTg4Mw==;sw8-correlation#;sw8-x#0;")
+                .getBytes(StandardCharsets.UTF_8));
+        arguments = new Object[] {
+            "sw-mqtt",
+            message
+        };
     }
 
     @Test
