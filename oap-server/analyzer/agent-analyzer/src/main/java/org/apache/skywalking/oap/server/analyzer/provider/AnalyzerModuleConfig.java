@@ -23,6 +23,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
@@ -56,6 +57,12 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String slowDBAccessThreshold = "default:200";
+    /**
+     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+     */
+    @Setter
+    @Getter
+    private int slowTraceSegmentThreshold = -1;
     @Setter
     @Getter
     private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
@@ -65,6 +72,9 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private TraceSampleRateWatcher traceSampleRateWatcher;
+    @Setter
+    @Getter
+    private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
     /**
      * Analysis trace status.
      * <p>
