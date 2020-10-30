@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.httpClient.v4;
 import java.net.URI;
 import java.util.List;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
