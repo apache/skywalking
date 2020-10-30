@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConf
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
@@ -58,6 +59,8 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     private SegmentParserServiceImpl segmentParserService;
     @Getter
     private TraceSampleRateWatcher traceSampleRateWatcher;
+    @Getter
+    private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
 
     private List<MeterConfig> meterConfigs;
     @Getter
@@ -89,10 +92,12 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
 
         traceSampleRateWatcher = new TraceSampleRateWatcher(this);
+        traceLatencyThresholdsAndWatcher = new TraceLatencyThresholdsAndWatcher(this);
 
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
         moduleConfig.setTraceSampleRateWatcher(traceSampleRateWatcher);
+        moduleConfig.setTraceLatencyThresholdsAndWatcher(traceLatencyThresholdsAndWatcher);
 
         segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
