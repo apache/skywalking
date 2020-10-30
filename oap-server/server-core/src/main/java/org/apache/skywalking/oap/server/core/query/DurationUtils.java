@@ -30,6 +30,8 @@ import org.joda.time.format.DateTimeFormatter;
 public enum DurationUtils {
     INSTANCE;
 
+    private static final int MAX_TIME_SPAN = 500;
+
     private static final DateTimeFormatter YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
     private static final DateTimeFormatter YYYY_MM_DD_HH = DateTimeFormat.forPattern("yyyy-MM-dd HH");
     private static final DateTimeFormatter YYYY_MM_DD_HHMM = DateTimeFormat.forPattern("yyyy-MM-dd HHmm");
@@ -119,9 +121,11 @@ public enum DurationUtils {
                     break;
             }
             i++;
-            if (i > 500) {
+            if (i > MAX_TIME_SPAN) {
                 throw new UnexpectedException(
-                    "Duration data error, step: " + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
+                    "Duration data error, the span between the start time and the end time is too large, step: "
+                            + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket
+                            + ", max time span: " + MAX_TIME_SPAN);
             }
         }
         while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
