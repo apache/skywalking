@@ -30,6 +30,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,10 +44,14 @@ public class MeterConfigs {
     /**
      * Load all configs from path
      */
-    public static List<MeterConfig> loadConfig(String path) throws ModuleStartException {
+    public static List<MeterConfig> loadConfig(String path, String[] fileNames) throws ModuleStartException {
+        if (fileNames == null || fileNames.length == 0) {
+            return Collections.emptyList();
+        }
+
         File[] configs;
         try {
-            configs = ResourceUtils.getPathFiles(path);
+            configs = ResourceUtils.getPathFiles(path, fileNames);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load meter configs failed", e);
         }
