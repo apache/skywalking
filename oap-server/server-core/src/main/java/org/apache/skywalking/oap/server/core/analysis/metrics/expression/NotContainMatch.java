@@ -23,7 +23,7 @@ import java.util.Objects;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
 
 @FilterMatcher
-public class ExcludesMatch {
+public class NotContainMatch {
     public boolean match(List<String> left, String right) {
         if (Objects.isNull(left)) {
             return false;

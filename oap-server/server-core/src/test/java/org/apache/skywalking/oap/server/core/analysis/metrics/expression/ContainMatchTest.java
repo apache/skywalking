@@ -22,14 +22,13 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ExcludesMatchTest {
-
+public class ContainMatchTest {
     @Test
     public void match() {
-        ExcludesMatch excludesMatch = new ExcludesMatch();
-        Assert.assertFalse(excludesMatch.match(null, "http.method:GET"));
+        ContainMatch containMatch = new ContainMatch();
+        Assert.assertFalse(containMatch.match(null, "http.method:GET"));
+        Assert.assertTrue(containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:GET"));
         Assert.assertFalse(
-            excludesMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:GET"));
-        Assert.assertTrue(excludesMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:PUT"));
+            containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:PUT"));
     }
 }

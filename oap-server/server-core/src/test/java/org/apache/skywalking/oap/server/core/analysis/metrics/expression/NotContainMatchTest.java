@@ -18,19 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
-import java.util.List;
-import java.util.Objects;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterMatcher;
+import java.util.Arrays;
+import org.junit.Assert;
+import org.junit.Test;
 
-@FilterMatcher
-public class IncludesMatch {
-    public boolean match(List<String> left, String right) {
-        if (Objects.isNull(left)) {
-            return false;
-        }
-        if (right.startsWith("\"") && right.endsWith("\"")) {
-            right = right.substring(1, right.length() - 1);
-        }
-        return left.contains(right);
+public class NotContainMatchTest {
+
+    @Test
+    public void match() {
+        NotContainMatch notContainMatch = new NotContainMatch();
+        Assert.assertFalse(notContainMatch.match(null, "http.method:GET"));
+        Assert.assertFalse(
+            notContainMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:GET"));
+        Assert.assertTrue(notContainMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:PUT"));
     }
 }
