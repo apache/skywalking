@@ -19,7 +19,7 @@ segmentItems:
   segments:
     - segmentId: not null
       spans:
-        - operationName: Mqtt/skywalking/agent/Producer/1
+        - operationName: Mqtt/skywalking-agent/Producer/1
           operationId: 0
           parentSpanId: 0
           spanId: 1
@@ -32,7 +32,7 @@ segmentItems:
           peer: not null
           tags:
             - {key: mq.broker, value: not null}
-            - {key: mq.topic, value: 'skywalking/agent'}
+            - {key: mq.topic, value: 'skywalking-agent'}
           skipAnalysis: 'false'
         - operationName: /case/mqtt
           operationId: 0
@@ -51,7 +51,7 @@ segmentItems:
           skipAnalysis: 'false'
     - segmentId: not null
       spans:
-        - operationName: Mqtt/skywalking/agent/Consumer
+        - operationName: Mqtt/skywalking-agent/Consumer
           operationId: 0
           parentSpanId: -1
           spanId: 0
@@ -64,7 +64,7 @@ segmentItems:
           peer: ''
           tags:
             - {key: mq.broker, value: not null}
-            - {key: mq.topic, value: 'skywalking/agent'}
+            - {key: mq.topic, value: 'skywalking-agent'}
           refs:
             - {parentEndpoint: /mqtt-scenario/case/mqtt, networkAddress: not null,
               refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: mqtt-scenario, traceId: not null}
