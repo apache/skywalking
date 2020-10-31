@@ -137,7 +137,11 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                 Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
                 while (iterator.hasNext()) {
                     ConsumerRecord<String, Bytes> record = iterator.next();
-                    handlerMap.get(record.topic()).handle(record);
+                    try {
+                        handlerMap.get(record.topic()).handle(record);
+                    } catch(Throwable t) {
+                        log.error("consume record error", t);
+                    }
                 }
                 consumer.commitAsync();
             }
