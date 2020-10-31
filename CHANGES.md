@@ -7,7 +7,7 @@ Release Notes.
 #### Project
 
 #### Java Agent
-* Add collect http param for HttpClient plugin.
+* Make HttpClient 3.x, 4.x, and HttpAsyncClient 3.x plugins to support collecting HTTP parameters.
 * Make the Feign plugin to support Java 14
 * Make the okhttp3 plugin to support Java 14
 
