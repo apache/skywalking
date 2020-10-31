@@ -142,7 +142,7 @@ public class ExtensionContext {
         if (o == null || getClass() != o.getClass())
             return false;
         ExtensionContext that = (ExtensionContext) o;
-        return skipAnalysis == that.skipAnalysis && sendingTimestamp == that.sendingTimestamp;
+        return skipAnalysis == that.skipAnalysis && sendingTimestamp.equals(that.sendingTimestamp);
     }
 
     @Override
