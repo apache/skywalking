@@ -88,7 +88,7 @@ public class ExtensionContext {
                 try {
                     this.sendingTimestamp = Long.parseLong(extensionPart);
                 } catch (NumberFormatException e) {
-                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]",extensionPart);
+                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionPart);
                 }
             }
         }
@@ -143,7 +143,7 @@ public class ExtensionContext {
         if (o == null || getClass() != o.getClass())
             return false;
         ExtensionContext that = (ExtensionContext) o;
-        return skipAnalysis == that.skipAnalysis && sendingTimestamp.equals(that.sendingTimestamp);
+        return skipAnalysis == that.skipAnalysis && Objects.equals(this.sendingTimestamp, that.sendingTimestamp);
     }
 
     @Override

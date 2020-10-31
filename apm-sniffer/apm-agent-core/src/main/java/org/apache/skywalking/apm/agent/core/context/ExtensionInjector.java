@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.Optional;
+
 /**
  * Inject or read the extension protocol fields,such as {@link ExtensionContext#sendingTimestamp}.
  */
@@ -29,11 +31,17 @@ public class ExtensionInjector {
         this.extensionContext = extensionContext;
     }
 
+    /**
+     * Inject the current time in milliseconds to the {@link ExtensionContext}.
+     */
     public void injectSendingTimestamp() {
         extensionContext.setSendingTimestamp(System.currentTimeMillis());
     }
 
-    public long readSendingTimestamp() {
-        return extensionContext.getSendingTimestamp();
+    /**
+     * Read the exit span sending timestamp from the {@link ExtensionContext}.
+     */
+    public Optional<Long> readSendingTimestamp() {
+        return Optional.ofNullable(extensionContext.getSendingTimestamp());
     }
 }

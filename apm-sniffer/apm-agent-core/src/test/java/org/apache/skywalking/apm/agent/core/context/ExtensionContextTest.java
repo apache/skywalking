@@ -94,4 +94,17 @@ public class ExtensionContextTest {
         context.handle(span);
         verify(span, times(0)).tag(Tags.TRANSMISSION_LATENCY, "500");
     }
+
+    @Test
+    public void testEqual() {
+        Assert.assertEquals(new ExtensionContext(), new ExtensionContext());
+        ExtensionContext context = new ExtensionContext();
+        context.setSendingTimestamp(1L);
+        Assert.assertNotEquals(context, new ExtensionContext());
+        Assert.assertNotEquals(new ExtensionContext(), context);
+        ExtensionContext another = new ExtensionContext();
+        another.setSendingTimestamp(1L);
+        Assert.assertEquals(context, another);
+        Assert.assertEquals(another, context);
+    }
 }
