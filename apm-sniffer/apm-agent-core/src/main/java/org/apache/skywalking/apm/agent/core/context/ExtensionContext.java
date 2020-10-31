@@ -74,20 +74,21 @@ public class ExtensionContext {
             return;
         }
         String[] extensionParts = value.split(SEPARATOR);
+        String extensionPart;
         // All parts of the extension header are optional.
         // only try to read it when it exist.
         if (extensionParts.length > 0) {
-            String extensionPart = extensionParts[0];
+            extensionPart = extensionParts[0];
             this.skipAnalysis = Objects.equals(extensionPart, "1");
         }
 
         if (extensionParts.length > 1) {
-            String extensionPart = extensionParts[1];
+            extensionPart = extensionParts[1];
             if (StringUtil.isNotBlank(extensionPart)) {
                 try {
                     this.sendingTimestamp = Long.parseLong(extensionPart);
                 } catch (NumberFormatException e) {
-                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionParts[1]);
+                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]",extensionPart);
                 }
             }
         }
