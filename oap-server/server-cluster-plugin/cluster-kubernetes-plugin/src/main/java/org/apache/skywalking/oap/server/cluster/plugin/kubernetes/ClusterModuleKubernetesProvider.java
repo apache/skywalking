@@ -61,15 +61,16 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator = new KubernetesCoordinator(getManager(), config, healthChecker);
+        coordinator = new KubernetesCoordinator(getManager(), config);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        coordinator.setHealthChecker(healthChecker);
         NamespacedPodListInformer.INFORMER.init(config);
     }
 

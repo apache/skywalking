@@ -47,6 +47,7 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
 
     private final ClusterModuleConsulConfig config;
     private Consul client;
+    private ConsulCoordinator coordinator;
 
     public ClusterModuleConsulProvider() {
         super();
@@ -94,15 +95,16 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
         } catch (ConnectStringParseException | ConsulException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_consul", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        ConsulCoordinator coordinator = new ConsulCoordinator(config, client, healthChecker);
+        coordinator = new ConsulCoordinator(config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_consul", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Override

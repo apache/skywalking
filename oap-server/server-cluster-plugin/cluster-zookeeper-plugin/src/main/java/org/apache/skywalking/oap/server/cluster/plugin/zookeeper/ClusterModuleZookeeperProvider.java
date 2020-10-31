@@ -61,6 +61,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
     private final ClusterModuleZookeeperConfig config;
     private CuratorFramework client;
     private ServiceDiscovery<RemoteInstance> serviceDiscovery;
+    private ZookeeperCoordinator coordinator;
 
     public ClusterModuleZookeeperProvider() {
         super();
@@ -129,15 +130,11 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
                                                   .watchInstances(true)
                                                   .serializer(new SWInstanceSerializer())
                                                   .build();
-
-        ZookeeperCoordinator coordinator;
         try {
             client.start();
             client.blockUntilConnected();
             serviceDiscovery.start();
-            MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-            HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            coordinator = new ZookeeperCoordinator(config, serviceDiscovery, healthChecker);
+            coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);
@@ -149,6 +146,9 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     @Override
     public void start() {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Override

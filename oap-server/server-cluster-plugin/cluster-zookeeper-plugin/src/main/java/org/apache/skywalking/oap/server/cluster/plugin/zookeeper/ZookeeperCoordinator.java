@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Setter;
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
@@ -43,15 +44,15 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private final ServiceCache<RemoteInstance> serviceCache;
     private volatile Address selfAddress;
-    private final HealthCheckMetrics healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
-                         ServiceDiscovery<RemoteInstance> serviceDiscovery, HealthCheckMetrics healthChecker) throws Exception {
+                         ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
         this.config = config;
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
         this.serviceCache.start();
-        this.healthChecker = healthChecker;
     }
 
     @Override

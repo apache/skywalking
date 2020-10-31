@@ -44,6 +44,8 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
 
     private EtcdClient client;
 
+    private EtcdCoordinator coordinator;
+
     public ClusterModuleEtcdProvider() {
         super();
         this.config = new ClusterModuleEtcdConfig();
@@ -66,21 +68,19 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
         List<URI> uris = EtcdUtils.parse(config);
-
         //TODO check isSSL
         client = new EtcdClient(uris.toArray(new URI[] {}));
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        EtcdCoordinator coordinator = new EtcdCoordinator(config, client, healthChecker);
+        coordinator = new EtcdCoordinator(config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException {
-
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Override

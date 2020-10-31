@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Strings;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
@@ -39,12 +40,12 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
     private final NamingService namingService;
     private final ClusterModuleNacosConfig config;
     private volatile Address selfAddress;
-    private final HealthCheckMetrics healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
-    public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config, HealthCheckMetrics healthChecker) {
+    public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config) {
         this.namingService = namingService;
         this.config = config;
-        this.healthChecker = healthChecker;
     }
 
     @Override

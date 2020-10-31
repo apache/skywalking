@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -51,13 +52,13 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private final String uid;
 
-    private final HealthCheckMetrics healthChecker;
+    @Setter
+    private HealthCheckMetrics healthChecker;
 
     public KubernetesCoordinator(final ModuleDefineHolder manager,
-                                 final ClusterModuleKubernetesConfig config, final HealthCheckMetrics healthChecker) {
+                                 final ClusterModuleKubernetesConfig config) {
         this.uid = new UidEnvSupplier(config.getUidEnvName()).get();
         this.manager = manager;
-        this.healthChecker = healthChecker;
     }
 
     @Override

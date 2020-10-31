@@ -66,7 +66,8 @@ public class ZookeeperCoordinatorTest {
         config.setHostPort(address.getHost() + ":" + address.getPort());
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator = new ZookeeperCoordinator(config, serviceDiscovery, healthChecker);
+        coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
+        coordinator.setHealthChecker(healthChecker);
     }
 
     @Test
