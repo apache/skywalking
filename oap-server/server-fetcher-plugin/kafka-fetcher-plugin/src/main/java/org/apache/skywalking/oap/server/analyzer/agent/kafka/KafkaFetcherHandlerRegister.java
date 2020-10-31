@@ -132,18 +132,23 @@ public class KafkaFetcherHandlerRegister implements Runnable {
     @Override
     public void run() {
         while (true) {
-            ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
-            if (!consumerRecords.isEmpty()) {
-                Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
-                while (iterator.hasNext()) {
-                    ConsumerRecord<String, Bytes> record = iterator.next();
-                    try {
-                        handlerMap.get(record.topic()).handle(record);
-                    } catch(Throwable t) {
-                        log.error("consume record error", t);
+            try {
+                ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
+                if (!consumerRecords.isEmpty()) {
+                    Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
+                    while (iterator.hasNext()) {
+                        ConsumerRecord<String, Bytes> record = iterator.next();
+                        try {
+                            handlerMap.get(record.topic()).handle(record);
+                        } catch (Throwable e) {
+                            log.error("process record error, topic:{}, key:{}, value:{}", record.topic(), record.key(), record.value());
+                            log.error("process record error", e);
+                        }
                     }
+                    consumer.commitAsync();
                 }
-                consumer.commitAsync();
+            } catch (Throwable t) {
+                log.error("poll record from kafka error", t);
             }
         }
     }
