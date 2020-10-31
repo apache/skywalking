@@ -15,30 +15,22 @@
 
 nodes:
   - id: not null
-    name: re(ratings-v1.*)
+    name: ratings
     type: http
     isReal: true
   - id: not null
-    name: re(reviews-v1.*)
+    name: reviews
     type: http
     isReal: true
   - id: not null
-    name: re(reviews-v2.*)
+    name: productpage
+    isReal: true
+  - id: not null
+    name: details
     type: http
     isReal: true
   - id: not null
-    name: re(reviews-v3.*)
-    type: http
-    isReal: true
-  - id: not null
-    name: re(productpage-v1.*)
-    isReal: true
-  - id: not null
-    name: re(details-v1.*)
-    type: http
-    isReal: true
-  - id: not null
-    name: re(istio-ingressgateway.*)
+    name: istio-ingressgateway
     type: http
     isReal: true
   - id: not null
@@ -46,48 +38,30 @@ nodes:
     isReal: true
 calls:
   - id: not null
-    source: re(VU5LTk9XTg.*)
-    target: re(aXN0aW8taW5ncmVzc2dhdGV3YXkt.*)
+    source: VU5LTk9XTg==.1
+    target: aXN0aW8taW5ncmVzc2dhdGV3YXk=.1
     detectPoints:
       - SERVER
   - id: not null
-    source: re(cHJvZHVjdHBhZ2UtdjEt.*)
-    target: re(cmV2aWV3cy12MS0.*)
+    source: aXN0aW8taW5ncmVzc2dhdGV3YXk=.1
+    target: cHJvZHVjdHBhZ2U=.1
+    detectPoints:
+      - CLIENT
+  - id: not null
+    source: cHJvZHVjdHBhZ2U=.1
+    target: cmV2aWV3cw==.1
     detectPoints:
       - CLIENT
       - SERVER
   - id: not null
-    source: re(cHJvZHVjdHBhZ2UtdjEt.*)
-    target: re(ZGV0YWlscy12MS.*)
+    source: cHJvZHVjdHBhZ2U=.1
+    target: ZGV0YWlscw==.1
     detectPoints:
       - CLIENT
       - SERVER
   - id: not null
-    source: re(cHJvZHVjdHBhZ2UtdjEt.*)
-    target: re(cmV2aWV3cy12Mi.*)
-    detectPoints:
-      - CLIENT
-      - SERVER
-  - id: not null
-    source: re(cmV2aWV3cy12Mi.*)
-    target: re(cmF0aW5ncy12MS.*)
-    detectPoints:
-      - CLIENT
-      - SERVER
-  - id: not null
-    source: re(cmV2aWV3cy12My.*)
-    target: re(cmF0aW5ncy12MS.*)
-    detectPoints:
-      - CLIENT
-      - SERVER
-  - id: not null
-    source: re(aXN0aW8taW5ncmVzc2dhdGV3YXkt.*)
-    target: re(cHJvZHVjdHBhZ2UtdjEt.*)
-    detectPoints:
-      - CLIENT
-  - id: not null
-    source: re(cHJvZHVjdHBhZ2UtdjEt.*)
-    target: re(cmV2aWV3cy12My.*)
+    source: cmV2aWV3cw==.1
+    target: cmF0aW5ncw==.1
     detectPoints:
       - CLIENT
       - SERVER
