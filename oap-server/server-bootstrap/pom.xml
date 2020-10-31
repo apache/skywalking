@@ -259,7 +259,7 @@
                         <exclude>endpoint-name-grouping.yml</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
-                        <exclude>meter-receive-config/</exclude>
+                        <exclude>meter-analyzer-config/</exclude>
                         <exclude>oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                     </excludes>

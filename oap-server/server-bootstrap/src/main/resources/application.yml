@@ -191,6 +191,8 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
+    slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:-1} # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:} # Which files could be meter analyzed, files split by ","
 
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
@@ -247,6 +249,11 @@ envoy-metric:
   default:
     acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
+    # `k8sServiceNameRule` allows you to customize the service name in ALS via Kubernetes metadata,
+    # the available variables are `pod`, `service`, f.e., you can use `${service.metadata.name}-${pod.metadata.labels.version}`
+    # to append the version number to the service name.
+    # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
+    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${service.metadata.name}"}
 
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
@@ -266,7 +273,7 @@ kafka-fetcher:
     kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:0}
 
 receiver-meter:
-  selector: ${SW_RECEIVER_METER:-}
+  selector: ${SW_RECEIVER_METER:default}
   default:
 
 receiver-oc:
