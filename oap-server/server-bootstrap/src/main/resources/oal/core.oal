@@ -69,6 +69,10 @@ database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
 
+// todo delete
+service_cpm_http_get = from(Service.*).filter(tags contain "http.method:GET").cpm()
+service_cpm_http_other = from(Service.*).filter(tags not contain "http.method:GET").cpm()
+
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////
 // disable(segment);
