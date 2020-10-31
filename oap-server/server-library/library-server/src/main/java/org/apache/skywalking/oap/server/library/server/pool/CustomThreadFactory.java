@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc;
+package org.apache.skywalking.oap.server.library.server.pool;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

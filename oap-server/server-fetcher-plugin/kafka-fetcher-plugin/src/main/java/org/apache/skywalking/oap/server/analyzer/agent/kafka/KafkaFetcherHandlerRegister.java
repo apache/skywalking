@@ -46,7 +46,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.KafkaHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.server.grpc.CustomThreadFactory;
+import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 
 /**
  * Configuring and initializing a KafkaConsumer client as a dispatcher to delivery Kafka Message to registered handler by topic.
