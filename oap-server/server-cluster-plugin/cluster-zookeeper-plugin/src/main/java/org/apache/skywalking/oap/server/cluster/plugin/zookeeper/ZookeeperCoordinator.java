@@ -34,7 +34,11 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
 
@@ -46,9 +50,11 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     private volatile Address selfAddress;
     @Setter
     private HealthCheckMetrics healthChecker;
+    private final ModuleDefineHolder manager;
 
-    ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
-                         ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+    ZookeeperCoordinator(final ModuleDefineHolder manager, final ClusterModuleZookeeperConfig config,
+                         final ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+        this.manager = manager;
         this.config = config;
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
@@ -58,6 +64,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     @Override
     public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
+            initHealthChecker();
             if (needUsingInternalAddr()) {
                 remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
             }
@@ -88,6 +95,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>(20);
         try {
+            initHealthChecker();
             List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();
@@ -113,5 +121,12 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    private void initHealthChecker() {
+        if (healthChecker == null) {
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
     }
 }

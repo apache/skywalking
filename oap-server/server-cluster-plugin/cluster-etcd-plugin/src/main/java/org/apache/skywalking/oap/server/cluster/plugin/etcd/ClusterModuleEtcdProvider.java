@@ -30,10 +30,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * etcd Provider.
@@ -43,8 +39,6 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
     private final ClusterModuleEtcdConfig config;
 
     private EtcdClient client;
-
-    private EtcdCoordinator coordinator;
 
     public ClusterModuleEtcdProvider() {
         super();
@@ -71,16 +65,13 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
         List<URI> uris = EtcdUtils.parse(config);
         //TODO check isSSL
         client = new EtcdClient(uris.toArray(new URI[] {}));
-        coordinator = new EtcdCoordinator(config, client);
+        EtcdCoordinator coordinator = new EtcdCoordinator(getManager(), config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException {
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.setHealthChecker(healthChecker);
     }
 
     @Override

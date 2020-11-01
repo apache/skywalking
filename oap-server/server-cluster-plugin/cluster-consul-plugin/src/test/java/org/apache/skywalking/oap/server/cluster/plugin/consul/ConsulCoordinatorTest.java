@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,11 +67,10 @@ public class ConsulCoordinatorTest {
 
     @Before
     public void setUp() {
-
         consulConfig.setServiceName(SERVICE_NAME);
-
-        coordinator = new ConsulCoordinator(consulConfig, consul, healthChecker);
-
+        ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
+        coordinator = new ConsulCoordinator(manager, consulConfig, consul);
+        coordinator.setHealthChecker(healthChecker);
         consulResponse = mock(ConsulResponse.class);
 
         HealthClient healthClient = mock(HealthClient.class);

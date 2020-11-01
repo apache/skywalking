@@ -35,10 +35,6 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.library.util.Address;
 import org.apache.skywalking.oap.server.library.util.ConnectStringParseException;
 import org.apache.skywalking.oap.server.library.util.ConnectUtils;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Use consul to manage all service instances in SkyWalking cluster.
@@ -47,7 +43,6 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
 
     private final ClusterModuleConsulConfig config;
     private Consul client;
-    private ConsulCoordinator coordinator;
 
     public ClusterModuleConsulProvider() {
         super();
@@ -95,16 +90,13 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
         } catch (ConnectStringParseException | ConsulException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        coordinator = new ConsulCoordinator(config, client);
+        ConsulCoordinator coordinator = new ConsulCoordinator(getManager(), config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() {
-        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("cluster_consul", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        coordinator.setHealthChecker(healthChecker);
     }
 
     @Override

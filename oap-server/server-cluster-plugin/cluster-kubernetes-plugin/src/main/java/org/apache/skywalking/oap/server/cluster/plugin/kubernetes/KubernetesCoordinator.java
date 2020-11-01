@@ -37,7 +37,10 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
@@ -64,6 +67,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
         try {
+            initHealthChecker();
             List<V1Pod> pods = NamespacedPodListInformer.INFORMER.listPods().orElseGet(this::selfPod);
             if (log.isDebugEnabled()) {
                 List<String> uidList = pods
@@ -90,11 +94,19 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     @Override
     public void registerRemote(final RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
+            initHealthChecker();
             this.port = remoteInstance.getAddress().getPort();
             healthChecker.health();
         } catch (Throwable e) {
             healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
+        }
+    }
+
+    private void initHealthChecker() {
+        if (healthChecker == null) {
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge("cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
     }
 

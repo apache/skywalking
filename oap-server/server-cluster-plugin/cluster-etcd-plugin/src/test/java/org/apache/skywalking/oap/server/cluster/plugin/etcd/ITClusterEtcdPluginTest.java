@@ -24,6 +24,7 @@ import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +68,8 @@ public class ITClusterEtcdPluginTest {
         client = new EtcdClient(URI.create(baseUrl));
         doNothing().when(healthChecker).health();
         doNothing().when(healthChecker).unHealth(any());
-        coordinator = new EtcdCoordinator(etcdConfig, client);
+        ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
+        coordinator = new EtcdCoordinator(manager, etcdConfig, client);
         coordinator.setHealthChecker(healthChecker);
     }
 

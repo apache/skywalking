@@ -32,8 +32,12 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
@@ -42,8 +46,10 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
     private volatile Address selfAddress;
     @Setter
     private HealthCheckMetrics healthChecker;
+    private final ModuleDefineHolder manager;
 
-    public NacosCoordinator(NamingService namingService, ClusterModuleNacosConfig config) {
+    public NacosCoordinator(final ModuleDefineHolder manager, final NamingService namingService, final ClusterModuleNacosConfig config) {
+        this.manager = manager;
         this.namingService = namingService;
         this.config = config;
     }
@@ -52,6 +58,7 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
+            initHealthChecker();
             List<Instance> instances = namingService.selectInstances(config.getServiceName(), true);
             if (CollectionUtils.isNotEmpty(instances)) {
                 instances.forEach(instance -> {
@@ -83,6 +90,7 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
         String host = remoteInstance.getAddress().getHost();
         int port = remoteInstance.getAddress().getPort();
         try {
+            initHealthChecker();
             namingService.registerInstance(config.getServiceName(), host, port);
             healthChecker.health();
         } catch (Throwable e) {
@@ -94,5 +102,12 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    private void initHealthChecker() {
+        if (healthChecker == null) {
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge("cluster_nacos", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
     }
 }
