@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -67,6 +68,9 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private RequestType type;
+    @Getter
+    @Setter
+    private List<String> tags;
 
     @Override
     public void prepare() {
