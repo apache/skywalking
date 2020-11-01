@@ -245,6 +245,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     log.warn("span {} has illegal status code {}", span, tag.getValue());
                 }
             }
+            sourceBuilder.setTag(tag);
         });
 
         sourceBuilder.setStatus(!span.getIsError());
