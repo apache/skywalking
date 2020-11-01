@@ -43,5 +43,5 @@ The current value includes fields.
 1. Tracing Mode. empty, 0 or 1. empty or 0 is default. 1 represents all spans generated in this context should skip analysis,
 `spanObject#skipAnalysis=true`. This context should be propagated to upstream in the default, unless it is changed in the 
 tracing process.
-
+2. The timestamp of sending at the client-side. This is used in async RPC such as MQ. Once it is set, the consumer side would calculate the latency between sending and receiving, and tag the latency in the span by using key `transmission.latency` automatically.
 
