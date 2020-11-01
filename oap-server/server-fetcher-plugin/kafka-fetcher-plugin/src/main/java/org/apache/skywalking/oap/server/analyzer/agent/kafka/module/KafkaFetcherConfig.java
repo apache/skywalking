@@ -80,4 +80,9 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private String topicNameOfManagements = "skywalking-managements";
 
     private String topicNameOfMeters = "skywalking-meters";
+
+    private int kafkaHandlerThreadPoolSize;
+
+    private int kafkaHandlerThreadPoolQueueSize;
+
 }
