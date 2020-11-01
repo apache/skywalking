@@ -71,8 +71,8 @@ core:
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
-    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:0}
-    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:-1}
+    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:-1}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
     gRPCSslCertChainPath: ${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
@@ -269,8 +269,8 @@ kafka-fetcher:
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
-    kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:0}
-    kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:0}
+    kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
+    kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
