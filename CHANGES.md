@@ -17,6 +17,7 @@ Release Notes.
 * Support choose files to active the meter analyzer.
 * Improve Kubernetes service registry for ALS analysis.
 * Add health checker for cluster management
+* Add the thread pool to the Kafka fetcher to increase the performance.
 
 #### UI
 
