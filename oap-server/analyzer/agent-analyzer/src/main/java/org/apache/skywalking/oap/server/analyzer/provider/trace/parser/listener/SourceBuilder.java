@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -120,6 +123,8 @@ class SourceBuilder {
     @Getter
     @Setter
     private long timeBucket;
+    @Getter
+    private final List<String> tags = new ArrayList<>();
 
     /**
      * The global level metrics source
@@ -134,6 +139,7 @@ class SourceBuilder {
         all.setResponseCode(responseCode);
         all.setType(type);
         all.setTimeBucket(timeBucket);
+        all.setTags(tags);
         return all;
     }
 
@@ -150,6 +156,7 @@ class SourceBuilder {
         service.setStatus(status);
         service.setResponseCode(responseCode);
         service.setType(type);
+        service.setTags(tags);
         service.setTimeBucket(timeBucket);
         return service;
     }
@@ -190,6 +197,7 @@ class SourceBuilder {
         serviceInstance.setStatus(status);
         serviceInstance.setResponseCode(responseCode);
         serviceInstance.setType(type);
+        serviceInstance.setTags(tags);
         serviceInstance.setTimeBucket(timeBucket);
         return serviceInstance;
     }
@@ -232,6 +240,7 @@ class SourceBuilder {
         endpoint.setStatus(status);
         endpoint.setResponseCode(responseCode);
         endpoint.setType(type);
+        endpoint.setTags(tags);
         endpoint.setTimeBucket(timeBucket);
         return endpoint;
     }
@@ -293,5 +302,9 @@ class SourceBuilder {
         databaseAccess.setStatus(status);
         databaseAccess.setTimeBucket(timeBucket);
         return databaseAccess;
+    }
+
+    public void setTag(KeyStringValuePair tag) {
+        tags.add(tag.getKey().trim() + ":" + tag.getValue().trim());
     }
 }

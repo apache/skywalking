@@ -12,6 +12,7 @@ Right now, SkyWalking supports following dynamic configurations.
 |core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
 |agent-analyzer.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
+|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. override `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 

@@ -18,7 +18,7 @@ version: '2.1'
 services:
   oap:
     environment:
-      SW_RECEIVER_METER: default
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth.yaml
     extends:
       file: ../base-compose.yml
       service: oap
