@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} "-Dskywalking.correlation.auto_tag_keys=autotag1,autotag2" ${home}/../libs/correlation-autotag-scenario.jar  &
+java -jar ${agent_opts} "-Dskywalking.correlation.auto_tag_keys=autotag1,autotag2" ${home}/../libs/correlation-autotag-scenario.jar &

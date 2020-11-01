@@ -15,16 +15,29 @@
  * limitations under the License.
  *
  */
+syntax = "proto3";
 
-package org.apache.skywalking.apm.testcase.baidu.brpc.interfaces;
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.apm.testcase.grpc.proto";
 
-import com.baidu.brpc.protocol.BrpcMeta;
+service Greeter {
+    rpc SayHello (stream HelloRequest) returns (stream HelloReply) {
+    }
+}
 
-/**
- * Copy from brpc-java-example
- */
-public interface EchoService {
+service GreeterBlocking {
+    rpc SayHello (HelloRequest) returns (HelloReply) {
+    }
+}
+service GreeterBlockingError {
+    rpc SayHello (HelloRequest) returns (HelloReply) {
+    }
+}
 
-    @BrpcMeta(serviceName = "example.EchoService", methodName = "Echo")
-    Echo.EchoResponse echo(Echo.EchoRequest request);
+message HelloRequest {
+    string name = 1;
+}
+
+message HelloReply {
+    string message = 1;
 }

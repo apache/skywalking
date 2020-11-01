@@ -14,5 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-2.3.7
+# INTERNAL: HTTP/2 error code: INTERNAL_ERROR Received Goaway occur in test cases 1.0.0 to 1.5.0
+# So these versions were not included in support-version.list. if you know what caused it, please help us.
 
+# Contains only the last version number of each minor version
+
+1.25.0

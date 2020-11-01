@@ -16,31 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.baidu.brpc;
+package org.apache.skywalking.apm.testcase.grpc;
 
-import com.baidu.brpc.server.RpcServer;
-import com.baidu.brpc.server.RpcServerOptions;
-import org.apache.skywalking.apm.testcase.baidu.brpc.service.EchoServiceImpl;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BaiduBrpcApplication implements InitializingBean {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(BaiduBrpcApplication.class, args);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        int port = 1118;
-        RpcServerOptions options = new RpcServerOptions();
-        options.setReceiveBufferSize(64 * 1024 * 1024);
-        options.setSendBufferSize(64 * 1024 * 1024);
-        options.setKeepAliveTime(20);
-        final RpcServer rpcServer = new RpcServer(port, options);
-        rpcServer.registerService(new EchoServiceImpl());
-        rpcServer.start();
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
 }
