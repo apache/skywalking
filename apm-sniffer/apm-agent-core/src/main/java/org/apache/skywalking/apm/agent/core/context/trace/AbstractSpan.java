@@ -124,5 +124,4 @@ public interface AbstractSpan extends AsyncSpan {
      * Should skip analysis in the backend.
      */
     void skipAnalysis();
-
 }
