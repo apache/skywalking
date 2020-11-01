@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
+import java.net.URI;
 import java.util.List;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -37,6 +38,7 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.httpclient.HttpClientPluginConfig;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,7 +74,7 @@ public class HttpClientExecuteInterceptorTest {
     @Mock
     private HttpHost httpHost;
     @Mock
-    private HttpRequest request;
+    private HttpGet request;
     @Mock
     private HttpResponse httpResponse;
     @Mock
@@ -89,6 +91,7 @@ public class HttpClientExecuteInterceptorTest {
 
         ServiceManager.INSTANCE.boot();
         httpClientExecuteInterceptor = new HttpClientExecuteInterceptor();
+        HttpClientPluginConfig.Plugin.HttpClient.COLLECT_HTTP_PARAMS = true;
 
         PowerMockito.mock(HttpHost.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -112,6 +115,7 @@ public class HttpClientExecuteInterceptorTest {
             }
         });
         when(httpHost.getPort()).thenReturn(8080);
+        when(request.getURI()).thenReturn(new URI("http://127.0.0.1:8080/test-web/test?a=1&b=test"));
 
         allArguments = new Object[] {
             httpHost,
@@ -149,8 +153,8 @@ public class HttpClientExecuteInterceptorTest {
         assertThat(spans.size(), is(1));
 
         List<TagValuePair> tags = SpanHelper.getTags(spans.get(0));
-        assertThat(tags.size(), is(3));
-        assertThat(tags.get(2).getValue(), is("500"));
+        assertThat(tags.size(), is(4));
+        assertThat(tags.get(3).getValue(), is("500"));
 
         assertHttpSpan(spans.get(0));
         assertThat(SpanHelper.getErrorOccurred(spans.get(0)), is(true));
@@ -223,6 +227,7 @@ public class HttpClientExecuteInterceptorTest {
         List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("http://127.0.0.1:8080/test-web/test"));
         assertThat(tags.get(1).getValue(), is("GET"));
+        assertThat(tags.get(2).getValue(), is("a=1&b=test"));
         assertThat(span.isExit(), is(true));
     }
 
