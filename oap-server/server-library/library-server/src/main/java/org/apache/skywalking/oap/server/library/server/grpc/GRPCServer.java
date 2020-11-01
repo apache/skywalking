@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContext;
+import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 
 @Slf4j
 public class GRPCServer implements Server {
