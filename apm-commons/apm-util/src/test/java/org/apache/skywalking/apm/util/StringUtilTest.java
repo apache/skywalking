@@ -31,6 +31,14 @@ public class StringUtilTest {
     }
 
     @Test
+    public void testIsBlank() {
+        Assert.assertTrue(StringUtil.isBlank(null));
+        Assert.assertTrue(StringUtil.isBlank(""));
+        Assert.assertTrue(StringUtil.isBlank("   "));
+        Assert.assertFalse(StringUtil.isBlank("A String"));
+    }
+
+    @Test
     public void testJoin() {
         Assert.assertNull(StringUtil.join('.'));
         Assert.assertEquals("Single part.", StringUtil.join('.', "Single part."));

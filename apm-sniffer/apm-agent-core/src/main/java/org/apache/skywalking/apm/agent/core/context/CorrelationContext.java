@@ -17,19 +17,17 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.base64.Base64;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.util.StringUtil;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * Correlation context, use to propagation user custom data.
- * Working on the protocol and delegate set/get method.
  */
 public class CorrelationContext {
 
@@ -39,6 +37,13 @@ public class CorrelationContext {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
     }
 
+    /**
+     * Add or override the context.
+     *
+     * @param key   to add or locate the existing context
+     * @param value as new value
+     * @return old one if exist.
+     */
     public Optional<String> put(String key, String value) {
         // key must not null
         if (key == null) {
@@ -71,6 +76,10 @@ public class CorrelationContext {
         return Optional.empty();
     }
 
+    /**
+     * @param key to find the context
+     * @return value if exist.
+     */
     public Optional<String> get(String key) {
         if (key == null) {
             return Optional.empty();
@@ -90,8 +99,8 @@ public class CorrelationContext {
         }
 
         return data.entrySet().stream()
-            .map(entry -> Base64.encode(entry.getKey()) + ":" + Base64.encode(entry.getValue()))
-            .collect(Collectors.joining(","));
+                   .map(entry -> Base64.encode(entry.getKey()) + ":" + Base64.encode(entry.getValue()))
+                   .collect(Collectors.joining(","));
     }
 
     /**
@@ -116,7 +125,8 @@ public class CorrelationContext {
     }
 
     /**
-     * Prepare for the cross-process propagation. Inject the {@link #data} into {@link ContextCarrier#getCorrelationContext()}
+     * Prepare for the cross-process propagation. Inject the {@link #data} into {@link
+     * ContextCarrier#getCorrelationContext()}
      */
     void inject(ContextCarrier carrier) {
         carrier.getCorrelationContext().data.putAll(this.data);
@@ -152,8 +162,10 @@ public class CorrelationContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         CorrelationContext that = (CorrelationContext) o;
         return Objects.equals(data, that.data);
     }
