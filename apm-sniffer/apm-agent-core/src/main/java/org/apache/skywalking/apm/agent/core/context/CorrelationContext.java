@@ -85,7 +85,7 @@ public class CorrelationContext {
         if (data.size() >= Config.Correlation.ELEMENT_MAX_NUMBER) {
             return Optional.empty();
         }
-        if (AUTO_TAG_KEYS.contains(key) && Objects.nonNull(ContextManager.activeSpan())) {
+        if (AUTO_TAG_KEYS.contains(key) && ContextManager.isActive()) {
             ContextManager.activeSpan().tag(new StringTag(key), value);
         }
         // setting

@@ -189,7 +189,6 @@ public class TracingContext implements AbstractTracerContext {
 
         carrier.extractExtensionTo(span);
         this.correlationContext.extract(carrier);
-        this.correlationContext.handle(span);
         this.extensionContext.extract(carrier);
     }
 

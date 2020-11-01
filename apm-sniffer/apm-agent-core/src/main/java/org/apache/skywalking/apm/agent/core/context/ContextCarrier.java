@@ -94,6 +94,7 @@ public class ContextCarrier implements Serializable {
      */
     void extractExtensionTo(AbstractSpan span) {
         this.extensionContext.handle(span);
+        this.correlationContext.handle(span);
     }
 
     /**
