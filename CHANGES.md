@@ -15,6 +15,7 @@ Release Notes.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
+* Add the thread pool to the Kafka fetcher to increase the performance.
 * Add `contain` and `not contain` OPS in OAL.
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
