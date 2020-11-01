@@ -26,6 +26,7 @@ on:
       - requested
 
 jobs:
+  # Cancel outdated builds in the repo, including all action tasks of all commits.
   cancel-outdated-builds:
     runs-on: ubuntu-18.04
     timeout-minutes: 10
