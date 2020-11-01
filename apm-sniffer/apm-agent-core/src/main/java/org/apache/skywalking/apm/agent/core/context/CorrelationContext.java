@@ -27,12 +27,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * Correlation context, use to propagation user custom data. Working on the protocol and delegate set/get method.
+ * Correlation context, use to propagation user custom data.
  */
 public class CorrelationContext {
 
@@ -50,9 +49,15 @@ public class CorrelationContext {
 
     public CorrelationContext() {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
-
     }
 
+    /**
+     * Add or override the context.
+     *
+     * @param key   to add or locate the existing context
+     * @param value as new value
+     * @return old one if exist.
+     */
     public Optional<String> put(String key, String value) {
         // key must not null
         if (key == null) {
@@ -87,6 +92,10 @@ public class CorrelationContext {
         return Optional.empty();
     }
 
+    /**
+     * @param key to find the context
+     * @return value if exist.
+     */
     public Optional<String> get(String key) {
         if (key == null) {
             return Optional.empty();

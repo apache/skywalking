@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,9 @@ public class Endpoint extends Source {
     @Getter
     @Setter
     private RequestType type;
+    @Getter
+    @Setter
+    private List<String> tags;
 
     @Override
     public void prepare() {
