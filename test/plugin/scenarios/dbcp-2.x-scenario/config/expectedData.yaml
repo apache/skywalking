@@ -19,21 +19,6 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
-    - operationName: /dbcp-2.x-scenario/case/healthCheck
-      operationId: eq 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      componentId: 1
-      isError: false
-      spanType: Entry
-      peer: ''
-      skipAnalysis: false
-      tags:
-        - {key: url, value: 'http://localhost:8080/dbcp-2.x-scenario/case/healthCheck'}
-        - {key: http.method, value: HEAD}
-  - segmentId: not null
-    spans:
     - operationName: Mysql/JDBI/Connection/close
       operationId: eq 0
       parentSpanId: 1
