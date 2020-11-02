@@ -22,7 +22,7 @@
   - Make buffer file handler close more safety.
   - Fix NPE in AlarmService
 
-#### Documents
+#### Documentation
   - Fix compiling doc link.
   - Update new live demo address.
 
@@ -57,7 +57,7 @@
   - Fix Topology self link error.
   - Fix stack color mismatch label color in gc time chart.
   
-#### Documents
+#### Documentation
   - Add users list.
   - Fix several document typo.
   - Sync the Chinese documents.
@@ -120,7 +120,7 @@
   - Add application selector in service view.
   - Add order and status in trace query.
   
-#### Documents
+#### Documentation
   - Add architecture design doc.
   - Reformat deploy document. 
   - Adjust Tomcat deploy document.
@@ -182,7 +182,7 @@
   - Fix wrong startTime in trace view.
   - Fix some icons internet requirements.
  
-#### Documents
+#### Documentation
    - Add TLS document.
    - Add namespace document.
    - Add direct link document.
