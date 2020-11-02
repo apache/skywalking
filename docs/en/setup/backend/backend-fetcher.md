@@ -8,12 +8,12 @@ prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
-``` 
+```
 
 ### Configuration file
 Prometheus fetcher is configured via a configuration file. The configuration file defines everything related to fetching
  services and their instances, as well as which rule files to load.
-                   
+
 OAP can load the configuration at bootstrap. If the new configuration is not well-formed, OAP fails to start up. The files
 are located at `$CLASSPATH/fetcher-prom-rules`.
 
@@ -23,7 +23,7 @@ A full example can be found [here](../../../../oap-server/server-bootstrap/src/m
 
 Generic placeholders are defined as follows:
 
- * `<duration>`: a duration This will parse a textual representation of a duration. The formats accepted are based on 
+ * `<duration>`: a duration This will parse a textual representation of a duration. The formats accepted are based on
                  the ISO-8601 duration format `PnDTnHnMn.nS` with days considered to be exactly 24 hours.
  * `<labelname>`: a string matching the regular expression \[a-zA-Z_\]\[a-zA-Z0-9_\]*
  * `<labelvalue>`: a string of unicode characters
@@ -33,7 +33,7 @@ Generic placeholders are defined as follows:
 
 ```yaml
 # How frequently to fetch targets.
-fetcherInterval: <duration> 
+fetcherInterval: <duration>
 # Per-fetch timeout when fetching this target.
 fetcherTimeout: <duration>
 # The HTTP resource path on which to fetch metrics from targets.

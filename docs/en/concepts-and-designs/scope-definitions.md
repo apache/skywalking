@@ -12,6 +12,7 @@ By using Aggregation Function, the requests will group by time and **Group Key(s
 | status  | Represent whether success or fail of the request.  |   | bool(true for success)  |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. e.g. 200, 404, 302| | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
 
 ### SCOPE `Service`
 
@@ -27,6 +28,7 @@ Calculate the metrics data from each request of the service.
 | status | Represent whether success or fail of the request. | | bool(true for success)  |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call | | int|
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
 
 ### SCOPE `ServiceInstance`
 
@@ -42,6 +44,7 @@ Calculate the metrics data from each request of the service instance.
 | status | Represent whether success or fail of the request. | | bool(true for success) |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
 
 #### Secondary scopes of `ServiceInstance` 
 
@@ -113,6 +116,7 @@ Calculate the metrics data from each request of the endpoint in the service.
 | status | Represent whether success or fail of the request.| | bool(true for success) |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
+| tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
 
 ### SCOPE `ServiceRelation`
 

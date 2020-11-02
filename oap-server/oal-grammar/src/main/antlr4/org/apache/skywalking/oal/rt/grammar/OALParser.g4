@@ -90,7 +90,15 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch | containMatch | notContainMatch
+    ;
+
+containMatch
+    : conditionAttribute CONTAIN stringConditionValue
+    ;
+
+notContainMatch
+    : conditionAttribute NOT_CONTAIN stringConditionValue
     ;
 
 booleanMatch
