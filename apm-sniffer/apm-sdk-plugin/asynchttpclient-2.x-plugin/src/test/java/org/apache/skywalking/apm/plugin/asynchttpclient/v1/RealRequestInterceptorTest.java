@@ -58,7 +58,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest(Response.class)
-public class RealRequestInterceptorInterceptorTest {
+public class RealRequestInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;

@@ -23,6 +23,7 @@
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
+  * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
 * HTTP Gateway
   * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
 * JDBC
