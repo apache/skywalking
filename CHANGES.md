@@ -25,7 +25,8 @@ Release Notes.
 
 #### UI
 
-#### Document
+#### Documentation
+* Add VNode FAQ doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
 

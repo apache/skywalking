@@ -45,7 +45,7 @@ including
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
-# Document
+# Documentation
 Version Series | Version | 
 ----------- | ---------- |
 8.x| [8.x dev](docs/README.md)|
