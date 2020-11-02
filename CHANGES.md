@@ -16,6 +16,7 @@ Release Notes.
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
 * Improve Kubernetes service registry for ALS analysis.
+* Fix deadlock problem when using elasticsearch-client-7.0.0
 
 #### UI
 
