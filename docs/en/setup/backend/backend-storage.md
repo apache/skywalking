@@ -74,9 +74,6 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
 
-In order to use ElasticSearch 7, comment/remove the section `storage/elasticsearch` and find the corresponding config section(`storage/elasticsearch7`),
-uncomment to enable it.
-
 ### ElasticSearch 6 With Https SSL Encrypting communications.
 
 example: 

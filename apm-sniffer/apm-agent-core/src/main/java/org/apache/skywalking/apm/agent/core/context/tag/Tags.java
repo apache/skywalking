@@ -77,6 +77,12 @@ public final class Tags {
      */
     public static final StringTag MQ_TOPIC = new StringTag(9, "mq.topic");
 
+    /**
+     * The latency of transmission. When there are more than one downstream parent/segment-ref(s), multiple tags will be
+     * recorded, such as a batch consumption in MQ.
+     */
+    public static final StringTag TRANSMISSION_LATENCY = new StringTag(15, "transmission.latency", false);
+
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag(10, "http.method");
 

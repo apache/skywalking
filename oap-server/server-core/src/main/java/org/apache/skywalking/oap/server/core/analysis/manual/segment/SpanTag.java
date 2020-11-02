@@ -21,23 +21,19 @@ package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@RequiredArgsConstructor
 public class SpanTag {
-    private String key;
-    private String value;
-
-    public SpanTag() {
-    }
-
-    public SpanTag(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
+    private final String key;
+    private final String value;
 
     @Override
     public String toString() {

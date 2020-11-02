@@ -20,6 +20,7 @@ package org.apache.skywalking.e2e.controller;
 
 import com.google.common.base.Strings;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,13 @@ public class UserController {
 
     private final E2EConfiguration configuration;
 
+    private final int sleepMin = 500;
+
+    private final int sleepMax = 1000;
+
     @PostMapping("/info")
     public String info() throws InterruptedException {
-        Thread.sleep(1000L);
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
 
         Optional<ResponseEntity<String>> optionalResponseEntity = Stream.of(
             Strings.nullToEmpty(configuration.getProviderBaseUrl()).split(","))
@@ -55,10 +60,16 @@ public class UserController {
 
     @PostMapping("/users")
     public Object createAuthor(@RequestBody final User user) throws InterruptedException {
-        Thread.sleep(1000L);
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
 
         return Stream.of(Strings.nullToEmpty(configuration.getProviderBaseUrl()).split(","))
                      .map(baseUrl -> restTemplate.postForEntity(baseUrl + "/users", user, User.class))
                      .collect(Collectors.toList());
+    }
+
+    private long randomSleepLong(int min, int max) {
+        Random rand = new Random();
+        int randomNumber = rand.nextInt((max - min) + 1) + min;
+        return randomNumber;
     }
 }
