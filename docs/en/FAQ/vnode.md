@@ -1,5 +1,5 @@
 # What is VNode?
-In the trace page, sometimes, people could there are nodes named **VNode** as the span name, and there is no attribute 
+In the trace page, sometimes, people could find there are nodes named **VNode** as the span name, and there is no attribute 
 for this span.
 
 **VNode** is created by the UI itself, rather than reported from the agent or tracing SDK. It represents there are some
