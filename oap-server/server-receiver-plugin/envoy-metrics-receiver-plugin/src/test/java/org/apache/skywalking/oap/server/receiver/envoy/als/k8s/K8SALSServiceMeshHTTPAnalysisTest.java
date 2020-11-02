@@ -23,7 +23,6 @@ import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
@@ -39,13 +38,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class K8sHTTPAnalysisTest {
+public class K8SALSServiceMeshHTTPAnalysisTest {
 
-    private MockK8sAnalysis analysis;
+    private MockK8SAnalysis analysis;
 
     @Before
     public void setUp() {
-        analysis = new MockK8sAnalysis();
+        analysis = new MockK8SAnalysis();
         analysis.init(null);
     }
 
@@ -77,16 +76,16 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
 
-            Assert.assertEquals(2, analysis.metrics.size());
+            Assert.assertEquals(2, result.size());
 
-            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = result.get(0);
             Assert.assertEquals("UNKNOWN", incoming.getSourceServiceName());
             Assert.assertEquals("ingress", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
 
-            ServiceMeshMetric.Builder outgoing = analysis.metrics.get(1);
+            ServiceMeshMetric.Builder outgoing = result.get(1);
             Assert.assertEquals("ingress", outgoing.getSourceServiceName());
             Assert.assertEquals("productpage", outgoing.getDestServiceName());
             Assert.assertEquals(DetectPoint.client, outgoing.getDetectPoint());
@@ -99,12 +98,11 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs()
-                                                                            .getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
-            Assert.assertEquals(1, analysis.metrics.size());
+            Assert.assertEquals(1, result.size());
 
-            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = result.get(0);
             Assert.assertEquals("", incoming.getSourceServiceName());
             Assert.assertEquals("productpage", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
@@ -117,12 +115,11 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs()
-                                                                            .getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
-            Assert.assertEquals(1, analysis.metrics.size());
+            Assert.assertEquals(1, result.size());
 
-            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = result.get(0);
             Assert.assertEquals("productpage", incoming.getSourceServiceName());
             Assert.assertEquals("review", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
@@ -135,20 +132,18 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs()
-                                                                            .getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
-            Assert.assertEquals(1, analysis.metrics.size());
+            Assert.assertEquals(1, result.size());
 
-            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = result.get(0);
             Assert.assertEquals("productpage", incoming.getSourceServiceName());
             Assert.assertEquals("detail", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.client, incoming.getDetectPoint());
         }
     }
 
-    public static class MockK8sAnalysis extends K8sALSServiceMeshHTTPAnalysis {
-        private List<ServiceMeshMetric.Builder> metrics = new ArrayList<>();
+    public static class MockK8SAnalysis extends K8sALSServiceMeshHTTPAnalysis {
 
         @Override
         public void init(EnvoyMetricReceiverConfig config) {
@@ -157,16 +152,12 @@ public class K8sHTTPAnalysisTest {
             when(serviceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));
             when(serviceRegistry.findService("10.44.2.54")).thenReturn(new ServiceMetaInfo("productpage", "productpage-Inst"));
             when(serviceRegistry.findService("10.44.6.66")).thenReturn(new ServiceMetaInfo("detail", "detail-Inst"));
-            when(serviceRegistry.findService("10.44.2.55")).thenReturn(new ServiceMetaInfo("review", "detail-Inst"));
+            when(serviceRegistry.findService("10.44.2.55")).thenReturn(new ServiceMetaInfo("review", "review-Inst"));
         }
 
-        @Override
-        protected void forward(ServiceMeshMetric.Builder metric) {
-            metrics.add(metric);
-        }
     }
 
-    private static InputStream getResourceAsStream(final String resource) {
+    public static InputStream getResourceAsStream(final String resource) {
         final InputStream in = getContextClassLoader().getResourceAsStream(resource);
         return in == null ? MetricServiceGRPCHandlerTestMain.class.getResourceAsStream(resource) : in;
     }

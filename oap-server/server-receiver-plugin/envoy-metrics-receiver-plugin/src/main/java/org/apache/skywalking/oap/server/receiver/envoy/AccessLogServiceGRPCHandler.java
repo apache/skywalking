@@ -25,10 +25,10 @@ import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
 public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
     private final List<ALSHTTPAnalysis> envoyHTTPAnalysisList;
-    private final SourceReceiver sourceReceiver;
+
     private final CounterMetrics counter;
     private final HistogramMetrics histogram;
     private final CounterMetrics sourceDispatcherCounter;
 
-    public AccessLogServiceGRPCHandler(ModuleManager manager, EnvoyMetricReceiverConfig config) {
+    public AccessLogServiceGRPCHandler(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
         ServiceLoader<ALSHTTPAnalysis> alshttpAnalyses = ServiceLoader.load(ALSHTTPAnalysis.class);
         envoyHTTPAnalysisList = new ArrayList<>();
         for (String httpAnalysisName : config.getAlsHTTPAnalysis()) {
@@ -60,8 +60,6 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
         }
 
         LOGGER.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
-
-        sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         counter = metricCreator.createCounter("envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
@@ -103,7 +101,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                         case HTTP_LOGS:
                             StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
 
-                            List<Source> sourceResult = new ArrayList<>();
+                            List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
                             for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
                                 logs.getLogEntryList().forEach(log -> {
                                     sourceResult.addAll(analysis.analysis(identifier, log, role));
@@ -111,7 +109,8 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                             }
 
                             sourceDispatcherCounter.inc(sourceResult.size());
-                            sourceResult.forEach(sourceReceiver::receive);
+                            sourceResult.forEach(TelemetryDataDispatcher::process);
+                            break;
                     }
                 } finally {
                     timer.finish();
