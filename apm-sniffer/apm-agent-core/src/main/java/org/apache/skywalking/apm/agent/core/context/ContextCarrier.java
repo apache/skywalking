@@ -92,18 +92,18 @@ public class ContextCarrier implements Serializable {
      * Extract the extension context to tracing context
      */
     void extractExtensionTo(TracingContext tracingContext) {
-        final ExtensionContext tracingContextExtensionContext = tracingContext.getExtensionContext();
-        tracingContextExtensionContext.extract(this);
-        tracingContextExtensionContext.handle(tracingContext.activeSpan());
+        tracingContext.getExtensionContext().extract(this);
+        // The extension context could have field not to propagate further, so, must use the this.* to process.
+        this.extensionContext.handle(tracingContext.activeSpan());
     }
 
     /**
      * Extract the correlation context to tracing context
      */
     void extractCorrelationTo(TracingContext tracingContext) {
-        final CorrelationContext tracingContextCorrelationContext = tracingContext.getCorrelationContext();
-        tracingContextCorrelationContext.extract(this);
-        tracingContextCorrelationContext.handle(tracingContext.activeSpan());
+        tracingContext.getCorrelationContext().extract(this);
+        // The correlation context could have field not to propagate further, so, must use the this.* to process.
+        this.correlationContext.handle(tracingContext.activeSpan());
     }
 
     /**
