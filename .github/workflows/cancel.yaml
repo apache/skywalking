@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-18.04
     timeout-minutes: 10
     steps:
-      - uses: potiuk/cancel-workflow-runs@v4_1
+      - uses: potiuk/cancel-workflow-runs@v4_7
         name: Cancel Outdated Builds
         with:
           cancelMode: allDuplicates
