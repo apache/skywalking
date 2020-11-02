@@ -109,7 +109,11 @@ public class ExtensionContext {
     }
 
     /**
-     * Handle the tracing span.
+     * Process the active span
+     *
+     * 1. Set the `skipAnalysis` flag.
+     * 2. Tag the {@link Tags#TRANSMISSION_LATENCY} if the context includes `sendingTimestamp`,
+     *    which is set by the client side.
      */
     void handle(AbstractSpan span) {
         if (this.skipAnalysis) {
@@ -131,6 +135,10 @@ public class ExtensionContext {
         return context;
     }
 
+    /**
+     * Continue the context in another thread.
+     * @param snapshot holds the context
+     */
     void continued(ContextSnapshot snapshot) {
         this.skipAnalysis = snapshot.getExtensionContext().skipAnalysis;
         this.sendingTimestamp = snapshot.getExtensionContext().sendingTimestamp;

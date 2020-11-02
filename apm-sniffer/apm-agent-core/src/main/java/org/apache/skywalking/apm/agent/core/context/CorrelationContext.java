@@ -165,6 +165,15 @@ public class CorrelationContext {
     }
 
     /**
+     * Process the active span
+     *
+     * 1. Inject the tags with auto-tag flag into the span
+     */
+    void handle(AbstractSpan span) {
+        AUTO_TAG_KEYS.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
+    }
+
+    /**
      * Clone the context data, work for capture to cross-thread.
      */
     public CorrelationContext clone() {
@@ -173,12 +182,13 @@ public class CorrelationContext {
         return context;
     }
 
+    /**
+     * Continue the correlation context in another thread.
+     *
+     * @param snapshot holds the context.
+     */
     void continued(ContextSnapshot snapshot) {
         this.data.putAll(snapshot.getCorrelationContext().data);
-    }
-
-    void handle(AbstractSpan span) {
-        AUTO_TAG_KEYS.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
     }
 
     @Override

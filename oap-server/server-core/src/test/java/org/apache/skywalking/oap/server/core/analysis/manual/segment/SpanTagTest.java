@@ -18,37 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class SpanTag {
-    private final String key;
-    private final String value;
-
-    @Override
-    public String toString() {
-        return key + "=" + value;
-    }
-
-    public static class Util {
-        public static List<String> toStringList(List<SpanTag> list) {
-            if (CollectionUtils.isEmpty(list)) {
-                return Collections.emptyList();
-            }
-            List<String> result = new ArrayList<>(list.size());
-            list.forEach(e -> result.add(e.toString()));
-            return result;
-        }
+public class SpanTagTest {
+    @Test
+    public void testEqual() {
+        final SpanTag spanTag = new SpanTag("tag1", "value1");
+        final SpanTag spanTag1 = new SpanTag("tag1", "value2");
+        final SpanTag spanTag2 = new SpanTag("tag2", "value3");
+        final SpanTag spanTag3 = new SpanTag("tag1", "value1");
+        Assert.assertEquals(spanTag, spanTag3);
+        Assert.assertNotEquals(spanTag, spanTag1);
+        Assert.assertNotEquals(spanTag, spanTag2);
     }
 }
-
