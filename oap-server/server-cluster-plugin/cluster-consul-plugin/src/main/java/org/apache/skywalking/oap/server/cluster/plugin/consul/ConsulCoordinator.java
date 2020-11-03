@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
@@ -79,11 +80,11 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
                     }
                 });
             }
-            boolean health = OAPNodeChecker.isHealth(remoteInstances);
-            if (health) {
+            ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
+            if (healthStatus.isHealth()) {
                 this.healthChecker.health();
             } else {
-                this.healthChecker.unHealth(new ServiceQueryException("found unHealth node"));
+                this.healthChecker.unHealth(healthStatus.getReason());
             }
         } catch (Throwable e) {
             healthChecker.unHealth(e);

@@ -16,29 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.core.cluster;
 
-/**
- * Health checker provides methods to register the health status.
- */
-public interface HealthChecker {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    /**
-     * It's health.
-     */
-    void health();
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class ClusterHealthStatus {
+    private boolean health;
+    private String reason;
 
-    /**
-     * It's unHealth.
-     *
-     * @param t details of unhealthy status
-     */
-    void unHealth(Throwable t);
+    public static final ClusterHealthStatus HEALTH = new ClusterHealthStatus(true, null);
 
-    /**
-     * It's unHealth.
-     *
-     * @param reason details reason of unhealthy status
-     */
-    void unHealth(String reason);
+    public static ClusterHealthStatus unHealth(String reason) {
+        return new ClusterHealthStatus(false, reason);
+    }
 }
+
