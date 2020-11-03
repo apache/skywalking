@@ -18,6 +18,21 @@ name: PluginsJDK14Test
 
 on:
   pull_request:
+    paths:
+      - '.github/workflows/plugins-*.yaml'
+      - 'apm-application-toolkit/**'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - '**/pom.xml'
+      - '!test/e2e/**'
+      - '!apm-webapp/**'
+      - '!apm-dist/**'
+      - '!apm-dist-es7/**'
+      - '!apm-docker/**'
+      - '!oap-server/**'
+      - '!**.md'
 
 jobs:
   PluginsJDK14Test:

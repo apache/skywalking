@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.grpc;
+package org.apache.skywalking.oap.server.library.server.pool;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,7 +27,7 @@ public class CustomThreadFactory implements ThreadFactory {
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     private final String namePrefix;
 
-    CustomThreadFactory(String name) {
+    public CustomThreadFactory(String name) {
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
         namePrefix = name + "-" + poolNumber.getAndIncrement() + "-thread-";

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.tag;
 
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 public abstract class AbstractTag<T> {
@@ -59,5 +60,22 @@ public abstract class AbstractTag<T> {
 
     public boolean isCanOverwrite() {
         return canOverwrite;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof AbstractTag))
+            return false;
+        final AbstractTag<?> that = (AbstractTag<?>) o;
+        return getId() == that.getId() &&
+            isCanOverwrite() == that.isCanOverwrite() &&
+            key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), isCanOverwrite(), key);
     }
 }
