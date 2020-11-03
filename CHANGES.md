@@ -9,7 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Support propagate the sending timestamp in MQ plugins to calculate the transfer latency in the async MQ scenarios.
-* Support auto-tag with the fixed values propagated in the correlation context.   
+* Support auto-tag with the fixed values propagated in the correlation context.
 * Make HttpClient 3.x, 4.x, and HttpAsyncClient 3.x plugins to support collecting HTTP parameters.
 * Make the Feign plugin to support Java 14
 * Make the okhttp3 plugin to support Java 14
@@ -25,6 +25,7 @@ Release Notes.
 * Add health checker for cluster management
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
 * Fix the excessive timeout period set by the kubernetes-client.
+* Fix deadlock problem when using elasticsearch-client-7.0.0.
 
 #### UI
 
