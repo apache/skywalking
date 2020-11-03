@@ -23,7 +23,8 @@ Release Notes.
 * Support choose files to active the meter analyzer.
 * Improve Kubernetes service registry for ALS analysis.
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
-* Fix deadlock problem when using elasticsearch-client-7.0.0
+* Fix the excessive timeout period set by the kubernetes-client.
+* Fix deadlock problem when using elasticsearch-client-7.0.0.
 
 #### UI
 
