@@ -108,7 +108,7 @@ class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                params.timeoutSeconds,
+                300,
                 params.watch,
                 null
             ),
@@ -142,7 +142,7 @@ class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                params.timeoutSeconds,
+                300,
                 params.watch,
                 null
             ),
@@ -176,7 +176,7 @@ class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                params.timeoutSeconds,
+                300,
                 params.watch,
                 null
             ),
@@ -288,7 +288,8 @@ class K8SServiceRegistry {
                     log.error("Failed to evaluate service name.", e);
                     serviceMetaInfo.setServiceName(requireNonNull(service.getMetadata()).getName());
                 }
-                serviceMetaInfo.setServiceInstanceName(String.format("%s.%s", podMetadata.getName(), podMetadata.getNamespace()));
+                serviceMetaInfo.setServiceInstanceName(
+                    String.format("%s.%s", podMetadata.getName(), podMetadata.getNamespace()));
                 serviceMetaInfo.setTags(transformLabelsToTags(podMetadata.getLabels()));
 
                 return serviceMetaInfo;
