@@ -48,6 +48,7 @@ jobs:
           - armeria-0.96minus-scenario
           - armeria-0.96plus-scenario
           - avro-scenario
+          - asynchttpclient-scenario
           - canal-scenario
           - cassandra-java-driver-3.x-scenario
           - customize-scenario
