@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -50,12 +49,8 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final ModuleDefineHolder manager;
-
-    private volatile int port = -1;
-
     private final String uid;
-
-    @Setter
+    private volatile int port = -1;
     private HealthCheckMetrics healthChecker;
 
     public KubernetesCoordinator(final ModuleDefineHolder manager,

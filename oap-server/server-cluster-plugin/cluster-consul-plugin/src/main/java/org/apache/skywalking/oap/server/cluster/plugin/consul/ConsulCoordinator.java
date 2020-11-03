@@ -28,7 +28,6 @@ import com.orbitz.consul.model.health.ServiceHealth;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -51,7 +50,6 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
     private final String serviceName;
     private final ClusterModuleConsulConfig config;
     private volatile Address selfAddress;
-    @Setter
     private HealthCheckMetrics healthChecker;
 
     public ConsulCoordinator(final ModuleDefineHolder manager, final ClusterModuleConsulConfig config, final Consul client) {

@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyBoolean;
@@ -58,7 +59,7 @@ public class NacosCoordinatorTest {
         nacosConfig.setServiceName(SERVICE_NAME);
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new NacosCoordinator(manager, namingService, nacosConfig);
-        coordinator.setHealthChecker(healthChecker);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @Test

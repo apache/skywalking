@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -68,7 +69,7 @@ public class ZookeeperCoordinatorTest {
         doNothing().when(healthChecker).health();
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new ZookeeperCoordinator(manager, config, serviceDiscovery);
-        coordinator.setHealthChecker(healthChecker);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @Test

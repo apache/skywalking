@@ -26,7 +26,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import lombok.Setter;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -47,21 +46,14 @@ import org.slf4j.LoggerFactory;
 
 public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtcdCoordinator.class);
-
-    private ClusterModuleEtcdConfig config;
-
-    private EtcdClient client;
-
-    private volatile Address selfAddress;
-
-    private final String serviceName;
-
-    private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-
     private static final Integer KEY_TTL = 45;
 
     private final ModuleDefineHolder manager;
-    @Setter
+    private final ClusterModuleEtcdConfig config;
+    private final EtcdClient client;
+    private final String serviceName;
+    private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    private volatile Address selfAddress;
     private HealthCheckMetrics healthChecker;
 
     public EtcdCoordinator(final ModuleDefineHolder manager, final ClusterModuleEtcdConfig config, final EtcdClient client) {

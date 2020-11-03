@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,7 @@ public class ITClusterEtcdPluginTest {
         doNothing().when(healthChecker).health();
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new EtcdCoordinator(manager, etcdConfig, client);
-        coordinator.setHealthChecker(healthChecker);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @After
