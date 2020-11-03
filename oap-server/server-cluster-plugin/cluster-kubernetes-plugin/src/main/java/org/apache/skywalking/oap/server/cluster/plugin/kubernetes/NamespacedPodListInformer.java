@@ -83,7 +83,7 @@ public enum NamespacedPodListInformer {
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedPodCall(
                 podConfig.getNamespace(), null, null, null, null,
-                podConfig.getLabelSelector(), Integer.MAX_VALUE, params.resourceVersion, params.timeoutSeconds,
+                podConfig.getLabelSelector(), Integer.MAX_VALUE, params.resourceVersion, 300,
                 params.watch, null
             ),
             V1Pod.class, V1PodList.class
