@@ -5,6 +5,7 @@ Release Notes.
 8.3.0
 ------------------
 #### Project
+* Test: ElasticSearch version 7.0.0 and 7.9.3 as storage are E2E tested. 
 
 #### Java Agent
 * Support propagate the sending timestamp in MQ plugins to calculate the transfer latency in the async MQ scenarios.
