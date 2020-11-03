@@ -59,22 +59,22 @@ public class OAPNodeCheckerTest {
 
     @Test
     public void unHealthWithEmptyInstance() {
-        boolean flag = OAPNodeChecker.isHealth(Lists.newArrayList());
-        Assert.assertFalse(flag);
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(Lists.newArrayList());
+        Assert.assertFalse(clusterHealthStatus.isHealth());
     }
 
     @Test
     public void unHealthWithNullInstance() {
-        boolean flag = OAPNodeChecker.isHealth(null);
-        Assert.assertFalse(flag);
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(null);
+        Assert.assertFalse(clusterHealthStatus.isHealth());
     }
 
     @Test
     public void unHealthWithEmptySelfInstance() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8892, false)));
-        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
-        Assert.assertFalse(flag);
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertFalse(clusterHealthStatus.isHealth());
     }
 
     @Test
@@ -82,16 +82,16 @@ public class OAPNodeCheckerTest {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8892, true)));
         remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8892, true)));
-        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
-        Assert.assertFalse(flag);
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertFalse(clusterHealthStatus.isHealth());
     }
 
     @Test
     public void healthWithOnlySelf() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("127.0.0.1", 8899, true)));
-        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
-        Assert.assertTrue(flag);
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertTrue(clusterHealthStatus.isHealth());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class OAPNodeCheckerTest {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8899, true)));
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.2", 8899, false)));
-        boolean flag = OAPNodeChecker.isHealth(remoteInstances);
-        Assert.assertTrue(flag);
+        ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
+        Assert.assertTrue(clusterHealthStatus.isHealth());
     }
 }

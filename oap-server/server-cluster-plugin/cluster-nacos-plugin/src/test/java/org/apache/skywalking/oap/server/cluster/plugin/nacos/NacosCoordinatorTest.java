@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -56,7 +55,6 @@ public class NacosCoordinatorTest {
     @Before
     public void setUp() throws NacosException {
         doNothing().when(healthChecker).health();
-        doNothing().when(healthChecker).unHealth(any());
         nacosConfig.setServiceName(SERVICE_NAME);
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new NacosCoordinator(manager, namingService, nacosConfig);

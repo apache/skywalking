@@ -48,7 +48,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -77,7 +76,6 @@ public class KubernetesCoordinatorTest {
         informer = PowerMockito.mock(NamespacedPodListInformer.class);
         Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
         doNothing().when(healthChecker).health();
-        doNothing().when(healthChecker).unHealth(any());
     }
 
     @Test

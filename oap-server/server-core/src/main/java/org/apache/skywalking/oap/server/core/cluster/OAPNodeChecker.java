@@ -46,18 +46,18 @@ public class OAPNodeChecker {
      * @param remoteInstances all the remote instances from cluster
      * @return true health false unHealth
      */
-    public static boolean isHealth(List<RemoteInstance> remoteInstances) {
+    public static ClusterHealthStatus isHealth(List<RemoteInstance> remoteInstances) {
         if (CollectionUtils.isEmpty(remoteInstances)) {
-            return false;
+            return ClusterHealthStatus.unHealth("can't get the instance list");
         }
         List<RemoteInstance> selfInstances = remoteInstances.stream().
                 filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(selfInstances)) {
-            return false;
+            return ClusterHealthStatus.unHealth("can't get itself");
         }
         if (remoteInstances.size() > 1 && hasIllegalNodeAddress(remoteInstances)) {
-            return false;
+            return ClusterHealthStatus.unHealth("find illegal node in cluster mode such as 127.0.0.1, localhost");
         }
-        return true;
+        return ClusterHealthStatus.HEALTH;
     }
 }

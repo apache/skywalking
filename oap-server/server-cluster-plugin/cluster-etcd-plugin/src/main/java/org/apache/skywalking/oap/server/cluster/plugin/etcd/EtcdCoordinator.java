@@ -30,11 +30,11 @@ import lombok.Setter;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
+import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -90,11 +90,11 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
                     remoteInstances.add(new RemoteInstance(address));
                 });
             }
-            boolean health = OAPNodeChecker.isHealth(remoteInstances);
-            if (health) {
+            ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
+            if (healthStatus.isHealth()) {
                 this.healthChecker.health();
             } else {
-                this.healthChecker.unHealth(new ServiceQueryException("found unHealth node"));
+                this.healthChecker.unHealth(healthStatus.getReason());
             }
         } catch (Throwable e) {
             healthChecker.unHealth(e);

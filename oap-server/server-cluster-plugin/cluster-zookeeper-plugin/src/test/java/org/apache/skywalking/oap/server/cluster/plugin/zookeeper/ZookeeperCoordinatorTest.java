@@ -66,7 +66,6 @@ public class ZookeeperCoordinatorTest {
         when(serviceDiscovery.serviceCacheBuilder()).thenReturn(cacheBuilder);
         config.setHostPort(address.getHost() + ":" + address.getPort());
         doNothing().when(healthChecker).health();
-        doNothing().when(healthChecker).unHealth(any());
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new ZookeeperCoordinator(manager, config, serviceDiscovery);
         coordinator.setHealthChecker(healthChecker);

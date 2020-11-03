@@ -27,6 +27,7 @@ import lombok.Setter;
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
@@ -106,11 +107,11 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
                 }
                 remoteInstances.add(instance);
             });
-            boolean health = OAPNodeChecker.isHealth(remoteInstances);
-            if (health) {
+            ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
+            if (healthStatus.isHealth()) {
                 this.healthChecker.health();
             } else {
-                this.healthChecker.unHealth(new ServiceQueryException("found unHealth node"));
+                this.healthChecker.unHealth(healthStatus.getReason());
             }
         } catch (Throwable e) {
             this.healthChecker.unHealth(e);
