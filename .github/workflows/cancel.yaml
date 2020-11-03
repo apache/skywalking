@@ -1,0 +1,61 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Cancel
+
+on:
+  workflow_run:
+    workflows: [CI AND IT]
+    types:
+      - requested
+
+jobs:
+  # Cancel outdated builds in the repo, including all action tasks of all commits.
+  # It runs for all workflow types
+  cancel-outdated-builds:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 4
+      matrix:
+        workflowFileName:
+          - ci-it.yaml
+          - docker-ci.yaml
+          - e2e.cluster.yaml
+          - e2e.go.yaml
+          - e2e.istio.yaml
+          - e2e.jdk-versions.yaml
+          - e2e.js.yaml
+          - e2e.kafka.yaml
+          - e2e.php.yaml
+          - e2e.profiling.yaml
+          - e2e.python.yaml
+          - e2e.storages.yaml
+          - e2e.ttl.yaml
+          - e2e.yaml
+          - plugins-jdk14-test.0.yaml
+          - plugins-test.0.yaml
+          - plugins-test.1.yaml
+          - plugins-test.2.yaml
+          - plugins-test.3.yaml
+    steps:
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds ${{ matrix.workflowFileName }}
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: ${{ matrix.workflowFileName }}

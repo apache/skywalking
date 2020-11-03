@@ -314,5 +314,10 @@ public class Config {
          * Max value length of each element.
          */
         public static int VALUE_MAX_LENGTH = 128;
+
+        /**
+         * Tag the span by the key/value in the correlation context, when the keys listed here exist.
+         */
+        public static String AUTO_TAG_KEYS = "";
     }
 }

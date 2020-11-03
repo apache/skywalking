@@ -17,13 +17,18 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -32,6 +37,16 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class CorrelationContext {
 
     private final Map<String, String> data;
+
+    private static final List<String> AUTO_TAG_KEYS;
+
+    static {
+        if (StringUtil.isNotEmpty(Config.Correlation.AUTO_TAG_KEYS)) {
+            AUTO_TAG_KEYS = Arrays.asList(Config.Correlation.AUTO_TAG_KEYS.split(","));
+        } else {
+            AUTO_TAG_KEYS = new ArrayList<>();
+        }
+    }
 
     public CorrelationContext() {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
@@ -70,7 +85,9 @@ public class CorrelationContext {
         if (data.size() >= Config.Correlation.ELEMENT_MAX_NUMBER) {
             return Optional.empty();
         }
-
+        if (AUTO_TAG_KEYS.contains(key) && ContextManager.isActive()) {
+            ContextManager.activeSpan().tag(new StringTag(key), value);
+        }
         // setting
         data.put(key, value);
         return Optional.empty();
@@ -148,6 +165,15 @@ public class CorrelationContext {
     }
 
     /**
+     * Process the active span
+     *
+     * 1. Inject the tags with auto-tag flag into the span
+     */
+    void handle(AbstractSpan span) {
+        AUTO_TAG_KEYS.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
+    }
+
+    /**
      * Clone the context data, work for capture to cross-thread.
      */
     public CorrelationContext clone() {
@@ -156,6 +182,11 @@ public class CorrelationContext {
         return context;
     }
 
+    /**
+     * Continue the correlation context in another thread.
+     *
+     * @param snapshot holds the context.
+     */
     void continued(ContextSnapshot snapshot) {
         this.data.putAll(snapshot.getCorrelationContext().data);
     }

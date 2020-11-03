@@ -18,6 +18,9 @@ name: E2E
 
 on:
   pull_request:
+    paths:
+      - '**'
+      - '!**.md'
   push:
     branches:
       - master

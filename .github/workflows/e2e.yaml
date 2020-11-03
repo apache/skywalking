@@ -18,6 +18,10 @@ name: E2E
 
 on:
   pull_request:
+    # Do not run this workflow when and only when `*.md` files are modified
+    paths:
+      - '**'
+      - '!**.md'
   push:
     branches:
       - master

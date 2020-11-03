@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -90,10 +89,21 @@ public class ContextCarrier implements Serializable {
     }
 
     /**
-     * Extract the extension context to the given span
+     * Extract the extension context to tracing context
      */
-    void extractExtensionTo(AbstractSpan span) {
-        this.extensionContext.handle(span);
+    void extractExtensionTo(TracingContext tracingContext) {
+        tracingContext.getExtensionContext().extract(this);
+        // The extension context could have field not to propagate further, so, must use the this.* to process.
+        this.extensionContext.handle(tracingContext.activeSpan());
+    }
+
+    /**
+     * Extract the correlation context to tracing context
+     */
+    void extractCorrelationTo(TracingContext tracingContext) {
+        tracingContext.getCorrelationContext().extract(this);
+        // The correlation context could have field not to propagate further, so, must use the this.* to process.
+        this.correlationContext.handle(tracingContext.activeSpan());
     }
 
     /**
