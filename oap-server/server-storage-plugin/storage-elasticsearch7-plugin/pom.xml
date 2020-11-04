@@ -29,7 +29,7 @@
     <artifactId>storage-elasticsearch7-plugin</artifactId>
 
     <properties>
-        <elasticsearch.version>7.0.0</elasticsearch.version>
+        <elasticsearch.version>7.5.0</elasticsearch.version>
     </properties>
 
     <dependencyManagement>
