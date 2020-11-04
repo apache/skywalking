@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config;
 
-import org.apache.commons.dbcp2.BasicDataSource;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import org.h2.jdbcx.JdbcDataSource;
 
 public class DataSourceUtil {
 
@@ -34,10 +33,9 @@ public class DataSourceUtil {
     private static final Map<String, DataSource> datasourceMap = new HashMap<>();
 
     public static void createDataSource(final String dataSourceName) {
-        BasicDataSource result = new BasicDataSource();
-        result.setDriverClassName("org.h2.Driver");
+        JdbcDataSource result = new JdbcDataSource();
         result.setUrl(String.format("jdbc:h2:mem:%s", dataSourceName));
-        result.setUsername("sa");
+        result.setUser("sa");
         result.setPassword("");
         datasourceMap.put(dataSourceName, result);
     }

@@ -24,7 +24,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.h2.jdbcx.JdbcDataSource;
 
 public class DataSourceUtil {
 
@@ -33,10 +33,9 @@ public class DataSourceUtil {
     private static final Map<String, DataSource> datasourceMap = new HashMap<>();
 
     public static void createDataSource(final String dataSourceName) {
-        BasicDataSource result = new BasicDataSource();
-        result.setDriverClassName("org.h2.Driver");
+        JdbcDataSource result = new JdbcDataSource();
         result.setUrl(String.format("jdbc:h2:mem:%s", dataSourceName));
-        result.setUsername("sa");
+        result.setUser("sa");
         result.setPassword("");
         datasourceMap.put(dataSourceName, result);
     }
