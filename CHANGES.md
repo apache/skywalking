@@ -26,6 +26,7 @@ Release Notes.
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
 * Fix the excessive timeout period set by the kubernetes-client.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
+* Fix storage-jdbc isExists not set dbname.
 
 #### UI
 
