@@ -22,6 +22,7 @@ Release Notes.
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
 * Improve Kubernetes service registry for ALS analysis.
+* Add health checker for cluster management
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
 * Fix the excessive timeout period set by the kubernetes-client.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
