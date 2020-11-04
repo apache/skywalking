@@ -17,34 +17,51 @@
 
 package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.asynchttpclient.DefaultRequest;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.uri.Uri;
 
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.concurrent.ExecutionException;
-
-public class PrepareRequestInterceptor implements InstanceMethodsAroundInterceptor {
+public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        DefaultRequest request = (DefaultRequest) allArguments[0];
-        URL url = new URL(request.getUrl());
-        String operationName = url.getPath();
-        if (operationName == null || operationName.length() == 0) {
-            operationName = "/";
+
+        final Request httpRequest = (Request) allArguments[0];
+        final Uri requestUri = httpRequest.getUri();
+
+        AbstractSpan span = ContextManager.createExitSpan(
+            "AsyncHttpClient" + requestUri.getPath(), requestUri.getHost() + ":" + requestUri.getPort());
+
+        ContextCarrier contextCarrier = new ContextCarrier();
+        ContextManager.inject(contextCarrier);
+        span.setComponent(ComponentsDefine.ASYNC_HTTP_CLIENT);
+        Tags.HTTP.METHOD.set(span, httpRequest.getMethod());
+        Tags.URL.set(span, httpRequest.getUrl());
+        SpanLayer.asHttp(span);
+
+        final HttpHeaders headers = httpRequest.getHeaders();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            headers.add(next.getHeadKey(), next.getHeadValue());
         }
-        ContextManager.createLocalSpan("AsyncHttpClient-Async" + operationName);
-        objInst.setSkyWalkingDynamicField(ContextManager.capture());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws ExecutionException, InterruptedException {
+                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
