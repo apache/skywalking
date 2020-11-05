@@ -58,7 +58,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         Tags.URL.set(span, httpRequest.getUrl());
         SpanLayer.asHttp(span);
 
-       //wait the span async stop
+       //Wait the span async stop.
         span.prepareForAsync();
 
         final HttpHeaders headers = httpRequest.getHeaders();
