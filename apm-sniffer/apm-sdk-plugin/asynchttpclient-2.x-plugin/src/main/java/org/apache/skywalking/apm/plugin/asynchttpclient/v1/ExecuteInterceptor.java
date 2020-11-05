@@ -29,9 +29,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.asynchttpclient.AsyncHandler;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.uri.Uri;
 
+/**
+ * interceptor for intercept {@see org.asynchttpclient.DefaultAsyncHttpClient#execute},
+ * we wrapper the args[0] for get the real time duration, and stop the span.
+ */
 public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
@@ -44,12 +49,17 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.createExitSpan(
             "AsyncHttpClient" + requestUri.getPath(), requestUri.getHost() + ":" + requestUri.getPort());
 
+        allArguments[1] = new AsyncHandlerWrapper((AsyncHandler) allArguments[1], span);
+
         ContextCarrier contextCarrier = new ContextCarrier();
         ContextManager.inject(contextCarrier);
         span.setComponent(ComponentsDefine.ASYNC_HTTP_CLIENT);
         Tags.HTTP.METHOD.set(span, httpRequest.getMethod());
         Tags.URL.set(span, httpRequest.getUrl());
         SpanLayer.asHttp(span);
+
+        //wait the span async stop
+        span.prepareForAsync();
 
         final HttpHeaders headers = httpRequest.getHeaders();
         CarrierItem next = contextCarrier.items();
@@ -69,6 +79,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
+        ContextManager.activeSpan().asyncFinish();
     }
 }
