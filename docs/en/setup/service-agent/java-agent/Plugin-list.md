@@ -4,6 +4,7 @@
 - armeria-085
 - armeria-086
 - armeria-098
+- async-http-client-2.x
 - avro-1.x
 - brpc-java
 - canal-1.x
