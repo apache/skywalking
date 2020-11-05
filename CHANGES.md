@@ -28,6 +28,7 @@ Release Notes.
 * Fix the excessive timeout period set by the kubernetes-client.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
 * Fix storage-jdbc isExists not set dbname.
+* Fix `searchService` bug in the InfluxDB storage implementation.
 
 #### UI
 
