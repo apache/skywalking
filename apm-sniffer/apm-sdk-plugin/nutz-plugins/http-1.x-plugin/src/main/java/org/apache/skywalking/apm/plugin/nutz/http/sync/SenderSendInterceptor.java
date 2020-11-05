@@ -65,9 +65,9 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
         Response response = (Response) ret;
         AbstractSpan span = ContextManager.activeSpan();
 
-        if ( response == null || response.getStatus() >= 400) {
+        if (response == null || response.getStatus() >= 400) {
             span.errorOccurred();
-            if ( response != null)
+            if (response != null)
                 Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         ContextManager.stopSpan();

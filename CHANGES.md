@@ -28,7 +28,7 @@ Release Notes.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
 * Fix storage-jdbc isExists not set dbname.
 * Fix `searchService` bug in the InfluxDB storage implementation.
-
+* Fix NPE in the nutz plugin.
 #### UI
 
 #### Documentation
