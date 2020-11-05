@@ -14,6 +14,7 @@ Release Notes.
 * Make the Feign plugin to support Java 14
 * Make the okhttp3 plugin to support Java 14
 * Polish tracing context related codes.
+* Make the asynchttpclient 2.x plugin to support collecting HTTP parameters.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
