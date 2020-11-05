@@ -48,7 +48,9 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.createExitSpan(
             "AsyncHttpClient" + requestUri.getPath(), requestUri.getHost() + ":" + requestUri.getPort());
 
-        //We wrapped the allArguments[1] for get the real time duration, and stop the span.
+        /**
+         * We wrapped the allArguments[1] for get the real time duration, and stop the span
+         */
         allArguments[1] = new AsyncHandlerWrapper((AsyncHandler) allArguments[1], span);
 
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -58,7 +60,9 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         Tags.URL.set(span, httpRequest.getUrl());
         SpanLayer.asHttp(span);
 
-        //wait the span async stop
+        /**
+         * wait the span async stop
+         */
         span.prepareForAsync();
 
         final HttpHeaders headers = httpRequest.getHeaders();
