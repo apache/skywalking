@@ -14,6 +14,7 @@ Release Notes.
 * Make the Feign plugin to support Java 14
 * Make the okhttp3 plugin to support Java 14
 * Polish tracing context related codes.
+* Fix NPE in the nutz plugin.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
@@ -28,11 +29,14 @@ Release Notes.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
 * Fix storage-jdbc isExists not set dbname.
 * Fix `searchService` bug in the InfluxDB storage implementation.
-* Fix NPE in the nutz plugin.
+* Fix CVE in the alarm module, when activating the dynamic configuration feature.
+* Make the codes and doc consistent in sharding server and core server.
+
 #### UI
 
 #### Documentation
 * Add VNode FAQ doc.
+* Adjust configuration names and system environment names of the sharing server module
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
 
