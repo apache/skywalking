@@ -63,11 +63,12 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Response response = (Response) ret;
-        int statusCode = response.getStatus();
         AbstractSpan span = ContextManager.activeSpan();
-        if (statusCode >= 400) {
+
+        if (response == null || response.getStatus() >= 400) {
             span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+            if (response != null)
+                Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         ContextManager.stopSpan();
         return ret;
