@@ -42,4 +42,10 @@ public class HealthCheckMetrics implements HealthChecker {
         log.error("Health check fails", t);
         metrics.setValue(1);
     }
+
+    @Override
+    public void unHealth(String reason) {
+        log.warn("Health check fails. reason: {}", reason);
+        metrics.setValue(1);
+    }
 }

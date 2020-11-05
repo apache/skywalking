@@ -16,29 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-/**
- * Health checker provides methods to register the health status.
- */
-public interface HealthChecker {
+import org.junit.Assert;
+import org.junit.Test;
 
-    /**
-     * It's health.
-     */
-    void health();
-
-    /**
-     * It's unHealth.
-     *
-     * @param t details of unhealthy status
-     */
-    void unHealth(Throwable t);
-
-    /**
-     * It's unHealth.
-     *
-     * @param reason details reason of unhealthy status
-     */
-    void unHealth(String reason);
+public class SpanTagTest {
+    @Test
+    public void testEqual() {
+        final SpanTag spanTag = new SpanTag("tag1", "value1");
+        final SpanTag spanTag1 = new SpanTag("tag1", "value2");
+        final SpanTag spanTag2 = new SpanTag("tag2", "value3");
+        final SpanTag spanTag3 = new SpanTag("tag1", "value1");
+        Assert.assertEquals(spanTag, spanTag3);
+        Assert.assertNotEquals(spanTag, spanTag1);
+        Assert.assertNotEquals(spanTag, spanTag2);
+    }
 }

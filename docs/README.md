@@ -1,5 +1,5 @@
 # Welcome
-**Here are SkyWalking 8 official documents. You're welcome to join us.**
+**Here are SkyWalking 8 official documentation. You're welcome to join us.**
 
 From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, and develop based on SkyWalking contributions guidelines.
 
