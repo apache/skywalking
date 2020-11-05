@@ -29,7 +29,7 @@ The core features are following.
 - Alarm
 - Browser performance monitoring
 
-<img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20200423"/>
+<img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20201105"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
