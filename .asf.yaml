@@ -26,6 +26,7 @@ github:
     - distributed-tracing
     - service-mesh
     - dapper
+    - web-performance
   enabled_merge_buttons:
     squash:  true
     merge:   false
