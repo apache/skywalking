@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v2;
 
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;

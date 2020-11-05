@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asynchttpclient.v1.define;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -33,7 +33,7 @@ public class DefaultAsyncHttpClientInstrumentation extends ClassInstanceMethodsE
     private static final String ENHANCE_CLASS = "org.asynchttpclient.DefaultAsyncHttpClient";
     private static final String ENHANCE_METHOD = "execute";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asynchttpclient.v1.ExecuteInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.asynchttpclient.v2.ExecuteInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

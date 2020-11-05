@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v2;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import java.lang.reflect.Method;
@@ -48,9 +48,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.createExitSpan(
             "AsyncHttpClient" + requestUri.getPath(), requestUri.getHost() + ":" + requestUri.getPort());
 
-        /**
-         * We wrapper the allArguments[1] for get the real time duration, and stop the span.
-         */
+        //We wrapped the allArguments[1] for get the real time duration, and stop the span.
         allArguments[1] = new AsyncHandlerWrapper((AsyncHandler) allArguments[1], span);
 
         ContextCarrier contextCarrier = new ContextCarrier();

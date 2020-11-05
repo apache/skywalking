@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.asynchttpclient.v1;
+package org.apache.skywalking.apm.plugin.asynchttpclient.v2;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -23,6 +23,8 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import javax.net.ssl.SSLSession;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.asynchttpclient.AsyncCompletionHandlerBase;
 import org.asynchttpclient.AsyncHandler;
 import org.asynchttpclient.HttpResponseBodyPart;
@@ -37,6 +39,8 @@ public class AsyncHandlerWrapper implements AsyncHandler {
 
     private final AsyncHandler userAsyncHandler;
     private final AbstractSpan asyncSpan;
+
+    private static ILog LOGGER = LogManager.getLogger(AsyncHandlerWrapper.class);
 
     public AsyncHandlerWrapper(AsyncHandler asyncHandler, AbstractSpan span) {
         this.userAsyncHandler = asyncHandler == null ? new AsyncCompletionHandlerBase() : asyncHandler;
@@ -65,14 +69,22 @@ public class AsyncHandlerWrapper implements AsyncHandler {
 
     @Override
     public void onThrowable(final Throwable throwable) {
-        asyncSpan.log(throwable);
-        asyncSpan.asyncFinish();
+        try {
+            asyncSpan.log(throwable);
+            asyncSpan.asyncFinish();
+        } catch (Exception e) {
+            LOGGER.error("Failed to notify the async span stop.", e);
+        }
         userAsyncHandler.onThrowable(throwable);
     }
 
     @Override
     public Object onCompleted() throws Exception {
-        asyncSpan.asyncFinish();
+        try {
+            asyncSpan.asyncFinish();
+        } catch (Exception e) {
+            LOGGER.error("Failed to notify the async span stop.", e);
+        }
         return userAsyncHandler.onCompleted();
     }
 

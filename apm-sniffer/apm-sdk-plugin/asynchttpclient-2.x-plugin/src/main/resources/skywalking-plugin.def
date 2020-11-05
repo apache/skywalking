@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-async-http-client-2.x=org.apache.skywalking.apm.plugin.asynchttpclient.v1.define.DefaultAsyncHttpClientInstrumentation
+async-http-client-2.x=org.apache.skywalking.apm.plugin.asynchttpclient.v2.define.DefaultAsyncHttpClientInstrumentation
