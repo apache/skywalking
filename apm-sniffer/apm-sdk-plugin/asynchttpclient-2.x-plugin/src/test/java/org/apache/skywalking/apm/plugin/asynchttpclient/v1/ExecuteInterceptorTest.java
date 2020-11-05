@@ -91,9 +91,14 @@ public class ExecuteInterceptorTest {
     @Test
     public void testSuccess() throws Throwable {
         ContextManager.createEntrySpan("mock-test", new ContextCarrier());
+
         executeInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, result);
         executeInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, null);
+
+        AsyncHandlerWrapper asyncHandlerWrapper = (AsyncHandlerWrapper) allArguments[1];
+        asyncHandlerWrapper.onCompleted();
         ContextManager.stopSpan();
+
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -105,9 +110,12 @@ public class ExecuteInterceptorTest {
     @Test
     public void testException() throws Throwable {
         ContextManager.createEntrySpan("mock-test", new ContextCarrier());
+
         executeInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, result);
-        executeInterceptor.handleMethodException(enhancedInstance, null, allArguments, argumentTypes, new NullPointerException("testException"));
-        executeInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, null);
+        executeInterceptor.handleMethodException(
+            enhancedInstance, null, allArguments, argumentTypes, new NullPointerException("testException"));
+        executeInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
+
         ContextManager.stopSpan();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

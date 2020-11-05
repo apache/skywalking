@@ -62,7 +62,7 @@ public class DefaultAsyncHttpClientInstrumentation extends ClassInstanceMethodsE
 
                 @Override
                 public boolean isOverrideArgs() {
-                    return false;
+                    return true;
                 }
             }
         };
