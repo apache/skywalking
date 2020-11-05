@@ -34,8 +34,7 @@ import org.asynchttpclient.Request;
 import org.asynchttpclient.uri.Uri;
 
 /**
- * interceptor for intercept {@see org.asynchttpclient.DefaultAsyncHttpClient#execute},
- * we wrapper the args[0] for get the real time duration, and stop the span.
+ * interceptor for {@link org.asynchttpclient.DefaultAsyncHttpClient}
  */
 public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -49,6 +48,9 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.createExitSpan(
             "AsyncHttpClient" + requestUri.getPath(), requestUri.getHost() + ":" + requestUri.getPort());
 
+        /**
+         * We wrapper the allArguments[1] for get the real time duration, and stop the span.
+         */
         allArguments[1] = new AsyncHandlerWrapper((AsyncHandler) allArguments[1], span);
 
         ContextCarrier contextCarrier = new ContextCarrier();
