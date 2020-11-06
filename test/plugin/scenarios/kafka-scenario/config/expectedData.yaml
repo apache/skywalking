@@ -120,6 +120,7 @@ segmentItems:
       tags:
       - {key: mq.broker, value: 'kafka-server:9092'}
       - {key: mq.topic, value: test}
+      - {key: transmission.latency, value: not null}
       refs:
       - {parentEndpoint: /case/kafka-case, networkAddress: 'kafka-server:9092', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
@@ -156,6 +157,7 @@ segmentItems:
         tags:
           - {key: mq.broker, value: 'kafka-server:9092'}
           - {key: mq.topic, value: test.}
+          - {key: transmission.latency, value: not null}
         refs:
           - {parentEndpoint: /case/kafka-case, networkAddress: 'kafka-server:9092', refType: CrossProcess,
              parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not

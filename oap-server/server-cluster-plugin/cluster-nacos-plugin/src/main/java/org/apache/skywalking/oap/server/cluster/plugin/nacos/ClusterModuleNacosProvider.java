@@ -79,14 +79,13 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        NacosCoordinator coordinator = new NacosCoordinator(namingService, config);
+        NacosCoordinator coordinator = new NacosCoordinator(getManager(), namingService, config);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException {
-
     }
 
     @Override

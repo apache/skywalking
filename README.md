@@ -29,7 +29,7 @@ The core features are following.
 - Alarm
 - Browser performance monitoring
 
-<img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20200423"/>
+<img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20201105"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
@@ -45,7 +45,7 @@ including
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
-# Document
+# Documentation
 Version Series | Version | 
 ----------- | ---------- |
 8.x| [8.x dev](docs/README.md)|

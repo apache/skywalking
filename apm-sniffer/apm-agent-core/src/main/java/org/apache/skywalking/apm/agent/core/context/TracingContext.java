@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
@@ -103,8 +105,9 @@ public class TracingContext implements AbstractTracerContext {
      * profile status
      */
     private final ProfileStatusReference profileStatus;
-
+    @Getter(AccessLevel.PACKAGE)
     private final CorrelationContext correlationContext;
+    @Getter(AccessLevel.PACKAGE)
     private final ExtensionContext extensionContext;
 
     /**
@@ -187,9 +190,8 @@ public class TracingContext implements AbstractTracerContext {
             span.ref(ref);
         }
 
-        this.correlationContext.extract(carrier);
-        this.extensionContext.extract(carrier);
-        this.extensionContext.handle(span);
+        carrier.extractExtensionTo(this);
+        carrier.extractCorrelationTo(this);
     }
 
     /**

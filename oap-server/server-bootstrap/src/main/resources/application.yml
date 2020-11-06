@@ -71,8 +71,8 @@ core:
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
-    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:0}
-    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:-1}
+    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:-1}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
     gRPCSslCertChainPath: ${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
@@ -198,13 +198,14 @@ receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
     # For Jetty server
-    host: ${SW_RECEIVER_JETTY_HOST:0.0.0.0}
-    contextPath: ${SW_RECEIVER_JETTY_CONTEXT_PATH:/}
-    jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
-    jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
-    jettyIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
-    jettyAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
-    jettyAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
+    restHost: ${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
+    restPort: ${SW_RECEIVER_SHARING_REST_PORT:0}
+    contextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
+    restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
+    restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
+    restAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
+    restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
@@ -269,6 +270,8 @@ kafka-fetcher:
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+    kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
+    kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}

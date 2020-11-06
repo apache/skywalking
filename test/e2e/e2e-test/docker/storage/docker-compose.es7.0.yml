@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   es:
-    image: elastic/elasticsearch:7.4.2
+    image: elastic/elasticsearch:7.0.0
     expose:
       - 9200
     networks:
