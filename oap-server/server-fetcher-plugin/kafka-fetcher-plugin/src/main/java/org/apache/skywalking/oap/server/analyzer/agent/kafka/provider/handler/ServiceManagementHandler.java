@@ -67,8 +67,8 @@ public class ServiceManagementHandler implements KafkaHandler {
             } else {
                 keepAlive(InstancePingPkg.parseFrom(record.value().get()));
             }
-        } catch (InvalidProtocolBufferException e) {
-            log.error("", e);
+        } catch (Exception e) {
+            log.error("Kafka Handle Service Management message error.", e);
         }
     }
 

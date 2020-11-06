@@ -89,8 +89,8 @@ public class TraceSegmentHandler implements KafkaHandler {
             } finally {
                 timer.finish();
             }
-        } catch (InvalidProtocolBufferException e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Kafka Handle trace segment message error.", e);
         }
     }
 
