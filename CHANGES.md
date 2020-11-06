@@ -31,6 +31,7 @@ Release Notes.
 * Fix storage-jdbc isExists not set dbname.
 * Fix `searchService` bug in the InfluxDB storage implementation.
 * Fix CVE in the alarm module, when activating the dynamic configuration feature.
+* Fix CVE in the endpoint grouping, when activating the dynamic configuration feature.
 * Make the codes and doc consistent in sharding server and core server.
 
 #### UI
