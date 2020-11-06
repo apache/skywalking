@@ -17,17 +17,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -40,12 +29,24 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import static java.util.Objects.isNull;
 
 @Slf4j
 public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     private final AtomicReference<String> settingsString;
+
     private volatile Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();
 
     public UninstrumentedGatewaysConfig(ModuleProvider provider) {
@@ -110,7 +111,7 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
 
     private GatewayInfos parseGatewaysFromYml(final String ymlContent) {
         try {
-            return new Yaml().loadAs(ymlContent, GatewayInfos.class);
+            return new Yaml(new Constructor(GatewayInfos.class)).loadAs(ymlContent, GatewayInfos.class);
         } catch (Exception e) {
             log.error("Failed to parse yml content as gateways: \n{}", ymlContent, e);
         }
@@ -122,6 +123,7 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     @ToString
     public static class GatewayInfo {
         private String name;
+
         private List<GatewayInstanceInfo> instances;
     }
 
@@ -148,6 +150,7 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     @ToString
     public static class GatewayInstanceInfo {
         private String host;
+
         private Integer port;
 
         String getAddress() {
