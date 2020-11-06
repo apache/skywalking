@@ -138,12 +138,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                     Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
                     while (iterator.hasNext()) {
                         ConsumerRecord<String, Bytes> record = iterator.next();
-                        try {
-                            handlerMap.get(record.topic()).handle(record);
-                        } catch (Throwable e) {
-                            log.error("process record error, topic:{}, key:{}, value:{}", record.topic(), record.key(), record.value());
-                            log.error("process record error", e);
-                        }
+                        handlerMap.get(record.topic()).handle(record);
                     }
                     consumer.commitAsync();
                 }
