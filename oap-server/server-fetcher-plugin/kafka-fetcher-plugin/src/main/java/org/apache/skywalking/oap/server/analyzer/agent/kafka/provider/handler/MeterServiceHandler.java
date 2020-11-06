@@ -51,8 +51,8 @@ public class MeterServiceHandler implements KafkaHandler {
             meterDataCollection.getMeterDataList().forEach(meterData -> processor.read(meterData));
             processor.process();
 
-        } catch (Exception e) {
-            log.error("Kafka Handle meter message error.", e);
+        } catch (InvalidProtocolBufferException e) {
+            log.error("", e);
         }
     }
 

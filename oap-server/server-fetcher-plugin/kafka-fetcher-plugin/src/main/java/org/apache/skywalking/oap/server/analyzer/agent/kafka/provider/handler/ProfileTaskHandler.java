@@ -62,8 +62,8 @@ public class ProfileTaskHandler implements KafkaHandler {
             snapshotRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(snapshot.getTime()));
 
             RecordStreamProcessor.getInstance().in(snapshotRecord);
-        } catch (Exception e) {
-            log.error("Kafka Handle profiling snapshot message error.", e);
+        } catch (InvalidProtocolBufferException e) {
+            log.error(e.getMessage(), e);
         }
     }
 

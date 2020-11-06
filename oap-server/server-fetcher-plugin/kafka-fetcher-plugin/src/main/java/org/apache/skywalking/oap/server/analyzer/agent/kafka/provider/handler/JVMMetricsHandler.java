@@ -67,8 +67,8 @@ public class JVMMetricsHandler implements KafkaHandler {
             builder.getMetricsList().forEach(jvmMetric -> {
                 jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
             });
-        } catch (Exception e) {
-            log.error("Kafka Handle JVM Metrics message error.", e);
+        } catch (InvalidProtocolBufferException e) {
+            log.error("", e);
         }
     }
 
