@@ -90,7 +90,7 @@ public class TraceSegmentHandler implements KafkaHandler {
                 timer.finish();
             }
         } catch (InvalidProtocolBufferException e) {
-            log.error("handle record failed, record:{}", record.toString(), e);
+            log.error("handle record failed", e);
         }
     }
 

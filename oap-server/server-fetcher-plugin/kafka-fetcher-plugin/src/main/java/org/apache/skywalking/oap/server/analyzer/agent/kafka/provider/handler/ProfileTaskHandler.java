@@ -62,7 +62,7 @@ public class ProfileTaskHandler implements KafkaHandler {
 
             RecordStreamProcessor.getInstance().in(snapshotRecord);
         } catch (Exception e) {
-            log.error("handle record failed, record:{}", record.toString(), e);
+            log.error("handle record failed", e);
         }
     }
 

@@ -67,7 +67,7 @@ public class JVMMetricsHandler implements KafkaHandler {
                 jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
             });
         } catch (Exception e) {
-            log.error("handle record failed, record:{}", record.toString(), e);
+            log.error("handle record failed", e);
         }
     }
 

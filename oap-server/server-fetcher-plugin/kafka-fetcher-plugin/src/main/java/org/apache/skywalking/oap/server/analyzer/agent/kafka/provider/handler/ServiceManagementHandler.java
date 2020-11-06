@@ -67,7 +67,7 @@ public class ServiceManagementHandler implements KafkaHandler {
                 keepAlive(InstancePingPkg.parseFrom(record.value().get()));
             }
         } catch (Exception e) {
-            log.error("handle record failed, record:{}", record.toString(), e);
+            log.error("handle record failed", e);
         }
     }
 
