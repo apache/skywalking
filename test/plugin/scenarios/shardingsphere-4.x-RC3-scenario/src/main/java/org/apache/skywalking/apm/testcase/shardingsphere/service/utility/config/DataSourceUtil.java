@@ -34,7 +34,7 @@ public class DataSourceUtil {
 
     public static void createDataSource(final String dataSourceName) {
         JdbcDataSource result = new JdbcDataSource();
-        result.setUrl(String.format("jdbc:h2:mem:%s", dataSourceName));
+        result.setUrl("jdbc:h2:mem:" + dataSourceName + ";DB_CLOSE_DELAY=-1");
         result.setUser("sa");
         result.setPassword("");
         datasourceMap.put(dataSourceName, result);

@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config;
 
+import org.h2.jdbcx.JdbcDataSource;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import org.h2.jdbcx.JdbcDataSource;
 
 public class DataSourceUtil {
 
@@ -34,7 +35,7 @@ public class DataSourceUtil {
 
     public static void createDataSource(final String dataSourceName) {
         JdbcDataSource result = new JdbcDataSource();
-        result.setUrl(String.format("jdbc:h2:mem:%s", dataSourceName));
+        result.setUrl("jdbc:h2:mem:" + dataSourceName + ";DB_CLOSE_DELAY=-1");
         result.setUser("sa");
         result.setPassword("");
         datasourceMap.put(dataSourceName, result);
