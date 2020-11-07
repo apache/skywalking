@@ -26,7 +26,7 @@ Release Notes.
 * Improve Kubernetes service registry for ALS analysis.
 * Add health checker for cluster management
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
-* Catch All Execption in `KafkaHandler`.
+* Fix the threads of the Kafka fetcher exit if some unexpected exceptions happen.
 * Fix the excessive timeout period set by the kubernetes-client.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
 * Fix storage-jdbc isExists not set dbname.
