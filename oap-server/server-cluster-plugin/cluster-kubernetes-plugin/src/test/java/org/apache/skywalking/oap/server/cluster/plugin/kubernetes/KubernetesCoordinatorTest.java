@@ -25,11 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 import org.junit.Assert;
@@ -43,6 +48,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -51,6 +58,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class KubernetesCoordinatorTest {
 
     private KubernetesCoordinator coordinator;
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
     public static final String LOCAL_HOST = "127.0.0.1";
     public static final Integer GRPC_PORT = 8454;
@@ -62,11 +70,12 @@ public class KubernetesCoordinatorTest {
     @Before
     public void prepare() throws IllegalAccessException {
         coordinator = new KubernetesCoordinator(getManager(), new ClusterModuleKubernetesConfig());
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
         MemberModifier.field(KubernetesCoordinator.class, "uid").set(coordinator, String.valueOf(SELF_UID));
         selfAddress = new Address(LOCAL_HOST, GRPC_PORT, true);
         informer = PowerMockito.mock(NamespacedPodListInformer.class);
         Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
-
+        doNothing().when(healthChecker).health();
     }
 
     @Test
@@ -102,7 +111,9 @@ public class KubernetesCoordinatorTest {
         CoreModuleConfig config = PowerMockito.mock(CoreModuleConfig.class);
         when(config.getGRPCHost()).thenReturn(LOCAL_HOST);
         when(config.getGRPCPort()).thenReturn(GRPC_PORT);
+        moduleManagerTesting.put(TelemetryModule.NAME, coreModuleDefine);
         coreModuleDefine.provider().registerServiceImplementation(ConfigService.class, new ConfigService(config));
+        coreModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
         return moduleManagerTesting;
     }
 

@@ -335,8 +335,11 @@ thrift-server:
 thrift-client:
   id: 101
   languages: Java
-dbcp:
+AsyncHttpClient:
   id: 102
+  languages: Java
+dbcp:
+  id: 103
   languages: Java
 
 # .NET/.NET Core components

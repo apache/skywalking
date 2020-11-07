@@ -58,7 +58,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
         try (Connection conn = h2Client.getConnection()) {
-            try (ResultSet rset = conn.getMetaData().getTables(null, null, model.getName(), null)) {
+            try (ResultSet rset = conn.getMetaData().getTables(conn.getCatalog(), null, model.getName(), null)) {
                 if (rset.next()) {
                     return true;
                 }

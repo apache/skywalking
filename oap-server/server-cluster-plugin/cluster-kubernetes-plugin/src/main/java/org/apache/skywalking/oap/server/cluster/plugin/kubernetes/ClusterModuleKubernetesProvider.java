@@ -57,7 +57,6 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-
         coordinator = new KubernetesCoordinator(getManager(), config);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);

@@ -48,6 +48,6 @@ public class ClusterModuleZookeeperProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = provider.requiredModules();
-        assertEquals(0, modules.length);
+        assertEquals(1, modules.length);
     }
 }

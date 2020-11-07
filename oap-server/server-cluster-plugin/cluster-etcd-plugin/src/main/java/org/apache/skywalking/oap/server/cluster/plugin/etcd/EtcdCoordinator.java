@@ -25,33 +25,39 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
+import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtcdCoordinator.class);
-
-    private ClusterModuleEtcdConfig config;
-
-    private EtcdClient client;
-
-    private volatile Address selfAddress;
-
-    private final String serviceName;
-
-    private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-
     private static final Integer KEY_TTL = 45;
 
-    public EtcdCoordinator(ClusterModuleEtcdConfig config, EtcdClient client) {
+    private final ModuleDefineHolder manager;
+    private final ClusterModuleEtcdConfig config;
+    private final EtcdClient client;
+    private final String serviceName;
+    private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    private volatile Address selfAddress;
+    private HealthCheckMetrics healthChecker;
+
+    public EtcdCoordinator(final ModuleDefineHolder manager, final ClusterModuleEtcdConfig config, final EtcdClient client) {
+        this.manager = manager;
         this.config = config;
         this.client = client;
         this.serviceName = config.getServiceName();
@@ -59,9 +65,9 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-
-        List<RemoteInstance> res = new ArrayList<>();
+        List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
+            initHealthChecker();
             EtcdKeysResponse response = client.get(serviceName + "/").send().get();
             List<EtcdKeysResponse.EtcdNode> nodes = response.getNode().getNodes();
 
@@ -73,15 +79,20 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
                     if (!address.equals(selfAddress)) {
                         address.setSelf(false);
                     }
-                    res.add(new RemoteInstance(address));
+                    remoteInstances.add(new RemoteInstance(address));
                 });
             }
-
-        } catch (Exception e) {
+            ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
+            if (healthStatus.isHealth()) {
+                this.healthChecker.health();
+            } else {
+                this.healthChecker.unHealth(healthStatus.getReason());
+            }
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
             throw new RuntimeException(e);
         }
-
-        return res;
+        return remoteInstances;
     }
 
     @Override
@@ -98,6 +109,7 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
                                                           .port(selfAddress.getPort())
                                                           .build();
         try {
+            initHealthChecker();
             client.putDir(serviceName).send();
             String key = buildKey(serviceName, selfAddress, remoteInstance);
             String json = new Gson().toJson(endpoint);
@@ -105,7 +117,9 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             //check register.
             promise.get();
             renew(client, key, json);
-        } catch (Exception e) {
+            healthChecker.health();
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
         }
 
@@ -135,5 +149,12 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    private void initHealthChecker() {
+        if (healthChecker == null) {
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge("cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
     }
 }
