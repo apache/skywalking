@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.config;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import javax.sql.DataSource;
 import org.apache.shardingsphere.api.config.sharding.KeyGeneratorConfiguration;
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.api.config.sharding.TableRuleConfiguration;
@@ -27,12 +32,6 @@ import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algorithm.PreciseModuloShardingTableAlgorithm;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.ExampleConfiguration;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public final class ShardingDatabasesAndTablesConfigurationPrecise implements ExampleConfiguration {
 
@@ -44,8 +43,12 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         shardingRuleConfig.getTableRuleConfigs().add(getOrderTableRuleConfiguration());
         shardingRuleConfig.getTableRuleConfigs().add(getOrderItemTableRuleConfiguration());
         shardingRuleConfig.getBindingTableGroups().add("t_order, t_order_item");
-        shardingRuleConfig.setDefaultDatabaseShardingStrategyConfig(new InlineShardingStrategyConfiguration("user_id", "demo_ds_${user_id % 2}"));
-        shardingRuleConfig.setDefaultTableShardingStrategyConfig(new StandardShardingStrategyConfiguration("order_id", new PreciseModuloShardingTableAlgorithm()));
+        shardingRuleConfig.setDefaultDatabaseShardingStrategyConfig(
+            new InlineShardingStrategyConfiguration("user_id", "demo_ds_${user_id % 2}")
+        );
+        shardingRuleConfig.setDefaultTableShardingStrategyConfig(
+            new StandardShardingStrategyConfiguration("order_id", new PreciseModuloShardingTableAlgorithm())
+        );
         Properties properties = new Properties();
         properties.setProperty("max.connections.size.per.query", "16");
         dataSource = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, properties);
