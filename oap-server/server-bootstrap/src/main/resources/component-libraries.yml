@@ -335,7 +335,9 @@ thrift-server:
 thrift-client:
   id: 101
   languages: Java
-
+AsyncHttpClient:
+  id: 102
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

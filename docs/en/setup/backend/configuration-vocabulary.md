@@ -148,9 +148,14 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - |slowTraceSegmentThreshold|Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. |SW_SLOW_TRACE_SEGMENT_THRESHOLD|-1|
 | - | - |meterAnalyzerActiveFiles|Which files could be meter analyzed, files split by ","|SW_METER_ANALYZER_ACTIVE_FILES||
 | receiver-sharing-server|default| Sharing server provides new gRPC and restful servers for data collection. Ana make the servers in the core module working for internal communication only.| - | - |
-| - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report| - | - |
-| - | - | restPort | Binding port of restful service |  - | - |
-| - | - | restContextPath| Web context path of restful service| - | - |
+| - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report| SW_RECEIVER_SHARING_REST_HOST | - |
+| - | - | restPort | Binding port of restful service | SW_RECEIVER_SHARING_REST_PORT | - |
+| - | - | restContextPath| Web context path of restful service| SW_RECEIVER_SHARING_REST_CONTEXT_PATH | - |
+| - | - | restMinThreads| Min threads number of restful service| SW_RECEIVER_SHARING_JETTY_MIN_THREADS|1|
+| - | - | restMaxThreads| Max threads number of restful service| SW_RECEIVER_SHARING_JETTY_MAX_THREADS|200|
+| - | - | restIdleTimeOut| Connector idle timeout in milliseconds of restful service| SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT|30000|
+| - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of restful service| SW_RECEIVER_SHARING_JETTY_DELTA|0|
+| - | - | restAcceptQueueSize| ServerSocketChannel backlog  of restful service| SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE|0|
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_GRPC_HOST | 0.0.0.0. Not Activated |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_GRPC_PORT | Not Activated |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_RECEIVER_GRPC_THREAD_POOL_SIZE | CPU core * 4|

@@ -6,6 +6,7 @@ Release Notes.
 ------------------
 #### Project
 * Test: ElasticSearch version 7.0.0 and 7.9.3 as storage are E2E tested. 
+* Test: Bump up testcontainers version to work around the Docker bug on MacOS. 
 
 #### Java Agent
 * Support propagate the sending timestamp in MQ plugins to calculate the transfer latency in the async MQ scenarios.
@@ -14,6 +15,8 @@ Release Notes.
 * Make the Feign plugin to support Java 14
 * Make the okhttp3 plugin to support Java 14
 * Polish tracing context related codes.
+* Add the plugin for async-http-client 2.x
+* Fix NPE in the nutz plugin.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
@@ -28,11 +31,16 @@ Release Notes.
 * Fix deadlock problem when using elasticsearch-client-7.0.0.
 * Fix storage-jdbc isExists not set dbname.
 * Fix `searchService` bug in the InfluxDB storage implementation.
+* Fix CVE in the alarm module, when activating the dynamic configuration feature.
+* Fix CVE in the endpoint grouping, when activating the dynamic configuration feature.
+* Fix CVE in the uninstrumented gateways configs, when activating the dynamic configuration feature.
+* Make the codes and doc consistent in sharding server and core server.
 
 #### UI
 
 #### Documentation
 * Add VNode FAQ doc.
+* Adjust configuration names and system environment names of the sharing server module
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
 
