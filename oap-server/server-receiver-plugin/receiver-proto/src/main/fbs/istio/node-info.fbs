@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+// Original File Location:
+//   https://github.com/istio/proxy/blob/bcdc1684df0839a612526f688ff7b475902f2feb/extensions/common/node_info.fbs
+
 namespace Wasm.Common;
 
 table KeyVal {
