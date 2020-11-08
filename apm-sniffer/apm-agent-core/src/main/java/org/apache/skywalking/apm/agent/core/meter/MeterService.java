@@ -64,6 +64,10 @@ public class MeterService implements BootService, Runnable {
         return data == null ? meter : (T) data;
     }
 
+    public <T extends MeterId> BaseMeter unregister(T id) {
+        return meterMap.remove(id);
+    }
+
     @Override
     public void prepare() {
         sender = ServiceManager.INSTANCE.findService(MeterSender.class);

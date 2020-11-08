@@ -320,4 +320,17 @@ public class Config {
          */
         public static String AUTO_TAG_KEYS = "";
     }
+
+    public static class ConnectionPool {
+        /**
+         * If true, skywalking agent will enable to monitor connection pool. Otherwise disable to monitor connection
+         * pool.
+         */
+        public static boolean ACTIVE = true;
+
+        /**
+         *
+         */
+        public static int INTERVAL = 5;
+    }
 }

@@ -517,6 +517,56 @@ templates:
                   "aggregationNum": "100"
                 }
               ]
+            },
+            {
+              "name": "Connection Pool",
+              "children": [
+                {
+                  "width": "4",
+                  "title": "Active Counts",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_connection_pool_active_counts",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "4",
+                  "title": "Awaiting connection thread number",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "metricName": "meter_connection_pool_awaiting_connection_threads_num",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "4",
+                  "title": "Latency of get connection",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_connection_pool_get_connection_latency_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "micro second"
+                },
+                {
+                  "width": "4",
+                  "title": "Failure rate of get connection",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": true,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_connection_pool_get_connection_failure_rate",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine"
+                }
+              ]
             }
           ]
         }
