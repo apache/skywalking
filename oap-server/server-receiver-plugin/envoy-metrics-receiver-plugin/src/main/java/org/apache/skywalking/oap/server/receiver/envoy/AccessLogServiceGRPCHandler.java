@@ -53,7 +53,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
         for (String httpAnalysisName : config.getAlsHTTPAnalysis()) {
             for (ALSHTTPAnalysis httpAnalysis : alshttpAnalyses) {
                 if (httpAnalysisName.equals(httpAnalysis.name())) {
-                    httpAnalysis.init(config);
+                    httpAnalysis.init(manager, config);
                     envoyHTTPAnalysisList.add(httpAnalysis);
                 }
             }

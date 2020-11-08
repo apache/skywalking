@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
@@ -45,7 +46,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
     @Before
     public void setUp() {
         analysis = new MockK8SAnalysis();
-        analysis.init(null);
+        analysis.init(null, null);
     }
 
     @Test
@@ -146,7 +147,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
     public static class MockK8SAnalysis extends K8sALSServiceMeshHTTPAnalysis {
 
         @Override
-        public void init(EnvoyMetricReceiverConfig config) {
+        public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
             serviceRegistry = mock(K8SServiceRegistry.class);
             when(serviceRegistry.findService(anyString())).thenReturn(ServiceMetaInfo.UNKNOWN);
             when(serviceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));

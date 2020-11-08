@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
@@ -53,7 +54,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
     }
 
     @Override
-    public void init(EnvoyMetricReceiverConfig config) throws ModuleStartException {
+    public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
         try {
             FieldsHelper.SINGLETON.init("metadata-service-mapping.yaml");
         } catch (final Exception e) {

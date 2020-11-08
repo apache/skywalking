@@ -29,6 +29,7 @@ import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
@@ -50,7 +51,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
 
     @Override
     @SneakyThrows
-    public void init(EnvoyMetricReceiverConfig config) {
+    public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         serviceRegistry = new K8SServiceRegistry(config);
         serviceRegistry.start();
     }
