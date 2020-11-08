@@ -17,6 +17,7 @@ Release Notes.
 * Polish tracing context related codes.
 * Add the plugin for async-http-client 2.x
 * Fix NPE in the nutz plugin.
+* Provide Apache Commons DBCP 2.x plugin.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.

@@ -187,5 +187,5 @@ public class ComponentsDefine {
 
     public static final OfficialComponent ASYNC_HTTP_CLIENT = new OfficialComponent(102, "AsyncHttpClient");
 
-
+    public static final OfficialComponent DBCP = new OfficialComponent(103, "dbcp");
 }
