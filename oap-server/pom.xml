@@ -100,6 +100,7 @@
         <kafka-clients.version>2.4.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
     </properties>
 
     <dependencies>
@@ -553,6 +554,12 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.flatbuffers</groupId>
+                <artifactId>flatbuffers-java</artifactId>
+                <version>${flatbuffers-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

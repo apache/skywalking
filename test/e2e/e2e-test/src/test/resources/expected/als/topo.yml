@@ -47,6 +47,7 @@ calls:
     target: cHJvZHVjdHBhZ2U=.1
     detectPoints:
       - CLIENT
+      - SERVER
   - id: not null
     source: cHJvZHVjdHBhZ2U=.1
     target: cmV2aWV3cw==.1
