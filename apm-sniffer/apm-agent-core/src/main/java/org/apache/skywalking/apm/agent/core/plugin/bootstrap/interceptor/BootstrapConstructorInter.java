@@ -27,14 +27,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * --------CLASS TEMPLATE---------
- * <p>Author, Wu Sheng </p>
- * <p>Comment, don't change this unless you are 100% sure the agent core mechanism for bootstrap class
- * instrumentation.</p>
- * <p>Date, 24th July 2019</p>
- * -------------------------------
- * <p>
- * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
+ * The actual byte-buddy's interceptor to intercept bootstrap class constructor methods. In this class, it provide a bridge between
+ * byte-buddy and sky-walking plugin.
  */
 public class BootstrapConstructorInter {
 

@@ -61,7 +61,7 @@ public class Application {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    restTemplate.getForEntity("https://github.com/apache/skywalking", String.class);
+                    restTemplate.getForEntity("http://localhost:8080/healthCheck", String.class);
                 }
             };
 
@@ -70,7 +70,7 @@ public class Application {
             executorService.submit(new Callable<String>() {
                 @Override
                 public String call() {
-                    return restTemplate.getForEntity("https://github.com/apache/skywalking", String.class).getBody();
+                    return restTemplate.getForEntity("http://localhost:8080/healthCheck", String.class).getBody();
                 }
             }).get();
 

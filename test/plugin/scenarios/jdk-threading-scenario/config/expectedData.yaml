@@ -36,7 +36,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /apache/skywalking
+    - operationName: /healthCheck
       operationId: 0
       parentSpanId: 0
       spanId: 1
@@ -46,9 +46,9 @@ segmentItems:
       componentId: 13
       isError: false
       spanType: Exit
-      peer: github.com:443
+      peer: localhost:8080
       tags:
-      - {key: url, value: 'https://github.com:-1/apache/skywalking'}
+      - {key: url, value: 'http://localhost:8080/healthCheck'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
     - operationName: Threading/test.org.apache.skywalking.apm.testcase.jdk.threading.Application$TestController$1/run
@@ -69,7 +69,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /apache/skywalking
+    - operationName: /healthCheck
       operationId: 0
       parentSpanId: 0
       spanId: 1
@@ -79,9 +79,9 @@ segmentItems:
       componentId: 13
       isError: false
       spanType: Exit
-      peer: github.com:443
+      peer: localhost:8080
       tags:
-      - {key: url, value: 'https://github.com:-1/apache/skywalking'}
+      - {key: url, value: 'http://localhost:8080/healthCheck'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
     - operationName: Threading/test.org.apache.skywalking.apm.testcase.jdk.threading.Application$TestController$2/call
