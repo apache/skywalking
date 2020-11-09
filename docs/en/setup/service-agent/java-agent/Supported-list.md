@@ -1,3 +1,7 @@
+# Tracing and Tracing based Metrics Analyze Plugins
+The following plugins provide the distributed tracing capability, and the OAP backend would analyze the topology and 
+metrics based on the tracing data.
+
 * HTTP Server
   * [Tomcat](https://github.com/apache/tomcat) 7
   * [Tomcat](https://github.com/apache/tomcat) 8
@@ -108,7 +112,12 @@
   * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
 * Pool
   * [Apache Commons DBCP](https://github.com/apache/commons-dbcp) 2.x
+  
 
+# Meter Plugins
+The meter plugin provides the advanced metrics collections, which are not a part of tracing.
+
+___
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 
