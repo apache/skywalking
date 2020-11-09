@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.plugin.bootstrap.template;
+package org.apache.skywalking.apm.agent.core.plugin.bootstrap.interceptor;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -36,14 +36,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
  * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
  */
-public class ConstructorInterTemplate {
-    /**
-     * This field is never set in the template, but has value in the runtime.
-     */
-    private static String TARGET_INTERCEPTOR;
+public class BootstrapConstructorInter {
 
-    private static InstanceConstructorInterceptor INTERCEPTOR;
+    private InstanceConstructorInterceptor interceptor;
     private static IBootstrapLog LOGGER;
+
+    public BootstrapConstructorInter(String interceptorClassName) {
+        prepare(interceptorClassName);
+    }
 
     /**
      * Intercept the target constructor.
@@ -52,16 +52,15 @@ public class ConstructorInterTemplate {
      * @param allArguments all constructor arguments
      */
     @RuntimeType
-    public static void intercept(@This Object obj, @AllArguments Object[] allArguments) {
+    public void intercept(@This Object obj, @AllArguments Object[] allArguments) {
         try {
-            prepare();
 
             EnhancedInstance targetObject = (EnhancedInstance) obj;
 
-            if (INTERCEPTOR == null) {
+            if (interceptor == null) {
                 return;
             }
-            INTERCEPTOR.onConstruct(targetObject, allArguments);
+            interceptor.onConstruct(targetObject, allArguments);
         } catch (Throwable t) {
             LOGGER.error("ConstructorInter failure.", t);
         }
@@ -70,19 +69,19 @@ public class ConstructorInterTemplate {
     /**
      * Prepare the context. Link to the agent core in AppClassLoader.
      */
-    private static void prepare() {
-        if (INTERCEPTOR == null) {
+    private void prepare(String interceptorClassName) {
+        if (this.interceptor == null) {
             ClassLoader loader = BootstrapInterRuntimeAssist.getAgentClassLoader();
 
             if (loader != null) {
-                IBootstrapLog logger = BootstrapInterRuntimeAssist.getLogger(loader, TARGET_INTERCEPTOR);
+                IBootstrapLog logger = BootstrapInterRuntimeAssist.getLogger(loader, interceptorClassName);
                 if (logger != null) {
                     LOGGER = logger;
 
-                    INTERCEPTOR = BootstrapInterRuntimeAssist.createInterceptor(loader, TARGET_INTERCEPTOR, LOGGER);
+                    this.interceptor = BootstrapInterRuntimeAssist.createInterceptor(loader, interceptorClassName, LOGGER);
                 }
             } else {
-                LOGGER.error("Runtime ClassLoader not found when create {}." + TARGET_INTERCEPTOR);
+                LOGGER.error("Runtime ClassLoader not found when create {}." + interceptorClassName);
             }
         }
     }

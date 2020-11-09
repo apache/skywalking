@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.plugin.bootstrap.template;
+package org.apache.skywalking.apm.agent.core.plugin.bootstrap.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -24,12 +24,10 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 /**
  * --------CLASS TEMPLATE---------
@@ -41,42 +39,37 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
  * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
  */
-public class InstanceMethodInterTemplate {
-    /**
-     * This field is never set in the template, but has value in the runtime.
-     */
-    private static String TARGET_INTERCEPTOR;
+public class BootstrapStaticMethodsInter {
 
-    private static InstanceMethodsAroundInterceptor INTERCEPTOR;
+    private StaticMethodsAroundInterceptor interceptor;
     private static IBootstrapLog LOGGER;
 
+    public BootstrapStaticMethodsInter(String interceptorClassName) {
+        prepare(interceptorClassName);
+    }
+
     /**
-     * Intercept the target instance method.
+     * Intercept the target static method.
      *
-     * @param obj          target class instance.
+     * @param clazz        target class
      * @param allArguments all method arguments
      * @param method       method description.
      * @param zuper        the origin call ref.
-     * @return the return value of target instance method.
+     * @return the return value of target static method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
      *                   bug, if anything triggers this condition ).
      */
     @RuntimeType
-    public static Object intercept(@This Object obj, @AllArguments Object[] allArguments, @SuperCall Callable<?> zuper,
-        @Origin Method method) throws Throwable {
-        EnhancedInstance targetObject = (EnhancedInstance) obj;
-
-        prepare();
+    public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method,
+                            @SuperCall Callable<?> zuper) throws Throwable {
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            if (INTERCEPTOR != null) {
-                INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result);
+            if (interceptor != null) {
+                interceptor.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result);
             }
         } catch (Throwable t) {
-            if (LOGGER != null) {
-                LOGGER.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
-            }
+            LOGGER.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
 
         Object ret = null;
@@ -88,48 +81,48 @@ public class InstanceMethodInterTemplate {
             }
         } catch (Throwable t) {
             try {
-                if (INTERCEPTOR != null) {
-                    INTERCEPTOR.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(), t);
+                if (interceptor != null) {
+                    interceptor.handleMethodException(clazz, method, allArguments, method.getParameterTypes(), t);
                 }
             } catch (Throwable t2) {
-                if (LOGGER != null) {
-                    LOGGER.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
-                }
+                LOGGER.error(
+                    t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(),
+                    t2.getMessage()
+                );
             }
             throw t;
         } finally {
             try {
-                if (INTERCEPTOR != null) {
-                    ret = INTERCEPTOR.afterMethod(targetObject, method, allArguments, method.getParameterTypes(), ret);
+                if (interceptor != null) {
+                    ret = interceptor.afterMethod(clazz, method, allArguments, method.getParameterTypes(), ret);
                 }
             } catch (Throwable t) {
-                if (LOGGER != null) {
-                    LOGGER.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
-                }
+                LOGGER.error(
+                    t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(),
+                    t.getMessage()
+                );
             }
         }
-
         return ret;
     }
 
     /**
      * Prepare the context. Link to the agent core in AppClassLoader.
      */
-    private static void prepare() {
-        if (INTERCEPTOR == null) {
+    private void prepare(String interceptorClassName) {
+        if (interceptor == null) {
             ClassLoader loader = BootstrapInterRuntimeAssist.getAgentClassLoader();
 
             if (loader != null) {
-                IBootstrapLog logger = BootstrapInterRuntimeAssist.getLogger(loader, TARGET_INTERCEPTOR);
+                IBootstrapLog logger = BootstrapInterRuntimeAssist.getLogger(loader, interceptorClassName);
                 if (logger != null) {
                     LOGGER = logger;
 
-                    INTERCEPTOR = BootstrapInterRuntimeAssist.createInterceptor(loader, TARGET_INTERCEPTOR, LOGGER);
+                    interceptor = BootstrapInterRuntimeAssist.createInterceptor(loader, interceptorClassName, LOGGER);
                 }
             } else {
-                LOGGER.error("Runtime ClassLoader not found when create {}." + TARGET_INTERCEPTOR);
+                LOGGER.error("Runtime ClassLoader not found when create {}." + interceptorClassName);
             }
         }
     }
 }
-
