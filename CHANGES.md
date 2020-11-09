@@ -41,6 +41,8 @@ Release Notes.
 * Make the codes and doc consistent in sharding server and core server.
 
 #### UI
+* Fix incorrect label in radial chart in topology.
+* Replace node-sass with dart-sass.
 
 #### Documentation
 * Add VNode FAQ doc.
