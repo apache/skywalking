@@ -103,6 +103,7 @@
         <module>thrift-plugin</module>
         <module>httpclient-commons</module>
         <module>asynchttpclient-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
