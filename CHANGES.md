@@ -39,6 +39,7 @@ Release Notes.
 * Fix CVE in the uninstrumented gateways configs, when activating the dynamic configuration feature.
 * Fix CVE in the Apdex threshold configs, when activating the dynamic configuration feature.
 * Make the codes and doc consistent in sharding server and core server.
+* Fix that chunked string is incorrect while the tag contains colon
 
 #### UI
 * Fix incorrect label in radial chart in topology.
