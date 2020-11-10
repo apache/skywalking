@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-16.04
     timeout-minutes: 90
     strategy:
+      fail-fast: true
       matrix:
         es: [es6, es7]
     steps:

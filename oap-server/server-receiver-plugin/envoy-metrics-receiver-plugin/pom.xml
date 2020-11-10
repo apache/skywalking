@@ -61,5 +61,10 @@
             <version>${org.apache.tomcat.annotations-api.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.flatbuffers</groupId>
+            <artifactId>flatbuffers-java</artifactId>
+        </dependency>
     </dependencies>
 </project>

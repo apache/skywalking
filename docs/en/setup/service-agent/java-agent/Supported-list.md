@@ -1,3 +1,7 @@
+# Tracing and Tracing based Metrics Analyze Plugins
+The following plugins provide the distributed tracing capability, and the OAP backend would analyze the topology and 
+metrics based on the tracing data.
+
 * HTTP Server
   * [Tomcat](https://github.com/apache/tomcat) 7
   * [Tomcat](https://github.com/apache/tomcat) 8
@@ -23,6 +27,7 @@
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
+  * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
 * HTTP Gateway
   * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
 * JDBC
@@ -105,7 +110,14 @@
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 * GraphQL
   * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
+* Pool
+  * [Apache Commons DBCP](https://github.com/apache/commons-dbcp) 2.x
+  
 
+# Meter Plugins
+The meter plugin provides the advanced metrics collections, which are not a part of tracing.
+
+___
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 
