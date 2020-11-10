@@ -194,8 +194,8 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
             dataset.keys().stream()
                 .map(key -> {
                     if (key.contains(":")) {
-                        String[] kk = key.split(":");
-                        return Tuple.of(kk[0], key);
+                        int index = key.lastIndexOf(":");
+                        return Tuple.of(key.substring(0, index), key.substring(index + 1));
                     } else {
                         return Tuple.of(DEFAULT_GROUP, key);
                     }
