@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -162,7 +163,11 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        String traceIdThirdPart = traceId.split("\\.")[2];
+        long timeBucket = TimeBucket.getRecordTimeBucket(Long.valueOf(traceIdThirdPart) / 10000);
+
+        SearchResponse response = getClient().search(
+            new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, timeBucket, timeBucket), sourceBuilder);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
