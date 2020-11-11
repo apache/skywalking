@@ -163,11 +163,22 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        String traceIdThirdPart = traceId.split("\\.")[2];
-        long timeBucket = TimeBucket.getRecordTimeBucket(Long.valueOf(traceIdThirdPart) / 10000);
+        SearchResponse response = null;
+        final String[] traceIdPart = traceId.split("\\.");
 
-        SearchResponse response = getClient().search(
-            new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, timeBucket, timeBucket), sourceBuilder);
+        /**
+         * this can improve the query java trace speed. because java agent traceId combined by three parts.
+         * The third one also has two parts, 1) a timestamp, measured in milliseconds 2) a seq, in current thread, between 0(included) and 9999(included)
+         */
+        if (traceIdPart.length == 3) {
+            /**
+             * for java agent traceId, {@see org.apache.skywalking.apm.agent.core.context.ids.GlobalIdGenerator}
+             */
+            long timeBucket = TimeBucket.getRecordTimeBucket(Long.valueOf(traceIdPart[2]) / 10000);
+            response = getClient().search(new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, timeBucket, timeBucket), sourceBuilder);
+        } else {
+            response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        }
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
