@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.reflect.Invokable;
-import com.google.common.reflect.TypeToken;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import java.io.InputStream;
@@ -41,8 +39,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.yaml.snakeyaml.Yaml;
 
 @Slf4j
-@SuppressWarnings("UnstableApiUsage")
-enum FieldsHelper {
+public enum FieldsHelper {
     SINGLETON;
 
     private boolean initialized = false;
@@ -55,17 +52,24 @@ enum FieldsHelper {
     /**
      * The mappings from the field name of {@link ServiceMetaInfo} to its {@code setter}.
      */
-    private Map<String, Invokable<ServiceMetaInfo, ?>> fieldSetterMapping;
+    private Map<String, Method> fieldSetterMapping;
 
     public void init(final String file) throws Exception {
-        init(ResourceUtils.readToStream(file));
+        init(ResourceUtils.readToStream(file), ServiceMetaInfo.class);
+    }
+
+    public void init(final String file,
+                     final Class<? extends ServiceMetaInfo> serviceInfoClass) throws Exception {
+        init(ResourceUtils.readToStream(file), serviceInfoClass);
     }
 
     @SuppressWarnings("unchecked")
-    void init(final InputStream inputStream) throws ModuleStartException {
+    public void init(final InputStream inputStream,
+                     final Class<? extends ServiceMetaInfo> serviceInfoClass) throws ModuleStartException {
         if (initialized) {
             return;
         }
+
         final Yaml yaml = new Yaml();
         final Map<String, String> config = (Map<String, String>) yaml.load(inputStream);
 
@@ -92,11 +96,9 @@ enum FieldsHelper {
             );
 
             try {
-                final Method setterMethod = ServiceMetaInfo.class.getMethod("set" + StringUtils.capitalize(serviceMetaInfoFieldName), String.class);
-                final Invokable<ServiceMetaInfo, ?> setter = new TypeToken<ServiceMetaInfo>() {
-                }.method(setterMethod);
-                setter.setAccessible(true);
-                fieldSetterMapping.put(serviceMetaInfoFieldName, setter);
+                final Method setterMethod = serviceInfoClass.getMethod("set" + StringUtils.capitalize(serviceMetaInfoFieldName), String.class);
+                setterMethod.setAccessible(true);
+                fieldSetterMapping.put(serviceMetaInfoFieldName, setterMethod);
             } catch (final NoSuchMethodException e) {
                 throw new ModuleStartException("Initialize method error", e);
             }
@@ -112,6 +114,7 @@ enum FieldsHelper {
      * @throws Exception if failed to inflate the {@code serviceMetaInfo}
      */
     public void inflate(final Struct metadata, final ServiceMetaInfo serviceMetaInfo) throws Exception {
+        final Value empty = Value.newBuilder().setStringValue("-").build();
         final Value root = Value.newBuilder().setStructValue(metadata).build();
         for (final Map.Entry<String, ServiceNameFormat> entry : fieldNameMapping.entrySet()) {
             final ServiceNameFormat serviceNameFormat = entry.getValue();
@@ -120,7 +123,7 @@ enum FieldsHelper {
                 final List<String> properties = serviceNameFormat.properties.get(i);
                 Value value = root;
                 for (final String property : properties) {
-                    value = value.getStructValue().getFieldsOrThrow(property);
+                    value = value.getStructValue().getFieldsOrDefault(property, empty);
                 }
                 values[i] = value.getStringValue();
             }

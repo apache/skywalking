@@ -27,13 +27,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 
-class ServiceNameFormatter {
+public class ServiceNameFormatter {
 
     private final List<String> properties;
 
     private final StringBuffer serviceNamePattern;
 
-    ServiceNameFormatter(String rule) {
+    public ServiceNameFormatter(String rule) {
         rule = StringUtils.defaultIfBlank(rule, "${service.metadata.name}");
 
         this.properties = new ArrayList<>();
@@ -48,7 +48,7 @@ class ServiceNameFormatter {
         }
     }
 
-    String format(final Map<String, Object> context) throws Exception {
+    public String format(final Map<String, Object> context) throws Exception {
         final Object[] values = new Object[properties.size()];
 
         for (int i = 0; i < properties.size(); i++) {

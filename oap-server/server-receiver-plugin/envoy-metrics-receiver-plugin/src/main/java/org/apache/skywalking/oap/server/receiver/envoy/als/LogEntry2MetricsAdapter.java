@@ -51,11 +51,11 @@ public class LogEntry2MetricsAdapter {
     /**
      * The access log entry that is to be adapted into metrics builders.
      */
-    private final HTTPAccessLogEntry entry;
+    protected final HTTPAccessLogEntry entry;
 
-    private final ServiceMetaInfo sourceService;
+    protected final ServiceMetaInfo sourceService;
 
-    private final ServiceMetaInfo targetService;
+    protected final ServiceMetaInfo targetService;
 
     /**
      * Adapt the {@code entry} into a downstream metrics {@link ServiceMeshMetric.Builder}.
@@ -94,7 +94,7 @@ public class LogEntry2MetricsAdapter {
 
     protected ServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
-        final String endpoint = ofNullable(entry.getRequest()).map(HTTPRequestProperties::getPath).orElse("/");
+        final String endpoint = endpoint();
         final int responseCode = ofNullable(entry.getResponse()).map(HTTPResponseProperties::getResponseCode).map(UInt32Value::getValue).orElse(200);
         final boolean status = responseCode >= 200 && responseCode < 400;
         final Protocol protocol = requestProtocol(entry.getRequest());
@@ -122,6 +122,10 @@ public class LogEntry2MetricsAdapter {
                 .ifPresent(builder::setDestServiceInstance);
 
         return builder;
+    }
+
+    protected String endpoint() {
+        return ofNullable(entry.getRequest()).map(HTTPRequestProperties::getPath).orElse("/");
     }
 
     protected static long formatAsLong(final Timestamp timestamp) {
