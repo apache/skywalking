@@ -127,7 +127,8 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             return Collections.emptyList();
         }
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
-        final Address downstreamRemoteAddress = properties.getDownstreamRemoteAddress();
+        final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
+            properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
         final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
         if (downstreamLocalAddress == null || downstreamRemoteAddress == null || upstreamRemoteAddress == null) {
             return Collections.emptyList();
