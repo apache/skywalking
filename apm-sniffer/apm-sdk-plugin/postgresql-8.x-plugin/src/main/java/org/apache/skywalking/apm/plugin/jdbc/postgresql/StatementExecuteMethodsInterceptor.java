@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.SqlBodyUtil;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
@@ -42,7 +43,9 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
             .getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-        Tags.DB_STATEMENT.set(span, (String) allArguments[0]);
+        String sql = (String) allArguments[0];
+        sql = SqlBodyUtil.limitSqlBodySize(sql);
+        Tags.DB_STATEMENT.set(span, sql);
         span.setComponent(connectInfo.getComponent());
 
         SpanLayer.asDB(span);
@@ -63,7 +66,7 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
         Class<?>[] argumentsTypes, Throwable t) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

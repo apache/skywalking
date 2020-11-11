@@ -257,7 +257,33 @@ Mariadb:
 mariadb-jdbc:
   id: 87
   languages: Java
-
+quasar:
+  id: 88
+  languages: Java
+InfluxDB:
+  id: 89
+  languages: Java
+influxdb-java:
+  id: 90
+  languages: Java
+SpringScheduled:
+  id: 96
+  languages: Java
+quartz-scheduler:
+  id: 97
+  languages: Java
+xxl-job:
+  id: 98
+  languages: Java
+spring-webflux-webclient:
+  id: 99
+  languages: Java
+thrift-server:
+  id: 100
+  languages: Java
+thrift-client:
+  id: 101
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

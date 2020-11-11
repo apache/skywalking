@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class CustomizeExpression {
 
-    private static final ILog logger = LogManager.getLogger(CustomizeExpression.class);
+    private static final ILog LOGGER = LogManager.getLogger(CustomizeExpression.class);
 
     public static Map<String, Object> evaluationContext(Object[] allArguments) {
         Map<String, Object> context = new HashMap<>();
@@ -49,13 +49,29 @@ public class CustomizeExpression {
 
     public static Map<String, Object> evaluationReturnContext(Object ret)  {
         Map<String, Object> context = new HashMap<>();
-        Field[] fields = ret.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            try {
-                context.put(field.getName(), field.get(ret));
-            } catch (Exception e) {
-                logger.debug("evaluationReturnContext error, ret is {}, exception is {}", ret, e.getMessage());
+        context.put("returnedObj", ret.toString());
+        if (ret instanceof List) {
+            List retList = (List) ret;
+            int retLength = retList.size();
+            for (int i = 0; i < retLength; i++) {
+                context.put(String.valueOf(i), retList.get(i));
+            }
+        } else if (ret.getClass().isArray()) {
+            int length = Array.getLength(ret);
+            for (int i = 0; i < length; i++) {
+                context.put(String.valueOf(i), Array.get(ret, i));
+            }
+        } else if (ret instanceof Map) {
+            context.putAll((Map) ret);
+        } else {
+            Field[] fields = ret.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    context.put(field.getName(), field.get(ret));
+                } catch (Exception e) {
+                    LOGGER.debug("evaluationReturnContext error, ret is {}, exception is {}", ret, e.getMessage());
+                }
             }
         }
         return context;
@@ -67,7 +83,7 @@ public class CustomizeExpression {
             Object o = context.get(es[0]);
             return o == null ? "null" : String.valueOf(parse(es, o, 0));
         } catch (Exception e) {
-            logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
+            LOGGER.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
         }
         return "null";
     }
@@ -75,10 +91,13 @@ public class CustomizeExpression {
     public static String parseReturnExpression(String expression, Map<String, Object> context) {
         try {
             String[] es = expression.split("\\.");
+            if (es.length == 1) {
+                return String.valueOf(context.get(es[0]));
+            }
             Object o = context.get(es[1]);
             return o == null ? "null" : String.valueOf(parse(es, o, 1));
         } catch (Exception e) {
-            logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
+            LOGGER.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
         }
         return "null";
     }
@@ -133,7 +152,7 @@ public class CustomizeExpression {
                 return f.get(o);
             }
         } catch (Exception e) {
-            logger.debug("matcher default error, expression is {}, object is {}, expression is {}", expression, o, e.getMessage());
+            LOGGER.debug("matcher default error, expression is {}, object is {}, expression is {}", expression, o, e.getMessage());
         }
         return null;
     }

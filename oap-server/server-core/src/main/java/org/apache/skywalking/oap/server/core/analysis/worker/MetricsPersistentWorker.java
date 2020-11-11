@@ -41,6 +41,10 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * MetricsPersistentWorker is an extension of {@link PersistenceWorker} and focuses on the Metrics data persistent.
@@ -56,6 +60,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean enableDatabaseSession;
     private final boolean supportUpdate;
+    private CounterMetrics aggregationCounter;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -84,6 +89,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, 2000);
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer());
+
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        aggregationCounter = metricsCreator.createCounter(
+                "metrics_aggregation", "The number of rows in aggregation",
+                new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
+        );
     }
 
     /**
@@ -102,6 +115,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      */
     @Override
     public void in(Metrics metrics) {
+        aggregationCounter.inc();
         dataCarrier.produce(metrics);
     }
 
@@ -116,7 +130,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
          * Hard coded the max size. This is only the batch size of one metrics, too large number is meaningless.
          */
         int maxBatchGetSize = 2000;
-        final int batchSize = Math.max(maxBatchGetSize, lastCollection.size());
+        final int batchSize = Math.min(maxBatchGetSize, lastCollection.size());
         List<Metrics> metricsList = new ArrayList<>();
         for (Metrics data : lastCollection) {
             transWorker.ifPresent(metricsTransWorker -> metricsTransWorker.in(data));
@@ -134,8 +148,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
         if (prepareRequests.size() > 0) {
             log.debug(
-                "prepare batch requests for model {}, took time: {}", model.getName(),
-                System.currentTimeMillis() - start
+                "prepare batch requests for model {}, took time: {}, size: {}", model.getName(),
+                System.currentTimeMillis() - start, prepareRequests.size()
             );
         }
     }
@@ -162,17 +176,17 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                     cachedMetrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
                     nextWorker(cachedMetrics);
-
-                    /*
-                     * The `data` should be not changed in any case. Exporter is an async process.
-                     */
-                    nextExportWorker.ifPresent(exportEvenWorker -> exportEvenWorker.in(
-                        new ExportEvent(metrics, ExportEvent.EventType.INCREMENT)));
                 } else {
                     metrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
                     nextWorker(metrics);
                 }
+
+                /*
+                 * The `metrics` should be not changed in all above process. Exporter is an async process.
+                 */
+                nextExportWorker.ifPresent(exportEvenWorker -> exportEvenWorker.in(
+                    new ExportEvent(metrics, ExportEvent.EventType.INCREMENT)));
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);

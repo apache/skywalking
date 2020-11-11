@@ -1,0 +1,128 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "Topology Endpoint"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "TOPOLOGY_ENDPOINT"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "width": "4",
+          "title": "Endpoint Load in Current Service",
+          "height": "280",
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_cpm",
+          "queryMetricType": "sortMetrics",
+          "chartType": "ChartSlow",
+          "parentService": true,
+          "unit": "CPM - calls per minute"
+        },
+        {
+          "width": "4",
+          "title": "Slow Endpoints in Current Service",
+          "height": "280",
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "queryMetricType": "sortMetrics",
+          "chartType": "ChartSlow",
+          "metricName": "endpoint_avg",
+          "unit": "ms",
+          "parentService": true
+        },
+        {
+          "width": "4",
+          "title": "Successful Rate in Current Service",
+          "height": "280",
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_sla",
+          "queryMetricType": "sortMetrics",
+          "chartType": "ChartSlow",
+          "aggregation": "/",
+          "aggregationNum": "100",
+          "parentService": true,
+          "unit": "%",
+          "sortOrder": "ASC"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Load",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_cpm",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Avg Response Time",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_avg",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "ms"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Response Time Percentile",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "LABELED_VALUE",
+          "metricName": "endpoint_percentile",
+          "queryMetricType": "readLabeledMetricsValues",
+          "chartType": "ChartLine",
+          "metricLabels": "P50, P75, P90, P95, P99",
+          "labelsIndex": "0, 1, 2, 3, 4",
+          "unit": "ms"
+        },
+        {
+          "width": 3,
+          "title": "Endpoint Successful Rate",
+          "height": 350,
+          "entityType": "Endpoint",
+          "independentSelector": false,
+          "metricType": "REGULAR_VALUE",
+          "metricName": "endpoint_sla",
+          "queryMetricType": "readMetricsValues",
+          "chartType": "ChartLine",
+          "unit": "%",
+          "aggregation": "/",
+          "aggregationNum": "100"
+        }
+      ]
+    # Activated as the TOPOLOGY_ENDPOINT type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

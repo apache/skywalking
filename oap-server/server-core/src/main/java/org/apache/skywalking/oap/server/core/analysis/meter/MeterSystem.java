@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -89,6 +90,42 @@ public class MeterSystem implements Service {
                     (Class<? extends MeterFunction>) functionClass
                 );
             }
+        }
+    }
+
+    /**
+     * Create streaming calculation of the given metrics name. This methods is synchronized due to heavy implementation
+     * including creating dynamic class. Don't use this in concurrency runtime.
+     *
+     * @param metricsName  The name used as the storage eneity and in the query stage.
+     * @param functionName The function provided through {@link MeterFunction}.
+     * @return true if created, false if it exists.
+     * @throws IllegalArgumentException if the parameter can't match the expectation.
+     * @throws UnexpectedException      if binary code manipulation fails or stream core failure.
+     */
+    public synchronized <T> boolean create(String metricsName,
+        String functionName,
+        ScopeType type) throws IllegalArgumentException {
+        final Class<? extends MeterFunction> meterFunction = functionRegister.get(functionName);
+
+        if (meterFunction == null) {
+            throw new IllegalArgumentException("Function " + functionName + " can't be found.");
+        }
+        Type acceptance = null;
+        for (final Type genericInterface : meterFunction.getGenericInterfaces()) {
+            if (genericInterface instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+                if (parameterizedType.getRawType().getTypeName().equals(AcceptableValue.class.getName())) {
+                    Type[] arguments = parameterizedType.getActualTypeArguments();
+                    acceptance = arguments[0];
+                    break;
+                }
+            }
+        }
+        try {
+            return create(metricsName, functionName, type, Class.forName(Objects.requireNonNull(acceptance).getTypeName()));
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 

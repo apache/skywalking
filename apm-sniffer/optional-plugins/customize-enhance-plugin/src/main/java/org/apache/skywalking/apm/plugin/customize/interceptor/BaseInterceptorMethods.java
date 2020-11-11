@@ -56,15 +56,14 @@ class BaseInterceptorMethods {
                     }
                 }
                 if (tags != null && !tags.isEmpty()) {
-                    for (String key : tags.keySet()) {
-                        String expression = tags.get(key);
-                        spanTags.put(key, CustomizeExpression.parseExpression(expression, context));
+                    for (Map.Entry<String, String> expression: tags.entrySet()) {
+                        spanTags.put(expression.getKey(), CustomizeExpression.parseExpression(expression.getValue(), context));
                     }
                 }
                 if (logs != null && !logs.isEmpty()) {
-                    for (String key : logs.keySet()) {
-                        String expression = logs.get(key);
-                        spanLogs.put(key, CustomizeExpression.parseExpression(expression, context));
+                    for (Map.Entry<String, String> entries : logs.entrySet()) {
+                        String expression = logs.get(entries.getKey());
+                        spanLogs.put(entries.getKey(), CustomizeExpression.parseExpression(expression, context));
                     }
                 }
                 operationName = operationNameSuffix.insert(0, operationName).toString();
@@ -90,7 +89,7 @@ class BaseInterceptorMethods {
 
     void handleMethodException(Throwable t) {
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

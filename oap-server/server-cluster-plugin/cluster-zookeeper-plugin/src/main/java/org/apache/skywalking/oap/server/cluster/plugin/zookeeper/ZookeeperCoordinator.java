@@ -22,30 +22,38 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
-    private static final Logger logger = LoggerFactory.getLogger(ZookeeperCoordinator.class);
 
     private static final String REMOTE_NAME_PATH = "remote";
 
+    private final ModuleDefineHolder manager;
     private final ClusterModuleZookeeperConfig config;
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private final ServiceCache<RemoteInstance> serviceCache;
     private volatile Address selfAddress;
+    private HealthCheckMetrics healthChecker;
 
-    ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
-        ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+    ZookeeperCoordinator(final ModuleDefineHolder manager, final ClusterModuleZookeeperConfig config,
+                         final ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+        this.manager = manager;
         this.config = config;
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
@@ -55,6 +63,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     @Override
     public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
+            initHealthChecker();
             if (needUsingInternalAddr()) {
                 remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
             }
@@ -63,40 +72,60 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
                                                                                                     .id(UUID.randomUUID()
                                                                                                             .toString())
                                                                                                     .address(remoteInstance
-                                                                                                        .getAddress()
-                                                                                                        .getHost())
+                                                                                                                 .getAddress()
+                                                                                                                 .getHost())
                                                                                                     .port(remoteInstance
-                                                                                                        .getAddress()
-                                                                                                        .getPort())
+                                                                                                              .getAddress()
+                                                                                                              .getPort())
                                                                                                     .payload(remoteInstance)
                                                                                                     .build();
 
             serviceDiscovery.registerService(thisInstance);
 
             this.selfAddress = remoteInstance.getAddress();
-            TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
-        } catch (Exception e) {
+            this.healthChecker.health();
+        } catch (Throwable e) {
+            this.healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
         }
     }
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
-        List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(20);
-        List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
-        serviceInstances.forEach(serviceInstance -> {
-            RemoteInstance instance = serviceInstance.getPayload();
-            if (instance.getAddress().equals(selfAddress)) {
-                instance.getAddress().setSelf(true);
+        List<RemoteInstance> remoteInstances = new ArrayList<>(20);
+        try {
+            initHealthChecker();
+            List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
+            serviceInstances.forEach(serviceInstance -> {
+                RemoteInstance instance = serviceInstance.getPayload();
+                if (instance.getAddress().equals(selfAddress)) {
+                    instance.getAddress().setSelf(true);
+                } else {
+                    instance.getAddress().setSelf(false);
+                }
+                remoteInstances.add(instance);
+            });
+            ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
+            if (healthStatus.isHealth()) {
+                this.healthChecker.health();
             } else {
-                instance.getAddress().setSelf(false);
+                this.healthChecker.unHealth(healthStatus.getReason());
             }
-            remoteInstanceDetails.add(instance);
-        });
-        return remoteInstanceDetails;
+        } catch (Throwable e) {
+            this.healthChecker.unHealth(e);
+            throw new ServiceQueryException(e.getMessage());
+        }
+        return remoteInstances;
     }
 
     private boolean needUsingInternalAddr() {
         return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
+    }
+
+    private void initHealthChecker() {
+        if (healthChecker == null) {
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
     }
 }

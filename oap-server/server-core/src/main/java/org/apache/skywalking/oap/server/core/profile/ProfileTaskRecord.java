@@ -25,7 +25,7 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -38,7 +38,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @Getter
 @Setter
 @ScopeDeclaration(id = PROFILE_TASK, name = "ProfileTask")
-@Stream(name = ProfileTaskRecord.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTaskRecord.Builder.class, processor = NoneStreamingProcessor.class)
+@Stream(name = ProfileTaskRecord.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 public class ProfileTaskRecord extends NoneStream {
 
     public static final String INDEX_NAME = "profile_task";

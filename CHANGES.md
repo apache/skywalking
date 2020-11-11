@@ -2,77 +2,54 @@ Changes by Version
 ==================
 Release Notes.
 
-7.0.0
+8.3.0
 ------------------
-
 #### Project
-* SkyWalking discards the supports of JDK 1.6 and 1.7 on the java agent side. The minimal requirement of JDK is JDK8.
-* Support method performance profile.
-* Provide new E2E test framework.
-* Remove AppVeyor from the CI, use GitHub action only.
-* Provide new plugin test tool.
-* Don't support SkyWalking v5 agent in-wire and out-wire protocol. v6 is required.
+* Test: ElasticSearch version 7.0.0 and 7.9.3 as storage are E2E tested. 
+* Test: Bump up testcontainers version to work around the Docker bug on MacOS. 
 
 #### Java Agent
-* Add lazy injection API in the agent core.
-* Support Servlet 2.5 in the Struts plugin.
-* Fix RestTemplate plugin ClassCastException in the Async call.
-* Add Finagle plugin.
-* Add test cases of H2 and struts.
-* Add Armeria 0.98 plugin.
-* Fix ElasticSearch plugin bug.
-* Fix EHCache plugin bug.
-* Fix a potential I/O leak.
-* Support Oracle SID mode.
-* Update Byte-buddy core.
-* Performance tuning: replace AtomicInteger with AtomicIntegerFieldUpdater.
-* Add AVRO plugin.
-* Update to JDK 1.8
-* Optimize the ignore plugin.
-* Enhance the gRPC plugin.
-* Add Kotlin Coroutine plugin.
-* Support HTTP parameter collection in Tomcat and SpringMVC plugin.
-* Add @Tag annotation in the application toolkit.
-* Move Lettuce into the default plugin list.
-* Move Webflux into the default plugin list.
-* Add HttpClient 3.x plugin.
+* Support propagate the sending timestamp in MQ plugins to calculate the transfer latency in the async MQ scenarios.
+* Support auto-tag with the fixed values propagated in the correlation context.
+* Make HttpClient 3.x, 4.x, and HttpAsyncClient 3.x plugins to support collecting HTTP parameters.
+* Make the Feign plugin to support Java 14
+* Make the okhttp3 plugin to support Java 14
+* Polish tracing context related codes.
+* Add the plugin for async-http-client 2.x
+* Fix NPE in the nutz plugin.
+* Provide Apache Commons DBCP 2.x plugin.
 
 #### OAP-Backend
-* Support InfluxDB as a new storage option.
-* Add `selector` in the `application.yml`. Make the provider activation more flexible through System ENV.
-* Support sub-topology map query.
-* Support gRPC SSL.
-* Support HTTP protocol for agent.
-* Support Nginx LUA agent.
-* Support skip the instance relationship analysis if some agents doesn't have upstream address, currently for LUA agent.
-* Support metrics entity name in the storage. Optional, default OFF.
-* Merge the HOUR and DAY metrics into MINUTE in the ElasticSearch storage implementation. Reduce the payload for ElasticSearch server.
-* Support change detection mechanism in DCS.
-* Support Daily step in the ElasticSearch storage implementation for low traffic system.
-* Provide profile export tool.
-* Support alarm gRPC hook.
-* Fix PHP language doesn't show up on the instance page.
-* Add more comments in the source codes.
-* Add a new metrics type, multiple linears.
-* Fix thread concurrency issue in the alarm core.
+* Add the `@SuperDataset` annotation for BrowserErrorLog.
+* Add the thread pool to the Kafka fetcher to increase the performance.
+* Add `contain` and `not contain` OPS in OAL.
+* Add Envoy ALS analyzer based on metadata exchange.
+* Support keeping collecting the slowly segments in the sampling mechanism.
+* Support choose files to active the meter analyzer.
+* Improve Kubernetes service registry for ALS analysis.
+* Add health checker for cluster management
+* Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
+* Fix the threads of the Kafka fetcher exit if some unexpected exceptions happen.
+* Fix the excessive timeout period set by the kubernetes-client.
+* Fix deadlock problem when using elasticsearch-client-7.0.0.
+* Fix storage-jdbc isExists not set dbname.
+* Fix `searchService` bug in the InfluxDB storage implementation.
+* Fix CVE in the alarm module, when activating the dynamic configuration feature.
+* Fix CVE in the endpoint grouping, when activating the dynamic configuration feature.
+* Fix CVE in the uninstrumented gateways configs, when activating the dynamic configuration feature.
+* Fix CVE in the Apdex threshold configs, when activating the dynamic configuration feature.
+* Make the codes and doc consistent in sharding server and core server.
+* Fix that chunked string is incorrect while the tag contains colon
 
 #### UI
-* Support custom topology definition.
+* Fix incorrect label in radial chart in topology.
+* Replace node-sass with dart-sass.
 
+#### Documentation
+* Add VNode FAQ doc.
+* Adjust configuration names and system environment names of the sharing server module
 
-#### Document
-* Add FAQ about `python2` command required in the compiling.
-* Add doc about new e2e framework.
-* Add doc about the new profile feature.
-* Powered-by page updated.
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/37?closed=1)
-
-
-6.x releases
 ------------------
-You could find all CHANGES of 6.x at [here](https://github.com/apache/skywalking/blob/6.x/CHANGES.md)
-
-5.x releases
-------------------
-You could find all CHANGES of 5.x at [here](https://github.com/apache/skywalking/blob/5.x/CHANGES.md)
+Find change logs of all versions [here](changes).

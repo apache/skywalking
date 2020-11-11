@@ -15,11 +15,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~
-  -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,10 +30,10 @@
         <module>runner-helper</module>
         <module>agent-test-tools</module>
         <module>containers</module>
-    </modules>
+  </modules>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
@@ -49,11 +45,7 @@
         <lombok.version>1.18.10</lombok.version>
         <snakeyaml.version>1.24</snakeyaml.version>
 
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
-
-        <docker.image.version>1.0.0</docker.image.version>
-        <skip.docker>true</skip.docker>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
@@ -105,16 +97,6 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.source}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker-maven-plugin.version}</version>
-                <configuration>
-                    <imageName>skywalking/${project.name}</imageName>
-                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
-                    <skipDocker>${skip.docker}</skipDocker>
                 </configuration>
             </plugin>
         </plugins>

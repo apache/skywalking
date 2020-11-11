@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
@@ -35,6 +31,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.kafka.define.Constants;
+import org.apache.skywalking.apm.plugin.kafka.define.KafkaContext;
+
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class KafkaConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -43,14 +47,14 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
         requiredInfo.setStartTime(System.currentTimeMillis());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         /*
          * If the intercepted method throws exception, the ret will be null
          */
@@ -63,8 +67,13 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
         //
         if (records.size() > 0) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + requiredInfo.getTopics() + CONSUMER_OPERATE_NAME + requiredInfo
-                .getGroupId(), null).start(requiredInfo.getStartTime());
+            KafkaContext context = (KafkaContext) ContextManager.getRuntimeContext().get(Constants.KAFKA_FLAG);
+            if (context != null) {
+                ContextManager.createEntrySpan(context.getOperationName(), null);
+                context.setNeedStop(true);
+            }
+            String operationName = OPERATE_NAME_PREFIX + requiredInfo.getTopics() + CONSUMER_OPERATE_NAME + requiredInfo.getGroupId();
+            AbstractSpan activeSpan = ContextManager.createEntrySpan(operationName, null).start(requiredInfo.getStartTime());
 
             activeSpan.setComponent(ComponentsDefine.KAFKA_CONSUMER);
             SpanLayer.asMQ(activeSpan);
@@ -80,7 +89,7 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
                         next = next.next();
                         Iterator<Header> iterator = record.headers().headers(next.getHeadKey()).iterator();
                         if (iterator.hasNext()) {
-                            next.setHeadValue(new String(iterator.next().value()));
+                            next.setHeadValue(new String(iterator.next().value(), StandardCharsets.UTF_8));
                         }
                     }
                     ContextManager.extract(contextCarrier);
@@ -93,13 +102,13 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         /*
          * The entry span is created in {@link #afterMethod}, but {@link #handleMethodException} is called before
          * {@link #afterMethod}, before the creation of entry span, we can not ensure there is an active span
          */
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 }

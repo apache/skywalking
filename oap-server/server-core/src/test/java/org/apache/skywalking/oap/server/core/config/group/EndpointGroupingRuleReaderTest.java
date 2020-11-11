@@ -28,7 +28,7 @@ public class EndpointGroupingRuleReaderTest {
         EndpointGroupingRuleReader reader = new EndpointGroupingRuleReader(this.getClass()
                                                                                .getClassLoader()
                                                                                .getResourceAsStream(
-                                                                                   "endpoint_name_grouping.yml"));
+                                                                                   "endpoint-name-grouping.yml"));
         final EndpointGroupingRule rule = reader.read();
 
         StringFormatGroup.FormatResult formatResult = rule.format("serviceA", "/prod/123");

@@ -28,11 +28,10 @@ import java.lang.reflect.Method;
 public class HttpClientRequestImplHandleExceptionInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
-        context.getSpan().errorOccurred().log((Throwable) allArguments[0]);
+        context.getSpan().log((Throwable) allArguments[0]);
     }
 
     @Override
@@ -44,6 +43,6 @@ public class HttpClientRequestImplHandleExceptionInterceptor implements Instance
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

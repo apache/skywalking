@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class GRPCClient implements Client {
 
-    private static final Logger logger = LoggerFactory.getLogger(GRPCClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCClient.class);
 
     @Getter
     private final String host;
@@ -65,7 +65,7 @@ public class GRPCClient implements Client {
         try {
             channel.shutdownNow();
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            LOGGER.error(t.getMessage(), t);
         }
     }
 

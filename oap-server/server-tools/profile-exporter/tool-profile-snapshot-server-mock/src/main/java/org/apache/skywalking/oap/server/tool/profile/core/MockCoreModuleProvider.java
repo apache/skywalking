@@ -33,10 +33,12 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
+import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
@@ -99,8 +101,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(
-            NamingControl.class,
-            new NamingControl(50, 50, 150, new EndpointNameGrouping())
+                NamingControl.class,
+                new NamingControl(50, 50, 150, new EndpointNameGrouping())
         );
 
         MockStreamAnnotationListener streamAnnotationListener = new MockStreamAnnotationListener(getManager());
@@ -119,13 +121,13 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(
-            DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
+                DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new MockGRPCHandlerRegister());
         this.registerServiceImplementation(JettyHandlerRegister.class, new MockJettyHandlerRegister());
 
         this.registerServiceImplementation(
-            IComponentLibraryCatalogService.class, new MockComponentLibraryCatalogService());
+                IComponentLibraryCatalogService.class, new MockComponentLibraryCatalogService());
 
         this.registerServiceImplementation(SourceReceiver.class, new MockSourceReceiver());
 
@@ -139,12 +141,13 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         this.registerServiceImplementation(ModelManipulator.class, storageModels);
 
         this.registerServiceImplementation(
-            NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
+                NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
 
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
         this.registerServiceImplementation(MetricsMetadataQueryService.class, new MetricsMetadataQueryService());
         this.registerServiceImplementation(MetricsQueryService.class, new MetricsQueryService(getManager()));
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
+        this.registerServiceImplementation(BrowserLogQueryService.class, new BrowserLogQueryService(getManager()));
         this.registerServiceImplementation(LogQueryService.class, new LogQueryService(getManager()));
         this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
@@ -153,9 +156,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         // add profile service implementations
         this.registerServiceImplementation(
-            ProfileTaskMutationService.class, new ProfileTaskMutationService(getManager()));
+                ProfileTaskMutationService.class, new ProfileTaskMutationService(getManager()));
         this.registerServiceImplementation(
-            ProfileTaskQueryService.class, new ProfileTaskQueryService(getManager(), moduleConfig));
+                ProfileTaskQueryService.class, new ProfileTaskQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(ProfileTaskCache.class, new ProfileTaskCache(getManager(), moduleConfig));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
@@ -164,6 +167,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         // add oal engine loader service implementations
         this.registerServiceImplementation(OALEngineLoaderService.class, new OALEngineLoaderService(getManager()));
+
+        // Management
+        this.registerServiceImplementation(UITemplateManagementService.class, new UITemplateManagementService(getManager()));
     }
 
     @Override
@@ -181,8 +187,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {
-            TelemetryModule.NAME
+        return new String[]{
+                TelemetryModule.NAME
         };
     }
 }

@@ -99,10 +99,10 @@ public class MetricQuery implements GraphQLQueryResolver {
 
         final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration);
         List<IntValues> response = new ArrayList<>(metricsValues.size());
-        metricsValues.forEach(value -> {
-            response.add(value.getValues());
-        });
-
+        labels.forEach(l -> metricsValues.stream()
+                                         .filter(m -> m.getLabel().equals(l))
+                                         .findAny()
+                                         .ifPresent(values -> response.add(values.getValues())));
         return response;
     }
 
@@ -118,10 +118,10 @@ public class MetricQuery implements GraphQLQueryResolver {
 
         final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration);
         List<IntValues> response = new ArrayList<>(metricsValues.size());
-        metricsValues.forEach(value -> {
-            response.add(value.getValues());
-        });
-
+        labels.forEach(l -> metricsValues.stream()
+                                         .filter(m -> m.getLabel().equals(l))
+                                         .findAny()
+                                         .ifPresent(values -> response.add(values.getValues())));
         return response;
     }
 
@@ -159,6 +159,11 @@ public class MetricQuery implements GraphQLQueryResolver {
     @RequiredArgsConstructor
     private static class MockEntity extends Entity {
         private final String id;
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
 
         @Override
         public String buildId() {

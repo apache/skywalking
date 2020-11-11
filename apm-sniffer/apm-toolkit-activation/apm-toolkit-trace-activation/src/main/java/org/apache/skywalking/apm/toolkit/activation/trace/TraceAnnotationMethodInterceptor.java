@@ -20,19 +20,18 @@ package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
-import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
-import org.apache.skywalking.apm.toolkit.trace.Tag;
-import org.apache.skywalking.apm.toolkit.trace.Tags;
-import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
+import org.apache.skywalking.apm.toolkit.activation.ToolkitPluginConfig;
+import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
+import org.apache.skywalking.apm.toolkit.trace.Tags;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 
 /**
  * {@link TraceAnnotationMethodInterceptor} create a local span and set the operation name which fetch from
@@ -42,10 +41,10 @@ import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         Trace trace = method.getAnnotation(Trace.class);
         String operationName = trace.operationName();
-        if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
+        if (operationName.length() == 0 || ToolkitPluginConfig.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
             operationName = MethodUtil.generateOperationName(method);
         }
 
@@ -69,7 +68,7 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         try {
             if (ret == null) {
                 return ret;
@@ -96,7 +95,7 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 }

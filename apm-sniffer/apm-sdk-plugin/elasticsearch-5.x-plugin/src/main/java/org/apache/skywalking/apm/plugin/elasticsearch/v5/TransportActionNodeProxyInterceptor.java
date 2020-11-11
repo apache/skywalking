@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.DB_TYPE;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ELASTICSEARCH_DB_OP_PREFIX;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_INDEX;
@@ -71,7 +71,7 @@ public class TransportActionNodeProxyInterceptor implements InstanceConstructorI
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     @Override

@@ -1,3 +1,4 @@
+
 # Choose receiver
 Receiver is a concept in SkyWalking backend. All modules, which are responsible for receiving telemetry
 or tracing data from other being monitored system, are all being called **Receiver**. If you are looking for the pull mode,
@@ -13,30 +14,58 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
+1. **receiver-oc**. See [details](#opencensus-receiver).
+1. **receiver-meter**. See [details](backend-meter.md).
+1. **receiver-browser**. gRPC services to accept browser performance data and error log.
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
 receiver-register:
+  selector: ${SW_RECEIVER_REGISTER:default}
   default:
+
 receiver-trace:
+  selector: ${SW_RECEIVER_TRACE:default}
   default:
-    sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
-    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
+
 receiver-jvm:
+  selector: ${SW_RECEIVER_JVM:default}
   default:
+
 service-mesh:
+  selector: ${SW_SERVICE_MESH:default}
   default:
+
 istio-telemetry:
+  selector: ${SW_ISTIO_TELEMETRY:default}
   default:
+
 envoy-metric:
+  selector: ${SW_ENVOY_METRIC:default}
   default:
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
+    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
+
 receiver_zipkin:
+  selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
-    host: 0.0.0.0
-    port: 9411
-    contextPath: /
+    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
+    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
+    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
+
 receiver-profile:
+  selector: ${SW_RECEIVER_PROFILE:default}
   default:
+
+receiver-browser:
+  selector: ${SW_RECEIVER_BROWSER:default}
+  default:
+    sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
 ```
 
 ## gRPC/HTTP server for receiver
@@ -45,12 +74,16 @@ But the `receiver-sharing-server` module provide a way to make all receivers ser
 different ip:port, if you set them explicitly. 
 ```yaml
 receiver-sharing-server:
+  selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
-    restHost: ${SW_SHARING_SERVER_REST_HOST:0.0.0.0}
-    restPort: ${SW_SHARING_SERVER_REST_PORT:12800}
-    restContextPath: ${SW_SHARING_SERVER_REST_CONTEXT_PATH:/}
-    gRPCHost: ${SW_SHARING_SERVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_SHARING_SERVER_GRPC_PORT:11800}
+    host: ${SW_RECEIVER_JETTY_HOST:0.0.0.0}
+    contextPath: ${SW_RECEIVER_JETTY_CONTEXT_PATH:/}
+    authentication: ${SW_AUTHENTICATION:""}
+    jettyMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_SHARING_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
 ```
 
 Notice, if you add these settings, make sure they are not as same as core module,
@@ -69,10 +102,16 @@ how to active.
 Use following config to active.
 ```yaml
 receiver_zipkin:
+  selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 ```
 
 2. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
@@ -82,11 +121,17 @@ because of Zipkin tag/endpoint value unpredictable, we can't make sure it fits p
 Active `analysis mode`, you should set `needAnalysis` config.
 ```yaml
 receiver_zipkin:
+  selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
     host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
     port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-    needAnalysis: true
+    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
+    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
+    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
+    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
+    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
+    needAnalysis: true    
 ```
 
 NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
@@ -104,9 +149,40 @@ to get more details.
 Active the receiver.
 ```yaml
 receiver_jaeger:
+  selector: ${SW_RECEIVER_JAEGER:-}
   default:
     gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 ``` 
 
 NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
+
+## Opencensus receiver
+
+Opencensus receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
+If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/oc-rules`.
+
+The file is written in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
+Notice, `receiver-oc` only support `metricsRules` node of scheme due to the push mode it opts to.
+
+To active the `default` implementation:
+```yaml
+receiver-oc:
+  selector: ${SW_OC_RECEIVER:-}
+  default:
+    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+```
+
+## Meter receiver
+
+Meter receiver supports accept the metrics into the meter-system. OAP can load the configuration at bootstrap. 
+
+The file is written in YAML format, defined by the scheme described in [backend-meter](./backend-meter.md).
+
+To active the `default` implementation:
+```yaml
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:default}
+  default:
+```

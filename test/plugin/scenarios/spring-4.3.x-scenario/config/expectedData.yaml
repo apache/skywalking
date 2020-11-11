@@ -38,15 +38,15 @@ segmentItems:
     spans:
     - {operationName: test.org.apache.skywalking.apm.testcase.spring3.component.TestComponentBean.componentMethod,
       operationId: 0, parentSpanId: 1, spanId: 2, spanLayer: Unknown, startTime: nq
-        0, endTime: nq 0, componentId: 0, isError: false, spanType: Local, peer: '',
+        0, endTime: nq 0, componentId: 93, isError: false, spanType: Local, peer: '',
       skipAnalysis: 'false'}
     - {operationName: test.org.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean.doSomeStuff,
       operationId: 0, parentSpanId: 1, spanId: 3, spanLayer: Unknown, startTime: nq
-        0, endTime: nq 0, componentId: 0, isError: false, spanType: Local, peer: '',
+        0, endTime: nq 0, componentId: 93, isError: false, spanType: Local, peer: '',
       skipAnalysis: 'false'}
     - {operationName: test.org.apache.skywalking.apm.testcase.spring3.service.TestServiceBean.doSomeBusiness,
       operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Unknown, startTime: nq
-        0, endTime: nq 0, componentId: 0, isError: false, spanType: Local, peer: '',
+        0, endTime: nq 0, componentId: 93, isError: false, spanType: Local, peer: '',
       skipAnalysis: 'false'}
     - operationName: /case/spring3
       operationId: 0
@@ -62,6 +62,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/case/spring3/'}
       - {key: http.method, value: GET}
+      - {key: http.headers, value: 'mock_header=[mock_value]'}
       refs:
       - {parentEndpoint: /case/resttemplate, networkAddress: 'localhost:8080', refType: CrossProcess,
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
@@ -69,7 +70,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /create/
+    - operationName: '{POST}/create/'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -90,7 +91,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /get/{id}
+    - operationName: '{GET}/get/{id}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -111,7 +112,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /update/{id}
+    - operationName: '{PUT}/update/{id}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -132,7 +133,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /delete/{id}
+    - operationName: '{DELETE}/delete/{id}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -195,7 +196,7 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - operationName: /impl/restmapping
+    - operationName: '{GET}/impl/restmapping'
       operationId: 0
       parentSpanId: -1
       spanId: 0

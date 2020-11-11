@@ -39,7 +39,7 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return buildId(name, type.equals(NodeType.Normal));
+            return buildId(name, type.equals(NodeType.Normal) || type.equals(NodeType.Browser));
         }
 
         public static String buildId(String name, boolean isNormal) {
@@ -275,14 +275,14 @@ public class IDManager {
 
     /**
      * @param text normal literal string
-     * @return Base74 encoded UTF-8 string
+     * @return Base64 encoded UTF-8 string
      */
     private static String encode(String text) {
         return new String(Base64.getEncoder().encode(text.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
     /**
-     * @param base64text Base74 encoded UTF-8 string
+     * @param base64text Base64 encoded UTF-8 string
      * @return normal literal string
      */
     private static String decode(String base64text) {

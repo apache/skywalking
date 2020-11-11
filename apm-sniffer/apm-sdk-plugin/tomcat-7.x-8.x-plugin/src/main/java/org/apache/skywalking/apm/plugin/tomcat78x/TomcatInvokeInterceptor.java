@@ -18,15 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.tomcat78x;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.Request;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -55,7 +53,8 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
     private static final String GET_STATUS_METHOD = "getStatus";
 
     static {
-        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(TomcatInvokeInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(
+            TomcatInvokeInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
     }
 
     /**
@@ -66,7 +65,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
      */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
 
@@ -82,14 +81,14 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         span.setComponent(ComponentsDefine.TOMCAT);
         SpanLayer.asHttp(span);
 
-        if (Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS) {
+        if (TomcatPluginConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS) {
             collectHttpParam(request, span);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         Request request = (Request) allArguments[0];
         HttpServletResponse response = (HttpServletResponse) allArguments[1];
 
@@ -99,7 +98,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         // Active HTTP parameter collection automatically in the profiling context.
-        if (!Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
+        if (!TomcatPluginConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
             collectHttpParam(request, span);
         }
         ContextManager.stopSpan();
@@ -109,10 +108,9 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
-        span.errorOccurred();
     }
 
     private void collectHttpParam(Request request, AbstractSpan span) {
@@ -126,7 +124,9 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
 
         if (!parameterMap.isEmpty()) {
             String tagValue = CollectionUtil.toString(parameterMap);
-            tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
+            tagValue = TomcatPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
+                StringUtil.cut(tagValue, TomcatPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) :
+                tagValue;
             Tags.HTTP.PARAMS.set(span, tagValue);
         }
     }

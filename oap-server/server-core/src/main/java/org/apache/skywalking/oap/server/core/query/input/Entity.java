@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
+import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -29,7 +31,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
  * @since 8.0.0
  */
 @Setter
-@Getter
+@Getter(AccessLevel.PRIVATE)
 public class Entity {
     /**
      * <pre>
@@ -48,7 +50,7 @@ public class Entity {
      * Normal service is the service having installed agent or metrics reported directly. Unnormal service is
      * conjectural service, usually detected by the agent.
      */
-    private boolean normal;
+    private Boolean normal;
     private String serviceInstanceName;
     private String endpointName;
 
@@ -57,12 +59,42 @@ public class Entity {
      * Normal service is the service having installed agent or metrics reported directly. Unnormal service is
      * conjectural service, usually detected by the agent.
      */
-    private boolean destNormal;
+    private Boolean destNormal;
     private String destServiceInstanceName;
     private String destEndpointName;
 
     public boolean isService() {
         return Scope.Service.equals(scope);
+    }
+
+    /**
+     * @return true if the entity field is valid. The graphql definition couldn't provide the strict validation, because
+     * the required fields are according to the scope.
+     */
+    public boolean isValid() {
+        switch (scope) {
+            case All:
+                return true;
+            case Service:
+                return Objects.nonNull(serviceName) && Objects.nonNull(normal);
+            case ServiceInstance:
+                return Objects.nonNull(serviceName) && Objects.nonNull(serviceInstanceName) && Objects.nonNull(normal);
+            case Endpoint:
+                return Objects.nonNull(serviceName) && Objects.nonNull(endpointName) && Objects.nonNull(normal);
+            case ServiceRelation:
+                return Objects.nonNull(serviceName) && Objects.nonNull(destServiceName)
+                    && Objects.nonNull(normal) && Objects.nonNull(destNormal);
+            case ServiceInstanceRelation:
+                return Objects.nonNull(serviceName) && Objects.nonNull(destServiceName)
+                    && Objects.nonNull(serviceInstanceName) && Objects.nonNull(destServiceInstanceName)
+                    && Objects.nonNull(normal) && Objects.nonNull(destNormal);
+            case EndpointRelation:
+                return Objects.nonNull(serviceName) && Objects.nonNull(endpointName)
+                    && Objects.nonNull(endpointName) && Objects.nonNull(destEndpointName)
+                    && Objects.nonNull(normal) && Objects.nonNull(destNormal);
+            default:
+                return false;
+        }
     }
 
     /**

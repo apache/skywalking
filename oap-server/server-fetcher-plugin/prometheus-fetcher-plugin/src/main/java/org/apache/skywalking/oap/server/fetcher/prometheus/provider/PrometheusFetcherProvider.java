@@ -18,25 +18,48 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
 
+import com.google.common.collect.Maps;
+import io.vavr.CheckedFunction1;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.Charsets;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.StaticConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileFunction;
+import org.apache.skywalking.oap.server.fetcher.prometheus.http.HttpClient;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.prometheus.Parser;
+import org.apache.skywalking.oap.server.library.util.prometheus.Parsers;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
 
+@Slf4j
 public class PrometheusFetcherProvider extends ModuleProvider {
+
     private final PrometheusFetcherConfig config;
+
+    private List<Rule> rules;
+
+    private ScheduledExecutorService ses;
 
     public PrometheusFetcherProvider() {
         config = new PrometheusFetcherConfig();
@@ -59,93 +82,65 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        if (!config.isActive()) {
+            return;
+        }
+        rules = Rules.loadRules(config.getRulePath());
+        ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        if (config.isActive()) {
-            // TODO. This is only a demo about fetching the data and push into the calculation stream.
-            final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-
-            service.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
-            service.create("test_histogram_metrics", "histogram", ScopeType.SERVICE, BucketedValues.class);
-            service.create(
-                "test_percentile_metrics", "percentile", ScopeType.SERVICE,
-                PercentileFunction.PercentileArgument.class
-            );
-
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    final MeterEntity servEntity = MeterEntity.newService("mock_service");
-
-                    // Long Avg Example
-                    final AcceptableValue<Long> value = service.buildMetrics("test_long_metrics", Long.class);
-                    value.accept(servEntity, 5L);
-                    value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-                    service.doStreamingCalculation(value);
-
-                    // Histogram Example
-                    final AcceptableValue<BucketedValues> histogramMetrics = service.buildMetrics(
-                        "test_histogram_metrics", BucketedValues.class);
-                    value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-                    histogramMetrics.accept(servEntity, new BucketedValues(
-                        new int[] {
-                            Integer.MIN_VALUE,
-                            0,
-                            50,
-                            100,
-                            250
-                        },
-                        new long[] {
-                            3,
-                            1,
-                            4,
-                            10,
-                            10
-                        }
-                    ));
-                    service.doStreamingCalculation(histogramMetrics);
-
-                    // Percentile Example
-                    final AcceptableValue<PercentileFunction.PercentileArgument> testPercentileMetrics = service.buildMetrics(
-                        "test_percentile_metrics", PercentileFunction.PercentileArgument.class);
-                    testPercentileMetrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-                    testPercentileMetrics.accept(
-                        MeterEntity.newService("service-test"),
-                        new PercentileFunction.PercentileArgument(
-                            new BucketedValues(
-                                // Buckets
-                                new int[] {
-                                    0,
-                                    51,
-                                    100,
-                                    250
-                                },
-                                // Values
-                                new long[] {
-                                    10,
-                                    20,
-                                    30,
-                                    40
-                                }
-                            ),
-                            // Ranks
-                            new int[] {
-                                50,
-                                90
-                            }
-                        )
-                    );
-                    service.doStreamingCalculation(testPercentileMetrics);
-                }
-            }, 2, 2, TimeUnit.SECONDS);
+        if (!config.isActive()) {
+            return;
         }
+        final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
+        rules.forEach(r -> {
+            ses.scheduleAtFixedRate(new Runnable() {
+
+                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service);
+
+                @Override public void run() {
+                    if (Objects.isNull(r.getStaticConfig())) {
+                        return;
+                    }
+                    StaticConfig sc = r.getStaticConfig();
+                    long now = System.currentTimeMillis();
+                    converter.toMeter(sc.getTargets().stream()
+                        .map(CheckedFunction1.liftTry(target -> {
+                            String content = HttpClient.builder().url(target.getUrl()).caFilePath(target.getSslCaFilePath()).build().request();
+                            List<Metric> result = new ArrayList<>();
+                            try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
+                                Parser p = Parsers.text(targetStream);
+                                MetricFamily mf;
+                                while ((mf = p.parse(now)) != null) {
+                                    mf.getMetrics().forEach(metric -> {
+                                        if (Objects.isNull(sc.getLabels())) {
+                                            return;
+                                        }
+                                        Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
+                                        extraLabels.put("instance", target.getUrl());
+                                        extraLabels.forEach((key, value) -> {
+                                            if (metric.getLabels().containsKey(key)) {
+                                                metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
+                                            }
+                                            metric.getLabels().put(key, value);
+                                        });
+                                    });
+                                    result.addAll(mf.getMetrics());
+                                }
+                            }
+                            return result;
+                        }))
+                        .flatMap(tryIt -> MetricConvert.log(tryIt, "Load metric"))
+                        .flatMap(Collection::stream));
+                }
+            }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
+        });
     }
 
     @Override

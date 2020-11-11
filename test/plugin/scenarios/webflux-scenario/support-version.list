@@ -16,10 +16,6 @@
 
 # 2.0.0-2.1.0 are supported, but due to the status code bug(https://github.com/spring-projects/spring-framework/issues/21901)
 # we don’t test them
-2.1.1.RELEASE
-2.1.2.RELEASE
-2.1.3.RELEASE
-2.1.4.RELEASE
-2.1.5.RELEASE
-2.1.6.RELEASE
-2.1.7.RELEASE
+2.1.17.RELEASE
+2.2.10.RELEASE
+2.3.4.RELEASE

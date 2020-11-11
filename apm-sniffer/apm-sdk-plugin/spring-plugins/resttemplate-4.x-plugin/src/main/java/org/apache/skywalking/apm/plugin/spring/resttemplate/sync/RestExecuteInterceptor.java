@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.resttemplate.helper.RestTemplateRuntimeContextHelper;
 import org.springframework.http.HttpMethod;
 
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
@@ -50,12 +51,13 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);
 
-        objInst.setSkyWalkingDynamicField(contextCarrier);
+        RestTemplateRuntimeContextHelper.addContextCarrier(contextCarrier);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        RestTemplateRuntimeContextHelper.cleanContextCarrier();
         ContextManager.stopSpan();
         return ret;
     }
@@ -63,6 +65,6 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

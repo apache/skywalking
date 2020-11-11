@@ -27,10 +27,10 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.ByteBuddyCoreClasses;
 
 /**
- * Since JDK 9, module concept has been introduced. By supporting that, agent core needs to open the
+ * Since JDK 9, module concept has been introduced. By supporting that, agent core needs to open the read edge
  */
 public class JDK9ModuleExporter {
-    private static final ILog logger = LogManager.getLogger(JDK9ModuleExporter.class);
+    private static final ILog LOGGER = LogManager.getLogger(JDK9ModuleExporter.class);
 
     private static final String[] HIGH_PRIORITY_CLASSES = {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance",

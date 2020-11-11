@@ -24,11 +24,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyJsonHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.TraceAnalyzer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -39,17 +38,15 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public abstract class TraceSegmentReportBaseServletHandler extends JettyJsonHandler {
 
     private final ModuleManager moduleManager;
-    private final SegmentParserListenerManager listenerManager;
-    private final TraceServiceModuleConfig config;
+    private final ISegmentParserService segmentParserService;
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
 
-    public TraceSegmentReportBaseServletHandler(ModuleManager moduleManager,
-                                                SegmentParserListenerManager listenerManager,
-                                                TraceServiceModuleConfig config) {
+    public TraceSegmentReportBaseServletHandler(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.listenerManager = listenerManager;
-        this.config = config;
+        this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
+                                                 .provider()
+                                                 .getService(ISegmentParserService.class);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
@@ -78,8 +75,7 @@ public abstract class TraceSegmentReportBaseServletHandler extends JettyJsonHand
             final List<SegmentObject> segments = parseSegments(req);
 
             for (SegmentObject segment : segments) {
-                final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
-                traceAnalyzer.doAnalysis(segment);
+                segmentParserService.send(segment);
             }
         } catch (Exception e) {
             errorCounter.inc();

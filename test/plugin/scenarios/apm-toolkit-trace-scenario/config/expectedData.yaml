@@ -309,3 +309,27 @@ segmentItems:
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: apm-toolkit-trace-scenario,
         traceId: not null}
       skipAnalysis: 'true'
+
+meterItems:
+- serviceName: apm-toolkit-trace-scenario
+  meterSize: 3
+  meters:
+    - meterId:
+        name: test_counter
+        tags:
+          - {name: ck1, value: cv1}
+      singleValue: gt 0
+    - meterId:
+        name: test_gauge
+        tags:
+          - {name: gk1, value: gv1}
+      singleValue: gt 0
+    - meterId:
+        name: test_histogram
+        tags:
+          - {name: hk1, value: hv1}
+      histogramBuckets:
+        - 0.0
+        - 1.0
+        - 5.0
+        - 10.0

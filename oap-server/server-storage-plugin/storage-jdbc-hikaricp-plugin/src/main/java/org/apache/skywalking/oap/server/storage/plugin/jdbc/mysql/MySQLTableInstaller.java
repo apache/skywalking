@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
@@ -40,8 +41,11 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstal
  */
 @Slf4j
 public class MySQLTableInstaller extends H2TableInstaller {
-    public MySQLTableInstaller(Client client, ModuleManager moduleManager) {
-        super(client, moduleManager);
+    public MySQLTableInstaller(Client client,
+                               ModuleManager moduleManager,
+                               int maxSizeOfArrayColumn,
+                               int numOfSearchableValuesPerTag) {
+        super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
         /*
          * Override column because the default column names in core have syntax conflict with MySQL.
          */
@@ -54,7 +58,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
         try (Connection conn = h2Client.getConnection()) {
-            try (ResultSet rset = conn.getMetaData().getTables(null, null, model.getName(), null)) {
+            try (ResultSet rset = conn.getMetaData().getTables(conn.getCatalog(), null, model.getName(), null)) {
                 if (rset.next()) {
                     return true;
                 }
@@ -72,15 +76,30 @@ public class MySQLTableInstaller extends H2TableInstaller {
         int indexSeq = 0;
         for (final ModelColumn modelColumn : model.getColumns()) {
             if (!modelColumn.isStorageOnly()) {
-                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                tableIndexSQL.append(model.getName().toUpperCase())
-                             .append("_")
-                             .append(String.valueOf(indexSeq++))
-                             .append("_IDX ");
-                tableIndexSQL.append("ON ").append(model.getName()).append("(")
-                             .append(modelColumn.getColumnName().getStorageName())
-                             .append(")");
-                createIndex(client, connection, model, tableIndexSQL);
+                final Class<?> type = modelColumn.getType();
+                if (List.class.isAssignableFrom(type)) {
+                    for (int i = 0; i < maxSizeOfArrayColumn; i++) {
+                        SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                        tableIndexSQL.append(model.getName().toUpperCase())
+                                     .append("_")
+                                     .append(String.valueOf(indexSeq++))
+                                     .append("_IDX ");
+                        tableIndexSQL.append("ON ").append(model.getName()).append("(")
+                                     .append(modelColumn.getColumnName().getStorageName() + "_" + i)
+                                     .append(")");
+                        createIndex(client, connection, model, tableIndexSQL);
+                    }
+                } else {
+                    SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                    tableIndexSQL.append(model.getName().toUpperCase())
+                                 .append("_")
+                                 .append(String.valueOf(indexSeq++))
+                                 .append("_IDX ");
+                    tableIndexSQL.append("ON ").append(model.getName()).append("(")
+                                 .append(modelColumn.getColumnName().getStorageName())
+                                 .append(")");
+                    createIndex(client, connection, model, tableIndexSQL);
+                }
             }
         }
 
@@ -104,10 +123,18 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    protected String getColumnType(final ModelColumn column) {
-        if (StorageDataComplexObject.class.isAssignableFrom(column.getType())) {
-            return "MEDIUMTEXT";
+    protected String getColumn(final ModelColumn column) {
+        final String storageName = column.getColumnName().getStorageName();
+        final Class<?> type = column.getType();
+        if (StorageDataComplexObject.class.isAssignableFrom(type)) {
+            return storageName + " MEDIUMTEXT";
+        } else if (String.class.equals(type)) {
+            if (column.getLength() > 16383) {
+                return storageName + " MEDIUMTEXT";
+            } else {
+                return storageName + " VARCHAR(" + column.getLength() + ")";
+            }
         }
-        return super.getColumnType(column);
+        return super.getColumn(column);
     }
 }

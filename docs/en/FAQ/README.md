@@ -14,7 +14,6 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Why metrics indexes(ElasticSearch) in Hour and Day precisions stop update after upgrade to 7.x?](Hour-Day-Metrics-Stopping.md)
 * [6.x version upgrade](v6-version-upgrade.md)
 * [Why only traces in UI?](Why-have-traces-no-others.md)
-* [Too many GRPC logs in the console](Too-many-gRPC-logs.md)
 * [The trace doesn't continue in kafka consumer side](kafka-plugin.md)
 * [Agent or collector version upgrade,  3.x -> 5.0.0-alpha](v3-version-upgrade.md)
 * [EnhanceRequireObjectCache class cast exception](EnhanceRequireObjectCache-Cast-Exception.md)
@@ -24,3 +23,9 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [No data shown and backend replies with "Variable 'serviceId' has coerced Null value for NonNull type 'ID!'"](time-and-timezone.md)
 * [**Unexpected endpoint register** warning after 6.6.0](Unexpected-endpoint-register.md)
 * [Use the profile exporter tool if the profile analysis is not right](../guides/backend-profile-export.md)
+* [Compatible with other javaagent bytecode processing](Compatible-with-other-javaagent-bytecode-processing.md)
+* [**Java agent memory leak** when enhance `Worker thread` at use Thread Pool](Memory-leak-enhance-Worker-thread.md)
+* [Thrift plugin](thrift-plugin.md)
+
+## UI
+* [What is **VNode**? And why does SkyWalking have that?](vnode.md)

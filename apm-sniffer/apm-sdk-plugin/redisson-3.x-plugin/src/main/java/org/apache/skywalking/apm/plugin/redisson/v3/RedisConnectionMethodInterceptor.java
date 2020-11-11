@@ -42,7 +42,7 @@ import java.net.InetSocketAddress;
 
 public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(RedisConnectionMethodInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(RedisConnectionMethodInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -99,7 +99,6 @@ public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundIn
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 
@@ -118,7 +117,7 @@ public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundIn
                 String port = String.valueOf(ClassUtil.getObjectField(address, "port"));
                 peer = host + ":" + port;
             } catch (Exception e) {
-                logger.warn("RedisConnection create peer error: ", e);
+                LOGGER.warn("RedisConnection create peer error: ", e);
             }
         }
         objInst.setSkyWalkingDynamicField(peer);

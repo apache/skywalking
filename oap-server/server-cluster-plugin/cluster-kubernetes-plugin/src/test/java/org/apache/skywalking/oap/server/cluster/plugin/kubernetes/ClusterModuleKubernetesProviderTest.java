@@ -18,48 +18,77 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class ClusterModuleKubernetesProviderTest {
 
-    private ClusterModuleKubernetesProvider provider;
+    private ClusterModuleKubernetesProvider provider = new ClusterModuleKubernetesProvider();
+
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
 
     @Before
-    public void setUp() {
-        provider = new ClusterModuleKubernetesProvider();
+    public void before() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+        provider.setManager(moduleManager);
     }
 
     @Test
-    public void assertName() {
-        assertThat(provider.name(), is("kubernetes"));
+    public void name() {
+        assertEquals("kubernetes", provider.name());
     }
 
     @Test
-    public void assertModule() {
-        assertTrue(provider.module().isAssignableFrom(ClusterModule.class));
+    public void module() {
+        assertEquals(ClusterModule.class, provider.module());
     }
 
     @Test
-    public void assertCreateConfigBeanIfAbsent() {
-        assertTrue(ClusterModuleKubernetesConfig.class.isInstance(provider.createConfigBeanIfAbsent()));
+    public void createConfigBeanIfAbsent() {
+        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
+        assertTrue(moduleConfig instanceof ClusterModuleKubernetesConfig);
     }
 
     @Test
-    public void assertPrepare() throws ServiceNotProvidedException {
+    public void prepare() {
         provider.prepare();
-        ClusterRegister register = provider.getService(ClusterRegister.class);
-        ClusterNodesQuery query = provider.getService(ClusterNodesQuery.class);
-        assertSame(register, query);
-        assertTrue(KubernetesCoordinator.class.isInstance(register));
+    }
+
+    @Test
+    public void notifyAfterCompleted() {
+        provider.notifyAfterCompleted();
+    }
+
+    @Test
+    public void requiredModules() {
+        String[] modules = provider.requiredModules();
+        assertArrayEquals(new String[] {CoreModule.NAME}, modules);
     }
 }

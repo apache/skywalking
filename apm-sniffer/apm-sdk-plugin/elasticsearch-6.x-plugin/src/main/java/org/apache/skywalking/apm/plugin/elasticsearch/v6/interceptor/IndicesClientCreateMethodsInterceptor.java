@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
-import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
-
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -33,6 +30,9 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
+
 public class IndicesClientCreateMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
@@ -40,7 +40,7 @@ public class IndicesClientCreateMethodsInterceptor implements InstanceMethodsAro
         MethodInterceptResult result) throws Throwable {
         CreateIndexRequest createIndexRequest = (CreateIndexRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             AbstractSpan span = ContextManager.createExitSpan(Constants.CREATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
             span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
@@ -70,7 +70,7 @@ public class IndicesClientCreateMethodsInterceptor implements InstanceMethodsAro
         Class<?>[] argumentsTypes, Throwable t) {
         RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 }

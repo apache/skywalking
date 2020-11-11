@@ -18,6 +18,8 @@ If you have any issues, please check that your issue is not already described in
 
 - [Python Agent](https://github.com/apache/skywalking-python). Introduce how to install the Python Agent in a Python service.
 
+- [Node.js agent](https://github.com/apache/skywalking-nodejs). Introduce how to install the NodeJS Agent in a NodeJS service.
+
 The following agents and SDKs are compatible with the SkyWalking's data formats and network protocols, but are maintained by 3rd-parties.
 You can go to their project repositories for additional info about guides and releases.
 
@@ -28,6 +30,12 @@ You can go to their project repositories for additional info about guides and re
 - [SkyAPM PHP SDK](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
 
 - [SkyAPM GO2Sky](https://github.com/SkyAPM/go2sky). See GO2Sky project document for more details.
+
+## Browser Monitoring
+[Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js). Support collecting metrics and error logs
+for the Browser or JavaScript based mobile app. 
+
+Note, make sure the [`receiver-browser`](backend/backend-receivers.md) has been opened, default is **ON** since 8.2.0.
 
 ## Service Mesh
 
@@ -48,6 +56,3 @@ Follow [backend and UI setup document](backend/backend-ui-setup.md) to understan
 ## Changes log
 
 Backend, UI and Java agent changes are available [here](../../../CHANGES.md).
-
-## Upgrade FAQ
-[6.x version upgrade FAQ](../FAQ/v6-version-upgrade.md) introduces the recommendation ways to do SkyWalking upgrade.

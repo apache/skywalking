@@ -13,28 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# VXNlcg== user
+# cGhwLXNoYWRvdw== php-shadow
+# cGhw php
+
 nodes:
-  - id: 1
+  - id: VXNlcg==.0
     name: User
     type: USER
     isReal: false
-  - id: 2
-    name: php
-    type: HttpClient
-    isReal: true
-  - id: 3
+  - id: cGhwLXNoYWRvdw==.1
     name: php-shadow
-    type: HttpClient
+    type: http
+    isReal: true
+  - id: cGhw.1
+    name: php
+    type: http
     isReal: true
 calls:
-  - id: 1_2
-    source: 1
+  - id: VXNlcg==.0-cGhw.1
+    source: VXNlcg==.0
     detectPoints:
       - SERVER
-    target: 2
-  - id: 2_3
-    source: 2
+    target: cGhw.1
+  - id: cGhw.1-cGhwLXNoYWRvdw==.1
+    source: cGhw.1
     detectPoints:
       - CLIENT
       - SERVER
-    target: 3
+    target: cGhwLXNoYWRvdw==.1

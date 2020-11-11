@@ -2,6 +2,10 @@
 SkyWalking official UI provides the default and powerful visualization capabilities for SkyWalking observing distributed
 cluster.
 
+The latest introduction video could be found on the Youtube
+
+[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
+
 SkyWalking dashboard includes the following part.
 
 <img src="http://skywalking.apache.org/ui-doc/7.0.0/dashboard.png"/>
@@ -28,6 +32,57 @@ Two default dashboards are provided to visualize the metrics of service and data
 <img src="http://skywalking.apache.org/ui-doc/7.0.0/dashboard-default.png"/>
 
 User could click the `lock` button left aside the `Service/Instance/Endpoint Reload` button to custom your own dashboard.
+
+### Custom Dashboard
+Users could customize the dashboard. The default dashboards are provided through the default templates located in 
+`/ui-initialized-templates` folders.
+
+The template file follows this format.
+```yaml
+templates:
+  - name: template name # The unique name
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, 
+    # as they are used in the topology page only.
+    type: "DASHBOARD" 
+    # Custom the dashboard or create a new one on the UI, set the metrics as you like in the edit mode.
+    # Then, you could export this configuration through the page and add it here.
+    configuration: |-
+      [
+        {
+          "name":"Spring Sleuth",
+          "type":"service",
+          "children":[
+            {
+              "name":"Sleuth",
+              "children": [{
+                "width": "3",
+                "title": "HTTP Request",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_http_server_requests_count",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }
+              ...
+              ]
+            }
+          ]
+      }
+      ]
+    # Activated means this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually on the page.
+    activated: false
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+```
+
+**NOTE**, UI initialized templates would only be initialized if there is no template in the storage has the same name.
+Check the entity named as `ui_template` in your storage.
 
 ## Topology
 Topology map shows the relationship among the services and instances with metrics.
@@ -86,8 +141,3 @@ have been highlighted.
 ## Alarm
 Alarm page lists all triggered alarm. Read the backend setup documentation to know how to set up the alarm rule or integrate
 with 3rd party system.
-
-## Metric Comparison
-Metric Comparison is an performance analysis tool. It provides the metrics comparison between different entities or different
-metrics without the dashboard visualization limits. If you suspect any relation performance impact, could use this tool
-to find out whether the metrics pattern matched.

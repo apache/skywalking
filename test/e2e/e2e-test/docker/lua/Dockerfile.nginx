@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openresty/openresty
+FROM openresty/openresty:1.17.8.2-5-alpine-fat
 
-ENV COMMIT_HASH=4c0eee3991e022f93703569c8e7bf114de7bb310
+ENV COMMIT_HASH=cda47ae0a507ab86a378a298325c3c94d9a773c2
 
 WORKDIR /usr/share/skywalking-nginx-lua
 

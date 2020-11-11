@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.context.status.StatusCheckService;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
@@ -39,7 +41,13 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  * distributed trace.
  */
 public abstract class AbstractTracingSpan implements AbstractSpan {
+    /**
+     * Span id starts from 0.
+     */
     protected int spanId;
+    /**
+     * Parent span id starts from 0. -1 means no parent span.
+     */
     protected int parentSpanId;
     protected List<TagValuePair> tags;
     protected String operationName;
@@ -156,6 +164,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     public AbstractTracingSpan log(Throwable t) {
         if (logs == null) {
             logs = new LinkedList<>();
+        }
+        if (!errorOccurred && ServiceManager.INSTANCE.findService(StatusCheckService.class).isError(t)) {
+            errorOccurred();
         }
         logs.add(new LogDataEntity.Builder().add(new KeyValuePair("event", "error"))
                                             .add(new KeyValuePair("error.kind", t.getClass().getName()))

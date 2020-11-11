@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Read the input stream including the default endpoint grouping rules. And trans
@@ -33,13 +34,13 @@ public class EndpointGroupingRuleReader {
     private Map yamlData;
 
     public EndpointGroupingRuleReader(InputStream inputStream) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(inputStream, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(inputStream);
     }
 
     public EndpointGroupingRuleReader(Reader io) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(io, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(io);
     }
 
     /**

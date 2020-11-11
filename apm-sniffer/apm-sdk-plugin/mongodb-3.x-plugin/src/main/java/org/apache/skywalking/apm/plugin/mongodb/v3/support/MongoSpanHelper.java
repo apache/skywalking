@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
 
 public class MongoSpanHelper {
 
@@ -32,13 +32,14 @@ public class MongoSpanHelper {
     }
 
     public static void createExitSpan(String executeMethod, String remotePeer, Object operation) {
-        AbstractSpan span = ContextManager.createExitSpan(MongoConstants.MONGO_DB_OP_PREFIX + executeMethod, new ContextCarrier(), remotePeer);
+        AbstractSpan span = ContextManager.createExitSpan(
+            MongoConstants.MONGO_DB_OP_PREFIX + executeMethod, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGO_DRIVER);
         Tags.DB_TYPE.set(span, MongoConstants.DB_TYPE);
         SpanLayer.asDB(span);
 
-        if (Config.Plugin.MongoDB.TRACE_PARAM) {
-            Tags.DB_STATEMENT.set(span, executeMethod + " " + MongoOperationHelper.getTraceParam(operation));
+        if (MongoPluginConfig.Plugin.MongoDB.TRACE_PARAM) {
+            Tags.DB_BIND_VARIABLES.set(span, MongoOperationHelper.getTraceParam(operation));
         }
     }
 }

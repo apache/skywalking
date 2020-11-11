@@ -20,30 +20,38 @@ package org.apache.skywalking.apm.plugin.kafka;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.regex.Pattern;
+
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class SubscribeMethodInterceptor implements InstanceMethodsAroundInterceptor {
+    @SuppressWarnings("unchecked")
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) {
         ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-        requiredInfo.setTopics((Collection<String>) allArguments[0]);
+        if (argumentsTypes[0] == Pattern.class) {
+            requiredInfo.setTopics(Collections.singletonList(((Pattern) allArguments[0]).pattern()));
+        } else {
+            requiredInfo.setTopics((Collection<String>) allArguments[0]);
+        }
 
         objInst.setSkyWalkingDynamicField(requiredInfo);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+        Object ret) {
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

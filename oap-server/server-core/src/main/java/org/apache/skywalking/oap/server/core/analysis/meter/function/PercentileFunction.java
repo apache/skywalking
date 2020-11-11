@@ -22,8 +22,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.IntStream;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -47,10 +47,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @MeterFunction(functionName = "percentile")
 @Slf4j
-@EqualsAndHashCode(of = {
-    "entityId",
-    "timeBucket"
-})
 public abstract class PercentileFunction extends Metrics implements AcceptableValue<PercentileFunction.PercentileArgument>, MultiIntValuesHolder {
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
@@ -58,7 +54,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(columnName = ENTITY_ID, length = 512)
     private String entityId;
     @Getter
     @Setter
@@ -117,7 +113,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         final long[] values = value.getBucketedValues().getValues();
         for (int i = 0; i < values.length; i++) {
             final long bucket = value.getBucketedValues().getBuckets()[i];
-            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
+            String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
             final long bucketValue = values[i];
             dataset.valueAccumulation(bucketName, bucketValue);
         }
@@ -130,7 +126,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         PercentileFunction percentile = (PercentileFunction) metrics;
 
         if (!dataset.keysEqual(percentile.getDataset())) {
-            log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
+            log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
                      percentile, this, entityId
             );
             return;
@@ -293,5 +289,21 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof PercentileFunction))
+            return false;
+        PercentileFunction function = (PercentileFunction) o;
+        return Objects.equals(entityId, function.entityId) &&
+            getTimeBucket() == function.getTimeBucket();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

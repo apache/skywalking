@@ -25,13 +25,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClusterModuleStandaloneProvider extends ModuleProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
-
     public ClusterModuleStandaloneProvider() {
         super();
     }

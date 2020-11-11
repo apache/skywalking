@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -43,6 +44,7 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
             ContextSnapshot snapshot = getSnapshot(cache);
             RecordMetadata metadata = (RecordMetadata) allArguments[0];
             AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
+            SpanLayer.asMQ(activeSpan);
             activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
             if (metadata != null) {
                 // Null if an error occurred during processing of this record
@@ -61,7 +63,7 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
             if (null != snapshot) {
                 Exception exceptions = (Exception) allArguments[1];
                 if (exceptions != null) {
-                    ContextManager.activeSpan().errorOccurred().log(exceptions);
+                    ContextManager.activeSpan().log(exceptions);
                 }
                 ContextManager.stopSpan();
             }
@@ -72,7 +74,7 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private ContextSnapshot getSnapshot(CallbackCache cache) {

@@ -9,9 +9,8 @@ with each other.
 - [Kubernetes](#kubernetes). When backend cluster are deployed inside kubernetes, you could choose this
 by using k8s native APIs to manage cluster.
 - [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
-- [Nacos](#nacos). Use Nacos to coordinate backend instances.
 - [Etcd](#etcd). Use Etcd to coordinate backend instances.
-
+- [Nacos](#nacos). Use Nacos to coordinate backend instances.
 In the `application.yml`, there're default configurations for the aforementioned coordinators under the section `cluster`,
 you can specify one of them in the `selector` property to enable it.
 
@@ -69,7 +68,7 @@ cluster:
 
 ## Consul
 Now, consul is becoming a famous system, many of companies and developers using consul to be 
-their service discovery solution. Set the **cluster/selector** to **nacos** in the yml to enable.
+their service discovery solution. Set the **cluster/selector** to **consul** in the yml to enable.
 
 ```yaml
 cluster:
@@ -84,6 +83,21 @@ The following setting are provided to set the host and port manually, based on y
 - internalComPort, the port registered and other oap node use this to communicate with current node.
 
 
+## Etcd
+Set the **cluster/selector** to **etcd** in the yml to enable.
+
+```yaml
+cluster:
+  selector: ${SW_CLUSTER:etcd}
+  # other configurations
+```
+
+Same as Zookeeper coordinator,
+in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+The following setting are provided to set the host and port manually, based on your own LAN env.
+- internalComHost, the host registered and other oap node use this to communicate with current node.
+- internalComPort, the port registered and other oap node use this to communicate with current node.
+
 ## Nacos
 Set the **cluster/selector** to **nacos** in the yml to enable.
 
@@ -93,11 +107,17 @@ cluster:
   # other configurations
 ```
 
-## Etcd
-Set the **cluster/selector** to **etcd** in the yml to enable.
-
+Nacos support authenticate by username or accessKey, empty means no need auth. extra config is bellow:
 ```yaml
-cluster:
-  selector: ${SW_CLUSTER:etcd}
-  # other configurations
+nacos:
+  username:
+  password:
+  accessKey:
+  secretKey:
 ```
+
+Same as Zookeeper coordinator,
+in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+The following setting are provided to set the host and port manually, based on your own LAN env.
+- internalComHost, the host registered and other oap node use this to communicate with current node.
+- internalComPort, the port registered and other oap node use this to communicate with current node.

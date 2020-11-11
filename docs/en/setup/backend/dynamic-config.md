@@ -6,12 +6,13 @@ Right now, SkyWalking supports following dynamic configurations.
 
 | Config Key | Value Description | Value Format Example |
 |:----:|:----:|:----:|
-|receiver-trace.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `applciation.yml`. | default:200,mongodb:50|
-|receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
+|agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `application.yml`. | default:200,mongodb:50|
+|agent-analyzer.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
 |alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
 |core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
-|core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint_name_grouping.yml`. | same as [`endpoint_name_grouping.yml`](endpoint-grouping-rules.md) |
-
+|core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
+|agent-analyzer.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `application.yml`. | 10000 |
+|agent-analyzer.default.slowTraceSegmentThreshold| Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. override `receiver-trace/default/slowTraceSegmentThreshold` of `application.yml`. | -1 |
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -43,7 +44,6 @@ configuration:
 ```
 
 ## Dynamic Configuration Zookeeper Implementation
-
 [Zookeeper](https://github.com/apache/zookeeper) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
 
 ```yaml
@@ -57,6 +57,8 @@ configuration:
     baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
     maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
 ```
+
+The **nameSpace** is the ZooKeeper path. The config key and value are the properties of the `namespace` folder.
 
 ## Dynamic Configuration Etcd Implementation
 
@@ -103,6 +105,22 @@ configuration:
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
 ```
 
+## Dynamic Configuration Kuberbetes Configmap Implementation
+
+[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
+
+```yaml
+configuration:
+  selector: ${SW_CONFIGURATION:k8s-configmap}
+  # [example] (../../../../oap-server/server-configuration/configuration-k8s-configmap/src/test/resources/skywalking-dynamic-configmap.example.yaml)
+  k8s-configmap:
+      # Sync period in seconds. Defaults to 60 seconds.
+      period: ${SW_CONFIG_CONFIGMAP_PERIOD:60}
+      # Which namespace is confiigmap deployed in.
+      namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+      # Labelselector is used to locate specific configmap
+      labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+```
 ## Dynamic Configuration Nacos Implementation
 
 [Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
@@ -124,6 +142,3 @@ configuration:
     # the name of current cluster, set the name if you want to upstream system known.
     clusterName: ${SW_CONFIG_NACOS_CLUSTER_NAME:default}
 ```
-
-
-

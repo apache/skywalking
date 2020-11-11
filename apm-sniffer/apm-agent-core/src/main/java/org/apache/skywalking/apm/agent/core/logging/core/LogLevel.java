@@ -19,5 +19,5 @@
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 public enum LogLevel {
-    DEBUG, INFO, WARN, ERROR, OFF
+    TRACE, DEBUG, INFO, WARN, ERROR, OFF
 }

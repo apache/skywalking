@@ -81,11 +81,11 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "ui", port = 8080)
-    private HostAndPort swWebappHostPort;
+    protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider", port = 9090)
-    private HostAndPort serviceHostPort;
+    protected HostAndPort serviceHostPort;
 
     @SuppressWarnings("unused")
     @DockerContainer("oap")
@@ -141,7 +141,7 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
     void createProfileTask() throws Exception {
         final ProfileTaskCreationRequest creationRequest = ProfileTaskCreationRequest.builder()
                                                                                      .serviceId("ZTJlLXByb2ZpbGUtc2VydmljZQ==.1")
-                                                                                     .endpointName("/profile/{name}")
+                                                                                     .endpointName("{POST}/profile/{name}")
                                                                                      .duration(1)
                                                                                      .startTime(-1)
                                                                                      .minDurationThreshold(1500)

@@ -63,7 +63,7 @@ public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
          * there is an active span
          */
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

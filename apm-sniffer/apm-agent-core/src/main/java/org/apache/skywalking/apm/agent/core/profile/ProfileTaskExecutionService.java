@@ -43,7 +43,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 @DefaultImplementor
 public class ProfileTaskExecutionService implements BootService, TracingThreadListener {
 
-    private static final ILog logger = LogManager.getLogger(ProfileTaskExecutionService.class);
+    private static final ILog LOGGER = LogManager.getLogger(ProfileTaskExecutionService.class);
 
     // add a schedule while waiting for the task to start or finish
     private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(
@@ -74,7 +74,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
         // check profile task limit
         final CheckResult dataError = checkProfileTaskSuccess(task);
         if (!dataError.isSuccess()) {
-            logger.warn(
+            LOGGER.warn(
                 "check command error, cannot process this profile task. reason: {}", dataError.getErrorReason());
             return;
         }
@@ -186,7 +186,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
      */
     private CheckResult checkProfileTaskSuccess(ProfileTask task) {
         // endpoint name
-        if (StringUtil.isEmpty(task.getFistSpanOPName())) {
+        if (StringUtil.isEmpty(task.getFirstSpanOPName())) {
             return new CheckResult(false, "endpoint name cannot be empty");
         }
 
@@ -234,7 +234,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
                 return new CheckResult(
                     false,
                     "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: "
-                        + profileTask.getFistSpanOPName()
+                        + profileTask.getFirstSpanOPName()
                 );
             }
         }

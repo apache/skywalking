@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -30,8 +31,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 
 public class KafkaProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -40,46 +41,62 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
 
         ContextCarrier contextCarrier = new ContextCarrier();
 
         ProducerRecord record = (ProducerRecord) allArguments[0];
         String topicName = record.topic();
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, (String) objInst
-            .getSkyWalkingDynamicField());
+                .getSkyWalkingDynamicField());
 
         Tags.MQ_BROKER.set(activeSpan, (String) objInst.getSkyWalkingDynamicField());
         Tags.MQ_TOPIC.set(activeSpan, topicName);
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            record.headers().add(next.getHeadKey(), next.getHeadValue().getBytes());
+            record.headers().add(next.getHeadKey(), next.getHeadValue().getBytes(StandardCharsets.UTF_8));
         }
-        EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
-        if (null != callbackInstance) {
-            ContextSnapshot snapshot = ContextManager.capture();
-            if (null != snapshot) {
-                CallbackCache cache = new CallbackCache();
-                cache.setSnapshot(snapshot);
-                callbackInstance.setSkyWalkingDynamicField(cache);
+
+        //when use lambda expression, not to generate inner class,
+        //    and not to trigger kafka CallBack class define, so allArguments[1] can't to cast EnhancedInstance
+        Object shouldCallbackInstance = allArguments[1];
+        if (null != shouldCallbackInstance) {
+            if (shouldCallbackInstance instanceof EnhancedInstance) {
+                EnhancedInstance callbackInstance = (EnhancedInstance) shouldCallbackInstance;
+                ContextSnapshot snapshot = ContextManager.capture();
+                if (null != snapshot) {
+                    CallbackCache cache = new CallbackCache();
+                    cache.setSnapshot(snapshot);
+                    callbackInstance.setSkyWalkingDynamicField(cache);
+                }
+            } else if (shouldCallbackInstance instanceof Callback) {
+                Callback callback = (Callback) shouldCallbackInstance;
+                ContextSnapshot snapshot = ContextManager.capture();
+                if (null != snapshot) {
+                    CallbackCache cache = new CallbackCache();
+                    cache.setSnapshot(snapshot);
+                    cache.setCallback(callback);
+                    allArguments[1] = new CallbackAdapterInterceptor(cache);
+                }
             }
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

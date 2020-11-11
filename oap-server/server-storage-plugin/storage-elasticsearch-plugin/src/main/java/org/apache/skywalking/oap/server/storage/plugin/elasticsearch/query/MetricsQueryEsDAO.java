@@ -57,16 +57,20 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public int readMetricsValue(final MetricsCondition condition,
+    public long readMetricsValue(final MetricsCondition condition,
                                 final String valueColumnName,
                                 final Duration duration) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         buildQuery(sourceBuilder, condition, duration);
+        int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
+        if (function == Function.Latest) {
+            return readMetricsValues(condition, valueColumnName, duration).getValues().latestValue(defaultValue);
+        }
 
         TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
                                                                          .field(Metrics.ENTITY_ID)
                                                                          .size(1);
-        final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         functionAggregation(function, entityIdAggregation, valueColumnName);
 
         sourceBuilder.aggregation(entityIdAggregation);
@@ -78,16 +82,16 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             switch (function) {
                 case Sum:
                     Sum sum = idBucket.getAggregations().get(valueColumnName);
-                    return (int) sum.getValue();
+                    return (long) sum.getValue();
                 case Avg:
                     Avg avg = idBucket.getAggregations().get(valueColumnName);
-                    return (int) avg.getValue();
+                    return (long) avg.getValue();
                 default:
                     avg = idBucket.getAggregations().get(valueColumnName);
-                    return (int) avg.getValue();
+                    return (long) avg.getValue();
             }
         }
-        return ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        return defaultValue;
     }
 
     @Override
@@ -138,42 +142,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         });
 
         SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
-        Map<String, Map<String, Object>> idMap = toMap(response);
-
-        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
-        labels.forEach(label -> {
-            MetricsValues labelValue = new MetricsValues();
-            labelValue.setLabel(label);
-
-            labeledValues.put(label, labelValue);
-        });
-
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-        for (String id : ids) {
-            if (idMap.containsKey(id)) {
-                Map<String, Object> source = idMap.get(id);
-                DataTable multipleValues = new DataTable((String) source.getOrDefault(valueColumnName, ""));
-
-                labels.forEach(label -> {
-                    final IntValues values = labeledValues.get(label).getValues();
-                    Long data = multipleValues.get(label);
-                    if (data == null) {
-                        data = (long) defaultValue;
-                    }
-                    KVInt kv = new KVInt();
-                    kv.setId(id);
-                    kv.setValue(data);
-                    values.addKVInt(kv);
-                });
-            }
-
+        Map<String, DataTable> idMap = new HashMap<>();
+        SearchHit[] hits = response.getHits().getHits();
+        for (SearchHit hit : hits) {
+            idMap.put(hit.getId(), new DataTable((String) hit.getSourceAsMap().getOrDefault(valueColumnName, "")));
         }
-
-        return Util.sortValues(
-            new ArrayList<>(labeledValues.values()),
-            ids,
-            defaultValue
-        );
+        return Util.composeLabelValue(condition, labels, ids, idMap);
     }
 
     @Override

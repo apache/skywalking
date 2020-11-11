@@ -85,7 +85,7 @@ public class TracingFilter extends Filter {
                 try {
                     span.asyncFinish();
                 } catch (Throwable t) {
-                    ContextManager.activeSpan().errorOccurred().log(t);
+                    ContextManager.activeSpan().log(t);
                 }
                 return result;
             });

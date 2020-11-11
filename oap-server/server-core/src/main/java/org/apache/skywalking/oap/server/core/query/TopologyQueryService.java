@@ -30,6 +30,8 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.type.Call;
+import org.apache.skywalking.oap.server.core.query.type.EndpointNode;
+import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
 import org.apache.skywalking.oap.server.core.query.type.Node;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
 import org.apache.skywalking.oap.server.core.query.type.Topology;
@@ -132,6 +134,7 @@ public class TopologyQueryService implements Service {
         return builder.build(serviceInstanceRelationClientCalls, serviceInstanceRelationServerCalls);
     }
 
+    @Deprecated
     public Topology getEndpointTopology(final long startTB, final long endTB,
                                         final String endpointId) throws IOException {
         List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadEndpointRelation(
@@ -162,6 +165,37 @@ public class TopologyQueryService implements Service {
         return topology;
     }
 
+    public EndpointTopology getEndpointDependencies(final long startTB, final long endTB,
+                                                    final String endpointId) throws IOException {
+        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadEndpointRelation(
+            startTB, endTB, endpointId);
+
+        EndpointTopology topology = new EndpointTopology();
+        serverSideCalls.forEach(callDetail -> {
+            Call call = new Call();
+            call.setId(callDetail.getId());
+            call.setSource(callDetail.getSource());
+            call.setTarget(callDetail.getTarget());
+            call.addDetectPoint(DetectPoint.SERVER);
+            topology.getCalls().add(call);
+        });
+
+        Set<String> nodeIds = new HashSet<>();
+        serverSideCalls.forEach(call -> {
+            if (!nodeIds.contains(call.getSource())) {
+                topology.getNodes().add(buildEndpointDependencyNode(call.getSource()));
+                nodeIds.add(call.getSource());
+            }
+            if (!nodeIds.contains(call.getTarget())) {
+                topology.getNodes().add(buildEndpointDependencyNode(call.getTarget()));
+                nodeIds.add(call.getTarget());
+            }
+        });
+
+        return topology;
+    }
+
+    @Deprecated
     private Node buildEndpointNode(String endpointId) {
         Node node = new Node();
         node.setId(endpointId);
@@ -171,5 +205,19 @@ public class TopologyQueryService implements Service {
         node.setType(Const.EMPTY_STRING);
         node.setReal(true);
         return node;
+    }
+
+    private EndpointNode buildEndpointDependencyNode(String endpointId) {
+        final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+            endpointId);
+        EndpointNode instanceNode = new EndpointNode();
+        instanceNode.setId(endpointId);
+        instanceNode.setName(endpointIDDefinition.getEndpointName());
+        instanceNode.setServiceId(endpointIDDefinition.getServiceId());
+        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+            endpointIDDefinition.getServiceId());
+        instanceNode.setServiceName(serviceIDDefinition.getName());
+        instanceNode.setReal(serviceIDDefinition.isReal());
+        return instanceNode;
     }
 }

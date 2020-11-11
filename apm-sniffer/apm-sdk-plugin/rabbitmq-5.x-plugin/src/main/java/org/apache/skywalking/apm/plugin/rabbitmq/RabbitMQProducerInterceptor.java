@@ -77,6 +77,7 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
         Tags.MQ_BROKER.set(activeSpan, url);
         Tags.MQ_QUEUE.set(activeSpan, queueName);
         Tags.MQ_TOPIC.set(activeSpan, exChangeName);
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.RABBITMQ_PRODUCER);
         CarrierItem next = contextCarrier.items();
@@ -99,6 +100,6 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

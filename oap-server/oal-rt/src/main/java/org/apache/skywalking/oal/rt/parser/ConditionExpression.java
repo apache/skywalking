@@ -18,14 +18,41 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.LinkedList;
+import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ConditionExpression {
     // original from script
     private String expressionType;
     private String attribute;
     private String value;
+    private List<String> values;
+
+    public ConditionExpression(final String expressionType, final String attribute, final String value) {
+        this.expressionType = expressionType;
+        this.attribute = attribute;
+        this.value = value;
+    }
+
+    public void addValue(String value) {
+        if (values != null) {
+            values.add(value);
+        } else {
+            this.value = value;
+        }
+    }
+
+    public void enterMultiConditionValue() {
+        values = new LinkedList<>();
+    }
+
+    public void exitMultiConditionValue() {
+        value = "new Object[]{" + String.join(",", values) + "}";
+    }
 }

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.util;
 
+import java.util.function.Consumer;
+
 public final class StringUtil {
     public static boolean isEmpty(String str) {
         return str == null || str.length() == 0;
@@ -25,6 +27,20 @@ public final class StringUtil {
 
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);
+    }
+
+    public static boolean isBlank(String str) {
+        return str == null || isEmpty(str.trim());
+    }
+
+    public static boolean isNotBlank(String str) {
+        return !isBlank(str);
+    }
+
+    public static void setIfPresent(String value, Consumer<String> setter) {
+        if (isNotEmpty(value)) {
+            setter.accept(value);
+        }
     }
 
     public static String join(final char delimiter, final String... strings) {

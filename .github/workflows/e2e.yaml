@@ -18,11 +18,13 @@ name: E2E
 
 on:
   pull_request:
+    # Do not run this workflow when and only when `*.md` files are modified
+    paths:
+      - '**'
+      - '!**.md'
   push:
     branches:
       - master
-    tags:
-      - 'v*'
 
 env:
   SKIP_TEST: true
@@ -43,6 +45,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
@@ -65,6 +74,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
@@ -87,12 +103,48 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
       - name: Uninstrumnented gateway
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.GatewayE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: logs
+          path: logs
+
+  FeatureGroup04:
+    name: Meter
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Compile and Build
+        run: make docker
+      - name: Copy dist package
+        run: cp -R dist test/e2e/
+      - name: Meter receiver
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.meter.MeterE2E
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1

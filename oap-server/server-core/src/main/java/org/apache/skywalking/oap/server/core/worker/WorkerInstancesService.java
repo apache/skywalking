@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Worker Instance Service hosts all remote handler workers with the stream data type.
  */
 public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
-    private static final Logger logger = LoggerFactory.getLogger(WorkerInstancesService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkerInstancesService.class);
 
     private final Map<String, RemoteHandleWorker> instances;
 
@@ -49,6 +49,6 @@ public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerIns
             throw new UnexpectedException("Duplicate worker name:" + remoteReceiverWorkName);
         }
         instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, streamDataClass));
-        logger.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
+        LOGGER.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
     }
 }

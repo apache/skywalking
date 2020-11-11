@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -94,6 +95,10 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         return values;
     }
 
+    public Set<String> keys() {
+        return data.keySet();
+    }
+
     public boolean hasData() {
         return !data.isEmpty();
     }
@@ -136,7 +141,7 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         this.append(source);
     }
 
-    public void append(DataTable dataTable) {
+    public DataTable append(DataTable dataTable) {
         dataTable.data.forEach((key, value) -> {
             Long current = this.data.get(key);
             if (current == null) {
@@ -146,5 +151,6 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
             }
             this.data.put(key, current);
         });
+        return this;
     }
 }

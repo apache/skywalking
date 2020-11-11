@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -36,6 +36,7 @@
         <module>tomcat-7.x-8.x-plugin</module>
         <module>motan-plugin</module>
         <module>mongodb-3.x-plugin</module>
+        <module>mongodb-4.x-plugin</module>
         <module>feign-default-http-9.x-plugin</module>
         <module>okhttp-3.x-plugin</module>
         <module>spring-plugins</module>
@@ -47,6 +48,8 @@
         <module>sharding-sphere-3.x-plugin</module>
         <module>sharding-sphere-4.x-plugin</module>
         <module>sharding-sphere-4.x-RC3-plugin</module>
+        <module>sharding-sphere-4.0.x-plugin</module>
+        <module>sharding-sphere-4.1.0-plugin</module>
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
         <module>mysql-5.x-plugin</module>
@@ -58,8 +61,10 @@
         <module>rocketMQ-3.x-plugin</module>
         <module>rocketMQ-4.x-plugin</module>
         <module>elastic-job-2.x-plugin</module>
+        <module>elastic-job-3.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
+        <module>kafka-commons</module>
         <module>kafka-plugin</module>
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
@@ -88,7 +93,17 @@
         <module>lettuce-5.x-plugin</module>
         <module>avro-plugin</module>
         <module>finagle-6.25.x-plugin</module>
+        <module>quasar-plugin</module>
         <module>mariadb-2.x-plugin</module>
+        <module>influxdb-2.x-plugin</module>
+        <module>baidu-brpc-plugin</module>
+        <module>hbase-1.x-plugin</module>
+        <module>graphql-plugin</module>
+        <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
+        <module>httpclient-commons</module>
+        <module>asynchttpclient-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -114,6 +129,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${bytebuddy.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

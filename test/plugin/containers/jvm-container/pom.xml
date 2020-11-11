@@ -32,8 +32,95 @@
     <artifactId>jvm-container</artifactId>
     <name>SkyWalking JVM Runner Image</name>
 
-    <properties>
-        <skip.docker>false</skip.docker>
-        <docker.image.name>skywalking/agent-test-jvm</docker.image.name>
-    </properties>
+    <profiles>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.33.0</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>skywalking/agent-test-jvm:${project.version}</name>
+                                    <build>
+                                        <from>openjdk:8</from>
+                                        <workdir>/usr/local/skywalking/scenario</workdir>
+                                        <assembly>
+                                            <mode>dir</mode>
+                                            <targetDir>/usr/local/skywalking</targetDir>
+                                            <descriptor>assembly.xml</descriptor>
+                                        </assembly>
+                                        <runCmds>
+                                            <run>chmod +x /usr/local/skywalking/run.sh</run>
+                                            <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
+                                        </runCmds>
+                                        <cmd>["/usr/local/skywalking/run.sh"]</cmd>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>jdk14</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.33.0</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>skywalking/agent-test-jvm:jdk14-${project.version}</name>
+                                    <build>
+                                        <from>openjdk:14-buster</from>
+                                        <workdir>/usr/local/skywalking/scenario</workdir>
+                                        <assembly>
+                                            <mode>dir</mode>
+                                            <targetDir>/usr/local/skywalking</targetDir>
+                                            <descriptor>assembly.xml</descriptor>
+                                        </assembly>
+                                        <runCmds>
+                                            <run>chmod +x /usr/local/skywalking/run.sh</run>
+                                            <run>tar -xvf ../tools/skywalking-mock-collector.tar.gz -C ../tools</run>
+                                        </runCmds>
+                                        <cmd>["/usr/local/skywalking/run.sh"]</cmd>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

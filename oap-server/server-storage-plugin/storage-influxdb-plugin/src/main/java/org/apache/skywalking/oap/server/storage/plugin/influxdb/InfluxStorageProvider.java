@@ -26,12 +26,14 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -48,6 +50,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.HistoryDele
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.BrowserLogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
@@ -58,6 +61,11 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThr
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.UITemplateManagementDAOImpl;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
@@ -96,6 +104,7 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(client));
         this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQuery(client));
+        this.registerServiceImplementation(IBrowserLogQueryDAO.class, new BrowserLogQuery(client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQuery(client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQuery(client));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQuery(client));
@@ -109,10 +118,14 @@ public class InfluxStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteDAO(client));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new UITemplateManagementDAOImpl(client));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_influxdb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        client.registerChecker(healthChecker);
         try {
             client.connect();
 

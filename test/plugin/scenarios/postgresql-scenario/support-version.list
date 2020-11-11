@@ -13,39 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-9.2-1002-jdbc4
-9.2-1003-jdbc3
-9.2-1003-jdbc4
-9.2-1004-jdbc3
-9.2-1004-jdbc4
+
 9.2-1004-jdbc41
-9.3-1100-jdbc3
-9.3-1100-jdbc4
-9.3-1101-jdbc3
-9.3-1101-jdbc4
-9.3-1101-jdbc41
-9.3-1102-jdbc3
-9.3-1102-jdbc4
-9.3-1102-jdbc41
-9.3-1103-jdbc3
-9.3-1103-jdbc4
-9.3-1103-jdbc41
-9.3-1104-jdbc4
 9.3-1104-jdbc41
-9.4-1201-jdbc4
-9.4-1201-jdbc41
-9.4-1202-jdbc4
-9.4-1202-jdbc41
-9.4-1202-jdbc42
-9.4-1203-jdbc4
-9.4-1203-jdbc41
-9.4-1203-jdbc42
-9.4-1204-jdbc4
-9.4-1204-jdbc41
-9.4-1204-jdbc42
-9.4-1205-jdbc4
-9.4-1205-jdbc41
-9.4-1205-jdbc42
-9.4-1206-jdbc4
-9.4-1206-jdbc41
 9.4-1206-jdbc42

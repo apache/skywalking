@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,17 +41,13 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @MeterFunction(functionName = "histogram")
 @Slf4j
-@EqualsAndHashCode(of = {
-    "entityId",
-    "timeBucket"
-})
 @ToString
 public abstract class HistogramFunction extends Metrics implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(columnName = ENTITY_ID, length = 512)
     private String entityId;
     @Getter
     @Setter
@@ -72,7 +68,7 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
             final long bucket = value.getBuckets()[i];
-            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
+            String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
             final long bucketValue = values[i];
             dataset.valueAccumulation(bucketName, bucketValue);
         }
@@ -174,5 +170,21 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof HistogramFunction))
+            return false;
+        HistogramFunction function = (HistogramFunction) o;
+        return Objects.equals(entityId, function.entityId) &&
+            getTimeBucket() == function.getTimeBucket();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

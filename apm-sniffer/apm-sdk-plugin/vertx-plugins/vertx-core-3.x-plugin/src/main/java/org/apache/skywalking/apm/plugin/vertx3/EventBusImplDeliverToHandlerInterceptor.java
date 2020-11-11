@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext().remove(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
@@ -76,6 +76,6 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

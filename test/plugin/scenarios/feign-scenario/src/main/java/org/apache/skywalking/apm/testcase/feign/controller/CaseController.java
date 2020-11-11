@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/case")
 public class CaseController {
 
-    private Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     @ResponseBody
     @RequestMapping("/healthCheck")
@@ -43,8 +43,9 @@ public class CaseController {
         RestRequest request = RestRequest.connect();
         request.createUser(1, "test");
         User user = request.getById(1);
-        logger.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
+        LOGGER.info("find Id{} user. User name is {} ", user.getId(), user.getUserName());
         request.updateUser(1, "testA");
+        request.modifyUser(1, "testA");
         request.deleteUser(1);
         return "success";
     }

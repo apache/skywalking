@@ -44,7 +44,7 @@ import java.lang.reflect.Method;
 })
 public class MongoDBInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(MongoDBInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(MongoDBInterceptor.class);
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -58,8 +58,8 @@ public class MongoDBInterceptor implements InstanceMethodsAroundInterceptor, Ins
         MethodInterceptResult result) {
         String executeMethod = allArguments[0].getClass().getSimpleName();
         String remotePeer = (String) objInst.getSkyWalkingDynamicField();
-        if (logger.isDebugEnable()) {
-            logger.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
+        if (LOGGER.isDebugEnable()) {
+            LOGGER.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
         }
         MongoSpanHelper.createExitSpan(executeMethod, remotePeer, allArguments[0]);
     }
@@ -75,7 +75,6 @@ public class MongoDBInterceptor implements InstanceMethodsAroundInterceptor, Ins
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
         activeSpan.log(t);
     }
 }

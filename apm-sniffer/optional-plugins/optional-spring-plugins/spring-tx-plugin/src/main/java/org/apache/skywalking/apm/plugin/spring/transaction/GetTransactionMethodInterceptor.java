@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.spring.transaction;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -28,41 +28,42 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.transaction.context.Constants;
 import org.springframework.transaction.TransactionDefinition;
 
-import java.lang.reflect.Method;
-
 public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         if (allArguments[0] == null) {
-            AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_NO_TRANSACTION_DEFINITION_GIVEN);
+            AbstractSpan span = ContextManager.createLocalSpan(
+                Constants.OPERATION_NAME_SPRING_TRANSACTION_NO_TRANSACTION_DEFINITION_GIVEN);
             span.setComponent(ComponentsDefine.SPRING_TX);
             return;
         }
         TransactionDefinition definition = (TransactionDefinition) allArguments[0];
-        AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + buildOperationName(definition
-            .getName()));
+        AbstractSpan span = ContextManager.createLocalSpan(
+            Constants.OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + buildOperationName(definition
+                                                                                                        .getName()));
         span.tag(Constants.TAG_SPRING_TRANSACTION_ISOLATION_LEVEL, String.valueOf(definition.getIsolationLevel()));
-        span.tag(Constants.TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR, String.valueOf(definition.getPropagationBehavior()));
+        span.tag(
+            Constants.TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR, String.valueOf(definition.getPropagationBehavior()));
         span.tag(Constants.TAG_SPRING_TRANSACTION_TIMEOUT, String.valueOf(definition.getTimeout()));
         span.setComponent(ComponentsDefine.SPRING_TX);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 
     private String buildOperationName(String transactionDefinitionName) {
-        if (!Config.Plugin.SpringTransaction.SIMPLIFY_TRANSACTION_DEFINITION_NAME) {
+        if (!SpringTXPluginConfig.Plugin.SpringTransaction.SIMPLIFY_TRANSACTION_DEFINITION_NAME) {
             return transactionDefinitionName;
         }
         String[] ss = transactionDefinitionName.split("\\.");

@@ -19,8 +19,6 @@
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
@@ -29,12 +27,9 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 
 public class RestHighLevelClientConInterceptor implements InstanceConstructorInterceptor {
-
-    private static final ILog logger = LogManager.getLogger(RestHighLevelClientConInterceptor.class);
-
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        RestClientBuilder restClientBuilder = (RestClientBuilder) (allArguments[0]);
+        RestClientBuilder restClientBuilder = (RestClientBuilder) allArguments[0];
         RestClient restClient = restClientBuilder.build();
 
         RestClientEnhanceInfo restClientEnhanceInfo = new RestClientEnhanceInfo();

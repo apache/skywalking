@@ -158,4 +158,34 @@ public class ComponentsDefine {
     public static final OfficialComponent FINAGLE = new OfficialComponent(85, "Finagle");
 
     public static final OfficialComponent MARIADB_JDBC = new OfficialComponent(87, "mariadb-jdbc");
+
+    public static final OfficialComponent QUASAR = new OfficialComponent(88, "quasar");
+
+    public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(90, "influxdb-java");
+
+    public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
+
+    public static final OfficialComponent GRAPHQL = new OfficialComponent(92, "GraphQL");
+
+    public static final OfficialComponent SPRING_ANNOTATION = new OfficialComponent(93, "spring-annotation");
+
+    public static final OfficialComponent HBASE = new OfficialComponent(94, "HBase");
+
+    public static final OfficialComponent SPRING_KAFKA_CONSUMER = new OfficialComponent(95, "spring-kafka-consumer");
+
+    public static final OfficialComponent SPRING_SCHEDULED = new OfficialComponent(96, "SpringScheduled");
+
+    public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(97, "quartz-scheduler");
+
+    public static final OfficialComponent XXL_JOB = new OfficialComponent(98, "xxl-job");
+
+    public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(99, "spring-webflux-webclient");
+
+    public static final OfficialComponent THRIFT_SERVER = new OfficialComponent(100, "thrift-server");
+
+    public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(101, "thrift-client");
+
+    public static final OfficialComponent ASYNC_HTTP_CLIENT = new OfficialComponent(102, "AsyncHttpClient");
+
+    public static final OfficialComponent DBCP = new OfficialComponent(103, "dbcp");
 }

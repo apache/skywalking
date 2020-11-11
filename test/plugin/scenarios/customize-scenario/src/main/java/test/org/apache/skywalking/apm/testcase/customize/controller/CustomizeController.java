@@ -34,7 +34,7 @@ import test.org.apache.skywalking.apm.testcase.customize.service.TestService2;
 @RequestMapping("/case")
 public class CustomizeController {
 
-    private Logger logger = LoggerFactory.getLogger(CustomizeController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomizeController.class);
 
     private static final String SUCCESS = "Success";
 
@@ -78,7 +78,7 @@ public class CustomizeController {
             add("a2");
         }}, 123);
 
-        logger.info(SUCCESS);
+        LOGGER.info(SUCCESS);
         return SUCCESS;
     }
 

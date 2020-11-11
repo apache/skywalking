@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * provides several routing mode to select target OAP node.
  */
 public class RemoteSenderService implements Service {
-    private static final Logger logger = LoggerFactory.getLogger(RemoteSenderService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSenderService.class);
 
     private final ModuleManager moduleManager;
     private final HashCodeSelector hashCodeSelector;
@@ -66,7 +66,7 @@ public class RemoteSenderService implements Service {
 
         List<RemoteClient> clientList = clientManager.getRemoteClient();
         if (clientList.size() == 0) {
-            logger.warn(
+            LOGGER.warn(
                 "There is no available remote server for now, ignore the streaming data until the cluster metadata initialized.");
             return;
         }

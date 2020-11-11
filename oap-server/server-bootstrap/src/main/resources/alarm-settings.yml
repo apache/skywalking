@@ -47,3 +47,37 @@ gRPCHook:
 #  target_host: 127.0.0.1
 #  target_port: 9888
 
+slackHooks:
+  textTemplate: |-
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+      }
+    }
+  webhooks:
+#    - https://hooks.slack.com/services/x/y/zssss
+
+wechatHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
+
+dingtalkHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
+#      secret: dummysecret

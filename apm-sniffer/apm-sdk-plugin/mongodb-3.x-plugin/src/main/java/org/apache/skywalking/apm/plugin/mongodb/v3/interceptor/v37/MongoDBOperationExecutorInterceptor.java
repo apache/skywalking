@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings("Duplicates")
 public class MongoDBOperationExecutorInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(MongoDBOperationExecutorInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(MongoDBOperationExecutorInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -41,8 +41,8 @@ public class MongoDBOperationExecutorInterceptor implements InstanceMethodsAroun
         // OperationExecutor has be mark it's remotePeer
         // @see: MongoDBClientDelegateInterceptor.afterMethod
         String remotePeer = (String) objInst.getSkyWalkingDynamicField();
-        if (logger.isDebugEnable()) {
-            logger.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
+        if (LOGGER.isDebugEnable()) {
+            LOGGER.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
         }
         MongoSpanHelper.createExitSpan(executeMethod, remotePeer, allArguments[0]);
     }
@@ -58,7 +58,6 @@ public class MongoDBOperationExecutorInterceptor implements InstanceMethodsAroun
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
         activeSpan.log(t);
     }
 

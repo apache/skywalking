@@ -61,7 +61,8 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         }
 
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%' ");
+            sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like concat('%',?,'%') ");
+            parameters.add(keyword);
         }
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
 

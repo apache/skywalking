@@ -21,6 +21,9 @@ package org.apache.skywalking.apm.plugin.hystrix.v1;
 
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import java.util.concurrent.Callable;
+
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariable;
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableLifecycle;
 import org.apache.skywalking.apm.agent.core.conf.RuntimeContextConfiguration;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.RuntimeContextSnapshot;
@@ -37,6 +40,11 @@ public class SWHystrixConcurrencyStrategyWrapper extends HystrixConcurrencyStrat
     public <T> Callable<T> wrapCallable(Callable<T> callable) {
         Callable<T> delegateCallable = delegate != null ? delegate.wrapCallable(callable) : super.wrapCallable(callable);
         return new WrappedCallable<T>(ContextManager.getRuntimeContext().capture(), delegateCallable);
+    }
+
+    @Override
+    public <T> HystrixRequestVariable<T> getRequestVariable(HystrixRequestVariableLifecycle<T> rv) {
+        return new SWHystrixLifecycleForwardingRequestVariable(rv);
     }
 
     static class WrappedCallable<T> implements Callable<T> {

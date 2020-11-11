@@ -38,12 +38,12 @@ import java.util.Set;
 
 public class CustomizeInstrumentationLoader implements InstrumentationLoader {
 
-    private static final ILog logger = LogManager.getLogger(CustomizeInstrumentationLoader.class);
+    private static final ILog LOGGER = LogManager.getLogger(CustomizeInstrumentationLoader.class);
 
     @Override
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
         List<AbstractClassEnhancePluginDefine> instrumentations = new ArrayList<AbstractClassEnhancePluginDefine>();
-        CustomizeConfiguration.INSTANCE.load();
+        CustomizeConfiguration.INSTANCE.loadForEnhance();
         Set<String> enhanceClasses = CustomizeConfiguration.INSTANCE.getInstrumentations();
         try {
             for (String enhanceClass : enhanceClasses) {
@@ -55,7 +55,7 @@ public class CustomizeInstrumentationLoader implements InstrumentationLoader {
                 instrumentations.add(plugin);
             }
         } catch (Exception e) {
-            logger.error(e, "InstrumentationLoader loader is error, spi loader is {}", CustomizeInstrumentationLoader.class
+            LOGGER.error(e, "InstrumentationLoader loader is error, spi loader is {}", CustomizeInstrumentationLoader.class
                 .getName());
         }
         return instrumentations;

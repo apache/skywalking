@@ -66,7 +66,7 @@ import static java.util.Collections.singletonMap;
 @RequestMapping("/case")
 public class CaseController {
 
-    private static Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
 
     @Autowired
     private RestHighLevelClient client;
@@ -80,7 +80,7 @@ public class CaseController {
         ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT);
         if (response.isTimedOut()) {
             String message = "elastic search node start fail!";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
         return "Success";
@@ -131,7 +131,7 @@ public class CaseController {
         ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT);
         if (response.isTimedOut()) {
             String message = "elastic search health fail!";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -148,7 +148,7 @@ public class CaseController {
         ClusterUpdateSettingsResponse response = client.cluster().putSettings(request, RequestOptions.DEFAULT);
         if (response == null) {
             String message = "elasticsearch put settings fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -157,7 +157,7 @@ public class CaseController {
         ClusterGetSettingsResponse response = client.cluster().getSettings(new ClusterGetSettingsRequest(), RequestOptions.DEFAULT);
         if (response == null) {
             String message = "elasticsearch get settings fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -191,7 +191,7 @@ public class CaseController {
         CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
         if (createIndexResponse.isAcknowledged() == false) {
             String message = "elasticsearch create index fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -209,7 +209,7 @@ public class CaseController {
         IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
         if (indexResponse.status().getStatus() >= 400) {
             String message = "elasticsearch index data fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -220,7 +220,7 @@ public class CaseController {
 
         if (!getResponse.isExists()) {
             String message = "elasticsearch get data fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -234,7 +234,7 @@ public class CaseController {
         UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
         if (updateResponse.getVersion() != 2) {
             String message = "elasticsearch update data fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -244,7 +244,7 @@ public class CaseController {
         AcknowledgedResponse deleteIndexResponse = client.indices().delete(request, RequestOptions.DEFAULT);
         if (!deleteIndexResponse.isAcknowledged()) {
             String message = "elasticsearch delete index fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -263,7 +263,7 @@ public class CaseController {
         int length = searchResponse.getHits().getHits().length;
         if (!(length > 0)) {
             String message = "elasticsearch search data fail.";
-            logger.error(message);
+            LOGGER.error(message);
             throw new RuntimeException(message);
         }
     }

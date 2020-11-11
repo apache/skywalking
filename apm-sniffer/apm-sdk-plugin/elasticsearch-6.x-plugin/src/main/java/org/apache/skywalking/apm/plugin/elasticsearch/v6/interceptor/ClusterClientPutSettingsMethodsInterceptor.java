@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
-import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
-
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -34,13 +31,16 @@ import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
 import org.elasticsearch.common.settings.Settings;
 
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
+
 public class ClusterClientPutSettingsMethodsInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        ClusterUpdateSettingsRequest updateSettingsRequest = (ClusterUpdateSettingsRequest) (allArguments[0]);
+        ClusterUpdateSettingsRequest updateSettingsRequest = (ClusterUpdateSettingsRequest) allArguments[0];
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             AbstractSpan span = ContextManager
                 .createExitSpan(Constants.CLUSTER_PUT_SETTINGS_NAME, restClientEnhanceInfo.getPeers());
@@ -68,7 +68,7 @@ public class ClusterClientPutSettingsMethodsInterceptor implements InstanceMetho
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             ContextManager.stopSpan();
         }
@@ -78,9 +78,9 @@ public class ClusterClientPutSettingsMethodsInterceptor implements InstanceMetho
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method,
         Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

@@ -56,7 +56,7 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred().log(t);
+        span.log(t);
     }
 
     /**

@@ -19,13 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -56,8 +53,12 @@ public class StorageEsInstaller extends ModelInstaller {
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
-            String timeSeriesIndexName = TimeSeriesUtils.latestWriteIndexName(model);
-            return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
+            if (model.isTimeSeries()) {
+                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(
+                    TimeSeriesUtils.latestWriteIndexName(model));
+            } else {
+                return esClient.isExistsIndex(model.getName());
+            }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
@@ -73,22 +74,28 @@ public class StorageEsInstaller extends ModelInstaller {
             .toString());
 
         try {
-            if (!esClient.isExistsTemplate(model.getName())) {
-                boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
-                log.info(
-                    "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+            String indexName;
+            if (!model.isTimeSeries()) {
+                indexName = model.getName();
+            } else {
+                if (!esClient.isExistsTemplate(model.getName())) {
+                    boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
+                    log.info(
+                        "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                    if (!isAcknowledged) {
+                        throw new StorageException("create " + model.getName() + " index template failure, ");
+                    }
+                }
+                indexName = TimeSeriesUtils.latestWriteIndexName(model);
+            }
+            if (!esClient.isExistsIndex(indexName)) {
+                boolean isAcknowledged = esClient.createIndex(indexName);
+                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
                 if (!isAcknowledged) {
-                    throw new StorageException("create " + model.getName() + " index template failure, ");
+                    throw new StorageException("create " + indexName + " time series index failure, ");
                 }
             }
-            String timeSeriesIndexName = TimeSeriesUtils.latestWriteIndexName(model);
-            if (!esClient.isExistsIndex(timeSeriesIndexName)) {
-                boolean isAcknowledged = esClient.createIndex(timeSeriesIndexName);
-                log.info("create {} index finished, isAcknowledged: {}", timeSeriesIndexName, isAcknowledged);
-                if (!isAcknowledged) {
-                    throw new StorageException("create " + timeSeriesIndexName + " time series index failure, ");
-                }
-            }
+
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
@@ -97,7 +104,9 @@ public class StorageEsInstaller extends ModelInstaller {
     protected Map<String, Object> createSetting(Model model) {
         Map<String, Object> setting = new HashMap<>();
 
-        setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
+        setting.put("index.number_of_replicas", model.isSuperDataset()
+            ? config.getSuperDatasetIndexReplicasNumber()
+            : config.getIndexReplicasNumber());
         setting.put("index.number_of_shards", model.isSuperDataset()
             ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
             : config.getIndexShardsNumber());
@@ -126,7 +135,7 @@ public class StorageEsInstaller extends ModelInstaller {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
 
                 Map<String, Object> originalColumn = new HashMap<>();
-                originalColumn.put("type", columnTypeEsMapping.transform(columnDefine.getType()));
+                originalColumn.put("type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
                 originalColumn.put("copy_to", matchCName);
                 properties.put(columnDefine.getColumnName().getName(), originalColumn);
 
@@ -136,7 +145,7 @@ public class StorageEsInstaller extends ModelInstaller {
                 properties.put(matchCName, matchColumn);
             } else {
                 Map<String, Object> column = new HashMap<>();
-                column.put("type", columnTypeEsMapping.transform(columnDefine.getType()));
+                column.put("type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
                 if (columnDefine.isStorageOnly()) {
                     column.put("index", false);
                 }

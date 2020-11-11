@@ -19,7 +19,6 @@
 package org.apache.skywalking.e2e;
 
 import java.util.List;
-import java.net.URL;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -57,11 +56,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_MULTIPLE_LINEAR_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
@@ -90,12 +92,6 @@ public class PHPE2E extends SkyWalkingTestAdapter {
 
     @BeforeAll
     public void setUp() throws Exception {
-        URL url = new URL("http", phpHostPort.host(), phpHostPort.port(), "/init");
-        restTemplate.getForObject(url.toURI(), String.class);
-        Thread.sleep(1000);
-        url = new URL("http", phpShadowHostPort.host(), phpShadowHostPort.port(), "/init-shadow");
-        restTemplate.getForObject(url.toURI(), String.class);
-        Thread.sleep(1000);
         queryClient(swWebappHostPort);
 
         trafficController(phpHostPort, "/php/info");
@@ -156,8 +152,8 @@ public class PHPE2E extends SkyWalkingTestAdapter {
             new ServiceInstanceTopologyQuery().stepByMinute()
                                               .start(startTime.minusDays(1))
                                               .end(now())
-                                              .clientServiceId("1")
-                                              .serverServiceId("2"));
+                                              .clientServiceId("cGhw.1")
+                                              .serverServiceId("cGhwLXNoYWRvdw==.1"));
 
         LOGGER.info("topology: {}", topology);
 
@@ -238,6 +234,9 @@ public class PHPE2E extends SkyWalkingTestAdapter {
 
                 LOGGER.info("{}: {}", metricName, metrics);
             }
+            for (String metricName : ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS) {
+                verifyPercentileMetrics(graphql, metricName, endpoint.getKey(), startTime);
+            }
         }
     }
 
@@ -254,6 +253,9 @@ public class PHPE2E extends SkyWalkingTestAdapter {
             instanceRespTimeMatcher.setValue(greaterThanZero);
             instanceRespTimeMatcher.verify(serviceMetrics);
             LOGGER.info("{}: {}", metricName, serviceMetrics);
+        }
+        for (String metricName : ALL_SERVICE_MULTIPLE_LINEAR_METRICS) {
+            verifyPercentileMetrics(graphql, metricName, service.getKey(), startTime);
         }
     }
 

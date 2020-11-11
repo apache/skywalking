@@ -16,7 +16,7 @@
 traces:
   - key: not null
     endpointNames:
-      - /profile/{name}
+      - '{POST}/profile/{name}'
     duration: ge 0
     start: gt 0
     isError: false

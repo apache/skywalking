@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies.NamespacedPodListWatch;
-import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies.UidEnvSupplier;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -58,24 +57,22 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        coordinator = new KubernetesCoordinator(getManager(), new NamespacedPodListWatch(config.getNamespace(), config.getLabelSelector(), config
-            .getWatchTimeoutSeconds()), new UidEnvSupplier(config.getUidEnvName()));
+        coordinator = new KubernetesCoordinator(getManager(), config);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() {
-
+        NamespacedPodListInformer.INFORMER.init(config);
     }
 
     @Override
     public void notifyAfterCompleted() {
-        coordinator.start();
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[0];
+        return new String[] {CoreModule.NAME};
     }
 }

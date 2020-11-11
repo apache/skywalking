@@ -38,7 +38,7 @@ public class ContextCarrierV3HeaderTest {
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue("dGVzdA==:dHJ1ZQ==");
             } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
-                next.setHeadValue("1");
+                next.setHeadValue("1- ");
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -63,7 +63,7 @@ public class ContextCarrierV3HeaderTest {
 
         contextCarrier.getCorrelationContext().put("test", "true");
 
-        contextCarrier.getExtensionContext().deserialize("1");
+        contextCarrier.getExtensionContext().deserialize("1- ");
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -78,7 +78,7 @@ public class ContextCarrierV3HeaderTest {
                  */
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
-                Assert.assertEquals("1", next.getHeadValue());
+                Assert.assertEquals("1- ", next.getHeadValue());
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -92,7 +92,7 @@ public class ContextCarrierV3HeaderTest {
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW8ExtensionCarrierItem.HEADER_NAME)) {
-                Assert.assertEquals("1", next.getHeadValue());
+                Assert.assertEquals("1- ", next.getHeadValue());
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
             }
@@ -117,7 +117,7 @@ public class ContextCarrierV3HeaderTest {
         contextCarrier.setParentEndpoint("/app");
 
         contextCarrier.getCorrelationContext().put("test", "true");
-        contextCarrier.getExtensionContext().deserialize("1");
+        contextCarrier.getExtensionContext().deserialize("1- ");
 
         CarrierItem next = contextCarrier.items();
         String sw6HeaderValue = null;

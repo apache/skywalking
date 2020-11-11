@@ -1,0 +1,171 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Cancel
+
+on:
+  workflow_run:
+    workflows: [CI AND IT]
+    types:
+      - requested
+
+jobs:
+  # Cancel outdated builds in the repo, including all action tasks of all commits.
+  # It runs for all workflow types
+  cancel-outdated-builds:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+    steps:
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds ci-it.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: ci-it.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds docker-ci.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: docker-ci.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.cluster.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.cluster.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.go.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.go.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.istio.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.istio.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.jdk-versions.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.jdk-versions.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.js.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.js.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.kafka.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.kafka.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.php.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.php.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.php.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.php.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.profiling.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.profiling.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.python.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.python.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.storages.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.storages.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.ttl.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.ttl.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds e2e.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds plugins-jdk14-test.0.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: plugins-jdk14-test.0.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds plugins-test.0.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: plugins-test.0.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds plugins-test.1.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: plugins-test.1.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds plugins-test.2.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: plugins-test.2.yaml
+      - uses: potiuk/cancel-workflow-runs@v4_7
+        name: Cancel Outdated Builds plugins-test.3.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: plugins-test.3.yaml

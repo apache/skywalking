@@ -23,6 +23,8 @@ import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.BrowserLogQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
@@ -34,6 +36,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.Query;
 import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.UIConfigurationManagement;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.QueryModule;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
@@ -71,7 +74,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         GraphQLSchema schema = SchemaParser.newParser()
                                            .file("query-protocol/common.graphqls")
-                                           .resolvers(new Query(), new Mutation())
+                                           .resolvers(new Query(), new Mutation(), new HealthQuery(getManager()))
                                            .file("query-protocol/metadata.graphqls")
                                            .resolvers(new MetadataQuery(getManager()))
                                            .file("query-protocol/topology.graphqls")
@@ -100,6 +103,10 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                            .resolvers(new LogQuery(getManager()))
                                            .file("query-protocol/profile.graphqls")
                                            .resolvers(new ProfileQuery(getManager()), new ProfileMutation(getManager()))
+                                           .file("query-protocol/ui-configuration.graphqls")
+                                           .resolvers(new UIConfigurationManagement(getManager()))
+                                           .file("query-protocol/browser-log.graphqls")
+                                           .resolvers(new BrowserLogQuery(getManager()))
                                            .build()
                                            .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -46,13 +47,13 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 
 @DefaultImplementor
 public class ServiceManagementClient implements BootService, Runnable, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(ServiceManagementClient.class);
+    private static final ILog LOGGER = LogManager.getLogger(ServiceManagementClient.class);
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ManagementServiceGrpc.ManagementServiceBlockingStub managementServiceBlockingStub;
     private volatile ScheduledFuture<?> heartbeatFuture;
-    private volatile boolean instancePropertiesSubmitted = false;
+    private volatile AtomicInteger sendPropertiesCounter = new AtomicInteger(0);
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
@@ -90,7 +91,7 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
         ).scheduleAtFixedRate(
             new RunnableWithExceptionProtection(
                 this,
-                t -> logger.error("unexpected exception.", t)
+                t -> LOGGER.error("unexpected exception.", t)
             ), 0, Config.Collector.HEARTBEAT_PERIOD,
             TimeUnit.SECONDS
         );
@@ -107,12 +108,12 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
 
     @Override
     public void run() {
-        logger.debug("ServiceManagementClient running, status:{}.", status);
+        LOGGER.debug("ServiceManagementClient running, status:{}.", status);
 
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             try {
                 if (managementServiceBlockingStub != null) {
-                    if (!instancePropertiesSubmitted) {
+                    if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
 
                         managementServiceBlockingStub
                             .withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
@@ -123,7 +124,6 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
                                                                             Config.OsInfo.IPV4_LIST_SIZE))
                                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                                                         .build());
-                        instancePropertiesSubmitted = true;
                     } else {
                         final Commands commands = managementServiceBlockingStub.withDeadlineAfter(
                             GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
@@ -136,7 +136,7 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
                     }
                 }
             } catch (Throwable t) {
-                logger.error(t, "ServiceManagementClient execute fail.");
+                LOGGER.error(t, "ServiceManagementClient execute fail.");
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }

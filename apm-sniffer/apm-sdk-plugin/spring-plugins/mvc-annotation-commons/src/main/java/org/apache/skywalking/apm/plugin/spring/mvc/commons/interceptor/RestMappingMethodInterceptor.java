@@ -36,7 +36,7 @@ import java.lang.reflect.Method;
 public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
-        return ParsePathUtil.recursiveParseMethodAnnotaion(method, m -> {
+        return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
             String requestURL = null;
             GetMapping getMapping = AnnotationUtils.getAnnotation(m, GetMapping.class);
             PostMapping postMapping = AnnotationUtils.getAnnotation(m, PostMapping.class);
@@ -80,6 +80,20 @@ public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
 
     @Override
     public String getAcceptedMethodTypes(Method method) {
-        return "";
+        return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
+            if (AnnotationUtils.getAnnotation(m, GetMapping.class) != null) {
+                return "{GET}";
+            } else if (AnnotationUtils.getAnnotation(m, PostMapping.class) != null) {
+                return "{POST}";
+            } else if (AnnotationUtils.getAnnotation(m, PutMapping.class) != null) {
+                return "{PUT}";
+            } else if (AnnotationUtils.getAnnotation(m, DeleteMapping.class) != null) {
+                return "{DELETE}";
+            } else if (AnnotationUtils.getAnnotation(m, PatchMapping.class) != null) {
+                return "{PATCH}";
+            } else {
+                return null;
+            }
+        });
     }
 }

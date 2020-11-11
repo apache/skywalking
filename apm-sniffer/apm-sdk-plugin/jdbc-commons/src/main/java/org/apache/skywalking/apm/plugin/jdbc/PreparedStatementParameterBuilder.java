@@ -22,7 +22,6 @@ public class PreparedStatementParameterBuilder {
     private static final String EMPTY_LIST = "[]";
     private Object[] parameters;
     private Integer maxIndex;
-    private int maxLength = 0;
 
     public PreparedStatementParameterBuilder setParameters(Object[] parameters) {
         this.parameters = parameters;
@@ -34,18 +33,12 @@ public class PreparedStatementParameterBuilder {
         return this;
     }
 
-    public PreparedStatementParameterBuilder setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-        return this;
-    }
-
     public String build() {
         if (parameters == null) {
             return EMPTY_LIST;
         }
 
-        String parameterString = getParameterString();
-        return truncate(parameterString);
+        return getParameterString();
     }
 
     private String getParameterString() {
@@ -58,8 +51,13 @@ public class PreparedStatementParameterBuilder {
             }
             stringBuilder.append(parameter);
             first = false;
+
+            //  cut the string as soon as it reached the length limitation
+            if (JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH > 0 && (stringBuilder.length() + EMPTY_LIST.length()) > JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH) {
+                return format(stringBuilder).substring(0, JDBCPluginConfig.Plugin.JDBC.SQL_PARAMETERS_MAX_LENGTH) + "...";
+            }
         }
-        return String.format("[%s]", stringBuilder.toString());
+        return format(stringBuilder);
     }
 
     private int getMaxIndex() {
@@ -67,12 +65,8 @@ public class PreparedStatementParameterBuilder {
         return Math.min(maxIdx, parameters.length);
     }
 
-    private String truncate(String parameterString) {
-        if (maxLength > 0 && parameterString.length() > maxLength) {
-            parameterString = parameterString.substring(0, maxLength) + "...";
-        }
-
-        return parameterString;
+    private String format(StringBuilder stringBuilder) {
+        return String.format("[%s]", stringBuilder.toString());
     }
 
 }

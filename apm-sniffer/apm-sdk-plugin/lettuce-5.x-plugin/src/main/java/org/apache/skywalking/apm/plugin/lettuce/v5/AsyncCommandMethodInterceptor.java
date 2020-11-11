@@ -20,7 +20,9 @@ package org.apache.skywalking.apm.plugin.lettuce.v5;
 
 import io.lettuce.core.protocol.AsyncCommand;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -40,6 +42,8 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
         String operationName = "Lettuce/" + asyncCommand.getType().name();
         AbstractSpan span = ContextManager.createLocalSpan(operationName + "/onComplete");
         span.setComponent(ComponentsDefine.LETTUCE);
+        Tags.DB_TYPE.set(span, "Redis");
+        SpanLayer.asCache(span);
         if (allArguments[0] instanceof Consumer) {
             allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture(), operationName);
         } else {
@@ -57,6 +61,6 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

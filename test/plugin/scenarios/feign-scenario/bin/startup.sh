@@ -17,5 +17,5 @@
 # limitations under the License.
 
 home="$(cd "$(dirname $0)"; pwd)"
-
-java -jar ${agent_opts} ${home}/../libs/feign-scenario.jar &
+java -jar ${agent_opts} -Dskywalking.plugin.feign.collect_request_body=true \
+-Dskywalking.plugin.feign.supported_content_types_prefix='application/json,text/' ${home}/../libs/feign-scenario.jar &

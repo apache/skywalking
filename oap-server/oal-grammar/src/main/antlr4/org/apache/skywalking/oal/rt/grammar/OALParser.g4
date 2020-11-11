@@ -52,9 +52,11 @@ filterExpression
 source
     : SRC_ALL | SRC_SERVICE | SRC_DATABASE_ACCESS | SRC_SERVICE_INSTANCE | SRC_ENDPOINT |
       SRC_SERVICE_RELATION | SRC_SERVICE_INSTANCE_RELATION | SRC_ENDPOINT_RELATION |
-      SRC_SERVICE_INSTANCE_JVM_CPU | SRC_SERVICE_INSTANCE_JVM_MEMORY | SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL | SRC_SERVICE_INSTANCE_JVM_GC |// JVM source of service instance
+      SRC_SERVICE_INSTANCE_JVM_CPU | SRC_SERVICE_INSTANCE_JVM_MEMORY | SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL | SRC_SERVICE_INSTANCE_JVM_GC | SRC_SERVICE_INSTANCE_JVM_THREAD |// JVM source of service instance
       SRC_SERVICE_INSTANCE_CLR_CPU | SRC_SERVICE_INSTANCE_CLR_GC | SRC_SERVICE_INSTANCE_CLR_THREAD |
-      SRC_ENVOY_INSTANCE_METRIC
+      SRC_ENVOY_INSTANCE_METRIC |
+      SRC_BROWSER_APP_PERF | SRC_BROWSER_APP_PAGE_PERF | SRC_BROWSER_APP_SINGLE_VERSION_PERF |
+      SRC_BROWSER_APP_TRAFFIC | SRC_BROWSER_APP_PAGE_TRAFFIC | SRC_BROWSER_APP_SINGLE_VERSION_TRAFFIC
     ;
 
 disableSource
@@ -72,7 +74,7 @@ variable
     ;
 
 aggregateFunction
-    : functionName LR_BRACKET (funcParamExpression | (literalExpression (COMMA literalExpression)?))? RR_BRACKET
+    : functionName LR_BRACKET ((funcParamExpression (COMMA funcParamExpression)?) | (literalExpression (COMMA literalExpression)?))? RR_BRACKET
     ;
 
 functionName
@@ -88,7 +90,15 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch | containMatch | notContainMatch
+    ;
+
+containMatch
+    : conditionAttribute CONTAIN stringConditionValue
+    ;
+
+notContainMatch
+    : conditionAttribute NOT_CONTAIN stringConditionValue
     ;
 
 booleanMatch
@@ -113,6 +123,26 @@ greaterEqualMatch
 
 lessEqualMatch
     :  conditionAttribute LESS_EQUAL numberConditionValue
+    ;
+
+booleanNotEqualMatch
+    :  conditionAttribute NOT_EQUAL booleanConditionValue
+    ;
+
+notEqualMatch
+    :  conditionAttribute NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue)
+    ;
+
+likeMatch
+    :  conditionAttribute LIKE stringConditionValue
+    ;
+
+inMatch
+    :  conditionAttribute IN multiConditionValue
+    ;
+
+multiConditionValue
+    : LS_BRACKET (numberConditionValue ((COMMA numberConditionValue)*) | stringConditionValue ((COMMA stringConditionValue)*) | enumConditionValue ((COMMA enumConditionValue)*)) RS_BRACKET
     ;
 
 conditionAttribute
