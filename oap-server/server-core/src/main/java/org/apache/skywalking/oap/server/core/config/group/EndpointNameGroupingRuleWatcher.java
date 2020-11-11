@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.StringReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
@@ -35,7 +36,7 @@ public class EndpointNameGroupingRuleWatcher extends ConfigChangeWatcher {
 
     public EndpointNameGroupingRuleWatcher(ModuleProvider provider,
                                            EndpointNameGrouping grouping) throws FileNotFoundException {
-        super(provider.module().getName(), provider, "endpoint-name-grouping");
+        super(CoreModule.NAME, provider, "endpoint-name-grouping");
         this.grouping = grouping;
         // This is just a place holder text representing the original text.
         ruleSetting = "SkyWalking endpoint rule";
