@@ -84,7 +84,7 @@ public class FieldsHelperTest {
             final StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
             final ServiceMetaInfo info = new ServiceMetaInfo();
-            FieldsHelper.SINGLETON.init(new ByteArrayInputStream(mapping.getBytes()));
+            FieldsHelper.SINGLETON.init(new ByteArrayInputStream(mapping.getBytes()), ServiceMetaInfo.class);
             FieldsHelper.SINGLETON.inflate(
                 requestBuilder.getIdentifier().getNode().getMetadata(),
                 info
