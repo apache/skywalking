@@ -53,7 +53,7 @@ metricsRules:
   - name: instance_jvm_old_gc_time
     exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation') * 1000
   - name: instance_trace_count
-    exp: trace_in_latency_count.increase('PT1M')
+    exp: trace_in_latency_count.sum(['service', 'instance']).increase('PT1M')
   - name: instance_trace_latency_percentile
     exp: trace_in_latency.increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_trace_analysis_error_count
