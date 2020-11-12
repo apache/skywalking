@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.opencensus;
+package org.apache.skywalking.oap.server.receiver.otel.oc;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,12 +32,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverModule;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 import static java.util.stream.Collectors.toList;
 
 public class OCMetricReceiverProvider extends ModuleProvider {
-    public static final String NAME = "default";
+    public static final String NAME = "oc";
     private OCMetricReceiverConfig config;
     private GRPCServer grpcServer = null;
     private List<Rule> rules;
@@ -49,7 +50,7 @@ public class OCMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public Class<? extends ModuleDefine> module() {
-        return OCMetricReceiverModule.class;
+        return OtelMetricReceiverModule.class;
     }
 
     @Override

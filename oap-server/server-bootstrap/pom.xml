@@ -118,7 +118,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>opencensus-receiver-plugin</artifactId>
+            <artifactId>otel-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

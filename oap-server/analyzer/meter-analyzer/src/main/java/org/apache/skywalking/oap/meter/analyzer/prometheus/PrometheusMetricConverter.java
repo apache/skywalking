@@ -67,7 +67,7 @@ public class PrometheusMetricConverter {
         convert.toMeter(data);
     }
 
-    private ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
+    public ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
         return metricStream
             .peek(metric -> log.debug("Prom metric to be convert to SampleFamily: {}", metric))
             .flatMap(this::convertMetric)

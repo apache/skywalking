@@ -277,11 +277,11 @@ receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
   default:
 
-receiver-oc:
-  selector: ${SW_OC_RECEIVER:-}
-  default:
-    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+receiver-otel:
+  selector: ${SW_OTEL_RECEIVER:-}
+  oc:
+    gRPCHost: ${SW_OTEL_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OTEL_RECEIVER_GRPC_PORT:55678}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}

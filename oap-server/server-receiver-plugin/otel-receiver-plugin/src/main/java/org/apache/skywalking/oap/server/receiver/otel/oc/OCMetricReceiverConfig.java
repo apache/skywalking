@@ -16,19 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.opencensus;
+package org.apache.skywalking.oap.server.receiver.otel.oc;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-public class OCMetricReceiverModule extends ModuleDefine {
-    public static final String NAME = "receiver-oc";
-
-    public OCMetricReceiverModule() {
-        super(NAME);
-    }
-
-    @Override
-    public Class[] services() {
-        return new Class[0];
-    }
+@Getter
+@Setter
+public class OCMetricReceiverConfig extends ModuleConfig {
+    private String gRPCHost = "0.0.0.0";
+    private int gRPCPort = -1;
+    private int maxConcurrentCallsPerConnection;
+    private int maxMessageSize;
+    private int gRPCThreadPoolSize;
+    private int gRPCThreadPoolQueueSize;
+    private String rulePath = "oc-rules";
 }
