@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -319,7 +320,8 @@ public class SampleFamily {
     }
 
     private String dim(List<String> labelKeys) {
-        return labelKeys.stream().map(k -> samples[0].labels.getOrDefault(k, "")).collect(Collectors.joining("."));
+        String name = labelKeys.stream().map(k -> samples[0].labels.getOrDefault(k, "")).collect(Collectors.joining("."));
+        return CharMatcher.is('.').trimFrom(name);
     }
 
     private SampleFamily left(List<String> labelKeys) {

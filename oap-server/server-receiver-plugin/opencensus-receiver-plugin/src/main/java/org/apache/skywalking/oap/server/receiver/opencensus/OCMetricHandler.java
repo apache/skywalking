@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
@@ -40,19 +41,20 @@ import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConve
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 
 @RequiredArgsConstructor
 @Slf4j
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
 
-    private final PrometheusMetricConverter prometheusMetric;
+    private final List<PrometheusMetricConverter> metrics;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
         return new StreamObserver<ExportMetricsServiceRequest>() {
             @Override public void onNext(ExportMetricsServiceRequest request) {
-                prometheusMetric.toMeter(request.getMetricsList().stream()
+                Stream<Metric> metricStream = request.getMetricsList().stream()
                     .flatMap(metric -> metric.getTimeseriesList().stream().map(timeSeries ->
                         Tuple.of(metric.getMetricDescriptor(),
                             buildLabels(metric.getMetricDescriptor().getLabelKeysList(), timeSeries.getLabelValuesList()),
@@ -80,7 +82,8 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
                                 throw new UnsupportedOperationException("Unsupported OC type:" + t._1.getType());
                         }
                     }))
-                    .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OC metric to prometheus metric")));
+                    .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OC metric to prometheus metric"));
+                metrics.forEach(m -> m.toMeter(metricStream));
             }
 
             @Override public void onError(Throwable throwable) {

@@ -20,9 +20,8 @@ package org.apache.skywalking.oap.server.receiver.opencensus;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.MetricsRule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -35,11 +34,13 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
+import static java.util.stream.Collectors.toList;
+
 public class OCMetricReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
     private OCMetricReceiverConfig config;
     private GRPCServer grpcServer = null;
-    private List<MetricsRule> rules;
+    private List<Rule> rules;
 
     @Override
     public String name() {
@@ -62,9 +63,8 @@ public class OCMetricReceiverProvider extends ModuleProvider {
         if (config.getGRPCPort() <= 0) {
            return;
         }
-        rules = Rules.loadRules(config.getRulePath()).stream()
-            .flatMap(rule -> rule.getMetricsRules().stream())
-            .collect(Collectors.toList());
+        rules = Rules.loadRules(config.getRulePath());
+
         grpcServer = new GRPCServer(config.getGRPCHost(), config.getGRPCPort());
         if (config.getMaxMessageSize() > 0) {
             grpcServer.setMaxMessageSize(config.getMaxMessageSize());
@@ -85,7 +85,9 @@ public class OCMetricReceiverProvider extends ModuleProvider {
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         if (Objects.nonNull(grpcServer)) {
             final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-            grpcServer.addHandler(new OCMetricHandler(new PrometheusMetricConverter(rules, null, service)));
+            grpcServer.addHandler(new OCMetricHandler(rules.stream().map(r ->
+                new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service))
+                .collect(toList())));
         }
     }
 

@@ -106,7 +106,7 @@ public class Analyzer {
                     for (int i = 0; i < subSs.size(); i++) {
                         Sample s = subSs.get(i);
                         bb[i] = Long.parseLong(s.getLabels().get("le"));
-                        vv[i] = (long) s.getValue();
+                        vv[i] = getValue(s);
                     }
                     BucketedValues bv = new BucketedValues(bb, vv);
                     long time = subSs.get(0).getTimestamp();
@@ -124,10 +124,17 @@ public class Analyzer {
                 });
             return;
         }
-        if (ss.length == 1) {
+        boolean isLabeled = false;
+        for (Sample each : ss) {
+            if (!each.getLabels().isEmpty()) {
+                isLabeled = true;
+                break;
+            }
+        }
+        if (!isLabeled && ss.length == 1) {
             Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "", ctx));
             AcceptableValue<Long> v = meterSystem.buildMetrics(metricName, Long.class);
-            v.accept(ctx.getMeterEntity(), (long) ss[0].getValue());
+            v.accept(ctx.getMeterEntity(), getValue(ss[0]));
             send(v, ss[0].getTimestamp());
             return;
         }
@@ -135,10 +142,20 @@ public class Analyzer {
         AcceptableValue<DataTable> v = meterSystem.buildMetrics(metricName, DataTable.class);
         DataTable dt = new DataTable();
         for (Sample each : ss) {
-            dt.put(composeGroup(each.getLabels()), (long) each.getValue());
+            dt.put(composeGroup(each.getLabels()), getValue(each));
         }
         v.accept(ctx.getMeterEntity(), dt);
         send(v, ss[0].getTimestamp());
+    }
+
+    private long getValue(Sample sample) {
+        if (sample.getValue() <= 0.0) {
+            return 0L;
+        }
+        if (sample.getValue() < 1.0) {
+            return 1L;
+        }
+        return Math.round(sample.getValue());
     }
 
     private String composeGroup(ImmutableMap<String, String> labels) {

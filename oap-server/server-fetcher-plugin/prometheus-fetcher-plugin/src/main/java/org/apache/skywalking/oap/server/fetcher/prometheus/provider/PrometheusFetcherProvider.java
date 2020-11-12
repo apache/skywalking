@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import io.vavr.CheckedFunction1;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -112,7 +113,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                     long now = System.currentTimeMillis();
                     converter.toMeter(sc.getTargets().stream()
                         .map(CheckedFunction1.liftTry(target -> {
-                            String content = HttpClient.builder().url(target.getUrl()).caFilePath(target.getSslCaFilePath()).build().request();
+                            URI url = new URI(target.getUrl());
+                            URI targetURL = url.resolve(r.getMetricsPath());
+                            String content = HttpClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
                             List<Metric> result = new ArrayList<>();
                             try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
                                 Parser p = Parsers.text(targetStream);

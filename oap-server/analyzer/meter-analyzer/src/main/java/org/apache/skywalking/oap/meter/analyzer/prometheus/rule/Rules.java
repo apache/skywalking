@@ -59,6 +59,7 @@ public class Rules {
                 return null;
             })
             .filter(Objects::nonNull)
+            .filter(Rule::getEnabled)
             .collect(Collectors.toList());
     }
 }

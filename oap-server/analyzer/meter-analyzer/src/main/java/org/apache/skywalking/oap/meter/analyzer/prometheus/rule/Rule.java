@@ -34,5 +34,6 @@ public class Rule {
     private String metricsPath;
     private StaticConfig staticConfig;
     private String defaultMetricLevel;
+    private Boolean enabled = true;
     private List<MetricsRule> metricsRules;
 }
