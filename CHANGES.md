@@ -49,6 +49,7 @@ Release Notes.
 
 #### Documentation
 * Add VNode FAQ doc.
+* Add logic endpoint section in the agent setup doc.
 * Adjust configuration names and system environment names of the sharing server module
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
