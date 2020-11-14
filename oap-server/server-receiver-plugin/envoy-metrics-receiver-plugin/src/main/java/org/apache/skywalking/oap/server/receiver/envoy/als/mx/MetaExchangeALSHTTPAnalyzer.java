@@ -44,9 +44,11 @@ import static org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInf
 @Slf4j
 public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
 
-    private static final String UPSTREAM_KEY = "wasm.upstream_peer";
+    public static final String UPSTREAM_KEY = "wasm.upstream_peer";
 
-    private static final String DOWNSTREAM_KEY = "wasm.downstream_peer";
+    public static final String DOWNSTREAM_KEY = "wasm.downstream_peer";
+
+    protected String fieldMappingFile = "metadata-service-mapping.yaml";
 
     @Override
     public String name() {
@@ -56,7 +58,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
     @Override
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
         try {
-            FieldsHelper.SINGLETON.init("metadata-service-mapping.yaml");
+            FieldsHelper.SINGLETON.init(fieldMappingFile);
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load metadata-service-mapping.yaml", e);
         }
@@ -74,7 +76,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
         }
         final ServiceMetaInfo currSvc;
         try {
-            currSvc = new ServiceMetaInfoAdapter(identifier.getNode().getMetadata());
+            currSvc = adaptToServiceMetaInfo(identifier);
         } catch (Exception e) {
             log.error("Failed to inflate the ServiceMetaInfo from identifier.node.metadata. ", e);
             return Collections.emptyList();
@@ -88,7 +90,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             }
             final ServiceMetaInfo svc;
             try {
-                svc = new ServiceMetaInfoAdapter(value);
+                svc = adaptToServiceMetaInfo(value);
             } catch (Exception e) {
                 log.error("Fail to parse metadata {} to FlatNode", Base64.getEncoder().encode(value.toByteArray()));
                 return;
@@ -120,6 +122,14 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             result.add(metric);
         }
         return result;
+    }
+
+    protected ServiceMetaInfo adaptToServiceMetaInfo(final Any value) throws Exception {
+        return new ServiceMetaInfoAdapter(value);
+    }
+
+    protected ServiceMetaInfo adaptToServiceMetaInfo(final StreamAccessLogsMessage.Identifier identifier) throws Exception {
+        return new ServiceMetaInfoAdapter(identifier.getNode().getMetadata());
     }
 
 }

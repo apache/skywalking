@@ -39,7 +39,8 @@ Release Notes.
 * Fix CVE in the uninstrumented gateways configs, when activating the dynamic configuration feature.
 * Fix CVE in the Apdex threshold configs, when activating the dynamic configuration feature.
 * Make the codes and doc consistent in sharding server and core server.
-* Fix that chunked string is incorrect while the tag contains colon
+* Fix that chunked string is incorrect while the tag contains colon.
+* Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
 * Fix "transaction too large error" when use TiDB as storage.
 
 #### UI
@@ -48,6 +49,7 @@ Release Notes.
 
 #### Documentation
 * Add VNode FAQ doc.
+* Add logic endpoint section in the agent setup doc.
 * Adjust configuration names and system environment names of the sharing server module
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)

@@ -52,20 +52,20 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-class K8SServiceRegistry {
-    final Map<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
+public class K8SServiceRegistry {
+    protected final Map<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
 
-    final Map<String/* namespace:serviceName */, V1Service> idServiceMap;
+    protected final Map<String/* namespace:serviceName */, V1Service> idServiceMap;
 
-    final Map<String/* ip */, V1Pod> ipPodMap;
+    protected final Map<String/* ip */, V1Pod> ipPodMap;
 
-    final Map<String/* ip */, String/* namespace:serviceName */> ipServiceMap;
+    protected final Map<String/* ip */, String/* namespace:serviceName */> ipServiceMap;
 
-    final ExecutorService executor;
+    protected final ExecutorService executor;
 
-    final ServiceNameFormatter serviceNameFormatter;
+    protected final ServiceNameFormatter serviceNameFormatter;
 
-    K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
+    public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
         serviceNameFormatter = new ServiceNameFormatter(config.getK8sServiceNameRule());
         ipServiceMetaInfoMap = new ConcurrentHashMap<>();
         idServiceMap = new ConcurrentHashMap<>();
@@ -79,7 +79,7 @@ class K8SServiceRegistry {
         );
     }
 
-    void start() throws IOException {
+    public void start() throws IOException {
         final ApiClient apiClient = Config.defaultClient();
         apiClient.setHttpClient(apiClient.getHttpClient()
                                          .newBuilder()
@@ -200,7 +200,7 @@ class K8SServiceRegistry {
         });
     }
 
-    private void addService(final V1Service service) {
+    protected void addService(final V1Service service) {
         Optional.ofNullable(service.getMetadata()).ifPresent(
             metadata -> idServiceMap.put(metadata.getNamespace() + ":" + metadata.getName(), service)
         );
@@ -208,13 +208,13 @@ class K8SServiceRegistry {
         recompose();
     }
 
-    private void removeService(final V1Service service) {
+    protected void removeService(final V1Service service) {
         Optional.ofNullable(service.getMetadata()).ifPresent(
             metadata -> idServiceMap.remove(metadata.getUid())
         );
     }
 
-    private void addPod(final V1Pod pod) {
+    protected void addPod(final V1Pod pod) {
         Optional.ofNullable(pod.getStatus()).ifPresent(
             status -> ipPodMap.put(status.getPodIP(), pod)
         );
@@ -222,13 +222,13 @@ class K8SServiceRegistry {
         recompose();
     }
 
-    private void removePod(final V1Pod pod) {
+    protected void removePod(final V1Pod pod) {
         Optional.ofNullable(pod.getStatus()).ifPresent(
             status -> ipPodMap.remove(status.getPodIP())
         );
     }
 
-    private void addEndpoints(final V1Endpoints endpoints) {
+    protected void addEndpoints(final V1Endpoints endpoints) {
         final String namespace = requireNonNull(endpoints.getMetadata()).getNamespace();
         final String name = requireNonNull(endpoints.getMetadata()).getName();
 
@@ -241,7 +241,7 @@ class K8SServiceRegistry {
         recompose();
     }
 
-    private void removeEndpoints(final V1Endpoints endpoints) {
+    protected void removeEndpoints(final V1Endpoints endpoints) {
         requireNonNull(endpoints.getSubsets()).forEach(
             subset -> requireNonNull(subset.getAddresses()).forEach(
                 address -> ipServiceMap.remove(address.getIp())
@@ -249,7 +249,7 @@ class K8SServiceRegistry {
         );
     }
 
-    private List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final Map<String, String> labels) {
+    protected List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final Map<String, String> labels) {
         if (isNull(labels)) {
             return Collections.emptyList();
         }
@@ -259,7 +259,7 @@ class K8SServiceRegistry {
                      .collect(Collectors.toList());
     }
 
-    ServiceMetaInfo findService(final String ip) {
+    protected ServiceMetaInfo findService(final String ip) {
         final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
         if (isNull(service)) {
             log.debug("Unknown ip {}, ip -> service is null", ip);
@@ -268,7 +268,7 @@ class K8SServiceRegistry {
         return service;
     }
 
-    private void recompose() {
+    protected void recompose() {
         ipPodMap.forEach((ip, pod) -> {
             final String namespaceService = ipServiceMap.get(ip);
             final V1Service service;
@@ -297,7 +297,7 @@ class K8SServiceRegistry {
         });
     }
 
-    boolean isEmpty() {
+    protected boolean isEmpty() {
         return ipServiceMetaInfoMap.isEmpty();
     }
 }
