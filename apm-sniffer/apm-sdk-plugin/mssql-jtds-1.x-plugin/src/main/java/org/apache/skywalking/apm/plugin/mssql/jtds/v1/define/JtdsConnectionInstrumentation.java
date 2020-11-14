@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link JtdsConnectionInstrumentation} presents that skywalking intercepts {@link net.sourceforge.jtds.jdbc.JtdsConnection}.
+ * {@link JtdsConnectionInstrumentation} presents that skywalking intercepts.
  */
 public class JtdsConnectionInstrumentation extends AbstractConnectionInstrumentation {
     public static final String ENHANCE_CLASS = "net.sourceforge.jtds.jdbc.JtdsConnection";
