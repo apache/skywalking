@@ -341,6 +341,9 @@ AsyncHttpClient:
 dbcp:
   id: 103
   languages: Java
+mssql-jtds:
+  id: 104
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
