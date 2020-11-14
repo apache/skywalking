@@ -31,6 +31,9 @@ import java.util.Arrays;
 
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
+    
+    private static String[] IGNORE_SUFFIX_ARRAY = Config.Agent.IGNORE_SUFFIX.split(",");
+    
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
@@ -63,7 +66,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         }
 
         int suffixIdx = operationName.lastIndexOf(".");
-        if (suffixIdx > -1 && Arrays.stream(Config.Agent.IGNORE_SUFFIX.split(",")).anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
+        if (suffixIdx > -1 && Arrays.stream(IGNORE_SUFFIX_ARRAY).anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
