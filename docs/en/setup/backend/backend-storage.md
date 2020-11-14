@@ -223,22 +223,25 @@ All connection related settings including link url, username and password are in
 Here are some of the settings, please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for all the settings.
 
 ## TiDB
-Currently tested TiDB in version 2.0.9, and Mysql Client driver in version 8.0.13.
-Active TiDB as storage, set storage provider to **mysql**. 
+Tested TiDB Server 4.0.8 version and Mysql Client driver 8.0.13 version currently.
+Active TiDB as storage, set storage provider to **tidb**. 
 
 ```yaml
 storage:
-  selector: ${SW_STORAGE:mysql}
-  mysql:
+  selector: ${SW_STORAGE:tidb}
+  tidb:
     properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/swtest"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:""}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
       dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+      dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
 ```
 All connection related settings including link url, username and password are in `application.yml`. 
 These settings can refer to the configuration of *MySQL* above.
