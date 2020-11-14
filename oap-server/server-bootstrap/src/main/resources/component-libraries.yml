@@ -341,7 +341,7 @@ AsyncHttpClient:
 dbcp:
   id: 103
   languages: Java
-mssql-jtds:
+mssql-jdbc-driver:
   id: 104
   languages: Java
 
@@ -541,3 +541,4 @@ Component-Server-Mappings:
   Predis: Redis
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
+  mssql-jdbc-driver: SqlServer

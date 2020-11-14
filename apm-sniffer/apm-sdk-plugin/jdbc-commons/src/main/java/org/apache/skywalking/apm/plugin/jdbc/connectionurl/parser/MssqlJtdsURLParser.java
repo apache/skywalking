@@ -31,7 +31,7 @@ public class MssqlJtdsURLParser extends AbstractURLParser {
 
     private static final int DEFAULT_PORT = 1433;
     private String dbType = "Mssql";
-    private OfficialComponent component = ComponentsDefine.MSSQL_JTDS_DRIVER;
+    private OfficialComponent component = ComponentsDefine.MSSQL_JDBC_DRIVER;
     private static ILog LOGGER = LogManager.getLogger(MssqlJtdsURLParser.class);
 
     public MssqlJtdsURLParser(String url) {

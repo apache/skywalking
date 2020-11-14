@@ -189,5 +189,5 @@ public class ComponentsDefine {
 
     public static final OfficialComponent DBCP = new OfficialComponent(103, "dbcp");
 
-    public static final OfficialComponent MSSQL_JTDS_DRIVER = new OfficialComponent(104, "mssql-jtds");
+    public static final OfficialComponent MSSQL_JDBC_DRIVER = new OfficialComponent(104, "mssql-jdbc-driver");
 }
