@@ -41,6 +41,7 @@ Release Notes.
 * Make the codes and doc consistent in sharding server and core server.
 * Fix that chunked string is incorrect while the tag contains colon.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
+* Remove unused min date timebucket in jdbc deletehistory logical
 * Fix "transaction too large error" when use TiDB as storage.
 
 #### UI
