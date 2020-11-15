@@ -18,9 +18,8 @@ version: '2.1'
 services:
   tidb:
     image: pingcap/tidb:latest
-    ports:
-      - "4000:4000"
-      - "10080:10080"
+    expose:
+      - 4000
     volumes:
       - ./tidbconfig/tidb.toml:/tidb.toml:ro
     restart: on-failure
@@ -29,6 +28,8 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
+    networks:
+      - e2e
 
   oap:
     extends:
