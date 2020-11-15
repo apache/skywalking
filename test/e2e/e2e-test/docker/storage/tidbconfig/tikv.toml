@@ -1,0 +1,497 @@
+# TiKV config template
+#  Human-readable big numbers:
+#   File size(based on byte): KB, MB, GB, TB, PB
+#    e.g.: 1_048_576 = "1MB"
+#   Time(based on ms): ms, s, m, h
+#    e.g.: 78_000 = "1.3m"
+
+# log level: trace, debug, info, warn, error, off.
+log-level = "error"
+# file to store log, write to stderr if it's empty.
+# log-file = ""
+
+[readpool.storage]
+# size of thread pool for high-priority operations
+# high-concurrency = 4
+# size of thread pool for normal-priority operations
+# normal-concurrency = 4
+# size of thread pool for low-priority operations
+# low-concurrency = 4
+# max running high-priority operations, reject if exceed
+# max-tasks-high = 8000
+# max running normal-priority operations, reject if exceed
+# max-tasks-normal = 8000
+# max running low-priority operations, reject if exceed
+# max-tasks-low = 8000
+# size of stack size for each thread pool
+# stack-size = "10MB"
+
+[readpool.coprocessor]
+# Notice: if CPU_NUM > 8, default thread pool size for coprocessors
+# will be set to CPU_NUM * 0.8.
+
+# high-concurrency = 8
+# normal-concurrency = 8
+# low-concurrency = 8
+# max-tasks-high = 16000
+# max-tasks-normal = 16000
+# max-tasks-low = 16000
+# stack-size = "10MB"
+
+[server]
+# set listening address.
+# addr = "127.0.0.1:20160"
+# set advertise listening address for client communication, if not set, use addr instead.
+# advertise-addr = ""
+# notify capacity, 40960 is suitable for about 7000 regions.
+# notify-capacity = 40960
+# maximum number of messages can be processed in one tick.
+# messages-per-tick = 4096
+
+# compression type for grpc channel, available values are no, deflate and gzip.
+# grpc-compression-type = "no"
+# size of thread pool for grpc server.
+# grpc-concurrency = 4
+# The number of max concurrent streams/requests on a client connection.
+# grpc-concurrent-stream = 1024
+# The number of connections with each tikv server to send raft messages.
+# grpc-raft-conn-num = 10
+# Amount to read ahead on individual grpc streams.
+# grpc-stream-initial-window-size = "2MB"
+
+# How many snapshots can be sent concurrently.
+# concurrent-send-snap-limit = 32
+# How many snapshots can be recv concurrently.
+# concurrent-recv-snap-limit = 32
+
+# max count of tasks being handled, new tasks will be rejected.
+# end-point-max-tasks = 2000
+
+# max recursion level allowed when decoding dag expression
+# end-point-recursion-limit = 1000
+
+# max time to handle coprocessor request before timeout
+# end-point-request-max-handle-duration = "60s"
+
+# the max bytes that snapshot can be written to disk in one second,
+# should be set based on your disk performance
+# snap-max-write-bytes-per-sec = "100MB"
+
+# set attributes about this server, e.g. { zone = "us-west-1", disk = "ssd" }.
+# labels = {}
+
+[storage]
+# set the path to rocksdb directory.
+# data-dir = "/tmp/tikv/store"
+
+# notify capacity of scheduler's channel
+# scheduler-notify-capacity = 10240
+
+# maximum number of messages can be processed in one tick
+# scheduler-messages-per-tick = 1024
+
+# the number of slots in scheduler latches, concurrency control for write.
+# scheduler-concurrency = 2048000
+
+# scheduler's worker pool size, should increase it in heavy write cases,
+# also should less than total cpu cores.
+# scheduler-worker-pool-size = 4
+
+# When the pending write bytes exceeds this threshold,
+# the "scheduler too busy" error is displayed.
+# scheduler-pending-write-threshold = "100MB"
+
+[pd]
+# pd endpoints
+# endpoints = []
+
+[metric]
+# the Prometheus client push interval. Setting the value to 0s stops Prometheus client from pushing.
+# interval = "15s"
+# the Prometheus pushgateway address. Leaving it empty stops Prometheus client from pushing.
+address = "pushgateway:9091"
+# the Prometheus client push job name. Note: A node id will automatically append, e.g., "tikv_1".
+# job = "tikv"
+
+[raftstore]
+# true (default value) for high reliability, this can prevent data loss when power failure.
+# sync-log = true
+
+# set the path to raftdb directory, default value is data-dir/raft
+# raftdb-path = ""
+
+# set store capacity, if no set, use disk capacity.
+# capacity = 0
+
+# notify capacity, 40960 is suitable for about 7000 regions.
+# notify-capacity = 40960
+
+# maximum number of messages can be processed in one tick.
+# messages-per-tick = 4096
+
+# Region heartbeat tick interval for reporting to pd.
+# pd-heartbeat-tick-interval = "60s"
+# Store heartbeat tick interval for reporting to pd.
+# pd-store-heartbeat-tick-interval = "10s"
+
+# When region size changes exceeds region-split-check-diff, we should check
+# whether the region should be split or not.
+# region-split-check-diff = "6MB"
+
+# Interval to check region whether need to be split or not.
+# split-region-check-tick-interval = "10s"
+
+# When raft entry exceed the max size, reject to propose the entry.
+# raft-entry-max-size = "8MB"
+
+# Interval to gc unnecessary raft log.
+# raft-log-gc-tick-interval = "10s"
+# A threshold to gc stale raft log, must >= 1.
+# raft-log-gc-threshold = 50
+# When entry count exceed this value, gc will be forced trigger.
+# raft-log-gc-count-limit = 72000
+# When the approximate size of raft log entries exceed this value, gc will be forced trigger.
+# It's recommanded to set it to 3/4 of region-split-size.
+# raft-log-gc-size-limit = "72MB"
+
+# When a peer hasn't been active for max-peer-down-duration,
+# we will consider this peer to be down and report it to pd.
+# max-peer-down-duration = "5m"
+
+# Interval to check whether start manual compaction for a region,
+# region-compact-check-interval = "5m"
+# Number of regions for each time to check.
+# region-compact-check-step = 100
+# The minimum number of delete tombstones to trigger manual compaction.
+# region-compact-min-tombstones = 10000
+# Interval to check whether should start a manual compaction for lock column family,
+# if written bytes reach lock-cf-compact-threshold for lock column family, will fire
+# a manual compaction for lock column family.
+# lock-cf-compact-interval = "10m"
+# lock-cf-compact-bytes-threshold = "256MB"
+
+# Interval (s) to check region whether the data are consistent.
+# consistency-check-interval = 0
+
+# Use delete range to drop a large number of continuous keys.
+# use-delete-range = false
+
+# delay time before deleting a stale peer
+# clean-stale-peer-delay = "10m"
+
+# Interval to cleanup import sst files.
+# cleanup-import-sst-interval = "10m"
+
+[coprocessor]
+# When it is true, it will try to split a region with table prefix if
+# that region crosses tables. It is recommended to turn off this option
+# if there will be a large number of tables created.
+# split-region-on-table = true
+# When the region's size exceeds region-max-size, we will split the region
+# into two which the left region's size will be region-split-size or a little
+# bit smaller.
+# region-max-size = "144MB"
+# region-split-size = "96MB"
+
+[rocksdb]
+# Maximum number of concurrent background jobs (compactions and flushes)
+# max-background-jobs = 8
+
+# This value represents the maximum number of threads that will concurrently perform a
+# compaction job by breaking it into multiple, smaller ones that are run simultaneously.
+# Default: 1 (i.e. no subcompactions)
+# max-sub-compactions = 1
+
+# Number of open files that can be used by the DB.  You may need to
+# increase this if your database has a large working set. Value -1 means
+# files opened are always kept open. You can estimate number of files based
+# on target_file_size_base and target_file_size_multiplier for level-based
+# compaction.
+# If max-open-files = -1, RocksDB will prefetch index and filter blocks into
+# block cache at startup, so if your database has a large working set, it will
+# take several minutes to open the db.
+max-open-files = 1024
+
+# Max size of rocksdb's MANIFEST file.
+# For detailed explanation please refer to https://github.com/facebook/rocksdb/wiki/MANIFEST
+# max-manifest-file-size = "20MB"
+
+# If true, the database will be created if it is missing.
+# create-if-missing = true
+
+# rocksdb wal recovery mode
+# 0 : TolerateCorruptedTailRecords, tolerate incomplete record in trailing data on all logs;
+# 1 : AbsoluteConsistency, We don't expect to find any corruption in the WAL;
+# 2 : PointInTimeRecovery, Recover to point-in-time consistency;
+# 3 : SkipAnyCorruptedRecords, Recovery after a disaster;
+# wal-recovery-mode = 2
+
+# rocksdb write-ahead logs dir path
+# This specifies the absolute dir path for write-ahead logs (WAL).
+# If it is empty, the log files will be in the same dir as data.
+# When you set the path to rocksdb directory in memory like in /dev/shm, you may want to set
+# wal-dir to a directory on a persistent storage.
+# See https://github.com/facebook/rocksdb/wiki/How-to-persist-in-memory-RocksDB-database
+# wal-dir = "/tmp/tikv/store"
+
+# The following two fields affect how archived write-ahead logs will be deleted.
+# 1. If both set to 0, logs will be deleted asap and will not get into the archive.
+# 2. If wal-ttl-seconds is 0 and wal-size-limit is not 0,
+#    WAL files will be checked every 10 min and if total size is greater
+#    then wal-size-limit, they will be deleted starting with the
+#    earliest until size_limit is met. All empty files will be deleted.
+# 3. If wal-ttl-seconds is not 0 and wal-size-limit is 0, then
+#    WAL files will be checked every wal-ttl-seconds / 2 and those that
+#    are older than wal-ttl-seconds will be deleted.
+# 4. If both are not 0, WAL files will be checked every 10 min and both
+#    checks will be performed with ttl being first.
+# When you set the path to rocksdb directory in memory like in /dev/shm, you may want to set
+# wal-ttl-seconds to a value greater than 0 (like 86400) and backup your db on a regular basis.
+# See https://github.com/facebook/rocksdb/wiki/How-to-persist-in-memory-RocksDB-database
+# wal-ttl-seconds = 0
+# wal-size-limit = 0
+
+# rocksdb max total wal size
+# max-total-wal-size = "4GB"
+
+# Rocksdb Statistics provides cumulative stats over time.
+# Turn statistics on will introduce about 5%-10% overhead for RocksDB,
+# but it is worthy to know the internal status of RocksDB.
+# enable-statistics = true
+
+# Dump statistics periodically in information logs.
+# Same as rocksdb's default value (10 min).
+# stats-dump-period = "10m"
+
+# Due to Rocksdb FAQ: https://github.com/facebook/rocksdb/wiki/RocksDB-FAQ,
+# If you want to use rocksdb on multi disks or spinning disks, you should set value at
+# least 2MB;
+# compaction-readahead-size = 0
+
+# This is the maximum buffer size that is used by WritableFileWrite
+# writable-file-max-buffer-size = "1MB"
+
+# Use O_DIRECT for both reads and writes in background flush and compactions
+# use-direct-io-for-flush-and-compaction = false
+
+# Limit the disk IO of compaction and flush. Compaction and flush can cause
+# terrible spikes if they exceed a certain threshold. Consider setting this to
+# 50% ~ 80% of the disk throughput for a more stable result. However, in heavy
+# write workload, limiting compaction and flush speed can cause write stalls too.
+# rate-bytes-per-sec = 0
+
+# Enable or disable the pipelined write
+# enable-pipelined-write = true
+
+# Allows OS to incrementally sync files to disk while they are being
+# written, asynchronously, in the background.
+# bytes-per-sync = "0MB"
+
+# Allows OS to incrementally sync WAL to disk while it is being written.
+# wal-bytes-per-sync = "0KB"
+
+# Specify the maximal size of the Rocksdb info log file. If the log file
+# is larger than `max_log_file_size`, a new info log file will be created.
+# If max_log_file_size == 0, all logs will be written to one log file.
+# Default: 1GB
+# info-log-max-size = "1GB"
+
+# Time for the Rocksdb info log file to roll (in seconds).
+# If specified with non-zero value, log file will be rolled
+# if it has been active longer than `log_file_time_to_roll`.
+# Default: 0 (disabled)
+# info-log-roll-time = "0"
+
+# Maximal Rocksdb info log files to be kept.
+# Default: 10
+# info-log-keep-log-file-num = 10
+
+# This specifies the Rocksdb info LOG dir.
+# If it is empty, the log files will be in the same dir as data.
+# If it is non empty, the log files will be in the specified dir,
+# and the db data dir's absolute path will be used as the log file
+# name's prefix.
+# Default: empty
+# info-log-dir = ""
+
+# Column Family default used to store actual data of the database.
+[rocksdb.defaultcf]
+# compression method (if any) is used to compress a block.
+#   no:     kNoCompression
+#   snappy: kSnappyCompression
+#   zlib:   kZlibCompression
+#   bzip2:  kBZip2Compression
+#   lz4:    kLZ4Compression
+#   lz4hc:  kLZ4HCCompression
+#   zstd:   kZSTD
+
+# per level compression
+# compression-per-level = ["no", "no", "lz4", "lz4", "lz4", "zstd", "zstd"]
+
+# Approximate size of user data packed per block.  Note that the
+# block size specified here corresponds to uncompressed data.
+# block-size = "64KB"
+
+# If you're doing point lookups you definitely want to turn bloom filters on, We use
+# bloom filters to avoid unnecessary disk reads. Default bits_per_key is 10, which
+# yields ~1% false positive rate. Larger bits_per_key values will reduce false positive
+# rate, but increase memory usage and space amplification.
+# bloom-filter-bits-per-key = 10
+
+# false means one sst file one bloom filter, true means evry block has a corresponding bloom filter
+# block-based-bloom-filter = false
+
+# level0-file-num-compaction-trigger = 4
+
+# Soft limit on number of level-0 files. We start slowing down writes at this point.
+# level0-slowdown-writes-trigger = 20
+
+# Maximum number of level-0 files.  We stop writes at this point.
+# level0-stop-writes-trigger = 36
+
+# Amount of data to build up in memory (backed by an unsorted log
+# on disk) before converting to a sorted on-disk file.
+# write-buffer-size = "128MB"
+
+# The maximum number of write buffers that are built up in memory.
+# max-write-buffer-number = 5
+
+# The minimum number of write buffers that will be merged together
+# before writing to storage.
+# min-write-buffer-number-to-merge = 1
+
+# Control maximum total data size for base level (level 1).
+# max-bytes-for-level-base = "512MB"
+
+# Target file size for compaction.
+# target-file-size-base = "8MB"
+
+# Max bytes for compaction.max_compaction_bytes
+# max-compaction-bytes = "2GB"
+
+# There are four different algorithms to pick files to compact.
+# 0 : ByCompensatedSize
+# 1 : OldestLargestSeqFirst
+# 2 : OldestSmallestSeqFirst
+# 3 : MinOverlappingRatio
+# compaction-pri = 3
+
+# block-cache used to cache uncompressed blocks, big block-cache can speed up read.
+# in normal cases should tune to 30%-50% system's total memory.
+# block-cache-size = "1GB"
+
+# Indicating if we'd put index/filter blocks to the block cache.
+# If not specified, each "table reader" object will pre-load index/filter block
+# during table initialization.
+# cache-index-and-filter-blocks = true
+
+# Pin level0 filter and index blocks in cache.
+# pin-l0-filter-and-index-blocks = true
+
+# Enable read amplication statistics.
+# value  =>  memory usage (percentage of loaded blocks memory)
+# 1      =>  12.50 %
+# 2      =>  06.25 %
+# 4      =>  03.12 %
+# 8      =>  01.56 %
+# 16     =>  00.78 %
+# read-amp-bytes-per-bit = 0
+
+# Pick target size of each level dynamically.
+# dynamic-level-bytes = true
+
+# Options for Column Family write
+# Column Family write used to store commit informations in MVCC model
+[rocksdb.writecf]
+# compression-per-level = ["no", "no", "lz4", "lz4", "lz4", "zstd", "zstd"]
+# block-size = "64KB"
+# write-buffer-size = "128MB"
+# max-write-buffer-number = 5
+# min-write-buffer-number-to-merge = 1
+# max-bytes-for-level-base = "512MB"
+# target-file-size-base = "8MB"
+
+# in normal cases should tune to 10%-30% system's total memory.
+# block-cache-size = "256MB"
+# level0-file-num-compaction-trigger = 4
+# level0-slowdown-writes-trigger = 20
+# level0-stop-writes-trigger = 36
+# cache-index-and-filter-blocks = true
+# pin-l0-filter-and-index-blocks = true
+# compaction-pri = 3
+# read-amp-bytes-per-bit = 0
+# dynamic-level-bytes = true
+
+[rocksdb.lockcf]
+# compression-per-level = ["no", "no", "no", "no", "no", "no", "no"]
+# block-size = "16KB"
+# write-buffer-size = "128MB"
+# max-write-buffer-number = 5
+# min-write-buffer-number-to-merge = 1
+# max-bytes-for-level-base = "128MB"
+# target-file-size-base = "8MB"
+# block-cache-size = "256MB"
+# level0-file-num-compaction-trigger = 1
+# level0-slowdown-writes-trigger = 20
+# level0-stop-writes-trigger = 36
+# cache-index-and-filter-blocks = true
+# pin-l0-filter-and-index-blocks = true
+# compaction-pri = 0
+# read-amp-bytes-per-bit = 0
+# dynamic-level-bytes = true
+
+[raftdb]
+# max-sub-compactions = 1
+max-open-files = 1024
+# max-manifest-file-size = "20MB"
+# create-if-missing = true
+
+# enable-statistics = true
+# stats-dump-period = "10m"
+
+# compaction-readahead-size = 0
+# writable-file-max-buffer-size = "1MB"
+# use-direct-io-for-flush-and-compaction = false
+# enable-pipelined-write = true
+# allow-concurrent-memtable-write = false
+# bytes-per-sync = "0MB"
+# wal-bytes-per-sync = "0KB"
+
+# info-log-max-size = "1GB"
+# info-log-roll-time = "0"
+# info-log-keep-log-file-num = 10
+# info-log-dir = ""
+
+[raftdb.defaultcf]
+# compression-per-level = ["no", "no", "lz4", "lz4", "lz4", "zstd", "zstd"]
+# block-size = "64KB"
+# write-buffer-size = "128MB"
+# max-write-buffer-number = 5
+# min-write-buffer-number-to-merge = 1
+# max-bytes-for-level-base = "512MB"
+# target-file-size-base = "8MB"
+
+# should tune to 256MB~2GB.
+# block-cache-size = "256MB"
+# level0-file-num-compaction-trigger = 4
+# level0-slowdown-writes-trigger = 20
+# level0-stop-writes-trigger = 36
+# cache-index-and-filter-blocks = true
+# pin-l0-filter-and-index-blocks = true
+# compaction-pri = 0
+# read-amp-bytes-per-bit = 0
+# dynamic-level-bytes = true
+
+[security]
+# set the path for certificates. Empty string means disabling secure connectoins.
+# ca-path = ""
+# cert-path = ""
+# key-path = ""
+
+[import]
+# the directory to store importing kv data.
+# import-dir = "/tmp/tikv/import"
+# number of threads to handle RPC requests.
+# num-threads = 8
+# stream channel window size, stream will be blocked on channel full.
+# stream-channel-window = 128
