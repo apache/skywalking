@@ -33,9 +33,9 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  * {@link java.sql.Connection}.
  * <p>
  * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
- * 3. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
- * 4. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCStatementInterceptor</code>
- * 5. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
+ * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
+ * 3. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCStatementInterceptor</code>
+ * 4. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
  */
 public abstract class AbstractConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
