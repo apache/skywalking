@@ -42,6 +42,7 @@ Release Notes.
 * Make the codes and doc consistent in sharding server and core server.
 * Fix that chunked string is incorrect while the tag contains colon.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
+* Remove unused min date timebucket in jdbc deletehistory logical
 
 #### UI
 * Fix incorrect label in radial chart in topology.
