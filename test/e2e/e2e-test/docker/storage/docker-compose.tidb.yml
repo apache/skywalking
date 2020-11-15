@@ -16,38 +16,6 @@
 version: '2.1'
 
 services:
-  pd0:
-    image: pingcap/pd:latest
-    ports:
-      - "2379"
-    volumes:
-      - ./tidbconfig/pd.toml:/pd.toml:ro
-    command:
-      - --name=pd0
-      - --client-urls=http://0.0.0.0:2379
-      - --peer-urls=http://0.0.0.0:2380
-      - --advertise-client-urls=http://pd0:2379
-      - --advertise-peer-urls=http://pd0:2380
-      - --initial-cluster=pd0=http://pd0:2380
-      - --data-dir=/data/pd0
-      - --config=/pd.toml
-      - --log-file=/logs/pd0.log
-    restart: on-failure
-  tikv0:
-    image: pingcap/tikv:latest
-    volumes:
-      - ./tidbconfig/tikv.toml:/tikv.toml:ro
-    command:
-      - --addr=0.0.0.0:20160
-      - --advertise-addr=tikv0:20160
-      - --data-dir=/data/tikv0
-      - --pd=pd0:2379
-      - --config=/tikv.toml
-      - --log-file=/logs/tikv0.log
-    depends_on:
-      - "pd0"
-    restart: on-failure
-
   tidb:
     image: pingcap/tidb:latest
     ports:
@@ -55,20 +23,12 @@ services:
       - "10080:10080"
     volumes:
       - ./tidbconfig/tidb.toml:/tidb.toml:ro
-    command:
-      - --store=tikv
-      - --path=pd0:2379
-      - --config=/tidb.toml
-      - --log-file=/logs/tidb.log
-      - --advertise-address=tidb
-    depends_on:
-      - "tikv0"
+    restart: on-failure
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/4000 "]
       interval: 5s
       timeout: 60s
       retries: 120
-    restart: on-failure
 
   oap:
     extends:
