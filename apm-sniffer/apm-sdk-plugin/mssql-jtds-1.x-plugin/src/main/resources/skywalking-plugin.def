@@ -15,5 +15,4 @@
 # limitations under the License.
 
 mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.DriverInstrumentation
-mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.JtdsConnectionInstrumentation
-mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.ConnectionJDBC2Instrumentation
+mssql-jtds-1.x=org.apache.skywalking.apm.plugin.mssql.jtds.v1.define.ConnectionInstrumentation

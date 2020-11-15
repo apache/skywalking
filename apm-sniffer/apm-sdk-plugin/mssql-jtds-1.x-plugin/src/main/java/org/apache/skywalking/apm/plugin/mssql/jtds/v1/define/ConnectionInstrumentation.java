@@ -19,17 +19,17 @@
 package org.apache.skywalking.apm.plugin.mssql.jtds.v1.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 /**
- * {@link ConnectionJDBC2Instrumentation} presents that skywalking intercepts {@link net.sourceforge.jtds.jdbc.ConnectionJDBC2}.
+ * {@link ConnectionInstrumentation} presents that skywalking intercepts.
  */
-public class ConnectionJDBC2Instrumentation extends AbstractConnectionInstrumentation {
-    public static final String ENHANCE_CLASS = "net.sourceforge.jtds.jdbc.ConnectionJDBC2";
+public class ConnectionInstrumentation extends AbstractConnectionInstrumentation {
+    public static final String ENHANCE_CONNECTION_JDBC2_CLASS = "net.sourceforge.jtds.jdbc.ConnectionJDBC2";
+    public static final String ENHANCE_JTDS_CONNECTION_CLASS = "net.sourceforge.jtds.jdbc.JtdsConnection";
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CONNECTION_JDBC2_CLASS, ENHANCE_JTDS_CONNECTION_CLASS);
     }
 }

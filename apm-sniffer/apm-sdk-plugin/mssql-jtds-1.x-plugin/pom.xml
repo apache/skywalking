@@ -46,6 +46,7 @@
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <version>${mssql-jtds.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -364,7 +364,7 @@ StackExchange.Redis:
   languages: C#
 SqlServer:
   id: 3006
-  languages: C#
+  languages: C#,Java
 Npgsql:
   id: 3007
   languages: C#
