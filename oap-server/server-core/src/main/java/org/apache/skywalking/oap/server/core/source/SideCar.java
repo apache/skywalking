@@ -27,7 +27,7 @@ import lombok.Setter;
  */
 public class SideCar {
     /**
-     * The sidecar/proxy internal error code, the value bases on the implementation.
+     * the sidecar/gateway proxy internal error code, the value bases on the implementation.
      */
     @Setter
     @Getter
