@@ -16,23 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-public class Expression {
+/**
+ * As service mesh is becoming the next generation standard infrastructure for k8s and out-of-k8s env, the sidecar
+ * source would be an attachment for sources of Service, Instance, Endpoint, and their relationship.
+ */
+public class SideCar {
+    /**
+     * The sidecar/proxy internal error code, the value bases on the implementation.
+     */
     @Setter
-    private String expressionObject;
-    private String left;
-    private String right;
-
-    public void setLeft(String left) {
-        this.left = left;
-    }
-
-    public void setRight(String right) {
-        this.right = right;
-    }
+    @Getter
+    private String internalErrorCode = "";
 }
