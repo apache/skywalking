@@ -19,7 +19,7 @@ Release Notes.
 * Fix NPE in the nutz plugin.
 * Provide Apache Commons DBCP 2.x plugin.
 * Add the plugin for mssql-jtds 1.x plugin.
-* Fix request url traceId sometimes shows "Ignored_Trace".
+* Fix the default ignore mechanism isn't accurate enough bug.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
