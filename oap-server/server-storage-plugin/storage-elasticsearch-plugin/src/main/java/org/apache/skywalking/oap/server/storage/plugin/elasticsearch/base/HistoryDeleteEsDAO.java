@@ -49,7 +49,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                 return;
             }
         }
-        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMdd"));
+        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
 
         List<String> indexes = client.retrievalIndexByAliases(model.getName());
 
