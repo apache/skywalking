@@ -28,6 +28,8 @@ Release Notes.
 * Add Envoy ALS analyzer based on metadata exchange.
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
+* Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
+* Support `sideCar.internalErrorCode` in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
 * Improve Kubernetes service registry for ALS analysis.
 * Add health checker for cluster management
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
