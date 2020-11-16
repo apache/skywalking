@@ -39,6 +39,7 @@ metrics based on the tracing data.
   * PostgreSQL Driver 8.x, 9.x, 42.x
   * Mariadb Driver 2.x, 1.8
   * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
+  * [Mssql-Jtds](https://github.com/milesibastos/jTDS) 1.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4

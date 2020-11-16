@@ -18,6 +18,8 @@ Release Notes.
 * Add the plugin for async-http-client 2.x
 * Fix NPE in the nutz plugin.
 * Provide Apache Commons DBCP 2.x plugin.
+* Add the plugin for mssql-jtds 1.x plugin.
+* Fix the default ignore mechanism isn't accurate enough bug.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
@@ -41,6 +43,7 @@ Release Notes.
 * Make the codes and doc consistent in sharding server and core server.
 * Fix that chunked string is incorrect while the tag contains colon.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
+* Remove unused min date timebucket in jdbc deletehistory logical
 
 #### UI
 * Fix incorrect label in radial chart in topology.

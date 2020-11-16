@@ -60,6 +60,7 @@ jobs:
           - mongodb-4.x-scenario
           - netty-socketio-scenario
           - postgresql-above9.4.1207-scenario
+          - mssql-jtds-scenario
     steps:
       - uses: actions/checkout@v2
         with:
