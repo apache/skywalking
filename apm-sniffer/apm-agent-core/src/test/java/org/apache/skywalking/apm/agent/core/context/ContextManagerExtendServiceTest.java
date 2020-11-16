@@ -45,7 +45,7 @@ public class ContextManagerExtendServiceTest {
 
     @Test
     public void testRequestUrlCreateTraceContext() {
-        ContextManagerExtendService extendService = new ContextManagerExtendService();
+        ContextManagerExtendService extendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
 
         AbstractTracerContext tracerContext = extendService.createTraceContext("/app/demo/index.html", false);
         String traceId = tracerContext.getReadablePrimaryTraceId();
