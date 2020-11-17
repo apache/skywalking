@@ -33,20 +33,26 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
+import org.apache.skywalking.oap.server.receiver.otel.Handler;
 
-@RequiredArgsConstructor
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
-public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
+public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase implements Handler {
 
-    private final List<PrometheusMetricConverter> metrics;
+    private List<PrometheusMetricConverter> metrics;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
@@ -122,4 +128,25 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
             Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos()).toEpochMilli();
     }
 
+    @Override public String type() {
+        return "oc";
+    }
+
+    @Override public void active(List<String> enabledRules,
+        MeterSystem service, GRPCHandlerRegister grpcHandlerRegister) {
+        List<Rule> rules;
+        try {
+            rules = Rules.loadRules("otel-oc-rules", enabledRules);
+        } catch (ModuleStartException e) {
+            log.warn("failed to load oc-rules");
+            return;
+        }
+        if (rules.isEmpty()) {
+            return;
+        }
+        this.metrics = rules.stream().map(r ->
+            new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service))
+            .collect(toList());
+        grpcHandlerRegister.addHandler(this);
+    }
 }

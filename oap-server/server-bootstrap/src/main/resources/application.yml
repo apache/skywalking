@@ -279,9 +279,10 @@ receiver-meter:
 
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:-}
-  oc:
-    gRPCHost: ${SW_OTEL_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OTEL_RECEIVER_GRPC_PORT:55678}
+  default:
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
+    # Empty list ("") means all of rules are enabled.
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"oap"}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}

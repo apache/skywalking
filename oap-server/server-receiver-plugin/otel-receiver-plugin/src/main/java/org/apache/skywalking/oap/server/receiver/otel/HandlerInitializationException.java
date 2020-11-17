@@ -16,20 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.otel.oc;
+package org.apache.skywalking.oap.server.receiver.otel;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
-@Getter
-@Setter
-public class OCMetricReceiverConfig extends ModuleConfig {
-    private String gRPCHost = "0.0.0.0";
-    private int gRPCPort = -1;
-    private int maxConcurrentCallsPerConnection;
-    private int maxMessageSize;
-    private int gRPCThreadPoolSize;
-    private int gRPCThreadPoolQueueSize;
-    private String rulePath = "oc-rules";
+public class HandlerInitializationException extends ModuleStartException {
+    public HandlerInitializationException(String message) {
+        super(message);
+    }
+
+    public HandlerInitializationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
