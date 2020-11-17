@@ -75,7 +75,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
             .from(ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (StringUtil.isNotEmpty(group)) {
-            where.where(eq(TagName.GROUP, group));
+            where.where(eq(TagName.SERVICE_GROUP, group));
         }
         SelectSubQueryImpl<SelectQueryImpl> subQuery = where
             .groupBy(TagName.NAME, TagName.NODE_TYPE);

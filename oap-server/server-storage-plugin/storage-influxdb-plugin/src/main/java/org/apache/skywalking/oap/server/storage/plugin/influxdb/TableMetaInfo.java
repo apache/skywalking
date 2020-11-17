@@ -64,7 +64,7 @@ public class TableMetaInfo {
             } else {
                 // service_traffic  name, node_type, group
                 storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
-                storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.NODE_TYPE);
+                storageAndTagMap.put(InfluxConstants.TagName.SERVICE_GROUP, InfluxConstants.TagName.NODE_TYPE);
             }
         } else {
 
