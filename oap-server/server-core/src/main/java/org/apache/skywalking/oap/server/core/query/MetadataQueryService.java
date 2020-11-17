@@ -46,12 +46,12 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return metadataQueryDAO;
     }
 
-    public List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException {
-        return getMetadataQueryDAO().getAllServices(startTimestamp, endTimestamp);
+    public List<Service> getAllServices(final String group) throws IOException {
+        return getMetadataQueryDAO().getAllServices(group);
     }
 
-    public List<Service> getAllBrowserServices(final long startTimestamp, final long endTimestamp) throws IOException {
-        return getMetadataQueryDAO().getAllBrowserServices(startTimestamp, endTimestamp);
+    public List<Service> getAllBrowserServices() throws IOException {
+        return getMetadataQueryDAO().getAllBrowserServices();
     }
 
     public List<Database> getAllDatabases() throws IOException {
@@ -60,7 +60,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     public List<Service> searchServices(final long startTimestamp, final long endTimestamp,
                                         final String keyword) throws IOException {
-        return getMetadataQueryDAO().searchServices(startTimestamp, endTimestamp, keyword);
+        return getMetadataQueryDAO().searchServices(keyword);
     }
 
     public List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
