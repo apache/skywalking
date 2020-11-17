@@ -43,6 +43,8 @@ public interface InfluxConstants {
 
         String NODE_TYPE = "_node_type";
 
+        String GROUP = "_group";
+
         String SERVICE_ID = "_service_id";
     }
 }

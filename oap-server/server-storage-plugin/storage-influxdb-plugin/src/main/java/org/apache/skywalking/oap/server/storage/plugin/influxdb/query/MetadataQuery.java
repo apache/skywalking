@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -67,12 +68,16 @@ public class MetadataQuery implements IMetadataQueryDAO {
     private final InfluxClient client;
 
     @Override
-    public List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException {
-        SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
+    public List<Service> getAllServices(final String group) throws IOException {
+        final WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> where = select()
             .fromSubQuery(client.getDatabase())
             .column(ID_COLUMN).column(NAME)
             .from(ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())))
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+        if (StringUtil.isNotEmpty(group)) {
+            where.where(eq(TagName.GROUP, group));
+        }
+        SelectSubQueryImpl<SelectQueryImpl> subQuery = where
             .groupBy(TagName.NAME, TagName.NODE_TYPE);
         SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
         query.setSubQuery(subQuery);
@@ -80,7 +85,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
+    public List<Service> getAllBrowserServices() throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Browser.value())));
@@ -115,7 +120,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(long startTimestamp, long endTimestamp, String keyword) throws IOException {
+    public List<Service> searchServices(String keyword) throws IOException {
         WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = select()
             .fromSubQuery(client.getDatabase())
             .column(ID_COLUMN)
