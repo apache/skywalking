@@ -32,6 +32,8 @@ Release Notes.
 * Support `sideCar.internalErrorCode` in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
 * Improve Kubernetes service registry for ALS analysis.
 * Add health checker for cluster management
+* Support the service auto grouping.
+* Support query service list by the group name.
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
 * Fix the threads of the Kafka fetcher exit if some unexpected exceptions happen.
 * Fix the excessive timeout period set by the kubernetes-client.
