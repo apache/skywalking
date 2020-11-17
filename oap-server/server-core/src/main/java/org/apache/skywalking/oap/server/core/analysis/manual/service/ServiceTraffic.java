@@ -108,9 +108,11 @@ public class ServiceTraffic extends Metrics {
         @Override
         public Map<String, Object> data2Map(final ServiceTraffic storageData) {
             final String serviceName = storageData.getName();
-            int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
-            if (groupIdx > 0) {
-                storageData.setGroup(serviceName.substring(0, groupIdx));
+            if (NodeType.Normal.equals(storageData.getNodeType())) {
+                int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);
+                if (groupIdx > 0) {
+                    storageData.setGroup(serviceName.substring(0, groupIdx));
+                }
             }
             Map<String, Object> map = new HashMap<>();
             map.put(NAME, serviceName);

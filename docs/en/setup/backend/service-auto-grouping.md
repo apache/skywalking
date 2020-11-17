@@ -7,9 +7,9 @@ and different with SkyWalking's self-observability metrics dashboard.
 
 Therefore, since 8.3.0, SkyWalking OAP would generate the group based on this simple naming format.
 
-### ${service name} = [${group name}:]${logic name}
+### ${service name} = [${group name}::]${logic name}
 
-Once the service name includes `:`(colon), the literal string before the colon would be considered as the group name.
+Once the service name includes double colons(`::`), the literal string before the colons would be considered as the group name.
 In the latest GraphQL query, the group name has been provided as an option parameter.
 > getAllServices(duration: Duration!, group: String): [Service!]!
 
