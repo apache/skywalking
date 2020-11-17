@@ -61,6 +61,7 @@ jobs:
           - netty-socketio-scenario
           - postgresql-above9.4.1207-scenario
           - mssql-jtds-scenario
+          - mssql-jdbc-scenario
     steps:
       - uses: actions/checkout@v2
         with:
