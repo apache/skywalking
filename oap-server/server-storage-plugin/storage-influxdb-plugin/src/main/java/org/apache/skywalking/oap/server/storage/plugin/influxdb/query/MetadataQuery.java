@@ -69,19 +69,14 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Service> getAllServices(final String group) throws IOException {
-        final WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> where = select()
-            .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME).column(ServiceTraffic.GROUP)
+        final WhereQueryImpl<SelectQueryImpl> where = select(
+            ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (StringUtil.isNotEmpty(group)) {
-            where.where(eq(TagName.SERVICE_GROUP, group));
+            where.and(eq(TagName.SERVICE_GROUP, group));
         }
-        SelectSubQueryImpl<SelectQueryImpl> subQuery = where
-            .groupBy(TagName.NAME, TagName.NODE_TYPE);
-        SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
-        query.setSubQuery(subQuery);
-        return buildServices(query);
+        return buildServices(where);
     }
 
     @Override
@@ -94,14 +89,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Database> getAllDatabases() throws IOException {
-        SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME).column(ServiceTraffic.GROUP)
-            .from(ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, NodeType.Database.value()))
-            .groupBy(TagName.NAME, TagName.NODE_TYPE);
-        SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
-        query.setSubQuery(subQuery);
+        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
+            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Database.value())));
+
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
@@ -121,30 +112,24 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Service> searchServices(String keyword) throws IOException {
-        WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN)
-            .column(NAME)
-            .column(ServiceTraffic.GROUP)
+        final WhereQueryImpl<SelectQueryImpl> where = select(
+            ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
-            subQuery.and(contains(ServiceTraffic.NAME, keyword));
+            where.and(contains(ServiceTraffic.NAME, keyword));
         }
-        subQuery.groupBy(TagName.NAME, TagName.NODE_TYPE);
-
-        SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
-        query.setSubQuery(subQuery);
-        return buildServices(query);
+        return buildServices(where);
     }
 
     @Override
     public Service searchService(String serviceCode) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
-            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
-        query.and(eq(ServiceTraffic.NAME, serviceCode));
-        return buildServices(query).get(0);
+        WhereQueryImpl<SelectQueryImpl> where = select(
+            ID_COLUMN, NAME, ServiceTraffic.GROUP)
+            .from(ServiceTraffic.INDEX_NAME)
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())))
+            .and(eq(ServiceTraffic.NAME, serviceCode));
+        return buildServices(where).get(0);
     }
 
     @Override
