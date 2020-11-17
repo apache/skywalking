@@ -26,4 +26,5 @@ import lombok.Setter;
 public class Service {
     private String id;
     private String name;
+    private String group;
 }
