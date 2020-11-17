@@ -49,7 +49,7 @@ public class ServiceTraffic extends Metrics {
 
     public static final String NAME = "name";
     public static final String NODE_TYPE = "node_type";
-    public static final String GROUP = "group";
+    public static final String GROUP = "service_group";
 
     @Setter
     @Getter

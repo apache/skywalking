@@ -66,7 +66,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (StringUtil.isNotEmpty(group)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.GROUP, group));
         }
-        
+
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
@@ -236,6 +236,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Service service = new Service();
             service.setId(serviceTraffic.id());
             service.setName(serviceTraffic.getName());
+            service.setGroup(serviceTraffic.getGroup());
             services.add(service);
         }
 

@@ -260,6 +260,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             Service service = new Service();
             service.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
             service.setName(resultSet.getString(ServiceTraffic.NAME));
+            service.setGroup(resultSet.getString(ServiceTraffic.GROUP));
             services.add(service);
         }
 

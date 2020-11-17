@@ -71,7 +71,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Service> getAllServices(final String group) throws IOException {
         final WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> where = select()
             .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME)
+            .column(ID_COLUMN).column(NAME).column(ServiceTraffic.GROUP)
             .from(ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (StringUtil.isNotEmpty(group)) {
@@ -86,7 +86,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Service> getAllBrowserServices() throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME)
+        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Browser.value())));
         return buildServices(query);
@@ -96,7 +96,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Database> getAllDatabases() throws IOException {
         SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
             .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME)
+            .column(ID_COLUMN).column(NAME).column(ServiceTraffic.GROUP)
             .from(ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, NodeType.Database.value()))
             .groupBy(TagName.NAME, TagName.NODE_TYPE);
@@ -125,6 +125,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
             .fromSubQuery(client.getDatabase())
             .column(ID_COLUMN)
             .column(NAME)
+            .column(ServiceTraffic.GROUP)
             .from(ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
@@ -139,7 +140,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public Service searchService(String serviceCode) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME)
+        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         query.and(eq(ServiceTraffic.NAME, serviceCode));
@@ -254,6 +255,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
                 Service service = new Service();
                 service.setId((String) values.get(1));
                 service.setName((String) values.get(2));
+                service.setGroup((String) values.get(3));
                 services.add(service);
             }
         }
