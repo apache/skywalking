@@ -51,7 +51,6 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectSubQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.influxdb.querybuilder.WhereSubQueryImpl;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.NAME;
@@ -136,24 +135,19 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Endpoint> searchEndpoint(final String keyword,
                                          final String serviceId,
                                          final int limit) throws IOException {
-        WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
+        final WhereQueryImpl<SelectQueryImpl> where = select()
             .column(ID_COLUMN)
             .column(NAME)
             .from(EndpointTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.SERVICE_ID, String.valueOf(serviceId)));
+            .where(eq(TagName.SERVICE_ID, String.valueOf(serviceId)));
         if (!Strings.isNullOrEmpty(keyword)) {
-            subQuery.where(contains(EndpointTraffic.NAME, keyword.replaceAll("/", "\\\\/")));
+            where.and(contains(EndpointTraffic.NAME, keyword.replaceAll("/", "\\\\/")));
         }
-        subQuery.groupBy(TagName.NAME, TagName.SERVICE_ID);
-        SelectQueryImpl query = select(ID_COLUMN, NAME)
-            .from(client.getDatabase());
-        query.setSubQuery(subQuery);
-        query.limit(limit);
+        where.limit(limit);
 
-        final QueryResult.Series series = client.queryForSingleSeries(query);
+        final QueryResult.Series series = client.queryForSingleSeries(where);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+            log.debug("SQL: {} result: {}", where.getCommand(), series);
         }
 
         List<Endpoint> list = new ArrayList<>(limit);
