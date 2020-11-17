@@ -70,7 +70,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Service> getAllServices(final String group) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select(
             ID_COLUMN, NAME, ServiceTraffic.GROUP)
-            .from(ServiceTraffic.INDEX_NAME)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (StringUtil.isNotEmpty(group)) {
             where.and(eq(TagName.SERVICE_GROUP, group));
@@ -113,7 +113,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public List<Service> searchServices(String keyword) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> where = select(
             ID_COLUMN, NAME, ServiceTraffic.GROUP)
-            .from(ServiceTraffic.INDEX_NAME)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
             where.and(contains(ServiceTraffic.NAME, keyword));
@@ -125,7 +125,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public Service searchService(String serviceCode) throws IOException {
         WhereQueryImpl<SelectQueryImpl> where = select(
             ID_COLUMN, NAME, ServiceTraffic.GROUP)
-            .from(ServiceTraffic.INDEX_NAME)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())))
             .and(eq(ServiceTraffic.NAME, serviceCode));
         return buildServices(where).get(0);
@@ -138,7 +138,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
         final WhereQueryImpl<SelectQueryImpl> where = select()
             .column(ID_COLUMN)
             .column(NAME)
-            .from(EndpointTraffic.INDEX_NAME)
+            .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
             .where(eq(TagName.SERVICE_ID, String.valueOf(serviceId)));
         if (!Strings.isNullOrEmpty(keyword)) {
             where.and(contains(EndpointTraffic.NAME, keyword.replaceAll("/", "\\\\/")));
