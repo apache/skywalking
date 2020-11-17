@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
@@ -87,6 +88,10 @@ public class TelemetryDataDispatcher {
             }
             if (data.getEndpoint() != null) {
                 data.setEndpoint(NAME_LENGTH_CONTROL.formatEndpointName(data.getDestServiceName(), data.getEndpoint()));
+            }
+            if (data.getInternalErrorCode() == null) {
+                // Add this since 8.2.0, set the default value.
+                data.setInternalErrorCode(Const.EMPTY_STRING);
             }
 
             doDispatch(data);
@@ -166,6 +171,7 @@ public class TelemetryDataDispatcher {
         service.setStatus(metrics.getStatus());
         service.setResponseCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
+        service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(service);
     }
@@ -187,6 +193,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
+        serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -202,6 +209,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setStatus(metrics.getStatus());
         serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
+        serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(serviceInstance);
     }
@@ -223,6 +231,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
+        serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -238,6 +247,7 @@ public class TelemetryDataDispatcher {
         endpoint.setStatus(metrics.getStatus());
         endpoint.setResponseCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
+        endpoint.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(endpoint);
     }

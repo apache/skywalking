@@ -29,6 +29,7 @@ Calculate the metrics data from each request of the service.
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call | | int|
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
+| sideCar.internalErrorCode | Represent the sidecar/gateway proxy internal error code, the value bases on the implementation. | | string|
 
 ### SCOPE `ServiceInstance`
 
@@ -45,6 +46,7 @@ Calculate the metrics data from each request of the service instance.
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
+| sideCar.internalErrorCode | Represent the sidecar/gateway proxy internal error code, the value bases on the implementation. | | string|
 
 #### Secondary scopes of `ServiceInstance` 
 
@@ -117,6 +119,7 @@ Calculate the metrics data from each request of the endpoint in the service.
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | tags | Represent the labels of each request and each value is made up with the `TagKey:TagValue` in the segment. | | `List<String>` |
+| sideCar.internalErrorCode | Represent the sidecar/gateway proxy internal error code, the value bases on the implementation. | | string|
 
 ### SCOPE `ServiceRelation`
 
@@ -138,6 +141,7 @@ Calculate the metrics data from each request between one service and the other s
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 | tlsMode | Represent TLS mode between source and destination services. For example `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
+| sideCar.internalErrorCode | Represent the sidecar/gateway proxy internal error code, the value bases on the implementation. | | string|
 
 
 ### SCOPE `ServiceInstanceRelation`
@@ -160,6 +164,7 @@ Calculate the metrics data from each request between one service instance and th
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | detectPoint | Represent where is the relation detected. Values: client, server, proxy. | yes | enum|
 | tlsMode | Represent TLS mode between source and destination service instances. For example, `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
+| sideCar.internalErrorCode | Represent the sidecar/gateway proxy internal error code, the value bases on the implementation. | | string|
 
 ### SCOPE `EndpointRelation`
 

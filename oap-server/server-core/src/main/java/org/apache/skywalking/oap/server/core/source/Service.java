@@ -68,5 +68,7 @@ public class Service extends Source {
     @Getter
     @Setter
     private List<String> tags;
-
+    @Getter
+    @Setter
+    private SideCar sideCar = new SideCar();
 }

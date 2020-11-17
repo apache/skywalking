@@ -53,7 +53,7 @@ public class DeepAnalysisTest {
         AnalysisResult result = new AnalysisResult();
         result.setSourceName("Service");
         result.setPackageName("service.serviceavg");
-        result.setSourceAttribute("latency");
+        result.getSourceAttribute().add("latency");
         result.setMetricsName("ServiceAvg");
         result.setAggregationFunctionName("longAvg");
 
@@ -77,7 +77,7 @@ public class DeepAnalysisTest {
         AnalysisResult result = new AnalysisResult();
         result.setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
-        result.setSourceAttribute("latency");
+        result.getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
 
@@ -101,12 +101,12 @@ public class DeepAnalysisTest {
         AnalysisResult result = new AnalysisResult();
         result.setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
-        result.setSourceAttribute("latency");
+        result.getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
         ConditionExpression expression = new ConditionExpression();
         expression.setExpressionType("stringMatch");
-        expression.setAttribute("name");
+        expression.getAttributes().add("name");
         expression.setValue("\"/service/prod/save\"");
         result.addFilterExpressionsParserResult(expression);
 
@@ -138,7 +138,7 @@ public class DeepAnalysisTest {
         AnalysisResult result = new AnalysisResult();
         result.setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
-        result.setSourceAttribute("latency");
+        result.getSourceAttribute().add("latency");
         result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
 
