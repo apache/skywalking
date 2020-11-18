@@ -28,7 +28,6 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
-enabled: true
 defaultMetricLevel: service(['cluster', 'app'])
 metricsRules:
   ## Resource usage
@@ -100,9 +99,6 @@ metricsRules:
     exp: pilot_services.tagEqual('app', 'istiod').sum(['cluster', 'app'])
   - name: pilot_xds
     exp: pilot_xds.tagEqual('app', 'istiod').sum(['cluster', 'app'])
-  # Cluster with no known endpoints
-  - name: pilot_cluster_no_endpoints
-    exp: pilot_xds_eds_instances.tagEqual('app', 'istiod').tagNotMatch('cluster', '.+\\|.+').sum(['cluster', 'app', 'cluster'])
 
   ## Webhooks
   # Configuration Validation

@@ -18,27 +18,11 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-import groovy.util.DelegatingScript;
-import org.codehaus.groovy.control.CompilerConfiguration;
-
 /**
- * DSL combines methods to parse groovy based DSL expression.
+ * ExpressionParsingException is throw in expression parsing phase.
  */
-public final class DSL {
-
-    /**
-     * Parse string literal to Expression object, which can be reused.
-     *
-     * @param expression string literal represents the DSL expression.
-     * @return Expression object could be executed.
-     */
-    public static Expression parse(final String expression) {
-        CompilerConfiguration cc = new CompilerConfiguration();
-        cc.setScriptBaseClass(DelegatingScript.class.getName());
-        GroovyShell sh = new GroovyShell(new Binding(), cc);
-        DelegatingScript script = (DelegatingScript) sh.parse(expression);
-        return new Expression(expression, script);
+public class ExpressionParsingException extends RuntimeException {
+    public ExpressionParsingException(final String message) {
+        super(message);
     }
 }

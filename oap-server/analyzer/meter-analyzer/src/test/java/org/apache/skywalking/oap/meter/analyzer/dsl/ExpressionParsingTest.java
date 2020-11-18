@@ -18,53 +18,59 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Slf4j
 @RunWith(Parameterized.class)
-public class TagFilterTest {
+public class ExpressionParsingTest {
 
     @Parameterized.Parameter
     public String name;
 
     @Parameterized.Parameter(1)
-    public ImmutableMap<String, SampleFamily> input;
-
-    @Parameterized.Parameter(2)
     public String expression;
 
-    @Parameterized.Parameter(3)
-    public Result want;
+    @Parameterized.Parameter(2)
+    public ExpressionParsingContext want;
 
-    @Parameterized.Parameter(4)
+    @Parameterized.Parameter(3)
     public boolean isThrow;
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
-                "default",
-                of("instance_cpu_percentage", SampleFamily.EMPTY),
-                "instance_cpu_percentage",
-                Result.fail("Parsed result is an EMPTY sample family"),
+                "mini",
+                "foo.instance(['service'], ['host'])",
+                ExpressionParsingContext.builder()
+                                        .downsampling(DownsamplingType.AVG)
+                                        .scopeLabels(Arrays.asList("service", "host"))
+                                        .scopeType(ScopeType.SERVICE_INSTANCE)
+                                        .aggregationLabels(Lists.newArrayList()).build(),
                 false,
             },
             {
-                "single-value",
-                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
-                "instance_cpu_percentage",
-                Result.success(SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
+                "all",
+                "latest (foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'])",
+                ExpressionParsingContext.builder()
+                                        .scopeType(ScopeType.SERVICE)
+                                        .scopeLabels(Collections.singletonList("rr"))
+                                        .aggregationLabels(Collections.singletonList("tt"))
+                                        .downsampling(DownsamplingType.LATEST)
+                                        .isHistogram(true)
+                                        .percentiles(new int[]{50, 99}).build(),
                 false,
             },
         });
@@ -73,9 +79,9 @@ public class TagFilterTest {
     @Test
     public void test() {
         Expression e = DSL.parse(expression);
-        Result r = null;
+        ExpressionParsingContext r = null;
         try {
-            r = e.run(input);
+            r = e.parse();
         } catch (Throwable t) {
             if (isThrow) {
                 return;

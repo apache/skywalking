@@ -141,17 +141,6 @@ templates:
                   "chartType": "ChartArea"
                 },
                 {
-                  "width": "4",
-                  "title": "Cluster with no known endpoints",
-                  "height": 350,
-                  "entityType": "Service",
-                  "independentSelector": false,
-                  "metricType": "UNKNOWN",
-                  "metricName": "meter_pilot_cluster_no_endpoints",
-                  "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartArea"
-                },
-                {
                   "width": "6",
                   "title": "Configuration Validation",
                   "height": 350,

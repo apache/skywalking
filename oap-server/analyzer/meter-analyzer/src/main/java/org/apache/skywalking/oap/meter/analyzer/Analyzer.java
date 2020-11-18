@@ -31,7 +31,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
+import org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
+import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
@@ -68,7 +70,10 @@ public class Analyzer {
     public static Analyzer build(final String metricName, final String expression,
         final MeterSystem meterSystem) {
         Expression e = DSL.parse(expression);
-        return new Analyzer(metricName, e, meterSystem);
+        ExpressionParsingContext ctx = e.parse();
+        Analyzer analyzer = new Analyzer(metricName, e, meterSystem);
+        analyzer.init(ctx);
+        return analyzer;
     }
 
     private static final String FUNCTION_NAME_TEMP = "%s%s";
@@ -79,7 +84,9 @@ public class Analyzer {
 
     private final MeterSystem meterSystem;
 
-    private boolean createdMetric;
+    private MetricType metricType;
+
+    private int[] percentiles;
 
     /**
      * analyse intends to parse expression with input samples to meter-system metrics.
@@ -91,61 +98,54 @@ public class Analyzer {
         if (!r.isSuccess()) {
             return;
         }
-        SampleFamily.Context ctx = r.getData().context;
+        SampleFamily.RunningContext ctx = r.getData().context;
         Sample[] ss = r.getData().samples;
         generateTraffic(ctx.getMeterEntity());
-        if (ctx.isHistogram()) {
-            Stream.of(ss).map(s -> Tuple.of(composeGroup(s.getLabels(), k -> !Objects.equals("le", k)), s))
-                .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
-                .forEach((group, subSs) -> {
-                    if (subSs.size() < 1) {
-                        return;
-                    }
-                    long[] bb = new long[subSs.size()];
-                    long[] vv = new long[bb.length];
-                    for (int i = 0; i < subSs.size(); i++) {
-                        Sample s = subSs.get(i);
-                        bb[i] = Long.parseLong(s.getLabels().get("le"));
-                        vv[i] = getValue(s);
-                    }
-                    BucketedValues bv = new BucketedValues(bb, vv);
-                    long time = subSs.get(0).getTimestamp();
-                    if (ctx.getPercentiles() == null || ctx.getPercentiles().length < 1) {
-                        Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "histogram", ctx));
-                        AcceptableValue<BucketedValues> v = meterSystem.buildMetrics(metricName, BucketedValues.class);
-                        v.accept(ctx.getMeterEntity(), bv);
-                        send(v, time);
-                        return;
-                    }
-                    Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "histogramPercentile", ctx));
-                    AcceptableValue<PercentileArgument> v = meterSystem.buildMetrics(metricName, PercentileArgument.class);
-                    v.accept(ctx.getMeterEntity(), new PercentileArgument(bv, ctx.getPercentiles()));
-                    send(v, time);
-                });
-            return;
-        }
-        boolean isLabeled = false;
-        for (Sample each : ss) {
-            if (!each.getLabels().isEmpty()) {
-                isLabeled = true;
+        switch (metricType) {
+            case single:
+                AcceptableValue<Long> sv = meterSystem.buildMetrics(metricName, Long.class);
+                sv.accept(ctx.getMeterEntity(), getValue(ss[0]));
+                send(sv, ss[0].getTimestamp());
                 break;
-            }
+            case labeled:
+                AcceptableValue<DataTable> lv = meterSystem.buildMetrics(metricName, DataTable.class);
+                DataTable dt = new DataTable();
+                for (Sample each : ss) {
+                    dt.put(composeGroup(each.getLabels()), getValue(each));
+                }
+                lv.accept(ctx.getMeterEntity(), dt);
+                send(lv, ss[0].getTimestamp());
+                break;
+            case histogram:
+            case histogramPercentile:
+                Stream.of(ss).map(s -> Tuple.of(composeGroup(s.getLabels(), k -> !Objects.equals("le", k)), s))
+                      .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
+                      .forEach((group, subSs) -> {
+                          if (subSs.size() < 1) {
+                              return;
+                          }
+                          long[] bb = new long[subSs.size()];
+                          long[] vv = new long[bb.length];
+                          for (int i = 0; i < subSs.size(); i++) {
+                              Sample s = subSs.get(i);
+                              bb[i] = Long.parseLong(s.getLabels().get("le"));
+                              vv[i] = getValue(s);
+                          }
+                          BucketedValues bv = new BucketedValues(bb, vv);
+                          long time = subSs.get(0).getTimestamp();
+                          if (metricType == MetricType.histogram) {
+                              AcceptableValue<BucketedValues> v = meterSystem.buildMetrics(metricName, BucketedValues.class);
+                              v.accept(ctx.getMeterEntity(), bv);
+                              send(v, time);
+                              return;
+                          }
+                          AcceptableValue<PercentileArgument> v = meterSystem.buildMetrics(metricName, PercentileArgument.class);
+                          v.accept(ctx.getMeterEntity(), new PercentileArgument(bv, percentiles));
+                          send(v, time);
+                      });
+                break;
+
         }
-        if (!isLabeled && ss.length == 1) {
-            Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "", ctx));
-            AcceptableValue<Long> v = meterSystem.buildMetrics(metricName, Long.class);
-            v.accept(ctx.getMeterEntity(), getValue(ss[0]));
-            send(v, ss[0].getTimestamp());
-            return;
-        }
-        Preconditions.checkState(createMetric(ctx.getMeterEntity().getScopeType(), "labeled", ctx));
-        AcceptableValue<DataTable> v = meterSystem.buildMetrics(metricName, DataTable.class);
-        DataTable dt = new DataTable();
-        for (Sample each : ss) {
-            dt.put(composeGroup(each.getLabels()), getValue(each));
-        }
-        v.accept(ctx.getMeterEntity(), dt);
-        send(v, ss[0].getTimestamp());
     }
 
     private long getValue(Sample sample) {
@@ -167,12 +167,41 @@ public class Analyzer {
             .collect(Collectors.joining("-"));
     }
 
-    private boolean createMetric(final ScopeType scopeType, final String dataType, final SampleFamily.Context ctx) {
-        if (createdMetric) {
-            return true;
+    @RequiredArgsConstructor
+    private enum MetricType {
+        // metrics is aggregated by histogram function.
+        histogram("histogram"),
+        // metrics is aggregated by histogram based percentile function.
+        histogramPercentile("histogramPercentile"),
+        // metrics is aggregated by labeled function.
+        labeled("labeled"),
+        // metrics is aggregated by single value function.
+        single("");
+
+        private final String literal;
+    }
+
+    private void init(final ExpressionParsingContext ctx) {
+        if (ctx.isHistogram()) {
+            if (ctx.getPercentiles() != null && ctx.getPercentiles().length > 0) {
+                metricType = MetricType.histogramPercentile;
+                this.percentiles = ctx.getPercentiles();
+            } else {
+                metricType = MetricType.histogram;
+            }
+        } else {
+            if (ctx.getLabels().isEmpty()) {
+                metricType = MetricType.single;
+            } else {
+                metricType = MetricType.labeled;
+            }
         }
-        String functionName = String.format(FUNCTION_NAME_TEMP, ctx.getDownsampling().toString().toLowerCase(), Strings.capitalize(dataType));
-        return meterSystem.create(metricName, functionName, scopeType) && (createdMetric = true);
+        Preconditions.checkState(createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling()));
+    }
+
+    private boolean createMetric(final ScopeType scopeType, final String dataType, final DownsamplingType downsamplingType) {
+        String functionName = String.format(FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), Strings.capitalize(dataType));
+        return meterSystem.create(metricName, functionName, scopeType);
     }
 
     private void send(final AcceptableValue<?> v, final long time) {

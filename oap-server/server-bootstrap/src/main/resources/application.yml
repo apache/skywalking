@@ -282,7 +282,7 @@ receiver-otel:
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     # Empty list ("") means all of rules are enabled.
-    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"oap"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:""}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
