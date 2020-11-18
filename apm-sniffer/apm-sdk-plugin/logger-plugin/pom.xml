@@ -45,6 +45,11 @@
 			<artifactId>junit</artifactId>
 			<version>${junite.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.27</version>
+		</dependency>
 	</dependencies>
 	
 </project>

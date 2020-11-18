@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.testcase.logger.controller;
 
+import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,10 +34,13 @@ public class CaseController {
     @ResponseBody
     public String testcase() {
         Logger logger = LoggerFactory.getLogger(CaseController.class);
-        logger.trace("I am trace from {}",CaseController.class);
-        logger.debug("I am debug from {}",CaseController.class);
-        logger.warn("I am warn from {}",CaseController.class);
-        logger.error("I am error from {}",CaseController.class);
+        ch.qos.logback.classic.Logger myLogger = (ch.qos.logback.classic.Logger) logger;
+        LoggerContext context = myLogger.getLoggerContext();
+        logger.trace("I am trace from {}", CaseController.class);
+        logger.debug("I am debug from {}", CaseController.class);
+        logger.warn("I am warn from {}", CaseController.class);
+        logger.warn("current thread name is {}", Thread.currentThread().getName());
+        logger.error("I am error from {}", CaseController.class);
         return SUCCESS;
     }
 

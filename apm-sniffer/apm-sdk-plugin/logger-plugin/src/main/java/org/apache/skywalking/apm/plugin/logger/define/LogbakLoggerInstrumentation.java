@@ -24,18 +24,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class LogbakInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class LogbakLoggerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.slf4j.Logger";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.LogbakInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.LogbakLoggerInterceptor";
     private static final String[] INTERCEPT_METHODS = {"trace", "debug", "info", "error"};
     
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return HierarchyMatch.byHierarchyMatch(new String[] {ENHANCE_CLASS});
     }
 
     @Override

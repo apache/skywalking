@@ -18,23 +18,34 @@
 
 package org.apache.skywalking.apm.plugin.logger;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.slf4j.event.Level;
+import org.apache.skywalking.apm.plugin.logger.logbak.ContextConfig;
+import org.apache.skywalking.apm.plugin.logger.logbak.LoggerConfig;
+import org.apache.skywalking.apm.plugin.logger.util.LoggerContextUtil;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
-public class LogbakInterceptor implements InstanceMethodsAroundInterceptor {
-    
+public class LogbakLoggerInterceptor implements InstanceMethodsAroundInterceptor {
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        //test
-        long timeStamp = System.currentTimeMillis();
-        Level level = getLevel(method.getName());
-        String theadName = Thread.currentThread().getName();
-        
-        int test = 0;
+//        //test
+//        long timeStamp = System.currentTimeMillis();
+//        Level level = getLevel(method.getName());
+//        String theadName = Thread.currentThread().getName();
+
+        if (isRecorder(getLevel(method.getName()), allArguments)) {
+            //TODO
+            //recorde log and save it to span log
+
+        } else {
+            return;
+        }
     }
 
     @Override
@@ -47,8 +58,37 @@ public class LogbakInterceptor implements InstanceMethodsAroundInterceptor {
 
     }
 
+    private boolean isRecorder(Level methodLevel, Object[] allArguments) {
+        LoggerConfig logbakConig = ContextConfig.getInstance().getLogbakConfig();
+        Level recorderLevel = logbakConig.getLevel();
+        LoggerContext loggerContext = LoggerContextUtil.LOCAL_LOGGER_CONTEXT.get();
+        // judge level
+        if (!levelBig(methodLevel, recorderLevel)) {
+            return false;
+        }
+        // judge package
+        List<String> packages = logbakConig.getPackages();
+//        if (!"*".equals(packages.get(0))) {
+            List packageName = loggerContext.getFrameworkPackages();
+            
+            if(true){
+                int test = 1;
+            }
+//        }
+
+        return true;
+    }
+
+    private boolean levelBig(Level methodLevel, Level recorderLevel) {
+        if (methodLevel.toInt() >= recorderLevel.toInt()) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * covert to log level acording to the name of method
+     *
      * @param methodName the name of method
      * @return level
      */
