@@ -37,7 +37,8 @@ public class EntryMethod {
 
     void addArg(Class<?> parameterType, Argument arg) {
         if (arg.getType() == LITERAL_TYPE) {
-            addArg(parameterType, arg.getType(), arg.getText());
+            // As literal type, there is always one element.
+            addArg(parameterType, arg.getType(), arg.getText().get(0));
             return;
         }
         addArg(parameterType, arg.getType(), parameterType.equals(boolean.class) ? "source." + ClassMethodUtil.toIsMethod(arg

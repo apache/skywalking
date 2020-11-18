@@ -56,8 +56,7 @@ public abstract class AbstractALSAnalyzer implements ALSHTTPAnalysis {
     protected LogEntry2MetricsAdapter newAdapter(
         final HTTPAccessLogEntry entry,
         final ServiceMetaInfo sourceService,
-        final ServiceMetaInfo targetService
-    ) {
+        final ServiceMetaInfo targetService) {
         return new LogEntry2MetricsAdapter(entry, sourceService, targetService);
     }
 

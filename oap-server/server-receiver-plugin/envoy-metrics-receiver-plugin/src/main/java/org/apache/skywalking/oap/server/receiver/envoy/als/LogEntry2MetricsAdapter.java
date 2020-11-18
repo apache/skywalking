@@ -25,6 +25,7 @@ import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
+import io.envoyproxy.envoy.data.accesslog.v2.ResponseFlags;
 import io.envoyproxy.envoy.data.accesslog.v2.TLSProperties;
 import java.time.Instant;
 import java.util.Optional;
@@ -95,10 +96,13 @@ public class LogEntry2MetricsAdapter {
     protected ServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final String endpoint = endpoint();
-        final int responseCode = ofNullable(entry.getResponse()).map(HTTPResponseProperties::getResponseCode).map(UInt32Value::getValue).orElse(200);
+        final int responseCode = ofNullable(entry.getResponse()).map(HTTPResponseProperties::getResponseCode)
+                                                                .map(UInt32Value::getValue)
+                                                                .orElse(200);
         final boolean status = responseCode >= 200 && responseCode < 400;
         final Protocol protocol = requestProtocol(entry.getRequest());
         final String tlsMode = parseTLS(properties.getTlsProperties());
+        final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
 
         final ServiceMeshMetric.Builder builder =
             ServiceMeshMetric.newBuilder()
@@ -106,7 +110,8 @@ public class LogEntry2MetricsAdapter {
                              .setResponseCode(Math.toIntExact(responseCode))
                              .setStatus(status)
                              .setProtocol(protocol)
-                             .setTlsMode(tlsMode);
+                             .setTlsMode(tlsMode)
+                             .setInternalErrorCode(internalErrorCode);
 
         Optional.ofNullable(sourceService)
                 .map(ServiceMetaInfo::getServiceName)
@@ -164,4 +169,52 @@ public class LogEntry2MetricsAdapter {
         return M_TLS;
     }
 
+    /**
+     * Refer to https://www.envoyproxy.io/docs/envoy/latest/api-v2/data/accesslog/v2/accesslog.proto#data-accesslog-v2-responseflags
+     *
+     * @param responseFlags in the ALS v2
+     * @return empty string if no internal error code, or literal string representing the code.
+     */
+    protected static String parseInternalErrorCode(final ResponseFlags responseFlags) {
+        if (responseFlags != null) {
+            if (responseFlags.getFailedLocalHealthcheck()) {
+                return "failed_local_healthcheck";
+            } else if (responseFlags.getNoHealthyUpstream()) {
+                return "no_healthy_upstream";
+            } else if (responseFlags.getUpstreamRequestTimeout()) {
+                return "upstream_request_timeout";
+            } else if (responseFlags.getLocalReset()) {
+                return "local_reset";
+            } else if (responseFlags.getUpstreamConnectionFailure()) {
+                return "upstream_connection_failure";
+            } else if (responseFlags.getUpstreamConnectionTermination()) {
+                return "upstream_connection_termination";
+            } else if (responseFlags.getUpstreamOverflow()) {
+                return "upstream_overflow";
+            } else if (responseFlags.getNoRouteFound()) {
+                return "no_route_found";
+            } else if (responseFlags.getDelayInjected()) {
+                return "delay_injected";
+            } else if (responseFlags.getFaultInjected()) {
+                return "fault_injected";
+            } else if (responseFlags.getRateLimited()) {
+                return "rate_limited";
+            } else if (responseFlags.getUnauthorizedDetails() != null) {
+                return "unauthorized_details";
+            } else if (responseFlags.getRateLimitServiceError()) {
+                return "rate_limit_service_error";
+            } else if (responseFlags.getDownstreamConnectionTermination()) {
+                return "downstream_connection_termination";
+            } else if (responseFlags.getUpstreamRetryLimitExceeded()) {
+                return "upstream_retry_limit_exceeded";
+            } else if (responseFlags.getStreamIdleTimeout()) {
+                return "stream_idle_timeout";
+            } else if (responseFlags.getInvalidEnvoyRequestHeaders()) {
+                return "invalid_envoy_request_headers";
+            } else if (responseFlags.getDownstreamProtocolError()) {
+                return "downstream_protocol_error";
+            }
+        }
+        return "";
+    }
 }
