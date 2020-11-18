@@ -110,3 +110,4 @@
 - xxl-job-2.x
 - zookeeper-3.4.x
 - mssql-jtds-1.x
+- mssql-jdbc

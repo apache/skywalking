@@ -62,8 +62,9 @@ public class TableMetaInfo {
                 || EndpointTraffic.INDEX_NAME.equals(model.getName())) {
                 storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
             } else {
-                // service_traffic  name, node_type
+                // service_traffic  name, node_type, group
                 storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+                storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
             }
         } else {
 

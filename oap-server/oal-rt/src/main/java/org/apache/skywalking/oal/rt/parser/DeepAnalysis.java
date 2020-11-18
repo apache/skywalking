@@ -50,8 +50,8 @@ public class DeepAnalysis {
                 final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
                 final String getter = matcherInfo.isBooleanType()
-                    ? ClassMethodUtil.toIsMethod(expression.getAttribute())
-                    : ClassMethodUtil.toGetMethod(expression.getAttribute());
+                    ? ClassMethodUtil.toIsMethod(expression.getAttributes())
+                    : ClassMethodUtil.toGetMethod(expression.getAttributes());
 
                 final Expression filterExpression = new Expression();
                 filterExpression.setExpressionObject(matcherInfo.getMatcher().getName());
@@ -104,8 +104,8 @@ public class DeepAnalysis {
                     final FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expression.getExpressionType());
 
                     final String getter = matcherInfo.isBooleanType()
-                        ? ClassMethodUtil.toIsMethod(expression.getAttribute())
-                        : ClassMethodUtil.toGetMethod(expression.getAttribute());
+                        ? ClassMethodUtil.toIsMethod(expression.getAttributes())
+                        : ClassMethodUtil.toGetMethod(expression.getAttributes());
 
                     final Expression argExpression = new Expression();
                     argExpression.setRight(expression.getValue());

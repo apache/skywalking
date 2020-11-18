@@ -18,7 +18,8 @@ Release Notes.
 * Add the plugin for async-http-client 2.x
 * Fix NPE in the nutz plugin.
 * Provide Apache Commons DBCP 2.x plugin.
-* Add the plugin for mssql-jtds 1.x plugin.
+* Add the plugin for mssql-jtds 1.x.
+* Add the plugin for mssql-jdbc 6.x -> 9.x.
 * Fix the default ignore mechanism isn't accurate enough bug.
 
 #### OAP-Backend
@@ -28,8 +29,12 @@ Release Notes.
 * Add Envoy ALS analyzer based on metadata exchange.
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
+* Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
+* Support `sideCar.internalErrorCode` in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
 * Improve Kubernetes service registry for ALS analysis.
 * Add health checker for cluster management
+* Support the service auto grouping.
+* Support query service list by the group name.
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
 * Fix the threads of the Kafka fetcher exit if some unexpected exceptions happen.
 * Fix the excessive timeout period set by the kubernetes-client.

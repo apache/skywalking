@@ -53,6 +53,7 @@ public class MeshDataMock {
                                                  .setStatus(true)
                                                  .setProtocol(Protocol.HTTP)
                                                  .setDetectPoint(DetectPoint.server)
+                                                 .setInternalErrorCode("rate_limited")
                                                  .build());
         }
         meshObserver.onCompleted();

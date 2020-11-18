@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oal.rt.util;
 
+import java.util.List;
+
 public class ClassMethodUtil {
     public static String toGetMethod(String attribute) {
         return "get" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
@@ -29,5 +31,41 @@ public class ClassMethodUtil {
 
     public static String toIsMethod(String attribute) {
         return "is" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
+    }
+
+    /**
+     * @return nested get methods.
+     */
+    public static String toGetMethod(List<String> attributes) {
+        StringBuilder method = new StringBuilder();
+        for (int i = 0; i < attributes.size(); i++) {
+            if (i != 0) {
+                method.append(".");
+            }
+            if (i != attributes.size() - 1) {
+                method.append(toGetMethod(attributes.get(i))).append("()");
+            } else {
+                method.append(toGetMethod(attributes.get(i)));
+            }
+        }
+        return method.toString();
+    }
+
+    /**
+     * @return nested get/is methods.
+     */
+    public static String toIsMethod(List<String> attributes) {
+        StringBuilder method = new StringBuilder();
+        for (int i = 0; i < attributes.size(); i++) {
+            if (i != 0) {
+                method.append(".");
+            }
+            if (i != attributes.size() - 1) {
+                method.append(toGetMethod(attributes.get(i))).append("()");
+            } else {
+                method.append(toIsMethod(attributes.get(i)));
+            }
+        }
+        return method.toString();
     }
 }
