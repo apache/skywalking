@@ -27,6 +27,7 @@ Release Notes.
 * Add the thread pool to the Kafka fetcher to increase the performance.
 * Add `contain` and `not contain` OPS in OAL.
 * Add Envoy ALS analyzer based on metadata exchange.
+* Add `listMetrics` GraphQL query. 
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
 * Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
