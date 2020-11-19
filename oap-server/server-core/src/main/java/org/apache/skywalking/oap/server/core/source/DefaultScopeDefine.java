@@ -296,6 +296,34 @@ public class DefaultScopeDefine {
     }
 
     /**
+     * Get the catalog string name of the given scope
+     *
+     * @param scope id of the source scope.
+     * @return literal string name of the catalog owning the scope.
+     */
+    public static String catalogOf(int scope) {
+        if (inServiceCatalog(scope)) {
+            return SERVICE_CATALOG_NAME;
+        }
+        if (inServiceInstanceCatalog(scope)) {
+            return SERVICE_INSTANCE_CATALOG_NAME;
+        }
+        if (inEndpointCatalog(scope)) {
+            return ENDPOINT_CATALOG_NAME;
+        }
+        if (inServiceRelationCatalog(scope)) {
+            return SERVICE_RELATION_CATALOG_NAME;
+        }
+        if (inServiceInstanceRelationCatalog(scope)) {
+            return SERVICE_INSTANCE_RELATION_CATALOG_NAME;
+        }
+        if (inEndpointRelationCatalog(scope)) {
+            return ENDPOINT_RELATION_CATALOG_NAME;
+        }
+        return "UNKNOWN";
+    }
+
+    /**
      * Get the default columns defined in Scope. All those columns will forward to persistent entity.
      *
      * @param scopeName of the default columns
