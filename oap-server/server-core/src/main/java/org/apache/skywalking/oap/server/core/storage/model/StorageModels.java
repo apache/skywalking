@@ -56,7 +56,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         List<ModelColumn> modelColumns = new ArrayList<>();
         List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
-        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices);
+        retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices, scopeId);
 
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
@@ -91,10 +91,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     /**
      * Read model column metadata based on the class level definition.
      */
-    private void retrieval(Class<?> clazz,
-                           String modelName,
-                           List<ModelColumn> modelColumns,
-                           List<ExtraQueryIndex> extraQueryIndices) {
+    private void retrieval(final Class<?> clazz,
+                           final String modelName,
+                           final List<ModelColumn> modelColumns,
+                           final List<ExtraQueryIndex> extraQueryIndices,
+                           final int scopeId) {
         if (log.isDebugEnabled()) {
             log.debug("Analysis {} to generate Model.", clazz.getName());
         }
@@ -131,7 +132,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
                         modelName, column.columnName(), column.dataType(), column.function(),
-                        column.defaultValue()
+                        column.defaultValue(), scopeId
                     );
                 }
 
@@ -152,7 +153,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, extraQueryIndices, scopeId);
         }
     }
 
