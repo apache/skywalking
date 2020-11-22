@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['es6', 'es7', 'influxdb']
+        storage: ['es6', 'es7', 'influxdb', 'tidb']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
