@@ -16,28 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.tidb;
 
-import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageConfig;
 
 @Setter
 @Getter
-public class MySQLStorageConfig extends ModuleConfig {
-    private int metadataQueryMaxSize = 5000;
-    /**
-     * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getMaxSizeOfArrayColumn()}
-     *
-     * @since 8.2.0
-     */
-    private int maxSizeOfArrayColumn = 20;
-    /**
-     * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getNumOfSearchableValuesPerTag()}
-     *
-     * @since 8.2.0
-     */
-    private int numOfSearchableValuesPerTag = 2;
-    private Properties properties;
+public class TiDBStorageConfig extends MySQLStorageConfig {
 }

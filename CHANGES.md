@@ -50,6 +50,7 @@ Release Notes.
 * Fix that chunked string is incorrect while the tag contains colon.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
 * Remove unused min date timebucket in jdbc deletehistory logical
+* Fix "transaction too large error" when use TiDB as storage.
 
 #### UI
 * Fix incorrect label in radial chart in topology.

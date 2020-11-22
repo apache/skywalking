@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.tidb;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -28,18 +28,19 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
 
-public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
+public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
 
     private final JDBCHikariCPClient client;
 
-    public H2HistoryDeleteDAO(JDBCHikariCPClient client) {
+    public TiDBHistoryDeleteDAO(JDBCHikariCPClient client) {
         this.client = client;
     }
 
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
-            .append(timeBucketColumnName).append("<= ? ");
+            .append(timeBucketColumnName).append("<= ? ")
+            .append(" limit 10000");
 
         try (Connection connection = client.getConnection()) {
             long deadline;
@@ -60,7 +61,8 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
                         return;
                 }
             }
-            client.executeUpdate(connection, dataDeleteSQL.toString(), deadline);
+            while (client.executeUpdate(connection, dataDeleteSQL.toString(), deadline) > 0) {
+            }
         } catch (JDBCClientException | SQLException e) {
             throw new IOException(e.getMessage(), e);
         }
