@@ -24,7 +24,7 @@ SkyWalking allows users to understand the topology relationship between Services
 Service/Service Instance/Endpoint and to set alarm rules.
 
 In addition, you can integrate 
-1. Other distributed tracing useing SkyWalking native agents and SDKs with Zipkin, Jaeger and OpenCensus.
+1. Other distributed tracing using SkyWalking native agents and SDKs with Zipkin, Jaeger and OpenCensus.
 1. Other metrics systems, such as Prometheus, Sleuth(Micrometer).
 
 ## Architecture
@@ -39,7 +39,7 @@ SkyWalking is logically split into four parts: Probes, Platform backend, Storage
 - **Storage** houses SkyWalking data through an open/plugable interface. You can choose an existing implementation, such as
   ElasticSearch, H2 or a MySQL cluster managed by Sharding-Sphere, or implement your own. Patches for new storage implementors 
   welcome!
-- **UI** a highly customizale web based interface allowing SkyWalking end users to visualize and manage SkyWalking data.
+- **UI** a highly customizable web based interface allowing SkyWalking end users to visualize and manage SkyWalking data.
 
 
 ## What is next?
