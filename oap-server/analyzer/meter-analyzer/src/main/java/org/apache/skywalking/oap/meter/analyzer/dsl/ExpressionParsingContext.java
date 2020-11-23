@@ -42,6 +42,7 @@ public class ExpressionParsingContext implements Closeable {
     static ExpressionParsingContext create() {
         if (CACHE.get() == null) {
             CACHE.set(ExpressionParsingContext.builder()
+                                              .downsampling(DownsamplingType.AVG)
                                               .scopeLabels(Lists.newArrayList())
                                               .aggregationLabels(Lists.newArrayList()).build());
         }

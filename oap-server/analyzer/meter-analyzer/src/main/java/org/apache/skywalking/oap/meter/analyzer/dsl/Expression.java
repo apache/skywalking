@@ -44,7 +44,6 @@ public class Expression {
      */
     public ExpressionParsingContext parse() {
         try (ExpressionParsingContext ctx = ExpressionParsingContext.create()) {
-            ctx.downsampling = DownsamplingType.AVG;
             Result r = run(ImmutableMap.of());
             if (!r.isSuccess() && r.isThrowable()) {
                 throw new ExpressionParsingException("failed to parse expression: " + literal + ", error:" + r.getError());
