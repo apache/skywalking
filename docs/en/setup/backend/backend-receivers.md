@@ -160,18 +160,23 @@ NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz`
 ## OpenTelemetry receiver
 
 OpenTelemetry receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
-If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/otel-rules`.
+If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/otel-<handler>-rules`.
+Eg, the `oc` handler loads fules from `$CLASSPATH/otel-oc-rules`, 
 
-The file is written in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
-Notice, `receiver-otel` only support `metricsRules` node of scheme due to the push mode it opts to.
+Supported handlers:
+    * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) gRPC service handler.
 
-To active the `oc` implementation which receives metrics the [OpenCensus exporter](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) pushes:
+The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
+Notice, `receiver-otel` only support `defaultMetricLevel` and `metricsRules` nodes of scheme due to the push mode it opts to.
+
+To active the `oc` handler which receives metrics:
 ```yaml
 receiver-otel:
-  selector: ${SW_OC_RECEIVER:oc}
-  oc:
-    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+  selector: ${SW_OTEL_RECEIVER:default}
+  default:
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
+    # Empty list ("") means all of rules are enabled.
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:""}
 ```
 
 ## Meter receiver
