@@ -27,6 +27,7 @@ Release Notes.
 * Add the thread pool to the Kafka fetcher to increase the performance.
 * Add `contain` and `not contain` OPS in OAL.
 * Add Envoy ALS analyzer based on metadata exchange.
+* Add `listMetrics` GraphQL query. 
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
 * Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
@@ -49,6 +50,7 @@ Release Notes.
 * Fix that chunked string is incorrect while the tag contains colon.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
 * Remove unused min date timebucket in jdbc deletehistory logical
+* Fix "transaction too large error" when use TiDB as storage.
 
 #### UI
 * Fix incorrect label in radial chart in topology.

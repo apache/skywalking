@@ -16,28 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.core.query;
 
-import java.util.Properties;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 
+/**
+ * Define the metrics provided in the OAP server.
+ *
+ * @since 8.3.0
+ */
 @Setter
 @Getter
-public class MySQLStorageConfig extends ModuleConfig {
-    private int metadataQueryMaxSize = 5000;
+@NoArgsConstructor
+@AllArgsConstructor
+public class MetricDefinition {
+    private String name;
+    private MetricsType type;
     /**
-     * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getMaxSizeOfArrayColumn()}
-     *
-     * @since 8.2.0
+     * Catalog includes SERVICE_CATALOG,SERVICE_INSTANCE_CATALOG,ENDPOINT_CATALOG,
+     * SERVICE_RELATION_CATALOG,SERVICE_INSTANCE_RELATION_CATALOG_NAME,ENDPOINT_RELATION_CATALOG_NAME
      */
-    private int maxSizeOfArrayColumn = 20;
-    /**
-     * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getNumOfSearchableValuesPerTag()}
-     *
-     * @since 8.2.0
-     */
-    private int numOfSearchableValuesPerTag = 2;
-    private Properties properties;
+    private String catalog;
 }
