@@ -38,6 +38,17 @@ relabel_configs:
   replacement: <cluster name>
 ```
 
+or opt to [Resource Processor](https://github.com/open-telemetry/opentelemetry-collector/blob/master/processor/resourceprocessor/README.md):
+
+```
+processors:
+  resource:
+    attributes:
+    - key: cluster
+      value: "<cluster name>"
+      action: upsert
+```
+
 Notice, if you try the sample of istio Prometheus Kubernetes configuration, 
 the issues described [here](https://github.com/open-telemetry/opentelemetry-collector/issues/2163) might block you. 
 Try to use the solution indicated in this issue if it's not fixed.

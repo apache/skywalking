@@ -254,10 +254,6 @@ service-mesh:
   selector: ${SW_SERVICE_MESH:default}
   default:
 
-istio-telemetry:
-  selector: ${SW_ISTIO_TELEMETRY:default}
-  default:
-
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:

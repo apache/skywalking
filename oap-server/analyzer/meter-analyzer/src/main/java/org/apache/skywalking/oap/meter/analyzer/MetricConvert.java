@@ -26,7 +26,7 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.MetricsRule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.elasticsearch.common.Strings;
 
@@ -47,9 +47,10 @@ public class MetricConvert {
 
     private final List<Analyzer> analyzers;
 
-    public MetricConvert(List<MetricsRule> rules, String defaultMetricLevel, MeterSystem service) {
-        this.analyzers = rules.stream().map(r -> Analyzer.build(formatMetricName(r.getName()),
-            Strings.isEmpty(defaultMetricLevel) ? r.getExp() : String.format("(%s).%s", r.getExp(), defaultMetricLevel), service))
+    public MetricConvert(Rule rule, MeterSystem service) {
+        Preconditions.checkState(!Strings.isNullOrEmpty(rule.getNamespace()));
+        this.analyzers = rule.getMetricsRules().stream().map(r -> Analyzer.build(formatMetricName(rule, r.getName()),
+            Strings.isEmpty(rule.getDefaultMetricLevel()) ? r.getExp() : String.format("(%s).%s", r.getExp(), rule.getDefaultMetricLevel()), service))
             .collect(toList());
     }
 
@@ -72,9 +73,9 @@ public class MetricConvert {
         }
     }
 
-    private String formatMetricName(String meterRuleName) {
+    private String formatMetricName(Rule rule, String meterRuleName) {
         StringJoiner metricName = new StringJoiner("_");
-        metricName.add("meter").add(meterRuleName);
+        metricName.add("meter").add(rule.getNamespace()).add(meterRuleName);
         return metricName.toString();
     }
 }

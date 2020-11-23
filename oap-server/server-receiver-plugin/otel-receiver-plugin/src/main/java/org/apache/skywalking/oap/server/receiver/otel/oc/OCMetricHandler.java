@@ -145,7 +145,7 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
             return;
         }
         this.metrics = rules.stream().map(r ->
-            new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service))
+            new PrometheusMetricConverter(r, service))
             .collect(toList());
         grpcHandlerRegister.addHandler(this);
     }

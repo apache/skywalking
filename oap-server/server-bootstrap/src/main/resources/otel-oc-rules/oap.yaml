@@ -28,6 +28,9 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
+namespace: oap
+# Self-monitoring defaults to prometheus fetcher.
+enabled: false
 defaultMetricLevel: instance(['service'], ['host_name'])
 metricsRules:
   - name: instance_cpu_percentage

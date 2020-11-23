@@ -83,11 +83,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-istio-telemetry-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-management-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

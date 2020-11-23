@@ -103,7 +103,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         rules.forEach(r -> {
             ses.scheduleAtFixedRate(new Runnable() {
 
-                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service);
+                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r, service);
 
                 @Override public void run() {
                     if (Objects.isNull(r.getStaticConfig())) {

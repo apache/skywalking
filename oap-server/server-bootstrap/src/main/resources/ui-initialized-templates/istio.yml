@@ -41,7 +41,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_pilot_version",
+                  "metricName": "meter_istio_pilot_version",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
                 },
@@ -52,7 +52,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_virtual_memory,meter_resident_memory,meter_go_alloc,meter_go_heap_inuse,meter_go_stack_inuse",
+                  "metricName": "meter_istio_virtual_memory,meter_resident_memory,meter_go_alloc,meter_go_heap_inuse,meter_go_stack_inuse",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea",
                   "unit": "MB",
@@ -66,7 +66,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_cpu",
+                  "metricName": "meter_istio_cpu",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea",
                   "unit": "%"
@@ -78,7 +78,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_go_goroutines",
+                  "metricName": "meter_istio_go_goroutines",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
                 },
@@ -89,7 +89,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_pilot_xds_pushes",
+                  "metricName": "meter_istio_pilot_xds_pushes",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartBar"
                 },
@@ -100,7 +100,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "UNKNOWN",
-                  "metricName": "meter_pilot_xds_cds_reject,meter_pilot_xds_eds_reject,meter_pilot_xds_rds_reject,meter_pilot_xds_lds_reject,meter_pilot_xds_write_timeout,meter_pilot_total_xds_internal_errors,meter_pilot_total_xds_rejects,meter_pilot_xds_push_context_errors,meter_pilot_xds_pushes_error,meter_pilot_xds_push_errors,meter_pilot_xds_push_timeout,meter_pilot_xds_push_timeout_failures",
+                  "metricName": "meter_istio_pilot_xds_cds_reject,meter_pilot_xds_eds_reject,meter_pilot_xds_rds_reject,meter_pilot_xds_lds_reject,meter_pilot_xds_write_timeout,meter_pilot_total_xds_internal_errors,meter_pilot_total_xds_rejects,meter_pilot_xds_push_context_errors,meter_pilot_xds_pushes_error,meter_pilot_xds_push_errors,meter_pilot_xds_push_timeout,meter_pilot_xds_push_timeout_failures",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
                 },
@@ -111,7 +111,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_pilot_proxy_push_percentile",
+                  "metricName": "meter_istio_pilot_proxy_push_percentile",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartArea",
                   "metricLabels": "50,90,99",
@@ -125,7 +125,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_pilot_conflict_il,meter_pilot_conflict_ol_http_tcp,meter_pilot_conflict_ol_tcp_tcp,meter_pilot_conflict_ol_tcp_http",
+                  "metricName": "meter_istio_pilot_conflict_il,meter_pilot_conflict_ol_http_tcp,meter_pilot_conflict_ol_tcp_tcp,meter_pilot_conflict_ol_tcp_http",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar"
                 },
@@ -136,7 +136,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_pilot_virt_services,meter_pilot_services,meter_pilot_xds",
+                  "metricName": "meter_istio_pilot_virt_services,meter_pilot_services,meter_pilot_xds",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
                 },
@@ -149,7 +149,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
-                  "metricName": "meter_galley_validation_passed,meter_galley_validation_failed"
+                  "metricName": "meter_istio_galley_validation_passed,meter_galley_validation_failed"
                 },
                 {
                   "width": "6",
@@ -158,7 +158,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_sidecar_injection_success_total",
+                  "metricName": "meter_istio_sidecar_injection_success_total",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
                 }
