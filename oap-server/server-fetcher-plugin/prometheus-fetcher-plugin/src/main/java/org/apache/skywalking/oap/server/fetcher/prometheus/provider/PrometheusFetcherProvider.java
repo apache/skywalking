@@ -83,10 +83,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        if (!config.isActive()) {
-            return;
-        }
-        rules = Rules.loadRules(config.getRulePath());
+        rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
         ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
     }
 
@@ -96,7 +93,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        if (!config.isActive()) {
+        if (rules.isEmpty()) {
             return;
         }
         final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
