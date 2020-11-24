@@ -48,6 +48,7 @@ for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM
 # Documentation
 - [Official documentation](https://skywalking.apache.org/docs/)
 - [The paper of STAM](https://wu-sheng.github.io/STAM/), Streaming Topology Analysis Method.
+- [Blog](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) about profiling the code performance in production.
 
 NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
 
