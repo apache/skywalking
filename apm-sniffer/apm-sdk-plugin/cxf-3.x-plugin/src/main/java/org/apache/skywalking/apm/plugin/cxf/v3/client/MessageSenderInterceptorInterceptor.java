@@ -67,7 +67,7 @@ public class MessageSenderInterceptorInterceptor implements InstanceMethodsAroun
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            List<String> headerList = new ArrayList<>();
+            List<String> headerList = new ArrayList<>(1);
             headerList.add(next.getHeadValue());
             protocolHeaders.put(next.getHeadKey(), headerList);
         }
