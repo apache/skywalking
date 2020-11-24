@@ -39,7 +39,7 @@ staticConfig:
   labels:
     service: oap-server
 defaultMetricLevel: instance(['service'], ['instance'])
-namespace: oap
+group: oap
 metricsRules:
   - name: instance_cpu_percentage
     exp: (process_cpu_seconds_total * 100).sum(['service', 'instance']).rate('PT1M')

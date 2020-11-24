@@ -58,7 +58,7 @@ public class Rules {
                     String fileName = f.getName();
                     int dotIndex = fileName.lastIndexOf('.');
                     fileName = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
-                    if (!enabledRules.isEmpty() && !enabledRules.contains(fileName)) {
+                    if (!enabledRules.contains(fileName)) {
                         return null;
                     }
                     Rule rule = new Yaml().loadAs(r, Rule.class);
@@ -70,7 +70,6 @@ public class Rules {
                 return null;
             })
             .filter(Objects::nonNull)
-            .filter(Rule::getEnabled)
             .collect(Collectors.toList());
     }
 }

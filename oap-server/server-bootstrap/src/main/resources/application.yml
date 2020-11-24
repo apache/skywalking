@@ -287,11 +287,10 @@ receiver-meter:
   default:
 
 receiver-otel:
-  selector: ${SW_OTEL_RECEIVER:-}
+  selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
-    # Empty list ("") means all of rules are enabled.
-    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:""}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}

@@ -162,16 +162,15 @@ Supported handlers:
     * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) gRPC service handler.
 
 The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
-Notice, `receiver-otel` only support `defaultMetricLevel` and `metricsRules` nodes of scheme due to the push mode it opts to.
+Notice, `receiver-otel` only support `group`, `defaultMetricLevel` and `metricsRules` nodes of scheme due to the push mode it opts to.
 
-To active the `oc` handler which receives metrics:
+To active the `oc` handler and `istio` relevant rules:
 ```yaml
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
-    # Empty list ("") means all of rules are enabled.
-    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:""}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 ```
 
 ## Meter receiver
