@@ -70,6 +70,7 @@ jobs:
           - gson-scenario
           - elasticjob-3.x-scenario
           - springmvc-reactive-scenario
+          - cxf-scenario
     steps:
       - uses: actions/checkout@v2
         with:
