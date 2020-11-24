@@ -35,7 +35,10 @@ public class GetConnectionInterceptor implements InstanceMethodsAroundIntercepto
                              final Object[] allArguments,
                              final Class<?>[] argumentsTypes,
                              final MethodInterceptResult result) throws Throwable {
-        ContextManager.getRuntimeContext().put(GET_CONNECTION_TIME_FLAG, System.nanoTime());
+        EnhanceObjectHolder objectHolder = (EnhanceObjectHolder) objInst.getSkyWalkingDynamicField();
+        if (objectHolder != null) {
+            ContextManager.getRuntimeContext().put(GET_CONNECTION_TIME_FLAG, System.nanoTime());
+        }
     }
 
     @Override
@@ -67,6 +70,9 @@ public class GetConnectionInterceptor implements InstanceMethodsAroundIntercepto
                                       final Object[] allArguments,
                                       final Class<?>[] argumentsTypes,
                                       final Throwable t) {
-        ContextManager.getRuntimeContext().put(GET_CONNECTION_FAILURE_FLAG, true);
+        EnhanceObjectHolder objectHolder = (EnhanceObjectHolder) objInst.getSkyWalkingDynamicField();
+        if (objectHolder != null) {
+            ContextManager.getRuntimeContext().put(GET_CONNECTION_FAILURE_FLAG, true);
+        }
     }
 }

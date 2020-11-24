@@ -34,7 +34,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.ConnectionPool.IN
 
 @DefaultImplementor
 public class ConnectionPoolService implements BootService {
-    public static final Map<String, ConnectionPoolInfoImpl> POOL_AND_METER_IDS_MAPPING = new ConcurrentHashMap<>();
+    public static final Map<String, ConnectionPoolInfo> POOL_AND_METER_IDS_MAPPING = new ConcurrentHashMap<>();
     private ScheduledExecutorService scheduledExecutorService;
 
     @Override

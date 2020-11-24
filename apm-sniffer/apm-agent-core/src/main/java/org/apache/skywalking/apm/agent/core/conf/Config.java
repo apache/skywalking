@@ -329,7 +329,7 @@ public class Config {
         public static boolean ACTIVE = true;
 
         /**
-         *
+         * interval of fetching data connection pool value
          */
         public static int INTERVAL = 5;
     }
