@@ -24,7 +24,7 @@ force_build="off"
 cleanup="off"
 debug_mode=
 
-mvnw=mvn
+mvnw=${home}/../../mvnw
 agent_home="${home}"/../../skywalking-agent
 jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
