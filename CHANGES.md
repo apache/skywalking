@@ -21,6 +21,7 @@ Release Notes.
 * Add the plugin for mssql-jtds 1.x.
 * Add the plugin for mssql-jdbc 6.x -> 9.x.
 * Fix the default ignore mechanism isn't accurate enough bug.
+* Fix gateway plugin async finish repeatedly when fallback url configured.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
