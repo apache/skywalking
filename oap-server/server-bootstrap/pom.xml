@@ -260,7 +260,7 @@
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
-                        <exclude>oc-rules/</exclude>
+                        <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                     </excludes>
                 </configuration>

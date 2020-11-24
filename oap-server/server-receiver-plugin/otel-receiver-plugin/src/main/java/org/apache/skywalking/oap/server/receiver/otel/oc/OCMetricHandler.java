@@ -138,7 +138,7 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         try {
             rules = Rules.loadRules("otel-oc-rules", enabledRules);
         } catch (ModuleStartException e) {
-            log.warn("failed to load oc-rules");
+            log.warn("failed to load otel-oc-rules");
             return;
         }
         if (rules.isEmpty()) {
