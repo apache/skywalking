@@ -338,6 +338,12 @@ thrift-client:
 AsyncHttpClient:
   id: 102
   languages: Java
+dbcp:
+  id: 103
+  languages: Java
+mssql-jdbc-driver:
+  id: 104
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -358,7 +364,7 @@ StackExchange.Redis:
   languages: C#
 SqlServer:
   id: 3006
-  languages: C#
+  languages: C#,Java
 Npgsql:
   id: 3007
   languages: C#
@@ -535,3 +541,4 @@ Component-Server-Mappings:
   Predis: Redis
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
+  mssql-jdbc-driver: SqlServer

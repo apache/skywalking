@@ -1,3 +1,7 @@
+# Tracing and Tracing based Metrics Analyze Plugins
+The following plugins provide the distributed tracing capability, and the OAP backend would analyze the topology and 
+metrics based on the tracing data.
+
 * HTTP Server
   * [Tomcat](https://github.com/apache/tomcat) 7
   * [Tomcat](https://github.com/apache/tomcat) 8
@@ -35,6 +39,8 @@
   * PostgreSQL Driver 8.x, 9.x, 42.x
   * Mariadb Driver 2.x, 1.8
   * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
+  * [Mssql-Jtds](https://github.com/milesibastos/jTDS) 1.x
+  * [Mssql-jdbc](https://github.com/microsoft/mssql-jdbc) 6.x -> 8.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
@@ -51,7 +57,7 @@
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
-  * [Spring-Kafka](https://github.com/spring-projects/spring-kafka) Spring Kafka Consumer 2.2.x
+  * [Spring-Kafka](https://github.com/spring-projects/spring-kafka) Spring Kafka Consumer 1.3.x -> 2.3.x (2.0.x and 2.1.x not tested and not recommended by [the official document](https://spring.io/projects/spring-kafka))
   * [ActiveMQ](https://github.com/apache/activemq) 5.10.0 -> 5.15.4
   * [RabbitMQ](https://www.rabbitmq.com/) 5.x
   * [Pulsar](http://pulsar.apache.org) 2.2.x -> 2.4.x
@@ -106,7 +112,14 @@
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 * GraphQL
   * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
+* Pool
+  * [Apache Commons DBCP](https://github.com/apache/commons-dbcp) 2.x
+  
 
+# Meter Plugins
+The meter plugin provides the advanced metrics collections, which are not a part of tracing.
+
+___
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 

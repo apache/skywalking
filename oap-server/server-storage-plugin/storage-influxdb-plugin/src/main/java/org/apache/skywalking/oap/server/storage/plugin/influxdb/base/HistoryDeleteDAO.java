@@ -40,7 +40,7 @@ public class HistoryDeleteDAO implements IHistoryDeleteDAO {
             log.debug("TTL execution log, model: {}", model.getName());
         }
         try {
-            long deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMddHHmm"));
+            long deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
 
             client.deleteByQuery(model.getName(), TimeBucket.getTimestamp(deadline));
         } catch (Exception e) {

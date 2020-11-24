@@ -108,8 +108,11 @@ or 3rd party configuration management system.
 1. [Uninstrumented Gateways](uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
 to reflect the delegation in topology graph.
 1. [Apdex threshold](apdex-threshold.md). Configure the thresholds for different services if Apdex calculation is activated in the OAL.
+1. [Service Grouping](service-auto-grouping.md). An automatic grouping mechanism for all services based on name.
 1. [Group Parameterized Endpoints](endpoint-grouping-rules.md). Configure the grouping rules for parameterized endpoints,
 to improve the meaning of the metrics.
+1. [Meter Analysis](backend-meter.md). Set up the backend analysis rules, when use [SkyWalking Meter System Toolkit](../service-agent/java-agent/README.md#advanced-features) 
+or meter plugins. 
 1. [Spring Sleuth Metrics Analysis](spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
 
 ## Telemetry for backend

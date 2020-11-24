@@ -104,6 +104,9 @@
         <module>httpclient-commons</module>
         <module>asynchttpclient-2.x-plugin</module>
         <module>hikaricp-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
+        <module>mssql-jtds-1.x-plugin</module>
+        <module>mssql-jdbc-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

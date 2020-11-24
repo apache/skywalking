@@ -192,21 +192,31 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
                 dataset.put(key, value);
             }
             dataset.keys().stream()
-                .map(key -> {
-                    if (key.contains(":")) {
-                        String[] kk = key.split(":");
-                        return Tuple.of(kk[0], key);
-                    } else {
-                        return Tuple.of(DEFAULT_GROUP, key);
-                    }
-                })
-                .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, Collector.of(
-                    DataTable::new,
-                    (dt, key) -> dt.put(key.contains(":") ? key.split(":")[1] : key, dataset.get(key)),
-                    DataTable::append))))
-                .forEach((group, subDataset) -> {
-                    long total;
-                    total = subDataset.sumOfValues();
+                   .map(key -> {
+                       if (key.contains(":")) {
+                           int index = key.lastIndexOf(":");
+                           return Tuple.of(key.substring(0, index), key);
+                       } else {
+                           return Tuple.of(DEFAULT_GROUP, key);
+                       }
+                   })
+                   .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, Collector.of(
+                       DataTable::new,
+                       (dt, key) -> {
+                           String v;
+                           if (key.contains(":")) {
+                               int index = key.lastIndexOf(":");
+                               v = key.substring(index + 1);
+                           } else {
+                               v = key;
+                           }
+                           dt.put(v, dataset.get(key));
+                       },
+                       DataTable::append
+                   ))))
+                   .forEach((group, subDataset) -> {
+                       long total;
+                       total = subDataset.sumOfValues();
 
                     int[] roofs = new int[ranks.size()];
                     for (int i = 0; i < ranks.size(); i++) {
