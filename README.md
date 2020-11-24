@@ -46,13 +46,7 @@ SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
 # Documentation
-Version Series | Version | 
------------ | ---------- |
-8.x| [8.x dev](docs/README.md)|
-| | [8.2.0](https://github.com/apache/skywalking/blob/v8.2.0/docs/README.md) |
-| | [8.1.0](https://github.com/apache/skywalking/blob/v8.1.0/docs/README.md) |
-| | [8.0.1](https://github.com/apache/skywalking/blob/v8.0.1/docs/README.md) |
-
+[Documentation](http://skywalking.apache.org/downloads/) of all recommended releases.
 
 NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
 
