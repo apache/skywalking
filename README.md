@@ -37,7 +37,7 @@ including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 1. Go agent.
 1. LUA agent especially for Nginx, OpenResty.
-1. Service Mesh Observability. Support Mixer telemetry. Recommend to use Envoy Access Log Service (ALS) for better performance, first introduced at [KubeCon 2019](https://www.youtube.com/watch?v=tERm39ju9ew).
+1. Service Mesh Observability. Support Istio telemetry metrics. Recommend to use Envoy Access Log Service (ALS) for better performance, first introduced at [KubeCon 2019](https://www.youtube.com/watch?v=tERm39ju9ew).
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer).
 1. Browser application performance, including metrics and error logs.
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
