@@ -52,6 +52,7 @@ Release Notes.
 * Remove unused min date timebucket in jdbc deletehistory logical
 * Fix "transaction too large error" when use TiDB as storage.
 * Add otel rules to ui template to observe Istio control plane.
+* Remove istio mixer
 
 #### UI
 * Fix incorrect label in radial chart in topology.
