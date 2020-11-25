@@ -44,6 +44,7 @@ services:
       SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
       SW_HEALTH_CHECKER: default
       SW_TELEMETRY: prometheus
+      SW_PROMETHEUS_FETCHER: default
     healthcheck:
       test: ["CMD", "./bin/swctl", "ch"]
       interval: 30s
