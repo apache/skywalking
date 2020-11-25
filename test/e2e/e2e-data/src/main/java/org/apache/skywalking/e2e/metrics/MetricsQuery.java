@@ -129,9 +129,9 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     private String id;
     private String metricsName;
 
-    public static String METER_JVM_MEMORY_MAX = "meter_oap_jvm_memory_max";
-    public static String METER_JVM_THREADS_LIVE = "meter_oap_jvm_threads_live";
-    public static String METER_PROCESS_FILES_MAX = "meter_oap_process_files_max";
+    public static String METER_JVM_MEMORY_MAX = "meter_jvm_memory_max";
+    public static String METER_JVM_THREADS_LIVE = "meter_jvm_threads_live";
+    public static String METER_PROCESS_FILES_MAX = "meter_process_files_max";
     public static String[] SIMPLE_MICROMETER_METERS = {
         METER_JVM_MEMORY_MAX,
         METER_JVM_THREADS_LIVE,
