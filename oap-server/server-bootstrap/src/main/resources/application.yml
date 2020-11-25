@@ -266,7 +266,7 @@ envoy-metric:
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${service.metadata.name}"}
 
 prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:default}
+  selector: ${SW_PROMETHEUS_FETCHER:-}
   default:
     enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
 
@@ -287,7 +287,7 @@ receiver-meter:
   default:
 
 receiver-otel:
-  selector: ${SW_OTEL_RECEIVER:default}
+  selector: ${SW_OTEL_RECEIVER:-}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
