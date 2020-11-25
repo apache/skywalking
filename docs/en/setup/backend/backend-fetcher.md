@@ -47,9 +47,9 @@ staticConfig:
   labels:
     [ <labelname>: <labelvalue> ... ]
 # expSuffix is appended to all expression in this file.
-expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['instance'])
+expSuffix: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
-metricPrefix: <exp>
+metricPrefix: <string>
 # Metrics rule allow you to recompute queries.
 metricsRules:
    [ - <metric_rules> ]
