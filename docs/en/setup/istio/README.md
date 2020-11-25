@@ -11,6 +11,7 @@ to finish it.
 
 Follow the [deploying backend in kubernetes](../backend/backend-k8s.md) to install the OAP server in the kubernetes cluster.
 Referring to [OpenTelemetry receiver](../backend/backend-receivers.md#OpenTelemetry-receiver) to ingest metrics.
+`otel-receiver` defaults to be inactive. Set env var `SW_OTEL_RECEIVER` to `default` to enable it.
 
 
 ## Deploy OpenTelemetry collector
