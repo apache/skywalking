@@ -37,6 +37,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * Used to intercept client requests and transparently transmit trace header and other information
+ */
 public class MessageSenderInterceptorInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -62,6 +65,7 @@ public class MessageSenderInterceptorInterceptor implements InstanceMethodsAroun
         Tags.URL.set(span, generateRequestURL(messageInfo, address));
         SpanLayer.asRPCFramework(span);
 
+        //Set trace headers.
         Map protocolHeaders = (Map) message.get(Message.PROTOCOL_HEADERS);
 
         CarrierItem next = contextCarrier.items();

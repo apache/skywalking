@@ -28,6 +28,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * Create a new span and associate the existing link.
+ */
 public class AsyncInvokeMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

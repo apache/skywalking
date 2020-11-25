@@ -22,6 +22,9 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * Capture a snapshot for cross-thread propagation.
+ */
 public class AsyncInvokeConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override

@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.apm.testcase.cxf;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBus;
@@ -32,6 +36,8 @@ import org.springframework.core.Ordered;
 
 @Configuration
 public class CxfConfig {
+
+    private final Executor executor = new ThreadPoolExecutor(2, 2, 60, TimeUnit.SECONDS, new ArrayBlockingQueue(100));
 
     @Bean
     public ServletRegistrationBean servletRegistrationBean() {
@@ -54,6 +60,7 @@ public class CxfConfig {
     @Bean
     public Endpoint endpoint() {
         EndpointImpl endpoint = new EndpointImpl(springBus(), userService());
+        endpoint.setExecutor(executor);
         endpoint.publish("/user");
         return endpoint;
     }
