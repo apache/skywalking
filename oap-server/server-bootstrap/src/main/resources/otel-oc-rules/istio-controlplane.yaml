@@ -30,6 +30,8 @@
 # </pre>
 group: istio
 defaultMetricLevel: service(['cluster', 'app'])
+expSuffix: tag({tags -> tags.cluster = 'istio-ctrl::' + tags.cluster}).service(['cluster', 'app'])
+metricPrefix: meter_istio
 metricsRules:
   ## Resource usage
   # Pilot Versions
