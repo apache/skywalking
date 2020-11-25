@@ -40,7 +40,7 @@ Note, make sure the [`receiver-browser`](backend/backend-receivers.md) has been 
 ## Service Mesh
 
   - Istio
-    - [SkyWalking on Istio](istio/README.md). Introduces how to use Istio Mixer bypass adapter to work with SkyWalking.
+    - [SkyWalking on Istio](istio/README.md). Introduces how to analyze Istio metrics.
   - Envoy
     - Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](envoy/als_setting.md) for guides.
 

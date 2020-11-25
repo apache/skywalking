@@ -14,9 +14,8 @@ which are wide used. Here is Istio Architecture:
 
 ![Istio Architecture](https://istio.io/latest/docs/ops/deployment/architecture/arch.svg)
 
-Service Mesh probe can choose to collect data from **Control Panel** or **Data Panel**. In Istio,
-it means collecting telemetry data from Mixer(Control Panel) or Envoy sidecar(Data Panel). Underlying
-they are same data, the probe collects two telemetry entities from client side and server side per request.
+Service Mesh probe can choose to collect data from **Data Panel**. In Istio, it means collecting telemetry data from 
+Envoy sidecar(Data Panel). The probe collects two telemetry entities from client side and server side per request.
 
 ## How does Service Mesh make backend work?
 From the probe, you can see there must have no trace related in this kind of probe, so why SkyWalking

@@ -22,14 +22,13 @@ import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.MetricsRule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
@@ -53,8 +52,8 @@ public class PrometheusMetricConverter {
 
     private final MetricConvert convert;
 
-    public PrometheusMetricConverter(List<MetricsRule> rules, String defaultMetricLevel, MeterSystem service) {
-        this.convert = new MetricConvert(rules, defaultMetricLevel, service);
+    public PrometheusMetricConverter(Rule rule, MeterSystem service) {
+        this.convert = new MetricConvert(rule, service);
     }
 
     /**
@@ -67,7 +66,7 @@ public class PrometheusMetricConverter {
         convert.toMeter(data);
     }
 
-    private ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
+    public ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
         return metricStream
             .peek(metric -> log.debug("Prom metric to be convert to SampleFamily: {}", metric))
             .flatMap(this::convertMetric)
