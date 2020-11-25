@@ -54,6 +54,7 @@ Release Notes.
 * Fix "transaction too large error" when use TiDB as storage.
 * Add otel rules to ui template to observe Istio control plane.
 * Remove istio mixer
+* Insert group name into services of so11y and istio relevant metrics
 
 #### UI
 * Fix incorrect label in radial chart in topology.

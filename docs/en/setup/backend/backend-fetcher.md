@@ -46,10 +46,10 @@ staticConfig:
   # Labels assigned to all metrics fetched from the targets.
   labels:
     [ <labelname>: <labelvalue> ... ]
-# insert group_name into metric name, for example, meter_<group_name>_<raw_metric_name>
-group: <group_name>
-# default metric level function appends to all expression in this file.
-defaultMetricLevel: <exp>
+# expSuffix is appended to all expression in this file.
+expSuffix: tag({tags -> tags.service = 'oap::' + tags.service}).instance(['service'], ['instance'])
+# insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
+metricPrefix: <exp>
 # Metrics rule allow you to recompute queries.
 metricsRules:
    [ - <metric_rules> ]
