@@ -78,9 +78,6 @@ receiver-profile:
 service-mesh:
   default:
 
-istio-telemetry:
-  default:
-
 query:
   graphql:
     path: ${QUERY_GRAPHQL_PATH:/graphql}

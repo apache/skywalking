@@ -31,7 +31,6 @@
         <module>skywalking-trace-receiver-plugin</module>
         <module>zipkin-receiver-plugin</module>
         <module>skywalking-mesh-receiver-plugin</module>
-        <module>skywalking-istio-telemetry-receiver-plugin</module>
         <module>skywalking-management-receiver-plugin</module>
         <module>skywalking-jvm-receiver-plugin</module>
         <module>envoy-metrics-receiver-plugin</module>
@@ -40,7 +39,7 @@
         <module>jaeger-receiver-plugin</module>
         <module>receiver-proto</module>
         <module>skywalking-profile-receiver-plugin</module>
-        <module>opencensus-receiver-plugin</module>
+        <module>otel-receiver-plugin</module>
         <module>skywalking-meter-receiver-plugin</module>
         <module>skywalking-browser-receiver-plugin</module>
     </modules>

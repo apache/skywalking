@@ -57,7 +57,7 @@ public class TagFilterTest {
                 "default",
                 of("instance_cpu_percentage", SampleFamily.EMPTY),
                 "instance_cpu_percentage",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
