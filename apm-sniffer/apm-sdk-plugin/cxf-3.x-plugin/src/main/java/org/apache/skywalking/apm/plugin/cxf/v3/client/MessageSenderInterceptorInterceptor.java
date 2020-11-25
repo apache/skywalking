@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.transport.http.Address;
@@ -47,7 +46,7 @@ public class MessageSenderInterceptorInterceptor implements InstanceMethodsAroun
                              final Object[] allArguments,
                              final Class<?>[] argumentsTypes,
                              final MethodInterceptResult result) throws Throwable {
-        SoapMessage message = (SoapMessage) allArguments[0];
+        Message message = (Message) allArguments[0];
         final String httpRequestMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
         final MessageInfo messageInfo = (MessageInfo) message.get("org.apache.cxf.service.model.MessageInfo");
         final Address address = (Address) message.get("http.connection.address");
