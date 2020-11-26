@@ -82,6 +82,13 @@ public class FunctionTest {
                 false,
             },
             {
+                "tag-append",
+                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().labels(of("region", "us")).build())),
+                "instance_cpu_percentage.tag({tags -> tags.region = 'prefix::' + tags.region})",
+                Result.success(SampleFamily.build(Sample.builder().labels(of("region", "prefix::us")).build())),
+                false,
+                },
+            {
                 "histogram",
                 of("instance_cpu_percentage", SampleFamily.build(
                     Sample.builder().labels(of("le", "0.025")).value(100).build(),
