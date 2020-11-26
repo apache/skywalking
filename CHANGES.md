@@ -60,6 +60,8 @@ Release Notes.
 * Fix incorrect label in radial chart in topology.
 * Replace node-sass with dart-sass.
 * Replace serviceFilter with serviceGroup
+* Removed "Les Miserables" from radial chart in topology.
+* Add the Promise dropdown option
 
 #### Documentation
 * Add VNode FAQ doc.
