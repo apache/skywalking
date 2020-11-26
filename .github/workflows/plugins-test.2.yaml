@@ -66,6 +66,7 @@ jobs:
           - spring-tx-scenario
           - struts2.3-scenario
           - struts2.5-scenario
+          - cxf-scenario
     steps:
       - uses: actions/checkout@v2
         with:
