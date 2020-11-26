@@ -22,6 +22,7 @@ Release Notes.
 * Add the plugin for mssql-jdbc 6.x -> 9.x.
 * Fix the default ignore mechanism isn't accurate enough bug.
 * Add the plugin for spring-kafka 1.3.x.
+* Add the plugin for Apache CXF 3.x.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
