@@ -156,14 +156,14 @@ public class LogEntry2MetricsAdapter {
         if (properties == null) {
             return NON_TLS;
         }
-        if (isNullOrEmpty(Optional.ofNullable(properties.getLocalCertificateProperties())
-                                  .orElse(TLSProperties.CertificateProperties.newBuilder().build())
-                                  .getSubject())) {
+        TLSProperties.CertificateProperties lp = Optional.ofNullable(properties.getLocalCertificateProperties())
+                                  .orElse(TLSProperties.CertificateProperties.newBuilder().build());
+        if (isNullOrEmpty(lp.getSubject()) && isNullOrEmpty(lp.getSubjectAltName())) {
             return NON_TLS;
         }
-        if (isNullOrEmpty(Optional.ofNullable(properties.getPeerCertificateProperties())
-                                  .orElse(TLSProperties.CertificateProperties.newBuilder().build())
-                                  .getSubject())) {
+        TLSProperties.CertificateProperties pp = Optional.ofNullable(properties.getPeerCertificateProperties())
+                                  .orElse(TLSProperties.CertificateProperties.newBuilder().build()); 
+        if (isNullOrEmpty(pp.getSubject()) && isNullOrEmpty(pp.getSubjectAltName())) {
             return TLS;
         }
         return M_TLS;
