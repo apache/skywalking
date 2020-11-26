@@ -52,6 +52,7 @@ Release Notes.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
 * Remove unused min date timebucket in jdbc deletehistory logical
 * Fix "transaction too large error" when use TiDB as storage.
+* Support close influxdb batch write model. 
 
 #### UI
 * Fix incorrect label in radial chart in topology.
