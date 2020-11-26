@@ -101,7 +101,7 @@ public class PythonE2E extends SkyWalkingTestAdapter {
     @RetryableTest
     void services() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
-        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        services = services.stream().filter(s -> !s.getLabel().equals("oap::oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/python/services.yml").as(ServicesMatcher.class).verify(services);
