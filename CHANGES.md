@@ -30,6 +30,7 @@ Release Notes.
 * Add `contain` and `not contain` OPS in OAL.
 * Add Envoy ALS analyzer based on metadata exchange.
 * Add `listMetrics` GraphQL query. 
+* Add group name into services of so11y and istio relevant metrics
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
 * Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
@@ -55,7 +56,7 @@ Release Notes.
 * Fix "transaction too large error" when use TiDB as storage.
 * Add otel rules to ui template to observe Istio control plane.
 * Remove istio mixer
-* Insert group name into services of so11y and istio relevant metrics
+* Support close influxdb batch write model.
 
 #### UI
 * Fix incorrect label in radial chart in topology.
