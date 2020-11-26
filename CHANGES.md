@@ -29,6 +29,7 @@ Release Notes.
 * Add `contain` and `not contain` OPS in OAL.
 * Add Envoy ALS analyzer based on metadata exchange.
 * Add `listMetrics` GraphQL query. 
+* Add group name into services of so11y and istio relevant metrics
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
 * Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
@@ -59,6 +60,9 @@ Release Notes.
 #### UI
 * Fix incorrect label in radial chart in topology.
 * Replace node-sass with dart-sass.
+* Replace serviceFilter with serviceGroup
+* Removed "Les Miserables" from radial chart in topology.
+* Add the Promise dropdown option
 
 #### Documentation
 * Add VNode FAQ doc.

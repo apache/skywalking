@@ -48,9 +48,9 @@ public class MetricConvert {
     private final List<Analyzer> analyzers;
 
     public MetricConvert(Rule rule, MeterSystem service) {
-        Preconditions.checkState(!Strings.isNullOrEmpty(rule.getGroup()));
+        Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
         this.analyzers = rule.getMetricsRules().stream().map(r -> Analyzer.build(formatMetricName(rule, r.getName()),
-            Strings.isEmpty(rule.getDefaultMetricLevel()) ? r.getExp() : String.format("(%s).%s", r.getExp(), rule.getDefaultMetricLevel()), service))
+                                                                                 Strings.isEmpty(rule.getExpSuffix()) ? r.getExp() : String.format("(%s).%s", r.getExp(), rule.getExpSuffix()), service))
             .collect(toList());
     }
 
@@ -75,7 +75,7 @@ public class MetricConvert {
 
     private String formatMetricName(Rule rule, String meterRuleName) {
         StringJoiner metricName = new StringJoiner("_");
-        metricName.add("meter").add(rule.getGroup()).add(meterRuleName);
+        metricName.add(rule.getMetricPrefix()).add(meterRuleName);
         return metricName.toString();
     }
 }
