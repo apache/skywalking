@@ -59,6 +59,7 @@ Release Notes.
 #### UI
 * Fix incorrect label in radial chart in topology.
 * Replace node-sass with dart-sass.
+* Replace serviceFilter with serviceGroup
 
 #### Documentation
 * Add VNode FAQ doc.
