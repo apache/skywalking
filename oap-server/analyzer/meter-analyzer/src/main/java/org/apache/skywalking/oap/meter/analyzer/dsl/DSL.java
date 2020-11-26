@@ -39,6 +39,6 @@ public final class DSL {
         cc.setScriptBaseClass(DelegatingScript.class.getName());
         GroovyShell sh = new GroovyShell(new Binding(), cc);
         DelegatingScript script = (DelegatingScript) sh.parse(expression);
-        return new Expression(script);
+        return new Expression(expression, script);
     }
 }

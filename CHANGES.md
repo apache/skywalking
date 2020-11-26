@@ -52,6 +52,8 @@ Release Notes.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
 * Remove unused min date timebucket in jdbc deletehistory logical
 * Fix "transaction too large error" when use TiDB as storage.
+* Add otel rules to ui template to observe Istio control plane.
+* Remove istio mixer
 
 #### UI
 * Fix incorrect label in radial chart in topology.
@@ -61,6 +63,8 @@ Release Notes.
 * Add VNode FAQ doc.
 * Add logic endpoint section in the agent setup doc.
 * Adjust configuration names and system environment names of the sharing server module
+* Tweak Istio metrics collection doc.
+* Add otel receiver.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
 
