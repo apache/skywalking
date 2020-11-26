@@ -130,7 +130,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request + http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
@@ -186,7 +186,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request - http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
@@ -242,7 +242,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request * http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
@@ -253,7 +253,7 @@ public class ArithmeticTest {
                         Sample.builder().labels(of("idc", "t2")).value(3).build()
                     )),
                 "http_success_request * http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
@@ -264,7 +264,7 @@ public class ArithmeticTest {
                         Sample.builder().labels(of("idc", "t2")).value(3).build()
                     )),
                 "http_error_request * http_success_request ",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
@@ -292,7 +292,7 @@ public class ArithmeticTest {
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
                 "http_success_request / http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
@@ -303,7 +303,7 @@ public class ArithmeticTest {
                         Sample.builder().labels(of("idc", "t2")).value(3).build()
                     )),
                 "http_success_request / http_error_request",
-                Result.fail(),
+                Result.fail("Parsed result is an EMPTY sample family"),
                 false,
             },
             {
