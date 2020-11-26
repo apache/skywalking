@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.analyzer.provider;
 
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessService;
@@ -62,7 +61,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     @Getter
     private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;
 
-    private List<MeterConfig> meterConfigs;
+    private List<MeterConfigs.Config> meterConfigs;
     @Getter
     private MeterProcessService processService;
 

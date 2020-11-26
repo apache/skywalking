@@ -27,6 +27,15 @@ import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,14 +48,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -249,12 +250,29 @@ public class SampleFamily {
         }).toArray(Sample[]::new));
     }
 
+    /**
+     * Ignore histogram decrease bucket value, at agent side meter, need to ignore decrease histogram bucket value
+     */
+    public SampleFamily ignoreHistogramDecrease() {
+        this.context.ignoreHistogramDecrease = true;
+        return this;
+    }
+
+    /**
+     * Change default histogram bucket value unit,
+     * use second on the Prometheus, use millisecond on the meter side meter
+     */
+    public SampleFamily defaultHistogramBucketUnit(TimeUnit unit) {
+        this.context.defaultHistogramBucketUnit = unit;
+        return this;
+    }
+
     public SampleFamily histogram() {
-        return histogram("le", TimeUnit.SECONDS);
+        return histogram("le", this.context.defaultHistogramBucketUnit);
     }
 
     public SampleFamily histogram(String le) {
-        return histogram(le, TimeUnit.SECONDS);
+        return histogram(le, this.context.defaultHistogramBucketUnit);
     }
 
     public SampleFamily histogram(String le, TimeUnit unit) {
@@ -271,11 +289,11 @@ public class SampleFamily {
                 .filter(s -> s.labels.containsKey(le))
                 .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
                 .map(s -> {
-                    double r = s.value - pre.get();
+                    double r = this.context.ignoreHistogramDecrease ? s.value : s.value - pre.get();
                     pre.set(s.value);
                     ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                         .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                        .put("le", String.valueOf((long) (Double.parseDouble(preLe.get()) * scale))).build();
+                        .put("le", String.valueOf((long) (Double.parseDouble(this.context.ignoreHistogramDecrease ? s.labels.get(le) : preLe.get())) * scale)).build();
                     preLe.set(s.labels.get(le));
                     return newSample(ll, s.timestamp, r);
                 })).toArray(Sample[]::new));
@@ -397,7 +415,10 @@ public class SampleFamily {
         static Context EMPTY = Context.builder().build();
 
         static Context instance() {
-            return Context.builder().downsampling(DownsamplingType.AVG).build();
+            return Context.builder()
+                .downsampling(DownsamplingType.AVG)
+                .defaultHistogramBucketUnit(TimeUnit.SECONDS)
+                .build();
         }
 
         boolean isHistogram;
@@ -407,5 +428,9 @@ public class SampleFamily {
         DownsamplingType downsampling;
 
         MeterEntity meterEntity;
+
+        private boolean ignoreHistogramDecrease;
+
+        private TimeUnit defaultHistogramBucketUnit;
     }
 }

@@ -23,6 +23,5 @@ import lombok.Data;
 @Data
 public class MeterConfig {
     private String name;
-    private Scope scope;
-    private MeterDataConfig meter;
+    private String exp;
 }

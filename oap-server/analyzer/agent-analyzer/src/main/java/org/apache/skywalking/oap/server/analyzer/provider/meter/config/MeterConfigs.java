@@ -44,7 +44,7 @@ public class MeterConfigs {
     /**
      * Load all configs from path
      */
-    public static List<MeterConfig> loadConfig(String path, String[] fileNames) throws ModuleStartException {
+    public static List<MeterConfigs.Config> loadConfig(String path, String[] fileNames) throws ModuleStartException {
         if (fileNames == null || fileNames.length == 0) {
             return Collections.emptyList();
         }
@@ -66,12 +66,12 @@ public class MeterConfigs {
                 return null;
             })
             .filter(Objects::nonNull)
-            .flatMap(c -> c.getMeters().stream())
             .collect(Collectors.toList());
     }
 
     @Data
     public static class Config {
+        private String defaultMetricLevel;
         private List<MeterConfig> meters;
     }
 }

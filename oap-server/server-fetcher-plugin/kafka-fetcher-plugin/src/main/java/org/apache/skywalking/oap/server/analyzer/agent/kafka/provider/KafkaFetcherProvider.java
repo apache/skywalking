@@ -83,9 +83,6 @@ public class KafkaFetcherProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-        if (config.isEnableMeterSystem()) {
-            processService.initMeters();
-        }
     }
 
     @Override
