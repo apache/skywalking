@@ -54,7 +54,7 @@ Release Notes.
 * Fix "transaction too large error" when use TiDB as storage.
 * Add otel rules to ui template to observe Istio control plane.
 * Remove istio mixer
-* Support close influxdb batch write model. 
+* Support close influxdb batch write model.
 
 #### UI
 * Fix incorrect label in radial chart in topology.
