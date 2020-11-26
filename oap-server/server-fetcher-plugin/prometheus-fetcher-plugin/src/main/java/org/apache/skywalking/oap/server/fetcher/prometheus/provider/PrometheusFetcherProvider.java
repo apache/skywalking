@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import io.vavr.CheckedFunction1;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,10 +83,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        if (!config.isActive()) {
-            return;
-        }
-        rules = Rules.loadRules(config.getRulePath());
+        rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
         ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
     }
 
@@ -95,14 +93,14 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        if (!config.isActive()) {
+        if (rules.isEmpty()) {
             return;
         }
         final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
         rules.forEach(r -> {
             ses.scheduleAtFixedRate(new Runnable() {
 
-                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), r.getDefaultMetricLevel(), service);
+                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r, service);
 
                 @Override public void run() {
                     if (Objects.isNull(r.getStaticConfig())) {
@@ -112,7 +110,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                     long now = System.currentTimeMillis();
                     converter.toMeter(sc.getTargets().stream()
                         .map(CheckedFunction1.liftTry(target -> {
-                            String content = HttpClient.builder().url(target.getUrl()).caFilePath(target.getSslCaFilePath()).build().request();
+                            URI url = new URI(target.getUrl());
+                            URI targetURL = url.resolve(r.getMetricsPath());
+                            String content = HttpClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
                             List<Metric> result = new ArrayList<>();
                             try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
                                 Parser p = Parsers.text(targetStream);
