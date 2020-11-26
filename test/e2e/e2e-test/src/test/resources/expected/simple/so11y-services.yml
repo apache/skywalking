@@ -15,4 +15,4 @@
 
 services:
   - key: not null
-    label: "oap-server"
+    label: "oap::oap-server"

@@ -26,6 +26,7 @@ templates:
         {
           "name": "SelfObservability",
           "type": "service",
+          "serviceGroup": "oap",
           "children": [
             {
               "name": "oap-server",

@@ -55,10 +55,14 @@ Release Notes.
 * Fix "transaction too large error" when use TiDB as storage.
 * Add otel rules to ui template to observe Istio control plane.
 * Remove istio mixer
+* Insert group name into services of so11y and istio relevant metrics
 
 #### UI
 * Fix incorrect label in radial chart in topology.
 * Replace node-sass with dart-sass.
+* Replace serviceFilter with serviceGroup
+* Removed "Les Miserables" from radial chart in topology.
+* Add the Promise dropdown option
 
 #### Documentation
 * Add VNode FAQ doc.
