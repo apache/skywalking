@@ -83,11 +83,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-istio-telemetry-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-management-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -118,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>opencensus-receiver-plugin</artifactId>
+            <artifactId>otel-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -265,7 +260,7 @@
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
-                        <exclude>oc-rules/</exclude>
+                        <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                     </excludes>
                 </configuration>

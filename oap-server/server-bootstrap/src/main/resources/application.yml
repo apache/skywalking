@@ -254,10 +254,6 @@ service-mesh:
   selector: ${SW_SERVICE_MESH:default}
   default:
 
-istio-telemetry:
-  selector: ${SW_ISTIO_TELEMETRY:default}
-  default:
-
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
@@ -270,9 +266,9 @@ envoy-metric:
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${service.metadata.name}"}
 
 prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:default}
+  selector: ${SW_PROMETHEUS_FETCHER:-}
   default:
-    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
+    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
 
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
@@ -290,11 +286,11 @@ receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
   default:
 
-receiver-oc:
-  selector: ${SW_OC_RECEIVER:-}
+receiver-otel:
+  selector: ${SW_OTEL_RECEIVER:-}
   default:
-    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
