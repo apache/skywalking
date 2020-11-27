@@ -57,6 +57,7 @@ Release Notes.
 * Add otel rules to ui template to observe Istio control plane.
 * Remove istio mixer
 * Support close influxdb batch write model.
+* Check SAN in the ALS (m)TLS process.
 
 #### UI
 * Fix incorrect label in radial chart in topology.
