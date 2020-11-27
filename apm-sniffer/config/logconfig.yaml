@@ -1,13 +1,8 @@
----
-name: "log4j2"
-packages:
-  - package1
-  - package2
-level: "trace"
-pattern: "%date %level [%thread] %logger{10} [%file:%line] %msg%n"
-expression: "Regular expression"
----
-name: "logbak"
-level: "error"
-pattern: "%msg%n"
-expression: "Regular expression"
+- name: "log4j2"
+  packages:
+    - com.example
+  level: "trace"
+- name: "logback"
+  packages:
+    - com.example
+  level: "error"
