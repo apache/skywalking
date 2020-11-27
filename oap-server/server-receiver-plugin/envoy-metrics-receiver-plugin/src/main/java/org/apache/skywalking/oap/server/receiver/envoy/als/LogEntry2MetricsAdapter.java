@@ -28,6 +28,7 @@ import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.ResponseFlags;
 import io.envoyproxy.envoy.data.accesslog.v2.TLSProperties;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
@@ -156,14 +157,16 @@ public class LogEntry2MetricsAdapter {
         if (properties == null) {
             return NON_TLS;
         }
-        TLSProperties.CertificateProperties lp = Optional.ofNullable(properties.getLocalCertificateProperties())
-                                  .orElse(TLSProperties.CertificateProperties.newBuilder().build());
-        if (isNullOrEmpty(lp.getSubject()) && isNullOrEmpty(lp.getSubjectAltName())) {
+        TLSProperties.CertificateProperties lp = Optional
+            .ofNullable(properties.getLocalCertificateProperties())
+            .orElse(TLSProperties.CertificateProperties.newBuilder().build());
+        if (isNullOrEmpty(lp.getSubject()) && !hasSAN(lp.getSubjectAltNameList())) {
             return NON_TLS;
         }
-        TLSProperties.CertificateProperties pp = Optional.ofNullable(properties.getPeerCertificateProperties())
-                                  .orElse(TLSProperties.CertificateProperties.newBuilder().build()); 
-        if (isNullOrEmpty(pp.getSubject()) && isNullOrEmpty(pp.getSubjectAltName())) {
+        TLSProperties.CertificateProperties pp = Optional
+            .ofNullable(properties.getPeerCertificateProperties())
+            .orElse(TLSProperties.CertificateProperties.newBuilder().build());
+        if (isNullOrEmpty(pp.getSubject()) && !hasSAN(pp.getSubjectAltNameList())) {
             return TLS;
         }
         return M_TLS;
@@ -216,5 +219,19 @@ public class LogEntry2MetricsAdapter {
             }
         }
         return "";
+    }
+
+    /**
+     * @param subjectAltNameList from ALS LocalCertificateProperties and PeerCertificateProperties
+     * @return true is there is at least one SAN, based on URI check.
+     */
+    private static boolean hasSAN(List<TLSProperties.CertificateProperties.SubjectAltName> subjectAltNameList) {
+        for (final TLSProperties.CertificateProperties.SubjectAltName san : subjectAltNameList) {
+            // Don't check DNS for now, as it is tagged not-implemented in ALS v2
+            if (!isNullOrEmpty(san.getUri())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
