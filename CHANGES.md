@@ -18,16 +18,27 @@ Release Notes.
 * Add the plugin for async-http-client 2.x
 * Fix NPE in the nutz plugin.
 * Provide Apache Commons DBCP 2.x plugin.
+* Add the plugin for mssql-jtds 1.x.
+* Add the plugin for mssql-jdbc 6.x -> 9.x.
+* Fix the default ignore mechanism isn't accurate enough bug.
+* Add the plugin for spring-kafka 1.3.x.
+* Add the plugin for Apache CXF 3.x.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.
 * Add the thread pool to the Kafka fetcher to increase the performance.
 * Add `contain` and `not contain` OPS in OAL.
 * Add Envoy ALS analyzer based on metadata exchange.
+* Add `listMetrics` GraphQL query. 
+* Add group name into services of so11y and istio relevant metrics
 * Support keeping collecting the slowly segments in the sampling mechanism.
 * Support choose files to active the meter analyzer.
+* Support nested class definition in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
+* Support `sideCar.internalErrorCode` in the Service, ServiceInstance, Endpoint, ServiceRelation, and ServiceInstanceRelation sources.
 * Improve Kubernetes service registry for ALS analysis.
 * Add health checker for cluster management
+* Support the service auto grouping.
+* Support query service list by the group name.
 * Improve the queryable tags generation. Remove the duplicated tags to reduce the storage payload.
 * Fix the threads of the Kafka fetcher exit if some unexpected exceptions happen.
 * Fix the excessive timeout period set by the kubernetes-client.
@@ -41,15 +52,25 @@ Release Notes.
 * Make the codes and doc consistent in sharding server and core server.
 * Fix that chunked string is incorrect while the tag contains colon.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
+* Remove unused min date timebucket in jdbc deletehistory logical
+* Fix "transaction too large error" when use TiDB as storage.
+* Add otel rules to ui template to observe Istio control plane.
+* Remove istio mixer
+* Support close influxdb batch write model.
 
 #### UI
 * Fix incorrect label in radial chart in topology.
 * Replace node-sass with dart-sass.
+* Replace serviceFilter with serviceGroup
+* Removed "Les Miserables" from radial chart in topology.
+* Add the Promise dropdown option
 
 #### Documentation
 * Add VNode FAQ doc.
 * Add logic endpoint section in the agent setup doc.
 * Adjust configuration names and system environment names of the sharing server module
+* Tweak Istio metrics collection doc.
+* Add otel receiver.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/62?closed=1)
 

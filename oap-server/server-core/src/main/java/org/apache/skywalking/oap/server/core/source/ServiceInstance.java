@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
@@ -71,6 +72,9 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private List<String> tags;
+    @Getter
+    @Setter
+    private SideCar sideCar = new SideCar();
 
     @Override
     public void prepare() {

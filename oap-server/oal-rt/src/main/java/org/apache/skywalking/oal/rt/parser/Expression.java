@@ -22,8 +22,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class Expression {
+    @Setter
     private String expressionObject;
     private String left;
     private String right;

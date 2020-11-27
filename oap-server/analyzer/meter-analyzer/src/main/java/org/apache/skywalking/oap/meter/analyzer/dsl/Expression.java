@@ -23,18 +23,34 @@ import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Expression is a reusable monadic container type which represents a DSL expression.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class Expression {
+
+    private final String literal;
 
     private final DelegatingScript expression;
 
-    Expression(DelegatingScript expression) {
-        this.expression = expression;
+    /**
+     * Parse the expression statically.
+     *
+     * @return Parsed context of the expression.
+     */
+    public ExpressionParsingContext parse() {
+        try (ExpressionParsingContext ctx = ExpressionParsingContext.create()) {
+            Result r = run(ImmutableMap.of());
+            if (!r.isSuccess() && r.isThrowable()) {
+                throw new ExpressionParsingException("failed to parse expression: " + literal + ", error:" + r.getError());
+            }
+            ctx.validate(literal);
+            return ctx;
+        }
     }
 
     /**
@@ -57,18 +73,12 @@ public class Expression {
             }
 
             public SampleFamily avg(SampleFamily sf) {
-                if (sf == SampleFamily.EMPTY) {
-                    return SampleFamily.EMPTY;
-                }
-                sf.context.downsampling = DownsamplingType.AVG;
+                ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
                 return sf;
             }
 
             public SampleFamily latest(SampleFamily sf) {
-                if (sf == SampleFamily.EMPTY) {
-                    return SampleFamily.EMPTY;
-                }
-                sf.context.downsampling = DownsamplingType.LATEST;
+                ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.LATEST);
                 return sf;
             }
 

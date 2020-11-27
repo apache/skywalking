@@ -33,6 +33,7 @@ public class Rule {
     private String fetcherTimeout;
     private String metricsPath;
     private StaticConfig staticConfig;
-    private String defaultMetricLevel;
+    private String metricPrefix;
+    private String expSuffix;
     private List<MetricsRule> metricsRules;
 }

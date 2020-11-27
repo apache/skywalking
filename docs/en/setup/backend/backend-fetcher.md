@@ -46,8 +46,10 @@ staticConfig:
   # Labels assigned to all metrics fetched from the targets.
   labels:
     [ <labelname>: <labelvalue> ... ]
-# default metric level function appends to all expression in this file.
-defaultMetricLevel: <exp>
+# expSuffix is appended to all expression in this file.
+expSuffix: <string>
+# insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
+metricPrefix: <string>
 # Metrics rule allow you to recompute queries.
 metricsRules:
    [ - <metric_rules> ]

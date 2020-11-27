@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -60,40 +61,21 @@ import static java.util.stream.Collectors.toList;
 @EqualsAndHashCode
 @ToString
 public class SampleFamily {
-    public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], Context.EMPTY);
+    public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], RunningContext.EMPTY);
 
     public static SampleFamily build(Sample... samples) {
         return build(null, samples);
     }
 
-    static SampleFamily build(Context ctx, Sample... samples) {
+    static SampleFamily build(RunningContext ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
-        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(Context::instance));
-    }
-
-    static SampleFamily buildHistogram(Sample... samples) {
-        return buildHistogram(null, samples);
-    }
-
-    static SampleFamily buildHistogram(Context ctx, Sample... samples) {
-        Preconditions.checkNotNull(samples);
-        Preconditions.checkArgument(samples.length > 0);
-        ctx = Optional.ofNullable(ctx).orElseGet(Context::instance);
-        ctx.isHistogram = true;
-        return new SampleFamily(samples, ctx);
-    }
-
-    static SampleFamily buildHistogramPercentile(SampleFamily histogram, int[] percentiles) {
-        Preconditions.checkNotNull(histogram);
-        Preconditions.checkArgument(histogram.context.isHistogram);
-        histogram.context.percentiles = percentiles;
-        return new SampleFamily(histogram.samples, histogram.context);
+        return new SampleFamily(samples, Optional.ofNullable(ctx).orElseGet(RunningContext::instance));
     }
 
     public final Sample[] samples;
 
-    public final Context context;
+    public final RunningContext context;
 
     /**
      * Following operations are used in DSL
@@ -182,6 +164,7 @@ public class SampleFamily {
 
     /* Aggregation operators */
     public SampleFamily sum(List<String> by) {
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -278,12 +261,13 @@ public class SampleFamily {
     public SampleFamily histogram(String le, TimeUnit unit) {
         long scale = unit.toMillis(1);
         Preconditions.checkArgument(scale > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.isHistogram = true);
         if (this == EMPTY) {
             return EMPTY;
         }
         AtomicDouble pre = new AtomicDouble();
         AtomicReference<String> preLe = new AtomicReference<>("0");
-        return SampleFamily.buildHistogram(this.context, Stream.concat(
+        return SampleFamily.build(this.context, Stream.concat(
             Arrays.stream(samples).filter(s -> !s.labels.containsKey(le)),
             Arrays.stream(samples)
                 .filter(s -> s.labels.containsKey(le))
@@ -301,14 +285,20 @@ public class SampleFamily {
 
     public SampleFamily histogram_percentile(List<Integer> percentiles) {
         Preconditions.checkArgument(percentiles.size() > 0);
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        return SampleFamily.buildHistogramPercentile(this, percentiles.stream().mapToInt(i -> i).toArray());
+        int[] p = percentiles.stream().mapToInt(i -> i).toArray();
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            Preconditions.checkState(ctx.isHistogram, "histogram() should be invoked before invoking histogram_percentile()");
+            ctx.percentiles = p;
+        });
+        return this;
     }
 
     public SampleFamily service(List<String> labelKeys) {
         Preconditions.checkArgument(labelKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.SERVICE;
+            ctx.scopeLabels.addAll(labelKeys);
+        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -319,6 +309,12 @@ public class SampleFamily {
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.SERVICE_INSTANCE);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.SERVICE_INSTANCE;
+            ctx.scopeLabels.addAll(serviceKeys);
+            ctx.scopeLabels.addAll(instanceKeys);
+        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -329,6 +325,12 @@ public class SampleFamily {
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(endpointKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.scopeType = ScopeType.ENDPOINT);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.ENDPOINT;
+            ctx.scopeLabels.addAll(serviceKeys);
+            ctx.scopeLabels.addAll(endpointKeys);
+        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -337,7 +339,8 @@ public class SampleFamily {
     }
 
     private String dim(List<String> labelKeys) {
-        return labelKeys.stream().map(k -> samples[0].labels.getOrDefault(k, "")).collect(Collectors.joining("."));
+        String name = labelKeys.stream().map(k -> samples[0].labels.getOrDefault(k, "")).collect(Collectors.joining("."));
+        return CharMatcher.is('.').trimFrom(name);
     }
 
     private SampleFamily left(List<String> labelKeys) {
@@ -367,6 +370,9 @@ public class SampleFamily {
     }
 
     SampleFamily newValue(Function<Double, Double> transform) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
         Sample[] ss = new Sample[samples.length];
         for (int i = 0; i < ss.length; i++) {
             ss[i] = samples[i].newValue(transform);
@@ -410,22 +416,15 @@ public class SampleFamily {
     @Getter
     @Setter
     @Builder
-    public static class Context {
+    public static class RunningContext {
 
-        static Context EMPTY = Context.builder().build();
+        static RunningContext EMPTY = RunningContext.builder().build();
 
-        static Context instance() {
-            return Context.builder()
-                .downsampling(DownsamplingType.AVG)
+        static RunningContext instance() {
+            return RunningContext.builder()
                 .defaultHistogramBucketUnit(TimeUnit.SECONDS)
                 .build();
         }
-
-        boolean isHistogram;
-
-        int[] percentiles;
-
-        DownsamplingType downsampling;
 
         MeterEntity meterEntity;
 

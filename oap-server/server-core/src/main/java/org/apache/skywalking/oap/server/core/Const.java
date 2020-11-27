@@ -39,4 +39,5 @@ public class Const {
     public static final String UNKNOWN = "Unknown";
     public static final String EMPTY_STRING = "";
     public static final String POINT = ".";
+    public static final String DOUBLE_COLONS_SPLIT = "::";
 }

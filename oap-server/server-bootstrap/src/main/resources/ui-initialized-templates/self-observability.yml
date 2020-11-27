@@ -26,6 +26,7 @@ templates:
         {
           "name": "SelfObservability",
           "type": "service",
+          "serviceGroup": "oap",
           "children": [
             {
               "name": "oap-server",
@@ -37,7 +38,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_cpu_percentage",
+                  "metricName": "meter_oap_instance_cpu_percentage",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "%"
@@ -49,7 +50,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_jvm_memory_bytes_used",
+                  "metricName": "meter_oap_instance_jvm_memory_bytes_used",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "MB",
@@ -63,7 +64,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_jvm_young_gc_count,meter_instance_jvm_old_gc_count",
+                  "metricName": "meter_oap_instance_jvm_young_gc_count,meter_instance_jvm_old_gc_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -75,7 +76,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_jvm_young_gc_time,meter_instance_jvm_old_gc_time",
+                  "metricName": "meter_oap_instance_jvm_young_gc_time,meter_instance_jvm_old_gc_time",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "Millisecond"
@@ -87,7 +88,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_trace_count,meter_instance_trace_analysis_error_count",
+                  "metricName": "meter_oap_instance_trace_count,meter_instance_trace_analysis_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -99,7 +100,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_instance_trace_latency_percentile",
+                  "metricName": "meter_oap_instance_trace_latency_percentile",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
                   "labelsIndex": "50,70,90,99",
@@ -113,7 +114,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_mesh_count,meter_instance_mesh_analysis_error_count",
+                  "metricName": "meter_oap_instance_mesh_count,meter_instance_mesh_analysis_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -125,7 +126,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_instance_mesh_latency_percentile",
+                  "metricName": "meter_oap_instance_mesh_latency_percentile",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
                   "metricLabels": "50,70,90,99",
@@ -139,7 +140,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_metrics_first_aggregation,meter_instance_metrics_second_aggregation",
+                  "metricName": "meter_oap_instance_metrics_first_aggregation,meter_instance_metrics_second_aggregation",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -151,7 +152,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
+                  "metricName": "meter_oap_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per 5 Minutes"
@@ -166,7 +167,7 @@ templates:
                   "unit": "Millisecond",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
-                  "metricName": "meter_instance_persistence_prepare_percentile",
+                  "metricName": "meter_oap_instance_persistence_prepare_percentile",
                   "metricLabels": "50,70,90,99",
                   "labelsIndex": "50,70,90,99"
                 },
@@ -177,7 +178,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_instance_persistence_execute_percentile",
+                  "metricName": "meter_oap_instance_persistence_execute_percentile",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
                   "metricLabels": "50,70,90,99",

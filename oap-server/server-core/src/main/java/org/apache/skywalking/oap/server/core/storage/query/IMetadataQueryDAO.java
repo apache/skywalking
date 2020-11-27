@@ -27,19 +27,48 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IMetadataQueryDAO extends DAO {
-    List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException;
+    /**
+     * @param group group name for filtering.
+     * @return list of the all available normal services
+     */
+    List<Service> getAllServices(final String group) throws IOException;
 
-    List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException;
+    /**
+     * @return list of the all available browser services
+     */
+    List<Service> getAllBrowserServices() throws IOException;
 
+    /**
+     * @return list of all conjecture database services.
+     */
     List<Database> getAllDatabases() throws IOException;
 
-    List<Service> searchServices(final long startTimestamp, final long endTimestamp,
-        final String keyword) throws IOException;
+    /**
+     * @param keyword to filter the normal service
+     * @return the list of normal services matching the given keyword
+     */
+    List<Service> searchServices(final String keyword) throws IOException;
 
+    /**
+     * @param serviceCode to literal match
+     * @return the service matching the given full name.
+     */
     Service searchService(final String serviceCode) throws IOException;
 
+    /**
+     * @param keyword   to filter the endpoints
+     * @param serviceId the owner of the endpoints
+     * @param limit     max match size.
+     * @return list of services matching the given conditions.
+     */
     List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
 
+    /**
+     * @param startTimestamp The instance is required to be live after this timestamp
+     * @param endTimestamp   The instance is required to be live before this timestamp.
+     * @param serviceId      the owner of the instances.
+     * @return list of instances matching the given conditions.
+     */
     List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
-        final String serviceId) throws IOException;
+                                              final String serviceId) throws IOException;
 }

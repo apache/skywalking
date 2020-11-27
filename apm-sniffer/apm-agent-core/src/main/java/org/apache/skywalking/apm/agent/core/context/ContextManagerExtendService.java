@@ -27,8 +27,13 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 
+import java.util.Arrays;
+
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
+    
+    private String[] ignoreSuffixArray = new String[0];
+    
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
@@ -38,7 +43,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
 
     @Override
     public void boot() {
-
+        ignoreSuffixArray = Config.Agent.IGNORE_SUFFIX.split(",");
     }
 
     @Override
@@ -61,7 +66,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         }
 
         int suffixIdx = operationName.lastIndexOf(".");
-        if (suffixIdx > -1 && Config.Agent.IGNORE_SUFFIX.contains(operationName.substring(suffixIdx))) {
+        if (suffixIdx > -1 && Arrays.stream(ignoreSuffixArray).anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);

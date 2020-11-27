@@ -82,6 +82,13 @@ public class FunctionTest {
                 false,
             },
             {
+                "tag-append",
+                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().labels(of("region", "us")).build())),
+                "instance_cpu_percentage.tag({tags -> tags.region = 'prefix::' + tags.region})",
+                Result.success(SampleFamily.build(Sample.builder().labels(of("region", "prefix::us")).build())),
+                false,
+                },
+            {
                 "histogram",
                 of("instance_cpu_percentage", SampleFamily.build(
                     Sample.builder().labels(of("le", "0.025")).value(100).build(),
@@ -90,7 +97,7 @@ public class FunctionTest {
                     Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).build())
                 ),
                 "instance_cpu_percentage.histogram()",
-                Result.success(SampleFamily.buildHistogram(
+                Result.success(SampleFamily.build(
                     Sample.builder().labels(of("le", "0")).value(100).build(),
                     Sample.builder().labels(of("le", "25")).value(22).build(),
                     Sample.builder().labels(of("le", "750")).value(178).build(),
@@ -107,12 +114,12 @@ public class FunctionTest {
                     Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).build())
                 ),
                 "instance_cpu_percentage.histogram().histogram_percentile([75,99])",
-                Result.success(SampleFamily.buildHistogramPercentile(SampleFamily.buildHistogram(
+                Result.success(SampleFamily.build(
                     Sample.builder().labels(of("le", "0")).value(100).build(),
                     Sample.builder().labels(of("le", "25")).value(22).build(),
                     Sample.builder().labels(of("le", "750")).value(178).build(),
                     Sample.builder().labels(of("le", "1250")).value(110).build())
-                , new int[]{75, 99})),
+                ),
                 false,
             },
         });

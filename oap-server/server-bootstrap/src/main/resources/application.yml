@@ -171,6 +171,19 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
     maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
     numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
+  tidb:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/tidbswtest"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:""}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+      dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
   influxdb:
     # InfluxDB configuration
     url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
@@ -179,6 +192,7 @@ storage:
     database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
     actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
+    batchEnabled: ${SW_STORAGE_INFLUXDB_BATCH_ENABLED:true}
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 
 agent-analyzer:
@@ -241,10 +255,6 @@ service-mesh:
   selector: ${SW_SERVICE_MESH:default}
   default:
 
-istio-telemetry:
-  selector: ${SW_ISTIO_TELEMETRY:default}
-  default:
-
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
@@ -257,9 +267,9 @@ envoy-metric:
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${service.metadata.name}"}
 
 prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:default}
+  selector: ${SW_PROMETHEUS_FETCHER:-}
   default:
-    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
+    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
 
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
@@ -277,11 +287,11 @@ receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
   default:
 
-receiver-oc:
-  selector: ${SW_OC_RECEIVER:-}
+receiver-otel:
+  selector: ${SW_OTEL_RECEIVER:-}
   default:
-    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
