@@ -33,7 +33,7 @@ public class MeterConfig implements MetricRuleConfig {
 
     @Data
     @NoArgsConstructor
-    public static class Rule implements MetricRuleConfig.MetricsRule {
+    public static class Rule implements RuleConfig {
         private String name;
         private String exp;
     }

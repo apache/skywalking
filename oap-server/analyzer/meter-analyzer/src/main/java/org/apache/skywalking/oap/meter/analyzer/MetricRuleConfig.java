@@ -38,9 +38,9 @@ public interface MetricRuleConfig {
     /**
      * Get all rules
      */
-    List<? extends MetricsRule> getMetricsRules();
+    List<? extends RuleConfig> getMetricsRules();
 
-    interface MetricsRule {
+    interface RuleConfig {
         /**
          * Get definition metrics name
          */

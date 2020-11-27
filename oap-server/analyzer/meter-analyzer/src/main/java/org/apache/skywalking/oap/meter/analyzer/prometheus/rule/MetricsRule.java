@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetricsRule implements MetricRuleConfig.MetricsRule {
+public class MetricsRule implements MetricRuleConfig.RuleConfig {
     private String name;
     private String exp;
 }
