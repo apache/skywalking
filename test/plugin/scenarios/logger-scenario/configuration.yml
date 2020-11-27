@@ -15,8 +15,7 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/logger-scenario/case/logger-scenario
-healthCheck: http://localhost:8080/logger-scenario/case/healthCheck
+entryService: http://localhost:8080/projectA/testcase
+healthCheck: http://localhost:8080/projectA/healthCheck
 startScript: ./bin/startup.sh
-environment:
-dependencies:
+withPlugins: apm-logger-plugin-*.jar

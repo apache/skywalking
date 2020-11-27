@@ -13,15 +13,140 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-    - {logger-scenario: 2}
-  instances:
-    - {logger-scenario: 1}
-  operationNames:
-    - logger-scenario: []
-  heartbeat: []
 segmentItems:
-  - serviceName: logger-scenario
-    segmentSize:
+  - serviceName: logger-logback-scenario
+    segmentSize: nq 0
     segments:
+      - segmentId: not null
+        spans:
+          - operationName: /logback/no-param
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            isError: false
+            spanType: Entry
+            peer: ''
+            tags:
+              - {key: url, value: 'http://localhost:18080/logback/no-param'}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}
+            logs:
+              - {key: Time,value: not null}
+              - {key: kind,value: 'logback'}
+              - {key: event,value: 'warn'}
+              - {key: message,value: 'no-param'}
+            refs:
+              - {parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
+                 parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                                    null, parentService: not null, traceId: not null}
+            skipAnalysis: 'false'
+      - segmentId: not null
+        spans:
+          - operationName: /logback/one-param
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            isError: true
+            spanType: Entry
+            peer: ''
+            tags:
+              - {key: url, value: 'http://localhost:18080/logback/one-param'}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}
+            logs:
+              - { key: Time,value: not null }
+              - { key:param.1,value: 'class org.apache.skywalking.apm.testcase.logger.controller.CaseController'}
+              - { key: kind,value: 'logback' }
+              - { key: event,value: 'error' }
+              - { key: message,value: 'one param is {}' }
+            refs:
+              - {parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
+                 parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                                    null, parentService: not null, traceId: not null}
+            skipAnalysis: 'false'
+      - segmentId: not null
+        spans:
+          - operationName: /logback/marker
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            isError: false
+            spanType: Entry
+            peer: ''
+            tags:
+              - {key: url, value: 'http://localhost:18080/logback/marker'}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}
+            logs:
+              - { key: Time,value: not null }
+              - { key: kind,value: 'logback' }
+              - { key: event,value: 'warn' }
+              - { key: message,value: 'test marker' }
+            refs:
+              - {parentEndpoint: /projectA/testcase, networkAddress: 'localhost:18080', refType: CrossProcess,
+                 parentSpanId: 3, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                                    null, parentService: not null, traceId: not null}
+            skipAnalysis: 'false'
+  - serviceName: logger-projectA-scenario
+    segmentSize: nq 0
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: /logback/no-param
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            isError: false
+            spanType: Exit
+            peer: not null
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+            skipAnalysis: 'false'
+          - operationName: /logback/oneparam
+            operationId: 0
+            parentSpanId: 0
+            spanId: 2
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            isError: true
+            spanType: Exit
+            peer: not null
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '500'}
+            skipAnalysis: 'false'
+          - operationName: /logback/marker
+            operationId: 0
+            parentSpanId: 0
+            spanId: 3
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            isError: false
+            spanType: Exit
+            peer: localhost:18080
+            tags:
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/foo'}
+              - {key: http.method, value: GET}
+            skipAnalysis: 'false'

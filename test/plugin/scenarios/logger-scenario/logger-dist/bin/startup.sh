@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -13,4 +15,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-logbak-logger=org.apache.skywalking.apm.plugin.logger.define.LogbackLoggerInstrumentation
+
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=logger-projectA-scenario" ${home}/../libs/logger-projectA-scenario.jar &
+sleep 1
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=logger-logback-scenario" ${home}/../libs/logger-logback-scenario.jar &
