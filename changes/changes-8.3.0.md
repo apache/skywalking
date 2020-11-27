@@ -23,6 +23,7 @@ Release Notes.
 * Fix the default ignore mechanism isn't accurate enough bug.
 * Add the plugin for spring-kafka 1.3.x.
 * Add the plugin for Apache CXF 3.x.
+* Fix okhttp-3.x and async-http-client-2.x did not overwrite the old trace header.
 
 #### OAP-Backend
 * Add the `@SuperDataset` annotation for BrowserErrorLog.

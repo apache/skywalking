@@ -8,7 +8,6 @@ Release Notes.
 
 
 #### Java Agent
-* Fix okhttp-3.x and async-http-client-2.x did not overwrite the old trace header.
 
 #### UI
 
