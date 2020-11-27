@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.MetricsRule;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -40,13 +39,9 @@ public class MeterProcessService implements IMeterProcessService {
         this.manager = manager;
     }
 
-    public void start(List<MeterConfigs.Config> configs) {
+    public void start(List<MeterConfig> configs) {
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        this.metricConverts = configs.stream().map(c -> new MetricConvert(
-            c.getMeters().stream().map(m -> MetricsRule.builder().name(m.getName()).exp(m.getExp()).build()).collect(Collectors.toList()),
-            c.getDefaultMetricLevel(),
-            meterSystem
-        )).collect(Collectors.toList());
+        this.metricConverts = configs.stream().map(c -> new MetricConvert(c, meterSystem)).collect(Collectors.toList());
     }
 
     /**

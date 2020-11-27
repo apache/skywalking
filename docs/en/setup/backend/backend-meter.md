@@ -33,10 +33,12 @@ If you're using Spring sleuth, you could use [Spring Sleuth Setup](spring-sleuth
 ### Meters configure
 
 ```yaml
-# default metric level function appends to all expression in this file.
-defaultMetricLevel: <exp>
-# Meter config allow your to recompute
-meters:
+# expSuffix is appended to all expression in this file.
+expSuffix: <string>
+# insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
+metricPrefix: <string>
+# Metrics rule allow you to recompute queries.
+metricsRules:
   # The name of rule, which combinates with a prefix 'meter_' as the index/table name in storage.
   name: <string>
   # MAL expression.

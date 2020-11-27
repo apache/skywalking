@@ -16,22 +16,39 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
+package org.apache.skywalking.oap.meter.analyzer;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
+import java.util.List;
 
 /**
- * MetricsRule holds the parsing expression.
+ * Metrics rules convert to meter system.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class MetricsRule implements MetricRuleConfig.MetricsRule {
-    private String name;
-    private String exp;
+public interface MetricRuleConfig {
+
+    /**
+     * Get metrics name prefix
+     */
+    String getMetricPrefix();
+
+    /**
+     * Get MAL expression suffix
+     */
+    String getExpSuffix();
+
+    /**
+     * Get all rules
+     */
+    List<? extends MetricsRule> getMetricsRules();
+
+    interface MetricsRule {
+        /**
+         * Get definition metrics name
+         */
+        String getName();
+
+        /**
+         * Build metrics MAL
+         */
+        String getExp();
+    }
 }

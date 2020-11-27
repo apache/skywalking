@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -44,7 +43,7 @@ public class MeterConfigs {
     /**
      * Load all configs from path
      */
-    public static List<MeterConfigs.Config> loadConfig(String path, String[] fileNames) throws ModuleStartException {
+    public static List<MeterConfig> loadConfig(String path, String[] fileNames) throws ModuleStartException {
         if (fileNames == null || fileNames.length == 0) {
             return Collections.emptyList();
         }
@@ -59,7 +58,7 @@ public class MeterConfigs {
         return Arrays.stream(configs)
             .map(f -> {
                 try (Reader r = new FileReader(f)) {
-                    return new Yaml().loadAs(r, Config.class);
+                    return new Yaml().loadAs(r, MeterConfig.class);
                 } catch (IOException e) {
                     log.warn("Reading file {} failed", f, e);
                 }
@@ -69,9 +68,4 @@ public class MeterConfigs {
             .collect(Collectors.toList());
     }
 
-    @Data
-    public static class Config {
-        private String defaultMetricLevel;
-        private List<MeterConfig> meters;
-    }
 }

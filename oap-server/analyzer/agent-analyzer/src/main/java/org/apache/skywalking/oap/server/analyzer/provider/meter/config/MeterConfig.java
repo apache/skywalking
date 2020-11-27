@@ -19,9 +19,22 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
+
+import java.util.List;
 
 @Data
-public class MeterConfig {
-    private String name;
-    private String exp;
+@NoArgsConstructor
+public class MeterConfig implements MetricRuleConfig {
+    private String metricPrefix;
+    private String expSuffix;
+    private List<Rule> metricsRules;
+
+    @Data
+    @NoArgsConstructor
+    public static class Rule implements MetricRuleConfig.MetricsRule {
+        private String name;
+        private String exp;
+    }
 }

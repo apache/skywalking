@@ -36,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -277,7 +278,7 @@ public class SampleFamily {
                     pre.set(s.value);
                     ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                         .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                        .put("le", String.valueOf((long) (Double.parseDouble(this.context.ignoreHistogramDecrease ? s.labels.get(le) : preLe.get())) * scale)).build();
+                        .put("le", String.valueOf((long) ((Double.parseDouble(this.context.ignoreHistogramDecrease ? s.labels.get(le) : preLe.get())) * scale))).build();
                     preLe.set(s.labels.get(le));
                     return newSample(ll, s.timestamp, r);
                 })).toArray(Sample[]::new));
