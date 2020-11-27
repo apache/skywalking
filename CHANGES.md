@@ -54,6 +54,7 @@ Release Notes.
 * Fix the incorrect dynamic configuration key bug of `endpoint-name-grouping`.
 * Remove unused min date timebucket in jdbc deletehistory logical
 * Fix "transaction too large error" when use TiDB as storage.
+* Fix "index not found" in trace query when use ES7 storage.
 * Add otel rules to ui template to observe Istio control plane.
 * Remove istio mixer
 * Support close influxdb batch write model.
