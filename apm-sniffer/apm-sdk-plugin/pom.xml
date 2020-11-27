@@ -100,6 +100,13 @@
         <module>hbase-1.x-plugin</module>
         <module>graphql-plugin</module>
         <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
+        <module>httpclient-commons</module>
+        <module>asynchttpclient-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
+        <module>mssql-jtds-1.x-plugin</module>
+        <module>mssql-jdbc-plugin</module>
+        <module>cxf-3.x-plugin</module>
         <module>logger-plugin</module>
     </modules>
     <packaging>pom</packaging>

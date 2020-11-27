@@ -108,13 +108,20 @@ or 3rd party configuration management system.
 1. [Uninstrumented Gateways](uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
 to reflect the delegation in topology graph.
 1. [Apdex threshold](apdex-threshold.md). Configure the thresholds for different services if Apdex calculation is activated in the OAL.
+1. [Service Grouping](service-auto-grouping.md). An automatic grouping mechanism for all services based on name.
 1. [Group Parameterized Endpoints](endpoint-grouping-rules.md). Configure the grouping rules for parameterized endpoints,
 to improve the meaning of the metrics.
+1. [Meter Analysis](backend-meter.md). Set up the backend analysis rules, when use [SkyWalking Meter System Toolkit](../service-agent/java-agent/README.md#advanced-features) 
+or meter plugins. 
 1. [Spring Sleuth Metrics Analysis](spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
 we provide the telemetry for OAP backend itself. Follow [document](backend-telemetry.md) to use it.
+
+At the same time, we provide [Health Check](backend-health-check.md) to get a score for the health status.
+> 0 means healthy, more than 0 means unhealthy 
+> and less than 0 means oap doesn't startup.
 
 ## FAQs
 #### When and why do we need to set Timezone?

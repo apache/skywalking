@@ -38,7 +38,7 @@ disableStatement
     ;
 
 metricStatement
-    : FROM LR_BRACKET source  DOT sourceAttribute RR_BRACKET (filterStatement+)? DOT aggregateFunction
+    : FROM LR_BRACKET source (sourceAttributeStmt+) RR_BRACKET (filterStatement+)? DOT aggregateFunction
     ;
 
 filterStatement
@@ -63,6 +63,10 @@ disableSource
     : SRC_SEGMENT | SRC_TOP_N_DB_STATEMENT | SRC_ENDPOINT_RELATION_SERVER_SIDE | SRC_SERVICE_RELATION_SERVER_SIDE |
       SRC_SERVICE_RELATION_CLIENT_SIDE | SRC_ALARM_RECORD | SRC_HTTP_ACCESS_LOG | SRC_ZIPKIN_SPAN | SRC_JAEGER_SPAN |
       SRC_PROFILE_TASK | SRC_PROFILE_TASK_LOG | SRC_PROFILE_THREAD_SHANPSHOT
+    ;
+
+sourceAttributeStmt
+    : DOT sourceAttribute
     ;
 
 sourceAttribute
@@ -90,51 +94,63 @@ literalExpression
     ;
 
 expression
-    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch | notEqualMatch | booleanNotEqualMatch | likeMatch | inMatch | containMatch | notContainMatch
+    ;
+
+containMatch
+    : conditionAttributeStmt CONTAIN stringConditionValue
+    ;
+
+notContainMatch
+    : conditionAttributeStmt NOT_CONTAIN stringConditionValue
     ;
 
 booleanMatch
-    :  conditionAttribute DUALEQUALS booleanConditionValue
+    : conditionAttributeStmt DUALEQUALS booleanConditionValue
     ;
 
 stringMatch
-    :  conditionAttribute DUALEQUALS (stringConditionValue | enumConditionValue)
+    :  conditionAttributeStmt DUALEQUALS (stringConditionValue | enumConditionValue)
     ;
 
 greaterMatch
-    :  conditionAttribute GREATER numberConditionValue
+    :  conditionAttributeStmt GREATER numberConditionValue
     ;
 
 lessMatch
-    :  conditionAttribute LESS numberConditionValue
+    :  conditionAttributeStmt LESS numberConditionValue
     ;
 
 greaterEqualMatch
-    :  conditionAttribute GREATER_EQUAL numberConditionValue
+    :  conditionAttributeStmt GREATER_EQUAL numberConditionValue
     ;
 
 lessEqualMatch
-    :  conditionAttribute LESS_EQUAL numberConditionValue
+    :  conditionAttributeStmt LESS_EQUAL numberConditionValue
     ;
 
 booleanNotEqualMatch
-    :  conditionAttribute NOT_EQUAL booleanConditionValue
+    :  conditionAttributeStmt NOT_EQUAL booleanConditionValue
     ;
 
 notEqualMatch
-    :  conditionAttribute NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue)
+    :  conditionAttributeStmt NOT_EQUAL (numberConditionValue | stringConditionValue | enumConditionValue)
     ;
 
 likeMatch
-    :  conditionAttribute LIKE stringConditionValue
+    :  conditionAttributeStmt LIKE stringConditionValue
     ;
 
 inMatch
-    :  conditionAttribute IN multiConditionValue
+    :  conditionAttributeStmt IN multiConditionValue
     ;
 
 multiConditionValue
     : LS_BRACKET (numberConditionValue ((COMMA numberConditionValue)*) | stringConditionValue ((COMMA stringConditionValue)*) | enumConditionValue ((COMMA enumConditionValue)*)) RS_BRACKET
+    ;
+
+conditionAttributeStmt
+    : conditionAttribute ((DOT conditionAttribute)*)
     ;
 
 conditionAttribute

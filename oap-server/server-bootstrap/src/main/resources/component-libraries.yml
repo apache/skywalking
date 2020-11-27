@@ -329,6 +329,24 @@ xxl-job:
 spring-webflux-webclient:
   id: 99
   languages: Java
+thrift-server:
+  id: 100
+  languages: Java
+thrift-client:
+  id: 101
+  languages: Java
+AsyncHttpClient:
+  id: 102
+  languages: Java
+dbcp:
+  id: 103
+  languages: Java
+mssql-jdbc-driver:
+  id: 104
+  languages: Java
+Apache-CXF:
+  id: 105
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -349,7 +367,7 @@ StackExchange.Redis:
   languages: C#
 SqlServer:
   id: 3006
-  languages: C#
+  languages: C#,Java
 Npgsql:
   id: 3007
   languages: C#
@@ -455,6 +473,9 @@ Tornado:
 Urllib3:
   id: 7006
   languages: Python
+Sanic:
+  id: 7007
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
@@ -526,3 +547,4 @@ Component-Server-Mappings:
   Predis: Redis
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
+  mssql-jdbc-driver: SqlServer

@@ -24,11 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
+import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
@@ -37,13 +38,13 @@ public class RulesReader {
     private Map yamlData;
 
     public RulesReader(InputStream inputStream) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(inputStream, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(inputStream);
     }
 
     public RulesReader(Reader io) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(io, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(io);
     }
 
     /**
@@ -59,6 +60,7 @@ public class RulesReader {
             readSlackConfig(rules);
             readWechatConfig(rules);
             readCompositeRuleConfig(rules);
+            readDingtalkConfig(rules);
         }
         return rules;
     }
@@ -88,9 +90,9 @@ public class RulesReader {
                 alarmRule.setIncludeNamesRegex((String) settings.getOrDefault("include-names-regex", ""));
                 alarmRule.setExcludeNamesRegex((String) settings.getOrDefault("exclude-names-regex", ""));
                 alarmRule.setIncludeLabels(
-                        (ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
+                    (ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
                 alarmRule.setExcludeLabels(
-                        (ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
+                    (ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
                 alarmRule.setIncludeLabelsRegex((String) settings.getOrDefault("include-labels-regex", ""));
                 alarmRule.setExcludeLabelsRegex((String) settings.getOrDefault("exclude-labels-regex", ""));
                 alarmRule.setThreshold(settings.get("threshold").toString());
@@ -101,8 +103,8 @@ public class RulesReader {
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
                 alarmRule.setOnlyAsCondition((Boolean) settings.getOrDefault("only-as-condition", false));
                 alarmRule.setMessage(
-                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
-                                .getAlarmRuleName()));
+                    (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
+                        .getAlarmRuleName()));
 
                 rules.getRules().add(alarmRule);
             }
@@ -198,9 +200,30 @@ public class RulesReader {
                 }
                 compositeAlarmRule.setExpression(expression);
                 compositeAlarmRule.setMessage(
-                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
+                    (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
                 rules.getCompositeRules().add(compositeAlarmRule);
             }
         });
+    }
+
+    /**
+     * Read dingtalk hook config into {@link DingtalkSettings}
+     */
+    private void readDingtalkConfig(Rules rules) {
+        Map dingtalkConfig = (Map) yamlData.get("dingtalkHooks");
+        if (dingtalkConfig != null) {
+            DingtalkSettings dingtalkSettings = new DingtalkSettings();
+            Object textTemplate = dingtalkConfig.getOrDefault("textTemplate", "");
+            dingtalkSettings.setTextTemplate((String) textTemplate);
+            List<Map<String, Object>> wechatWebhooks = (List<Map<String, Object>>) dingtalkConfig.get("webhooks");
+            if (wechatWebhooks != null) {
+                wechatWebhooks.forEach(wechatWebhook -> {
+                    Object secret = wechatWebhook.getOrDefault("secret", "");
+                    Object url = wechatWebhook.getOrDefault("url", "");
+                    dingtalkSettings.getWebhooks().add(new DingtalkSettings.WebHookUrl((String) secret, (String) url));
+                });
+            }
+            rules.setDingtalks(dingtalkSettings);
+        }
     }
 }

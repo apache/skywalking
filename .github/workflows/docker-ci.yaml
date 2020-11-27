@@ -16,7 +16,12 @@
 
 name: docker-ci
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+
 env:
   SKIP_TEST: true
   DOCKER_DIR: ./docker
@@ -26,6 +31,7 @@ jobs:
     runs-on: ubuntu-16.04
     timeout-minutes: 90
     strategy:
+      fail-fast: true
       matrix:
         es: [es6, es7]
     steps:

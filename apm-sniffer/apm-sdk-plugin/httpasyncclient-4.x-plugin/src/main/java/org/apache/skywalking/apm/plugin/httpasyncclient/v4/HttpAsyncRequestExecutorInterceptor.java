@@ -32,8 +32,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.httpclient.HttpClientPluginConfig;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
@@ -69,6 +72,9 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
             next = next.next();
             requestWrapper.setHeader(next.getHeadKey(), next.getHeadValue());
         }
+        if (HttpClientPluginConfig.Plugin.HttpClient.COLLECT_HTTP_PARAMS) {
+            collectHttpParam(requestWrapper.getURI(), span);
+        }
     }
 
     @Override
@@ -81,5 +87,18 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
+    }
+
+    private void collectHttpParam(URI uri, AbstractSpan span) {
+        if (uri == null) {
+            return;
+        }
+        String tagValue = uri.getQuery();
+        if (StringUtil.isNotEmpty(tagValue)) {
+            tagValue = HttpClientPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
+                    StringUtil.cut(tagValue, HttpClientPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) :
+                    tagValue;
+            Tags.HTTP.PARAMS.set(span, tagValue);
+        }
     }
 }

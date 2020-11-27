@@ -1,3 +1,7 @@
+# Tracing and Tracing based Metrics Analyze Plugins
+The following plugins provide the distributed tracing capability, and the OAP backend would analyze the topology and 
+metrics based on the tracing data.
+
 * HTTP Server
   * [Tomcat](https://github.com/apache/tomcat) 7
   * [Tomcat](https://github.com/apache/tomcat) 8
@@ -23,6 +27,7 @@
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
+  * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
 * HTTP Gateway
   * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
 * JDBC
@@ -34,6 +39,8 @@
   * PostgreSQL Driver 8.x, 9.x, 42.x
   * Mariadb Driver 2.x, 1.8
   * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
+  * [Mssql-Jtds](https://github.com/milesibastos/jTDS) 1.x
+  * [Mssql-jdbc](https://github.com/microsoft/mssql-jdbc) 6.x -> 8.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
@@ -44,12 +51,14 @@
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
   * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.98.0
   * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
-  * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
+  * [Finagle](https://github.com/twitter/finagle) 6.44.0 -> 20.1.0  (6.25.0 -> 6.44.0 not tested)
   * [Brpc-Java](https://github.com/baidu/brpc-java) 2.3.7 -> 2.5.3
+  * [Thrift](https://github.com/apache/thrift/tree/master/lib/java) 0.10.0 -> 0.12.0
+  * [Apache CXF](https://github.com/apache/cxf) 3.x
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
-  * [Spring-Kafka](https://github.com/spring-projects/spring-kafka) Spring Kafka Consumer 2.2.x
+  * [Spring-Kafka](https://github.com/spring-projects/spring-kafka) Spring Kafka Consumer 1.3.x -> 2.3.x (2.0.x and 2.1.x not tested and not recommended by [the official document](https://spring.io/projects/spring-kafka))
   * [ActiveMQ](https://github.com/apache/activemq) 5.10.0 -> 5.15.4
   * [RabbitMQ](https://www.rabbitmq.com/) 5.x
   * [Pulsar](http://pulsar.apache.org) 2.2.x -> 2.4.x
@@ -81,7 +90,7 @@
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x
   * Spring Transaction 4.x and 5.x (Optional²)
-* [Hystrix: Latency and Fault Tolerance for Distributed Systems](https://github.com/Netflix/Hystrix) 1.4.20 -> 1.5.12
+* [Hystrix: Latency and Fault Tolerance for Distributed Systems](https://github.com/Netflix/Hystrix) 1.4.20 -> 1.5.18
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
   * [Apache ShardingSphere-Elasticjob](https://github.com/apache/shardingsphere-elasticjob) 3.0.0-alpha
@@ -104,7 +113,14 @@
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 * GraphQL
   * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
+* Pool
+  * [Apache Commons DBCP](https://github.com/apache/commons-dbcp) 2.x
+  
 
+# Meter Plugins
+The meter plugin provides the advanced metrics collections, which are not a part of tracing.
+
+___
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 

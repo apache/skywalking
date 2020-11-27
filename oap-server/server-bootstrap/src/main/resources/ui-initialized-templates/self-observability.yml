@@ -1,0 +1,197 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: SelfObservability
+    type: "DASHBOARD"
+    configuration: |-
+      [
+        {
+          "name": "SelfObservability",
+          "type": "service",
+          "serviceGroup": "oap",
+          "children": [
+            {
+              "name": "oap-server",
+              "children": [
+                {
+                  "width": "3",
+                  "title": "CPU",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_cpu_percentage",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "%"
+                },
+                {
+                  "width": "3",
+                  "title": "Memory",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_jvm_memory_bytes_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1000000"
+                },
+                {
+                  "width": "3",
+                  "title": "GC Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_jvm_young_gc_count,meter_instance_jvm_old_gc_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "GC Time",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_jvm_young_gc_time,meter_instance_jvm_old_gc_time",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "Millisecond"
+                },
+                {
+                  "width": 3,
+                  "title": "Trace Analysis Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_trace_count,meter_instance_trace_analysis_error_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Trace Analysis Latency",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_oap_instance_trace_latency_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "labelsIndex": "50,70,90,99",
+                  "metricLabels": "50,70,90,99",
+                  "unit": "Millisecond"
+                },
+                {
+                  "width": 3,
+                  "title": "Mesh Analysis Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_mesh_count,meter_instance_mesh_analysis_error_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Mesh Analysis Latency",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_oap_instance_mesh_latency_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "50,70,90,99",
+                  "labelsIndex": "50,70,90,99",
+                  "unit": "Millisecond"
+                },
+                {
+                  "width": "3",
+                  "title": "Aggregation",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_metrics_first_aggregation,meter_instance_metrics_second_aggregation",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per Minute"
+                },
+                {
+                  "width": 3,
+                  "title": "Persistence Count",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_oap_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "unit": "Per 5 Minutes"
+                },
+                {
+                  "width": 3,
+                  "title": "Persistence Preparing Latency ",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "unit": "Millisecond",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "meter_oap_instance_persistence_prepare_percentile",
+                  "metricLabels": "50,70,90,99",
+                  "labelsIndex": "50,70,90,99"
+                },
+                {
+                  "width": 3,
+                  "title": "Persistence Execution Latency ",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_oap_instance_persistence_execute_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "50,70,90,99",
+                  "labelsIndex": "50,70,90,99",
+                  "unit": "Millisecond"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

@@ -20,15 +20,16 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -42,9 +43,10 @@ import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.KafkaHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
+import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 
 /**
  * Configuring and initializing a KafkaConsumer client as a dispatcher to delivery Kafka Message to registered handler by topic.
@@ -60,8 +62,14 @@ public class KafkaFetcherHandlerRegister implements Runnable {
     private final KafkaFetcherConfig config;
     private final boolean isSharding;
 
+    private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
+    private int threadPoolQueueSize = 10000;
+    private final ThreadPoolExecutor executor;
+    private final boolean enableKafkaMessageAutoCommit;
+
     public KafkaFetcherHandlerRegister(KafkaFetcherConfig config) throws ModuleStartException {
         this.config = config;
+
         Properties properties = new Properties();
         properties.putAll(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
@@ -92,11 +100,11 @@ public class KafkaFetcherHandlerRegister implements Runnable {
         if (!missedTopics.isEmpty()) {
             log.info("Topics" + missedTopics.toString() + " not exist.");
             List<NewTopic> newTopicList = missedTopics.stream()
-                                                 .map(topic -> new NewTopic(
-                                                     topic,
-                                                     config.getPartitions(),
-                                                     (short) config.getReplicationFactor()
-                                                 )).collect(Collectors.toList());
+                                                      .map(topic -> new NewTopic(
+                                                          topic,
+                                                          config.getPartitions(),
+                                                          (short) config.getReplicationFactor()
+                                                      )).collect(Collectors.toList());
 
             try {
                 adminClient.createTopics(newTopicList).all().get();
@@ -110,7 +118,22 @@ public class KafkaFetcherHandlerRegister implements Runnable {
         } else {
             isSharding = false;
         }
+        if (config.getKafkaHandlerThreadPoolSize() > 0) {
+            threadPoolSize = config.getKafkaHandlerThreadPoolSize();
+        }
+        if (config.getKafkaHandlerThreadPoolQueueSize() > 0) {
+            threadPoolQueueSize = config.getKafkaHandlerThreadPoolQueueSize();
+        }
+
+        enableKafkaMessageAutoCommit = (boolean) properties.getOrDefault(
+            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
+        executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
+                                          60, TimeUnit.SECONDS,
+                                          new ArrayBlockingQueue(threadPoolQueueSize),
+                                          new CustomThreadFactory("KafkaConsumer"),
+                                          new ThreadPoolExecutor.CallerRunsPolicy()
+        );
     }
 
     public void register(KafkaHandler handler) {
@@ -126,22 +149,27 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             consumer.subscribe(handlerMap.keySet());
         }
         consumer.seekToEnd(consumer.assignment());
-        Executors.newSingleThreadExecutor(new DefaultThreadFactory("KafkaConsumer")).submit(this);
+        executor.submit(this);
     }
 
     @Override
     public void run() {
         while (true) {
-            ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
-            if (!consumerRecords.isEmpty()) {
-                Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
-                while (iterator.hasNext()) {
-                    ConsumerRecord<String, Bytes> record = iterator.next();
-                    handlerMap.get(record.topic()).handle(record);
+            try {
+                ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
+                if (!consumerRecords.isEmpty()) {
+                    Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
+                    while (iterator.hasNext()) {
+                        ConsumerRecord<String, Bytes> record = iterator.next();
+                        executor.submit(() -> handlerMap.get(record.topic()).handle(record));
+                    }
+                    if (!enableKafkaMessageAutoCommit) {
+                        consumer.commitAsync();
+                    }
                 }
-                consumer.commitAsync();
+            } catch (Exception e) {
+                log.error("Kafka handle message error.", e);
             }
         }
     }
-
 }

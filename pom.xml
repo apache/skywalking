@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>8.2.0-SNAPSHOT</version>
+    <version>8.3.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -207,9 +207,11 @@
         <takari-maven-plugin.version>0.6.1</takari-maven-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
+        <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
@@ -225,6 +227,7 @@
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
+
     </properties>
 
     <dependencies>
@@ -498,6 +501,7 @@
                         <exclude>skywalking-ui/package-lock.json</exclude>
 
                         <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
+                        <exclude>**/src/main/fbs/istio/**</exclude>
                         <exclude>**/src/main/proto/envoy/**</exclude>
                         <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
                         <exclude>**/src/main/proto/google/**</exclude>
@@ -587,59 +591,59 @@
                     </sourceDirectories>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--                <version>${maven-checkstyle-plugin.version}</version>-->
-<!--                <configuration>-->
-<!--                    <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>-->
-<!--                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>-->
-<!--                    <encoding>UTF-8</encoding>-->
-<!--                    <consoleOutput>true</consoleOutput>-->
-<!--                    <includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-<!--                    <failOnViolation>${checkstyle.fails.on.error}</failOnViolation>-->
-<!--                    <sourceDirectories>-->
-<!--                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>-->
-<!--                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>-->
-<!--                    </sourceDirectories>-->
-<!--                    <resourceIncludes>-->
-<!--                        **/*.properties,-->
-<!--                        **/*.sh,-->
-<!--                        **/*.bat,-->
-<!--                        **/*.yml,-->
-<!--                        **/*.yaml,-->
-<!--                        **/*.xml-->
-<!--                    </resourceIncludes>-->
-<!--                    <resourceExcludes>-->
-<!--                        **/.asf.yaml,-->
-<!--                        **/.github/**-->
-<!--                    </resourceExcludes>-->
-<!--                    <excludes>-->
-<!--                        **/target/generated-test-sources/**,-->
-<!--                        org/apache/skywalking/apm/network/register/v2/**/*.java,-->
-<!--                        org/apache/skywalking/apm/network/common/**/*.java,-->
-<!--                        org/apache/skywalking/apm/network/servicemesh/**/*.java,-->
-<!--                        org/apache/skywalking/apm/network/language/**/*.java,-->
-<!--                        org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,-->
-<!--                        org/apache/skywalking/oal/rt/grammar/*.java,-->
-<!--                        org/apache/skywalking/oap/server/exporter/grpc/*.java,-->
-<!--                        org/apache/skywalking/oap/server/configuration/service/*.java,-->
-<!--                        **/generated/*_jmhType*.java,-->
-<!--                        **/generated/*_jmhTest.java-->
-<!--                    </excludes>-->
-<!--                    <propertyExpansion>-->
-<!--                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml-->
-<!--                    </propertyExpansion>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>validate</id>-->
-<!--                        <phase>process-sources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>check</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
+                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failOnViolation>${checkstyle.fails.on.error}</failOnViolation>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
+                    <resourceIncludes>
+                        **/*.properties,
+                        **/*.sh,
+                        **/*.bat,
+                        **/*.yml,
+                        **/*.yaml,
+                        **/*.xml
+                    </resourceIncludes>
+                    <resourceExcludes>
+                        **/.asf.yaml,
+                        **/.github/**
+                    </resourceExcludes>
+                    <excludes>
+                        **/target/generated-test-sources/**,
+                        org/apache/skywalking/apm/network/register/v2/**/*.java,
+                        org/apache/skywalking/apm/network/common/**/*.java,
+                        org/apache/skywalking/apm/network/servicemesh/**/*.java,
+                        org/apache/skywalking/apm/network/language/**/*.java,
+                        org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
+                        org/apache/skywalking/oal/rt/grammar/*.java,
+                        org/apache/skywalking/oap/server/exporter/grpc/*.java,
+                        org/apache/skywalking/oap/server/configuration/service/*.java,
+                        **/generated/*_jmhType*.java,
+                        **/generated/*_jmhTest.java
+                    </excludes>
+                    <propertyExpansion>
+                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
+                    </propertyExpansion>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>

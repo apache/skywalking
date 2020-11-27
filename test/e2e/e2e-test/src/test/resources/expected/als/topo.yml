@@ -1,0 +1,68 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nodes:
+  - id: not null
+    name: ratings
+    type: http
+    isReal: true
+  - id: not null
+    name: reviews
+    type: http
+    isReal: true
+  - id: not null
+    name: productpage
+    isReal: true
+  - id: not null
+    name: details
+    type: http
+    isReal: true
+  - id: not null
+    name: istio-ingressgateway
+    type: http
+    isReal: true
+  - id: not null
+    name: UNKNOWN
+    isReal: true
+calls:
+  - id: not null
+    source: VU5LTk9XTg==.1
+    target: aXN0aW8taW5ncmVzc2dhdGV3YXk=.1
+    detectPoints:
+      - SERVER
+  - id: not null
+    source: aXN0aW8taW5ncmVzc2dhdGV3YXk=.1
+    target: cHJvZHVjdHBhZ2U=.1
+    detectPoints:
+      - CLIENT
+      - SERVER
+  - id: not null
+    source: cHJvZHVjdHBhZ2U=.1
+    target: cmV2aWV3cw==.1
+    detectPoints:
+      - CLIENT
+      - SERVER
+  - id: not null
+    source: cHJvZHVjdHBhZ2U=.1
+    target: ZGV0YWlscw==.1
+    detectPoints:
+      - CLIENT
+      - SERVER
+  - id: not null
+    source: cmV2aWV3cw==.1
+    target: cmF0aW5ncw==.1
+    detectPoints:
+      - CLIENT
+      - SERVER

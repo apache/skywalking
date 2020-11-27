@@ -19,7 +19,14 @@ You need three steps to open ALS.
     Note: SkyWalking OAP service is at skywalking namespace, and the port of gRPC service is 11800
     
 2. (Default is ACTIVATED) Activate SkyWalking [envoy receiver](../backend/backend-receivers.md). 
-3. Active ALS k8s-mesh analysis, set system env variable `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS`=`k8s-mesh`
+3. Active ALS analyzer, there are two available analyzers, `k8s-mesh` and `mx-mesh`,
+`k8s-mesh` uses the metadata from Kubernetes cluster, hence in this analyzer OAP needs access roles to `Pod`, `Service`, and `Endpoints`;
+`mx-mesh` uses the Envoy metadata exchange mechanism to get the service name, etc.,
+this analyzer requires Istio to enable the metadata exchange filter(you can enable it by
+`--set telemetry.v2.enabled=true`, or if you're using Istio 1.7+ and installing it with profile `demo`/`preview`,
+it should be enabled then).
+Setting system env variable **SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS** to activate the analyzer,
+such as `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh`.
 ```yaml
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
