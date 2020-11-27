@@ -431,6 +431,7 @@ public class SampleFamily {
 
         private boolean ignoreHistogramDecrease;
 
-        private TimeUnit defaultHistogramBucketUnit;
+        @Builder.Default
+        private TimeUnit defaultHistogramBucketUnit = TimeUnit.SECONDS;
     }
 }
