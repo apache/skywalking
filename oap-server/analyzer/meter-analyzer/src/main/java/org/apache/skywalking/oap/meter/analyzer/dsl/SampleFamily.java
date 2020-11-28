@@ -64,10 +64,6 @@ import static java.util.stream.Collectors.toList;
 public class SampleFamily {
     public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], RunningContext.EMPTY);
 
-    public static SampleFamily build(Sample... samples) {
-        return build(null, samples);
-    }
-
     static SampleFamily build(RunningContext ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
         Preconditions.checkArgument(samples.length > 0);
@@ -234,23 +230,6 @@ public class SampleFamily {
         }).toArray(Sample[]::new));
     }
 
-    /**
-     * Ignore histogram decrease bucket value, at agent side meter, need to ignore decrease histogram bucket value
-     */
-    public SampleFamily ignoreHistogramDecrease() {
-        this.context.ignoreHistogramDecrease = true;
-        return this;
-    }
-
-    /**
-     * Change default histogram bucket value unit,
-     * use second on the Prometheus, use millisecond on the meter side meter
-     */
-    public SampleFamily defaultHistogramBucketUnit(TimeUnit unit) {
-        this.context.defaultHistogramBucketUnit = unit;
-        return this;
-    }
-
     public SampleFamily histogram() {
         return histogram("le", this.context.defaultHistogramBucketUnit);
     }
@@ -274,11 +253,11 @@ public class SampleFamily {
                 .filter(s -> s.labels.containsKey(le))
                 .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
                 .map(s -> {
-                    double r = this.context.ignoreHistogramDecrease ? s.value : s.value - pre.get();
+                    double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
                     pre.set(s.value);
                     ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                         .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                        .put("le", String.valueOf((long) ((Double.parseDouble(this.context.ignoreHistogramDecrease ? s.labels.get(le) : preLe.get())) * scale))).build();
+                        .put("le", String.valueOf((long) ((Double.parseDouble(this.context.histogramType == HistogramType.ORDINARY ? s.labels.get(le) : preLe.get())) * scale))).build();
                     preLe.set(s.labels.get(le));
                     return newSample(ll, s.timestamp, r);
                 })).toArray(Sample[]::new));
@@ -419,19 +398,19 @@ public class SampleFamily {
     @Builder
     public static class RunningContext {
 
-        static RunningContext EMPTY = RunningContext.builder().build();
+        static RunningContext EMPTY = instance();
 
         static RunningContext instance() {
             return RunningContext.builder()
+                .histogramType(HistogramType.CUMULATIVE)
                 .defaultHistogramBucketUnit(TimeUnit.SECONDS)
                 .build();
         }
 
         MeterEntity meterEntity;
 
-        private boolean ignoreHistogramDecrease;
+        private HistogramType histogramType;
 
-        @Builder.Default
-        private TimeUnit defaultHistogramBucketUnit = TimeUnit.SECONDS;
+        private TimeUnit defaultHistogramBucketUnit;
     }
 }
