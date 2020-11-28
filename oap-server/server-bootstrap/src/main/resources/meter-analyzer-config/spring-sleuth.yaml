@@ -61,3 +61,4 @@ metricsRules:
   - name: process_files_max
     exp: process_files_max
   - name: process_files_open
+    exp: process_files_open
