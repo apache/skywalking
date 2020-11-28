@@ -26,13 +26,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.any;
 
-public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "ch.qos.logback.classic.Logger";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.LogbackLoggerInterceptor";
-    private static final String[] INTERCEPT_METHODS = {"trace", "debug", "info", "error", "warn"};
-    
+public class Log4jLoggerConstructorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static final String ENHANCE_CLASS = "org.apache.log4j.Category";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.Log4jConstructorInterceptor";
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
@@ -40,32 +39,23 @@ public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[]{
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return any();
+                    }
+
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPT_CLASS;
+                    }
+                }
+        };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(INTERCEPT_METHODS[0])
-                                .or(named(INTERCEPT_METHODS[1]))
-                                .or(named(INTERCEPT_METHODS[2]))
-                                .or(named(INTERCEPT_METHODS[3]))
-                                .or(named(INTERCEPT_METHODS[4]));
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return INTERCEPT_CLASS;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 }

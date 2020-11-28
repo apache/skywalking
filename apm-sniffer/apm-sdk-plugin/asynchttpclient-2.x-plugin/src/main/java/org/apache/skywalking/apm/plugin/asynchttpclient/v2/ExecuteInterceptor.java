@@ -65,7 +65,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            headers.add(next.getHeadKey(), next.getHeadValue());
+            headers.set(next.getHeadKey(), next.getHeadValue());
         }
     }
 
