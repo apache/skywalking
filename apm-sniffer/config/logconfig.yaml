@@ -1,0 +1,12 @@
+- name: "log4j"
+  packages:
+    - *
+  level: "error"
+- name: "log4j2"
+  packages:
+    - *
+  level: "error"
+- name: "logback"
+  packages:
+    - *
+  level: "error"
