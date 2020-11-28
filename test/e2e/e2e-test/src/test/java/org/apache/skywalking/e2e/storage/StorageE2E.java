@@ -123,7 +123,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void services() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        services = services.stream().filter(s -> !s.getLabel().equals("oap::oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/storage/services.yml").as(ServicesMatcher.class).verify(services);
@@ -233,7 +233,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void so11y() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        services = services.stream().filter(s -> s.getLabel().equals("oap::oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
         load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
         for (final Service service : services) {

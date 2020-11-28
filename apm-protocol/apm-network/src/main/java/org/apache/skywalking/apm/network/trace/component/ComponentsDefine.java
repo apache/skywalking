@@ -190,4 +190,6 @@ public class ComponentsDefine {
     public static final OfficialComponent DBCP = new OfficialComponent(103, "dbcp");
 
     public static final OfficialComponent MSSQL_JDBC_DRIVER = new OfficialComponent(104, "mssql-jdbc-driver");
+
+    public static final OfficialComponent APACHE_CXF = new OfficialComponent(105, "Apache-CXF");
 }

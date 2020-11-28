@@ -344,6 +344,9 @@ dbcp:
 mssql-jdbc-driver:
   id: 104
   languages: Java
+Apache-CXF:
+  id: 105
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

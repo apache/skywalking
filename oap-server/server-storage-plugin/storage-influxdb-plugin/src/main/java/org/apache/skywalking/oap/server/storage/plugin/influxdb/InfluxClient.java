@@ -80,7 +80,10 @@ public class InfluxClient implements Client, HealthCheckable {
             influx.query(new Query("CREATE DATABASE " + database));
             influx.enableGzip();
 
-            influx.enableBatch(config.getActions(), config.getDuration(), TimeUnit.MILLISECONDS);
+            if (config.isBatchEnabled()) {
+                influx.enableBatch(config.getActions(), config.getDuration(), TimeUnit.MILLISECONDS);
+            }
+
             influx.setDatabase(database);
             healthChecker.health();
         } catch (Throwable e) {

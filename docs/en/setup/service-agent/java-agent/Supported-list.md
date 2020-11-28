@@ -54,6 +54,7 @@ metrics based on the tracing data.
   * [Finagle](https://github.com/twitter/finagle) 6.44.0 -> 20.1.0  (6.25.0 -> 6.44.0 not tested)
   * [Brpc-Java](https://github.com/baidu/brpc-java) 2.3.7 -> 2.5.3
   * [Thrift](https://github.com/apache/thrift/tree/master/lib/java) 0.10.0 -> 0.12.0
+  * [Apache CXF](https://github.com/apache/cxf) 3.x
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
