@@ -24,18 +24,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "ch.qos.logback.classic.Logger";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.LogbackLoggerInterceptor";
-    private static final String[] INTERCEPT_METHODS = {"trace", "debug", "info", "error", "warn"};
-    
+public class Log4jLoggerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static final String ENHANCE_CLASS = "org.apache.log4j.Category";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.Log4jLoggerInterceptor";
+    private static final String[] INTERCEPT_METHODS = {"trace", "debug", "info", "error", "warn", "fatal"};
+
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return HierarchyMatch.byHierarchyMatch(new String[] {ENHANCE_CLASS});
     }
 
     @Override
@@ -53,7 +53,8 @@ public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePlu
                                 .or(named(INTERCEPT_METHODS[1]))
                                 .or(named(INTERCEPT_METHODS[2]))
                                 .or(named(INTERCEPT_METHODS[3]))
-                                .or(named(INTERCEPT_METHODS[4]));
+                                .or(named(INTERCEPT_METHODS[4]))
+                                .or(named(INTERCEPT_METHODS[5]));
                     }
 
                     @Override

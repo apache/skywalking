@@ -13,4 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-logbak-logger=org.apache.skywalking.apm.plugin.logger.define.LogbackLoggerInstrumentation
+logback-logger=org.apache.skywalking.apm.plugin.logger.define.LogbackLoggerInstrumentation
+logback-constructor=org.apache.skywalking.apm.plugin.logger.define.LogbackLoggerConstructorInstrumentation
+log4j2-logger=org.apache.skywalking.apm.plugin.logger.define.Log4j2LoggerInstrumentation
+log4j2-constructor=org.apache.skywalking.apm.plugin.logger.define.Log4j2LoggerConstructorInstrumentation
+log4j-logger=org.apache.skywalking.apm.plugin.logger.define.Log4jLoggerInstrumentation
+log4j-constructor=org.apache.skywalking.apm.plugin.logger.define.Log4jLoggerConstructorInstrumentation

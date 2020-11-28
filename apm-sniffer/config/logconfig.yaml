@@ -1,8 +1,12 @@
+- name: "log4j"
+  packages:
+    - *
+  level: "error"
 - name: "log4j2"
   packages:
-    - com.example
-  level: "trace"
+    - *
+  level: "error"
 - name: "logback"
   packages:
-    - com.example
+    - *
   level: "error"

@@ -18,25 +18,22 @@
 
 package org.apache.skywalking.apm.plugin.logger.logback;
 
-import ch.qos.logback.classic.Level;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class TestContextConfig {
     @Test
     public void testGetInstance() {
 //        ContextConfig config = ContextConfig.getInstance();
-//        LoggerConfig logbakConfig = config.getLogbakConfig();
+//        LoggerConfig logbackConfig = config.getLogbackConfig();
 //        LoggerConfig log4j2Config = config.getLog4j2Config();
 //
-//        //test logbak
-//        assertEquals(logbakConfig.getName(), "logbak");
-//        assertEquals(logbakConfig.getExpression(), "Regular expression");
-//        assertEquals(logbakConfig.getLevel(), Level.ERROR);
-//        assertEquals(logbakConfig.getPackages().get(0).toString(), "*");
-//        assertEquals(logbakConfig.getPattern(), "%msg%n");
-//
+//        //test logback
+//        assertEquals(logbackConfig.getName(), "logback");
+//        assertEquals(logbackConfig.getExpression(), "Regular expression");
+//        assertEquals(logbackConfig.getLevel(), Level.ERROR);
+//        assertEquals(logbackConfig.getPackages().get(0).toString(), "*");
+//        assertEquals(logbackConfig.getPattern(), "%msg%n");
+
 //        //test log4j
 //        assertEquals(log4j2Config.getName(), "log4j2");
 //        assertEquals(log4j2Config.getExpression(), "Regular expression");

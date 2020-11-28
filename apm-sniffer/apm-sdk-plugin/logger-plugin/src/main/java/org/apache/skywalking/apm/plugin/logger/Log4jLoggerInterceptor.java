@@ -25,9 +25,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-public class LogbackLoggerInterceptor implements InstanceMethodsAroundInterceptor {
+public class Log4jLoggerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final ContextConfig.LoggerConfig CONFIG = ContextConfig.getInstance().getLogbackConfig();
+    private static final ContextConfig.LoggerConfig CONFIG = ContextConfig.getInstance().getLog4jConfig();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
