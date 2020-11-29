@@ -31,7 +31,6 @@ import java.util.Properties;
 
 /**
  * Init a class's static fields by a {@link Properties}, including static fields and static inner classes.
- * <p>
  */
 public class ConfigInitializer {
     public static void initialize(Properties properties, Class<?> rootConfigType) throws IllegalAccessException {

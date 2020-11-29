@@ -71,7 +71,7 @@ jobs:
         with:
           java-version: 11
       - name: 'Install & Test'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install javadoc:javadoc
 
   CI-on-Windows:
     runs-on: windows-latest
