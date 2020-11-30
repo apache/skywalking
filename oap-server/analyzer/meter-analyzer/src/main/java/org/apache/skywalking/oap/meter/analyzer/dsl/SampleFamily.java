@@ -28,6 +28,16 @@ import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -40,15 +50,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -62,10 +63,6 @@ import static java.util.stream.Collectors.toList;
 @ToString
 public class SampleFamily {
     public static final SampleFamily EMPTY = new SampleFamily(new Sample[0], RunningContext.EMPTY);
-
-    public static SampleFamily build(Sample... samples) {
-        return build(null, samples);
-    }
 
     static SampleFamily build(RunningContext ctx, Sample... samples) {
         Preconditions.checkNotNull(samples);
@@ -234,11 +231,11 @@ public class SampleFamily {
     }
 
     public SampleFamily histogram() {
-        return histogram("le", TimeUnit.SECONDS);
+        return histogram("le", this.context.defaultHistogramBucketUnit);
     }
 
     public SampleFamily histogram(String le) {
-        return histogram(le, TimeUnit.SECONDS);
+        return histogram(le, this.context.defaultHistogramBucketUnit);
     }
 
     public SampleFamily histogram(String le, TimeUnit unit) {
@@ -256,11 +253,11 @@ public class SampleFamily {
                 .filter(s -> s.labels.containsKey(le))
                 .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
                 .map(s -> {
-                    double r = s.value - pre.get();
+                    double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
                     pre.set(s.value);
                     ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                         .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                        .put("le", String.valueOf((long) (Double.parseDouble(preLe.get()) * scale))).build();
+                        .put("le", String.valueOf((long) ((Double.parseDouble(this.context.histogramType == HistogramType.ORDINARY ? s.labels.get(le) : preLe.get())) * scale))).build();
                     preLe.set(s.labels.get(le));
                     return newSample(ll, s.timestamp, r);
                 })).toArray(Sample[]::new));
@@ -401,12 +398,19 @@ public class SampleFamily {
     @Builder
     public static class RunningContext {
 
-        static RunningContext EMPTY = RunningContext.builder().build();
+        static RunningContext EMPTY = instance();
 
         static RunningContext instance() {
-            return RunningContext.builder().build();
+            return RunningContext.builder()
+                .histogramType(HistogramType.CUMULATIVE)
+                .defaultHistogramBucketUnit(TimeUnit.SECONDS)
+                .build();
         }
 
         MeterEntity meterEntity;
+
+        private HistogramType histogramType;
+
+        private TimeUnit defaultHistogramBucketUnit;
     }
 }

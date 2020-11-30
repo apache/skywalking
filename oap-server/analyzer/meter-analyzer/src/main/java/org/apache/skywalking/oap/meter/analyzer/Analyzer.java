@@ -22,10 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -51,6 +47,11 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileA
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.elasticsearch.common.Strings;
+
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;

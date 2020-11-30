@@ -19,13 +19,14 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collection;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.time.Instant.parse;
@@ -59,171 +60,171 @@ public class IncreaseTest {
             {
                 "increase",
                 asList(
-                    of("http_success_request", SampleFamily.build(
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(50).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(150).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(80).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(250).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(90).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(280).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(130).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(330).build()
-                    ))
+                    ).build())
                 ),
                 "http_success_request.increase('PT5M')",
                 asList(
-                    Result.success(SampleFamily.build(
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(0).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(0).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(30).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(100).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(40).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(130).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(50).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(80).build()
-                    ))
+                    ).build())
                 ),
                 false,
             },
             {
                 "rate",
                 asList(
-                    of("http_success_request", SampleFamily.build(
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(50).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(150).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(330).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(500).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(380).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(810).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(1380).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(1900).build()
-                    ))
+                    ).build())
                 ),
                 "http_success_request.rate('PT5M')",
                 asList(
-                    Result.success(SampleFamily.build(
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(0).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(0).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(1.75D).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(2.1875D).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(1D).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(2D).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(3D).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(4D).build()
-                    ))
+                    ).build())
                 ),
                 false,
             },
             {
                 "irate",
                 asList(
-                    of("http_success_request", SampleFamily.build(
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(50).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(150).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(330).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(500).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(500).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(840).build()
-                    )),
-                    of("http_success_request", SampleFamily.build(
+                    ).build()),
+                    of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(1040).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(1560).build()
-                    ))
+                    ).build())
                 ),
                 "http_success_request.irate()",
                 asList(
-                    Result.success(SampleFamily.build(
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(0).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:11:01.00Z").toEpochMilli()).value(0).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(1.75D).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:13:41.00Z").toEpochMilli()).value(2.1875D).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(1D).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:16:31.00Z").toEpochMilli()).value(2D).build()
-                    )),
-                    Result.success(SampleFamily.build(
+                    ).build()),
+                    Result.success(SampleFamilyBuilder.newBuilder(
                         Sample.builder().name("http_success_request").labels(of("svc", "product"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(3D).build(),
                         Sample.builder().name("http_success_request").labels(of("svc", "catalog"))
                             .timestamp(parse("2020-09-11T11:19:31.02Z").toEpochMilli()).value(4D).build()
-                    ))
+                    ).build())
                 ),
                 false,
             },
