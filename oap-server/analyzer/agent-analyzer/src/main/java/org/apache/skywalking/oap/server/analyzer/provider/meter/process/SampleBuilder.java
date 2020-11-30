@@ -18,10 +18,31 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+import com.google.common.collect.ImmutableMap;
+import lombok.Builder;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 
-public interface IMeterProcessService extends Service {
+/**
+ * Help to build Sample with agent side meter.
+ */
+@Builder
+public class SampleBuilder {
 
-    MeterProcessor createProcessor();
+    final String name;
+    final ImmutableMap<String, String> labels;
+    final double value;
 
+    public Sample build(String service, String instance, long timestamp) {
+        return Sample.builder()
+            .name(name)
+            .labels(ImmutableMap.<String, String>builder()
+                // Put original labels
+                .putAll(labels)
+                // Put report service and instance to labels
+                .put("service", service)
+                .put("instance", instance)
+                .build())
+            .value(value)
+            .timestamp(timestamp).build();
+    }
 }
