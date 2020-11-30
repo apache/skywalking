@@ -206,11 +206,6 @@ public class ContextConfig {
             return messageMap;
         }
 
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
-
         public boolean isLoggable(String name, String level) {
             return LogLevel.valueOf(level.toUpperCase()).priority >= this.level.priority
                     && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
