@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.logger.ContextConfig;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
@@ -56,7 +57,8 @@ public class Log4jLoggerInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        List<String> levelList = CONFIG.getUpeerLevelList(CONFIG.getLevel());
+                        List<String> levelList = CONFIG.getUpperLevelList(CONFIG.getLevel())
+                                .stream().map(it -> it.name().toLowerCase()).collect(Collectors.toList());
                         ElementMatcher.Junction<MethodDescription> canInstrumentMethods = named(levelList.get(0));
                         for (int i = 1; i < levelList.size(); i++) {
                             canInstrumentMethods = canInstrumentMethods.or(named(levelList.get(i)));

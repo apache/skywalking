@@ -31,10 +31,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * contains all config of the logger plugin.
@@ -211,18 +212,14 @@ public class ContextConfig {
                     && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
         }
 
-        public List<String> getUpeerLevelList(LogLevel level) {
-            List<String> levelList = new ArrayList<>();
-            for (LogLevel l : LogLevel.values()) {
-                if (level.getPriority() >= l.getPriority()) {
-                    levelList.add(l.toString().toLowerCase());
-                }
-            }
-            return levelList;
+        public List<LogLevel> getUpperLevelList(LogLevel level) {
+            return Arrays.stream(LogLevel.values())
+                    .filter(it -> it.priority >= level.priority)
+                    .collect(Collectors.toList());
         }
     }
 
-    enum LogLevel {
+    public enum LogLevel {
         FATAL(50),
         ERROR(40),
         WARN(30),
