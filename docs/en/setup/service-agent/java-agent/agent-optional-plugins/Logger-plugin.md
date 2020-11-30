@@ -46,4 +46,4 @@ The specific sequence of log levels from low to high is as follows:
 
 **Notice:**
 
-Because `logback` not support `fatal`, it will be a exception if you set **logback.level=fatal**.
+Because `logback` not support `fatal`, it will be an exception if you set **logback.level=fatal**.

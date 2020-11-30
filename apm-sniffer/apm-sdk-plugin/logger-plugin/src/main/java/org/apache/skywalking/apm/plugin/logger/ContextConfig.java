@@ -173,7 +173,7 @@ public class ContextConfig {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    static class LoggerConfig implements Cloneable {
+    public static class LoggerConfig {
         private String name;
         private List<String> packages;
         private LogLevel level;
@@ -209,6 +209,16 @@ public class ContextConfig {
         public boolean isLoggable(String name, String level) {
             return LogLevel.valueOf(level.toUpperCase()).priority >= this.level.priority
                     && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
+        }
+
+        public List<String> getUpeerLevelList(LogLevel level) {
+            List<String> levelList = new ArrayList<>();
+            for (LogLevel l : LogLevel.values()) {
+                if (level.getPriority() >= l.getPriority()) {
+                    levelList.add(l.toString().toLowerCase());
+                }
+            }
+            return levelList;
         }
     }
 
