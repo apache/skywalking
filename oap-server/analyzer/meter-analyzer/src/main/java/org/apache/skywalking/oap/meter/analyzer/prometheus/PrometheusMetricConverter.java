@@ -21,13 +21,11 @@ package org.apache.skywalking.oap.meter.analyzer.prometheus;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
@@ -35,6 +33,10 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static io.vavr.API.$;
@@ -77,23 +79,23 @@ public class PrometheusMetricConverter {
                 Sample[] m = new Sample[a.samples.length + b.samples.length];
                 System.arraycopy(a.samples, 0, m, 0, a.samples.length);
                 System.arraycopy(b.samples, 0, m, a.samples.length, b.samples.length);
-                return SampleFamily.build(m);
+                return SampleFamilyBuilder.newBuilder(m).build();
             }));
     }
 
     private Stream<Tuple2<String, SampleFamily>> convertMetric(Metric metric) {
         return Match(metric).of(
             Case($(instanceOf(Histogram.class)), t -> Stream.of(
-                Tuple.of(metric.getName() + "_count", SampleFamily.build(Sample.builder().name(metric.getName() + "_count")
-                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Histogram) metric).getSampleCount()).build())),
-                Tuple.of(metric.getName() + "_sum", SampleFamily.build(Sample.builder().name(metric.getName() + "_sum")
-                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Histogram) metric).getSampleSum()).build())),
+                Tuple.of(metric.getName() + "_count", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_count")
+                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Histogram) metric).getSampleCount()).build()).build()),
+                Tuple.of(metric.getName() + "_sum", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_sum")
+                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Histogram) metric).getSampleSum()).build()).build()),
                 convertToSample(metric).orElse(NIL))),
             Case($(instanceOf(Summary.class)), t -> Stream.of(
-                Tuple.of(metric.getName() + "_count", SampleFamily.build(Sample.builder().name(metric.getName() + "_count")
-                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Summary) metric).getSampleCount()).build())),
-                Tuple.of(metric.getName() + "_sum", SampleFamily.build(Sample.builder().name(metric.getName() + "_sum")
-                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Summary) metric).getSampleSum()).build())),
+                Tuple.of(metric.getName() + "_count", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_count")
+                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Summary) metric).getSampleCount()).build()).build()),
+                Tuple.of(metric.getName() + "_sum", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_sum")
+                    .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Summary) metric).getSampleSum()).build()).build()),
                 convertToSample(metric).orElse(NIL))),
             Case($(), t -> Stream.of(convertToSample(metric).orElse(NIL)))
         );
@@ -139,6 +141,6 @@ public class PrometheusMetricConverter {
         if (ss.length < 1) {
             return Optional.empty();
         }
-        return Optional.of(Tuple.of(metric.getName(), SampleFamily.build(ss)));
+        return Optional.of(Tuple.of(metric.getName(), SampleFamilyBuilder.newBuilder(ss).build()));
     }
 }

@@ -29,7 +29,7 @@ SkywalkingMeterRegistry skywalkingMeterRegistry() {
 
 ## Set up backend receiver
 
-1. Enable meter receiver in the `applicaiton.yml`.
+1. Make sure enable meter receiver in the `applicaiton.yml`.
 ```yaml
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
