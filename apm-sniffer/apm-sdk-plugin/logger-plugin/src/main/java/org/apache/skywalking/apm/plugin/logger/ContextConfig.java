@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,10 +67,12 @@ public class ContextConfig {
             try {
                 configFile = new File(AgentPackagePath.getPath(), "/config/logger-plugin/logconfig.properties");
             } catch (AgentPackageNotFoundException e) {
-                e.printStackTrace();
+                if (ContextManager.isActive()) {
+                    ContextManager.activeSpan().log(e);
+                }
             }
             // not has config file, make config default
-            if (!configFile.exists()) {
+            if (configFile == null || !configFile.exists()) {
                 List<String> packages = new ArrayList<>();
                 packages.add("*");
                 logbackConfig = new LoggerConfig("logback", packages, LogLevel.ERROR);
@@ -92,7 +95,9 @@ public class ContextConfig {
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    if (ContextManager.isActive()) {
+                        ContextManager.activeSpan().log(e);
+                    }
                 }
                 //creat ContextConfig object
             }
