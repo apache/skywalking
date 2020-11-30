@@ -5,7 +5,7 @@ Release Notes.
 8.4.0
 ------------------
 #### Project
-
+* Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
 

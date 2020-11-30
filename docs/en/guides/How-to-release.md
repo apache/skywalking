@@ -65,10 +65,8 @@ but just failure. Run `gpg --sign xxx` to any file could remember the password f
 ```shell
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
 cd tools/releasing
-sh create_source_release.sh
+bash create_source_release.sh
 ```
-
-**NOTICE**, `create_source_release.sh` is just suitable for MacOS. Welcome anyone to contribute Windows bat and Linux shell. 
 
 This scripts should do following things
 1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
