@@ -10,6 +10,9 @@ Release Notes.
 #### Java Agent
 
 
+#### OAP-Backend
+* Make meter receiver support MAL.
+
 #### UI
 
 

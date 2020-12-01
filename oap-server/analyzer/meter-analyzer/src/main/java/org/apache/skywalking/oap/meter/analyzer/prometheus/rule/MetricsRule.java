@@ -18,15 +18,20 @@
 
 package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
 
 /**
  * MetricsRule holds the parsing expression.
  */
 @Data
+@Builder
 @NoArgsConstructor
-public class MetricsRule {
+@AllArgsConstructor
+public class MetricsRule implements MetricRuleConfig.RuleConfig {
     private String name;
     private String exp;
 }

@@ -104,6 +104,8 @@ public abstract class MeterBaseTest {
                                 .setHistogram(MeterHistogram.newBuilder().setName("test_histogram")
                                                             .addLabels(
                                                                 Label.newBuilder().setName("k2").setValue("v2").build())
+                                                            .addLabels(
+                                                                Label.newBuilder().setName("endpoint").setValue("test_endpoint").build())
                                                             .addValues(MeterBucketValue.newBuilder()
                                                                                        .setBucket(1)
                                                                                        .setCount(10)

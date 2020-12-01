@@ -18,22 +18,28 @@
 
 package org.apache.skywalking.apm.plugin.logger;
 
+import lombok.Setter;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.yaml.snakeyaml.Yaml;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * contains all config of the logger plugin.
  */
+@Getter
 public class ContextConfig {
 
     private final LoggerConfig logbackConfig;
@@ -46,18 +52,6 @@ public class ContextConfig {
         this.log4j2Config = log4j2Config;
     }
 
-    public LoggerConfig getLogbackConfig() {
-        return logbackConfig;
-    }
-
-    public LoggerConfig getLog4jConfig() {
-        return log4jConfig;
-    }
-
-    public LoggerConfig getLog4j2Config() {
-        return log4j2Config;
-    }
-
     public static ContextConfig getInstance() {
         return HolderContextConfig.INSTANCE;
     }
@@ -68,15 +62,17 @@ public class ContextConfig {
 
         private static ContextConfig initContextConfig() {
             // judge whether has yaml file
-            File configFile;
-            try {
-                configFile = new File(AgentPackagePath.getPath(), "/config/logconfig.yaml");
-            } catch (AgentPackageNotFoundException e) {
-                throw new RuntimeException(e);
-            }
             LoggerConfig logbackConfig = null, log4jConfig = null, log4j2Config = null;
+            File configFile = null;
+            try {
+                configFile = new File(AgentPackagePath.getPath(), "/config/logger-plugin/logconfig.properties");
+            } catch (AgentPackageNotFoundException e) {
+                if (ContextManager.isActive()) {
+                    ContextManager.activeSpan().log(e);
+                }
+            }
             // not has config file, make config default
-            if (!configFile.exists()) {
+            if (configFile == null || !configFile.exists()) {
                 List<String> packages = new ArrayList<>();
                 packages.add("*");
                 logbackConfig = new LoggerConfig("logback", packages, LogLevel.ERROR);
@@ -84,9 +80,7 @@ public class ContextConfig {
                 log4j2Config = new LoggerConfig("log4j2", packages, LogLevel.ERROR);
             } else {
                 // use config file to init ContextConfig
-                FileInputStream configFileInputStream = null;
-                try {
-                    configFileInputStream = new FileInputStream(configFile);
+                try (FileInputStream configFileInputStream = new FileInputStream(configFile)) {
                     List<LoggerConfig> configs = parseConfigFile(configFileInputStream);
                     // initialization of variables which are described in config file
                     for (LoggerConfig loggerConfig : configs) {
@@ -100,16 +94,9 @@ public class ContextConfig {
                             throw new IllegalArgumentException();
                         }
                     }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } finally {
-                    //close input stream
-                    if (configFileInputStream != null) {
-                        try {
-                            configFileInputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                } catch (IOException e) {
+                    if (ContextManager.isActive()) {
+                        ContextManager.activeSpan().log(e);
                     }
                 }
                 //creat ContextConfig object
@@ -121,27 +108,45 @@ public class ContextConfig {
          * @param fileInputStream the input stream of config file
          * @return the list of configuration file analysis result objects
          */
-        private static List<LoggerConfig> parseConfigFile(FileInputStream fileInputStream) {
-            Yaml yaml = new Yaml();
+        private static List<LoggerConfig> parseConfigFile(FileInputStream fileInputStream) throws IOException {
+            Properties p = new Properties();
+            p.load(fileInputStream);
             List<LoggerConfig> configs = new ArrayList<>();
-            for (Object o : (List) yaml.loadAll(fileInputStream).iterator().next()) {
-                if (o instanceof Map) {
-                    Map configMap = (Map) o;
-                    LoggerConfig loggerConfig = new LoggerConfig();
-                    loggerConfig.setName((String) configMap.get("name"));
-
-                    if (configMap.get("level") != null) {
-                        loggerConfig.setLevel(LogLevel.valueOf(configMap.get("level").toString().toUpperCase()));
-                    }
-                    if (configMap.get("packages") instanceof List) {
-                        loggerConfig.setPackages((List<String>) configMap.get("packages"));
-                    }
-                    configs.add(loggerConfig);
-                } else {
-                    return null;
-                }
+            LoggerConfig logback, log4j, log4j2;
+            logback = fillPackageAndLevel(p.getProperty("logback.packages"), p.getProperty("logback.level"));
+            log4j = fillPackageAndLevel(p.getProperty("log4j.packages"), p.getProperty("log4j.level"));
+            log4j2 = fillPackageAndLevel(p.getProperty("log4j2.packages"), p.getProperty("log4j2.level"));
+            if (logback != null) {
+                logback.setName("logback");
+                configs.add(logback);
+            }
+            if (log4j != null) {
+                log4j.setName("log4j");
+                configs.add(log4j);
+            }
+            if (log4j2 != null) {
+                log4j2.setName("log4j2");
+                configs.add(log4j2);
             }
             return configs;
+        }
+
+        private static LoggerConfig fillPackageAndLevel(String packages, String level) {
+            LoggerConfig loggerConfig = null;
+            if (packages != null || level != null) {
+                loggerConfig = new LoggerConfig();
+                if (packages != null) {
+                    loggerConfig.setPackages(splitPackages(packages));
+                }
+                if (level != null) {
+                    loggerConfig.setLevel(LogLevel.valueOf(level.toUpperCase()));
+                }
+            }
+            return loggerConfig;
+        }
+
+        private static List<String> splitPackages(String packages) {
+            return Arrays.asList(packages.split(","));
         }
 
         /**
@@ -164,44 +169,23 @@ public class ContextConfig {
         }
     }
 
-    static class LoggerConfig implements Cloneable {
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LoggerConfig {
         private String name;
         private List<String> packages;
         private LogLevel level;
 
-        public LoggerConfig(String name, List<String> packages, LogLevel level) {
-            this.name = name;
-            this.packages = packages;
-            this.level = level;
-        }
-
-        public LoggerConfig() {
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public List<String> getPackages() {
-            return packages;
-        }
-
-        public void setPackages(List<String> packages) {
-            this.packages = packages;
-        }
-
-        public LogLevel getLevel() {
-            return level;
-        }
-
-        public void setLevel(LogLevel level) {
-            this.level = level;
-        }
-
+        /**
+         * Encapsulate the obtained log information into a map
+         *
+         * @param loggerName the name of log system,eg:logback
+         * @param level      which level of log need to recorder
+         * @param args       the params of log
+         * @return a message map
+         */
         public Map<String, String> toMessageMap(String loggerName, String level, Object... args) {
             Map<String, String> messageMap = new HashMap<>();
             messageMap.put("log.kind", loggerName);
@@ -222,14 +206,19 @@ public class ContextConfig {
             return messageMap;
         }
 
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
-
         public boolean isLoggable(String name, String level) {
             return LogLevel.valueOf(level.toUpperCase()).priority >= this.level.priority
                     && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
+        }
+
+        public List<String> getUpeerLevelList(LogLevel level) {
+            List<String> levelList = new ArrayList<>();
+            for (LogLevel l : LogLevel.values()) {
+                if (level.getPriority() >= l.getPriority()) {
+                    levelList.add(l.toString().toLowerCase());
+                }
+            }
+            return levelList;
         }
     }
 

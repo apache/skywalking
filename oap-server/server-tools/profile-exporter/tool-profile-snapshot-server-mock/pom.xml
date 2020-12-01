@@ -21,13 +21,13 @@
     <parent>
         <artifactId>profile-exporter</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.3.0-SNAPSHOT</version>
+        <version>8.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>tool-profile-snapshot-server-mock</artifactId>
-    <version>8.3.0-SNAPSHOT</version>
+    <version>8.4.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

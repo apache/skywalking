@@ -115,7 +115,7 @@ account if a quality vote is called for this build.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/master/CHANGES.md
+ * https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
 
 Release Candidate:
 
@@ -169,7 +169,7 @@ This is a call for vote to release Apache SkyWalking version x.y.z.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/x.y.z/CHANGES.md
+ * https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
 
 Release Candidate:
 
@@ -267,7 +267,7 @@ version a.b.c(last release). The notable changes since x.y.z include:
 3. ...
 
 Please refer to the change log for the complete list of changes:
-https://github.com/apache/skywalking/blob/vx.y.z/CHANGES.md
+https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
 
 Apache SkyWalking website:
 http://skywalking.apache.org/

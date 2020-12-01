@@ -16,21 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
+package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import lombok.Data;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
-
-@Data
-public class Scope {
-
-    /**
-     * Scope type
-     */
-    private ScopeType type;
+/**
+ * Histogram type, which calculation type of bucket value
+ */
+public enum HistogramType {
 
     /**
-     * Endpoint filter expression. If using {@link ScopeType#ENDPOINT} need this.
+     * Such as Prometheus, Open Telemetry.
      */
-    private String endpoint;
+    CUMULATIVE,
+
+    /**
+     * Such as Agent Meter.
+     */
+    ORDINARY
 }

@@ -16,35 +16,39 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
-
-import lombok.Data;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
+package org.apache.skywalking.oap.meter.analyzer;
 
 import java.util.List;
 
-@Data
-public class MeterDataConfig {
+/**
+ * Metrics rules convert to meter system.
+ */
+public interface MetricRuleConfig {
 
     /**
-     * Build meter operation name.
-     * @see MeterFunction
+     * Get metrics name prefix
      */
-    private String operation;
+    String getMetricPrefix();
 
     /**
-     * Value expression of meter.
+     * Get MAL expression suffix
      */
-    private String value;
+    String getExpSuffix();
 
     /**
-     * If the function support percentile, need to provide this config.
+     * Get all rules
      */
-    private List<Integer> percentile;
+    List<? extends RuleConfig> getMetricsRules();
 
-    /**
-     * Aggregate meter group by dedicated labels
-     */
-    private List<String> groupBy;
+    interface RuleConfig {
+        /**
+         * Get definition metrics name
+         */
+        String getName();
 
+        /**
+         * Build metrics MAL
+         */
+        String getExp();
+    }
 }

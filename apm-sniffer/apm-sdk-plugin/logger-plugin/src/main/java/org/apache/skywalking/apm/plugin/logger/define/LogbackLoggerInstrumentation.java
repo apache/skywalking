@@ -25,14 +25,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.plugin.logger.ContextConfig;
+
+import java.util.List;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "ch.qos.logback.classic.Logger";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.LogbackLoggerInterceptor";
-    private static final String[] INTERCEPT_METHODS = {"trace", "debug", "info", "error", "warn"};
-    
+    private static final ContextConfig.LoggerConfig CONFIG = ContextConfig.getInstance().getLogbackConfig();
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
@@ -45,15 +48,20 @@ public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        if (CONFIG == null) {
+            return null;
+        }
         return new InstanceMethodsInterceptPoint[]{
                 new InstanceMethodsInterceptPoint() {
+
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(INTERCEPT_METHODS[0])
-                                .or(named(INTERCEPT_METHODS[1]))
-                                .or(named(INTERCEPT_METHODS[2]))
-                                .or(named(INTERCEPT_METHODS[3]))
-                                .or(named(INTERCEPT_METHODS[4]));
+                        List<String> levelList = CONFIG.getUpeerLevelList(CONFIG.getLevel());
+                        ElementMatcher.Junction<MethodDescription> canInstrumentMethods = named(levelList.get(0));
+                        for (int i = 1; i < levelList.size(); i++) {
+                            canInstrumentMethods = canInstrumentMethods.or(named(levelList.get(i)));
+                        }
+                        return canInstrumentMethods;
                     }
 
                     @Override
