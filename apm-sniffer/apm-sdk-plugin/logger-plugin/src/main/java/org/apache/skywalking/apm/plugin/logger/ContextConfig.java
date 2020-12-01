@@ -187,7 +187,7 @@ public class ContextConfig {
          * @param args       the params of log
          * @return a message map
          */
-        public Map<String, String> toMessageMap(String loggerName, String level, Object... args) {
+        private Map<String, String> toMessageMap(String loggerName, String level, Object... args) {
             Map<String, String> messageMap = new HashMap<>();
             messageMap.put("log.kind", loggerName);
             messageMap.put("event", level);
@@ -207,7 +207,7 @@ public class ContextConfig {
             return messageMap;
         }
 
-        public boolean isLoggable(String name, String level) {
+        private boolean isLoggable(String name, String level) {
             return LogLevel.valueOf(level.toUpperCase()).priority >= this.level.priority
                     && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
         }
@@ -216,6 +216,13 @@ public class ContextConfig {
             return Arrays.stream(LogLevel.values())
                     .filter(it -> it.priority >= level.priority)
                     .collect(Collectors.toList());
+        }
+
+        public void logIfNecessary(String loggerName, String level, Object[] allArguments) {
+            if (ContextManager.isActive() && isLoggable(loggerName, level)) {
+                ContextManager.activeSpan().log(System.currentTimeMillis(),
+                        toMessageMap(loggerName, level, allArguments));
+            }
         }
     }
 
