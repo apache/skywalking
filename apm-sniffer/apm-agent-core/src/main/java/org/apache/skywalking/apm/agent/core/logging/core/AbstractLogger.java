@@ -74,6 +74,13 @@ public abstract class AbstractLogger implements ILog {
     }
 
     @Override
+    public void info(final Throwable throwable, final String message, final Object... objects) {
+        if (this.isInfoEnable()) {
+            this.logger(LogLevel.INFO, replaceParam(message, objects), throwable);
+        }
+    }
+
+    @Override
     public void warn(String message, Object... objects) {
         if (this.isWarnEnable()) {
             this.logger(LogLevel.WARN, replaceParam(message, objects), null);
@@ -129,20 +136,50 @@ public abstract class AbstractLogger implements ILog {
         }
     }
 
+    @Override
     public boolean isDebugEnable() {
         return LogLevel.DEBUG.compareTo(Config.Logging.LEVEL) >= 0;
     }
 
+    @Override
     public boolean isInfoEnable() {
         return LogLevel.INFO.compareTo(Config.Logging.LEVEL) >= 0;
     }
 
+    @Override
     public boolean isWarnEnable() {
         return LogLevel.WARN.compareTo(Config.Logging.LEVEL) >= 0;
     }
 
+    @Override
     public boolean isErrorEnable() {
         return LogLevel.ERROR.compareTo(Config.Logging.LEVEL) >= 0;
+    }
+
+    @Override
+    public boolean isTraceEnabled() {
+        return LogLevel.TRACE.compareTo(Config.Logging.LEVEL) >= 0;
+    }
+
+    @Override
+    public void trace(final String message) {
+        if (this.isTraceEnabled()) {
+            this.logger(LogLevel.TRACE, message, null);
+        }
+    }
+
+    @Override
+    public void trace(final String message, final Object... objects) {
+        if (this.isTraceEnabled()) {
+            this.logger(LogLevel.TRACE, replaceParam(message, objects), null);
+        }
+    }
+
+    @Override
+    public void trace(final Throwable throwable, final String message, final Object... objects) {
+        if (this.isTraceEnabled()) {
+            this.logger(LogLevel.TRACE, replaceParam(message, objects), throwable);
+        }
     }
 
     protected String replaceParam(String message, Object... parameters) {

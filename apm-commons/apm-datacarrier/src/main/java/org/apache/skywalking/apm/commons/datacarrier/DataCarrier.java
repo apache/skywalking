@@ -31,8 +31,6 @@ import org.apache.skywalking.apm.commons.datacarrier.partition.SimpleRollingPart
  * DataCarrier main class. use this instance to set Producer/Consumer Model.
  */
 public class DataCarrier<T> {
-    private final int bufferSize;
-    private final int channelSize;
     private Channels<T> channels;
     private IDriver driver;
     private String name;
@@ -47,9 +45,9 @@ public class DataCarrier<T> {
 
     public DataCarrier(String name, String envPrefix, int channelSize, int bufferSize) {
         this.name = name;
-        this.bufferSize = EnvUtil.getInt(envPrefix + "_BUFFER_SIZE", bufferSize);
-        this.channelSize = EnvUtil.getInt(envPrefix + "_CHANNEL_SIZE", channelSize);
-        channels = new Channels<T>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), BufferStrategy.BLOCKING);
+        bufferSize = EnvUtil.getInt(envPrefix + "_BUFFER_SIZE", bufferSize);
+        channelSize = EnvUtil.getInt(envPrefix + "_CHANNEL_SIZE", channelSize);
+        channels = new Channels<>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), BufferStrategy.BLOCKING);
     }
 
     /**

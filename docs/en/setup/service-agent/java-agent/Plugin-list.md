@@ -4,10 +4,12 @@
 - armeria-085
 - armeria-086
 - armeria-098
+- async-http-client-2.x
 - avro-1.x
 - brpc-java
 - canal-1.x
 - cassandra-java-driver-3.x
+- dbcp-2.x
 - dubbo
 - ehcache-2.x
 - elastic-job-2.x
@@ -41,6 +43,7 @@
 - memcache-2.x
 - mongodb-2.x
 - mongodb-3.x
+- mongodb-4.x
 - motan-0.x
 - mysql-5.x
 - mysql-6.x
@@ -77,6 +80,7 @@
 - spring-cloud-gateway-2.1.x
 - spring-concurrent-util-4.x
 - spring-core-patch
+- spring-kafka-1.x
 - spring-kafka-2.x
 - spring-mvc-annotation
 - spring-mvc-annotation-3.x
@@ -86,8 +90,10 @@
 - spring-scheduled-annotation
 - spring-tx
 - spring-webflux-5.x
+- spring-webflux-5.x-webclient
 - spymemcached-2.x
 - struts2-2.x
+- thrift
 - tomcat-7.x/8.x
 - toolkit-counter
 - toolkit-gauge
@@ -102,4 +108,8 @@
 - toolkit-exception
 - undertow-2.x-plugin
 - vertx-core-3.x
+- xxl-job-2.x
 - zookeeper-3.4.x
+- mssql-jtds-1.x
+- mssql-jdbc
+- apache-cxf-3.x

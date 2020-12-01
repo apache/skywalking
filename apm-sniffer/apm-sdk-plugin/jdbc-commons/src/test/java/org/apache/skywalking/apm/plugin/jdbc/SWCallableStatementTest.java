@@ -325,10 +325,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         verify(mysqlCallableStatement).setBlob(anyInt(), any(InputStream.class), anyLong());
         verify(mysqlCallableStatement).setClob(anyInt(), any(Clob.class));
         verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNString(anyInt(), anyString());
         verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNClob(27, nClob);
         verify(mysqlCallableStatement).setNClob(28, reader, 1);
         verify(mysqlCallableStatement).setObject(anyInt(), Matchers.anyObject());
@@ -377,10 +377,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         verify(mysqlCallableStatement).setBlob(anyString(), any(InputStream.class), anyLong());
         verify(mysqlCallableStatement).setClob(anyString(), any(Clob.class));
         verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNString(anyString(), anyString());
         verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNClob(27, nClob);
         verify(mysqlCallableStatement).setNClob(28, reader, 1);
         verify(mysqlCallableStatement).setObject(anyString(), Matchers.anyObject());

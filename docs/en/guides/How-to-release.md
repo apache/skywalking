@@ -65,10 +65,8 @@ but just failure. Run `gpg --sign xxx` to any file could remember the password f
 ```shell
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
 cd tools/releasing
-sh create_source_release.sh
+bash create_source_release.sh
 ```
-
-**NOTICE**, `create_source_release.sh` is just suitable for MacOS. Welcome anyone to contribute Windows bat and Linux shell. 
 
 This scripts should do following things
 1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
@@ -115,7 +113,7 @@ account if a quality vote is called for this build.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/master/CHANGES.md
+ * https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
 
 Release Candidate:
 
@@ -169,7 +167,7 @@ This is a call for vote to release Apache SkyWalking version x.y.z.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/x.y.z/CHANGES.md
+ * https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
 
 Release Candidate:
 
@@ -267,7 +265,7 @@ version a.b.c(last release). The notable changes since x.y.z include:
 3. ...
 
 Please refer to the change log for the complete list of changes:
-https://github.com/apache/skywalking/blob/vx.y.z/CHANGES.md
+https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md
 
 Apache SkyWalking website:
 http://skywalking.apache.org/

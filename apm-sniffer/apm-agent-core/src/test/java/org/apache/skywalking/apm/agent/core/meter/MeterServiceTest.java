@@ -22,11 +22,6 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
-import org.apache.skywalking.apm.agent.core.meter.adapter.HistogramAdapter;
-import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
-import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
@@ -132,8 +127,9 @@ public class MeterServiceTest {
 
         // Add one
         final MeterId counterId = new MeterId("test1", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
-        final CounterTransformer transformer1 = new CounterTransformer(new TestCounterAdapter(counterId));
-        registryService.register(transformer1);
+        final Counter counter = new Counter(counterId, CounterMode.INCREMENT);
+        counter.increment(2);
+        registryService.register(counter);
         registryService.run();
         assertThat(upstreamMeters.size(), is(1));
         isSameWithCounter(upstreamMeters.get(0), true, counterId, 2);
@@ -141,8 +137,9 @@ public class MeterServiceTest {
         // Add second
         upstreamMeters.clear();
         final MeterId percentileId = new MeterId("test2", MeterType.HISTOGRAM, Arrays.asList(new MeterTag("k1", "v1")));
-        final HistogramTransformer transformer2 = new HistogramTransformer(new TestHistogramAdapter(percentileId));
-        registryService.register(transformer2);
+        final Histogram histogram = new Histogram(percentileId, Arrays.asList(2d));
+        registryService.register(histogram);
+        histogram.addValue(3);
         registryService.run();
         assertThat(upstreamMeters.size(), is(2));
         for (int i = 0; i < upstreamMeters.size(); i++) {
@@ -156,14 +153,14 @@ public class MeterServiceTest {
 
     @Test
     public void testMeterSizeAndShutdown() throws Throwable {
-        final Map<MeterId, MeterTransformer> map = Whitebox.getInternalState(registryService, "meterMap");
+        final Map<MeterId, BaseMeter> map = Whitebox.getInternalState(registryService, "meterMap");
         map.clear();
 
         // Check max meter size
         for (Integer i = 0; i < Config.Meter.MAX_METER_SIZE + 1; i++) {
             final MeterId counterId = new MeterId("test_" + i, MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
-            final CounterTransformer transformer1 = new CounterTransformer(new TestCounterAdapter(counterId));
-            registryService.register(transformer1);
+            final Counter counter = new Counter(counterId, CounterMode.INCREMENT);
+            registryService.register(counter);
         }
         assertThat(map.size(), is(Config.Meter.MAX_METER_SIZE));
 
@@ -222,54 +219,6 @@ public class MeterServiceTest {
             Assert.assertNotNull(bucketValue);
             Assert.assertEquals(bucketValue.getBucket(), (double) values[i], 0.0);
             Assert.assertEquals(bucketValue.getCount(), values[i + 1]);
-        }
-    }
-
-    /**
-     * Creating a new {@link CounterAdapter} with appoint count
-     */
-    private static class TestCounterAdapter implements CounterAdapter {
-
-        private final MeterId meterId;
-
-        public TestCounterAdapter(MeterId meterId) {
-            this.meterId = meterId;
-        }
-
-        @Override
-        public Double getCount() {
-            return 2d;
-        }
-
-        @Override
-        public MeterId getId() {
-            return this.meterId;
-        }
-    }
-
-    /**
-     * Creating a new {@link HistogramAdapter} with appoint bucket and value
-     */
-    private static class TestHistogramAdapter implements HistogramAdapter {
-        private final MeterId meterId;
-
-        public TestHistogramAdapter(MeterId meterId) {
-            this.meterId = meterId;
-        }
-
-        @Override
-        public MeterId getId() {
-            return meterId;
-        }
-
-        @Override
-        public double[] getAllBuckets() {
-            return new double[] {2};
-        }
-
-        @Override
-        public long[] getBucketValues() {
-            return new long[] {1};
         }
     }
 

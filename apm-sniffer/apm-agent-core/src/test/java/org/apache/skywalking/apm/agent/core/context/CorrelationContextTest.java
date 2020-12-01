@@ -120,5 +120,4 @@ public class CorrelationContextTest {
         context.deserialize(null);
         Assert.assertNull(context.get("test1").orElse(null));
     }
-
 }

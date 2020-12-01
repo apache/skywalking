@@ -190,6 +190,10 @@ public class MultiScopesAnalysisListenerTest {
                                           .setIsError(true)
                                           .setSpanType(SpanType.Entry)
                                           .setSpanLayer(SpanLayer.RPCFramework)
+                                          .addTags(KeyStringValuePair.newBuilder()
+                                                                     .setKey("http.method")
+                                                                     .setValue("GET")
+                                                                     .build())
                                           .addRefs(
                                               SegmentReference.newBuilder()
                                                               .setRefType(RefType.CrossProcess)
@@ -226,6 +230,11 @@ public class MultiScopesAnalysisListenerTest {
         Assert.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
         Assert.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
         Assert.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
+        // tags test
+        Assert.assertEquals("http.method:GET", all.getTags().get(0));
+        Assert.assertEquals("http.method:GET", service.getTags().get(0));
+        Assert.assertEquals("http.method:GET", serviceInstance.getTags().get(0));
+        Assert.assertEquals("http.method:GET", endpoint.getTags().get(0));
     }
 
     /**

@@ -187,10 +187,10 @@ RabbitMQ:
   languages: Java
 rabbitmq-producer:
   id: 52
-  languages: Java,Python
+  languages: Java,Python,PHP
 rabbitmq-consumer:
   id: 53
-  languages: Java,Python
+  languages: Java,Python,PHP
 Canal:
   id: 54
   languages: Java
@@ -323,6 +323,30 @@ SpringScheduled:
 quartz-scheduler:
   id: 97
   languages: Java
+xxl-job:
+  id: 98
+  languages: Java
+spring-webflux-webclient:
+  id: 99
+  languages: Java
+thrift-server:
+  id: 100
+  languages: Java
+thrift-client:
+  id: 101
+  languages: Java
+AsyncHttpClient:
+  id: 102
+  languages: Java
+dbcp:
+  id: 103
+  languages: Java
+mssql-jdbc-driver:
+  id: 104
+  languages: Java
+Apache-CXF:
+  id: 105
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -343,7 +367,7 @@ StackExchange.Redis:
   languages: C#
 SqlServer:
   id: 3006
-  languages: C#
+  languages: C#,Java
 Npgsql:
   id: 3007
   languages: C#
@@ -413,6 +437,12 @@ Gin:
 Gear:
   id: 5007
   languages: Golang
+GoMicroClient:
+  id: 5008
+  languages: Golang
+GoMicroServer:
+  id: 5009
+  languages: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent
@@ -443,6 +473,9 @@ Tornado:
 Urllib3:
   id: 7006
   languages: Python
+Sanic:
+  id: 7007
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
@@ -465,6 +498,11 @@ Predis:
   id: 8006
   languages: PHP
 
+# C++ components
+# [9000, 10000) for C++ agent
+EnvoyProxy:
+  id: 9000
+  languages: C++
 
 # Component Server mapping defines the server display names of some components
 # e.g.
@@ -509,3 +547,4 @@ Component-Server-Mappings:
   Predis: Redis
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
+  mssql-jdbc-driver: SqlServer

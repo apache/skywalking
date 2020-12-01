@@ -17,12 +17,15 @@
 
 package org.apache.skywalking.apm.testcase.sc.webflux.projectA.controller;
 
-import java.io.IOException;
 import org.apache.skywalking.apm.testcase.sc.webflux.projectA.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.io.IOException;
 
 @RestController
 public class TestController {
@@ -43,6 +46,7 @@ public class TestController {
         visit("http://" + hostBAddress + "/testcase/route/error");
         visit("http://" + hostBAddress + "/notFound");
         visit("http://" + hostBAddress + "/testcase/annotation/mono/hello");
+        testGet("http://" + hostBAddress + "/testcase/webclient/server");
         return "test";
     }
 
@@ -58,5 +62,18 @@ public class TestController {
         } catch (Exception i) {
 
         }
+    }
+
+    /**
+     * test webflux webclient plugin
+     */
+    private void testGet(String remoteUri) {
+        Mono<String> response = WebClient
+                .create()
+                .get()
+                .uri(remoteUri)
+                .retrieve()
+                .bodyToMono(String.class);
+        response.subscribe();
     }
 }

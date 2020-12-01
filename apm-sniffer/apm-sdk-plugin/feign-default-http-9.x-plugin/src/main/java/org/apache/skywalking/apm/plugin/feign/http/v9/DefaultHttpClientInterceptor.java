@@ -20,7 +20,16 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
 import feign.Response;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -31,17 +40,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import static feign.Util.valuesOrEmpty;
@@ -64,7 +62,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -104,16 +102,12 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         }
 
         Field headersField = Request.class.getDeclaredField("headers");
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
-
         headersField.setAccessible(true);
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            List<String> contextCollection = new LinkedList<String>();
+            List<String> contextCollection = new ArrayList<String>(1);
             contextCollection.add(next.getHeadValue());
             headers.put(next.getHeadKey(), contextCollection);
         }
@@ -143,7 +137,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) {
+                              Object ret) {
         Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.status();
@@ -162,7 +156,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);
     }

@@ -1,0 +1,2 @@
+jdk11 = true
+setup = ".muse/setup.sh"

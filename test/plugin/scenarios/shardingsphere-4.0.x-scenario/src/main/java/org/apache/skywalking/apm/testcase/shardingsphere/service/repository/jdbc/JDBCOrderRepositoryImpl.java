@@ -29,15 +29,18 @@ import java.util.List;
 public final class JDBCOrderRepositoryImpl implements OrderRepository {
 
     private final DataSource dataSource;
+    
+    private final Connection connection;
 
-    public JDBCOrderRepositoryImpl(final DataSource dataSource) {
+    public JDBCOrderRepositoryImpl(final DataSource dataSource) throws SQLException {
         this.dataSource = dataSource;
+        this.connection = dataSource.getConnection();
     }
 
     @Override
     public void createTableIfNotExists() {
         String sql = "CREATE TABLE IF NOT EXISTS t_order (order_id BIGINT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50), PRIMARY KEY (order_id))";
-        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (final SQLException ignored) {
         }
@@ -46,7 +49,7 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
     @Override
     public void dropTable() {
         String sql = "DROP TABLE t_order";
-        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (final SQLException ignored) {
         }
@@ -55,7 +58,7 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
     @Override
     public void truncateTable() {
         String sql = "TRUNCATE TABLE t_order";
-        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (final SQLException ignored) {
         }
@@ -64,7 +67,7 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
     @Override
     public Long insert(final Order order) {
         String sql = "INSERT INTO t_order (user_id, status) VALUES (?, ?)";
-        try (Connection connection = dataSource.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, order.getUserId());
             preparedStatement.setString(2, order.getStatus());
             preparedStatement.executeUpdate();
@@ -81,7 +84,7 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
     @Override
     public void delete(final Long orderId) {
         String sql = "DELETE FROM t_order WHERE order_id=?";
-        try (Connection connection = dataSource.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, orderId);
             preparedStatement.executeUpdate();
         } catch (final SQLException ignored) {
@@ -102,7 +105,7 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
 
     private List<Order> getOrders(final String sql) {
         List<Order> result = new LinkedList<>();
-        try (Connection connection = dataSource.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql); ResultSet resultSet = preparedStatement
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql); ResultSet resultSet = preparedStatement
             .executeQuery()) {
             while (resultSet.next()) {
                 Order order = new Order();
@@ -112,6 +115,7 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
                 result.add(order);
             }
         } catch (final SQLException ignored) {
+            ignored.printStackTrace();
         }
         return result;
     }

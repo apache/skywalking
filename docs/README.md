@@ -1,5 +1,5 @@
 # Welcome
-**Here are SkyWalking 8 official documents. You're welcome to join us.**
+**Here are SkyWalking 8 official documentation. You're welcome to join us.**
 
 From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, and develop based on SkyWalking contributions guidelines.
 
@@ -23,8 +23,6 @@ In addition, you might find these links interesting:
 - The latest and old releases are all available at [Apache SkyWalking release page](http://skywalking.apache.org/downloads/). The change logs are [here](../CHANGES.md).
 
 - [SkyWalking WIKI](https://cwiki.apache.org/confluence/display/SKYWALKING/Home) hosts the context of some changes and events.
-
-- Up-to-date overview of SkyWalking module [call flow](https://sourcespy.com/github/skywalking/xx-omcalls-.html) and [hierarchy](https://sourcespy.com/github/skywalking/xx-omhierarchy-.html) including ability to analize each module individually.
 
 - You can find the speaking schedules at Conf, online videos and articles about SkyWalking in [Community resource catalog](https://github.com/OpenSkywalking/Community).
 
@@ -71,6 +69,9 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
   * Service Mesh
     * [SkyWalking on Istio](en/setup/istio/README.md). Introduces how to use Istio Mixer bypass Adapter to work with SkyWalking.
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
+  * Proxy
+    * [Envoy Proxy](https://www.envoyproxy.io/)
+      * [Sending metrics to Skywalking from Envoy](en/setup/envoy/metrics_service_setting.md). How to send metrics from Envoy to SkyWalking using [Metrics service](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/metrics/v2/metrics_service.proto.html).
   * [Backend, UI and CLI setup document](en/setup/backend/backend-ui-setup.md).
     * [Backend setup document](en/setup/backend/backend-setup.md).
       * [Configuration Vocabulary](en/setup/backend/configuration-vocabulary.md). Configuration Vocabulary lists all available configurations provided by `application.yml`.
@@ -91,6 +92,11 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Time To Live (TTL)](en/setup/backend/ttl.md). Metrics and traces are time series data, they would be saved forever, you could set the expired time for each dimension.
       * [Dynamic Configuration](en/setup/backend/dynamic-config.md). Make configuration of OAP changed dynamic, from remote service or 3rd party configuration management system.
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
+      * [Apdex threshold](en/setup/backend/apdex-threshold.md). Configure the thresholds for different services if Apdex calculation is activated in the OAL.
+      * [Service Grouping](en/setup/backend/service-auto-grouping.md). An automatic grouping mechanism for all services based on name.
+      * [Group Parameterized Endpoints](en/setup/backend/endpoint-grouping-rules.md). Configure the grouping rules for parameterized endpoints, to improve the meaning of the metrics.
+      * [Meter Analysis](en/setup/backend/backend-meter.md). Set up the backend analysis rules, when use [SkyWalking Meter System Toolkit](en/setup/service-agent/java-agent/README.md#advanced-features) or meter plugins. 
+      * [Spring Sleuth Metrics Analysis](en/setup/backend/spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
     * [UI setup document](en/setup/backend/ui-setup.md).
     * [CLI setup document](https://github.com/apache/skywalking-cli).
 * [UI Introduction](en/ui/README.md). Introduce the UI usage and features.

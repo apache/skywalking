@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.DoubleAccumulator;
 /**
  * Combine the meters to {@link io.micrometer.core.instrument.DistributionSummary}
  */
+@SuppressWarnings("HidingField")
 public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
 
     /**

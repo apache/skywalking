@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.redisson.config.Config;
@@ -45,9 +44,7 @@ public class RedisConnectionMethodInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    @Mock
     private MockInstance mockRedisClientInstance;
-    @Mock
     private MockInstance mockRedisConnectionInstance;
 
     private RedisConnectionMethodInterceptor interceptor;
@@ -67,8 +64,8 @@ public class RedisConnectionMethodInterceptorTest {
     }
 
     @SuppressWarnings({
-            "rawtypes",
-            "unchecked"
+        "rawtypes",
+        "unchecked"
     })
     @Before
     public void setUp() throws Exception {
@@ -80,8 +77,9 @@ public class RedisConnectionMethodInterceptorTest {
 
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.onConstruct(mockRedisConnectionInstance, new Object[]{mockRedisClientInstance});
-        MatcherAssert.assertThat((String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
+        interceptor.onConstruct(mockRedisConnectionInstance, new Object[] {mockRedisClientInstance});
+        MatcherAssert.assertThat(
+            (String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
     }
 
     @Test

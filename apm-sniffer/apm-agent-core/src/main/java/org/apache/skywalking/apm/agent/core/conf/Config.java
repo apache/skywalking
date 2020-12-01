@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
@@ -122,7 +124,6 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
-
     }
 
     public static class OsInfo {
@@ -141,6 +142,10 @@ public class Config {
          * The period in which the agent report a heartbeat to the backend.
          */
         public static long HEARTBEAT_PERIOD = 30;
+        /**
+         * The agent sends the instance properties to the backend every `collector.heartbeat_period * collector.properties_report_period_factor` seconds
+         */
+        public static int PROPERTIES_REPORT_PERIOD_FACTOR = 10;
         /**
          * Collector skywalking trace receiver service addresses.
          */
@@ -292,6 +297,11 @@ public class Config {
          * Exclude activated plugins
          */
         public static String EXCLUDE_PLUGINS = "";
+
+        /**
+         * Mount the folders of the plugins. The folder path is relative to agent.jar.
+         */
+        public static List<String> MOUNT = Arrays.asList("plugins", "activations");
     }
 
     public static class Correlation {
@@ -304,5 +314,10 @@ public class Config {
          * Max value length of each element.
          */
         public static int VALUE_MAX_LENGTH = 128;
+
+        /**
+         * Tag the span by the key/value in the correlation context, when the keys listed here exist.
+         */
+        public static String AUTO_TAG_KEYS = "";
     }
 }

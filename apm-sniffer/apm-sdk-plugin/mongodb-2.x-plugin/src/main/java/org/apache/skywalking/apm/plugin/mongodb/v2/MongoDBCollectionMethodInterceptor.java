@@ -83,12 +83,11 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        List<ServerAddress> servers = null;
         DB db = (DB) allArguments[0];
-        servers = db.getMongo().getAllAddress();
+        List<ServerAddress> servers = db.getMongo().getAllAddress();
         StringBuilder peers = new StringBuilder();
         for (ServerAddress address : servers) {
-            peers.append(address.getHost() + ":" + address.getPort() + ";");
+            peers.append(address.getHost()).append(":").append(address.getPort()).append(";");
         }
 
         objInst.setSkyWalkingDynamicField(peers.subSequence(0, peers.length() - 1).toString());

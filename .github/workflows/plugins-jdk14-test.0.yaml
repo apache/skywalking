@@ -18,11 +18,21 @@ name: PluginsJDK14Test
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
+    paths:
+      - '.github/workflows/plugins-*.yaml'
+      - 'apm-application-toolkit/**'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - '**/pom.xml'
+      - '!test/e2e/**'
+      - '!apm-webapp/**'
+      - '!apm-dist/**'
+      - '!apm-dist-es7/**'
+      - '!apm-docker/**'
+      - '!oap-server/**'
+      - '!**.md'
 
 jobs:
   PluginsJDK14Test:
@@ -33,6 +43,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8

@@ -87,8 +87,9 @@ public class Play2xInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     public static ElementMatcher<MethodDescription> getFiltersMethodMatcher() {
         String scala212Seq = "scala.collection.Seq";
         String scala213Seq = "scala.collection.immutable.Seq";
-        return (named(ENHANCE_METHOD).and(ReturnTypeNameMatch.returnsWithType(scala212Seq))).or(named(ENHANCE_METHOD).and(ReturnTypeNameMatch
-            .returnsWithType(scala213Seq)));
+        return named(ENHANCE_METHOD)
+            .and(ReturnTypeNameMatch.returnsWithType(scala212Seq))
+            .or(named(ENHANCE_METHOD).and(ReturnTypeNameMatch.returnsWithType(scala213Seq)));
     }
 
 }

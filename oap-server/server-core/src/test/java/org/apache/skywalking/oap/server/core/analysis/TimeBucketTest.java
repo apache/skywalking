@@ -18,63 +18,58 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 @RunWith(Parameterized.class)
 public class TimeBucketTest {
     private static final long NOW = System.currentTimeMillis();
 
     @Parameterized.Parameters
-    public static Object[][] parameters() {
-        return new Object[][] {
-            {
+    public static Object[] parameters() {
+        return new Object[]{
                 DownSampling.Second,
-                SECONDS,
-                MILLISECONDS.toSeconds(NOW)
-            },
-            {
                 DownSampling.Minute,
-                MINUTES,
-                MILLISECONDS.toMinutes(NOW)
-            },
-            {
                 DownSampling.Hour,
-                HOURS,
-                MILLISECONDS.toHours(NOW)
-            },
-            {
-                DownSampling.Day,
-                DAYS,
-                MILLISECONDS.toDays(NOW)
-            },
-            };
+                DownSampling.Day
+        };
     }
 
     private DownSampling downSampling;
-    private TimeUnit unit;
-    private long time;
 
-    public TimeBucketTest(DownSampling downSampling, TimeUnit unit, long time) {
+    public TimeBucketTest(DownSampling downSampling) {
         this.downSampling = downSampling;
-        this.unit = unit;
-        this.time = time;
     }
 
     @Test
     public void testConversion() {
-        long timestamp = TimeBucket
-            .getTimestamp(TimeBucket.getTimeBucket(NOW, downSampling));
-        Assert.assertEquals(timestamp, unit.toMillis(time));
-    }
+        long timestamp = TimeBucket.getTimestamp(TimeBucket.getTimeBucket(NOW, downSampling));
 
+        Calendar instance = Calendar.getInstance(TimeZone.getDefault());
+        instance.setTimeInMillis(NOW);
+        switch (downSampling) {
+            case Day: {
+                instance.set(Calendar.HOUR_OF_DAY, 0);
+                // Fall through
+            }
+            case Hour: {
+                instance.set(Calendar.MINUTE, 0);
+                // Fall through
+            }
+            case Minute: {
+                instance.set(Calendar.SECOND, 0);
+                // Fall through
+            }
+            case Second: {
+                instance.set(Calendar.MILLISECOND, 0);
+                // Fall through
+            }
+        }
+        Assert.assertEquals(instance.getTimeInMillis(), timestamp);
+    }
 }

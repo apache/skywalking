@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -50,7 +51,6 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectSubQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.influxdb.querybuilder.WhereSubQueryImpl;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.NAME;
@@ -67,21 +67,20 @@ public class MetadataQuery implements IMetadataQueryDAO {
     private final InfluxClient client;
 
     @Override
-    public List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException {
-        SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME)
-            .from(ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())))
-            .groupBy(TagName.NAME, TagName.NODE_TYPE);
-        SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
-        query.setSubQuery(subQuery);
-        return buildServices(query);
+    public List<Service> getAllServices(final String group) throws IOException {
+        final WhereQueryImpl<SelectQueryImpl> where = select(
+            ID_COLUMN, NAME, ServiceTraffic.GROUP)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+        if (StringUtil.isNotEmpty(group)) {
+            where.and(eq(TagName.SERVICE_GROUP, group));
+        }
+        return buildServices(where);
     }
 
     @Override
-    public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME)
+    public List<Service> getAllBrowserServices() throws IOException {
+        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Browser.value())));
         return buildServices(query);
@@ -89,14 +88,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Database> getAllDatabases() throws IOException {
-        SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN).column(NAME)
-            .from(ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, NodeType.Database.value()))
-            .groupBy(TagName.NAME, TagName.NODE_TYPE);
-        SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
-        query.setSubQuery(subQuery);
+        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
+            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Database.value())));
+
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
@@ -115,54 +110,44 @@ public class MetadataQuery implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(long startTimestamp, long endTimestamp, String keyword) throws IOException {
-        WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
-            .column(ID_COLUMN)
-            .column(NAME)
-            .from(ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+    public List<Service> searchServices(String keyword) throws IOException {
+        final WhereQueryImpl<SelectQueryImpl> where = select(
+            ID_COLUMN, NAME, ServiceTraffic.GROUP)
+            .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
-            subQuery.and(contains(ServiceTraffic.NAME, keyword));
+            where.and(contains(ServiceTraffic.NAME, keyword));
         }
-        subQuery.groupBy(TagName.NAME, TagName.NODE_TYPE);
-
-        SelectQueryImpl query = select(ID_COLUMN, NAME).from(client.getDatabase());
-        query.setSubQuery(subQuery);
-        return buildServices(query);
+        return buildServices(where);
     }
 
     @Override
     public Service searchService(String serviceCode) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME)
+        WhereQueryImpl<SelectQueryImpl> where = select(
+            ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
-        query.and(eq(ServiceTraffic.NODE_TYPE, serviceCode));
-        return buildServices(query).get(0);
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())))
+            .and(eq(ServiceTraffic.NAME, serviceCode));
+        return buildServices(where).get(0);
     }
 
     @Override
     public List<Endpoint> searchEndpoint(final String keyword,
                                          final String serviceId,
                                          final int limit) throws IOException {
-        WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = select()
-            .fromSubQuery(client.getDatabase())
+        final WhereQueryImpl<SelectQueryImpl> where = select()
             .column(ID_COLUMN)
             .column(NAME)
-            .from(EndpointTraffic.INDEX_NAME)
-            .where(eq(InfluxConstants.TagName.SERVICE_ID, String.valueOf(serviceId)));
+            .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
+            .where(eq(TagName.SERVICE_ID, String.valueOf(serviceId)));
         if (!Strings.isNullOrEmpty(keyword)) {
-            subQuery.where(contains(EndpointTraffic.NAME, keyword.replaceAll("/", "\\\\/")));
+            where.and(contains(EndpointTraffic.NAME, keyword.replaceAll("/", "\\\\/")));
         }
-        subQuery.groupBy(TagName.NAME, TagName.SERVICE_ID);
-        SelectQueryImpl query = select(ID_COLUMN, NAME)
-            .from(client.getDatabase());
-        query.setSubQuery(subQuery);
-        query.limit(limit);
+        where.limit(limit);
 
-        final QueryResult.Series series = client.queryForSingleSeries(query);
+        final QueryResult.Series series = client.queryForSingleSeries(where);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+            log.debug("SQL: {} result: {}", where.getCommand(), series);
         }
 
         List<Endpoint> list = new ArrayList<>(limit);
@@ -249,6 +234,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
                 Service service = new Service();
                 service.setId((String) values.get(1));
                 service.setName((String) values.get(2));
+                service.setGroup((String) values.get(3));
                 services.add(service);
             }
         }

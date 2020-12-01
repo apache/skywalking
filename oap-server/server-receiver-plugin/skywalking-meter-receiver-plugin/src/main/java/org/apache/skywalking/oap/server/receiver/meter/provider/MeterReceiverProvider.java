@@ -66,7 +66,6 @@ public class MeterReceiverProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-        processService.initMeters();
     }
 
     @Override

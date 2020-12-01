@@ -27,6 +27,10 @@ nodes:
     type: Python
     isReal: true
   - id: not null
+    name: provider-kafka
+    type: Python
+    isReal: true
+  - id: not null
     name: Your_ApplicationName
     type: Tomcat
     isReal: true
@@ -42,6 +46,12 @@ calls:
       - CLIENT
       - SERVER
     target: ${Your_ApplicationName[0]}
+  - id: not null
+    source: ${consumer[0]}
+    detectPoints:
+      - CLIENT
+      - SERVER
+    target: ${provider-kafka[0]}
   - id: not null
     source: ${Your_ApplicationName[0]}
     detectPoints:

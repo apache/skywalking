@@ -26,6 +26,7 @@ RUN tar -zxf apache-skywalking-apm*.gz --strip=1 || true
 RUN mv apache-skywalking-apm-bin/* . || true
 
 RUN sed -i 's/# plugin.kafka.bootstrap_servers/plugin.kafka.bootstrap_servers/g' agent/config/agent.config
+RUN  echo 'plugin.kafka.get_topic_timeout=${SW_GET_TOPIC_TIMEOUT:60}' >> agent/config/agent.config
 
 # activate kafka-reporter plugin
 RUN mv agent/optional-reporter-plugins/kafka-reporter-plugin-*.jar agent/plugins/ || true

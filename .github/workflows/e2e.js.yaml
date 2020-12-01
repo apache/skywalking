@@ -18,11 +18,13 @@ name: E2E
 
 on:
   pull_request:
+    paths:
+      - '**'
+      - '!**.md'
   push:
     branches:
       - master
-    tags:
-      - 'v*'
+
 env:
   SKIP_TEST: true
 
@@ -37,6 +39,15 @@ jobs:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: checkout submodules
         shell: bash
         run: |

@@ -32,7 +32,7 @@ class BootstrapFlow {
     private Map<String, ModuleDefine> loadedModules;
     private List<ModuleProvider> startupSequence;
 
-    BootstrapFlow(Map<String, ModuleDefine> loadedModules) throws CycleDependencyException {
+    BootstrapFlow(Map<String, ModuleDefine> loadedModules) throws CycleDependencyException, ModuleNotFoundException {
         this.loadedModules = loadedModules;
         startupSequence = new LinkedList<>();
 
@@ -43,15 +43,6 @@ class BootstrapFlow {
     void start(
         ModuleManager moduleManager) throws ModuleNotFoundException, ServiceNotProvidedException, ModuleStartException {
         for (ModuleProvider provider : startupSequence) {
-            String[] requiredModules = provider.requiredModules();
-            if (requiredModules != null) {
-                for (String module : requiredModules) {
-                    if (!moduleManager.has(module)) {
-                        throw new ModuleNotFoundException(module + " is required by " + provider.getModuleName() + "." + provider
-                            .name() + ", but not found.");
-                    }
-                }
-            }
             LOGGER.info("start the provider {} in {} module.", provider.name(), provider.getModuleName());
             provider.requiredCheck(provider.getModule().services());
 
@@ -65,9 +56,23 @@ class BootstrapFlow {
         }
     }
 
-    private void makeSequence() throws CycleDependencyException {
+    private void makeSequence() throws CycleDependencyException, ModuleNotFoundException {
         List<ModuleProvider> allProviders = new ArrayList<>();
-        loadedModules.forEach((moduleName, module) -> allProviders.add(module.provider()));
+        for (final ModuleDefine module : loadedModules.values()) {
+            String[] requiredModules = module.provider().requiredModules();
+            if (requiredModules != null) {
+                for (String requiredModule : requiredModules) {
+                    if (!loadedModules.containsKey(requiredModule)) {
+                        throw new ModuleNotFoundException(
+                            requiredModule + " module is required by "
+                                + module.provider().getModuleName() + "."
+                                + module.provider().name() + ", but not found.");
+                    }
+                }
+            }
+
+            allProviders.add(module.provider());
+        }
 
         do {
             int numOfToBeSequenced = allProviders.size();
@@ -109,8 +114,9 @@ class BootstrapFlow {
                                                                      .append("[provider=")
                                                                      .append(provider.getClass().getName())
                                                                      .append("]\n"));
-                throw new CycleDependencyException("Exist cycle module dependencies in \n" + unSequencedProviders.substring(0, unSequencedProviders
-                    .length() - 1));
+                throw new CycleDependencyException(
+                    "Exist cycle module dependencies in \n" + unSequencedProviders.substring(0, unSequencedProviders
+                        .length() - 1));
             }
         }
         while (allProviders.size() != 0);

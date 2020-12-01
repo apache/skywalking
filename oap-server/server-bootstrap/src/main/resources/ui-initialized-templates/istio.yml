@@ -1,0 +1,175 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "Istio"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "name": "Istio",
+          "type": "service",
+          "serviceGroup": "istio-ctrl",
+          "children": [
+            {
+              "name": "Control Plane",
+              "children": [
+                {
+                  "width": 3,
+                  "title": "Istio Versions",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_pilot_version",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea"
+                },
+                {
+                  "width": 3,
+                  "title": "Memory",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_virtual_memory,meter_resident_memory,meter_go_alloc,meter_go_heap_inuse,meter_go_stack_inuse",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576"
+                },
+                {
+                  "width": 3,
+                  "title": "CPU",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_cpu",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea",
+                  "unit": "%"
+                },
+                {
+                  "width": 3,
+                  "title": "Goroutines",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_go_goroutines",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "4",
+                  "title": "Pilot pushes",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_istio_pilot_xds_pushes",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartBar"
+                },
+                {
+                  "width": "4",
+                  "title": "Pilot Errors",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "UNKNOWN",
+                  "metricName": "meter_istio_pilot_xds_cds_reject,meter_pilot_xds_eds_reject,meter_pilot_xds_rds_reject,meter_pilot_xds_lds_reject,meter_pilot_xds_write_timeout,meter_pilot_total_xds_internal_errors,meter_pilot_total_xds_rejects,meter_pilot_xds_push_context_errors,meter_pilot_xds_pushes_error,meter_pilot_xds_push_errors,meter_pilot_xds_push_timeout,meter_pilot_xds_push_timeout_failures",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea"
+                },
+                {
+                  "width": "4",
+                  "title": "Proxy Push Time",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_istio_pilot_proxy_push_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartArea",
+                  "metricLabels": "50,90,99",
+                  "labelsIndex": "50,90,99",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
+                  "title": "Conflicts",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_pilot_conflict_il,meter_pilot_conflict_ol_http_tcp,meter_pilot_conflict_ol_tcp_tcp,meter_pilot_conflict_ol_tcp_http",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar"
+                },
+                {
+                  "width": "4",
+                  "title": "ADS Monitoring",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_pilot_virt_services,meter_pilot_services,meter_pilot_xds",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea"
+                },
+                {
+                  "width": "6",
+                  "title": "Configuration Validation",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": true,
+                  "metricType": "REGULAR_VALUE",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "meter_istio_galley_validation_passed,meter_galley_validation_failed"
+                },
+                {
+                  "width": "6",
+                  "title": "Sidecar Injection",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_istio_sidecar_injection_success_total",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

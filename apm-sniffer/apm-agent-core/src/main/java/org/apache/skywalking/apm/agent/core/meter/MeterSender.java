@@ -31,7 +31,6 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
@@ -42,12 +41,14 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrp
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
+/**
+ * MeterSender collects the values of registered meter instances, and sends to the backend.
+ */
 @DefaultImplementor
 public class MeterSender implements BootService, GRPCChannelListener {
     private static final ILog LOGGER = LogManager.getLogger(MeterSender.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
-
     private volatile MeterReportServiceGrpc.MeterReportServiceStub meterReportServiceStub;
 
     @Override
@@ -60,7 +61,7 @@ public class MeterSender implements BootService, GRPCChannelListener {
 
     }
 
-    public void send(Map<MeterId, MeterTransformer> meterMap, MeterService meterService) {
+    public void send(Map<MeterId, BaseMeter> meterMap, MeterService meterService) {
         if (status == GRPCChannelStatus.CONNECTED) {
             StreamObserver<MeterData> reportStreamObserver = null;
             final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
@@ -109,12 +110,12 @@ public class MeterSender implements BootService, GRPCChannelListener {
         }
     }
 
-    protected void transform(final Map<MeterId, MeterTransformer> meterMap,
+    protected void transform(final Map<MeterId, BaseMeter> meterMap,
                              final Consumer<MeterData> consumer) {
         // build and report meters
         boolean hasSendMachineInfo = false;
-        for (MeterTransformer meterTransformer : meterMap.values()) {
-            final MeterData.Builder dataBuilder = meterTransformer.transform();
+        for (BaseMeter meter : meterMap.values()) {
+            final MeterData.Builder dataBuilder = meter.transform();
             if (dataBuilder == null) {
                 continue;
             }

@@ -17,4 +17,5 @@
 #
 
 
-org.apache.skywalking.oap.server.receiver.envoy.als.K8sALSServiceMeshHTTPAnalysis
+org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8sALSServiceMeshHTTPAnalysis
+org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer

@@ -1,0 +1,40 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+type: jvm
+entryService: http://localhost:8080/xxl-job-2.x-scenario/case/call
+healthCheck: http://localhost:8080/xxl-job-2.x-scenario/case/healthCheck
+startScript: ./bin/startup.sh
+environment:
+  - MYSQL_ADDRESS=mysql-server:3306
+  - MYSQL_ROOT_PASSWORD=123456
+  - XXL_JOB_SERVER=http://xxl-job-server:8080/xxl-job-admin
+depends_on:
+  - mysql-server
+  - xxl-job-server
+dependencies:
+  mysql-server:
+    image: mysql:5.7
+    hostname: mysql-server
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+  xxl-job-server:
+    image: xuxueli/xxl-job-admin:2.2.0
+    hostname: xxl-job-server
+    environment:
+      - PARAMS=--spring.datasource.url=jdbc:mysql://mysql-server:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai --spring.datasource.username=root --spring.datasource.password=123456
+    depends_on:
+      - mysql-server

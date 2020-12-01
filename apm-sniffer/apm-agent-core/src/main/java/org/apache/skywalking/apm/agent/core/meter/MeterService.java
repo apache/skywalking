@@ -29,15 +29,18 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
+/**
+ * Agent core level service. It provides the register map for all available {@link BaseMeter} instances and schedules
+ * the {@link MeterSender}
+ */
 @DefaultImplementor
 public class MeterService implements BootService, Runnable {
     private static final ILog LOGGER = LogManager.getLogger(MeterService.class);
 
     // all meters
-    private final ConcurrentHashMap<MeterId, MeterTransformer> meterMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<MeterId, BaseMeter> meterMap = new ConcurrentHashMap<>();
 
     // report meters
     private volatile ScheduledFuture<?> reportMeterFuture;
@@ -45,19 +48,20 @@ public class MeterService implements BootService, Runnable {
     private MeterSender sender;
 
     /**
-     * Register the meterTransformer
+     * Register the meter
      */
-    public <T extends MeterTransformer> void register(T meterTransformer) {
-        if (meterTransformer == null) {
-            return;
+    public <T extends BaseMeter> T register(T meter) {
+        if (meter == null) {
+            return null;
         }
         if (meterMap.size() >= Config.Meter.MAX_METER_SIZE) {
             LOGGER.warn(
-                "Already out of the meter system max size, will not report. meter name:{}", meterTransformer.getName());
-            return;
+                "Already out of the meter system max size, will not report. meter name:{}", meter.getName());
+            return meter;
         }
 
-        meterMap.putIfAbsent(meterTransformer.getId(), meterTransformer);
+        final BaseMeter data = meterMap.putIfAbsent(meter.getId(), meter);
+        return data == null ? meter : (T) data;
     }
 
     @Override

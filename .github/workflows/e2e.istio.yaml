@@ -1,0 +1,131 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Istio
+
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+  push:
+    branches:
+      - master
+
+env:
+  SKIP_TEST: true
+  ES_VERSION: es7
+  ISTIO_VERSION: 1.7.1
+  TAG: ${{ github.sha }}
+  SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
+  SW_OAP_BASE_IMAGE: openjdk:11-jdk
+
+jobs:
+  als:
+    runs-on: ubuntu-16.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        analyzer: [k8s-mesh, mx-mesh]
+    name: Istio+ALS(${{ matrix.analyzer }})
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Build Docker Image
+        run: make docker
+
+      - name: Prepare envrionment
+        run: bash ${SCRIPTS_DIR}/pre.sh
+
+      - name: Install Minikube
+        run: bash ${SCRIPTS_DIR}/minikube.sh start
+
+      - name: Install Istio
+        run: bash ${SCRIPTS_DIR}/istio.sh --set profile=demo --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 --set meshConfig.enableEnvoyAccessLogService=true
+
+      - name: Install SkyWalking
+        run: |
+          git clone https://github.com/apache/skywalking-kubernetes.git
+          cd skywalking-kubernetes
+          git reset --hard dd749f25913830c47a97430618cefc4167612e75
+          cd chart
+          helm dep up skywalking
+          helm -n istio-system install skywalking skywalking \
+               --set fullnameOverride=skywalking \
+               --set elasticsearch.replicas=1 \
+               --set elasticsearch.minimumMasterNodes=1 \
+               --set elasticsearch.imageTag=7.5.1 \
+               --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=${{ matrix.analyzer }} \
+               --set oap.envoy.als.enabled=true \
+               --set oap.replicas=1 \
+               --set ui.image.repository=skywalking/ui \
+               --set ui.image.tag=$TAG \
+               --set oap.image.tag=$TAG \
+               --set oap.image.repository=skywalking/oap \
+               --set oap.storageType=elasticsearch7
+          kubectl -n istio-system get pods
+
+          sleep 3
+          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
+          kubectl get pods -A -o wide --show-labels
+          kubectl get services -A -o wide
+
+      - name: Deploy demo services
+        run: bash ${SCRIPTS_DIR}/demo.sh
+
+      - name: Cluster Info
+        if: ${{ failure() }}
+        run: |
+          df -h
+          minikube logs
+          minikube status
+
+      - name: Set up Minikube tunnel
+        run: |
+          mkdir /tmp/minikube-tunnel
+          minikube tunnel > /tmp/minikube-tunnel/a.log &
+          export POD_NAME=$(kubectl get pods -n istio-system -l "app=skywalking,release=skywalking,component=ui" -o jsonpath="{.items[0].metadata.name}")
+          echo $POD_NAME
+          kubectl -n istio-system port-forward $POD_NAME 8080:8080 > /tmp/minikube-tunnel/b.log &
+
+      - name: Run E2E test
+        run: |
+          export GATEWAY_HOST=$(minikube ip)
+          export GATEWAY_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+          export WEBAPP_HOST=127.0.0.1
+          export WEBAPP_PORT=8080
+
+          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
+
+      - name: Logs
+        if: ${{ failure() }}
+        run: |
+          kubectl -n istio-system logs --tail=10000 -l "app=skywalking,release=skywalking,component=ui"
+          kubectl -n istio-system logs --tail=10000 -l "app=skywalking,release=skywalking,component=oap"
+          cat /tmp/minikube-tunnel/*
+
+      - name: Clean up
+        if: ${{ always() }}
+        run: minikube delete

@@ -83,7 +83,7 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
         }
 
         if (loadedProvider == null) {
-            throw new ProviderNotFoundException(this.name() + " module no provider exists.");
+            throw new ProviderNotFoundException(this.name() + " module no provider found.");
         }
 
         LOGGER.info("Prepare the {} provider in {} module.", loadedProvider.name(), this.name());

@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 
 public class KafkaProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -51,13 +52,14 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
 
         Tags.MQ_BROKER.set(activeSpan, (String) objInst.getSkyWalkingDynamicField());
         Tags.MQ_TOPIC.set(activeSpan, topicName);
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            record.headers().add(next.getHeadKey(), next.getHeadValue().getBytes());
+            record.headers().add(next.getHeadKey(), next.getHeadValue().getBytes(StandardCharsets.UTF_8));
         }
 
         //when use lambda expression, not to generate inner class,

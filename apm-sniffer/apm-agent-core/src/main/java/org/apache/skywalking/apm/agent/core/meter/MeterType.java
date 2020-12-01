@@ -18,8 +18,20 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
+/**
+ * MeterType represents the meter implementations' behaviours and reporting modes.
+ */
 public enum MeterType {
+    /**
+     * For {@link Counter}
+     */
     COUNTER,
+    /**
+     * For {@link Gauge}
+     */
     GAUGE,
+    /**
+     * For {@link Histogram}
+     */
     HISTOGRAM
 }
