@@ -62,7 +62,7 @@ public class ContextConfig {
         private final static ContextConfig INSTANCE = initContextConfig();
 
         private static ContextConfig initContextConfig() {
-            // judge whether has yaml file
+            // judge whether has config file
             LoggerConfig logbackConfig = null, log4jConfig = null, log4j2Config = null;
             File configFile = null;
             try {
@@ -100,7 +100,6 @@ public class ContextConfig {
                         ContextManager.activeSpan().log(e);
                     }
                 }
-                //creat ContextConfig object
             }
             return new ContextConfig(logbackConfig, log4jConfig, log4j2Config);
         }
@@ -238,10 +237,6 @@ public class ContextConfig {
 
         LogLevel(int priority) {
             this.priority = priority;
-        }
-
-        public int getPriority() {
-            return priority;
         }
     }
 }
