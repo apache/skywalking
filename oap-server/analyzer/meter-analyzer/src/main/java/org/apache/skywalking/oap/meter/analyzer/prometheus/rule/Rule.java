@@ -18,16 +18,18 @@
 
 package org.apache.skywalking.oap.meter.analyzer.prometheus.rule;
 
-import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
+
+import java.util.List;
 
 /**
  * Rule contains the global configuration of prometheus fetcher.
  */
 @Data
 @NoArgsConstructor
-public class Rule {
+public class Rule implements MetricRuleConfig {
     private String name;
     private String fetcherInterval;
     private String fetcherTimeout;

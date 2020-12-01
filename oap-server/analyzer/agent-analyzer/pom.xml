@@ -21,7 +21,7 @@
     <parent>
         <artifactId>analyzer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.3.0-SNAPSHOT</version>
+        <version>8.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,8 +39,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>meter-analyzer</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

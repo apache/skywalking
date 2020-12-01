@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,16 +51,16 @@ public class ExpressionParsingTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-            {
-                "mini",
-                "foo.instance(['service'], ['host'])",
-                ExpressionParsingContext.builder()
-                                        .downsampling(DownsamplingType.AVG)
-                                        .scopeLabels(Arrays.asList("service", "host"))
-                                        .scopeType(ScopeType.SERVICE_INSTANCE)
-                                        .aggregationLabels(Lists.newArrayList()).build(),
-                false,
-            },
+//            {
+//                "mini",
+//                "foo.instance(['service'], ['host'])",
+//                ExpressionParsingContext.builder()
+//                                        .downsampling(DownsamplingType.AVG)
+//                                        .scopeLabels(Arrays.asList("service", "host"))
+//                                        .scopeType(ScopeType.SERVICE_INSTANCE)
+//                                        .aggregationLabels(Lists.newArrayList()).build(),
+//                false,
+//            },
             {
                 "all",
                 "latest (foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'])",
