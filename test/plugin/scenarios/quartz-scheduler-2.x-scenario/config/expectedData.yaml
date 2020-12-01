@@ -35,7 +35,7 @@ segmentItems:
       - {key: url, value: 'http://localhost:8080/quartz-scheduler-2.x-scenario/case/call'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpoint: quartz-scheduler/DemoJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+      - {parentEndpoint: quartz-scheduler/org.apache.skywalking.apm.testcase.quartzscheduler.job.DemoJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
   - segmentId: not null
     spans:
     - operationName: /quartz-scheduler-2.x-scenario/case/call
