@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.logger;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -31,10 +32,40 @@ public class Log4jLoggerInterceptor implements InstanceMethodsAroundInterceptor 
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        String loggerName = objInst.getSkyWalkingDynamicField().toString();
-        if (ContextManager.isActive() && CONFIG.isLoggable(loggerName, method.getName())) {
-            ContextManager.activeSpan().log(System.currentTimeMillis(),
-                    CONFIG.toMessageMap(loggerName, method.getName(), allArguments));
+        Logger logger = (Logger) objInst;
+        switch (method.getName()) {
+            case "fatal":
+                if (logger.isEnabledFor(Level.FATAL)) {
+                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                }
+                break;
+            case "error":
+                if (logger.isEnabledFor(Level.ERROR)) {
+                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                }
+                break;
+            case "warn":
+                if (logger.isEnabledFor(Level.WARN)) {
+                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                }
+                break;
+            case "info":
+                if (logger.isEnabledFor(Level.INFO)) {
+                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                }
+                break;
+            case "debug":
+                if (logger.isEnabledFor(Level.DEBUG)) {
+                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                }
+                break;
+            case "trace":
+                if (logger.isEnabledFor(Level.TRACE)) {
+                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                }
+                break;
+            default:
+                //do nothing
         }
     }
 
