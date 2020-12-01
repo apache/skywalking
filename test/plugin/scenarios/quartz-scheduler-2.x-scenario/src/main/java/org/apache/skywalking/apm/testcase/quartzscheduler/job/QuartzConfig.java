@@ -43,7 +43,7 @@ public class QuartzConfig {
 
     private Map.Entry<JobDetail, Trigger> demoJobConfig() throws ParseException {
         JobDetail demoJobDetail = JobBuilder.newJob(DemoJob.class)
-                .withIdentity("DemoJob","DemoJobGroup")
+                .withIdentity("DemoJob", "DemoJobGroup")
                 .usingJobData("param1", "test")
                 .storeDurably()
                 .build();

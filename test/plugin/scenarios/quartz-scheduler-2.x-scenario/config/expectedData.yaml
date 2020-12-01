@@ -53,7 +53,7 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/quartz-scheduler-2.x-scenario/case/call'}
-    - operationName: quartz-scheduler/DemoJob
+    - operationName: quartz-scheduler/org.apache.skywalking.apm.testcase.quartzscheduler.job.DemoJob
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -68,4 +68,5 @@ segmentItems:
       tags:
       - {key: x-le, value: '{"logic-span":true}'}
       - {key: jobGroup, value: 'DemoJobGroup'}
+      - {key: jobName, value: 'DemoJob'}
       - {key: jobDataMap, value: '{param1=test}'}
