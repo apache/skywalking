@@ -29,6 +29,7 @@ public class InfluxStorageConfig extends ModuleConfig {
     private String user;
     private String password;
     private String database;
+    private String responseFormat = "MSGPACK";
 
     private int actions;
     private int duration;
