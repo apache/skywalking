@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
+* Support influxdb response format option.
 
 #### UI
 
