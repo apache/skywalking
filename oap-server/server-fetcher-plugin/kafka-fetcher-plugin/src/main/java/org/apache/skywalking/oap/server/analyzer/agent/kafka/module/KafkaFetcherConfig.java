@@ -89,24 +89,4 @@ public class KafkaFetcherConfig extends ModuleConfig {
 
     private String MM2SourceSeparator = "";
     
-    public String getTopicNameOfMetrics() {
-        return this.getMM2SourceAlias() + this.getMM2SourceSeparator() + this.topicNameOfMetrics;
-    }
-
-    public String getTopicNameOfProfiling() {
-        return this.getMM2SourceAlias() + this.getMM2SourceSeparator() + this.topicNameOfProfiling;
-    }
-
-    public String getTopicNameOfTracingSegments() {
-        return this.getMM2SourceAlias() + this.getMM2SourceSeparator() + this.topicNameOfTracingSegments;
-    }
-
-    public String getTopicNameOfManagements() {
-        return this.getMM2SourceAlias() + this.getMM2SourceSeparator() + this.topicNameOfManagements;
-    }
-
-    public String getTopicNameOfMeters() {
-        return this.getMM2SourceAlias() + this.getMM2SourceSeparator() + this.topicNameOfMeters;
-    }
-    
 }
