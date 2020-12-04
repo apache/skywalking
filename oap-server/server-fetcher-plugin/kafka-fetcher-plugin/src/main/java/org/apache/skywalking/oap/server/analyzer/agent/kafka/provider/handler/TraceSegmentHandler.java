@@ -96,7 +96,7 @@ public class TraceSegmentHandler implements KafkaHandler {
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfTracingSegments();
+        return config.getMM2SourceAlias() + config.getMM2SourceSeparator() + config.getTopicNameOfTracingSegments();
     }
 
     @Override
