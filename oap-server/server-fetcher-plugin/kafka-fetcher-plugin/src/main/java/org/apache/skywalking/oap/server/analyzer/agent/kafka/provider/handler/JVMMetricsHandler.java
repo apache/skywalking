@@ -73,7 +73,7 @@ public class JVMMetricsHandler implements KafkaHandler {
 
     @Override
     public String getTopic() {
-        return config.getMM2SourceAlias() + config.getMM2SourceSeparator() + config.getTopicNameOfMetrics();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfMetrics();
     }
 
     @Override
