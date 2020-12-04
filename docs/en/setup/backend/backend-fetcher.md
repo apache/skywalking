@@ -123,7 +123,7 @@ kafka-fetcher:
       ...
 ```
 
-When use Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters, you can set the source Kafka Cluster alias(MM2SourceAlias) and separator(MM2SourceSeparator) according to your Kafka MirrorMaker config.
+When use Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters, you can set the source Kafka Cluster alias(mm2SourceAlias) and separator(mm2SourceSeparator) according to your Kafka MirrorMaker config.
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
@@ -134,8 +134,8 @@ kafka-fetcher:
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
-    MM2SourceAlias: ${SW_KAFKA_MM2_SOURCE_ALIAS:""}
-    MM2SourceSeparator: ${SW_KAFKA_MM2_SOURCE_SEPARATOR:""}
+    mm2SourceAlias: ${SW_KAFKA_MM2_SOURCE_ALIAS:""}
+    mm2SourceSeparator: ${SW_KAFKA_MM2_SOURCE_SEPARATOR:""}
     kafkaConsumerConfig:
       enable.auto.commit: true
       ...
