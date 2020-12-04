@@ -124,7 +124,7 @@ public class ServiceManagementHandler implements KafkaHandler {
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfManagements();
+        return config.getMM2SourceAlias() + config.getMM2SourceSeparator() + config.getTopicNameOfManagements();
     }
 
     @Override
