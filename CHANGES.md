@@ -15,7 +15,12 @@ Release Notes.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
 
 #### UI
-
+* Fix un-removed tags in trace query.
+* Fix unexpected metrics name on single value component.
+* Don't allow negative value as the refresh period.
+* Fix style issue in trace table view.
+* Separation Log and Dashboard selector data to avoid conflicts.
+* Fix trace instance selector bug.
 
 #### Documentation
 
