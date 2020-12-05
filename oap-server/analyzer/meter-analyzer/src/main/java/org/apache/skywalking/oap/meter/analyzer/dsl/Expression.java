@@ -22,9 +22,10 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.Instant;
 
 /**
  * Expression is a reusable monadic container type which represents a DSL expression.
@@ -106,5 +107,9 @@ public class Expression {
         expando.registerInstanceMethod("multiply", new NumberClosure(this, (n, s) -> s.multiply(n)));
         expando.registerInstanceMethod("div", new NumberClosure(this, (n, s) -> s.newValue(v -> n.doubleValue() / v)));
         expando.initialize();
+    }
+
+    public String getLiteral() {
+        return literal;
     }
 }

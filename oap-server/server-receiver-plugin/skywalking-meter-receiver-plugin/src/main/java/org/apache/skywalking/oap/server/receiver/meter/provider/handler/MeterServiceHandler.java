@@ -45,6 +45,7 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
         return new StreamObserver<MeterData>() {
             @Override
             public void onNext(MeterData meterData) {
+                log.info("[TEST] Receive meter: {}", meterData);
                 processor.read(meterData);
             }
 
