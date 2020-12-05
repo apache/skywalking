@@ -14,7 +14,12 @@ Release Notes.
 * Make meter receiver support MAL.
 
 #### UI
-
+* Fix un-removed tags in trace query.
+* Fix unexpected metrics name on single value component.
+* Don't allow negative value as the refresh period.
+* Fix style issue in trace table view.
+* Separation Log and Dashboard selector data to avoid conflicts.
+* Fix trace instance selector bug.
 
 #### Documentation
 

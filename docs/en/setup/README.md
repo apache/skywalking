@@ -27,9 +27,11 @@ You can go to their project repositories for additional info about guides and re
 
 - [SkyAPM Node.js agent](https://github.com/SkyAPM/SkyAPM-nodejs). See Node.js server side agent project document for more details.
 
-- [SkyAPM PHP SDK](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
+- [SkyAPM PHP agent](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
 
-- [SkyAPM GO2Sky](https://github.com/SkyAPM/go2sky). See GO2Sky project document for more details.
+- [SkyAPM Go SDK](https://github.com/SkyAPM/go2sky). See go2sky project document for more details.
+
+- [SkyAPM C++ SDK](https://github.com/SkyAPM/cpp2sky). See cpp2sky project document for more details.
 
 ## Browser Monitoring
 [Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js). Support collecting metrics and error logs
