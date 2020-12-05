@@ -18,7 +18,7 @@ logback.level=error
 The meaning of the above configuration is as follows:
 
 1. SkyWalking opened the adaptor(bridge) between tracing kernel and log frameworks, including `log4j`, `log4j2`, `logback`.
-2. Only the log information of the `error` level will be processed, and the log information lower than the `error` level will be ignored, including `trace`, `debug`, `info`, `warn`.
+2. Only collect logs at the `error` level, others would be ignored, including `trace`, `debug`, `info`, `warn`.
 3. It will match all packages.
 
 # Field description
