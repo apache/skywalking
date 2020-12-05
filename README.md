@@ -61,7 +61,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-Host in Beijing. Go to [demo](http://122.112.182.72:8080).
+Find the demo on our [homepage](https://skywalking.apache.org/).
 
 **Video on youtube.com**
 
