@@ -47,3 +47,32 @@ The hierarchy order of log levels from low to high is as follows:
 **Notice:**
 
 Because `logback` not support `fatal`, it will be an exception if you set **logback.level=fatal**.
+
+# Use Cases:
+<details>
+
+<summary>Only open the bridge for log4j</summary>
+
+```properties
+# only collect the logs from package1 and package2
+log4j.packages=package1,package2
+# Only collect logs at the `fatal` level, others would be ignored, including `error`,`trace`, `debug`, `info`, `warn`
+log4j.level=fatal
+```
+
+</details>
+
+<details>
+
+<summary>Open the bridge for log4j2 and logback</summary>
+
+```properties
+# for log4j, only collect the logs from package1 and collect logs at the `error` level and `fatal` level
+log4j.packages=package1
+log4j.level=error
+# for logback, wouldn't filter the logs by the package name. and all level logs except `trace` level 
+logback.packages=*
+logback.level=debug
+```
+
+</details>
