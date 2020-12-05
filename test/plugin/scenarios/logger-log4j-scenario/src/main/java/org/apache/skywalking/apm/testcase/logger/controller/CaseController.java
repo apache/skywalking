@@ -49,13 +49,6 @@ public class CaseController {
         return "one param";
     }
 
-//    @RequestMapping("/marker")
-//    @ResponseBody
-//    public String testMarker() {
-//        logger.warn((Marker) MarkerFactory.getMarker("TEST"), "test marker");
-//        return "test marker";
-//    }
-
     @RequestMapping("/testcase")
     public String testcase() {
         HttpUtils.visit("http://" + loggerAddress + "/log4j/no-param");

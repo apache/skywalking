@@ -39,6 +39,7 @@
 - kotlin-coroutine
 - lettuce-5.x
 - light4j
+- logger-plugin
 - mariadb-2.x
 - memcache-2.x
 - mongodb-2.x
