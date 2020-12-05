@@ -4,7 +4,7 @@
 
 # Configuration file
 
-By default, the configuration file is in `apache-skywalking-apm-bin/agent/config//logger-plugin/logconfig.properties`.Of course, **If the file does not exist, the configuration will still be configured with the following default values:**
+By default, the configuration file is in `apache-skywalking-apm-bin/agent/config//logger-plugin/logconfig.properties`.Of course, **If the file does not exist, the default configurations are as following,**
 
 ```properties
 log4j.packages=*
