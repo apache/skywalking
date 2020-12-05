@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
@@ -123,20 +122,16 @@ public class MeterProcessor {
     public void process() {
         // Check agent information
         if (StringUtils.isEmpty(service) || StringUtil.isEmpty(serviceInstance) || timestamp == null) {
-            log.info("[TEST] Not found basic info.");
             return;
         }
 
         // Get all meter builders.
         final List<MetricConvert> converts = processService.converts();
         if (CollectionUtils.isEmpty(converts)) {
-            log.info("[TEST] Could not found any metrics converters");
             return;
         }
 
         try {
-            Gson gson = new Gson();
-            log.info("[TEST] Ready to convert meters: {}", gson.toJson(meters));
             converts.stream().forEach(convert -> convert.toMeter(meters.entrySet().stream().collect(toImmutableMap(
                 Map.Entry::getKey,
                 v -> SampleFamilyBuilder.newBuilder(

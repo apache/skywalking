@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.meter.analyzer;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.AccessLevel;
@@ -98,15 +97,11 @@ public class Analyzer {
     public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
         Result r = expression.run(sampleFamilies);
         if (!r.isSuccess()) {
-            Gson gson = new Gson();
-            log.error("[TEST] Failed to running metrics: {}, expression: {}, sampleFamilies: {}", metricName, expression.getLiteral(), gson.toJson(sampleFamilies), r.getError());
             return;
         }
         SampleFamily.RunningContext ctx = r.getData().context;
         Sample[] ss = r.getData().samples;
         generateTraffic(ctx.getMeterEntity());
-        Gson gson = new Gson();
-        log.info("[TEST] Prepare to send metrics:{} ", gson.toJson(ss));
         switch (metricType) {
             case single:
                 AcceptableValue<Long> sv = meterSystem.buildMetrics(metricName, Long.class);
@@ -212,8 +207,6 @@ public class Analyzer {
 
     private void send(final AcceptableValue<?> v, final long time) {
         v.setTimeBucket(TimeBucket.getMinuteTimeBucket(time));
-        Gson gson = new Gson();
-        log.info("[TEST] Send metrics: name: {}, data: {}, time: {}", metricName, gson.toJson(v), time);
         meterSystem.doStreamingCalculation(v);
     }
 
