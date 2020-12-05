@@ -70,3 +70,28 @@ segmentItems:
       - {key: jobGroup, value: 'DemoJobGroup'}
       - {key: jobName, value: 'DemoJob'}
       - {key: jobDataMap, value: '{param1=test}'}
+  - segmentId: not null
+    spans:
+    - operationName: quartz-scheduler/org.apache.skywalking.apm.testcase.quartzscheduler.job.ExceptionJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 97
+      isError: true
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
+      - {key: jobGroup, value: 'ExceptionJobGroup'}
+      - {key: jobName, value: 'ExceptionJob'}
+      - {key: jobDataMap, value: '{param1=test}'}
+      logs:
+      - logEvent:
+        - {key: event, value: error}
+        - {key: error.kind, value: org.quartz.JobExecutionException}
+        - {key: message, value: not null}
+        - {key: stack, value: not null}

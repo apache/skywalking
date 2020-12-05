@@ -8,7 +8,7 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
-* Update operationName of quartz-scheduler plugin.
+* Update quartz-scheduler plugin.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
