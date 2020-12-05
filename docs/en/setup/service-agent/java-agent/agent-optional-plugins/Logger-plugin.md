@@ -21,7 +21,7 @@ The meaning of the above configuration is as follows:
 2. Only collect logs at the `error` level, others would be ignored, including `trace`, `debug`, `info`, `warn`.
 3. Wouldn't filter the logs by the package name.
 
-# Field description
+# Property description
 
 ## packages
 
