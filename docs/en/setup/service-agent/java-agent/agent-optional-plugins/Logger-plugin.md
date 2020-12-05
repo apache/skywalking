@@ -40,7 +40,7 @@ When matching multiple packages, the names of different packages should be separ
 
 **level attribute** : The level of the log for conversion. **By default it is `error` level**.
 
-The specific sequence of log levels from low to high is as follows:
+The hierarchy order of log levels from low to high is as follows:
 
 `trace` < `debug` < `info` <`warn`< `error` < `fatal`
 
