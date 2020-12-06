@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
+* Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
 
 #### UI
 * Fix un-removed tags in trace query.
