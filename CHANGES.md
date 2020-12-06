@@ -5,6 +5,7 @@ Release Notes.
 8.4.0
 ------------------
 #### Project
+* Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
@@ -13,7 +14,7 @@ Release Notes.
 #### OAP-Backend
 * Make meter receiver support MAL.
 * Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
-* Add rule name field to alarm record table and let it be part of ID. In this way, fix multiple same scope alarm, cannot create at same time issue.
+* Add the rule name field to alarm record storage entity as a part of ID, to support multiple alarm rules triggered for one entity.
 
 #### UI
 * Fix un-removed tags in trace query.
