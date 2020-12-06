@@ -19,13 +19,10 @@
 package org.apache.skywalking.e2e;
 
 import com.google.common.io.Resources;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.e2e.alarm.AlarmQuery;
+import org.apache.skywalking.e2e.alarm.GetAlarm;
+import org.apache.skywalking.e2e.alarm.GetAlarmData;
 import org.apache.skywalking.e2e.browser.BrowserErrorLog;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogQuery;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogsData;
@@ -59,6 +56,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 @Slf4j
@@ -357,5 +361,30 @@ public class SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getReadLabeledMetricsValues();
+    }
+
+    public GetAlarm readAlarms(final AlarmQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("read-alarms.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{step}", query.step())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{pageSize}", "20")
+            .replace("{needTotal}", "true");
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<GetAlarmData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<GetAlarmData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getGetAlarm();
     }
 }
