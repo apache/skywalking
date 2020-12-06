@@ -95,11 +95,6 @@ public class SO11yE2E extends SkyWalkingTestAdapter {
         queryClient(swWebappHostPort);
     }
 
-    @AfterAll
-    public void tearDown() {
-        trafficController.stop();
-    }
-
     @RetryableTest
     void so11y() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
