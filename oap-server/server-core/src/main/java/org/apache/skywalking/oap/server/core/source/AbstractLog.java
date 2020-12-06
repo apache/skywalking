@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogTag;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 
 @Setter
@@ -28,15 +31,18 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 public abstract class AbstractLog extends Source {
     private long timeBucket;
     private long timestamp;
-    private int serviceId;
-    private int serviceInstanceId;
+    private String serviceId;
+    private String serviceInstanceId;
     private String endpointId;
     private String endpointName;
     private String traceId;
+    private String traceSegmentId;
+    private int spanId;
     private int isError;
     private String statusCode;
     private ContentType contentType = ContentType.NONE;
     private String content;
+    private List<LogTag> tags = new ArrayList<>();
 
     @Override
     public String getEntityId() {

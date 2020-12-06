@@ -6,45 +6,27 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.recevier.log.module;
 
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-public enum ContentType {
-    NONE(0), TEXT(1), JSON(2), YAML(3);
+public class LogModule extends ModuleDefine {
 
-    private int value;
-
-    ContentType(int value) {
-        this.value = value;
+    public LogModule() {
+        super("receiver-log");
     }
 
-    public int value() {
-        return value;
-    }
-
-    public static ContentType instanceOf(int value) {
-        switch (value) {
-            case 0:
-                return NONE;
-            case 1:
-                return TEXT;
-            case 2:
-                return JSON;
-            case 3:
-                return YAML;
-            default:
-                throw new UnexpectedException("unexpected value=" + value);
-        }
+    @Override
+    public Class[] services() {
+        return new Class[0];
     }
 }

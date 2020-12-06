@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.analyzer.provider;
 
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.log.ILogProcessService;
+import org.apache.skywalking.oap.server.analyzer.provider.log.LogProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
@@ -64,7 +66,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
     private List<MeterConfig> meterConfigs;
     @Getter
-    private MeterProcessService processService;
+    private MeterProcessService meterProcessService;
 
     public AnalyzerModuleProvider() {
         this.moduleConfig = new AnalyzerModuleConfig();
@@ -103,8 +105,11 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
 
         meterConfigs = MeterConfigs.loadConfig(moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
-        processService = new MeterProcessService(getManager());
-        this.registerServiceImplementation(IMeterProcessService.class, processService);
+        meterProcessService = new MeterProcessService(getManager());
+        this.registerServiceImplementation(IMeterProcessService.class, meterProcessService);
+
+        ILogProcessService logProcessService = new LogProcessService(getManager());
+        this.registerServiceImplementation(ILogProcessService.class, logProcessService);
     }
 
     @Override
@@ -125,7 +130,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         segmentParserService.setListenerManager(listenerManager());
 
-        processService.start(meterConfigs);
+        meterProcessService.start(meterConfigs);
     }
 
     @Override

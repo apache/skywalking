@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.module;
 
+import org.apache.skywalking.oap.server.analyzer.provider.log.ILogProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -33,7 +34,8 @@ public class AnalyzerModule extends ModuleDefine {
     public Class[] services() {
         return new Class[] {
             ISegmentParserService.class,
-            IMeterProcessService.class
-        };
+            IMeterProcessService.class,
+            ILogProcessService.class,
+            };
     }
 }

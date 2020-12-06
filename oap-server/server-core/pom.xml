@@ -94,6 +94,12 @@
             <artifactId>grpc-testing</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.7</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

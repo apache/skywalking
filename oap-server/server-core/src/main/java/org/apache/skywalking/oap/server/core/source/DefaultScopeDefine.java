@@ -68,6 +68,7 @@ public class DefaultScopeDefine {
     public static final int NETWORK_ADDRESS_ALIAS = 31;
     public static final int UI_TEMPLATE = 32;
     public static final int SERVICE_INSTANCE_JVM_THREAD = 33;
+    public static final int LOG = 34;
 
     // browser
     public static final int BROWSER_ERROR_LOG = 34;
