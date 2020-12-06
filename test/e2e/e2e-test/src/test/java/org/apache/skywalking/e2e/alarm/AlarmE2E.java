@@ -79,7 +79,6 @@ public class AlarmE2E extends SkyWalkingTestAdapter {
         load("expected/alarm/services.yml").as(ServicesMatcher.class).verify(services);
     }
 
-
     @RetryableTest
     @Order(2)
     void basicAlarm() throws Exception {
