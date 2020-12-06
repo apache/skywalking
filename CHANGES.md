@@ -9,9 +9,11 @@ Release Notes.
 
 #### Java Agent
 * Update quartz-scheduler plugin.
+* Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
+* Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
 
 #### UI
 * Fix un-removed tags in trace query.
