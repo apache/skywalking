@@ -43,4 +43,10 @@ public class Controller {
         testService.executeSQL();
         return Mono.just("Hello World");
     }
+
+    @GetMapping("/testcase/error")
+    public Mono<String> error() {
+        throw new RuntimeException("this is Error");
+    }
+
 }
