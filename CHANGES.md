@@ -8,7 +8,7 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
-
+* Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
