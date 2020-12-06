@@ -13,7 +13,7 @@ Release Notes.
 #### OAP-Backend
 * Make meter receiver support MAL.
 * Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
-* Fix multiple same scope alarm, cannot create at same time issue.
+* Add rule name field to alarm record table and let it be part of ID. In this way, fix multiple same scope alarm, cannot create at same time issue.
 
 #### UI
 * Fix un-removed tags in trace query.
