@@ -8,7 +8,7 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
-
+* Provide `logger-plugin` for log4j, log4j2, logback.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
