@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
+* Fix multiple same scope alarm, cannot create at same time issue.
 
 #### UI
 
