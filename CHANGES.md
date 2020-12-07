@@ -8,10 +8,12 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
+* Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 * Provide `logger-plugin` for log4j, log4j2, logback.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
+* Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
 
 #### UI
 * Fix un-removed tags in trace query.
