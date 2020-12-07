@@ -77,9 +77,9 @@ public class ContextConfig {
             if (configFile == null || !configFile.exists()) {
                 List<String> packages = new ArrayList<>();
                 packages.add("*");
-                logbackConfig = new LoggerConfig("logback", packages, LogLevel.ERROR);
-                log4jConfig = new LoggerConfig("log4j", packages, LogLevel.ERROR);
-                log4j2Config = new LoggerConfig("log4j2", packages, LogLevel.ERROR);
+                logbackConfig = new LoggerConfig("logback", packages, LogLevel.ERROR, false);
+                log4jConfig = new LoggerConfig("log4j", packages, LogLevel.ERROR, false);
+                log4j2Config = new LoggerConfig("log4j2", packages, LogLevel.ERROR, false);
             } else {
                 // use config file to init ContextConfig
                 try (FileInputStream configFileInputStream = new FileInputStream(configFile)) {
@@ -101,9 +101,9 @@ public class ContextConfig {
                     logger.error("Logger plugin initialized failure.Please check again.", e);
                 }
             }
-            if (logbackConfig.level == LogLevel.FATAL) {
+            if (logbackConfig != null && logbackConfig.level == LogLevel.FATAL) {
                 logger.error("Logback not support fatal level. Please check again.");
-                return null;
+                logbackConfig = null;
             }
             return new ContextConfig(logbackConfig, log4jConfig, log4j2Config);
         }
@@ -181,6 +181,7 @@ public class ContextConfig {
         private String name;
         private List<String> packages;
         private LogLevel level;
+        private boolean isValid;
 
         /**
          * Encapsulate the obtained log information into a map

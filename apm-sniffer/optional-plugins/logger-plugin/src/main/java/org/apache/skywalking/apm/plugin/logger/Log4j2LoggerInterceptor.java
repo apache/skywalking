@@ -32,37 +32,48 @@ public class Log4j2LoggerInterceptor implements InstanceMethodsAroundInterceptor
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Logger logger = (org.apache.logging.log4j.core.Logger) objInst;
-        switch (method.getName()) {
-            case "fatal":
-                if (logger.isFatalEnabled()) {
-                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-                }
-                break;
-            case "error":
-                if (logger.isErrorEnabled()) {
-                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-                }
-                break;
-            case "warn":
-                if (logger.isWarnEnabled()) {
-                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-                }
-                break;
-            case "info":
-                if (logger.isInfoEnabled()) {
-                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-                }
-                break;
-            case "debug":
-                if (logger.isDebugEnabled()) {
-                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-                }
-                break;
-            case "trace":
+        if (!CONFIG.isValid()) {
+            validConfig(logger, CONFIG);
+        }
+        CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+    }
+
+    private void validConfig(Logger logger, ContextConfig.LoggerConfig config) {
+        if (logger == null || config == null) {
+            return;
+        }
+        config.setValid(true);
+        switch (config.getLevel().toString()) {
+            case "TRACE":
                 if (logger.isTraceEnabled()) {
-                    CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
+                    config.setLevel(ContextConfig.LogLevel.TRACE);
+                    break;
                 }
-                break;
+            case "DEBUG":
+                if (logger.isDebugEnabled()) {
+                    config.setLevel(ContextConfig.LogLevel.DEBUG);
+                    break;
+                }
+            case "INFO":
+                if (logger.isInfoEnabled()) {
+                    config.setLevel(ContextConfig.LogLevel.INFO);
+                    break;
+                }
+            case "WARN":
+                if (logger.isWarnEnabled()) {
+                    config.setLevel(ContextConfig.LogLevel.WARN);
+                    break;
+                }
+            case "ERROR":
+                if (logger.isErrorEnabled()) {
+                    config.setLevel(ContextConfig.LogLevel.ERROR);
+                    break;
+                }
+            case "FATAL":
+                if (logger.isFatalEnabled()) {
+                    config.setLevel(ContextConfig.LogLevel.FATAL);
+                    break;
+                }
             default:
                 //do nothing
         }
