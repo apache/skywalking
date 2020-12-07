@@ -51,7 +51,7 @@ public class AlarmRecord extends Record {
 
     @Override
     public String id() {
-        return getTimeBucket() + Const.ID_CONNECTOR + scope + Const.ID_CONNECTOR + ruleName + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
+        return getTimeBucket() + Const.ID_CONNECTOR + ruleName + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
     }
 
     @Column(columnName = SCOPE)

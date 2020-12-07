@@ -77,9 +77,6 @@ public class MeterProcessor {
     }
 
     public void read(MeterData data) {
-        if (log.isDebugEnabled()) {
-            log.debug("Reading meter: {}", data);
-        }
         // Parse and save meter
         switch (data.getMetricCase()) {
             case SINGLEVALUE:
