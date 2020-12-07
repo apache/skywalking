@@ -8,11 +8,12 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
-
+* Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
+* Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
 
 #### UI
 * Fix un-removed tags in trace query.

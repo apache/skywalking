@@ -66,16 +66,16 @@ metricsRules:
   - name: instance_mesh_analysis_error_count
     exp: mesh_analysis_error_count.sum(['service', 'instance']).increase('PT1M')
   - name: instance_metrics_first_aggregation
-    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '1').sum(['service', 'instance']).increase('PT1M')
+    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '1').sum(['service', 'instance']).increase('PT5M')
   - name: instance_metrics_second_aggregation
-    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '2').sum(['service', 'instance']).increase('PT1M')
+    exp: metrics_aggregation.tagEqual('dimensionality', 'minute', 'level', '2').sum(['service', 'instance']).increase('PT5M')
   - name: instance_persistence_execute_percentile
     exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_prepare_percentile
     exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_error_count
-    exp: persistence_timer_bulk_error_count.sum(['service', 'instance']).increase('PT1M')
+    exp: persistence_timer_bulk_error_count.sum(['service', 'instance']).increase('PT5M')
   - name: instance_persistence_execute_count
-    exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'instance']).increase('PT1M')
+    exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'instance']).increase('PT5M')
   - name: instance_persistence_prepare_count
-    exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'instance']).increase('PT1M')
+    exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'instance']).increase('PT5M')
