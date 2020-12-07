@@ -9,6 +9,8 @@ Release Notes.
 
 #### Java Agent
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
+* Add interceptors of method(analyze, searchScroll, clearScroll, searchTemplate and deleteByQuery) for elasticsearch-6.x-plugin.
+
 
 #### OAP-Backend
 * Make meter receiver support MAL.
