@@ -68,7 +68,7 @@ public class ProfileTaskHandler implements KafkaHandler {
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfProfiling();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfProfiling();
     }
 
     @Override
