@@ -42,6 +42,7 @@ public class ExpressionParsingContext implements Closeable {
     static ExpressionParsingContext create() {
         if (CACHE.get() == null) {
             CACHE.set(ExpressionParsingContext.builder()
+                                              .samples(Lists.newArrayList())
                                               .downsampling(DownsamplingType.AVG)
                                               .scopeLabels(Lists.newArrayList())
                                               .aggregationLabels(Lists.newArrayList()).build());
@@ -54,6 +55,8 @@ public class ExpressionParsingContext implements Closeable {
     }
 
     private final static ThreadLocal<ExpressionParsingContext> CACHE = new ThreadLocal<>();
+
+    List<String> samples;
 
     boolean isHistogram;
 

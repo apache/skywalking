@@ -24,6 +24,7 @@ import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RequiredArgsConstructor
+@ToString(of = {"literal"})
 public class Expression {
 
     private final String literal;
@@ -48,6 +50,9 @@ public class Expression {
             if (!r.isSuccess() && r.isThrowable()) {
                 throw new ExpressionParsingException("failed to parse expression: " + literal + ", error:" + r.getError());
             }
+            if (log.isDebugEnabled()) {
+                log.debug("\"{}\" is parsed", literal);
+            }
             ctx.validate(literal);
             return ctx;
         }
@@ -63,11 +68,12 @@ public class Expression {
         expression.setDelegate(new GroovyObjectSupport() {
 
             public SampleFamily propertyMissing(String metricName) {
+                ExpressionParsingContext.get().ifPresent(ctx -> ctx.samples.add(metricName));
                 if (sampleFamilies.containsKey(metricName)) {
                     return sampleFamilies.get(metricName);
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("{} doesn't exist in {}", metricName, sampleFamilies.keySet());
+                if (!ExpressionParsingContext.get().isPresent()) {
+                    log.warn("{} referred by \"{}\" doesn't exist in {}", metricName, literal, sampleFamilies.keySet());
                 }
                 return SampleFamily.EMPTY;
             }
@@ -91,10 +97,16 @@ public class Expression {
         try {
             SampleFamily sf = (SampleFamily) expression.run();
             if (sf == SampleFamily.EMPTY) {
+                if (!ExpressionParsingContext.get().isPresent()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("result of {} is empty by \"{}\"", sampleFamilies, literal);
+                    }
+                }
                 return Result.fail("Parsed result is an EMPTY sample family");
             }
             return Result.success(sf);
         } catch (Throwable t) {
+            log.error("failed to run \"{}\"", literal, t);
             return Result.fail(t);
         }
     }
