@@ -194,6 +194,7 @@ storage:
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
     batchEnabled: ${SW_STORAGE_INFLUXDB_BATCH_ENABLED:true}
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
+    connectionResponseFormat: ${SW_STORAGE_INFLUXDB_CONNECTION_RESPONSE_FORMAT:MSGPACK} # the response format of connection to influxDB, cannot be anything but MSGPACK or JSON.
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
