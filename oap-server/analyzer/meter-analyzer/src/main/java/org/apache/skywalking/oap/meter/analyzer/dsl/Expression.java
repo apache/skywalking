@@ -23,7 +23,6 @@ import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
 import java.time.Instant;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,13 +30,20 @@ import lombok.extern.slf4j.Slf4j;
  * Expression is a reusable monadic container type which represents a DSL expression.
  */
 @Slf4j
-@RequiredArgsConstructor
 @ToString(of = {"literal"})
 public class Expression {
 
     private final String literal;
 
     private final DelegatingScript expression;
+
+    private final ThreadLocal<ImmutableMap<String, SampleFamily>> propertyRepository = new ThreadLocal<>();
+
+    public Expression(final String literal, final DelegatingScript expression) {
+        this.literal = literal;
+        this.expression = expression;
+        this.empower();
+    }
 
     /**
      * Parse the expression statically.
@@ -65,10 +71,35 @@ public class Expression {
      * @return The result of execution.
      */
     public Result run(final ImmutableMap<String, SampleFamily> sampleFamilies) {
+        propertyRepository.set(sampleFamilies);
+        try {
+            SampleFamily sf = (SampleFamily) expression.run();
+            if (sf == SampleFamily.EMPTY) {
+                if (!ExpressionParsingContext.get().isPresent()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("result of {} is empty by \"{}\"", sampleFamilies, literal);
+                    }
+                }
+                return Result.fail("Parsed result is an EMPTY sample family");
+            }
+            return Result.success(sf);
+        } catch (Throwable t) {
+            log.error("failed to run \"{}\"", literal, t);
+            return Result.fail(t);
+        } finally {
+            propertyRepository.remove();
+        }
+    }
+
+    private void empower() {
         expression.setDelegate(new GroovyObjectSupport() {
 
             public SampleFamily propertyMissing(String metricName) {
                 ExpressionParsingContext.get().ifPresent(ctx -> ctx.samples.add(metricName));
+                ImmutableMap<String, SampleFamily> sampleFamilies = propertyRepository.get();
+                if (sampleFamilies == null) {
+                    return SampleFamily.EMPTY;
+                }
                 if (sampleFamilies.containsKey(metricName)) {
                     return sampleFamilies.get(metricName);
                 }
@@ -94,21 +125,6 @@ public class Expression {
 
         });
         extendNumber(Number.class);
-        try {
-            SampleFamily sf = (SampleFamily) expression.run();
-            if (sf == SampleFamily.EMPTY) {
-                if (!ExpressionParsingContext.get().isPresent()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("result of {} is empty by \"{}\"", sampleFamilies, literal);
-                    }
-                }
-                return Result.fail("Parsed result is an EMPTY sample family");
-            }
-            return Result.success(sf);
-        } catch (Throwable t) {
-            log.error("failed to run \"{}\"", literal, t);
-            return Result.fail(t);
-        }
     }
 
     private void extendNumber(Class clazz) {
