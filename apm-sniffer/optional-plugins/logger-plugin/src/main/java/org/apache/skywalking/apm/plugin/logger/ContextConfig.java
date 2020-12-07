@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 import java.io.File;
@@ -64,13 +65,13 @@ public class ContextConfig {
 
         private static ContextConfig initContextConfig() {
             // judge whether has config file
+            final ILog logger = LogManager.getLogger(HolderContextConfig.class);
             LoggerConfig logbackConfig = null, log4jConfig = null, log4j2Config = null;
             File configFile = null;
             try {
                 configFile = new File(AgentPackagePath.getPath(), "/config/logger-plugin/logconfig.properties");
             } catch (AgentPackageNotFoundException e) {
-                LogManager.getLogger(ContextConfig.class)
-                        .error(e, "Agent package not found.");
+                logger.error("Agent package not found.", e);
             }
             // not has config file, make config default
             if (configFile == null || !configFile.exists()) {
@@ -92,13 +93,17 @@ public class ContextConfig {
                         } else if ("log4j2".equals(loggerConfig.getName())) {
                             log4j2Config = fillLoggerConfig(loggerConfig);
                         } else {
-                            throw new IllegalArgumentException();
+                            logger.error("logconfig.properties was not configured properly.Please check again.");
+                            return null;
                         }
                     }
                 } catch (IOException e) {
-                    LogManager.getLogger(ContextConfig.class)
-                            .error(e, "Logger plugin initialized failure.Please check again.");
+                    logger.error("Logger plugin initialized failure.Please check again.", e);
                 }
+            }
+            if (logbackConfig.level == LogLevel.FATAL) {
+                logger.error("Logback not support fatal level. Please check again.");
+                return null;
             }
             return new ContextConfig(logbackConfig, log4jConfig, log4j2Config);
         }

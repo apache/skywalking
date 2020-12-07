@@ -4,7 +4,7 @@
 
 # Configuration file
 
-By default, the configuration file is in `apache-skywalking-apm-bin/agent/config//logger-plugin/logconfig.properties`.Of course, **If the file does not exist, the default configurations are as following,**
+By default, the configuration file is in `apache-skywalking-apm-bin/agent/config/logger-plugin/logconfig.properties`.Of course, **If the file does not exist, the default configurations are as following,**
 
 ```properties
 log4j.packages=*
@@ -46,7 +46,7 @@ The hierarchy order of log levels from low to high is as follows:
 
 **Notice:**
 
-Because `logback` not support `fatal`, it will be an exception if you set **logback.level=fatal**.
+Because `logback` not support `fatal`, it will be an `IllegalArgumentException` if you set **logback.level=fatal**.
 
 # Use Cases:
 <details>
@@ -64,7 +64,7 @@ log4j.level=fatal
 
 <details>
 
-<summary>Open the bridge for log4j2 and logback</summary>
+<summary>Open the bridge for log4j and logback</summary>
 
 ```properties
 # for log4j, only collect the logs from package1 and collect logs at the `error` level and `fatal` level
