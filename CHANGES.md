@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
+* Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
 * Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
 
 #### UI

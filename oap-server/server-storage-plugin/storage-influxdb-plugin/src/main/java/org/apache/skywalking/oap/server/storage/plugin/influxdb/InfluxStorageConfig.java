@@ -35,4 +35,5 @@ public class InfluxStorageConfig extends ModuleConfig {
     private boolean batchEnabled = true;
 
     private int fetchTaskLogMaxSize = 5000;
+    private String connectionResponseFormat = "MSGPACK";
 }
