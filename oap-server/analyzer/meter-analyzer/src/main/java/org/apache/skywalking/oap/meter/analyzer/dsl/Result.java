@@ -23,12 +23,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Result indicates the parsing result of expression.
  */
-@Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
@@ -42,7 +40,6 @@ public class Result {
      * @return failed result.
      */
     public static Result fail(final Throwable throwable) {
-        log.info("Expression fails: {}", throwable.getMessage());
         return new Result(false, true, throwable.getMessage(), SampleFamily.EMPTY);
     }
 
@@ -53,7 +50,6 @@ public class Result {
      * @return failed result.
      */
     public static Result fail(String message) {
-        log.info("Expression fails: {}", message);
         return new Result(false, false, message, SampleFamily.EMPTY);
     }
 
@@ -63,7 +59,6 @@ public class Result {
      * @return failed result.
      */
     public static Result fail() {
-        log.info("Expression fails");
         return new Result(false, false, null, SampleFamily.EMPTY);
     }
 
@@ -74,9 +69,6 @@ public class Result {
      * @return successful result.
      */
     public static Result success(SampleFamily sf) {
-        if (log.isDebugEnabled()) {
-            log.debug("Result is successful, sample family is {}", sf);
-        }
         return new Result(true, false, null, sf);
     }
 
