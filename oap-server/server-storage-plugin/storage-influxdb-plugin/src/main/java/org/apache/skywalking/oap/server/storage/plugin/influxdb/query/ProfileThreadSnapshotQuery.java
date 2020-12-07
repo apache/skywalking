@@ -96,7 +96,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
                   BasicTrace basicTrace = new BasicTrace();
 
                   basicTrace.setSegmentId((String) values.get(2));
-                  basicTrace.setStart(String.valueOf(values.get(3)));
+                  basicTrace.setStart(String.valueOf(((Number) values.get(3)).longValue()));
                   basicTrace.getEndpointNames().add((String) values.get(4));
                   basicTrace.setDuration(((Number) values.get(5)).intValue());
                   basicTrace.setError(BooleanUtils.valueToBoolean(((Number) values.get(6)).intValue()));
@@ -190,11 +190,11 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         segmentRecord.setTraceId((String) values.get(2));
         segmentRecord.setServiceId((String) values.get(3));
         segmentRecord.setEndpointName((String) values.get(4));
-        segmentRecord.setStartTime((long) values.get(5));
-        segmentRecord.setEndTime((long) values.get(6));
-        segmentRecord.setLatency((int) values.get(7));
-        segmentRecord.setIsError((int) values.get(8));
-        segmentRecord.setVersion((int) values.get(10));
+        segmentRecord.setStartTime(((Number) values.get(5)).longValue());
+        segmentRecord.setEndTime(((Number) values.get(6)).longValue());
+        segmentRecord.setLatency(((Number) values.get(7)).intValue());
+        segmentRecord.setIsError(((Number) values.get(8)).intValue());
+        segmentRecord.setVersion(((Number) values.get(10)).intValue());
 
         String base64 = (String) values.get(9);
         if (!Strings.isNullOrEmpty(base64)) {
