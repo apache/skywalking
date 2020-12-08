@@ -16,24 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.influxdb;
+package org.apache.skywalking.apm.testcase.quartzscheduler.job;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
 
-@Setter
-@Getter
-public class InfluxStorageConfig extends ModuleConfig {
-    private String url;
-    private String user;
-    private String password;
-    private String database;
+@Slf4j
+public class ExceptionJob implements Job {
 
-    private int actions;
-    private int duration;
-    private boolean batchEnabled = true;
-
-    private int fetchTaskLogMaxSize = 5000;
-    private String connectionResponseFormat = "MSGPACK";
+    @Override
+    public void execute(JobExecutionContext jobExecutionContext) {
+        throw new RuntimeException("execute job exception");
+    }
 }
