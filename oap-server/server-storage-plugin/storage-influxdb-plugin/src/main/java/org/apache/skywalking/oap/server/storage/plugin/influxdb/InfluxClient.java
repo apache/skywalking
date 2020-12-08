@@ -72,10 +72,11 @@ public class InfluxClient implements Client, HealthCheckable {
     @Override
     public void connect() {
         try {
+            InfluxDB.ResponseFormat responseFormat = InfluxDB.ResponseFormat.valueOf(config.getConnectionResponseFormat());
             influx = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPassword(),
                     new OkHttpClient.Builder().readTimeout(3, TimeUnit.MINUTES)
                             .writeTimeout(3, TimeUnit.MINUTES),
-                    InfluxDB.ResponseFormat.MSGPACK
+                    responseFormat
             );
             influx.query(new Query("CREATE DATABASE " + database));
             influx.enableGzip();
