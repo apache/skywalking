@@ -8,7 +8,7 @@ Suppose you want to enable `metric-custom.yaml` stored at `fetcher-prom-rules`, 
  
 ```yaml
 prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:-}
+  selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
     enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self,metric-custom"}
 ```
