@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Save the alarm info into storage for UI query.
@@ -46,6 +47,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setAlarmMessage(message.getAlarmMessage());
             record.setStartTime(message.getStartTime());
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
+            record.setRuleName(message.getRuleName());
 
             RecordStreamProcessor.getInstance().in(record);
         });
