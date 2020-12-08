@@ -8,6 +8,7 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
+* The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 
 #### OAP-Backend
