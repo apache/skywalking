@@ -74,7 +74,7 @@ telemetry:
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
-    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:true}
+    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
 ``` 
 
 3. Make sure `config/fetcher-prom-rules/self.yaml` exists. 
