@@ -65,6 +65,7 @@ public class ExpressionParsingTest {
                 "all",
                 "latest (foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'])",
                 ExpressionParsingContext.builder()
+                                        .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
                                         .scopeLabels(Collections.singletonList("rr"))
                                         .aggregationLabels(Collections.singletonList("tt"))
