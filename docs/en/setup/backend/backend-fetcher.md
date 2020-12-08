@@ -3,7 +3,7 @@ Fetcher is a concept in SkyWalking backend. It uses pulling mode rather than [re
 read the data from the target systems. This mode is typically in some metrics SDKs, such as Prometheus.
 
 ## Prometheus Fetcher
-Suppose you want to enable `metric-custom.yaml` stored at `fetcher-prom-rules`, append its name to `enabledRules` of 
+Suppose you want to enable some `metric-custom.yaml` files stored at `fetcher-prom-rules`, append its name to `enabledRules` of 
  `promethues-fetcher` as below:
  
 ```yaml
