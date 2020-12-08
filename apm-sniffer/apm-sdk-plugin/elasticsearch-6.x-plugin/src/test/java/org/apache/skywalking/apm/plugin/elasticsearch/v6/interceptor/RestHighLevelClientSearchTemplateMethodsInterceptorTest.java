@@ -75,8 +75,6 @@ public class RestHighLevelClientSearchTemplateMethodsInterceptorTest {
         when(restClientEnhanceInfo.getPeers()).thenReturn("127.0.0.1:9200");
         allArguments = new Object[] {searchTemplateRequest};
         when(searchTemplateRequest.getScript()).thenReturn("searchTemplateRequest");
-        // Because the getRequest() method returns null, comment it out before testing
-        when(searchTemplateRequest.getRequest().indices()).thenReturn(new String[] {"indexName"});
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(restClientEnhanceInfo);
         interceptor = new RestHighLevelClientSearchTemplateMethodsInterceptor();
     }
@@ -104,11 +102,9 @@ public class RestHighLevelClientSearchTemplateMethodsInterceptorTest {
         assertThat(SpanHelper.getComponentId(exitSpan), is(77));
 
         List<TagValuePair> tags = SpanHelper.getTags(exitSpan);
-        // When tesing, Modify the number of collections and index
-        assertThat(tags.size(), is(3));
+        assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("Elasticsearch"));
-        assertThat(tags.get(1).getValue(), is("[indexName]"));
-        assertThat(tags.get(2).getValue(), is("searchTemplateRequest"));
+        assertThat(tags.get(1).getValue(), is("searchTemplateRequest"));
     }
 
     @Test

@@ -47,8 +47,9 @@ public class RestHighLevelClientSearchTemplateMethodsInterceptor implements Inst
         span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
         Tags.DB_TYPE.set(span, DB_TYPE);
-        // When use @Mock tesing, the getRequest() method returns null, comment it out before testing
-        Tags.DB_INSTANCE.set(span, Arrays.asList(searchTemplateRequest.getRequest().indices()).toString());
+        if (searchTemplateRequest.getRequest() != null) {
+            Tags.DB_INSTANCE.set(span, Arrays.asList(searchTemplateRequest.getRequest().indices()).toString());
+        }
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, searchTemplateRequest.getScript());
         }

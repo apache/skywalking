@@ -50,8 +50,11 @@ public class RestHighLevelClientDeleteByQueryMethodsInterceptor implements Insta
         Tags.DB_INSTANCE.set(span, Arrays.asList(deleteByQueryRequest.indices()).toString());
 
         if (TRACE_DSL) {
-            // When use @Mock tesing, Modify deleteByQueryRequest.getSearchRequest().toString() to deleteByQueryRequest.toString()
-            Tags.DB_STATEMENT.set(span, deleteByQueryRequest.getSearchRequest().toString());
+            if (deleteByQueryRequest.getSearchRequest() != null) {
+                Tags.DB_STATEMENT.set(span, deleteByQueryRequest.getSearchRequest().toString());
+            } else {
+                Tags.DB_STATEMENT.set(span, deleteByQueryRequest.toString());
+            }
         }
 
         SpanLayer.asDB(span);

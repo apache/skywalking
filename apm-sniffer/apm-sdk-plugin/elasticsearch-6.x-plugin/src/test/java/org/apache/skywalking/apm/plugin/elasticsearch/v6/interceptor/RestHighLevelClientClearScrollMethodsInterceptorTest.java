@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-import com.google.common.collect.Lists;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -41,6 +40,7 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
@@ -75,7 +75,9 @@ public class RestHighLevelClientClearScrollMethodsInterceptorTest {
     public void setUp() throws Exception {
         when(restClientEnhanceInfo.getPeers()).thenReturn("127.0.0.1:9200");
         allArguments = new Object[] {clearScrollRequest};
-        when(clearScrollRequest.scrollIds()).thenReturn(Lists.newArrayList("testScrollId"));
+        List<String> testList = new ArrayList<>(1);
+        testList.add("testScrollId");
+        when(clearScrollRequest.scrollIds()).thenReturn(testList);
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(restClientEnhanceInfo);
         interceptor = new RestHighLevelClientClearScrollMethodsInterceptor();
     }
