@@ -46,7 +46,7 @@ The hierarchy order of log levels from low to high is as follows:
 
 **Notice:**
 
-Because `logback` not support `fatal`, it wouldn't work, and you need to look for error message in the log if you set **logback.level=fatal**.
+Because `logback` does not support the `fatal` log level, the highest level you may set it to is **logback.level=error**.
 
 # Use Cases:
 <details>
