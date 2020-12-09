@@ -21,8 +21,8 @@ Release Notes.
 
 #### UI
 * Fix Unnecessary sidebar in tooltips for charts.
-* Refactor dashboard query in common script.
-* implement refreshing data for topology by updating date.
+* Refactor dashboard query in a common script.
+* Implement refreshing data for topology by updating date.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
