@@ -25,7 +25,7 @@ The meaning of the above configuration is as follows:
 
 ## packages
 
-**package attribute**: Specify the package name of the log that needs log conversion.  **The default value is `*` , and it will match all packages.**
+**package attribute**: Specify the package name of the log that needs log conversion. **The default value is `*`, and it will match all packages.**
 
 packages value:
 
