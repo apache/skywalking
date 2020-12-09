@@ -210,13 +210,12 @@ public class ContextConfig {
             return messageMap;
         }
 
-        private boolean isLoggable(String name, String level) {
-            return LogLevel.valueOf(level.toUpperCase()).priority >= this.level.priority
-                    && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
+        private boolean isLoggable(String name) {
+            return packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
         }
 
         public void logIfNecessary(String loggerName, String level, Object[] allArguments) {
-            if (ContextManager.isActive() && isLoggable(loggerName, level)) {
+            if (ContextManager.isActive() && isLoggable(loggerName)) {
                 ContextManager.activeSpan().log(System.currentTimeMillis(),
                         toMessageMap(loggerName, level, allArguments));
             }
