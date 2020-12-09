@@ -1,0 +1,43 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+rules:
+  # service response time > 10ms
+  service_resp_time_rule:
+    metrics-name: service_resp_time
+    op: ">"
+    threshold: 10
+    period: 10
+    count: 1
+    silence-period: 1
+    message: Response time of service {name} is more than 10ms in 1 minutes of last 10 minutes.
+    only-as-condition: false
+  # service sla > 1%
+  service_sla_rule:
+    metrics-name: service_sla
+    op: ">"
+    threshold: 100
+    period: 10
+    count: 1
+    silence-period: 1
+    message: Successful rate of service {name} is more than 1% in 1 minutes of last 10 minutes
+    only-as-condition: true
+composite-rules:
+  comp_rule:
+    expression: service_resp_time_rule && service_sla_rule
+    message: Service {name} response time is more than 10ms and sla is more than 1%.
+
+webhooks:
+  - http://provider:9090/alarm/receive

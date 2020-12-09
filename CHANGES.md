@@ -5,6 +5,7 @@ Release Notes.
 8.4.0
 ------------------
 #### Project
+* Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 
 #### Java Agent
@@ -16,6 +17,7 @@ Release Notes.
 * Make meter receiver support MAL.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
 * Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
+* Add the rule name field to alarm record storage entity as a part of ID, to support multiple alarm rules triggered for one entity. The scope id has been removed from the ID.
 * Fix MAL concurrent execution issues
 
 #### UI
@@ -27,7 +29,7 @@ Release Notes.
 * Fix trace instance selector bug.
 
 #### Documentation
-
+* Update the documents of backend fetcher and self observability about the latest configurations.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 
