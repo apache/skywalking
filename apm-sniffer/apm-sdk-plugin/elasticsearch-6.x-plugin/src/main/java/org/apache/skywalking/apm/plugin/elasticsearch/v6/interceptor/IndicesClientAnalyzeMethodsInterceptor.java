@@ -58,7 +58,7 @@ public class IndicesClientAnalyzeMethodsInterceptor implements InstanceMethodsAr
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             ContextManager.stopSpan();
         }
@@ -68,7 +68,7 @@ public class IndicesClientAnalyzeMethodsInterceptor implements InstanceMethodsAr
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
             ContextManager.activeSpan().log(t);
         }
