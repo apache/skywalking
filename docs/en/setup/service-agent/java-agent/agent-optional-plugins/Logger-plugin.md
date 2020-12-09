@@ -34,7 +34,7 @@ packages value:
 
 **Notice:**
 
-When matching multiple packages, the names of different packages should be separated by the comma.
+When matching multiple packages, the names of different packages should be separated by a comma.
 
 ## level
 
