@@ -26,6 +26,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.logger.ContextConfig;
+import org.apache.skywalking.apm.plugin.logger.ContextConfig.LogLevel;
+
+import java.util.Arrays;
+import java.util.function.Function;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
@@ -48,104 +52,24 @@ public class Log4j2LoggerInstrumentation extends ClassInstanceMethodsEnhancePlug
         if (CONFIG == null) {
             return null;
         }
-        return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
-
+        return Arrays.stream(LogLevel.values())
+                .filter(it -> it.getPriority() >= CONFIG.getLevel().getPriority())
+                .map((Function<LogLevel, InstanceMethodsInterceptPoint>) level -> new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("fatal");
+                        return named(level.name().toLowerCase());
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return "org.apache.skywalking.apm.plugin.logger.FatalLog4j2LoggerInterceptor";
+                        return String.format("org.apache.skywalking.apm.plugin.logger.%sLog4j2LoggerInterceptor",
+                                level.name().charAt(0) + level.name().substring(1).toLowerCase());
                     }
 
                     @Override
                     public boolean isOverrideArgs() {
                         return false;
                     }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("error");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "org.apache.skywalking.apm.plugin.logger.ErrorLog4j2LoggerInterceptor";
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("warn");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "org.apache.skywalking.apm.plugin.logger.WarnLog4j2LoggerInterceptor";
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("info");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "org.apache.skywalking.apm.plugin.logger.InfoLog4j2LoggerInterceptor";
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("debug");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "org.apache.skywalking.apm.plugin.logger.DebugLog4j2LoggerInterceptor";
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                },
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("trace");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return "org.apache.skywalking.apm.plugin.logger.TraceLog4j2LoggerInterceptor";
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
-                }
-        };
+                }).toArray(InstanceMethodsInterceptPoint[]::new);
     }
 }
