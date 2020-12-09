@@ -39,7 +39,7 @@ public class IndicesClientAnalyzeMethodsInterceptor implements InstanceMethodsAr
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        AnalyzeRequest analyzeRequest = (AnalyzeRequest) (allArguments[0]);
+        AnalyzeRequest analyzeRequest = (AnalyzeRequest) allArguments[0];
 
         RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         if (restClientEnhanceInfo != null) {
