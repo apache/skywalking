@@ -26,57 +26,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-public class Log4jLoggerInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class WarnLog4jLoggerInterceptor implements InstanceMethodsAroundInterceptor {
     private static final ContextConfig.LoggerConfig CONFIG = ContextConfig.getInstance().getLog4jConfig();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Logger logger = (Logger) objInst;
-        if (!CONFIG.isValid()) {
-            validConfig(logger, CONFIG);
-        }
-        CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-    }
-
-    private void validConfig(Logger logger, ContextConfig.LoggerConfig config) {
-        if (logger == null || config == null) {
-            return;
-        }
-        config.setValid(true);
-        switch (config.getLevel().toString()) {
-            case "TRACE":
-                if (logger.isEnabledFor(Level.TRACE)) {
-                    config.setLevel(ContextConfig.LogLevel.TRACE);
-                    break;
-                }
-            case "DEBUG":
-                if (logger.isEnabledFor(Level.DEBUG)) {
-                    config.setLevel(ContextConfig.LogLevel.DEBUG);
-                    break;
-                }
-            case "INFO":
-                if (logger.isEnabledFor(Level.INFO)) {
-                    config.setLevel(ContextConfig.LogLevel.INFO);
-                    break;
-                }
-            case "WARN":
-                if (logger.isEnabledFor(Level.WARN)) {
-                    config.setLevel(ContextConfig.LogLevel.WARN);
-                    break;
-                }
-            case "ERROR":
-                if (logger.isEnabledFor(Level.ERROR)) {
-                    config.setLevel(ContextConfig.LogLevel.ERROR);
-                    break;
-                }
-            case "FATAL":
-                if (logger.isEnabledFor(Level.FATAL)) {
-                    config.setLevel(ContextConfig.LogLevel.FATAL);
-                    break;
-                }
-            default:
-                //do nothing
+        if (logger.isEnabledFor(Level.WARN)) {
+            CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
         }
     }
 

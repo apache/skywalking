@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * contains all config of the logger plugin.
@@ -214,12 +213,6 @@ public class ContextConfig {
         private boolean isLoggable(String name, String level) {
             return LogLevel.valueOf(level.toUpperCase()).priority >= this.level.priority
                     && packages.stream().anyMatch(it -> it.equals("*") || name.startsWith(it));
-        }
-
-        public List<LogLevel> getUpperLevelList(LogLevel level) {
-            return Arrays.stream(LogLevel.values())
-                    .filter(it -> it.priority >= level.priority)
-                    .collect(Collectors.toList());
         }
 
         public void logIfNecessary(String loggerName, String level, Object[] allArguments) {

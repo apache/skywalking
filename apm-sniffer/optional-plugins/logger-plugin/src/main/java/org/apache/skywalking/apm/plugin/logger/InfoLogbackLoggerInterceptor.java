@@ -25,52 +25,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-public class LogbackLoggerInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class InfoLogbackLoggerInterceptor implements InstanceMethodsAroundInterceptor {
     private static final ContextConfig.LoggerConfig CONFIG = ContextConfig.getInstance().getLogbackConfig();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Logger logger = (Logger) ((Object) objInst);
-        if (!CONFIG.isValid()) {
-            validConfig(logger, CONFIG);
-        }
-        CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
-    }
-
-    private void validConfig(Logger logger, ContextConfig.LoggerConfig config) {
-        if (logger == null || config == null) {
-            return;
-        }
-        config.setValid(true);
-        switch (config.getLevel().toString()) {
-            case "TRACE":
-                if (logger.isTraceEnabled()) {
-                    config.setLevel(ContextConfig.LogLevel.TRACE);
-                    break;
-                }
-            case "DEBUG":
-                if (logger.isDebugEnabled()) {
-                    config.setLevel(ContextConfig.LogLevel.DEBUG);
-                    break;
-                }
-            case "INFO":
-                if (logger.isInfoEnabled()) {
-                    config.setLevel(ContextConfig.LogLevel.INFO);
-                    break;
-                }
-            case "WARN":
-                if (logger.isWarnEnabled()) {
-                    config.setLevel(ContextConfig.LogLevel.WARN);
-                    break;
-                }
-            case "ERROR":
-                if (logger.isErrorEnabled()) {
-                    config.setLevel(ContextConfig.LogLevel.ERROR);
-                    break;
-                }
-            default:
-                //do nothing
+        if (logger.isInfoEnabled()) {
+            CONFIG.logIfNecessary(logger.getName(), method.getName(), allArguments);
         }
     }
 

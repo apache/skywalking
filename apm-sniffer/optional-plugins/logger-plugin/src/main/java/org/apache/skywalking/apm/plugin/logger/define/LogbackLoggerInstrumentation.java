@@ -27,14 +27,10 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.logger.ContextConfig;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "ch.qos.logback.classic.Logger";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.logger.LogbackLoggerInterceptor";
     private static final ContextConfig.LoggerConfig CONFIG = ContextConfig.getInstance().getLogbackConfig();
 
     @Override
@@ -54,21 +50,78 @@ public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePlu
         }
         return new InstanceMethodsInterceptPoint[]{
                 new InstanceMethodsInterceptPoint() {
-
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        List<String> levelList = CONFIG.getUpperLevelList(CONFIG.getLevel())
-                                .stream().map(it -> it.name().toLowerCase()).collect(Collectors.toList());
-                        ElementMatcher.Junction<MethodDescription> canInstrumentMethods = named(levelList.get(0));
-                        for (int i = 1; i < levelList.size(); i++) {
-                            canInstrumentMethods = canInstrumentMethods.or(named(levelList.get(i)));
-                        }
-                        return canInstrumentMethods;
+                        return named("error");
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return INTERCEPT_CLASS;
+                        return "org.apache.skywalking.apm.plugin.logger.ErrorLogbackLoggerInterceptor";
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("warn");
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return "org.apache.skywalking.apm.plugin.logger.WarnLogbackLoggerInterceptor";
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("info");
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return "org.apache.skywalking.apm.plugin.logger.InfoLogbackLoggerInterceptor";
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("debug");
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return "org.apache.skywalking.apm.plugin.logger.DebugLogbackLoggerInterceptor";
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("trace");
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return "org.apache.skywalking.apm.plugin.logger.TraceLogbackLoggerInterceptor";
                     }
 
                     @Override
