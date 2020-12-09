@@ -72,7 +72,7 @@ This is the properties list supported in `agent/config/agent.config`.
 property key | Description | Default |
 ----------- | ---------- | --------- | 
 `agent.namespace` | Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`. | Not set | 
-`agent.service_name` | The service name to represent a logic group providing the same capabilities/logic. Suggestion: set a unique name for every logic service group, service instance nodes share the same code, Max length is 50(UTF-8 char) | `Your_ApplicationName` |
+`agent.service_name` | The service name to represent a logic group providing the same capabilities/logic. Suggestion: set a unique name for every logic service group, service instance nodes share the same code, Max length is 50(UTF-8 char). Optional, once `service_name` follows `<group name>::<logic name>` format, OAP server assigns the group name to the service metadata.| `Your_ApplicationName` |
 `agent.sample_n_per_3_secs`|Negative or zero means off, by default.SAMPLE_N_PER_3_SECS means sampling N TraceSegment in 3 seconds tops.|Not set|
 `agent.authentication`|Authentication active is based on backend setting, see application.yml for more details.For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.|Not set|
 `agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, SkyWalking keep your application memory cost estimated.|300 |
