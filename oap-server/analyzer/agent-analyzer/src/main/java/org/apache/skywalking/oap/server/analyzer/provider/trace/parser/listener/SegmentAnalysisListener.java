@@ -118,11 +118,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 serviceName, NodeType.Normal);
         }
 
-        endpointId = IDManager.EndpointID.buildId(
-            serviceId,
-            span.getOperationName()
-        );
-
         endpointName = namingControl.formatEndpointName(serviceName, span.getOperationName());
         endpointId = IDManager.EndpointID.buildId(
             serviceId,
