@@ -72,7 +72,7 @@ public class ContextConfigExceptionTest {
         assertEquals("DEBUG", log4jConfig.getLevel().toString());
         assertEquals("*", log4jConfig.getPackages().get(0));
         //test log4j2
-        assertEquals("lg4j2", log4j2Config.getName());
+        assertEquals("log4j2", log4j2Config.getName());
         assertEquals("ERROR", log4j2Config.getLevel().toString());
         assertEquals("*", log4j2Config.getPackages().get(0));
 

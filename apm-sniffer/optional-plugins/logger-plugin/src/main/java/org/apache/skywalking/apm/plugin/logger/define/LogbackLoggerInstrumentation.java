@@ -53,7 +53,7 @@ public class LogbackLoggerInstrumentation extends ClassInstanceMethodsEnhancePlu
             return null;
         }
         return Arrays.stream(LogLevel.values())
-                .filter(it -> it.getPriority() >= CONFIG.getLevel().getPriority())
+                .filter(it -> it.getPriority() >= CONFIG.getLevel().getPriority() && it != LogLevel.FATAL)
                 .map((Function<LogLevel, InstanceMethodsInterceptPoint>) level -> new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
