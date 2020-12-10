@@ -60,9 +60,22 @@ public class ContextConfigExceptionTest {
     }
 
     @Test
-    public void testHasError() {
+    public void testHasConfigError() {
         ContextConfig config = ContextConfig.getInstance();
-        assertEquals(config, null);
+        ContextConfig.LoggerConfig logbackConfig = config.getLogbackConfig();
+        ContextConfig.LoggerConfig log4jConfig = config.getLog4jConfig();
+        ContextConfig.LoggerConfig log4j2Config = config.getLog4j2Config();
+        //test logback
+        assertEquals(logbackConfig, null);
+        //test log4j
+        assertEquals("log4j", log4jConfig.getName());
+        assertEquals("DEBUG", log4jConfig.getLevel().toString());
+        assertEquals("*", log4jConfig.getPackages().get(0));
+        //test log4j2
+        assertEquals("lg4j2", log4j2Config.getName());
+        assertEquals("ERROR", log4j2Config.getLevel().toString());
+        assertEquals("*", log4j2Config.getPackages().get(0));
+
     }
 
     @After
