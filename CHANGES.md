@@ -20,6 +20,12 @@ Release Notes.
 * Fix MAL concurrent execution issues
 
 #### UI
+* Fix un-removed tags in trace query.
+* Fix unexpected metrics name on single value component.
+* Don't allow negative value as the refresh period.
+* Fix style issue in trace table view.
+* Separation Log and Dashboard selector data to avoid conflicts.
+* Fix trace instance selector bug.
 * Fix Unnecessary sidebar in tooltips for charts.
 * Refactor dashboard query in a common script.
 * Implement refreshing data for topology by updating date.
