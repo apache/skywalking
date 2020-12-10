@@ -18,7 +18,8 @@ Release Notes.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
 * Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
 * Add the rule name field to alarm record storage entity as a part of ID, to support multiple alarm rules triggered for one entity. The scope id has been removed from the ID.
-* Fix MAL concurrent execution issues
+* Fix MAL concurrent execution issues.
+* Fix group name can't be query in the GraphQL.
 
 #### UI
 * Fix un-removed tags in trace query.
