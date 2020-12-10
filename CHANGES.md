@@ -28,6 +28,9 @@ Release Notes.
 * Fix style issue in trace table view.
 * Separation Log and Dashboard selector data to avoid conflicts.
 * Fix trace instance selector bug.
+* Fix Unnecessary sidebar in tooltips for charts.
+* Refactor dashboard query in a common script.
+* Implement refreshing data for topology by updating date.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
