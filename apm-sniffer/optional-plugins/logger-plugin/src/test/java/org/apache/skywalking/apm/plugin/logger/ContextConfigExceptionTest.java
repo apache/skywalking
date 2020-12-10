@@ -53,6 +53,8 @@ public class ContextConfigExceptionTest {
             properties.setProperty("logback.packages", "package1,package2");
             properties.setProperty("log4j.level", "debug");
             properties.setProperty("log4j.packages", "*");
+            properties.setProperty("log4j2.level", "error");
+            properties.setProperty("log4j.packages", "*");
             FileWriter writer = new FileWriter(configFilePath);
             properties.store(writer, "set fatal level for logback");
             writer.flush();
