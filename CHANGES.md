@@ -12,7 +12,6 @@ Release Notes.
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
-* Fix logger-plugin module directory structure problem(Maven cannot trigger junit testing).
 
 #### OAP-Backend
 * Make meter receiver support MAL.
