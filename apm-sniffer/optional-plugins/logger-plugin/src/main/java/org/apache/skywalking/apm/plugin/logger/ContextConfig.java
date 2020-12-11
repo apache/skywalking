@@ -58,7 +58,11 @@ public class ContextConfig {
         return HolderContextConfig.INSTANCE;
     }
 
-    public static ContextConfig getLatestConfig() {
+    /**
+     * For testing use only.
+     * Avoid to use config cache. Load the configuration every time. 
+     */
+    static ContextConfig getLatestConfig() {
         return HolderContextConfig.initContextConfig();
     }
 
