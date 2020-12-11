@@ -58,6 +58,10 @@ public class ContextConfig {
         return HolderContextConfig.INSTANCE;
     }
 
+    public static ContextConfig getLatestConfig() {
+        return HolderContextConfig.initContextConfig();
+    }
+
     //use singleton
     private static class HolderContextConfig {
         private final static ContextConfig INSTANCE = initContextConfig();

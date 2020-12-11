@@ -63,7 +63,7 @@ public class ContextConfigTest {
     @Test
     public void testTwoLogger() {
         // test
-        ContextConfig config = ContextConfig.getInstance();
+        ContextConfig config = ContextConfig.getLatestConfig();
         ContextConfig.LoggerConfig logbackConfig = config.getLogbackConfig();
         ContextConfig.LoggerConfig log4jConfig = config.getLog4jConfig();
         ContextConfig.LoggerConfig log4j2Config = config.getLog4j2Config();
