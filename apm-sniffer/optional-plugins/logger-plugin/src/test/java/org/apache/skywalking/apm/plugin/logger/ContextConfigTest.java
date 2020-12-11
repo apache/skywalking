@@ -15,19 +15,18 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.logger;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+package org.apache.skywalking.apm.plugin.logger;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -64,7 +63,7 @@ public class ContextConfigTest {
     @Test
     public void testTwoLogger() {
         // test
-        ContextConfig config = ContextConfig.getInstance();
+        ContextConfig config = ContextConfig.getLatestConfig();
         ContextConfig.LoggerConfig logbackConfig = config.getLogbackConfig();
         ContextConfig.LoggerConfig log4jConfig = config.getLog4jConfig();
         ContextConfig.LoggerConfig log4j2Config = config.getLog4j2Config();
