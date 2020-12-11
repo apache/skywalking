@@ -31,6 +31,7 @@ Release Notes.
 * Fix Unnecessary sidebar in tooltips for charts.
 * Refactor dashboard query in a common script.
 * Implement refreshing data for topology by updating date.
+* Implement group selector in the topology.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
