@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.logger;
 
 import org.junit.Test;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 public class ContextConfigDefaultTest {
     @Test
     public void testDefaultConfig() {
-        ContextConfig config = ContextConfig.getInstance();
+        ContextConfig config = ContextConfig.getLatestConfig();
         ContextConfig.LoggerConfig log4jConfig = config.getLog4jConfig();
         ContextConfig.LoggerConfig log4j2Config = config.getLog4j2Config();
         ContextConfig.LoggerConfig logbackConfig = config.getLogbackConfig();
