@@ -15,19 +15,20 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.logger;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.junit.*;
+package org.apache.skywalking.apm.plugin.logger;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-
 
 public class ContextConfigExceptionTest {
     @Before
@@ -52,6 +53,8 @@ public class ContextConfigExceptionTest {
             properties.setProperty("logback.packages", "package1,package2");
             properties.setProperty("log4j.level", "debug");
             properties.setProperty("log4j.packages", "*");
+            properties.setProperty("log4j2.level", "error");
+            properties.setProperty("log4j.packages", "*");
             FileWriter writer = new FileWriter(configFilePath);
             properties.store(writer, "set fatal level for logback");
             writer.flush();
@@ -61,7 +64,7 @@ public class ContextConfigExceptionTest {
 
     @Test
     public void testHasConfigError() {
-        ContextConfig config = ContextConfig.getInstance();
+        ContextConfig config = ContextConfig.getLatestConfig();
         ContextConfig.LoggerConfig logbackConfig = config.getLogbackConfig();
         ContextConfig.LoggerConfig log4jConfig = config.getLog4jConfig();
         ContextConfig.LoggerConfig log4j2Config = config.getLog4j2Config();
