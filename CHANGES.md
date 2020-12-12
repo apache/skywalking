@@ -20,7 +20,8 @@ Release Notes.
 * Add the rule name field to alarm record storage entity as a part of ID, to support multiple alarm rules triggered for one entity. The scope id has been removed from the ID.
 * Fix MAL concurrent execution issues.
 * Fix group name can't be query in the GraphQL.
-* Fix potential gRPC connection leak(not closed) for the channels among OAP instances. 
+* Fix potential gRPC connection leak(not closed) for the channels among OAP instances.
+* Filter OAP instances(unassigned in booting stage) of the empty IP in KubernetesCoordinator.
 
 #### UI
 * Fix un-removed tags in trace query.
