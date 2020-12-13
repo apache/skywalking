@@ -38,6 +38,7 @@ Release Notes.
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
 * Add documents about the group name of service.
+* Update docs about the latest UI.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 
