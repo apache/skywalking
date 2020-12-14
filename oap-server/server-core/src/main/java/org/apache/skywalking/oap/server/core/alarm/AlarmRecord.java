@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -30,6 +28,9 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
@@ -46,10 +47,11 @@ public class AlarmRecord extends Record {
     public static final String ID1 = "id1";
     public static final String START_TIME = "start_time";
     public static final String ALARM_MESSAGE = "alarm_message";
+    public static final String RULE_NAME = "rule_name";
 
     @Override
     public String id() {
-        return getTimeBucket() + Const.ID_CONNECTOR + scope + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
+        return getTimeBucket() + Const.ID_CONNECTOR + ruleName + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
     }
 
     @Column(columnName = SCOPE)
@@ -64,6 +66,8 @@ public class AlarmRecord extends Record {
     private long startTime;
     @Column(columnName = ALARM_MESSAGE, matchQuery = true)
     private String alarmMessage;
+    @Column(columnName = RULE_NAME)
+    private String ruleName;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
 
@@ -77,6 +81,7 @@ public class AlarmRecord extends Record {
             map.put(ALARM_MESSAGE, storageData.getAlarmMessage());
             map.put(START_TIME, storageData.getStartTime());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
+            map.put(RULE_NAME, storageData.getRuleName());
             return map;
         }
 
@@ -90,6 +95,7 @@ public class AlarmRecord extends Record {
             record.setAlarmMessage((String) dbMap.get(ALARM_MESSAGE));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            record.setRuleName((String) dbMap.get(RULE_NAME));
             return record;
         }
     }

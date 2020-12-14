@@ -19,12 +19,13 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.CoreMatchers.is;
@@ -62,9 +63,9 @@ public class TagFilterTest {
             },
             {
                 "single-value",
-                of("instance_cpu_percentage", SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).build()).build()),
                 "instance_cpu_percentage",
-                Result.success(SampleFamily.build(Sample.builder().value(1600592418480.0).build())),
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).build()).build()),
                 false,
             },
         });
