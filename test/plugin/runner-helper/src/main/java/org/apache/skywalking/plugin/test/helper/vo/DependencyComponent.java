@@ -34,6 +34,6 @@ public class DependencyComponent {
     private List<String> expose;
     private List<String> entrypoint;
     private List<String> environment;
-    private List<String> depends_on;
+    private List<String> dependsOn;
     private List<String> healthcheck;
 }
