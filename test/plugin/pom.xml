@@ -125,10 +125,6 @@
                         **/*.yaml,
                         **/*.xml
                     </resourceIncludes>
-                    <resourceExcludes>
-                        **/.asf.yaml,
-                        **/.github/**
-                    </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**
                     </excludes>
