@@ -61,31 +61,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-Find the demo on our [homepage](https://skywalking.apache.org/).
+Find the demo and screenshots on our [homepage](https://skywalking.apache.org/).
 
 **Video on youtube.com**
 
 [![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
-
-
-# Screenshot
-<table>
-  <tr>
-    <td width="100%" align="center" colspan="2"><b>Dashboard</b></td>
-  </tr>
-  <tr>
-    <td><img src="http://skywalking.apache.org/screenshots/8.0.0/dashboard-1.png"/></td>
-    <td><img src="http://skywalking.apache.org/screenshots/8.0.0/dashboard-2.png"/></td>
-  </tr>
-  <tr>
-      <td width="50%" align="center"><b>Topology Map</b></td>
-      <td width="50%" align="center"><b>Trace</b></td>
-  </tr>
-  <tr>
-     <td><img src="http://skywalking.apache.org/screenshots/8.0.0/topology.png"/></td>
-     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/trace.png"/></td>
-  </tr>
-</table>
 
 # Compiling project
 Follow this [document](docs/en/guides/How-to-build.md).
