@@ -14,6 +14,9 @@ Release Notes.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 
+#### Python Agent
+* Added plugin for aiohttp module requester and server.
+
 #### OAP-Backend
 * Make meter receiver support MAL.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
