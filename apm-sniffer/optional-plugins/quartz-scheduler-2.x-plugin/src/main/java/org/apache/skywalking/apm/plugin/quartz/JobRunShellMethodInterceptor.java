@@ -40,6 +40,7 @@ import java.util.Map;
 public class JobRunShellMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final AbstractTag JOB_GROUP = Tags.ofKey("jobGroup");
+    private static final AbstractTag JOB_NAME = Tags.ofKey("jobName");
     private static final AbstractTag JOB_DATA_MAP = Tags.ofKey("jobDataMap");
 
     private static final String EMPTY_JOB_DATA_MAP_STRING = Collections.emptyMap().toString();
@@ -48,14 +49,15 @@ public class JobRunShellMethodInterceptor implements InstanceMethodsAroundInterc
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         JobDetail jobDetail = (JobDetail) objInst.getSkyWalkingDynamicField();
 
-        String jobName = jobDetail.getKey().getName();
         String jobGroup = jobDetail.getKey().getGroup();
-        String operationName = ComponentsDefine.QUARTZ_SCHEDULER.getName() + "/" + jobName;
+        String jobName = jobDetail.getKey().getName();
+        String operationName = ComponentsDefine.QUARTZ_SCHEDULER.getName() + "/" + jobDetail.getJobClass().getName();
 
         AbstractSpan span = ContextManager.createLocalSpan(operationName);
         span.setComponent(ComponentsDefine.QUARTZ_SCHEDULER);
         Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
         span.tag(JOB_GROUP, jobGroup == null ? "" : jobGroup);
+        span.tag(JOB_NAME, jobName == null ? "" : jobName);
         span.tag(JOB_DATA_MAP, getJobDataMapString(jobDetail));
     }
 
