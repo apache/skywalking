@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import com.google.protobuf.Message;
 import java.util.List;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.envoy.als.wrapper.Identifier;
 
 /**
  * Analysis source metrics from ALS
@@ -34,7 +34,9 @@ public interface ALSHTTPAnalysis {
 
     void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException;
 
-    List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role);
+    List<ServiceMeshMetric.Builder> analysis(Identifier identifier, Message entry, Role role);
 
-    Role identify(StreamAccessLogsMessage.Identifier alsIdentifier, Role prev);
+    default Role identify(Identifier identifier, Role defaultRole) {
+        return identifier.toRole(defaultRole);
+    }
 }

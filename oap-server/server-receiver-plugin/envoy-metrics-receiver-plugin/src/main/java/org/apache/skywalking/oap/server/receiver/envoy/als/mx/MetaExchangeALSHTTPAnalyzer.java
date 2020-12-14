@@ -19,15 +19,14 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.Any;
+import com.google.protobuf.MapField;
+import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
-import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
@@ -37,8 +36,10 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.wrapper.Identifier;
 
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.ProtoMessages.findField;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.UNKNOWN;
 
 @Slf4j
@@ -65,15 +66,12 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
+    public List<ServiceMeshMetric.Builder> analysis(Identifier identifier, Message entry, Role role) {
+        final Optional<MapField<String, Any>> stateMap = findField(entry, "common_properties.filter_state_objects");
+        if (!stateMap.isPresent()) {
             return Collections.emptyList();
         }
-        final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
-        if (stateMap == null) {
-            return Collections.emptyList();
-        }
+
         final ServiceMetaInfo currSvc;
         try {
             currSvc = adaptToServiceMetaInfo(identifier);
@@ -84,7 +82,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
 
         final List<ServiceMeshMetric.Builder> result = new ArrayList<>();
         final AtomicBoolean downstreamExists = new AtomicBoolean();
-        stateMap.forEach((key, value) -> {
+        stateMap.get().getMap().forEach((key, value) -> {
             if (!key.equals(UPSTREAM_KEY) && !key.equals(DOWNSTREAM_KEY)) {
                 return;
             }
@@ -128,8 +126,8 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
         return new ServiceMetaInfoAdapter(value);
     }
 
-    protected ServiceMetaInfo adaptToServiceMetaInfo(final StreamAccessLogsMessage.Identifier identifier) throws Exception {
-        return new ServiceMetaInfoAdapter(identifier.getNode().getMetadata());
+    protected ServiceMetaInfo adaptToServiceMetaInfo(final Identifier identifier) throws Exception {
+        return new ServiceMetaInfoAdapter(identifier.nodeMetadata());
     }
 
 }

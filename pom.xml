@@ -513,6 +513,8 @@
                         <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
                         <exclude>**/src/main/proto/validate/validate.proto</exclude>
                         <exclude>**/src/main/proto/opencensus/**</exclude>
+                        <exclude>**/src/main/proto/metrics.proto</exclude>
+                        <exclude>**/src/main/proto/udpa/**</exclude>
 
                         <!-- generated file from oal grammar and rt template -->
                         <exclude>**/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/OALLexer.tokens</exclude>

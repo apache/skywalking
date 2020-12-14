@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
-import io.envoyproxy.envoy.api.v2.core.Address;
-import io.envoyproxy.envoy.api.v2.core.SocketAddress;
-import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +30,12 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.wrapper.Identifier;
 
+import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
+import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.ProtoMessages.findField;
 
 /**
  * Analysis log based on ingress and mesh scenarios.
@@ -57,7 +57,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role) {
+    public List<ServiceMeshMetric.Builder> analysis(Identifier identifier, Message entry, Role role) {
         if (serviceRegistry.isEmpty()) {
             return Collections.emptyList();
         }
@@ -71,25 +71,23 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         return Collections.emptyList();
     }
 
-    protected List<ServiceMeshMetric.Builder> analyzeSideCar(final HTTPAccessLogEntry entry) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
-            return Collections.emptyList();
-        }
-        final String cluster = properties.getUpstreamCluster();
-        if (cluster == null) {
+    protected List<ServiceMeshMetric.Builder> analyzeSideCar(final Message entry) {
+        final String cluster = findField(entry, "common_properties.upstream_cluster", "");
+        final String downstreamLocalAddress = findField(entry, "common_properties.downstream_local_address.socket_address.address", null);
+        final String downstreamDirectRemoteAddress = findField(entry, "common_properties.downstream_direct_remote_address.socket_address.address", null);
+        String downstreamRemoteAddress =
+            isNotEmpty(downstreamDirectRemoteAddress)
+                ? downstreamDirectRemoteAddress
+                : findField(entry, "common_properties.downstream_remote_address.socket_address.address", "");
+
+        if (isEmpty(cluster)) {
             return Collections.emptyList();
         }
 
         final List<ServiceMeshMetric.Builder> sources = new ArrayList<>();
 
-        final Address downstreamRemoteAddress =
-            properties.hasDownstreamDirectRemoteAddress()
-                ? properties.getDownstreamDirectRemoteAddress()
-                : properties.getDownstreamRemoteAddress();
-        final ServiceMetaInfo downstreamService = find(downstreamRemoteAddress.getSocketAddress().getAddress());
-        final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
-        final ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
+        final ServiceMetaInfo downstreamService = find(downstreamRemoteAddress);
+        final ServiceMetaInfo localService = find(downstreamLocalAddress);
 
         if (cluster.startsWith("inbound|")) {
             // Server side
@@ -109,8 +107,8 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             sources.add(metrics);
         } else if (cluster.startsWith("outbound|")) {
             // sidecar(client side) -> sidecar
-            final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
-            final ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());
+            final String upstreamRemoteAddress = findField(entry, "common_properties.upstream_remote_address.socket_address.address", null);
+            final ServiceMetaInfo destService = find(upstreamRemoteAddress);
 
             final ServiceMeshMetric.Builder metric = newAdapter(entry, downstreamService, destService).adaptToUpstreamMetrics();
 
@@ -121,33 +119,30 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         return sources;
     }
 
-    protected List<ServiceMeshMetric.Builder> analyzeProxy(final HTTPAccessLogEntry entry) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
-            return Collections.emptyList();
-        }
-        final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
-        final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
-            properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
-        final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
-        if (downstreamLocalAddress == null || downstreamRemoteAddress == null || upstreamRemoteAddress == null) {
+    protected List<ServiceMeshMetric.Builder> analyzeProxy(final Message entry) {
+        final String downstreamLocalAddress = findField(entry, "common_properties.downstream_local_address.socket_address.address", null);
+        final String downstreamDirectRemoteAddress = findField(entry, "common_properties.downstream_direct_remote_address.socket_address.address", null);
+        String downstreamRemoteAddress =
+            isNotEmpty(downstreamDirectRemoteAddress)
+                ? downstreamDirectRemoteAddress
+                : findField(entry, "common_properties.downstream_remote_address.socket_address.address", null);
+
+        final String upstreamRemoteAddress = findField(entry, "common_properties.upstream_remote_address.socket_address.address", null);
+        if (isEmpty(downstreamLocalAddress) || isEmpty(downstreamRemoteAddress) || isEmpty(upstreamRemoteAddress)) {
             return Collections.emptyList();
         }
 
         final List<ServiceMeshMetric.Builder> result = new ArrayList<>(2);
-        final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
+        final ServiceMetaInfo outside = find(downstreamRemoteAddress);
 
-        final SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
-        final ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
+        final ServiceMetaInfo ingress = find(downstreamLocalAddress);
 
         final ServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
 
         log.debug("Transformed ingress inbound mesh metric {}", metric);
         result.add(metric);
 
-        final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
+        final ServiceMetaInfo targetService = find(upstreamRemoteAddress);
 
         final ServiceMeshMetric.Builder outboundMetric =
             newAdapter(entry, ingress, targetService)

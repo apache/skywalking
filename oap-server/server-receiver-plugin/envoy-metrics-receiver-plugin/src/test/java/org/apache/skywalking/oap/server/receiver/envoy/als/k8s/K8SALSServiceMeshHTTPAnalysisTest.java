@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.wrapper.Identifier;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-ingress.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
-            Role identify = analysis.identify(requestBuilder.getIdentifier(), Role.NONE);
+            Role identify = analysis.identify(new Identifier(requestBuilder.getIdentifier()), Role.NONE);
 
             Assert.assertEquals(Role.PROXY, identify);
         }
@@ -65,7 +66,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-mesh-server-sidecar.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
-            Role identify = analysis.identify(requestBuilder.getIdentifier(), Role.NONE);
+            Role identify = analysis.identify(new Identifier(requestBuilder.getIdentifier()), Role.NONE);
 
             Assert.assertEquals(Role.SIDECAR, identify);
         }
@@ -77,7 +78,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new Identifier(requestBuilder.getIdentifier()), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
 
             Assert.assertEquals(2, result.size());
 
@@ -99,7 +100,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new Identifier(requestBuilder.getIdentifier()), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, result.size());
 
@@ -116,7 +117,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new Identifier(requestBuilder.getIdentifier()), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, result.size());
 
@@ -133,7 +134,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new Identifier(requestBuilder.getIdentifier()), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, result.size());
 

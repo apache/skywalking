@@ -18,34 +18,35 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsResponse;
-import io.grpc.stub.StreamObserver;
+import com.google.protobuf.Message;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ProtoMessages;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
+import org.apache.skywalking.oap.server.receiver.envoy.als.wrapper.Identifier;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
-    private final List<ALSHTTPAnalysis> envoyHTTPAnalysisList;
+@Slf4j
+public class AccessLogServiceGRPCHandler {
+    protected final List<ALSHTTPAnalysis> envoyHTTPAnalysisList;
 
-    private final CounterMetrics counter;
-    private final HistogramMetrics histogram;
-    private final CounterMetrics sourceDispatcherCounter;
+    protected final CounterMetrics counter;
+
+    protected final HistogramMetrics histogram;
+
+    protected final CounterMetrics sourceDispatcherCounter;
 
     public AccessLogServiceGRPCHandler(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
         ServiceLoader<ALSHTTPAnalysis> alshttpAnalyses = ServiceLoader.load(ALSHTTPAnalysis.class);
@@ -59,7 +60,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             }
         }
 
-        LOGGER.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
+        log.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         counter = metricCreator.createCounter("envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
@@ -67,67 +68,43 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
         sourceDispatcherCounter = metricCreator.createCounter("envoy_als_source_dispatch_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
-    public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(
-        StreamObserver<StreamAccessLogsResponse> responseObserver) {
-        return new StreamObserver<StreamAccessLogsMessage>() {
-            private volatile boolean isFirst = true;
-            private Role role;
-            private StreamAccessLogsMessage.Identifier identifier;
+    private Role role;
 
-            @Override
-            public void onNext(StreamAccessLogsMessage message) {
-                counter.inc();
+    private volatile boolean isFirst = true;
 
-                HistogramMetrics.Timer timer = histogram.createTimer();
-                try {
-                    if (isFirst) {
-                        identifier = message.getIdentifier();
-                        isFirst = false;
-                        role = Role.NONE;
-                        for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
-                            role = analysis.identify(identifier, role);
-                        }
-                    }
+    private Identifier identifier;
 
-                    StreamAccessLogsMessage.LogEntriesCase logCase = message.getLogEntriesCase();
+    protected void handle(Message message) {
+        counter.inc();
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
-                            .getNode()
-                            .getId(), role, logCase, message);
-                    }
-
-                    switch (logCase) {
-                        case HTTP_LOGS:
-                            StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
-
-                            List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
-                            for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
-                                logs.getLogEntryList().forEach(log -> {
-                                    sourceResult.addAll(analysis.analysis(identifier, log, role));
-                                });
-                            }
-
-                            sourceDispatcherCounter.inc(sourceResult.size());
-                            sourceResult.forEach(TelemetryDataDispatcher::process);
-                            break;
-                    }
-                } finally {
-                    timer.finish();
+        try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
+            if (isFirst) {
+                identifier = new Identifier(ProtoMessages.findField(message, "identifier", null));
+                isFirst = false;
+                role = Role.NONE;
+                for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
+                    role = analysis.identify(identifier, role);
                 }
             }
 
-            @Override
-            public void onError(Throwable throwable) {
-                LOGGER.error("Error in receiving access log from envoy", throwable);
-                responseObserver.onCompleted();
+            if (log.isDebugEnabled()) {
+                log.debug("Messaged is identified from Envoy[{}], role[{}]. Received msg {}", identifier, role, message);
             }
 
-            @Override
-            public void onCompleted() {
-                responseObserver.onNext(StreamAccessLogsResponse.newBuilder().build());
-                responseObserver.onCompleted();
+            final List<Message> logs = ProtoMessages.findField(message, "http_logs.log_entry", Collections.emptyList());
+            final List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
+            for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
+                logs.forEach(log -> sourceResult.addAll(analysis.analysis(identifier, log, role)));
             }
-        };
+
+            sourceDispatcherCounter.inc(sourceResult.size());
+            sourceResult.forEach(TelemetryDataDispatcher::process);
+        }
+    }
+
+    public void reset() {
+        role = null;
+        isFirst = true;
+        identifier = null;
     }
 }

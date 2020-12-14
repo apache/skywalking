@@ -19,15 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
 import com.google.protobuf.Duration;
+import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.UInt32Value;
-import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
-import io.envoyproxy.envoy.data.accesslog.v2.ResponseFlags;
-import io.envoyproxy.envoy.data.accesslog.v2.TLSProperties;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +32,10 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Optional.ofNullable;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.ProtoMessages.findField;
 
 /**
- * Adapt {@link HTTPAccessLogEntry} objects to {@link ServiceMeshMetric} builders.
+ * Adapt {@link Message access log entry} objects to {@link ServiceMeshMetric} builders.
  */
 @RequiredArgsConstructor
 public class LogEntry2MetricsAdapter {
@@ -53,7 +49,7 @@ public class LogEntry2MetricsAdapter {
     /**
      * The access log entry that is to be adapted into metrics builders.
      */
-    protected final HTTPAccessLogEntry entry;
+    protected final Message logEntry;
 
     protected final ServiceMetaInfo sourceService;
 
@@ -65,9 +61,8 @@ public class LogEntry2MetricsAdapter {
      * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
      */
     public ServiceMeshMetric.Builder adaptToDownstreamMetrics() {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        final long startTime = formatAsLong(properties.getStartTime());
-        final long duration = formatAsLong(properties.getTimeToLastDownstreamTxByte());
+        final long startTime = formatAsLong(findField(logEntry, "common_properties.start_time", Timestamp.newBuilder().build()));
+        final long duration = formatAsLong(findField(logEntry, "common_properties.time_to_last_rx_byte", Duration.newBuilder().build()));
 
         return adaptCommonPart()
             .setStartTime(startTime)
@@ -82,10 +77,9 @@ public class LogEntry2MetricsAdapter {
      * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
      */
     public ServiceMeshMetric.Builder adaptToUpstreamMetrics() {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        final long startTime = formatAsLong(properties.getStartTime());
-        final long outboundStartTime = startTime + formatAsLong(properties.getTimeToFirstUpstreamTxByte());
-        final long outboundEndTime = startTime + formatAsLong(properties.getTimeToLastUpstreamRxByte());
+        final long startTime = formatAsLong(findField(logEntry, "common_properties.start_time", Timestamp.newBuilder().build()));
+        final long outboundStartTime = startTime + formatAsLong(findField(logEntry, "common_properties.time_to_first_upstream_tx_byte", Duration.newBuilder().build()));
+        final long outboundEndTime = startTime + formatAsLong(findField(logEntry, "common_properties.time_to_last_upstream_tx_byte", Duration.newBuilder().build()));
 
         return adaptCommonPart()
             .setStartTime(outboundStartTime)
@@ -95,15 +89,12 @@ public class LogEntry2MetricsAdapter {
     }
 
     protected ServiceMeshMetric.Builder adaptCommonPart() {
-        final AccessLogCommon properties = entry.getCommonProperties();
         final String endpoint = endpoint();
-        final int responseCode = ofNullable(entry.getResponse()).map(HTTPResponseProperties::getResponseCode)
-                                                                .map(UInt32Value::getValue)
-                                                                .orElse(200);
+        final int responseCode = ProtoMessages.<UInt32Value>findField(logEntry, "response.response_code").map(UInt32Value::getValue).orElse(200);
         final boolean status = responseCode >= 200 && responseCode < 400;
-        final Protocol protocol = requestProtocol(entry.getRequest());
-        final String tlsMode = parseTLS(properties.getTlsProperties());
-        final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
+        final Protocol protocol = requestProtocol();
+        final String tlsMode = parseTLS();
+        final String internalErrorCode = parseInternalErrorCode(findField(logEntry, "common_properties.response_flags", null));
 
         final ServiceMeshMetric.Builder builder =
             ServiceMeshMetric.newBuilder()
@@ -131,7 +122,7 @@ public class LogEntry2MetricsAdapter {
     }
 
     protected String endpoint() {
-        return ofNullable(entry.getRequest()).map(HTTPRequestProperties::getPath).orElse("/");
+        return findField(logEntry, "request.path", "/");
     }
 
     protected static long formatAsLong(final Timestamp timestamp) {
@@ -142,35 +133,54 @@ public class LogEntry2MetricsAdapter {
         return Instant.ofEpochSecond(duration.getSeconds(), duration.getNanos()).toEpochMilli();
     }
 
-    protected static Protocol requestProtocol(final HTTPRequestProperties request) {
-        if (request == null) {
+    protected Protocol requestProtocol() {
+        if (!findField(logEntry, "request").isPresent()) {
             return Protocol.HTTP;
         }
-        final String scheme = request.getScheme();
+        final String scheme = findField(logEntry, "request.scheme", "");
         if (scheme.startsWith("http")) {
             return Protocol.HTTP;
         }
         return Protocol.gRPC;
     }
 
-    protected static String parseTLS(final TLSProperties properties) {
-        if (properties == null) {
+    protected String parseTLS() {
+        if (!findField(logEntry, "common_properties.tls_properties").isPresent()) {
             return NON_TLS;
         }
-        TLSProperties.CertificateProperties lp = Optional
-            .ofNullable(properties.getLocalCertificateProperties())
-            .orElse(TLSProperties.CertificateProperties.newBuilder().build());
-        if (isNullOrEmpty(lp.getSubject()) && !hasSAN(lp.getSubjectAltNameList())) {
+        final String localCertSubject = findField(logEntry, "common_properties.tls_properties.local_certificate_properties.subject", null);
+        final List<Message> localCertSubjectAltNames = findField(logEntry, "common_properties.tls_properties.local_certificate_properties.subject_alt_name", Collections.emptyList());
+        final String peerCertSubject = findField(logEntry, "common_properties.tls_properties.peer_certificate_properties.subject", null);
+        final List<Message> peerCertSubjectAltNames = findField(logEntry, "common_properties.tls_properties.peer_certificate_properties.subject_alt_name", Collections.emptyList());
+        if (isNullOrEmpty(localCertSubject) && !hasSAN(localCertSubjectAltNames)) {
             return NON_TLS;
         }
-        TLSProperties.CertificateProperties pp = Optional
-            .ofNullable(properties.getPeerCertificateProperties())
-            .orElse(TLSProperties.CertificateProperties.newBuilder().build());
-        if (isNullOrEmpty(pp.getSubject()) && !hasSAN(pp.getSubjectAltNameList())) {
+        if (isNullOrEmpty(peerCertSubject) && !hasSAN(peerCertSubjectAltNames)) {
             return TLS;
         }
         return M_TLS;
     }
+
+    private static final String[] INTERNAL_ERROR_CODES = new String[] {
+        "failed_local_healthcheck",
+        "no_healthy_upstream",
+        "upstream_request_timeout",
+        "local_reset",
+        "upstream_remote_reset",
+        "upstream_connection_failure",
+        "upstream_connection_termination",
+        "upstream_overflow",
+        "no_route_found",
+        "delay_injected",
+        "fault_injected",
+        "rate_limited",
+        "rate_limit_service_error",
+        "downstream_connection_termination",
+        "upstream_retry_limit_exceeded",
+        "stream_idle_timeout",
+        "invalid_envoy_request_headers",
+        "downstream_protocol_error"
+    };
 
     /**
      * Refer to https://www.envoyproxy.io/docs/envoy/latest/api-v2/data/accesslog/v2/accesslog.proto#data-accesslog-v2-responseflags
@@ -178,44 +188,15 @@ public class LogEntry2MetricsAdapter {
      * @param responseFlags in the ALS v2
      * @return empty string if no internal error code, or literal string representing the code.
      */
-    protected static String parseInternalErrorCode(final ResponseFlags responseFlags) {
+    protected static String parseInternalErrorCode(final Message responseFlags) {
         if (responseFlags != null) {
-            if (responseFlags.getFailedLocalHealthcheck()) {
-                return "failed_local_healthcheck";
-            } else if (responseFlags.getNoHealthyUpstream()) {
-                return "no_healthy_upstream";
-            } else if (responseFlags.getUpstreamRequestTimeout()) {
-                return "upstream_request_timeout";
-            } else if (responseFlags.getLocalReset()) {
-                return "local_reset";
-            } else if (responseFlags.getUpstreamConnectionFailure()) {
-                return "upstream_connection_failure";
-            } else if (responseFlags.getUpstreamConnectionTermination()) {
-                return "upstream_connection_termination";
-            } else if (responseFlags.getUpstreamOverflow()) {
-                return "upstream_overflow";
-            } else if (responseFlags.getNoRouteFound()) {
-                return "no_route_found";
-            } else if (responseFlags.getDelayInjected()) {
-                return "delay_injected";
-            } else if (responseFlags.getFaultInjected()) {
-                return "fault_injected";
-            } else if (responseFlags.getRateLimited()) {
-                return "rate_limited";
-            } else if (responseFlags.getUnauthorizedDetails() != null) {
+            for (final String internalErrorCode : INTERNAL_ERROR_CODES) {
+                if (findField(responseFlags, internalErrorCode, false)) {
+                    return internalErrorCode;
+                }
+            }
+            if (!findField(responseFlags, "unauthorized_details").isPresent()) {
                 return "unauthorized_details";
-            } else if (responseFlags.getRateLimitServiceError()) {
-                return "rate_limit_service_error";
-            } else if (responseFlags.getDownstreamConnectionTermination()) {
-                return "downstream_connection_termination";
-            } else if (responseFlags.getUpstreamRetryLimitExceeded()) {
-                return "upstream_retry_limit_exceeded";
-            } else if (responseFlags.getStreamIdleTimeout()) {
-                return "stream_idle_timeout";
-            } else if (responseFlags.getInvalidEnvoyRequestHeaders()) {
-                return "invalid_envoy_request_headers";
-            } else if (responseFlags.getDownstreamProtocolError()) {
-                return "downstream_protocol_error";
             }
         }
         return "";
@@ -225,10 +206,10 @@ public class LogEntry2MetricsAdapter {
      * @param subjectAltNameList from ALS LocalCertificateProperties and PeerCertificateProperties
      * @return true is there is at least one SAN, based on URI check.
      */
-    private static boolean hasSAN(List<TLSProperties.CertificateProperties.SubjectAltName> subjectAltNameList) {
-        for (final TLSProperties.CertificateProperties.SubjectAltName san : subjectAltNameList) {
+    private static boolean hasSAN(List<Message> subjectAltNameList) {
+        for (final Message san : subjectAltNameList) {
             // Don't check DNS for now, as it is tagged not-implemented in ALS v2
-            if (!isNullOrEmpty(san.getUri())) {
+            if (!isNullOrEmpty(findField(san, "uri", ""))) {
                 return true;
             }
         }
