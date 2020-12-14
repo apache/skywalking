@@ -14,9 +14,6 @@ Release Notes.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 
-#### Python Agent
-* Added plugin for aiohttp module requester and server.
-
 #### OAP-Backend
 * Make meter receiver support MAL.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
@@ -26,6 +23,7 @@ Release Notes.
 * Fix group name can't be query in the GraphQL.
 * Fix potential gRPC connection leak(not closed) for the channels among OAP instances.
 * Filter OAP instances(unassigned in booting stage) of the empty IP in KubernetesCoordinator.
+* Add component ID for Python aiohttp plugin requester and server.
 
 #### UI
 * Fix un-removed tags in trace query.
