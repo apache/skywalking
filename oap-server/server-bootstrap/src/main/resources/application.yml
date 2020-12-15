@@ -154,7 +154,7 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   h2:
     driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
     user: ${SW_STORAGE_H2_USER:sa}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
     maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
