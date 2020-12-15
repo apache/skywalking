@@ -16,21 +16,32 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.customize.service;
+package test.apache.skywalking.apm.testcase.customize.service;
 
 import java.util.List;
+import java.util.Map;
 
-public class TestService2 {
+import test.apache.skywalking.apm.testcase.customize.model.Model0;
 
-    public static void staticMethod(String str0, int count) {
+public class TestService1 {
+
+    public static void staticMethod() {
 
     }
 
-    public void method(Object[] objects) {
+    public static void staticMethod(String str0, int count, Map m, List l, Object[] os) {
 
     }
 
-    public void method(List str0, int count) {
+    public void method() {
+
+    }
+
+    public void method(String str0, int count) {
+
+    }
+
+    public void method(Model0 m0, String str0, int count) {
 
     }
 }

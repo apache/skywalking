@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.customize.controller;
+package test.apache.skywalking.apm.testcase.customize.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import test.org.apache.skywalking.apm.testcase.customize.model.Model0;
-import test.org.apache.skywalking.apm.testcase.customize.model.Model1;
-import test.org.apache.skywalking.apm.testcase.customize.service.TestService1;
-import test.org.apache.skywalking.apm.testcase.customize.service.TestService2;
+import test.apache.skywalking.apm.testcase.customize.model.Model0;
+import test.apache.skywalking.apm.testcase.customize.service.TestService1;
+import test.apache.skywalking.apm.testcase.customize.service.TestService2;
+import test.apache.skywalking.apm.testcase.customize.model.Model1;
 
 @RestController
 @RequestMapping("/case")

@@ -16,19 +16,31 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.customize;
+package test.apache.skywalking.apm.testcase.customize.model;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+public class Model1 {
 
-@SpringBootApplication
-public class Application {
+    public Model1(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(Application.class, args);
-        } catch (Exception e) {
-            // Never do this
-        }
+    private int id;
+    private String name;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

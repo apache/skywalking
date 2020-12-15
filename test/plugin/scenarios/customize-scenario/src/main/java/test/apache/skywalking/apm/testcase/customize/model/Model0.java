@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.customize.model;
+package test.apache.skywalking.apm.testcase.customize.model;
 
 import java.util.List;
 import java.util.Map;
