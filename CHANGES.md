@@ -24,6 +24,7 @@ Release Notes.
 * Fix potential gRPC connection leak(not closed) for the channels among OAP instances.
 * Filter OAP instances(unassigned in booting stage) of the empty IP in KubernetesCoordinator.
 * Add component ID for Python aiohttp plugin requester and server.
+* Fix H2 in-memory database table missing issues
 
 #### UI
 * Fix un-removed tags in trace query.
