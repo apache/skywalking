@@ -13,7 +13,7 @@ Release Notes.
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
-* Fix Non-atomic operation on volatile field in `SimpleRollingPartitioner` and `MultipleChannelsConsumer`
+* Fix Non-atomic operation on volatile field in `SimpleRollingPartitioner`
 
 #### OAP-Backend
 * Make meter receiver support MAL.
