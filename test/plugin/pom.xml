@@ -129,8 +129,8 @@
                         <sourceDirectory>scenarios/customize-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/cxf-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/dbcp-2.x-scenario</sourceDirectory>-->
-<!--                        <sourceDirectory>scenarios/dubbo-2.5.x-scenario</sourceDirectory>-->
-<!--                        <sourceDirectory>scenarios/dubbo-2.7.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/dubbo-2.5.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/dubbo-2.7.x-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
