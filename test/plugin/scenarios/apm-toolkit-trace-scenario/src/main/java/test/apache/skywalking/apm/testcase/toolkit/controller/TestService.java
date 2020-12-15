@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.toolkit.controller;
+package test.apache.skywalking.apm.testcase.toolkit.controller;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;

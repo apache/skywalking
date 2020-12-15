@@ -116,6 +116,13 @@
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                        <sourceDirectory>scenarios/activemq-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/apm-toolkit-trace-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/armeria-0.96minus-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/armeria-0.96plus-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/asynchttpclient-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/avro-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/baidu-brpc-scenario</sourceDirectory>-->
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
