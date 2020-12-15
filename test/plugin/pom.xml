@@ -122,7 +122,7 @@
                         <sourceDirectory>scenarios/armeria-0.96plus-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/asynchttpclient-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/avro-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/baidu-brpc-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/baidu-brpc-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
@@ -133,7 +133,8 @@
                         **/*.xml
                     </resourceIncludes>
                     <excludes>
-                        **/target/generated-test-sources/**
+                        **/target/generated-test-sources/**,
+                        **/org/apache/skywalking/apm/testcase/baidu.brpc/interfaces/Echo.java
                     </excludes>
                     <propertyExpansion>
                         import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
