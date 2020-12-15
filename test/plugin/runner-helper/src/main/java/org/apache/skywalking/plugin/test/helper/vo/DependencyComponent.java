@@ -36,4 +36,9 @@ public class DependencyComponent {
     private List<String> environment;
     private List<String> dependsOn;
     private List<String> healthcheck;
+
+    //make sure that depends_on can be set correctly
+    public void setDepends_on(List<String> dependsOn) {
+        this.dependsOn = dependsOn;
+    }
 }
