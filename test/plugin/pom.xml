@@ -134,9 +134,9 @@
                         <sourceDirectory>scenarios/ehcache-2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/elasticjob-2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/elasticjob-3.x-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/elasticsearch-5.x-scenario</sourceDirectory>-->
-<!--                        <sourceDirectory>scenarios/elasticsearch-6.x-scenario</sourceDirectory>-->
-<!--                        <sourceDirectory>scenarios/elasticsearch-7.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/elasticsearch-5.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/elasticsearch-6.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/elasticsearch-7.x-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/exception-checker-spring-scenario</sourceDirectory>-->
 <!--                        <sourceDirectory>scenarios/exception-checker-tomcat-scenario</sourceDirectory>-->
                     </sourceDirectories>
