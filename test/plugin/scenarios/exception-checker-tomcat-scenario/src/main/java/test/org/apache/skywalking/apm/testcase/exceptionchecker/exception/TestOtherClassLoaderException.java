@@ -18,7 +18,7 @@
 
 package test.org.apache.skywalking.apm.testcase.exceptionchecker.exception;
 
-public class TestOtherClassLoaderException extends RuntimeException{
+public class TestOtherClassLoaderException extends RuntimeException {
 
     public TestOtherClassLoaderException() {
     }
