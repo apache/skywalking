@@ -142,6 +142,13 @@
                         <sourceDirectory>scenarios/feign-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/finagle-6.44.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/finagle-17.10.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/gateway-2.0.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/gateway-2.1.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/graphql-8.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/graphql-9.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/graphql-12.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/grpc-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/gson-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
