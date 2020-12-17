@@ -38,7 +38,7 @@ services:
       dockerfile: e2e-test/docker/Dockerfile.provider
       args:
         - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION:-11}
-        - DIST_PACKAGE=https://dist.apache.org/repos/dist/release/skywalking/8.3.0/apache-skywalking-apm-8.3.0.tar.gz
+        - DIST_PACKAGE=http://archive.apache.org/dist/skywalking/8.3.0/apache-skywalking-apm-8.3.0.tar.gz
     networks:
       - e2e
     expose:

@@ -7,7 +7,7 @@ Release Notes.
 #### Project
 * Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
-* Add `package` to `.proto` files, prevent polluting top-level namespace in some languages.
+* Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; previous OAP backend (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
