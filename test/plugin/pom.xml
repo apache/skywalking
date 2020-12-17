@@ -154,6 +154,23 @@
                         <sourceDirectory>scenarios/httpclient-4.3.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/hystrix-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/influxdb-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/jdk14-with-gson-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/jdk-http-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/jdk-threading-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/jedis-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/jetty-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/kafka-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/kotlin-coroutine-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/lettuce-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/logger-log4j2-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/logger-log4j-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/logger-logback-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/mariadb-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/mongodb-3.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/mongodb-4.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/mssql-jdbc-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/mssql-jtds-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/mysql-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
