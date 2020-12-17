@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
-import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricReportServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.v3.compat.JVMMetricReportServiceGrpc;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
