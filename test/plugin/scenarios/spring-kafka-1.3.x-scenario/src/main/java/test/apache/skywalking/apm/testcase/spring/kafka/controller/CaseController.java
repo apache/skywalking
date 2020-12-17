@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.kafka.controller;
+package test.apache.skywalking.apm.testcase.spring.kafka.controller;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
