@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.redisson.controller;
+package test.apache.skywalking.apm.testcase.redisson.controller;
 
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
