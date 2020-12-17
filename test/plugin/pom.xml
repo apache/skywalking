@@ -177,7 +177,7 @@
                         <sourceDirectory>scenarios/play-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/postgresql-above9.4.1207-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/postgresql-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/pulsar-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/pulsar-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/quartz-scheduler-2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/quasar-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/rabbitmq-scenario</sourceDirectory>

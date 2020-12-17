@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.pulsar.controller;
+package test.apache.skywalking.apm.testcase.pulsar.controller;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
