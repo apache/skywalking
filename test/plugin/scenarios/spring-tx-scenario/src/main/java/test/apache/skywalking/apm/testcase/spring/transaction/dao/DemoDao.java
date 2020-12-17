@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.transaction.dao;
+package test.apache.skywalking.apm.testcase.spring.transaction.dao;
 
 public interface DemoDao {
 

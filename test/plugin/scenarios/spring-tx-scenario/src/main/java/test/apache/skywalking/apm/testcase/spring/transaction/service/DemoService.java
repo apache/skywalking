@@ -16,24 +16,10 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.transaction.service.impl;
+package test.apache.skywalking.apm.testcase.spring.transaction.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import test.org.apache.skywalking.apm.testcase.spring.transaction.dao.DemoDao;
-import test.org.apache.skywalking.apm.testcase.spring.transaction.service.DemoService;
+public interface DemoService {
 
-@Service
-public class DemoServiceImpl implements DemoService {
+    void doBiz();
 
-    @Autowired
-    private DemoDao demoDao;
-
-    @Override
-    @Transactional
-    public void doBiz() {
-        demoDao.insert("1");
-        demoDao.insert("2");
-    }
 }

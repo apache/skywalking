@@ -16,20 +16,22 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.transaction.config;
+package test.apache.skywalking.apm.testcase.spring.transaction.dao.impl;
 
-import javax.sql.DataSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import test.apache.skywalking.apm.testcase.spring.transaction.dao.DemoDao;
 
-@Configuration
-public class TransactionConfig {
+@Repository
+public class DemoDaoImpl implements DemoDao {
 
-    @Bean
-    public PlatformTransactionManager transactionManager(DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public int insert(String name) {
+        return jdbcTemplate.update("insert into `test`.`table_demo`(name) values(?)", name);
     }
 
 }

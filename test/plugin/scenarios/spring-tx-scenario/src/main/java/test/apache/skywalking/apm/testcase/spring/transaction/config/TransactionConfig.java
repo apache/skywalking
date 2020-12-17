@@ -16,10 +16,20 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.transaction.service;
+package test.apache.skywalking.apm.testcase.spring.transaction.config;
 
-public interface DemoService {
+import javax.sql.DataSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
-    void doBiz();
+@Configuration
+public class TransactionConfig {
+
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
 
 }

@@ -16,22 +16,24 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.transaction.dao.impl;
+package test.apache.skywalking.apm.testcase.spring.transaction.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-import test.org.apache.skywalking.apm.testcase.spring.transaction.dao.DemoDao;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import test.apache.skywalking.apm.testcase.spring.transaction.dao.DemoDao;
+import test.apache.skywalking.apm.testcase.spring.transaction.service.DemoService;
 
-@Repository
-public class DemoDaoImpl implements DemoDao {
+@Service
+public class DemoServiceImpl implements DemoService {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private DemoDao demoDao;
 
     @Override
-    public int insert(String name) {
-        return jdbcTemplate.update("insert into `test`.`table_demo`(name) values(?)", name);
+    @Transactional
+    public void doBiz() {
+        demoDao.insert("1");
+        demoDao.insert("2");
     }
-
 }

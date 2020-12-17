@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring.transaction.config;
+package test.apache.skywalking.apm.testcase.spring.transaction.config;
 
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
