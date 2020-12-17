@@ -18,22 +18,22 @@ name: E2E
 
 on:
   pull_request:
-    paths:
-      - '**'
-      - '!**.md'
   push:
     branches:
       - master
 
 env:
   SKIP_TEST: true
-  SW_AGENT_JDK_VERSION: 8
 
 jobs:
-  PythonAgent:
-    name: PythonAgent
+  Compatability:
+    name: Compatability
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SW_SIMPLE_CASE: compat
+      SW_AGENT_JDK_VERSION: 11
+      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk11:alpine
     steps:
       - uses: actions/checkout@v2
         with:
@@ -45,14 +45,26 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
+      - name: Set Up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build Docker Image
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
-      - name: Python Agent
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.PythonE2E
+      - name: Agent on JDK Version
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: logs
           path: logs
+
+  Single:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [JavaVersions]
+    steps:
+      - name: Singles Bar
+        run: echo "Singles Bar - Miyuki Nakajima"
