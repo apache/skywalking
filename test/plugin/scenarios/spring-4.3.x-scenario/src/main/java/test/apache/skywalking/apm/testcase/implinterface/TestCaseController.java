@@ -16,14 +16,20 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3.dao;
+package test.apache.skywalking.apm.testcase.implinterface;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RestController;
 
-@Repository
-public class TestRepositoryBean {
+@RestController
+public class TestCaseController implements TestCaseInterface {
 
-    public String doSomeStuff(String name) {
-        return name + "-dealWithRepository";
+    @Override
+    public String implRequestMappingAnnotationTestCase() {
+        return "implRequestMappingAnnotationTestCase";
+    }
+
+    @Override
+    public String implRestAnnotationTestCase() {
+        return "implRestAnnotationTestCase";
     }
 }

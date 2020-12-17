@@ -16,26 +16,17 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3;
+package test.apache.skywalking.apm.testcase.inherit;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import test.org.apache.skywalking.apm.testcase.spring3.service.TestServiceBean;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-public class CaseController {
+@RestController
+@RequestMapping("/inherit/parent")
+public class ParentController {
 
-    private static final String SUCCESS = "Success";
-
-    @Autowired
-    private TestServiceBean testServiceBean;
-
-    @RequestMapping(value = "/case/spring3")
-    @ResponseBody
-    public String updateUser() {
-        testServiceBean.doSomeBusiness("test");
-        return SUCCESS;
+    @RequestMapping("test")
+    public String test(Integer param) {
+        return "parent-a" + param;
     }
 }

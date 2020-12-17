@@ -16,38 +16,13 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.entity;
+package test.apache.skywalking.apm.testcase.inherit;
 
-public class User {
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-    private int id;
-    private String userName;
+@RestController
+@RequestMapping("/inherit/child")
+public class ChildController extends ParentController {
 
-    public User(int id) {
-        this.id = id;
-    }
-
-    public User(int id, String userName) {
-        this.id = id;
-        this.userName = userName;
-    }
-
-    public User() {
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 }
