@@ -212,6 +212,12 @@
                         <sourceDirectory>scenarios/struts2.5-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/thrift-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/undertow-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/vertx-eventbus-3.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/vertx-web-3.6plus-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/vertx-web-3.54minus-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/webflux-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/xxl-job-2.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/zookeeper-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
