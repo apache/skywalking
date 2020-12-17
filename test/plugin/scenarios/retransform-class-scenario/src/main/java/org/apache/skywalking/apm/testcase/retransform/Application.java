@@ -16,17 +16,31 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.retransform_class;
+package org.apache.skywalking.apm.testcase.retransform;
 
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
-@Component
-public class StartupListener {
+@SpringBootApplication
+public class Application {
+    private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
-    @EventListener(ContextRefreshedEvent.class)
-    public void onApplicationStarted(ContextRefreshedEvent contextRefreshedEvent) {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
+
         RetransformUtil.doRetransform();
     }
 
