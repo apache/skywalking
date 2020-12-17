@@ -137,8 +137,8 @@
                         <sourceDirectory>scenarios/elasticsearch-5.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/elasticsearch-6.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/elasticsearch-7.x-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/exception-checker-spring-scenario</sourceDirectory>-->
-<!--                        <sourceDirectory>scenarios/exception-checker-tomcat-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/exception-checker-spring-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/exception-checker-tomcat-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/feign-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/finagle-6.44.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/finagle-17.10.x-scenario</sourceDirectory>
@@ -156,7 +156,7 @@
                         <sourceDirectory>scenarios/influxdb-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/jdk14-with-gson-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/jdk-http-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/jdk-threading-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/jdk-threading-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/jedis-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/jetty-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/kafka-scenario</sourceDirectory>-->

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package test.org.apache.skywalking.apm.testcase.jdk.threading;
+package test.apache.skywalking.apm.testcase.jdk.threading;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
