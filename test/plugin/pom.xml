@@ -204,7 +204,7 @@
                         <sourceDirectory>scenarios/spring-cloud-feign-2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/spring-kafka-1.3.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/spring-kafka-2.2.x-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/spring-kafka-2.3.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/spring-kafka-2.3.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/spring-scheduled-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/spring-tx-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/springmvc-reactive-scenario</sourceDirectory>
