@@ -16,14 +16,38 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3.dao;
+package test.apache.skywalking.apm.testcase.entity;
 
-import org.springframework.stereotype.Repository;
+public class User {
 
-@Repository
-public class TestRepositoryBean {
+    private int id;
+    private String userName;
 
-    public String doSomeStuff(String name) {
-        return name + "-dealWithRepository";
+    public User(int id) {
+        this.id = id;
+    }
+
+    public User(int id, String userName) {
+        this.id = id;
+        this.userName = userName;
+    }
+
+    public User() {
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

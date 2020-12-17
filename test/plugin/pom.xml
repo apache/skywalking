@@ -195,7 +195,7 @@
                         <sourceDirectory>scenarios/sofarpc-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/solrj-7.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/spring-3.0.x-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/spring-3.1.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/spring-3.1.x-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/spring-4.1.x-scenario</sourceDirectory>-->
 <!--                        <sourceDirectory>scenarios/spring-4.3.x-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/spring-async-scenario</sourceDirectory>

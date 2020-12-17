@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.resttemplate;
+package test.apache.skywalking.apm.testcase.resttemplate;
 
 import java.io.IOException;
 import okhttp3.OkHttpClient;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import test.org.apache.skywalking.apm.testcase.entity.User;
+import test.apache.skywalking.apm.testcase.entity.User;
 
 @Controller
 public class RestTemplateController {
@@ -38,28 +38,28 @@ public class RestTemplateController {
 
     private static final Logger LOGGER = LogManager.getLogger(RestTemplateController.class);
 
-    private static final String url = "http://localhost:8080/spring-3.1.x-scenario";
+    private static final String URL = "http://localhost:8080/spring-3.1.x-scenario";
 
     @RequestMapping("/case/resttemplate")
     @ResponseBody
     public String restTemplate() throws IOException {
-        Request request = new Request.Builder().url(url + "/case/spring3/").build();
+        Request request = new Request.Builder().url(URL + "/case/spring3/").build();
         Response response = new OkHttpClient().newCall(request).execute();
         LOGGER.info(response.toString());
 
         // Create user
         HttpEntity<User> userEntity = new HttpEntity<>(new User(1, "a"));
-        new RestTemplate().postForEntity(url + "/create/", userEntity, Void.class);
+        new RestTemplate().postForEntity(URL + "/create/", userEntity, Void.class);
 
         // Find User
-        new RestTemplate().getForEntity(url + "/get/{id}", User.class, 1);
+        new RestTemplate().getForEntity(URL + "/get/{id}", User.class, 1);
 
         //Modify user
         HttpEntity<User> updateUserEntity = new HttpEntity<>(new User(1, "b"));
-        new RestTemplate().put(url + "/update/{id}", updateUserEntity, userEntity.getBody().getId(), 1);
+        new RestTemplate().put(URL + "/update/{id}", updateUserEntity, userEntity.getBody().getId(), 1);
 
         //Delete user
-        new RestTemplate().delete(url + "/delete/{id}", 1);
+        new RestTemplate().delete(URL + "/delete/{id}", 1);
 
         return SUCCESS;
     }

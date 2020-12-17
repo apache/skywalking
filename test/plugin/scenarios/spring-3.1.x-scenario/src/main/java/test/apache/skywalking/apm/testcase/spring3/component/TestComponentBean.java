@@ -16,26 +16,14 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3;
+package test.apache.skywalking.apm.testcase.spring3.component;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import test.org.apache.skywalking.apm.testcase.spring3.service.TestServiceBean;
+import org.springframework.stereotype.Component;
 
-@Controller
-public class CaseController {
+@Component
+public class TestComponentBean {
 
-    private static final String SUCCESS = "Success";
-
-    @Autowired
-    private TestServiceBean testServiceBean;
-
-    @RequestMapping(value = "/case/spring3")
-    @ResponseBody
-    public String updateUser() {
-        testServiceBean.doSomeBusiness("test");
-        return SUCCESS;
+    public String componentMethod(String name) {
+        return name + "-" + "dealWith-component";
     }
 }

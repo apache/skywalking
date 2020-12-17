@@ -16,23 +16,26 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3.service;
+package test.apache.skywalking.apm.testcase.spring3;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import test.org.apache.skywalking.apm.testcase.spring3.component.TestComponentBean;
-import test.org.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import test.apache.skywalking.apm.testcase.spring3.service.TestServiceBean;
 
-@Service
-public class TestServiceBean {
+@Controller
+public class CaseController {
+
+    private static final String SUCCESS = "Success";
+
     @Autowired
-    private TestComponentBean componentBean;
+    private TestServiceBean testServiceBean;
 
-    @Autowired
-    private TestRepositoryBean repositoryBean;
-
-    public void doSomeBusiness(String name) {
-        componentBean.componentMethod(name);
-        repositoryBean.doSomeStuff(name);
+    @RequestMapping(value = "/case/spring3")
+    @ResponseBody
+    public String updateUser() {
+        testServiceBean.doSomeBusiness("test");
+        return SUCCESS;
     }
 }

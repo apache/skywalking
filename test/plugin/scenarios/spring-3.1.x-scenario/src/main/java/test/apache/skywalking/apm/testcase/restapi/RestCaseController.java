@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.restapi;
+package test.apache.skywalking.apm.testcase.restapi;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,12 +30,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.util.UriComponentsBuilder;
-import test.org.apache.skywalking.apm.testcase.entity.User;
+import test.apache.skywalking.apm.testcase.entity.User;
 
 @Controller
 public class RestCaseController {
 
-    private static final Map<Integer, User> users = new ConcurrentHashMap<Integer, User>();
+    private static final Map<Integer, User> USERS = new ConcurrentHashMap<Integer, User>();
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     @ResponseBody
@@ -48,7 +48,7 @@ public class RestCaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@RequestBody User user, HttpServletResponse response,
         UriComponentsBuilder ucBuilder) throws InterruptedException {
-        users.put(user.getId(), user);
+        USERS.put(user.getId(), user);
         response.setHeader("Location", ucBuilder.path("/get/{id}")
                                                 .buildAndExpand(user.getId())
                                                 .toUri()
@@ -65,10 +65,10 @@ public class RestCaseController {
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable("id") int id) throws InterruptedException {
-        User currentUser = users.get(id);
+        User currentUser = USERS.get(id);
         if (currentUser == null) {
             return;
         }
-        users.remove(id);
+        USERS.remove(id);
     }
 }
