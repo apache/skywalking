@@ -194,6 +194,20 @@
                         <sourceDirectory>scenarios/shardingsphere-4.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/sofarpc-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/solrj-7.x-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/spring-3.0.x-scenario</sourceDirectory>-->
+<!--                        <sourceDirectory>scenarios/spring-3.1.x-scenario</sourceDirectory>-->
+<!--                        <sourceDirectory>scenarios/spring-4.1.x-scenario</sourceDirectory>-->
+<!--                        <sourceDirectory>scenarios/spring-4.3.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/spring-async-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/spring-cloud-feign-1.1.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/spring-cloud-feign-1.2.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/spring-cloud-feign-2.x-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/spring-kafka-1.3.x-scenario</sourceDirectory>-->
+<!--                        <sourceDirectory>scenarios/spring-kafka-2.2.x-scenario</sourceDirectory>-->
+<!--                        <sourceDirectory>scenarios/spring-kafka-2.3.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/spring-scheduled-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/spring-tx-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/springmvc-reactive-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
