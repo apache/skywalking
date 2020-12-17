@@ -206,7 +206,7 @@
                         <sourceDirectory>scenarios/spring-kafka-2.2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/spring-kafka-2.3.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/spring-scheduled-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/spring-tx-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/spring-tx-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/springmvc-reactive-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/struts2.3-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/struts2.5-scenario</sourceDirectory>
@@ -216,7 +216,7 @@
                         <sourceDirectory>scenarios/vertx-web-3.6plus-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/vertx-web-3.54minus-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/webflux-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/xxl-job-2.x-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/xxl-job-2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/zookeeper-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
