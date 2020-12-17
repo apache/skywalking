@@ -16,12 +16,12 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.retransform_class;
+package test.apache.skywalking.apm.testcase.retransform_class;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import test.org.apache.skywalking.apm.testcase.retransform_class.controller.CaseController;
+import test.apache.skywalking.apm.testcase.retransform_class.controller.CaseController;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;

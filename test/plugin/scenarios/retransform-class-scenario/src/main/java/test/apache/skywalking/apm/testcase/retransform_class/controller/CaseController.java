@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.retransform_class.controller;
+package test.apache.skywalking.apm.testcase.retransform_class.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpStatusCodeException;
-import test.org.apache.skywalking.apm.testcase.retransform_class.RetransformUtil;
+import test.apache.skywalking.apm.testcase.retransform_class.RetransformUtil;
 
 @Controller
 @RequestMapping("/case")

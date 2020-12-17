@@ -181,9 +181,9 @@
                         <sourceDirectory>scenarios/quartz-scheduler-2.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/quasar-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/rabbitmq-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/redisson-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/redisson-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/resttemplate-4.x-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/retransform-class-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/retransform-class-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/retransform-class-tomcat-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/servicecomb-0.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/servicecomb-1.x-scenario</sourceDirectory>
