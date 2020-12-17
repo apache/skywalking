@@ -208,6 +208,10 @@
                         <sourceDirectory>scenarios/spring-scheduled-scenario</sourceDirectory>
 <!--                        <sourceDirectory>scenarios/spring-tx-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/springmvc-reactive-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/struts2.3-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/struts2.5-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/thrift-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/undertow-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
