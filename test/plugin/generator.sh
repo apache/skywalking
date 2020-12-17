@@ -75,3 +75,10 @@ ${MVNW} archetype:generate \
     -DinteractiveMode=false \
     -DarchetypeVersion=1.0.0 \
     -Dpackage=${package}
+
+# add scenario_name into plugin/pom.xml
+isWrite=$(cat ./pom.xml | grep $scenario_name)
+if [[ -z  $isWrite ]]
+then
+  sed -i '/<\/sourceDirectories>/i <sourceDirectory>'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
+fi
