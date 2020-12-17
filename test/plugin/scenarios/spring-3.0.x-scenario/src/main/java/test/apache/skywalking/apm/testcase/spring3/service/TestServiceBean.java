@@ -16,14 +16,23 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3.component;
+package test.apache.skywalking.apm.testcase.spring3.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import test.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean;
+import test.apache.skywalking.apm.testcase.spring3.component.TestComponentBean;
 
-@Component
-public class TestComponentBean {
+@Service
+public class TestServiceBean {
+    @Autowired
+    private TestComponentBean componentBean;
 
-    public String componentMethod(String name) {
-        return name + "-" + "dealWith-component";
+    @Autowired
+    private TestRepositoryBean repositoryBean;
+
+    public void doSomeBusiness(String name) {
+        componentBean.componentMethod(name);
+        repositoryBean.doSomeStuff(name);
     }
 }

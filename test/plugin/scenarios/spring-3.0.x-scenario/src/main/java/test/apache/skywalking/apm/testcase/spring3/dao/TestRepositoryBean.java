@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.spring3.dao;
+package test.apache.skywalking.apm.testcase.spring3.dao;
 
 import org.springframework.stereotype.Repository;
 
