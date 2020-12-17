@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.kafka.controller;
+package test.apache.skywalking.apm.testcase.kafka.controller;
 
 import java.io.IOException;
 import java.util.Arrays;

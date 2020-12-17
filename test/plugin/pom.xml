@@ -159,7 +159,7 @@
                         <sourceDirectory>scenarios/jdk-threading-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/jedis-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/jetty-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/kafka-scenario</sourceDirectory>-->
+                        <sourceDirectory>scenarios/kafka-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/kotlin-coroutine-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/lettuce-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/logger-log4j2-scenario</sourceDirectory>
