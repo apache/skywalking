@@ -476,6 +476,12 @@ Urllib3:
 Sanic:
   id: 7007
   languages: Python
+AioHttp:
+  id: 7008
+  languages: Python
+Pyramid:
+  id: 7009
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent

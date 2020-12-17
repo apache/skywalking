@@ -13,6 +13,7 @@ Release Notes.
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
+* Fix the potential NPE when trace_sql_parameters is enabled.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -23,6 +24,9 @@ Release Notes.
 * Fix group name can't be query in the GraphQL.
 * Fix potential gRPC connection leak(not closed) for the channels among OAP instances.
 * Filter OAP instances(unassigned in booting stage) of the empty IP in KubernetesCoordinator.
+* Add component ID for Python aiohttp plugin requester and server.
+* Fix H2 in-memory database table missing issues
+* Add component ID for Python pyramid plugin server.
 
 #### UI
 * Fix un-removed tags in trace query.
