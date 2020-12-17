@@ -149,6 +149,11 @@
                         <sourceDirectory>scenarios/graphql-12.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/grpc-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/gson-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/httpasyncclient-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/httpclient-3.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/httpclient-4.3.x-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/hystrix-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/influxdb-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
