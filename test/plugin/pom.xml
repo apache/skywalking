@@ -149,12 +149,13 @@
                         <sourceDirectory>scenarios/graphql-12.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/grpc-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/gson-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/h2-scenario</sourceDirectory>
+                        <sourceDirectory>scenarios/hbase-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/httpasyncclient-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/httpclient-3.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/httpclient-4.3.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/hystrix-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/influxdb-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/jdk14-with-gson-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/jdk-http-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/jdk-threading-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/jedis-scenario</sourceDirectory>
