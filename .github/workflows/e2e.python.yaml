@@ -24,6 +24,7 @@ on:
   push:
     branches:
       - master
+      - submodule/data-collect-protocol
 
 env:
   SKIP_TEST: true
