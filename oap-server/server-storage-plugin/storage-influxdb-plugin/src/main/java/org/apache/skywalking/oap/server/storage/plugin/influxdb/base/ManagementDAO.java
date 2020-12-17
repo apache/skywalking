@@ -40,8 +40,8 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 public class ManagementDAO implements IManagementDAO {
-    private InfluxClient client;
-    private StorageBuilder<ManagementData> storageBuilder;
+    private final InfluxClient client;
+    private final StorageBuilder<ManagementData> storageBuilder;
 
     public ManagementDAO(InfluxClient client, StorageBuilder<ManagementData> storageBuilder) {
         this.client = client;

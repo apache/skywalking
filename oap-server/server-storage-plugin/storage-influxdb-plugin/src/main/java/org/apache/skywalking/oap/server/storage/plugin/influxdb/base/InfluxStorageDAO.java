@@ -44,7 +44,7 @@ public class InfluxStorageDAO implements StorageDAO {
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new RecordDAO(influxClient, storageBuilder);
+        return new RecordDAO(storageBuilder);
     }
 
     @Override
