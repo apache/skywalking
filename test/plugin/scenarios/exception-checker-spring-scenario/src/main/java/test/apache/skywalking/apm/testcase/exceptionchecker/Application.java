@@ -16,29 +16,19 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.exceptionchecker.exception;
+package test.apache.skywalking.apm.testcase.exceptionchecker;
 
-public class TestException extends RuntimeException {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    public TestException() {
-    }
+@SpringBootApplication
+public class Application {
 
-    public TestException(final String message) {
-        super(message);
-    }
-
-    public TestException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public TestException(final Throwable cause) {
-        super(cause);
-    }
-
-    public TestException(final String message,
-                         final Throwable cause,
-                         final boolean enableSuppression,
-                         final boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
 }

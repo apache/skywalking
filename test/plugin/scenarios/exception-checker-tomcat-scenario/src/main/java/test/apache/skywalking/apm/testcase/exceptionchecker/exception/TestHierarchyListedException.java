@@ -16,29 +16,29 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.exceptionchecker.exception;
+package test.apache.skywalking.apm.testcase.exceptionchecker.exception;
 
-public class TestListedException extends RuntimeException {
+public class TestHierarchyListedException extends TestListedException {
 
-    public TestListedException() {
+    public TestHierarchyListedException() {
     }
 
-    public TestListedException(final String message) {
+    public TestHierarchyListedException(final String message) {
         super(message);
     }
 
-    public TestListedException(final String message, final Throwable cause) {
+    public TestHierarchyListedException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public TestListedException(final Throwable cause) {
+    public TestHierarchyListedException(final Throwable cause) {
         super(cause);
     }
 
-    public TestListedException(final String message,
-                               final Throwable cause,
-                               final boolean enableSuppression,
-                               final boolean writableStackTrace) {
+    public TestHierarchyListedException(final String message,
+                                        final Throwable cause,
+                                        final boolean enableSuppression,
+                                        final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

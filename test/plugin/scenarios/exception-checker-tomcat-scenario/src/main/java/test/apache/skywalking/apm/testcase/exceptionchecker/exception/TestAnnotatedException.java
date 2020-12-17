@@ -16,7 +16,7 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.exceptionchecker.exception;
+package test.apache.skywalking.apm.testcase.exceptionchecker.exception;
 
 import org.apache.skywalking.apm.toolkit.trace.IgnoredException;
 

@@ -16,14 +16,14 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.exceptionchecker.controller;
+package test.apache.skywalking.apm.testcase.exceptionchecker.controller;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import test.org.apache.skywalking.apm.testcase.exceptionchecker.service.TestService;
+import test.apache.skywalking.apm.testcase.exceptionchecker.service.TestService;
 
 @RestController
 @RequestMapping("/case")

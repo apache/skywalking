@@ -16,32 +16,29 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.exceptionchecker.exception;
+package test.apache.skywalking.apm.testcase.exceptionchecker.exception;
 
-import org.apache.skywalking.apm.toolkit.trace.IgnoredException;
+public class TestException extends RuntimeException {
 
-@IgnoredException
-public class TestAnnotatedException extends RuntimeException {
-
-    public TestAnnotatedException() {
+    public TestException() {
     }
 
-    public TestAnnotatedException(final String message) {
+    public TestException(final String message) {
         super(message);
     }
 
-    public TestAnnotatedException(final String message, final Throwable cause) {
+    public TestException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public TestAnnotatedException(final Throwable cause) {
+    public TestException(final Throwable cause) {
         super(cause);
     }
 
-    public TestAnnotatedException(final String message,
-                                  final Throwable cause,
-                                  final boolean enableSuppression,
-                                  final boolean writableStackTrace) {
+    public TestException(final String message,
+                         final Throwable cause,
+                         final boolean enableSuppression,
+                         final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

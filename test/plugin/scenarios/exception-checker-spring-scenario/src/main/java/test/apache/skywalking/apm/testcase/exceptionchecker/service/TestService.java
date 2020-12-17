@@ -16,13 +16,13 @@
  *
  */
 
-package test.org.apache.skywalking.apm.testcase.exceptionchecker.service;
+package test.apache.skywalking.apm.testcase.exceptionchecker.service;
 
 import org.springframework.stereotype.Service;
-import test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestAnnotatedException;
-import test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestException;
-import test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestHierarchyListedException;
-import test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException;
+import test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestAnnotatedException;
+import test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestHierarchyListedException;
+import test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException;
+import test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestException;
 
 @Service
 public class TestService {
