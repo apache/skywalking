@@ -39,7 +39,6 @@ services:
       args:
         - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION:-11}
         - DIST_PACKAGE=http://archive.apache.org/dist/skywalking/8.3.0/apache-skywalking-apm-8.3.0.tar.gz
-        - JAVA_OPTS=-javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE
     networks:
       - e2e
     expose:
@@ -49,6 +48,7 @@ services:
       - ../../../jacoco:/jacoco
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      JAVA_OPTS: -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9090"]
       interval: 5s
