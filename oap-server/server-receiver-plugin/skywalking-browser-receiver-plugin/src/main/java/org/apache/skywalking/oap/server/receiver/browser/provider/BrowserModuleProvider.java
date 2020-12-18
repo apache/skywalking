@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.browser.module.BrowserModule;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc.BrowserPerfServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc.BrowserPerfServiceHandler;
 import org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest.BrowserErrorLogReportListServletHandler;
 import org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest.BrowserErrorLogReportSingleServletHandler;
@@ -74,9 +75,10 @@ public class BrowserModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider().getService(GRPCHandlerRegister.class);
         // grpc
-        grpcHandlerRegister.addHandler(
-            new BrowserPerfServiceHandler(
-                getManager(), moduleConfig, perfDataListenerManager(), errorLogListenerManager()));
+        BrowserPerfServiceHandler browserPerfServiceHandler = new BrowserPerfServiceHandler(
+            getManager(), moduleConfig, perfDataListenerManager(), errorLogListenerManager());
+        grpcHandlerRegister.addHandler(browserPerfServiceHandler);
+        grpcHandlerRegister.addHandler(new BrowserPerfServiceHandlerCompat(browserPerfServiceHandler));
 
         // rest
         JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
