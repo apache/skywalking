@@ -39,6 +39,7 @@ services:
       args:
         - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION:-11}
         - DIST_PACKAGE=http://archive.apache.org/dist/skywalking/8.3.0/apache-skywalking-apm-8.3.0.tar.gz
+        - JAVA_OPTS=-javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE
     networks:
       - e2e
     expose:
