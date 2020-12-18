@@ -53,7 +53,7 @@ jobs:
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
-      - name: Agent on JDK Version
+      - name: Compatability Test (8.3.0 Agent)
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
       - uses: actions/upload-artifact@v1
         if: failure()
