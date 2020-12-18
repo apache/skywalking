@@ -3,11 +3,14 @@ Fetcher is a concept in SkyWalking backend. It uses pulling mode rather than [re
 read the data from the target systems. This mode is typically in some metrics SDKs, such as Prometheus.
 
 ## Prometheus Fetcher
+Suppose you want to enable some `metric-custom.yaml` files stored at `fetcher-prom-rules`, append its name to `enabledRules` of 
+ `promethues-fetcher` as below:
+ 
 ```yaml
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
-    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
+    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self,metric-custom"}
 ```
 
 ### Configuration file
@@ -118,6 +121,24 @@ kafka-fetcher:
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    kafkaConsumerConfig:
+      enable.auto.commit: true
+      ...
+```
+
+When use Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters, you can set the source Kafka Cluster alias(mm2SourceAlias) and separator(mm2SourceSeparator) according to your Kafka MirrorMaker [config](https://github.com/apache/kafka/tree/trunk/connect/mirror#remote-topics).
+```yaml
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:default}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
+    replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
+    enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
+    consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    mm2SourceAlias: ${SW_KAFKA_MM2_SOURCE_ALIAS:""}
+    mm2SourceSeparator: ${SW_KAFKA_MM2_SOURCE_SEPARATOR:""}
     kafkaConsumerConfig:
       enable.auto.commit: true
       ...

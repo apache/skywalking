@@ -165,7 +165,7 @@ public class TraceQuery implements ITraceQueryDAO {
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId((String) values.get(2));
-            basicTrace.setStart(String.valueOf(values.get(3)));
+            basicTrace.setStart(String.valueOf(((Number) values.get(3)).longValue()));
             basicTrace.getEndpointNames().add((String) values.get(4));
             basicTrace.setDuration(((Number) values.get(5)).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(((Number) values.get(6)).intValue()));
@@ -178,23 +178,24 @@ public class TraceQuery implements ITraceQueryDAO {
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        WhereQueryImpl query = select().column(SegmentRecord.SEGMENT_ID)
-                                       .column(SegmentRecord.TRACE_ID)
-                                       .column(SegmentRecord.SERVICE_ID)
-                                       .column(SegmentRecord.SERVICE_INSTANCE_ID)
-                                       .column(SegmentRecord.ENDPOINT_NAME)
-                                       .column(SegmentRecord.START_TIME)
-                                       .column(SegmentRecord.END_TIME)
-                                       .column(SegmentRecord.LATENCY)
-                                       .column(SegmentRecord.IS_ERROR)
-                                       .column(SegmentRecord.DATA_BINARY)
-                                       .column(SegmentRecord.VERSION)
-                                       .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
-                                       .where()
-                                       .and(eq(SegmentRecord.TRACE_ID, traceId));
-        List<QueryResult.Series> series = client.queryForSeries(query);
+        WhereQueryImpl<SelectQueryImpl> whereQuery = select().column(SegmentRecord.SEGMENT_ID)
+                                                             .column(SegmentRecord.TRACE_ID)
+                                                             .column(SegmentRecord.SERVICE_ID)
+                                                             .column(SegmentRecord.SERVICE_INSTANCE_ID)
+                                                             .column(SegmentRecord.ENDPOINT_NAME)
+                                                             .column(SegmentRecord.START_TIME)
+                                                             .column(SegmentRecord.END_TIME)
+                                                             .column(SegmentRecord.LATENCY)
+                                                             .column(SegmentRecord.IS_ERROR)
+                                                             .column(SegmentRecord.DATA_BINARY)
+                                                             .column(SegmentRecord.VERSION)
+                                                             .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
+                                                             .where();
+
+        whereQuery.and(eq(SegmentRecord.TRACE_ID, traceId));
+        List<QueryResult.Series> series = client.queryForSeries(whereQuery);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result set: {}", query.getCommand(), series);
+            log.debug("SQL: {} result set: {}", whereQuery.getCommand(), series);
         }
         if (series == null || series.isEmpty()) {
             return Collections.emptyList();
@@ -226,7 +227,7 @@ public class TraceQuery implements ITraceQueryDAO {
     }
 
     @Override
-    public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
+    public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
     }
 }

@@ -57,7 +57,7 @@ public class MeterServiceHandler implements KafkaHandler {
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfMeters();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfMeters();
     }
 
     @Override

@@ -52,7 +52,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
                                          final Long startTimeBucket,
                                          final Long endTimeBucket,
                                          final Integer limit) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query =
+        final WhereQueryImpl<SelectQueryImpl> query =
             select(
                 InfluxConstants.ID_COLUMN,
                 ProfileTaskRecord.SERVICE_ID,
@@ -83,15 +83,13 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
             query.limit(limit);
         }
 
-        List<ProfileTask> tasks = Lists.newArrayList();
+        final List<ProfileTask> tasks = Lists.newArrayList();
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
         }
         if (series != null) {
-            series.getValues().forEach(values -> {
-                tasks.add(profileTaskBuilder(values));
-            });
+            series.getValues().forEach(values -> tasks.add(profileTaskBuilder(values)));
         }
         return tasks;
     }
@@ -101,7 +99,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
-        SelectQueryImpl query = select(
+        final SelectQueryImpl query = select(
             InfluxConstants.ID_COLUMN,
             ProfileTaskRecord.SERVICE_ID,
             ProfileTaskRecord.ENDPOINT_NAME,
@@ -117,7 +115,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
             .and(eq(InfluxConstants.ID_COLUMN, id))
             .limit(1);
 
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        final QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
         }
@@ -127,7 +125,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         return null;
     }
 
-    private static final ProfileTask profileTaskBuilder(List<Object> values) {
+    private static ProfileTask profileTaskBuilder(List<Object> values) {
         return ProfileTask.builder()
                           .id((String) values.get(1))
                           .serviceId((String) values.get(2))

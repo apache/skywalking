@@ -88,5 +88,9 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private int kafkaHandlerThreadPoolSize;
 
     private int kafkaHandlerThreadPoolQueueSize;
+    
+    private String mm2SourceAlias = "";
 
+    private String mm2SourceSeparator = "";
+    
 }
