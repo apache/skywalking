@@ -73,9 +73,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
         WhereQueryImpl<SelectQueryImpl> countQuery = select().count(AlarmRecord.ID0)
                                                              .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
                                                              .where();
-        recallQuery.getClauses().forEach(clause -> {
-            countQuery.where(clause);
-        });
+        recallQuery.getClauses().forEach(countQuery::where);
 
         Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
         List<QueryResult.Result> results = client.query(query);
