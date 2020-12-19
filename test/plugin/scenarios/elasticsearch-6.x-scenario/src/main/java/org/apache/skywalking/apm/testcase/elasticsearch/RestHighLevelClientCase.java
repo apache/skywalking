@@ -438,20 +438,19 @@ public class RestHighLevelClientCase {
 
     private void deleteByQuery(RestHighLevelClient client, String indexName) throws IOException {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.termQuery("author", "Marker"));
-        sourceBuilder.from(0);
-        sourceBuilder.size(10);
+        sourceBuilder.query(QueryBuilders.termQuery("author", "Marker1"));
 
         DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest(indexName);
         deleteByQueryRequest.setQuery(sourceBuilder.query());
-        client.deleteByQuery(deleteByQueryRequest, RequestOptions.DEFAULT);
+        BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(
+            deleteByQueryRequest, RequestOptions.DEFAULT);
+        bulkByScrollResponse.getStatus();
     }
 
-    private void deleteByQueryAsync(RestHighLevelClient client, String indexName) throws IOException {
+    private void deleteByQueryAsync(RestHighLevelClient client,
+                                    String indexName) throws IOException, InterruptedException {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.termQuery("author", "Marker"));
-        sourceBuilder.from(0);
-        sourceBuilder.size(10);
+        sourceBuilder.query(QueryBuilders.termQuery("author", "Marker2"));
 
         DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest(indexName);
         deleteByQueryRequest.setQuery(sourceBuilder.query());
