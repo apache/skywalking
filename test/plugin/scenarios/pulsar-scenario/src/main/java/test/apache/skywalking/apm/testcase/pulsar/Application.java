@@ -25,7 +25,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @EnableAutoConfiguration
 @SpringBootApplication()
-@ComponentScan("test.org.apache.skywalking.apm.testcase.pulsar")
+@ComponentScan("test.apache.skywalking.apm.testcase.pulsar")
 public class Application {
 
     public static void main(String[] args) {
