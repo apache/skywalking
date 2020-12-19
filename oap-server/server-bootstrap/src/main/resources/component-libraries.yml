@@ -404,7 +404,7 @@ SmartSql:
 HttpServer:
   id: 4001
   languages: Node.js
-express:
+Express:
   id: 4002
   languages: Node.js
 Egg:
@@ -412,6 +412,9 @@ Egg:
   languages: Node.js
 Koa:
   id: 4004
+  languages: Node.js
+Axios:
+  id: 4005
   languages: Node.js
 
 # Golang components
