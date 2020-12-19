@@ -48,7 +48,7 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private final String gprcProviderHost = "127.0.0.1";
+    private final String grpcProviderHost = "127.0.0.1";
     private final int grpcProviderPort = 18080;
     private ManagedChannel channel;
     private GreeterGrpc.GreeterStub greeterStub;
@@ -57,7 +57,7 @@ public class CaseController {
 
     @PostConstruct
     public void up() {
-        channel = ManagedChannelBuilder.forAddress(gprcProviderHost, grpcProviderPort).usePlaintext(true).build();
+        channel = ManagedChannelBuilder.forAddress(grpcProviderHost, grpcProviderPort).usePlaintext(true).build();
         greeterStub = GreeterGrpc.newStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
         greeterBlockingStub = GreeterBlockingGrpc.newBlockingStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
         greeterBlockingErrorStub = GreeterBlockingErrorGrpc.newBlockingStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
