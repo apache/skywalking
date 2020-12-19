@@ -16,27 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.influxdb;
+package org.apache.skywalking.oap.server.receiver.meter.provider.handler;
 
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+import org.apache.skywalking.apm.network.language.agent.v3.compat.MeterReportServiceGrpc;
+import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 
-public class InfluxTableInstaller extends ModelInstaller {
-
-    public InfluxTableInstaller(Client client, ModuleManager moduleManager) {
-        super(client, moduleManager);
-    }
-
-    @Override
-    protected boolean isExists(final Model model) {
-        TableMetaInfo.addModel(model);
-        return true;
-    }
+@RequiredArgsConstructor
+public class MeterServiceHandlerCompat extends MeterReportServiceGrpc.MeterReportServiceImplBase implements GRPCHandler {
+    private final MeterServiceHandler delegate;
 
     @Override
-    protected void createTable(final Model model) {
-        // Automatically create table
+    public StreamObserver<MeterData> collect(final StreamObserver<Commands> responseObserver) {
+        return delegate.collect(responseObserver);
     }
 }

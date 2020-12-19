@@ -16,27 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.influxdb;
+package org.apache.skywalking.aop.server.receiver.mesh;
 
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.compat.ServiceMeshMetricServiceGrpc;
 
-public class InfluxTableInstaller extends ModelInstaller {
-
-    public InfluxTableInstaller(Client client, ModuleManager moduleManager) {
-        super(client, moduleManager);
-    }
-
-    @Override
-    protected boolean isExists(final Model model) {
-        TableMetaInfo.addModel(model);
-        return true;
-    }
+@RequiredArgsConstructor
+public class MeshGRPCHandlerCompat extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
+    private final MeshGRPCHandler delegate;
 
     @Override
-    protected void createTable(final Model model) {
-        // Automatically create table
+    public StreamObserver<ServiceMeshMetric> collect(final StreamObserver<MeshProbeDownstream> responseObserver) {
+        return delegate.collect(responseObserver);
     }
 }

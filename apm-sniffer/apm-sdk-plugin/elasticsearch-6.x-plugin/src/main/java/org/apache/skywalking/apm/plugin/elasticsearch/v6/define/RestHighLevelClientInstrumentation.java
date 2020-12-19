@@ -185,6 +185,70 @@ public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine
                 public boolean isOverrideArgs() {
                     return false;
                 }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("scroll").or(named("scrollAsync"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.REST_HIGH_LEVEL_CLIENT_SEARCH_SCROLL_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("searchTemplate").or(named("searchTemplateAsync"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.REST_HIGH_LEVEL_CLIENT_SEARCH_TEMPLATE_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("clearScroll");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.REST_HIGH_LEVEL_CLIENT_CLEAR_SCROLL_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("deleteByQuery").or(named("deleteByQueryAsync"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.REST_HIGH_LEVEL_CLIENT_DELETE_BY_QUERY_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
         };
     }
