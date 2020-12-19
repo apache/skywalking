@@ -12,9 +12,11 @@ Release Notes.
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
+* Add interceptors of method(analyze, searchScroll, clearScroll, searchTemplate and deleteByQuery) for elasticsearch-6.x-plugin.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 * Fix the potential NPE when trace_sql_parameters is enabled.
+
 
 #### OAP-Backend
 * Make meter receiver support MAL.
