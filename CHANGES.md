@@ -30,6 +30,7 @@ Release Notes.
 * Add component ID for Python aiohttp plugin requester and server.
 * Fix H2 in-memory database table missing issues
 * Add component ID for Python pyramid plugin server.
+* Add component ID for NodeJS Axios plugin.
 
 #### UI
 * Fix un-removed tags in trace query.
