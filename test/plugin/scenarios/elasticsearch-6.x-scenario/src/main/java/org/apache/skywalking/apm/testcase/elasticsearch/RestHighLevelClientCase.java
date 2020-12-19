@@ -106,9 +106,9 @@ public class RestHighLevelClientCase {
             scroll(client, indexName);
             // scrollAsync
             scrollAsync(client, indexName);
-            // scroll
+            // clearScroll
             clearScroll(client, indexName);
-            // scrollAsync
+            // clearScrollAsync
             clearScrollAsync(client, indexName);
             // searchTemplate
             searchTemplate(client, indexName);
@@ -118,7 +118,7 @@ public class RestHighLevelClientCase {
             update(client, indexName);
             // analyze
             analyze(client, indexName);
-            // analyze
+            // analyzeAsync
             analyzeAsync(client, indexName);
             // deleteByQuery
             deleteByQuery(client, indexName);
