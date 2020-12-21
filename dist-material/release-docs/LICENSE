@@ -225,8 +225,8 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-    raphw (byte-buddy) 1.10.14: http://bytebuddy.net/ , Apache 2.0
-    Google: gprc-java 1.32.1: https://github.com/grpc/grpc-java, Apache 2.0
+    raphw (byte-buddy) 1.10.19: http://bytebuddy.net/ , Apache 2.0
+    Google: grpc-java 1.32.1: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 28.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.6: https://github.com/google/gson , Apache 2.0
@@ -381,7 +381,7 @@ BSD licenses
 The following components are provided under a BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-    asm 8.0.1:https://gitlab.ow2.org , BSD-3-Clause
+    asm 9.0:https://gitlab.ow2.org , BSD-3-Clause
     antlr4-runtime 4.5.1: http://www.antlr.org/license.html, BSD-3-Clause
     jline 0.9.94: http://mvnrepository.com/artifact/jline/jline/0.9.94, BSD
     Google: protobuf-java 3.13.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause

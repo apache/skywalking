@@ -88,7 +88,7 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
         if (field.type == TType.STOP) {
             Boolean haveCreatedSpan =
                     (Boolean) ContextManager.getRuntimeContext().get(HAVE_CREATED_SPAN);
-            if (!haveCreatedSpan) {
+            if (haveCreatedSpan != null && !haveCreatedSpan) {
                 try {
                     AbstractSpan span = ContextManager.createEntrySpan(
                             context.getOperatorName(), createContextCarrier(null));
