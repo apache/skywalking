@@ -41,9 +41,9 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 public class TableMetaInfo {
     private static final Map<String, TableMetaInfo> TABLES = new HashMap<>();
 
-    private Map<String, String> storageAndColumnMap;
-    private Map<String, String> storageAndTagMap;
-    private Model model;
+    private final Map<String, String> storageAndColumnMap;
+    private final Map<String, String> storageAndTagMap;
+    private final Model model;
 
     public static void addModel(Model model) {
         final List<ModelColumn> columns = model.getColumns();
@@ -88,7 +88,7 @@ public class TableMetaInfo {
             }
         }
 
-        TableMetaInfo info = TableMetaInfo.builder()
+        final TableMetaInfo info = TableMetaInfo.builder()
                                           .model(model)
                                           .storageAndTagMap(storageAndTagMap)
                                           .storageAndColumnMap(storageAndColumnMap)
