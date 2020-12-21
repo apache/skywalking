@@ -21,12 +21,11 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodStatus;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -66,23 +65,25 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
             List<V1Pod> pods = NamespacedPodListInformer.INFORMER.listPods().orElseGet(this::selfPod);
             if (log.isDebugEnabled()) {
                 List<String> uidList = pods
-                        .stream()
-                        .map(item -> item.getMetadata().getUid())
-                        .collect(Collectors.toList());
+                    .stream()
+                    .map(item -> item.getMetadata().getUid())
+                    .collect(Collectors.toList());
                 log.debug("[kubernetes cluster pods uid list]:{}", uidList.toString());
             }
             if (port == -1) {
                 port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
             }
-            List<RemoteInstance> remoteInstances =  pods.stream()
+            List<RemoteInstance> remoteInstances =
+                pods.stream()
+                    .filter(pod -> StringUtil.isNotBlank(pod.getStatus().getPodIP()))
                     .map(pod -> new RemoteInstance(
-                            new Address(pod.getStatus().getPodIP(), port, pod.getMetadata().getUid().equals(uid))))
+                        new Address(pod.getStatus().getPodIP(), port, pod.getMetadata().getUid().equals(uid))))
                     .collect(Collectors.toList());
             healthChecker.health();
             return remoteInstances;
         } catch (Throwable e) {
             healthChecker.unHealth(e);
-            throw  new ServiceQueryException(e.getMessage());
+            throw new ServiceQueryException(e.getMessage());
         }
     }
 
@@ -100,8 +101,11 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private void initHealthChecker() {
         if (healthChecker == null) {
-            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-            healthChecker = metricCreator.createHealthCheckerGauge("cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME)
+                                                  .provider()
+                                                  .getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge(
+                "cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
     }
 

@@ -44,7 +44,11 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 public class AggregationQuery implements IAggregationQueryDAO {
-    private InfluxClient client;
+    private static final Comparator<SelectedRecord> ASCENDING =
+        Comparator.comparingLong(a -> Long.parseLong(a.getValue()));
+    private static final Comparator<SelectedRecord> DESCENDING = (a, b) ->
+        Long.compare(Long.parseLong(b.getValue()), Long.parseLong(a.getValue()));
+    private final InfluxClient client;
 
     public AggregationQuery(InfluxClient client) {
         this.client = client;
@@ -72,11 +76,12 @@ public class AggregationQuery implements IAggregationQueryDAO {
         WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> where = select()
             .fromSubQuery(client.getDatabase())
             .mean(valueColumnName)
-            .from(condition.getName()).where();
+            .from(condition.getName())
+            .where();
         if (additionalConditions != null) {
-            additionalConditions.forEach(moreCondition -> {
-                where.and(eq(moreCondition.getKey(), moreCondition.getValue()));
-            });
+            additionalConditions.forEach(moreCondition ->
+                                             where.and(eq(moreCondition.getKey(), moreCondition.getValue()))
+            );
         }
         final SelectSubQueryImpl<SelectQueryImpl> subQuery = where
             .and(gte(InfluxClient.TIME, InfluxClient.timeIntervalTS(duration.getStartTimestamp())))
@@ -102,13 +107,8 @@ public class AggregationQuery implements IAggregationQueryDAO {
             entities.add(entity);
         });
 
-        Collections.sort(entities, comparator); // re-sort by self, because of the result order by time.
+        entities.sort(comparator); // re-sort by self, because of the result order by time.
         return entities;
     }
 
-    private static final Comparator<SelectedRecord> ASCENDING = (a, b) -> Long.compare(
-        Long.parseLong(a.getValue()), Long.parseLong(b.getValue()));
-
-    private static final Comparator<SelectedRecord> DESCENDING = (a, b) -> Long.compare(
-        Long.parseLong(b.getValue()), Long.parseLong(a.getValue()));
 }
