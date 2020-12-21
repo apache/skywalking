@@ -44,6 +44,10 @@ Release Notes.
 * Refactor dashboard query in a common script.
 * Implement refreshing data for topology by updating date.
 * Implement group selector in the topology.
+* Fix all as default parameter for services selector.
+* Add icon for Python aiohttp plugin.
+* Add icon for Python pyramid plugin.
+* Fix topology render all services nodes when groups changed.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
