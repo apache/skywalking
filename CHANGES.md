@@ -16,6 +16,7 @@ Release Notes.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 * Fix the potential NPE when trace_sql_parameters is enabled.
+* Update `byte-buddy` to 1.10.19.
 
 
 #### OAP-Backend
