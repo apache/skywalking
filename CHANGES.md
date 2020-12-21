@@ -16,6 +16,7 @@ Release Notes.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 * Fix the potential NPE when trace_sql_parameters is enabled.
+* Update `byte-buddy` to 1.10.19.
 
 
 #### OAP-Backend
@@ -43,6 +44,10 @@ Release Notes.
 * Refactor dashboard query in a common script.
 * Implement refreshing data for topology by updating date.
 * Implement group selector in the topology.
+* Fix all as default parameter for services selector.
+* Add icon for Python aiohttp plugin.
+* Add icon for Python pyramid plugin.
+* Fix topology render all services nodes when groups changed.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
