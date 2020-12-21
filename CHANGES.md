@@ -19,6 +19,7 @@ Release Notes.
 * Update `byte-buddy` to 1.10.19.
 * Fix thrift plugin trace link broken when intermediate service does not mount agent
 * Fix thrift plugin collects wrong args when the method without parameter.
+* Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
