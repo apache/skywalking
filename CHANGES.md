@@ -17,7 +17,8 @@ Release Notes.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 * Fix the potential NPE when trace_sql_parameters is enabled.
 * Update `byte-buddy` to 1.10.19.
-
+* Fix thrift plugin trace link broken when intermediate service does not mount agent
+* Fix thrift plugin collects wrong args when the method without parameter.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
