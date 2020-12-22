@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -31,13 +30,13 @@ public class InfluxTableInstaller extends ModelInstaller {
     }
 
     @Override
-    protected boolean isExists(final Model model) throws StorageException {
+    protected boolean isExists(final Model model) {
         TableMetaInfo.addModel(model);
         return true;
     }
 
     @Override
-    protected void createTable(final Model model) throws StorageException {
+    protected void createTable(final Model model) {
         // Automatically create table
     }
 }
