@@ -16,7 +16,11 @@ Release Notes.
 * Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 * Fix the potential NPE when trace_sql_parameters is enabled.
-
+* Update `byte-buddy` to 1.10.19.
+* Fix thrift plugin trace link broken when intermediate service does not mount agent
+* Fix thrift plugin collects wrong args when the method without parameter.
+* Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
+* Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -43,6 +47,10 @@ Release Notes.
 * Refactor dashboard query in a common script.
 * Implement refreshing data for topology by updating date.
 * Implement group selector in the topology.
+* Fix all as default parameter for services selector.
+* Add icon for Python aiohttp plugin.
+* Add icon for Python pyramid plugin.
+* Fix topology render all services nodes when groups changed.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

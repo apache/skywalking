@@ -100,6 +100,7 @@ public class TServiceClientInterceptor implements InstanceConstructorInterceptor
         while (true) {
             TFieldIdEnum field = base.fieldForId(++idx);
             if (field == null) {
+                idx--;
                 break;
             }
             buffer.append(field.getFieldName()).append(", ");
