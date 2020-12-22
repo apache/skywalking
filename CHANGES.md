@@ -35,6 +35,7 @@ Release Notes.
 * Fix H2 in-memory database table missing issues
 * Add component ID for Python pyramid plugin server.
 * Add component ID for NodeJS Axios plugin.
+* Fix searchService method error in storage-influxdb-plugin.
 
 #### UI
 * Fix un-removed tags in trace query.
