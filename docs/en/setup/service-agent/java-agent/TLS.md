@@ -19,6 +19,10 @@ Only support **no mutual auth**.
 ### Agent config
 - Place `ca.crt` into `/ca` folder in agent package. Notice, `/ca` is not created in distribution, please create it by yourself.
 
-Agent open TLS automatically after the `/ca/ca.crt` file detected.
+Agent will open TLS upon the following config value. If it's true, TLS will be forced to use, and TLS works by default.
+At the same time, a trust manager will be constructed for TLS authentication once the `/ca/ca.crt` file detected.
+```
+agent.is_grpc_channel_tls_forced=${SW_AGENT_IS_GRPC_CHANNEL_TLS_FORCED:true}
+```
 
 o make sure can't access other ports out of region (VPC), such as firewall, proxy.
