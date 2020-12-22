@@ -20,6 +20,7 @@ Release Notes.
 * Fix thrift plugin trace link broken when intermediate service does not mount agent
 * Fix thrift plugin collects wrong args when the method without parameter.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
+* Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 
 #### OAP-Backend
 * Make meter receiver support MAL.
