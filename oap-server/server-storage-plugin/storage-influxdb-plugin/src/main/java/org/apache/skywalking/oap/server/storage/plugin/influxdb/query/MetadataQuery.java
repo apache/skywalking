@@ -125,7 +125,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
         final WhereQueryImpl<SelectQueryImpl> whereQuery = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
-        whereQuery.and(eq("\"" + ServiceTraffic.NAME + "\"", serviceCode));
+        whereQuery.and(eq(InfluxConstants.NAME, serviceCode));
         return buildServices(whereQuery).get(0);
     }
 
