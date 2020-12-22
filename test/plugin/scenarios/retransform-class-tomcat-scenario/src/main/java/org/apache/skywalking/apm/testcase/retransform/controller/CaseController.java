@@ -16,8 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.retransform;
+package org.apache.skywalking.apm.testcase.retransform.controller;
 
+import org.apache.skywalking.apm.testcase.retransform.RetransformUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

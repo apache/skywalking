@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.testcase.retransform;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
+import org.apache.skywalking.apm.testcase.retransform.controller.CaseController;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
