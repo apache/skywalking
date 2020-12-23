@@ -45,6 +45,8 @@ public class TableMetaInfo {
     private final Map<String, String> storageAndTagMap;
     private final Model model;
 
+    private final boolean isTrafficTable;
+
     public static void addModel(Model model) {
         final List<ModelColumn> columns = model.getColumns();
         final Map<String, String> storageAndTagMap = Maps.newHashMap();
@@ -54,7 +56,10 @@ public class TableMetaInfo {
             storageAndColumnMap.put(columnName.getStorageName(), columnName.getName());
         });
 
+        final boolean isTrafficTable;
         if (model.getName().endsWith("_traffic")) {
+            isTrafficTable = true;
+
             // instance_traffic name, service_id
             // endpoint_traffic name, service_id
             storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
@@ -67,6 +72,7 @@ public class TableMetaInfo {
                 storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
             }
         } else {
+            isTrafficTable = false;
 
             // Specifies ENTITY_ID, TIME_BUCKET, NODE_TYPE, SERVICE_ID as tag
             if (storageAndColumnMap.containsKey(Metrics.ENTITY_ID)) {
@@ -89,10 +95,11 @@ public class TableMetaInfo {
         }
 
         final TableMetaInfo info = TableMetaInfo.builder()
-                                          .model(model)
-                                          .storageAndTagMap(storageAndTagMap)
-                                          .storageAndColumnMap(storageAndColumnMap)
-                                          .build();
+                                                .model(model)
+                                                .storageAndTagMap(storageAndTagMap)
+                                                .storageAndColumnMap(storageAndColumnMap)
+                                                .isTrafficTable(isTrafficTable)
+                                                .build();
         TABLES.put(model.getName(), info);
     }
 

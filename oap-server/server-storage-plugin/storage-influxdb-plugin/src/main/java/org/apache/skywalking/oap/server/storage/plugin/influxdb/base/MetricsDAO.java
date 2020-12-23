@@ -41,8 +41,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
-import org.influxdb.querybuilder.SelectQueryImpl;
-import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
@@ -63,21 +61,34 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        final StringBuilder builder = new StringBuilder();
-        for (String id : ids) {
-            String[] keys = id.split(Const.ID_CONNECTOR, 2);
-            select().raw(ALL_FIELDS)
-                    .from(client.getDatabase(), model.getName())
-                    .where(eq(InfluxConstants.TagName.TIME_BUCKET, keys[0]))
-                    .and(eq(InfluxConstants.TagName.ENTITY_ID, keys[1]))
-                    .and(eq(ID_COLUMN, id))
-                    .buildQueryString(builder);
-            builder.append(";");
+        final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
+
+        final Query query;
+
+        if (metaInfo.isTrafficTable()) {
+            // *_traffic is not `time-bucket_entity_id` pattern.
+            query = select()
+                .raw(ALL_FIELDS)
+                .from(client.getDatabase(), model.getName())
+                .where(contains("id", Joiner.on("|").join(ids)));
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (String id : ids) {
+                String[] keys = id.split(Const.ID_CONNECTOR, 2);
+                select().raw(ALL_FIELDS)
+                        .from(client.getDatabase(), model.getName())
+                        .where(eq(InfluxConstants.TagName.TIME_BUCKET, keys[0]))
+                        .and(eq(InfluxConstants.TagName.ENTITY_ID, keys[1]))
+                        .and(eq(ID_COLUMN, id))
+                        .buildQueryString(builder);
+                builder.append(";");
+            }
+            query = new Query(builder.toString());
         }
 
-        QueryResult.Series series = client.queryForSingleSeries(new Query(builder.toString()));
+        QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", builder.toString(), series);
+            log.debug("SQL: {} result: {}", query.toString(), series);
         }
 
         if (series == null) {
@@ -87,7 +98,6 @@ public class MetricsDAO implements IMetricsDAO {
         final List<Metrics> metrics = Lists.newArrayList();
         final List<String> columns = series.getColumns();
 
-        final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
         final Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
 
         series.getValues().forEach(values -> {
