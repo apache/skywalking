@@ -22,7 +22,7 @@ Only support **no mutual auth**.
 - Agent open TLS automatically after the `/ca/ca.crt` file detected.
 - TLS with no CA mode could be activated by this setting.
 ```
-agent.force_tls=${SW_AGENT_FORCE_TLS:true}
+agent.force_tls=${SW_AGENT_FORCE_TLS:false}
 ```
 
 o make sure can't access other ports out of region (VPC), such as firewall, proxy.
