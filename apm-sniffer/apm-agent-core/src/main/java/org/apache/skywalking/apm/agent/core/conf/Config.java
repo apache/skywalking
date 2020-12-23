@@ -124,6 +124,11 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+
+        /**
+         * Force open TLS for gRPC channel if true.
+         */
+        public static boolean FORCE_TLS = false;
     }
 
     public static class OsInfo {
