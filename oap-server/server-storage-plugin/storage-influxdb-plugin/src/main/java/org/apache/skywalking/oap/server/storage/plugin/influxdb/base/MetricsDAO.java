@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -36,13 +37,17 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
+import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
+import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
@@ -58,13 +63,21 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        final WhereQueryImpl<SelectQueryImpl> query = select()
-            .raw(ALL_FIELDS)
-            .from(client.getDatabase(), model.getName())
-            .where(contains("id", Joiner.on("|").join(ids)));
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        final StringBuilder builder = new StringBuilder();
+        for (String id : ids) {
+            String[] keys = id.split(Const.ID_CONNECTOR, 2);
+            select().raw(ALL_FIELDS)
+                    .from(client.getDatabase(), model.getName())
+                    .where(eq(InfluxConstants.TagName.TIME_BUCKET, keys[0]))
+                    .and(eq(InfluxConstants.TagName.ENTITY_ID, keys[1]))
+                    .and(eq(ID_COLUMN, id))
+                    .buildQueryString(builder);
+            builder.append(";");
+        }
+
+        QueryResult.Series series = client.queryForSingleSeries(new Query(builder.toString()));
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+            log.debug("SQL: {} result: {}", builder.toString(), series);
         }
 
         if (series == null) {
