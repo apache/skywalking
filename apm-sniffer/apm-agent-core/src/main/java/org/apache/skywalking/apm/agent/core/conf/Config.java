@@ -128,7 +128,7 @@ public class Config {
         /**
          * Should TLS enabled for gRPC channels
          */
-        public static boolean IS_GRPC_CHANNEL_TLS_FORCED = true;
+        public static boolean FORCE_TLS = true;
     }
 
     public static class OsInfo {

@@ -38,7 +38,7 @@ public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
     @Override
     public NettyChannelBuilder build(
         NettyChannelBuilder managedChannelBuilder) throws AgentPackageNotFoundException, SSLException {
-        if (Config.Agent.IS_GRPC_CHANNEL_TLS_FORCED) {
+        if (Config.Agent.FORCE_TLS) {
             SslContextBuilder builder = GrpcSslContexts.forClient();
             File caFile = new File(AgentPackagePath.getPath(), CA_FILE_NAME);
             if (caFile.exists() && caFile.isFile()) {
