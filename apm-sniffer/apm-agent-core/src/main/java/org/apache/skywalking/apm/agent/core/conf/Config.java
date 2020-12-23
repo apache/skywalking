@@ -126,7 +126,7 @@ public class Config {
         public static boolean KEEP_TRACING = false;
 
         /**
-         * Should TLS enabled for gRPC channels
+         * Force open TLS for gRPC channel if true.
          */
         public static boolean FORCE_TLS = false;
     }
