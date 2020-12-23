@@ -45,7 +45,7 @@ public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
                 builder.trustManager(caFile);
             }
             managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
-                    .sslContext(builder.build());
+                                                         .sslContext(builder.build());
         }
         return managedChannelBuilder;
     }
