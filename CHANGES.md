@@ -21,6 +21,7 @@ Release Notes.
 * Fix thrift plugin collects wrong args when the method without parameter.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
+* Support building gRPC TLS channel but CA file is not required.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
