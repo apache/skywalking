@@ -513,6 +513,15 @@ EnvoyProxy:
   id: 9000
   languages: C++
 
+# Javascript components
+# [10000, 11000) for Javascript agent
+JavaScript:
+  id: 10000
+  languages: JavaScript
+ajax:
+  id: 10001
+  languages: JavaScript
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
