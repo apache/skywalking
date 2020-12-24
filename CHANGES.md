@@ -37,6 +37,7 @@ Release Notes.
 * Add component ID for Python pyramid plugin server.
 * Add component ID for NodeJS Axios plugin.
 * Fix searchService method error in storage-influxdb-plugin.
+* Add JavaScript component ID.
 
 #### UI
 * Fix un-removed tags in trace query.
