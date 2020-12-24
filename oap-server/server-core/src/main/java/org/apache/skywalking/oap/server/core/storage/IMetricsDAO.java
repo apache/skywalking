@@ -37,7 +37,7 @@ public interface IMetricsDAO extends DAO {
      * @return the data of all given IDs. Only include existing data. Don't require to keep the same order of ids list.
      * @throws IOException when error occurs in data query.
      */
-    List<Metrics> multiGet(Model model, List<String> ids) throws IOException;
+    List<Metrics> multiGet(Model model, List<Metrics> ids) throws IOException;
 
     /**
      * Transfer the given metrics to an executable insert statement.

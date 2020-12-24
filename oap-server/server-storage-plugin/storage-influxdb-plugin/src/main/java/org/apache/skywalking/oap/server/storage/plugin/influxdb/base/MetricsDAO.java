@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
@@ -26,18 +25,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.TagName;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -60,26 +62,47 @@ public class MetricsDAO implements IMetricsDAO {
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
 
         final Query query;
-
         if (metaInfo.isTrafficTable()) {
             // *_traffic is not `time-bucket_entity_id` pattern.
-            query = select()
-                .raw(ALL_FIELDS)
-                .from(client.getDatabase(), model.getName())
-                .where(contains("id", Joiner.on("|").join(ids)));
+            Metrics metric = metrics.get(0);
+            if (metric instanceof EndpointTraffic) {
+                String queryStr = metrics.stream()
+                                        .map(m -> (EndpointTraffic) m)
+                                        .map(m -> select().raw(ALL_FIELDS)
+                                                 .from(client.getDatabase(), model.getName())
+                                                 .where(eq(TagName.NAME, m.getName()))
+                                                 .and(eq(ID_COLUMN, m.id()))
+                                                 .buildQueryString()
+                                        ).collect(Collectors.joining(";"));
+                query = new Query(queryStr);
+            } else if (metric instanceof ServiceTraffic) {
+                String queryStr = metrics.stream()
+                                         .map(m -> (ServiceTraffic) m)
+                                         .map(m -> select().raw(ALL_FIELDS)
+                                                           .from(client.getDatabase(), model.getName())
+                                                           .where(eq(TagName.NAME, m.getName()))
+                                                           .and(eq(ID_COLUMN, m.id()))
+                                                           .buildQueryString()
+                                         ).collect(Collectors.joining(";"));
+                query = new Query(queryStr);
+            } else {
+                String ids = metrics.stream().map(StorageData::id).collect(Collectors.joining("|"));
+                query = select()
+                    .raw(ALL_FIELDS)
+                    .from(client.getDatabase(), model.getName())
+                    .where(contains(ID_COLUMN, ids));
+            }
         } else {
             StringBuilder builder = new StringBuilder();
-            for (String id : ids) {
-                String[] keys = id.split(Const.ID_CONNECTOR, 2);
+            for (Metrics metric : metrics) {
                 select().raw(ALL_FIELDS)
                         .from(client.getDatabase(), model.getName())
-                        .where(eq(InfluxConstants.TagName.TIME_BUCKET, keys[0]))
-                        .and(eq(InfluxConstants.TagName.ENTITY_ID, keys[1]))
-                        .and(eq(ID_COLUMN, id))
+                        .where(eq(TagName.TIME_BUCKET, metric.getTimeBucket()))
+                        .and(eq(ID_COLUMN, metric.id()))
                         .buildQueryString(builder);
                 builder.append(";");
             }
@@ -95,9 +118,8 @@ public class MetricsDAO implements IMetricsDAO {
             return Collections.emptyList();
         }
 
-        final List<Metrics> metrics = Lists.newArrayList();
+        final List<Metrics> newMetrics = Lists.newArrayList();
         final List<String> columns = series.getColumns();
-
         final Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
 
         series.getValues().forEach(values -> {
@@ -111,11 +133,10 @@ public class MetricsDAO implements IMetricsDAO {
 
                 data.put(storageAndColumnMap.get(columns.get(i)), value);
             }
-            metrics.add(storageBuilder.map2Data(data));
-
+            newMetrics.add(storageBuilder.map2Data(data));
         });
 
-        return metrics;
+        return newMetrics;
     }
 
     @Override
