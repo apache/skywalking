@@ -16,10 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.retransform;
+package test.apache.skywalking.apm.testcase.retransform;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
-import org.apache.skywalking.apm.testcase.retransform.controller.CaseController;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -44,7 +43,7 @@ public class RetransformUtil {
                     int offset = indexOf(classfileBuffer, bytes);
                     if (offset != -1) {
                         byte[] replacingBytes = RETRANSFORM_VALUE.getBytes();
-                        System.arraycopy(replacingBytes, 0, classfileBuffer, offset, replacingBytes.length);
+                        System.arraycopy(replacingBytes,0, classfileBuffer, offset, replacingBytes.length);
                     }
                     return classfileBuffer;
                 }
@@ -56,7 +55,9 @@ public class RetransformUtil {
             instrumentation.addTransformer(transformer, true);
             try {
                 instrumentation.retransformClasses(CaseController.class);
+                System.out.println("retransform classes success");
             } catch (Throwable e) {
+                System.out.println("retransform classes failure");
                 e.printStackTrace(System.out);
             }
 
@@ -67,10 +68,10 @@ public class RetransformUtil {
     }
 
     private static int indexOf(byte[] outerArray, byte[] smallerArray) {
-        for (int i = 0; i < outerArray.length - smallerArray.length + 1; ++i) {
+        for(int i = 0; i < outerArray.length - smallerArray.length+1; ++i) {
             boolean found = true;
-            for (int j = 0; j < smallerArray.length; ++j) {
-                if (outerArray[i + j] != smallerArray[j]) {
+            for(int j = 0; j < smallerArray.length; ++j) {
+                if (outerArray[i+j] != smallerArray[j]) {
                     found = false;
                     break;
                 }
