@@ -28,12 +28,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -46,7 +44,6 @@ import org.influxdb.dto.QueryResult;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
@@ -65,53 +62,31 @@ public class MetricsDAO implements IMetricsDAO {
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
 
-        final Query query;
+        final String queryStr;
         if (metaInfo.isTrafficTable()) {
-            // *_traffic is not `time-bucket_entity_id` pattern.
-            Metrics metric = metrics.get(0);
-            if (metric instanceof EndpointTraffic) {
-                String queryStr = metrics.stream()
-                                        .map(m -> (EndpointTraffic) m)
-                                        .map(m -> select().raw(ALL_FIELDS)
-                                                 .from(client.getDatabase(), model.getName())
-                                                 .where(eq(TagName.NAME, m.getName()))
-                                                 .and(eq(ID_COLUMN, m.id()))
-                                                 .buildQueryString()
-                                        ).collect(Collectors.joining(";"));
-                query = new Query(queryStr);
-            } else if (metric instanceof ServiceTraffic) {
-                String queryStr = metrics.stream()
-                                         .map(m -> (ServiceTraffic) m)
-                                         .map(m -> select().raw(ALL_FIELDS)
-                                                           .from(client.getDatabase(), model.getName())
-                                                           .where(eq(TagName.NAME, m.getName()))
-                                                           .and(eq(ID_COLUMN, m.id()))
-                                                           .buildQueryString()
-                                         ).collect(Collectors.joining(";"));
-                query = new Query(queryStr);
-            } else {
-                String ids = metrics.stream().map(StorageData::id).collect(Collectors.joining("|"));
-                query = select()
-                    .raw(ALL_FIELDS)
-                    .from(client.getDatabase(), model.getName())
-                    .where(contains(ID_COLUMN, ids));
-            }
+            queryStr = metrics.stream()
+                              .map(m -> (ServiceTraffic) m)
+                              .map(m -> select().raw(ALL_FIELDS)
+                                                .from(client.getDatabase(), model.getName())
+                                                .where(eq(TagName.NAME, m.getName()))
+                                                .and(eq(ID_COLUMN, m.id()))
+                                                .buildQueryString()
+                              ).collect(Collectors.joining(";"));
         } else {
-            StringBuilder builder = new StringBuilder();
-            for (Metrics metric : metrics) {
-                select().raw(ALL_FIELDS)
-                        .from(client.getDatabase(), model.getName())
-                        .where(eq(TagName.TIME_BUCKET, String.valueOf(metric.getTimeBucket())))
-                        .and(eq(ID_COLUMN, metric.id()))
-                        .buildQueryString(builder);
-                builder.append(";");
-            }
-            query = new Query(builder.toString());
+            queryStr = metrics.stream()
+                              .map(m ->
+                                       select().raw(ALL_FIELDS)
+                                               .from(client.getDatabase(), model.getName())
+                                               .where(eq(TagName.TIME_BUCKET, String.valueOf(m.getTimeBucket())))
+                                               .and(eq(ID_COLUMN, m.id()))
+                                               .buildQueryString()
+                              ).collect(Collectors.joining(";"));
         }
 
+        final Query query = new Query(queryStr);
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.toString(), series);
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
         }
 
         if (series == null) {
