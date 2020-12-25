@@ -21,6 +21,7 @@ Release Notes.
 * Fix thrift plugin collects wrong args when the method without parameter.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
+* Support building gRPC TLS channel but CA file is not required.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -36,6 +37,7 @@ Release Notes.
 * Add component ID for Python pyramid plugin server.
 * Add component ID for NodeJS Axios plugin.
 * Fix searchService method error in storage-influxdb-plugin.
+* Add JavaScript component ID.
 
 #### UI
 * Fix un-removed tags in trace query.
