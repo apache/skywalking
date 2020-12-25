@@ -74,12 +74,14 @@ public class MetricsDAO implements IMetricsDAO {
                               ).collect(Collectors.joining(";"));
         } else {
             queryStr = metrics.stream()
-                              .map(m ->
-                                       select().raw(ALL_FIELDS)
-                                               .from(client.getDatabase(), model.getName())
-                                   .where(eq(InfluxConstants.TagName.TIME_BUCKET, m.getTimeBucket()))
-                                   .and(eq(ID_COLUMN, m.id()))
-                                   .buildQueryString()
+                              .map(m -> select().raw(ALL_FIELDS)
+                                                .from(client.getDatabase(), model.getName())
+                                                .where(eq(
+                                                    InfluxConstants.TagName.TIME_BUCKET,
+                                                    String.valueOf(m.getTimeBucket())
+                                                ))
+                                                .and(eq(ID_COLUMN, m.id()))
+                                                .buildQueryString()
                               ).collect(Collectors.joining(";"));
         }
 
