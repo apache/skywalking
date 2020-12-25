@@ -101,7 +101,7 @@ public class MetricsDAO implements IMetricsDAO {
             for (Metrics metric : metrics) {
                 select().raw(ALL_FIELDS)
                         .from(client.getDatabase(), model.getName())
-                        .where(eq(TagName.TIME_BUCKET, metric.getTimeBucket()))
+                        .where(eq(TagName.TIME_BUCKET, String.valueOf(metric.getTimeBucket())))
                         .and(eq(ID_COLUMN, metric.id()))
                         .buildQueryString(builder);
                 builder.append(";");
