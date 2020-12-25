@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.Traffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -60,12 +62,26 @@ public class MetricsDAO implements IMetricsDAO {
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
 
-        final String queryStr = metrics.stream()
-                                       .map(m -> select().raw(ALL_FIELDS)
-                                                         .from(client.getDatabase(), model.getName())
-                                                         .where(eq(ID_COLUMN, m.id()))
-                                                         .buildQueryString()
-                                       ).collect(Collectors.joining(";"));
+        final String queryStr;
+        if (metaInfo.isTrafficTable()) {
+            queryStr = metrics.stream()
+                              .map(m -> (Traffic) m)
+                              .map(m -> select().raw(ALL_FIELDS)
+                                                .from(client.getDatabase(), model.getName())
+                                                .where(eq(InfluxConstants.TagName.NAME, m.getName()))
+                                                .and(eq(ID_COLUMN, m.id()))
+                                                .buildQueryString()
+                              ).collect(Collectors.joining(";"));
+        } else {
+            queryStr = metrics.stream()
+                              .map(m ->
+                                       select().raw(ALL_FIELDS)
+                                               .from(client.getDatabase(), model.getName())
+                                   .where(eq(InfluxConstants.TagName.TIME_BUCKET, m.getTimeBucket()))
+                                   .and(eq(ID_COLUMN, m.id()))
+                                   .buildQueryString()
+                              ).collect(Collectors.joining(";"));
+        }
 
         final Query query = new Query(queryStr);
         QueryResult.Series series = client.queryForSingleSeries(query);
