@@ -46,17 +46,13 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.ti;
  */
 @Slf4j
 public class InfluxClient implements Client, HealthCheckable {
-    private InfluxStorageConfig config;
+    private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
+    private final InfluxStorageConfig config;
     private InfluxDB influx;
-    private DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     /**
      * A constant, the name of time field in Time-series database.
      */
     public static final String TIME = "time";
-    /**
-     * A constant, the name of tag of time_bucket.
-     */
-    public static final String TAG_TIME_BUCKET = "_time_bucket";
 
     private final String database;
 
@@ -72,10 +68,11 @@ public class InfluxClient implements Client, HealthCheckable {
     @Override
     public void connect() {
         try {
+            InfluxDB.ResponseFormat responseFormat = InfluxDB.ResponseFormat.valueOf(config.getConnectionResponseFormat());
             influx = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPassword(),
                     new OkHttpClient.Builder().readTimeout(3, TimeUnit.MINUTES)
                             .writeTimeout(3, TimeUnit.MINUTES),
-                    InfluxDB.ResponseFormat.MSGPACK
+                    responseFormat
             );
             influx.query(new Query("CREATE DATABASE " + database));
             influx.enableGzip();
@@ -216,7 +213,7 @@ public class InfluxClient implements Client, HealthCheckable {
             this.healthChecker.health();
         } catch (Throwable e) {
             healthChecker.unHealth(e);
-            throw e;
+            throw new IOException(e);
         }
     }
 

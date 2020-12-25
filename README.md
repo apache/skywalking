@@ -19,7 +19,7 @@ in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint metrics analysis
-- Root cause analysis. Profile the code on the runtime. Read [Apache SkyWalking: Use Profiling to Fix the Blind Spot of Distributed Tracing](https://thenewstack.io/apache-skywalking-use-profiling-to-fix-the-blind-spot-of-distributed-tracing/).
+- Root cause analysis. Profile the code on the runtime
 - Service topology map analysis
 - Service, service instance and endpoint dependency analysis
 - Slow services and endpoints detected
@@ -35,9 +35,9 @@ SkyWalking supports to collect telemetry (traces and metrics) data from multiple
 and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
-1. Go agent.
+1. Go and C++ SDKs.
 1. LUA agent especially for Nginx, OpenResty.
-1. Service Mesh Observability. Support Istio telemetry metrics. Recommend to use Envoy Access Log Service (ALS) for better performance, first introduced at [KubeCon 2019](https://www.youtube.com/watch?v=tERm39ju9ew).
+1. Service Mesh Observability. Control panel and data panel. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer).
 1. Browser application performance, including metrics and error logs.
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
@@ -48,46 +48,27 @@ for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM
 # Documentation
 - [Official documentation](https://skywalking.apache.org/docs/)
 - [The paper of STAM](https://wu-sheng.github.io/STAM/), Streaming Topology Analysis Method.
-- [Blog](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) about profiling the code performance in production.
+- [Blog](https://skywalking.apache.org/blog/2020-04-13-apache-skywalking-profiling/) about Use Profiling to Fix the Blind Spot of Distributed Tracing
+- [Blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) about observing Istio + Envoy service mesh with ALS solution.
 
 NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
 
 # Downloads
-Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+Please head to the [releases page](https://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+
+# Compiling project
+Follow this [document](docs/en/guides/How-to-build.md).
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-Host in Beijing. Go to [demo](http://122.112.182.72:8080).
+Find the [demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch) on our website.
 
 **Video on youtube.com**
 
 [![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
-
-
-# Screenshot
-<table>
-  <tr>
-    <td width="100%" align="center" colspan="2"><b>Dashboard</b></td>
-  </tr>
-  <tr>
-    <td><img src="http://skywalking.apache.org/screenshots/8.0.0/dashboard-1.png"/></td>
-    <td><img src="http://skywalking.apache.org/screenshots/8.0.0/dashboard-2.png"/></td>
-  </tr>
-  <tr>
-      <td width="50%" align="center"><b>Topology Map</b></td>
-      <td width="50%" align="center"><b>Trace</b></td>
-  </tr>
-  <tr>
-     <td><img src="http://skywalking.apache.org/screenshots/8.0.0/topology.png"/></td>
-     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/trace.png"/></td>
-  </tr>
-</table>
-
-# Compiling project
-Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
@@ -96,13 +77,10 @@ Follow this [document](docs/en/guides/How-to-build.md).
 * QQ Group: 901167865(Recommended), 392443393
 * [bilibili B站 视频](https://space.bilibili.com/390683219)
 
-# Who Uses SkyWalking?
+# Our Users
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.
+Visit our [website](http://skywalking.apache.org/#users) to find the user page.
 
-<img src="http://skywalking.apache.org/assets/users-20200726.png"/>
-
-The [PoweredBy](docs/powered-by.md) page includes more users of the project.
-Users are encouraged to add themselves to there.
 
 # Landscapes
 

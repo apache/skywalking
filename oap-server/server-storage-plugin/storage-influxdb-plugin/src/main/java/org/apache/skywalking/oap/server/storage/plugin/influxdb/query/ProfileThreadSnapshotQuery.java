@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.QueryResult;
+import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
@@ -56,26 +57,25 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
 
     @Override
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
-        WhereQueryImpl query = select(ProfileThreadSnapshotRecord.SEGMENT_ID)
+        final WhereQueryImpl<SelectQueryImpl> countQuery = select(ProfileThreadSnapshotRecord.SEGMENT_ID)
             .from(client.getDatabase(), ProfileThreadSnapshotRecord.INDEX_NAME)
-            .where()
-            .and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
-            .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0));
+            .where();
+
+        countQuery.and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
+                  .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
         final LinkedList<String> segments = new LinkedList<>();
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        QueryResult.Series series = client.queryForSingleSeries(countQuery);
         if (Objects.isNull(series)) {
             return Collections.emptyList();
         }
-        series.getValues().forEach(values -> {
-            segments.add((String) values.get(1));
-        });
+        series.getValues().forEach(values -> segments.add((String) values.get(1)));
 
         if (segments.isEmpty()) {
             return Collections.emptyList();
         }
 
-        query = select()
+        final WhereQueryImpl<SelectQueryImpl> whereQuery = select()
             .function(InfluxConstants.SORT_ASC, SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
@@ -84,19 +84,19 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .column(SegmentRecord.IS_ERROR)
             .column(SegmentRecord.TRACE_ID)
             .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
-            .where()
-            .and(contains(SegmentRecord.SEGMENT_ID, Joiner.on("|").join(segments)));
+            .where();
+        whereQuery.and(contains(SegmentRecord.SEGMENT_ID, Joiner.on("|").join(segments)));
 
         ArrayList<BasicTrace> result = Lists.newArrayListWithCapacity(segments.size());
-        client.queryForSingleSeries(query)
+        client.queryForSingleSeries(whereQuery)
               .getValues()
               .stream()
               .sorted((a, b) -> Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue()))
               .forEach(values -> {
-                  BasicTrace basicTrace = new BasicTrace();
+                  final BasicTrace basicTrace = new BasicTrace();
 
                   basicTrace.setSegmentId((String) values.get(2));
-                  basicTrace.setStart(String.valueOf(values.get(3)));
+                  basicTrace.setStart(String.valueOf(((Number) values.get(3)).longValue()));
                   basicTrace.getEndpointNames().add((String) values.get(4));
                   basicTrace.setDuration(((Number) values.get(5)).intValue());
                   basicTrace.setError(BooleanUtils.valueToBoolean(((Number) values.get(6)).intValue()));
@@ -122,7 +122,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence,
                                                           int maxSequence) throws IOException {
-        WhereQueryImpl query = select(
+        WhereQueryImpl<SelectQueryImpl> whereQuery = select(
             ProfileThreadSnapshotRecord.TASK_ID,
             ProfileThreadSnapshotRecord.SEGMENT_ID,
             ProfileThreadSnapshotRecord.DUMP_TIME,
@@ -130,18 +130,19 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             ProfileThreadSnapshotRecord.STACK_BINARY
         )
             .from(client.getDatabase(), ProfileThreadSnapshotRecord.INDEX_NAME)
-            .where(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
-            .and(gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence))
-            .and(lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence));
+            .where(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
 
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        whereQuery.and(gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence))
+                  .and(lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence));
+
+        final QueryResult.Series series = client.queryForSingleSeries(whereQuery);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", query.getCommand(), series);
+            log.debug("SQL: {} result: {}", whereQuery.getCommand(), series);
         }
         if (Objects.isNull(series)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
-        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
+        final ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         series.getValues().forEach(values -> {
             ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
 
@@ -162,41 +163,43 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
 
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        WhereQueryImpl query = select().column(SegmentRecord.SEGMENT_ID)
-                .column(SegmentRecord.TRACE_ID)
-                .column(SegmentRecord.SERVICE_ID)
-                .column(SegmentRecord.ENDPOINT_NAME)
-                .column(SegmentRecord.START_TIME)
-                .column(SegmentRecord.END_TIME)
-                .column(SegmentRecord.LATENCY)
-                .column(SegmentRecord.IS_ERROR)
-                .column(SegmentRecord.DATA_BINARY)
-                .column(SegmentRecord.VERSION)
-                .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
-                .where()
-                .and(eq(SegmentRecord.SEGMENT_ID, segmentId));
-        List<QueryResult.Series> series = client.queryForSeries(query);
+        WhereQueryImpl<SelectQueryImpl> whereQuery = select()
+            .column(SegmentRecord.SEGMENT_ID)
+            .column(SegmentRecord.TRACE_ID)
+            .column(SegmentRecord.SERVICE_ID)
+            .column(SegmentRecord.ENDPOINT_NAME)
+            .column(SegmentRecord.START_TIME)
+            .column(SegmentRecord.END_TIME)
+            .column(SegmentRecord.LATENCY)
+            .column(SegmentRecord.IS_ERROR)
+            .column(SegmentRecord.DATA_BINARY)
+            .column(SegmentRecord.VERSION)
+            .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
+            .where();
+
+        whereQuery.and(eq(SegmentRecord.SEGMENT_ID, segmentId));
+        List<QueryResult.Series> series = client.queryForSeries(whereQuery);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result set: {}", query.getCommand(), series);
+            log.debug("SQL: {} result set: {}", whereQuery.getCommand(), series);
         }
         if (Objects.isNull(series) || series.isEmpty()) {
             return null;
         }
 
-        List<Object> values = series.get(0).getValues().get(0);
-        SegmentRecord segmentRecord = new SegmentRecord();
+        final List<Object> values = series.get(0).getValues().get(0);
+        final SegmentRecord segmentRecord = new SegmentRecord();
 
         segmentRecord.setSegmentId((String) values.get(1));
         segmentRecord.setTraceId((String) values.get(2));
         segmentRecord.setServiceId((String) values.get(3));
         segmentRecord.setEndpointName((String) values.get(4));
-        segmentRecord.setStartTime((long) values.get(5));
-        segmentRecord.setEndTime((long) values.get(6));
-        segmentRecord.setLatency((int) values.get(7));
-        segmentRecord.setIsError((int) values.get(8));
-        segmentRecord.setVersion((int) values.get(10));
+        segmentRecord.setStartTime(((Number) values.get(5)).longValue());
+        segmentRecord.setEndTime(((Number) values.get(6)).longValue());
+        segmentRecord.setLatency(((Number) values.get(7)).intValue());
+        segmentRecord.setIsError(((Number) values.get(8)).intValue());
+        segmentRecord.setVersion(((Number) values.get(10)).intValue());
 
-        String base64 = (String) values.get(9);
+        final String base64 = (String) values.get(9);
         if (!Strings.isNullOrEmpty(base64)) {
             segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
         }
@@ -205,13 +208,14 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
     }
 
     private int querySequenceWithAgg(String function, String segmentId, long start, long end) throws IOException {
-        WhereQueryImpl query = select()
+        WhereQueryImpl<SelectQueryImpl> query = select()
             .function(function, ProfileThreadSnapshotRecord.SEQUENCE)
             .from(client.getDatabase(), ProfileThreadSnapshotRecord.INDEX_NAME)
-            .where()
-            .and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
-            .and(gte(ProfileThreadSnapshotRecord.DUMP_TIME, start))
-            .and(lte(ProfileThreadSnapshotRecord.DUMP_TIME, end));
+            .where();
+
+        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
+             .and(gte(ProfileThreadSnapshotRecord.DUMP_TIME, start))
+             .and(lte(ProfileThreadSnapshotRecord.DUMP_TIME, end));
         return client.getCounter(query);
     }
 }

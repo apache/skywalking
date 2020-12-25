@@ -40,7 +40,7 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 public class NetworkAddressAliasDAO implements INetworkAddressAliasDAO {
     private final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
-    private InfluxClient client;
+    private final InfluxClient client;
 
     public NetworkAddressAliasDAO(final InfluxClient client) {
         this.client = client;

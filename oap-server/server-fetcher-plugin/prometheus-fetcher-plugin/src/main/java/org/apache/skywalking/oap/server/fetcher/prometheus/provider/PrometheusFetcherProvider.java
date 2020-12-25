@@ -134,6 +134,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                     result.addAll(mf.getMetrics());
                                 }
                             }
+                            if (log.isDebugEnabled()) {
+                                log.debug("Fetch metrics from prometheus: {}", result);
+                            }
                             return result;
                         }))
                         .flatMap(tryIt -> MetricConvert.log(tryIt, "Load metric"))

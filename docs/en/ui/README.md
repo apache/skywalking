@@ -87,10 +87,12 @@ Check the entity named as `ui_template` in your storage.
 ## Topology
 Topology map shows the relationship among the services and instances with metrics.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/topology.png"/>
+<img src="http://skywalking.apache.org/ui-doc/8.4.0/topology.png"/>
 
 * Topology shows the default global topology including all services.
-* **Service Selector** supports to show direct relationships including upstream and downstream.
+* **Service Selector** provides 2 level selectors, service group list and service name list. The group name is separated from 
+the service name if it follows `<group name>::<logic name>` format. Topology map is available for single group, single service, 
+or global(include all services).
 * **Custom Group** provides the any sub topology capability of service group.
 * **Service Deep Dive** opens when you click any service. The honeycomb could do metrics, trace and alarm query of the selected service.
 * **Service Relationship Metrics** gives the metrics of service RPC interactions and instances of these two services.
@@ -102,7 +104,7 @@ Trace query is a typical feature as SkyWalking provided distributed agents.
 
 * **Trace Segment List** is not the trace list. Every trace has several segments belonging to different services. If  
 query by all services or by trace id, different segments with same trace id could be list there.
-* **Span** is clickable, the detail of each span will pop up at the left side.
+* **Span** is clickable, the detail of each span will pop up on the left side.
 * **Trace Views** provides 3 typical and different usage views to visualize the trace. 
 
 ## Profile
@@ -137,6 +139,12 @@ have been highlighted.
 
 ### Advanced features
 1. Since 7.1.0, the profiled trace collects the HTTP request parameters for Tomcat and SpringMVC Controller automatically.
+
+## Log
+Since 8.3.0, SkyWalking provides log query for the browser monitoring. Use [Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js)
+agent would collect metrics and error logs.
+
+<img src="http://skywalking.apache.org/ui-doc/8.3.0/log.png"/>
 
 ## Alarm
 Alarm page lists all triggered alarm. Read the backend setup documentation to know how to set up the alarm rule or integrate

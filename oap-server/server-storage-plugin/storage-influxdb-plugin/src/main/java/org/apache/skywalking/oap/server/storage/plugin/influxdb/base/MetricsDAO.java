@@ -58,7 +58,7 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select()
+        final WhereQueryImpl<SelectQueryImpl> query = select()
             .raw(ALL_FIELDS)
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
@@ -72,10 +72,10 @@ public class MetricsDAO implements IMetricsDAO {
         }
 
         final List<Metrics> metrics = Lists.newArrayList();
-        List<String> columns = series.getColumns();
+        final List<String> columns = series.getColumns();
 
-        TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
-        Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
+        final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
+        final Map<String, String> storageAndColumnMap = metaInfo.getStorageAndColumnMap();
 
         series.getValues().forEach(values -> {
             Map<String, Object> data = Maps.newHashMap();
@@ -96,21 +96,19 @@ public class MetricsDAO implements IMetricsDAO {
     }
 
     @Override
-    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    public InsertRequest prepareBatchInsert(Model model, Metrics metrics) {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
-        TableMetaInfo tableMetaInfo = TableMetaInfo.get(model.getName());
+        final TableMetaInfo tableMetaInfo = TableMetaInfo.get(model.getName());
 
         final InfluxInsertRequest request = new InfluxInsertRequest(model, metrics, storageBuilder)
             .time(timestamp, TimeUnit.MILLISECONDS);
 
-        tableMetaInfo.getStorageAndTagMap().forEach((field, tag) -> {
-            request.addFieldAsTag(field, tag);
-        });
+        tableMetaInfo.getStorageAndTagMap().forEach(request::addFieldAsTag);
         return request;
     }
 
     @Override
-    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) {
         return (UpdateRequest) this.prepareBatchInsert(model, metrics);
     }
 }

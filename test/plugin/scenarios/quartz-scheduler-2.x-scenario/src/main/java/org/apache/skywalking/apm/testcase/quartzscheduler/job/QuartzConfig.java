@@ -38,12 +38,15 @@ public class QuartzConfig {
         Map.Entry<JobDetail, Trigger> demoJobConfig = demoJobConfig();
         scheduler.scheduleJob(demoJobConfig.getKey(), demoJobConfig.getValue());
 
+        Map.Entry<JobDetail, Trigger> exceptionJobConfig = exceptionJobConfig();
+        scheduler.scheduleJob(exceptionJobConfig.getKey(), exceptionJobConfig.getValue());
+
         return scheduler;
     }
 
     private Map.Entry<JobDetail, Trigger> demoJobConfig() throws ParseException {
         JobDetail demoJobDetail = JobBuilder.newJob(DemoJob.class)
-                .withIdentity("DemoJob","DemoJobGroup")
+                .withIdentity("DemoJob", "DemoJobGroup")
                 .usingJobData("param1", "test")
                 .storeDurably()
                 .build();
@@ -55,5 +58,21 @@ public class QuartzConfig {
                 .build();
 
         return new AbstractMap.SimpleEntry(demoJobDetail, demoJobTrigger);
+    }
+
+    private Map.Entry<JobDetail, Trigger> exceptionJobConfig() throws ParseException {
+        JobDetail exceptionJobDetail = JobBuilder.newJob(ExceptionJob.class)
+                .withIdentity("ExceptionJob", "ExceptionJobGroup")
+                .usingJobData("param1", "test")
+                .storeDurably()
+                .build();
+
+        Trigger exceptionJobTrigger = TriggerBuilder.newTrigger()
+                .forJob(exceptionJobDetail)
+                .startNow()
+                .withSchedule(CronScheduleBuilder.cronSchedule("0/5 * * * * ?"))
+                .build();
+
+        return new AbstractMap.SimpleEntry(exceptionJobDetail, exceptionJobTrigger);
     }
 }

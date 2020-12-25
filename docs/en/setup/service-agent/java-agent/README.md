@@ -72,7 +72,7 @@ This is the properties list supported in `agent/config/agent.config`.
 property key | Description | Default |
 ----------- | ---------- | --------- | 
 `agent.namespace` | Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`. | Not set | 
-`agent.service_name` | The service name to represent a logic group providing the same capabilities/logic. Suggestion: set a unique name for every logic service group, service instance nodes share the same code, Max length is 50(UTF-8 char) | `Your_ApplicationName` |
+`agent.service_name` | The service name to represent a logic group providing the same capabilities/logic. Suggestion: set a unique name for every logic service group, service instance nodes share the same code, Max length is 50(UTF-8 char). Optional, once `service_name` follows `<group name>::<logic name>` format, OAP server assigns the group name to the service metadata.| `Your_ApplicationName` |
 `agent.sample_n_per_3_secs`|Negative or zero means off, by default.SAMPLE_N_PER_3_SECS means sampling N TraceSegment in 3 seconds tops.|Not set|
 `agent.authentication`|Authentication active is based on backend setting, see application.yml for more details.For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.|Not set|
 `agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, SkyWalking keep your application memory cost estimated.|300 |
@@ -86,6 +86,7 @@ property key | Description | Default |
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
 `agent.operation_name_threshold `|The operationName max length, setting this value > 190 is not recommended.|`150`|
 `agent.keep_tracing`|Keep tracing even the backend is not available if this value is `true`.|`false`|
+`agent.force_tls`|Force open TLS for gRPC channel if this value is `true`.|`false`|
 `osinfo.ipv4_list_size`| Limit the length of the ipv4 list size. |`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.heartbeat_period`|agent heartbeat report period. Unit, second.|`30`|
@@ -175,6 +176,7 @@ Now, we have the following known optional plugins.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
 * Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
 * Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
+* [Plugin of logger(logback, log4j, log4j2)](agent-optional-plugins/Logger-plugin.md) in the optional plugin folder. For the performance perspective, please only activate it when you need to add logs(from logback,log4j, or log4j2) to the span log event. **Notice, collecting logs in the tracing would impact the performance and memory seriously. Only collect necessary logs.**
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
@@ -192,7 +194,7 @@ The following logic endpoints are added automatically by plugins.
 1. Spring's ScheduledMethodRunnable jobs are logic endpoints. The name format is `SpringScheduled`/`${className}`/`${methodName}`.
 1. Apache ShardingSphere ElasticJob's jobs are logic endpoints. The name format is `ElasticJob`/`${jobName}`.
 1. XXLJob's jobs are logic endpoints. The name formats include `xxl-job`/`MethodJob`/`${className}`.`${methodName}`, `xxl-job`/`ScriptJob`/`${GlueType}`/`id`/`${jobId}`, and `xxl-job`/`SimpleJob`/`${className}`.
-1. Quartz(optional plugin)'s jobs are logic endpoints. the name format is `quartz-scheduler`/`${jobName}`.
+1. Quartz(optional plugin)'s jobs are logic endpoints. the name format is `quartz-scheduler`/`${className}`.
 
 User could use the SkyWalking's application toolkits to add the tag into the local span to label the span as a logic endpoint in the analysis stage.
 The tag is, key=`x-le` and value = `{"logic-span":true}`.
