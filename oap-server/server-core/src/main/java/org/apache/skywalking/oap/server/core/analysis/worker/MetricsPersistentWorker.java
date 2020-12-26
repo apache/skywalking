@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
@@ -211,15 +211,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             context.clear();
         }
 
-        List<Metrics> notInCacheMetrics = metrics.stream()
-                                                 .filter(m -> !context.containsKey(m))
-                                                 .collect(Collectors.toList());
-        if (notInCacheMetrics.size() > 0) {
-            List<Metrics> metricsList = metricsDAO.multiGet(model, notInCacheMetrics);
-            for (Metrics metric : metricsList) {
-                context.put(metric, metric);
-            }
-        }
+        Stream<Metrics> stream = metrics.stream().filter(m -> !context.containsKey(m));
+        metricsDAO.multiGet(model, stream).forEach(m -> context.put(m, m));
     }
 
     @Override

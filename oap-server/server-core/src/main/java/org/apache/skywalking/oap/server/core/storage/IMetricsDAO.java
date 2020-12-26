@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -37,7 +38,7 @@ public interface IMetricsDAO extends DAO {
      * @return the data of all given IDs. Only include existing data. Don't require to keep the same order of ids list.
      * @throws IOException when error occurs in data query.
      */
-    List<Metrics> multiGet(Model model, List<Metrics> ids) throws IOException;
+    List<Metrics> multiGet(Model model, Stream<Metrics> stream) throws IOException;
 
     /**
      * Transfer the given metrics to an executable insert statement.

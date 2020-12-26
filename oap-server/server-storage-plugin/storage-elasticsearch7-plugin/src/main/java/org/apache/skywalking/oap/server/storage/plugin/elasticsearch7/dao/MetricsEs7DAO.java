@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -35,8 +36,8 @@ public class MetricsEs7DAO extends MetricsEsDAO {
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String[] ids = metrics.stream().map(Metrics::id).toArray(String[]::new);
+    public List<Metrics> multiGet(Model model, Stream<Metrics> stream) throws IOException {
+        String[] ids = stream.map(Metrics::id).toArray(String[]::new);
         SearchResponse response = getClient().ids(model.getName(), ids);
 
         List<Metrics> result = new ArrayList<>(response.getHits().getHits().length);

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.Traffic;
@@ -59,13 +60,12 @@ public class MetricsDAO implements IMetricsDAO {
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+    public List<Metrics> multiGet(Model model, Stream<Metrics> stream) throws IOException {
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
 
         final String queryStr;
         if (metaInfo.isTrafficTable()) {
-            queryStr = metrics.stream()
-                              .map(m -> (Traffic) m)
+            queryStr = stream.map(m -> (Traffic) m)
                               .map(m -> select().raw(ALL_FIELDS)
                                                 .from(client.getDatabase(), model.getName())
                                                 .where(eq(InfluxConstants.TagName.NAME, m.getName()))
@@ -73,8 +73,7 @@ public class MetricsDAO implements IMetricsDAO {
                                                 .buildQueryString()
                               ).collect(Collectors.joining(";"));
         } else {
-            queryStr = metrics.stream()
-                              .map(m -> select().raw(ALL_FIELDS)
+            queryStr = stream.map(m -> select().raw(ALL_FIELDS)
                                                 .from(client.getDatabase(), model.getName())
                                                 .where(eq(
                                                     InfluxConstants.TagName.TIME_BUCKET,
