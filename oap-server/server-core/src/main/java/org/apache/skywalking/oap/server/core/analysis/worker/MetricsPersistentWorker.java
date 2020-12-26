@@ -212,7 +212,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         }
 
         Stream<Metrics> stream = metrics.stream().filter(m -> !context.containsKey(m));
-        metricsDAO.multiGet(model, stream).forEach(m -> context.put(m, m));
+        if (stream.count() > 0) {
+            metricsDAO.multiGet(model, stream).forEach(m -> context.put(m, m));
+        }
     }
 
     @Override
