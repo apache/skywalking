@@ -24,10 +24,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.Traffic;
@@ -61,30 +59,27 @@ public class MetricsDAO implements IMetricsDAO {
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, Stream<Metrics> stream) throws IOException {
-        Optional<Metrics> metric = stream.findFirst();
-        if (!metric.isPresent()) {
-            return Collections.emptyList();
-        }
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
 
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
         final String queryStr;
-        if (metric.get() instanceof Traffic) {
-            queryStr = stream.map(m -> select().raw(ALL_FIELDS)
-                                               .from(client.getDatabase(), model.getName())
-                                               .where(eq(InfluxConstants.TagName.NAME, ((Traffic) m).getName()))
-                                               .and(eq(ID_COLUMN, m.id()))
-                                               .buildQueryString()
+        if (metrics.get(0) instanceof Traffic) {
+            queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
+                                                         .from(client.getDatabase(), model.getName())
+                                                         .where(
+                                                             eq(InfluxConstants.TagName.NAME, ((Traffic) m).getName()))
+                                                         .and(eq(ID_COLUMN, m.id()))
+                                                         .buildQueryString()
             ).collect(Collectors.joining(";"));
         } else {
-            queryStr = stream.map(m -> select().raw(ALL_FIELDS)
-                                               .from(client.getDatabase(), model.getName())
-                                               .where(eq(
-                                                   InfluxConstants.TagName.TIME_BUCKET,
-                                                   String.valueOf(m.getTimeBucket())
-                                               ))
-                                               .and(eq(ID_COLUMN, m.id()))
-                                               .buildQueryString()
+            queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
+                                                         .from(client.getDatabase(), model.getName())
+                                                         .where(eq(
+                                                             InfluxConstants.TagName.TIME_BUCKET,
+                                                             String.valueOf(m.getTimeBucket())
+                                                         ))
+                                                         .and(eq(ID_COLUMN, m.id()))
+                                                         .buildQueryString()
             ).collect(Collectors.joining(";"));
         }
 

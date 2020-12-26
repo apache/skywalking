@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -42,8 +41,8 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
     }
 
     @Override
-    public List<Metrics> multiGet(Model model, Stream<Metrics> stream) throws IOException {
-        String[] ids = stream.map(Metrics::id).collect(Collectors.toList()).toArray(new String[] {});
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+        String[] ids = metrics.stream().map(Metrics::id).collect(Collectors.toList()).toArray(new String[] {});
         List<StorageData> storageDataList = getByIDs(h2Client, model.getName(), ids, storageBuilder);
         List<Metrics> result = new ArrayList<>(storageDataList.size());
         for (StorageData storageData : storageDataList) {
