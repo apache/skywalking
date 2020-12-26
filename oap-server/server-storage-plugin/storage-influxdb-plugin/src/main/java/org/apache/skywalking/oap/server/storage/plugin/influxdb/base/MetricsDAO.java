@@ -70,13 +70,12 @@ public class MetricsDAO implements IMetricsDAO {
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
         final String queryStr;
         if (metric.get() instanceof Traffic) {
-            queryStr = stream.map(m -> (Traffic) m)
-                             .map(m -> select().raw(ALL_FIELDS)
+            queryStr = stream.map(m -> select().raw(ALL_FIELDS)
                                                .from(client.getDatabase(), model.getName())
-                                               .where(eq(InfluxConstants.TagName.NAME, m.getName()))
+                                               .where(eq(InfluxConstants.TagName.NAME, ((Traffic) m).getName()))
                                                .and(eq(ID_COLUMN, m.id()))
                                                .buildQueryString()
-                             ).collect(Collectors.joining(";"));
+            ).collect(Collectors.joining(";"));
         } else {
             queryStr = stream.map(m -> select().raw(ALL_FIELDS)
                                                .from(client.getDatabase(), model.getName())

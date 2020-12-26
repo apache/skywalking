@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 public interface Traffic {
 
-    String id();
-
     String getName();
 
 }
