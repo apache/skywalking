@@ -16,7 +16,7 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.retransform;
+package test.org.apache.skywalking.apm.testcase.retransform_class;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +35,10 @@ public class CaseController {
     @ResponseBody
     public ResponseEntity testcase() throws HttpStatusCodeException {
         if (RetransformUtil.RETRANSFORMING_TAG.equals(RetransformUtil.RETRANSFORM_VALUE)) {
+            System.out.println("retransform check success.");
             return ResponseEntity.ok("retransform success");
         } else {
+            System.out.println("retransform check failure.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("retransform failure");
         }
     }
@@ -47,4 +49,7 @@ public class CaseController {
         // your codes
         return SUCCESS;
     }
+
+
+
 }

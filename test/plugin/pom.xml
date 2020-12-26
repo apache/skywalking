@@ -185,7 +185,7 @@
                         <sourceDirectory>scenarios/redisson-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/resttemplate-4.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/retransform-class-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/retransform-class-tomcat-scenario</sourceDirectory>
+<!--                        <sourceDirectory>scenarios/retransform-class-tomcat-scenario</sourceDirectory>-->
                         <sourceDirectory>scenarios/servicecomb-0.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/servicecomb-1.x-scenario</sourceDirectory>
                         <sourceDirectory>scenarios/shardingsphere-3.x-scenario</sourceDirectory>
