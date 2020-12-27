@@ -59,8 +59,7 @@ public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<Tr
 
     @Override
     public void boot() {
-        carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE);
-        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
+        carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE, BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
 
         producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();

@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 public class H2StorageConfig extends ModuleConfig {
     private String driver = "org.h2.jdbcx.JdbcDataSource";
-    private String url = "jdbc:h2:mem:skywalking-oap-db";
+    private String url = "jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1";
     private String user = "";
     private String password = "";
     private int metadataQueryMaxSize = 5000;

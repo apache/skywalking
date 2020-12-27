@@ -80,7 +80,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Service> getAllBrowserServices() throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
+        final WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Browser.value())));
         return buildServices(query);
@@ -88,16 +88,16 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Database> getAllDatabases() throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
+        final WhereQueryImpl<SelectQueryImpl> query = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Database.value())));
 
-        QueryResult.Series series = client.queryForSingleSeries(query);
+        final QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
         }
 
-        List<Database> databases = Lists.newArrayList();
+        final List<Database> databases = Lists.newArrayList();
         if (Objects.nonNull(series)) {
             for (List<Object> values : series.getValues()) {
                 Database database = new Database();
@@ -111,8 +111,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public List<Service> searchServices(String keyword) throws IOException {
-        final WhereQueryImpl<SelectQueryImpl> where = select(
-            ID_COLUMN, NAME, ServiceTraffic.GROUP)
+        final WhereQueryImpl<SelectQueryImpl> where = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
@@ -123,12 +122,11 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     @Override
     public Service searchService(String serviceCode) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> where = select(
-            ID_COLUMN, NAME, ServiceTraffic.GROUP)
+        final WhereQueryImpl<SelectQueryImpl> whereQuery = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())))
-            .and(eq(ServiceTraffic.NAME, serviceCode));
-        return buildServices(where).get(0);
+            .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
+        whereQuery.and(eq(InfluxConstants.NAME, serviceCode));
+        return buildServices(whereQuery).get(0);
     }
 
     @Override
@@ -147,7 +145,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
         final QueryResult.Series series = client.queryForSingleSeries(where);
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result: {}", where.getCommand(), series);
+            log.debug("SQL: {} result: {}.", where.getCommand(), series);
         }
 
         List<Endpoint> list = new ArrayList<>(limit);
@@ -189,7 +187,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
         }
 
         if (Objects.isNull(series)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         List<List<Object>> result = series.getValues();

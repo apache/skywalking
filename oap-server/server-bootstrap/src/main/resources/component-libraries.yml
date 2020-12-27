@@ -404,7 +404,7 @@ SmartSql:
 HttpServer:
   id: 4001
   languages: Node.js
-express:
+Express:
   id: 4002
   languages: Node.js
 Egg:
@@ -412,6 +412,9 @@ Egg:
   languages: Node.js
 Koa:
   id: 4004
+  languages: Node.js
+Axios:
+  id: 4005
   languages: Node.js
 
 # Golang components
@@ -476,6 +479,12 @@ Urllib3:
 Sanic:
   id: 7007
   languages: Python
+AioHttp:
+  id: 7008
+  languages: Python
+Pyramid:
+  id: 7009
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
@@ -503,6 +512,15 @@ Predis:
 EnvoyProxy:
   id: 9000
   languages: C++
+
+# Javascript components
+# [10000, 11000) for Javascript agent
+JavaScript:
+  id: 10000
+  languages: JavaScript
+ajax:
+  id: 10001
+  languages: JavaScript
 
 # Component Server mapping defines the server display names of some components
 # e.g.

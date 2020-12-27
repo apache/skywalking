@@ -64,8 +64,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         lastLogTime = System.currentTimeMillis();
         segmentUplinkedCounter = 0;
         segmentAbandonedCounter = 0;
-        carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE);
-        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
+        carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE, BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
     }
 
