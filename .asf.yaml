@@ -27,6 +27,8 @@ github:
     - service-mesh
     - dapper
     - web-performance
+    - metrics
+    - logging
   enabled_merge_buttons:
     squash:  true
     merge:   false
