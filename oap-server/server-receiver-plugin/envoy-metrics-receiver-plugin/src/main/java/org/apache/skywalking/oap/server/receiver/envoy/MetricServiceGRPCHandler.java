@@ -25,16 +25,22 @@ import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsResponse;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Metrics;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.source.EnvoyInstanceMetric;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
+import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ProtoMetricFamily2MetricsAdapter;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -44,10 +50,11 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
     private final SourceReceiver sourceReceiver;
-    private CounterMetrics counter;
-    private HistogramMetrics histogram;
+    private final CounterMetrics counter;
+    private final HistogramMetrics histogram;
+    private final List<PrometheusMetricConverter> converters;
 
-    public MetricServiceGRPCHandler(ModuleManager moduleManager) {
+    public MetricServiceGRPCHandler(final ModuleManager moduleManager, final EnvoyMetricReceiverConfig config) throws ModuleStartException {
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
@@ -60,6 +67,13 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
             "envoy_metric_in_latency", "The process latency of service metrics receiver", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
+
+        final MeterSystem meterSystem = moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
+
+        converters = config.rules()
+                           .stream()
+                           .map(rule -> new PrometheusMetricConverter(rule, meterSystem))
+                           .collect(Collectors.toList());
     }
 
     @Override
@@ -79,17 +93,15 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                     isFirst = false;
                     StreamMetricsMessage.Identifier identifier = message.getIdentifier();
                     Node node = identifier.getNode();
-                    if (node != null) {
-                        String nodeId = node.getId();
-                        if (!StringUtil.isEmpty(nodeId)) {
-                            serviceInstanceName = nodeId;
-                        }
-                        String cluster = node.getCluster();
-                        if (!StringUtil.isEmpty(cluster)) {
-                            serviceName = cluster;
-                            if (serviceInstanceName == null) {
-                                serviceInstanceName = serviceName;
-                            }
+                    String nodeId = node.getId();
+                    if (!StringUtil.isEmpty(nodeId)) {
+                        serviceInstanceName = nodeId;
+                    }
+                    String cluster = node.getCluster();
+                    if (!StringUtil.isEmpty(cluster)) {
+                        serviceName = cluster;
+                        if (serviceInstanceName == null) {
+                            serviceInstanceName = serviceName;
                         }
                     }
 
@@ -108,53 +120,23 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                 if (StringUtil.isNotEmpty(serviceName) && StringUtil.isNotEmpty(serviceInstanceName)) {
                     List<Metrics.MetricFamily> list = message.getEnvoyMetricsList();
                     boolean needHeartbeatUpdate = true;
-                    for (int i = 0; i < list.size(); i++) {
+
+                    for (final Metrics.MetricFamily metricFamily : list) {
                         counter.inc();
 
                         final String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
-                        final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(
-                            serviceId, serviceInstanceName);
 
-                        HistogramMetrics.Timer timer = histogram.createTimer();
-                        try {
-                            Metrics.MetricFamily metricFamily = list.get(i);
-                            double value = 0;
-                            long timestamp = 0;
-                            switch (metricFamily.getType()) {
-                                case GAUGE:
-                                    for (Metrics.Metric metrics : metricFamily.getMetricList()) {
-                                        timestamp = metrics.getTimestampMs();
-                                        value = metrics.getGauge().getValue();
+                        try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                            final ProtoMetricFamily2MetricsAdapter adapter = new ProtoMetricFamily2MetricsAdapter(metricFamily);
+                            final Stream<Metric> metrics = adapter.adapt().peek(it -> {
+                                it.getLabels().putIfAbsent("cluster", serviceName);
+                                it.getLabels().putIfAbsent("instance", serviceInstanceName);
+                            });
+                            converters.forEach(converter -> converter.toMeter(metrics));
 
-                                        if (timestamp > 1000000000000000000L) {
-                                            /**
-                                             * Several versions of envoy in istio.deps send timestamp in nanoseconds,
-                                             * instead of milliseconds(protocol says).
-                                             *
-                                             * Sadly, but have to fix it forcedly.
-                                             *
-                                             * An example of timestamp is '1552303033488741055', clearly it is not in milliseconds.
-                                             *
-                                             * This should be removed in the future.
-                                             */
-                                            timestamp /= 1_000_000;
-                                        }
+                            if (needHeartbeatUpdate && list.get(0).getMetricCount() > 0) {
+                                final long timestamp = adapter.adaptTimestamp(list.get(0).getMetric(0));
 
-                                        EnvoyInstanceMetric metricSource = new EnvoyInstanceMetric();
-                                        metricSource.setServiceId(serviceId);
-                                        metricSource.setServiceName(serviceName);
-                                        metricSource.setId(serviceInstanceId);
-                                        metricSource.setName(serviceInstanceName);
-                                        metricSource.setMetricName(metricFamily.getName());
-                                        metricSource.setValue(value);
-                                        metricSource.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestamp));
-                                        sourceReceiver.receive(metricSource);
-                                    }
-                                    break;
-                                default:
-                                    continue;
-                            }
-                            if (needHeartbeatUpdate) {
                                 // Send heartbeat
                                 ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
                                 serviceInstanceUpdate.setName(serviceInstanceName);
@@ -163,8 +145,6 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                 sourceReceiver.receive(serviceInstanceUpdate);
                                 needHeartbeatUpdate = false;
                             }
-                        } finally {
-                            timer.finish();
                         }
                     }
                 }

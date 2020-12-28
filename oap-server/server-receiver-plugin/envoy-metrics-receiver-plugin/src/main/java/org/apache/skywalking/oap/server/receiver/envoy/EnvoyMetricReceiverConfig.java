@@ -18,13 +18,17 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
@@ -32,11 +36,18 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String alsHTTPAnalysis;
     @Getter
     private String k8sServiceNameRule;
+    @Getter
+    private String enabledMALRules;
 
     public List<String> getAlsHTTPAnalysis() {
         if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
             return Collections.emptyList();
         }
         return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    }
+
+    public List<Rule> rules() throws ModuleStartException {
+        final List<String> enabledRules = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(getEnabledMALRules());
+        return Rules.loadRules("envoy-metrics-rules", enabledRules);
     }
 }

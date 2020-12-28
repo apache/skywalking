@@ -30,7 +30,7 @@ templates:
         {
           "name": "Istio",
           "type": "service",
-          "serviceGroup": "istio-ctrl",
+          "serviceGroup": "istio",
           "children": [
             {
               "name": "Control Plane",
@@ -162,6 +162,33 @@ templates:
                   "metricName": "meter_istio_sidecar_injection_success_total",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
+                }
+              ]
+            },
+            {
+              "name": "Data Plane",
+              "children": [
+                {
+                  "width": "3",
+                  "title": "Heap Memory Max Used",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_heap_memory_max_used,envoy_heap_memory_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Connections Used",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_total_connections_used,envoy_parent_connections_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
                 }
               ]
             }

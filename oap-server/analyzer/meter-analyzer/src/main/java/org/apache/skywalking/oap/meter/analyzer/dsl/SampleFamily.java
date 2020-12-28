@@ -28,6 +28,7 @@ import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import java.util.function.DoubleBinaryOperator;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -161,12 +162,32 @@ public class SampleFamily {
 
     /* Aggregation operators */
     public SampleFamily sum(List<String> by) {
+        return aggregate(by, Double::sum);
+    }
+
+    public SampleFamily max(List<String> by) {
+        return aggregate(by, Double::max);
+    }
+
+    public SampleFamily min(List<String> by) {
+        return aggregate(by, Double::min);
+    }
+
+    public SampleFamily avg(List<String> by) {
+        final SampleFamily summation = aggregate(by, Double::sum);
+        for (int i = 0; i < summation.samples.length; i++) {
+            summation.samples[i] = summation.samples[i].newValue(s -> s / summation.samples.length);
+        }
+        return summation;
+    }
+
+    protected SampleFamily aggregate(List<String> by, DoubleBinaryOperator aggregator) {
         ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
         if (by == null) {
-            double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(Double::sum).orElse(0.0D);
+            double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D);
             return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
         return SampleFamily.build(this.context, Arrays.stream(samples)
@@ -176,7 +197,7 @@ public class SampleFamily {
             .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
             .entrySet().stream()
             .map(entry -> newSample(entry.getKey(), entry.getValue().get(0).timestamp, entry.getValue().stream()
-                .mapToDouble(s -> s.value).reduce(Double::sum).orElse(0.0D)))
+                .mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D)))
             .toArray(Sample[]::new));
     }
 
