@@ -55,15 +55,13 @@ public class TableMetaInfo {
         });
 
         if (model.getName().endsWith("_traffic")) {
-            // instance_traffic name, service_id
-            // endpoint_traffic name, service_id
-            storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
+            // instance_traffic service_id, endpoint_traffic service_id
             if (InstanceTraffic.INDEX_NAME.equals(model.getName())
                 || EndpointTraffic.INDEX_NAME.equals(model.getName())) {
                 storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
             } else {
-                // service_traffic  name, node_type, group
-                storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+                // service_traffic  name, group
+                storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
                 storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
             }
         } else {

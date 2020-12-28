@@ -25,10 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.Traffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -60,14 +63,30 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
         final String queryStr;
-        if (metrics.get(0) instanceof Traffic) {
+        if (model.getName().endsWith("_traffic")) {
+            final Function<Metrics, String> tag;
+            switch (model.getName()) {
+                case EndpointTraffic.INDEX_NAME: {
+                    tag = m -> String.valueOf(((EndpointTraffic) m).getServiceId());
+                    break;
+                }
+                case ServiceTraffic.INDEX_NAME: {
+                    tag = m -> ((ServiceTraffic) m).getName();
+                    break;
+                }
+                case InstanceTraffic.INDEX_NAME: {
+                    tag = m -> String.valueOf(((InstanceTraffic) m).getServiceId());
+                    break;
+                }
+                default:
+                    throw new IOException();
+            }
             queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
                                                          .from(client.getDatabase(), model.getName())
                                                          .where(
-                                                             eq(InfluxConstants.TagName.NAME, ((Traffic) m).getName()))
+                                                             eq(InfluxConstants.TagName.NAME, tag.apply(m)))
                                                          .and(eq(ID_COLUMN, m.id()))
                                                          .buildQueryString()
             ).collect(Collectors.joining(";"));
