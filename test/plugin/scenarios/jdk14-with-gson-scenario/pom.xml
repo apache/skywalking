@@ -36,7 +36,6 @@
         <log4j.version>2.6.2</log4j.version>
         <spring.version>4.3.8.RELEASE</spring.version>
         <apm-toolkit-trace.version>8.1.0</apm-toolkit-trace.version>
-        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
     </properties>
 
     <name>skywalking-jdk14-scenario</name>
@@ -144,36 +143,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
-                <configuration>
-                    <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
-                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>true</consoleOutput>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-                    </sourceDirectories>
-                    <resourceIncludes>
-                        **/*.properties,
-                        **/*.sh,
-                        **/*.bat,
-                        **/*.yml,
-                        **/*.yaml,
-                        **/*.xml
-                    </resourceIncludes>
-                    <excludes>
-                        **/target/generated-test-sources/**
-                    </excludes>
-                    <propertyExpansion>
-                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
-                    </propertyExpansion>
-                </configuration>
             </plugin>
         </plugins>
     </build>

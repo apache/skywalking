@@ -140,11 +140,24 @@ if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
+
+# add scenario_name into plugin/pom.xml
+echo add scenario_name into plugin/pom.xml
+#isContains=$(cat ./pom.xml | grep $scenario_name)
+#if [[ -z  $isContains ]]; then
+sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
+#fi
+
 if [[ "$force_build" == "on" ]]; then
     profile=
     [[ $image_version =~ "jdk14-" ]] && profile="-Pjdk14"
     ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests ${profile}
 fi
+# remove scenario_name into plugin/pom.xml
+#isContains=$(cat ./pom.xml | grep $scenario_name)
+#if [[ -n $isContains ]]; then
+sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+#fi
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace

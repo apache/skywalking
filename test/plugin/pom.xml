@@ -48,7 +48,6 @@
         <snakeyaml.version>1.24</snakeyaml.version>
 
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
     </properties>
 
@@ -92,6 +91,22 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>8.38</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -105,7 +120,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
+                <version>3.1.1</version>
                 <configuration>
                     <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
                     <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
@@ -116,109 +131,6 @@
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-                        <sourceDirectory>scenarios/activemq-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/apm-toolkit-trace-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/armeria-0.96minus-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/armeria-0.96plus-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/asynchttpclient-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/avro-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/baidu-brpc-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/canal-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/cassandra-java-driver-3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/correlation-autotag-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/customize-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/cxf-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/dbcp-2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/dubbo-2.5.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/dubbo-2.7.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/ehcache-2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/elasticjob-2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/elasticjob-3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/elasticsearch-5.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/elasticsearch-6.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/elasticsearch-7.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/exception-checker-spring-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/exception-checker-tomcat-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/feign-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/finagle-6.44.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/finagle-17.10.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/gateway-2.0.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/gateway-2.1.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/graphql-8.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/graphql-9.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/graphql-12.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/grpc-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/gson-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/h2-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/hbase-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/httpasyncclient-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/httpclient-3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/httpclient-4.3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/hystrix-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/influxdb-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/jdk-http-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/jdk-threading-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/jedis-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/jetty-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/kafka-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/kotlin-coroutine-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/lettuce-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/logger-log4j2-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/logger-log4j-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/logger-logback-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/mariadb-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/mongodb-3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/mongodb-4.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/mssql-jdbc-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/mssql-jtds-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/mysql-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/netty-socketio-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/okhttp-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/oracle-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/play-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/postgresql-above9.4.1207-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/postgresql-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/pulsar-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/quartz-scheduler-2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/quasar-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/rabbitmq-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/redisson-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/resttemplate-4.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/retransform-class-scenario</sourceDirectory>
-<!--                        <sourceDirectory>scenarios/retransform-class-tomcat-scenario</sourceDirectory>-->
-                        <sourceDirectory>scenarios/servicecomb-0.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/servicecomb-1.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/shardingsphere-3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/shardingsphere-4.0.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/shardingsphere-4.x-RC1-RC2-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/shardingsphere-4.x-RC3-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/shardingsphere-4.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/sofarpc-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/solrj-7.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-3.0.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-3.1.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-4.1.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-4.3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-async-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-cloud-feign-1.1.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-cloud-feign-1.2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-cloud-feign-2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-kafka-1.3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-kafka-2.2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-kafka-2.3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-scheduled-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/spring-tx-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/springmvc-reactive-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/struts2.3-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/struts2.5-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/thrift-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/undertow-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/vertx-eventbus-3.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/vertx-web-3.6plus-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/vertx-web-3.54minus-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/webflux-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/xxl-job-2.x-scenario</sourceDirectory>
-                        <sourceDirectory>scenarios/zookeeper-scenario</sourceDirectory>
                     </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
