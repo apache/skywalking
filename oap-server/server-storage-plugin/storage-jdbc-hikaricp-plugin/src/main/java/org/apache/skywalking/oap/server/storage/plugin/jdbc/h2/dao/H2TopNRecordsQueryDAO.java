@@ -87,4 +87,9 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         return results;
     }
 
+    @Override
+    public List<SelectedRecord> readSampledRecordsMetric(TopNCondition condition, String valueCName, Duration duration) throws IOException {
+        return null;
+    }
+
 }

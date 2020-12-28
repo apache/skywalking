@@ -221,4 +221,11 @@ public class MetricsQuery implements GraphQLQueryResolver {
         }
         return getTopNRecordsQueryService().readSampledRecords(condition, duration);
     }
+
+    public List<SelectedRecord> readSampledRecordsMetric(TopNCondition condition, Duration duration) throws IOException {
+        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
+            return Collections.emptyList();
+        }
+        return getTopNRecordsQueryService().readSampledRecordsMetric(condition, duration);
+    }
 }

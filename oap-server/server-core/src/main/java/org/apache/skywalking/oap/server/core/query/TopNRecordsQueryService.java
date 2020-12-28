@@ -50,4 +50,9 @@ public class TopNRecordsQueryService implements Service {
         return getTopNRecordsQueryDAO().readSampledRecords(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
+
+    public List<SelectedRecord> readSampledRecordsMetric(TopNCondition condition, Duration duration) throws IOException {
+        return getTopNRecordsQueryDAO().readSampledRecordsMetric(
+                condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
+    }
 }

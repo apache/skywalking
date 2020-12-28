@@ -100,6 +100,12 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
         return records;
     }
 
+    @Override
+    public List<SelectedRecord> readSampledRecordsMetric(TopNCondition condition, String valueCName, Duration duration) throws IOException {
+        //TODO Leave it to someone
+        return null;
+    }
+
     private static final Comparator<SelectedRecord> ASCENDING = Comparator.comparingLong(
         a -> Long.parseLong(a.getValue()));
 

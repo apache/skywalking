@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -35,9 +31,18 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO {
     public TopNRecordsQueryEsDAO(ElasticSearchClient client) {
@@ -78,4 +83,49 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
         return results;
     }
+
+    @Override
+    public List<SelectedRecord> readSampledRecordsMetric(TopNCondition condition, String valueCName, Duration duration) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        final RangeQueryBuilder queryBuilder = QueryBuilders.rangeQuery(TopN.TIME_BUCKET)
+                .lte(duration.getEndTimeBucketInSec())
+                .gte(duration.getStartTimeBucketInSec());
+        boolQueryBuilder.must().add(queryBuilder);
+
+        boolean asc = false;
+        if (condition.getOrder().equals(Order.ASC)) {
+            asc = true;
+        }
+
+        if (StringUtil.isNotEmpty(condition.getParentService())) {
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+        }
+
+        sourceBuilder.query(boolQueryBuilder);
+
+        sourceBuilder.aggregation(
+                AggregationBuilders.terms(TopN.STATEMENT)
+                        .field(TopN.STATEMENT)
+                        .order(BucketOrder.count(asc)))
+                .size(condition.getTopN());
+
+        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
+
+        List<SelectedRecord> topNList = new ArrayList<>();
+        Terms idTerms = response.getAggregations().get(TopN.STATEMENT);
+        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+            SelectedRecord record = new SelectedRecord();
+            record.setName(condition.getParentService());
+            record.setId(termsBucket.getKeyAsString());
+            long value = termsBucket.getDocCount();
+            record.setValue(String.valueOf(value));
+            topNList.add(record);
+        }
+
+        return topNList;
+    }
+
 }

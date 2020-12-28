@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
+
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -36,4 +37,6 @@ public interface ITopNRecordsQueryDAO extends Service {
     List<SelectedRecord> readSampledRecords(TopNCondition condition,
                                             final String valueColumnName,
                                             Duration duration) throws IOException;
+
+    List<SelectedRecord> readSampledRecordsMetric(TopNCondition condition, String valueCName, Duration duration) throws IOException;
 }
