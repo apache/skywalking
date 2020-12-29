@@ -86,6 +86,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
+      - name: Add checkstyle-plugin
+        run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"${{ matrix.case }}"'<\/sourceDirectory>' test/plugin/pom.xml
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
@@ -106,6 +108,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
+      - name: Add checkstyle-plugin
+        run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/oracle-scenario<\/sourceDirectory>' test/plugin/pom.xml
       - name: Build SkyWalking Agent
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent
       - name: Build Docker image
