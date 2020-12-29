@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/log4j2")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
     private static final String SUCCESS = "Success";
     @Value("${logger.host:localhost:8080}")
     private String loggerAddress;
@@ -39,20 +39,21 @@ public class CaseController {
     @RequestMapping("/no-param")
     @ResponseBody
     public String noParam() {
-        logger.error("no-param");
+        LOGGER.error("no-param");
         return "no-param";
     }
 
     @RequestMapping("/one-param")
     @ResponseBody
     public String oneParam() {
-        logger.error("one param is {}", CaseController.class);
+        LOGGER.error("one param is {}", CaseController.class);
         return "one param";
     }
+
     @RequestMapping("/marker")
     @ResponseBody
     public String testMarker() {
-        logger.error(MarkerManager.getMarker("TEST"), "test marker");
+        LOGGER.error(MarkerManager.getMarker("TEST"), "test marker");
         return "test marker";
     }
 

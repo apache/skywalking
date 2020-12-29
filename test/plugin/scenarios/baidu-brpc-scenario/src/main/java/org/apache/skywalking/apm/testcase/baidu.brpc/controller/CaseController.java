@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.baidu.brpc.controller;
 
-import com.baidu.brpc.RpcContext;
 import com.baidu.brpc.client.BrpcProxy;
 import com.baidu.brpc.client.RpcClient;
 import com.baidu.brpc.client.RpcClientOptions;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CaseController {
 
     private static final String SUCCESS = "Success";
-
 
     @RequestMapping("/healthCheck")
     @ResponseBody
@@ -66,7 +64,6 @@ public class CaseController {
         EchoService echoService = BrpcProxy.getProxy(rpcClient, EchoService.class);
         try {
             EchoResponse response = echoService.echo(request);
-            System.out.println(response.getMessage());
         } catch (RpcException ex) {
         }
         rpcClient.stop();

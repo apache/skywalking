@@ -15,12 +15,14 @@
 
 services:
   - key: not null
-    label: re(istio::ratings.*)
+    label: istio::ratings.default
   - key: not null
-    label: re(istio::reviews.*)
+    label: istio::reviews.default
   - key: not null
-    label: re(istio::productpage.*)
+    label: istio::productpage.default
   - key: not null
-    label: re(istio::details.*)
+    label: istio::details.default
   - key: not null
-    label: re(istio::istio-ingressgateway.*)
+    label: istio::istio-ingressgateway
+  - key: not null
+    label: istio::istio-egressgateway

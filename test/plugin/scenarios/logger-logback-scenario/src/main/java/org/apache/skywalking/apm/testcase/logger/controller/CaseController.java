@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/logback")
 public class CaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(CaseController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CaseController.class);
     private static final String SUCCESS = "Success";
     @Value("${logger.host:localhost:8080}")
     private String loggerAddress;
@@ -39,21 +39,21 @@ public class CaseController {
     @RequestMapping("/no-param")
     @ResponseBody
     public String noParam() {
-        logger.error("no-param");
+        LOGGER.error("no-param");
         return "no-param";
     }
 
     @RequestMapping("/one-param")
     @ResponseBody
     public String oneParam() {
-        logger.error("one param is {}", CaseController.class);
+        LOGGER.error("one param is {}", CaseController.class);
         return "one param";
     }
 
     @RequestMapping("/marker")
     @ResponseBody
     public String testMarker() {
-        logger.error(MarkerFactory.getMarker("TEST"), "test marker");
+        LOGGER.error(MarkerFactory.getMarker("TEST"), "test marker");
         return "test marker";
     }
 
