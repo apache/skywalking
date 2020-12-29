@@ -38,6 +38,7 @@ Release Notes.
 * Add component ID for NodeJS Axios plugin.
 * Fix searchService method error in storage-influxdb-plugin.
 * Add JavaScript component ID.
+* Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
 
 #### UI
 * Fix un-removed tags in trace query.
