@@ -41,9 +41,11 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.TagName;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
+import org.influxdb.querybuilder.clauses.Clause;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
@@ -66,27 +68,26 @@ public class MetricsDAO implements IMetricsDAO {
         final TableMetaInfo metaInfo = TableMetaInfo.get(model.getName());
         final String queryStr;
         if (model.getName().endsWith("_traffic")) {
-            final Function<Metrics, String> tag;
+            final Function<Metrics, Clause> clauseFunction;
             switch (model.getName()) {
                 case EndpointTraffic.INDEX_NAME: {
-                    tag = m -> String.valueOf(((EndpointTraffic) m).getServiceId());
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, String.valueOf(((EndpointTraffic) m).getServiceId()));
                     break;
                 }
                 case ServiceTraffic.INDEX_NAME: {
-                    tag = m -> ((ServiceTraffic) m).getName();
+                    clauseFunction = m -> eq(TagName.NAME, ((ServiceTraffic) m).getName());
                     break;
                 }
                 case InstanceTraffic.INDEX_NAME: {
-                    tag = m -> String.valueOf(((InstanceTraffic) m).getServiceId());
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, String.valueOf(((InstanceTraffic) m).getServiceId()));
                     break;
                 }
                 default:
-                    throw new IOException();
+                    throw new IOException("Unknown metadata type, " + model.getName());
             }
             queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
                                                          .from(client.getDatabase(), model.getName())
-                                                         .where(
-                                                             eq(InfluxConstants.TagName.NAME, tag.apply(m)))
+                                                         .where(clauseFunction.apply(m))
                                                          .and(eq(ID_COLUMN, m.id()))
                                                          .buildQueryString()
             ).collect(Collectors.joining(";"));
