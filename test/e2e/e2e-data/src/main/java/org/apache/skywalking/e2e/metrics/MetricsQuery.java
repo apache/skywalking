@@ -120,6 +120,13 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT 
     };
 
+    public static String[] ALL_ENVOY_LINER_METRICS = {
+        "envoy_heap_memory_max_used",
+        "envoy_heap_memory_used",
+        "envoy_total_connections_used",
+        "envoy_parent_connections_used"
+    };
+
     public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_oap_instance_persistence_execute_percentile";
 
     public static String[] ALL_SO11Y_LABELED_METRICS = {
