@@ -36,7 +36,7 @@ import java.util.Properties;
 
 public final class ShardingDatabasesAndTablesConfigurationPrecise implements ExampleConfiguration {
 
-    private static DataSource dataSource;
+    private static DataSource DATA_SOURCE;
 
     @Override
     public DataSource createDataSource() throws SQLException {
@@ -48,13 +48,13 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         shardingRuleConfig.setDefaultTableShardingStrategyConfig(new StandardShardingStrategyConfiguration("order_id", new PreciseModuloShardingTableAlgorithm()));
         Properties properties = new Properties();
         properties.setProperty("max.connections.size.per.query", "16");
-        dataSource = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, properties);
-        return dataSource;
+        DATA_SOURCE = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, properties);
+        return DATA_SOURCE;
     }
 
     @Override
     public DataSource getDataSource() {
-        return dataSource;
+        return DATA_SOURCE;
     }
 
     private static TableRuleConfiguration getOrderTableRuleConfiguration() {

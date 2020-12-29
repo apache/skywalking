@@ -26,9 +26,9 @@ import org.apache.logging.log4j.Logger;
 
 public class MssqlConfig {
     private static final Logger LOGGER = LogManager.getLogger(MssqlConfig.class);
-    private static String url;
-    private static String userName;
-    private static String password;
+    private static String URL;
+    private static String USER_NAME;
+    private static String PASSWORD;
 
     static {
         InputStream inputStream = MssqlConfig.class.getClassLoader().getResourceAsStream("jdbc.properties");
@@ -39,20 +39,20 @@ public class MssqlConfig {
             LOGGER.error("Failed to load config", e);
         }
 
-        url = properties.getProperty("mssql.url");
-        userName = properties.getProperty("mssql.username");
-        password = properties.getProperty("mssql.password");
+        URL = properties.getProperty("mssql.url");
+        USER_NAME = properties.getProperty("mssql.username");
+        PASSWORD = properties.getProperty("mssql.password");
     }
 
     public static String getUrl() {
-        return url;
+        return URL;
     }
 
     public static String getUserName() {
-        return userName;
+        return USER_NAME;
     }
 
     public static String getPassword() {
-        return password;
+        return PASSWORD;
     }
 }

@@ -18,8 +18,16 @@
 
 package org.apache.skywalking.apm.testcase.quartzscheduler.job;
 
-import org.quartz.*;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.Trigger;
+import org.quartz.JobBuilder;
+import org.quartz.TriggerBuilder;
+import org.quartz.CronScheduleBuilder;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
