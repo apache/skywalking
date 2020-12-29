@@ -40,7 +40,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.TagName;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.Query;
@@ -71,7 +70,7 @@ public class MetricsDAO implements IMetricsDAO {
             final Function<Metrics, Clause> clauseFunction;
             switch (model.getName()) {
                 case EndpointTraffic.INDEX_NAME: {
-                    clauseFunction = m -> eq(TagName.SERVICE_ID, String.valueOf(((EndpointTraffic) m).getServiceId()));
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, ((EndpointTraffic) m).getServiceId());
                     break;
                 }
                 case ServiceTraffic.INDEX_NAME: {
@@ -79,7 +78,7 @@ public class MetricsDAO implements IMetricsDAO {
                     break;
                 }
                 case InstanceTraffic.INDEX_NAME: {
-                    clauseFunction = m -> eq(TagName.SERVICE_ID, String.valueOf(((InstanceTraffic) m).getServiceId()));
+                    clauseFunction = m -> eq(TagName.SERVICE_ID, ((InstanceTraffic) m).getServiceId());
                     break;
                 }
                 default:
@@ -95,7 +94,7 @@ public class MetricsDAO implements IMetricsDAO {
             queryStr = metrics.stream().map(m -> select().raw(ALL_FIELDS)
                                                          .from(client.getDatabase(), model.getName())
                                                          .where(eq(
-                                                             InfluxConstants.TagName.TIME_BUCKET,
+                                                             TagName.TIME_BUCKET,
                                                              String.valueOf(m.getTimeBucket())
                                                          ))
                                                          .and(eq(ID_COLUMN, m.id()))
