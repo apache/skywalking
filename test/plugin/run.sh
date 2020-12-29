@@ -143,7 +143,7 @@ fi
 # if it fails last time, relevant information will be deleted
 sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
 # add scenario_name into plugin/pom.xml
-echo add scenario_name into plugin/pom.xml
+echo check code with the checkstyle-plugin
 sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
 
 if [[ "$force_build" == "on" ]]; then
