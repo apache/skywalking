@@ -266,7 +266,6 @@ envoy-metric:
     # to append the version number to the service name.
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${service.metadata.name}"}
-    enabledMALRules: ${SW_ENVOY_METRIC_MAL_RULES:"envoy"}
 
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:-}

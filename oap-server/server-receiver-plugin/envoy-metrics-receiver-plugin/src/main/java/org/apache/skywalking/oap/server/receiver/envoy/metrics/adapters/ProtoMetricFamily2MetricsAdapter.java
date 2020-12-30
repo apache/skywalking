@@ -32,7 +32,6 @@ public class ProtoMetricFamily2MetricsAdapter {
     protected final Metrics.MetricFamily metricFamily;
 
     public Stream<Metric> adapt() {
-        // TODO: should adapt more types
         switch (metricFamily.getType()) {
             case GAUGE:
                 return metricFamily.getMetricList()

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,8 +35,6 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String alsHTTPAnalysis;
     @Getter
     private String k8sServiceNameRule;
-    @Getter
-    private String enabledMALRules;
 
     public List<String> getAlsHTTPAnalysis() {
         if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
@@ -47,7 +44,6 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     }
 
     public List<Rule> rules() throws ModuleStartException {
-        final List<String> enabledRules = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(getEnabledMALRules());
-        return Rules.loadRules("envoy-metrics-rules", enabledRules);
+        return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy.yaml"));
     }
 }
