@@ -44,6 +44,7 @@ import org.junit.jupiter.api.TestInstance;
 
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENVOY_LINER_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
+import static org.apache.skywalking.e2e.utils.Yamls.exists;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
 @Slf4j
@@ -102,7 +103,11 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
 
             LOGGER.info("instances: {}", instances);
 
-            load("expected/metricsservice/instances.yml").as(InstancesMatcher.class).verify(instances);
+            String instancesFile = "expected/metricsservice/instances-" + service.getLabel() + ".yml";
+            if (!exists(instancesFile)) {
+                instancesFile = "expected/metricsservice/instances.yml";
+            }
+            load(instancesFile).as(InstancesMatcher.class).verify(instances);
             for (Instance instance : instances.getInstances()) {
                 for (String metricsName : ALL_ENVOY_LINER_METRICS) {
                     LOGGER.info("verifying service instance: {}", instance);
