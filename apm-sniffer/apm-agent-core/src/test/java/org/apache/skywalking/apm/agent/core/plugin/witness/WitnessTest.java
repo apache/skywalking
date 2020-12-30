@@ -19,12 +19,12 @@ public class WitnessTest {
     private String className = "org.apache.skywalking.apm.agent.core.plugin.witness.WitnessTest";
 
     @Test
-    public void testWitnessClass(){
+    public void testWitnessClass() {
         Assert.assertTrue(WitnessFinder.exist(className, this.getClass().getClassLoader()));
     }
 
     @Test
-    public void testWitnessMethod(){
+    public void testWitnessMethod() {
         ElementMatcher.Junction<MethodDescription> junction = ElementMatchers.named("foo")
                 .and(ElementMatchers.returnsGeneric(target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
                 .and(ElementMatchers.takesGenericArgument(0, target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
