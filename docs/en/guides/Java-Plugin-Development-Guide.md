@@ -299,6 +299,30 @@ The following sections will tell you how to implement the interceptor.
 tomcat-7.x/8.x=TomcatInstrumentation
 ```
 
+4. If a plugin should be activated or not in different condition.You can Override the witnessClasses or witnessMethods.
+
+   Example:
+
+   ```java
+   //the plugin is activated only when the foo.Bar class exists.
+   @Override
+   protected String[] witnessClasses() {
+     return new String[] {
+       "foo.Bar"
+     };
+   }
+   
+   //the plugin is activated only when the foo.Bar#hello method exists.
+   @Override
+   protected List<WitnessMethod> witnessClasses() {
+     List<WitnessMethod> witnessMethodList = new ArrayList<>();
+     WitnessMethod witnessMethod = new WitnessMethod("foo.Bar", ElementMatchers.named("hello"));
+     witnessMethodList.add(witnessMethod);
+     return witnessMethodList;
+   }
+   ```
+
+   
 
 ### Implement an interceptor
 As an interceptor for an instance method, the interceptor implements 
