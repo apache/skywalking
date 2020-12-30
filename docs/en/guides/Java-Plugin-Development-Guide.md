@@ -299,7 +299,7 @@ The following sections will tell you how to implement the interceptor.
 tomcat-7.x/8.x=TomcatInstrumentation
 ```
 
-4. If a plugin should be activated or not in different condition.You can Override the witnessClasses or witnessMethods.
+4. Set up `witnessClasses` and/or `witnessMethods` if the instrumentation should be activated in specific versions.
 
    Example:
 
