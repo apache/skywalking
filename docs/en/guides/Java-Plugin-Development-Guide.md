@@ -314,7 +314,7 @@ tomcat-7.x/8.x=TomcatInstrumentation
    
    //the plugin is activated only when the foo.Bar#hello method exists.
    @Override
-   protected List<WitnessMethod> witnessClasses() {
+   protected List<WitnessMethod> witnessMethods() {
      List<WitnessMethod> witnessMethodList = new ArrayList<>();
      WitnessMethod witnessMethod = new WitnessMethod("foo.Bar", ElementMatchers.named("hello"));
      witnessMethodList.add(witnessMethod);
