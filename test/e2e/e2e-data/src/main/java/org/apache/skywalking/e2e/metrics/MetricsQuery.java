@@ -124,7 +124,7 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         "envoy_heap_memory_max_used",
         "envoy_heap_memory_used",
         "envoy_total_connections_used",
-        "envoy_parent_connections_used"
+        // "envoy_parent_connections_used" // ignored intentionally
     };
 
     public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_oap_instance_persistence_execute_percentile";
