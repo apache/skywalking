@@ -39,6 +39,7 @@ Release Notes.
 * Fix searchService method error in storage-influxdb-plugin.
 * Add JavaScript component ID.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
+* Improve query performance in storage-influxdb-plugin.
 
 #### UI
 * Fix un-removed tags in trace query.
