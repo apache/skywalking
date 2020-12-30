@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.finagle;
 
-
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Thrift;
 import org.apache.skywalking.apm.testcase.finagle.interfaces.FinagleRpcDemoService;
@@ -34,7 +33,6 @@ public class FinagleRpcApplication {
     public static void main(String[] args) {
         SpringApplication.run(FinagleRpcApplication.class, args);
     }
-
 
     @Configuration
     public static class FinagleRpcConfiguration {
