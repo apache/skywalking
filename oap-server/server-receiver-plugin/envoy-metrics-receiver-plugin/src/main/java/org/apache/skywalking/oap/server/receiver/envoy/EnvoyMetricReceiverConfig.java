@@ -44,6 +44,6 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     }
 
     public List<Rule> rules() throws ModuleStartException {
-        return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy.yaml"));
+        return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy"));
     }
 }
