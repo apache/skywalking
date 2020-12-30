@@ -321,7 +321,7 @@ tomcat-7.x/8.x=TomcatInstrumentation
      return witnessMethodList;
    }
    ```
-   For more example, See WitnessTest.java
+   For more example, See [WitnessTest.java](/apm-sniffer/apm-agent-core/src/test/java/org/apache/skywalking/apm/agent/core/plugin/witness/WitnessTest.java)
 
    
 
