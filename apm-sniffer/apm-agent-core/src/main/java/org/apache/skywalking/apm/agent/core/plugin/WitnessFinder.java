@@ -29,13 +29,13 @@ import net.bytebuddy.pool.TypePool;
 public enum WitnessFinder {
     INSTANCE;
 
-    private Map<ClassLoader, TypePool> poolMap = new HashMap<ClassLoader, TypePool>();
+    private final Map<ClassLoader, TypePool> poolMap = new HashMap<ClassLoader, TypePool>();
 
     /**
      * @param classLoader for finding the witnessClass
      * @return true, if the given witnessClass exists, through the given classLoader.
      */
-    public boolean exist(String witnessClass, ClassLoader classLoader) {
+    public static boolean exist(String witnessClass, ClassLoader classLoader) {
         return getResolution(witnessClass, classLoader)
                 .isResolved();
     }
@@ -46,17 +46,17 @@ public enum WitnessFinder {
      * @param classLoader classLoader for finding the witnessClass
      * @return TypePool.Resolution
      */
-    private TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
+    private static TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
         ClassLoader mappingKey = classLoader == null ? NullClassLoader.INSTANCE : classLoader;
-        if (!poolMap.containsKey(mappingKey)) {
-            synchronized (poolMap) {
-                if (!poolMap.containsKey(mappingKey)) {
+        if (!INSTANCE.poolMap.containsKey(mappingKey)) {
+            synchronized (INSTANCE.poolMap) {
+                if (!INSTANCE.poolMap.containsKey(mappingKey)) {
                     TypePool classTypePool = classLoader == null ? TypePool.Default.ofBootLoader() : TypePool.Default.of(classLoader);
-                    poolMap.put(mappingKey, classTypePool);
+                    INSTANCE.poolMap.put(mappingKey, classTypePool);
                 }
             }
         }
-        TypePool typePool = poolMap.get(mappingKey);
+        TypePool typePool = INSTANCE.poolMap.get(mappingKey);
         return typePool.describe(witnessClass);
     }
 
@@ -64,8 +64,8 @@ public enum WitnessFinder {
      * @param classLoader for finding the witness method
      * @return true, if the given witness method exists, through the given classLoader.
      */
-    public boolean exist(WitnessMethod witnessMethod, ClassLoader classLoader) {
-        TypePool.Resolution resolution = this.getResolution(witnessMethod.getDeclaringClassName(), classLoader);
+    public static boolean exist(WitnessMethod witnessMethod, ClassLoader classLoader) {
+        TypePool.Resolution resolution = getResolution(witnessMethod.getDeclaringClassName(), classLoader);
         if (!resolution.isResolved()) {
             return false;
         }

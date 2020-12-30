@@ -18,44 +18,31 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
+import lombok.Getter;
+import lombok.ToString;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-
-import java.util.StringJoiner;
 
 /**
  * Witness Method for plugin activation
  */
+@ToString
 public class WitnessMethod {
 
     /**
      * java.lang.reflect.Method#getDeclaringClass()
      */
-    private String declaringClassName;
+    @Getter
+    private final String declaringClassName;
     /**
      * mather fo match the witness method
      */
+    @Getter
     private final ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;
 
     public WitnessMethod(String declaringClassName, ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher) {
         this.declaringClassName = declaringClassName;
         this.elementMatcher = elementMatcher;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", WitnessMethod.class.getSimpleName() + "[", "]")
-                .add("declaringClassName='" + declaringClassName + "'")
-                .add("elementMatcher=" + elementMatcher)
-                .toString();
-    }
-
-    public String getDeclaringClassName() {
-        return declaringClassName;
-    }
-
-    public ElementMatcher<? super MethodDescription.InDefinedShape> getElementMatcher() {
-        return elementMatcher;
     }
 
 }
