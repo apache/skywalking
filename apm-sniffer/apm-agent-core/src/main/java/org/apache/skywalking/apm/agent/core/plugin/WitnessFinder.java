@@ -65,7 +65,7 @@ public enum WitnessFinder {
      * @return true, if the given witness method exists, through the given classLoader.
      */
     public boolean exist(WitnessMethod witnessMethod, ClassLoader classLoader) {
-        TypePool.Resolution resolution = WitnessFinder.INSTANCE.getResolution(witnessMethod.getDeclaringClassName(), classLoader);
+        TypePool.Resolution resolution = this.getResolution(witnessMethod.getDeclaringClassName(), classLoader);
         if (!resolution.isResolved()) {
             return false;
         }
