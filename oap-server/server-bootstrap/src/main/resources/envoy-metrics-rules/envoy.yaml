@@ -32,11 +32,28 @@
 expSuffix: tag({tags -> tags.cluster = 'istio::' + tags.cluster}).instance(['cluster'], ['instance'])
 metricPrefix: envoy
 metricsRules:
-  - name: heap_memory_max_used
-    exp: server_memory_heap_size.max(['cluster', 'instance'])
   - name: heap_memory_used
     exp: server_memory_heap_size
+  - name: heap_memory_max_used
+    exp: server_memory_heap_size.max(['cluster', 'instance'])
+  - name: memory_allocated
+    exp: server_memory_allocated
+  - name: memory_allocated_max
+    exp: server_memory_allocated.max(['cluster', 'instance'])
+  - name: memory_physical_size
+    exp: server_memory_physical_size
+  - name: memory_physical_size_max
+    exp: server_memory_physical_size.max(['cluster', 'instance'])
+
   - name: total_connections_used
     exp: server_total_connections.max(['cluster', 'instance'])
   - name: parent_connections_used
     exp: server_parent_connections.max(['cluster', 'instance'])
+
+  - name: worker_threads
+    exp: server_concurrency
+  - name: worker_threads_max
+    exp: server_concurrency.max(['cluster', 'instance'])
+
+  - name: bug_failures
+    exp: server_envoy_bug_failures

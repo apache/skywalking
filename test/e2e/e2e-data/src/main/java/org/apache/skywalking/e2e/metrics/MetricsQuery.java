@@ -121,10 +121,15 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     };
 
     public static String[] ALL_ENVOY_LINER_METRICS = {
-        "envoy_heap_memory_max_used",
         "envoy_heap_memory_used",
+        "envoy_heap_memory_max_used",
+        "envoy_memory_allocated",
+        "envoy_memory_allocated_max",
+        "envoy_memory_physical_size",
+        "envoy_memory_physical_size_max",
         "envoy_total_connections_used",
-        // "envoy_parent_connections_used" // ignored intentionally
+        "envoy_worker_threads",
+        "envoy_worker_threads_max"
     };
 
     public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_oap_instance_persistence_execute_percentile";

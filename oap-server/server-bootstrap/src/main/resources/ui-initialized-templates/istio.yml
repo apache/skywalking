@@ -170,14 +170,17 @@ templates:
               "children": [
                 {
                   "width": "3",
-                  "title": "Heap Memory Max Used",
+                  "title": "Heap Memory Used",
                   "height": 350,
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "envoy_heap_memory_max_used,envoy_heap_memory_used",
+                  "metricName": "envoy_heap_memory_max_used,envoy_heap_memory_used,envoy_memory_allocated_max,envoy_memory_allocated,envoy_memory_physical_size,envoy_memory_physical_size_max",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine"
+                  "chartType": "ChartLine",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576"
                 },
                 {
                   "width": "3",
@@ -187,6 +190,28 @@ templates:
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
                   "metricName": "envoy_total_connections_used,envoy_parent_connections_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Concurrency",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_worker_threads,envoy_worker_threads_max",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Envoy Bug Failure",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_bug_failures",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
                 }

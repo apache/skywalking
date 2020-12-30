@@ -92,6 +92,10 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
         LOGGER.info("services: {}", services);
         load("expected/metricsservice/services.yml").as(ServicesMatcher.class).verify(services);
         for (final Service service : services) {
+            if (service.getLabel().contains("egressgateway")) {
+                continue;
+            }
+
             final Instances instances = graphql.instances(
                 new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
             );
