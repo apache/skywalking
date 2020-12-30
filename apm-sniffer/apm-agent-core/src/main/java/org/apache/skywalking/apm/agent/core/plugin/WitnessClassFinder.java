@@ -36,6 +36,17 @@ public enum WitnessClassFinder {
      * @return true, if the given witnessClass exists, through the given classLoader.
      */
     public boolean exist(String witnessClass, ClassLoader classLoader) {
+        return getResolution(witnessClass, classLoader)
+                .isResolved();
+    }
+
+    /**
+     * get TypePool.Resolution of the witness class
+     * @param witnessClass class name
+     * @param classLoader classLoader for finding the witnessClass
+     * @return TypePool.Resolution
+     */
+    public TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
         ClassLoader mappingKey = classLoader == null ? NullClassLoader.INSTANCE : classLoader;
         if (!poolMap.containsKey(mappingKey)) {
             synchronized (poolMap) {
@@ -46,9 +57,9 @@ public enum WitnessClassFinder {
             }
         }
         TypePool typePool = poolMap.get(mappingKey);
-        TypePool.Resolution witnessClassResolution = typePool.describe(witnessClass);
-        return witnessClassResolution.isResolved();
+        return typePool.describe(witnessClass);
     }
+
 }
 
 final class NullClassLoader extends ClassLoader {

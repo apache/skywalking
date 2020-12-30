@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.plugin;
 
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.pool.TypePool;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -27,7 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Basic abstract class of all sky-walking auto-instrumentation plugins.
@@ -70,6 +75,25 @@ public abstract class AbstractClassEnhancePluginDefine {
                 }
             }
         }
+        List<WitnessMethod> witnessMethods = witnessMethods();
+        if (!CollectionUtil.isEmpty(witnessMethods)) {
+            for (WitnessMethod witnessMethod : witnessMethods) {
+                TypePool.Resolution resolution = WitnessClassFinder.INSTANCE.getResolution(witnessMethod.declaringClassName, classLoader);
+                if (!resolution.isResolved()) {
+                    LOGGER.warn("enhance class {} by plugin {} is not working. Because declaringClass {} of the witness method is not existed.", transformClassName, interceptorDefineClassName, witnessMethod.declaringClassName);
+                    return null;
+                }
+                boolean empty = resolution.resolve()
+                        .getDeclaredMethods()
+                        .filter(witnessMethod.elementMatcher)
+                        .isEmpty();
+                if(empty){
+                    LOGGER.warn("enhance class {} by plugin {} is not working. Because the witness method is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
+                    return null;
+                }
+
+            }
+        }
 
         /**
          * find origin class source code for interceptor
@@ -102,6 +126,10 @@ public abstract class AbstractClassEnhancePluginDefine {
      */
     protected String[] witnessClasses() {
         return new String[] {};
+    }
+
+    protected List<WitnessMethod> witnessMethods() {
+        return Collections.emptyList();
     }
 
     public boolean isBootstrapInstrumentation() {
