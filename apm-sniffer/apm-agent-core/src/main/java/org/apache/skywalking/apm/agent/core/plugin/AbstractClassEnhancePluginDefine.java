@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core.plugin;
 
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.pool.TypePool;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -31,7 +30,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,7 +67,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         String[] witnessClasses = witnessClasses();
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
-                if (!WitnessClassFinder.INSTANCE.exist(witnessClass, classLoader)) {
+                if (!WitnessFinder.INSTANCE.exist(witnessClass, classLoader)) {
                     LOGGER.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName, witnessClass);
                     return null;
                 }
@@ -78,20 +76,10 @@ public abstract class AbstractClassEnhancePluginDefine {
         List<WitnessMethod> witnessMethods = witnessMethods();
         if (!CollectionUtil.isEmpty(witnessMethods)) {
             for (WitnessMethod witnessMethod : witnessMethods) {
-                TypePool.Resolution resolution = WitnessClassFinder.INSTANCE.getResolution(witnessMethod.declaringClassName, classLoader);
-                if (!resolution.isResolved()) {
-                    LOGGER.warn("enhance class {} by plugin {} is not working. Because declaringClass {} of the witness method is not existed.", transformClassName, interceptorDefineClassName, witnessMethod.declaringClassName);
+                if (!WitnessFinder.INSTANCE.exist(witnessMethod, classLoader)) {
+                    LOGGER.warn("enhance class {} by plugin {} is not working. Because witness method {} is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
                     return null;
                 }
-                boolean empty = resolution.resolve()
-                        .getDeclaredMethods()
-                        .filter(witnessMethod.elementMatcher)
-                        .isEmpty();
-                if (empty) {
-                    LOGGER.warn("enhance class {} by plugin {} is not working. Because the witness method is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
-                    return null;
-                }
-
             }
         }
 

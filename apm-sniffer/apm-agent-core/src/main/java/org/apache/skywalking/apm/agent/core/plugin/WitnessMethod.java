@@ -31,11 +31,16 @@ public class WitnessMethod {
     /**
      * java.lang.reflect.Method#getDeclaringClass()
      */
-    String declaringClassName;
+    private String declaringClassName;
     /**
      * mather fo match the witness method
      */
-    ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;
+    private final ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;
+
+    public WitnessMethod(String declaringClassName, ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher) {
+        this.declaringClassName = declaringClassName;
+        this.elementMatcher = elementMatcher;
+    }
 
     @Override
     public String toString() {
@@ -44,4 +49,13 @@ public class WitnessMethod {
                 .add("elementMatcher=" + elementMatcher)
                 .toString();
     }
+
+    public String getDeclaringClassName() {
+        return declaringClassName;
+    }
+
+    public ElementMatcher<? super MethodDescription.InDefinedShape> getElementMatcher() {
+        return elementMatcher;
+    }
+
 }

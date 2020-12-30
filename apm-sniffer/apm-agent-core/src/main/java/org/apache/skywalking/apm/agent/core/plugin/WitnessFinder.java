@@ -23,10 +23,10 @@ import java.util.Map;
 import net.bytebuddy.pool.TypePool;
 
 /**
- * The <code>WitnessClassFinder</code> represents a pool of {@link TypePool}s, each {@link TypePool} matches a {@link
+ * The <code>WitnessFinder</code> represents a pool of {@link TypePool}s, each {@link TypePool} matches a {@link
  * ClassLoader}, which helps to find the class define existed or not.
  */
-public enum WitnessClassFinder {
+public enum WitnessFinder {
     INSTANCE;
 
     private Map<ClassLoader, TypePool> poolMap = new HashMap<ClassLoader, TypePool>();
@@ -46,7 +46,7 @@ public enum WitnessClassFinder {
      * @param classLoader classLoader for finding the witnessClass
      * @return TypePool.Resolution
      */
-    public TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
+    private TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
         ClassLoader mappingKey = classLoader == null ? NullClassLoader.INSTANCE : classLoader;
         if (!poolMap.containsKey(mappingKey)) {
             synchronized (poolMap) {
@@ -58,6 +58,21 @@ public enum WitnessClassFinder {
         }
         TypePool typePool = poolMap.get(mappingKey);
         return typePool.describe(witnessClass);
+    }
+
+    /**
+     * @param classLoader for finding the witness method
+     * @return true, if the given witness method exists, through the given classLoader.
+     */
+    public boolean exist(WitnessMethod witnessMethod, ClassLoader classLoader) {
+        TypePool.Resolution resolution = WitnessFinder.INSTANCE.getResolution(witnessMethod.getDeclaringClassName(), classLoader);
+        if (!resolution.isResolved()) {
+            return false;
+        }
+        return !resolution.resolve()
+                .getDeclaredMethods()
+                .filter(witnessMethod.getElementMatcher())
+                .isEmpty();
     }
 
 }
