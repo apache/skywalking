@@ -129,7 +129,7 @@ public abstract class AbstractClassEnhancePluginDefine {
     }
 
     protected List<WitnessMethod> witnessMethods() {
-        return Collections.emptyList();
+        return null;
     }
 
     public boolean isBootstrapInstrumentation() {
