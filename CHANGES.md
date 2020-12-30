@@ -22,7 +22,7 @@ Release Notes.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
-* Add witness method for plugin develop.
+* Add witness method mechanism in the agent plugin core.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
