@@ -16,3 +16,7 @@
 instances:
   - key: not null
     label: not null
+  - key: not null
+    label: not null
+  - key: not null
+    label: not null
