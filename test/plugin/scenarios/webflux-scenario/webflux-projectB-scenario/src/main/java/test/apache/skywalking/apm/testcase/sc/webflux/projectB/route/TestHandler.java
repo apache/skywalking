@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 public class TestHandler {
 
     public Mono<ServerResponse> test(ServerRequest request) {
-        System.out.println(request.path());
+        request.path();
         if (request.path().contains("error")) {
             throw new RuntimeException("test_error");
         }

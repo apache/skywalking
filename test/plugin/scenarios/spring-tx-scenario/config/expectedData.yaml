@@ -19,7 +19,7 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
-    - operationName: TX/get/t.o.a.s.a.t.s.t.s.i.DemoServiceImpl.doBiz
+    - operationName: TX/get/t.a.s.a.t.s.t.s.i.DemoServiceImpl.doBiz
       operationId: 0
       parentSpanId: 0
       spanId: 1
