@@ -51,7 +51,6 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectSubQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.influxdb.querybuilder.WhereSubQueryImpl;
 
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.NAME;
@@ -167,13 +166,14 @@ public class MetadataQuery implements IMetadataQueryDAO {
                                                      final String serviceId) throws IOException {
         final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
 
-        WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = select()
+        SelectSubQueryImpl<SelectQueryImpl> subQuery = select()
             .fromSubQuery(client.getDatabase())
             .column(ID_COLUMN).column(NAME).column(InstanceTraffic.PROPERTIES)
             .from(InstanceTraffic.INDEX_NAME)
             .where()
             .and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket))
-            .and(eq(TagName.SERVICE_ID, serviceId));
+            .and(eq(TagName.SERVICE_ID, serviceId))
+            .groupBy(TagName.NAME, TagName.SERVICE_ID);
 
         SelectQueryImpl query = select().column(ID_COLUMN)
                                         .column(NAME)

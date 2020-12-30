@@ -58,6 +58,7 @@ public class TableMetaInfo {
             // instance_traffic service_id, endpoint_traffic service_id
             if (InstanceTraffic.INDEX_NAME.equals(model.getName())
                 || EndpointTraffic.INDEX_NAME.equals(model.getName())) {
+                storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
                 storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
             } else {
                 // service_traffic  name, group
