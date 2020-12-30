@@ -87,7 +87,7 @@ public abstract class AbstractClassEnhancePluginDefine {
                         .getDeclaredMethods()
                         .filter(witnessMethod.elementMatcher)
                         .isEmpty();
-                if(empty){
+                if (empty) {
                     LOGGER.warn("enhance class {} by plugin {} is not working. Because the witness method is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
                     return null;
                 }

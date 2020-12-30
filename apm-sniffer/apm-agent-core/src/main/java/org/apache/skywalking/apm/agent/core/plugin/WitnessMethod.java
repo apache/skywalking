@@ -24,9 +24,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import java.util.StringJoiner;
 
 /**
- * @author binglongli217932
- * <a href="mailto:libinglong9@gmail.com">libinglong:libinglong9@gmail.com</a>
- * @since 2020/12/30
+ * Witness Method for plugin activation
  */
 public class WitnessMethod {
 
