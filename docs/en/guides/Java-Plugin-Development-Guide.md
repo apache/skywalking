@@ -304,7 +304,7 @@ tomcat-7.x/8.x=TomcatInstrumentation
    Example:
 
    ```java
-   //the plugin is activated only when the foo.Bar class exists.
+   // The plugin is activated only when the foo.Bar class exists.
    @Override
    protected String[] witnessClasses() {
      return new String[] {
