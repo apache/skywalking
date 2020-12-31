@@ -60,14 +60,14 @@ public abstract class AbstractClassEnhancePluginDefine {
         }
 
         LOGGER.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
-
+        WitnessFinder finder = WitnessFinder.INSTANCE;
         /**
          * find witness classes for enhance class
          */
         String[] witnessClasses = witnessClasses();
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
-                if (!WitnessFinder.exist(witnessClass, classLoader)) {
+                if (!finder.exist(witnessClass, classLoader)) {
                     LOGGER.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName, witnessClass);
                     return null;
                 }
@@ -76,7 +76,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         List<WitnessMethod> witnessMethods = witnessMethods();
         if (!CollectionUtil.isEmpty(witnessMethods)) {
             for (WitnessMethod witnessMethod : witnessMethods) {
-                if (!WitnessFinder.exist(witnessMethod, classLoader)) {
+                if (!finder.exist(witnessMethod, classLoader)) {
                     LOGGER.warn("enhance class {} by plugin {} is not working. Because witness method {} is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
                     return null;
                 }
