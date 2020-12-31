@@ -37,7 +37,7 @@ public class WitnessMethod {
     @Getter
     private final String declaringClassName;
     /**
-     * mather fo match the witness method
+     * matcher to match the witness method
      */
     @Getter
     private final ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;

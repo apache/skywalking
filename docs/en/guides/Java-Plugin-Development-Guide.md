@@ -304,7 +304,7 @@ tomcat-7.x/8.x=TomcatInstrumentation
    Example:
 
    ```java
-   //the plugin is activated only when the foo.Bar class exists.
+   // The plugin is activated only when the foo.Bar class exists.
    @Override
    protected String[] witnessClasses() {
      return new String[] {
@@ -312,7 +312,7 @@ tomcat-7.x/8.x=TomcatInstrumentation
      };
    }
    
-   //the plugin is activated only when the foo.Bar#hello method exists.
+   // The plugin is activated only when the foo.Bar#hello method exists.
    @Override
    protected List<WitnessMethod> witnessMethods() {
      List<WitnessMethod> witnessMethodList = new ArrayList<>();
@@ -321,7 +321,7 @@ tomcat-7.x/8.x=TomcatInstrumentation
      return witnessMethodList;
    }
    ```
-   For more example, See [WitnessTest.java](/apm-sniffer/apm-agent-core/src/test/java/org/apache/skywalking/apm/agent/core/plugin/witness/WitnessTest.java)
+   For more example, see [WitnessTest.java](/apm-sniffer/apm-agent-core/src/test/java/org/apache/skywalking/apm/agent/core/plugin/witness/WitnessTest.java)
 
    
 
