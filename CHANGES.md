@@ -39,6 +39,7 @@ Release Notes.
 * Fix searchService method error in storage-influxdb-plugin.
 * Add JavaScript component ID.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
+* Improve query performance in storage-influxdb-plugin.
 * Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
 
 #### UI
