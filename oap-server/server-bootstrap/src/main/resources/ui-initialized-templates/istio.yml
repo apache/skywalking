@@ -30,7 +30,7 @@ templates:
         {
           "name": "Istio",
           "type": "service",
-          "serviceGroup": "istio",
+          "serviceGroup": "istio-ctrl",
           "children": [
             {
               "name": "Control Plane",
