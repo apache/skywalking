@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -27,6 +28,7 @@ import net.bytebuddy.matcher.ElementMatcher;
  * Witness Method for plugin activation
  */
 @ToString
+@RequiredArgsConstructor
 public class WitnessMethod {
 
     /**
@@ -39,10 +41,5 @@ public class WitnessMethod {
      */
     @Getter
     private final ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;
-
-    public WitnessMethod(String declaringClassName, ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher) {
-        this.declaringClassName = declaringClassName;
-        this.elementMatcher = elementMatcher;
-    }
 
 }

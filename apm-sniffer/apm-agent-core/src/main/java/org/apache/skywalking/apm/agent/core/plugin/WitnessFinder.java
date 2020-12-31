@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
+import net.bytebuddy.pool.TypePool;
+
 import java.util.HashMap;
 import java.util.Map;
-import net.bytebuddy.pool.TypePool;
 
 /**
  * The <code>WitnessFinder</code> represents a pool of {@link TypePool}s, each {@link TypePool} matches a {@link
@@ -48,15 +49,15 @@ public enum WitnessFinder {
      */
     private TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
         ClassLoader mappingKey = classLoader == null ? NullClassLoader.INSTANCE : classLoader;
-        if (!INSTANCE.poolMap.containsKey(mappingKey)) {
-            synchronized (INSTANCE.poolMap) {
-                if (!INSTANCE.poolMap.containsKey(mappingKey)) {
+        if (!poolMap.containsKey(mappingKey)) {
+            synchronized (poolMap) {
+                if (!poolMap.containsKey(mappingKey)) {
                     TypePool classTypePool = classLoader == null ? TypePool.Default.ofBootLoader() : TypePool.Default.of(classLoader);
-                    INSTANCE.poolMap.put(mappingKey, classTypePool);
+                    poolMap.put(mappingKey, classTypePool);
                 }
             }
         }
-        TypePool typePool = INSTANCE.poolMap.get(mappingKey);
+        TypePool typePool = poolMap.get(mappingKey);
         return typePool.describe(witnessClass);
     }
 
