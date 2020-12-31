@@ -89,7 +89,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
     void test() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> s.getLabel().startsWith("istio::")).collect(Collectors.toList());
+        services = services.stream().filter(s -> s.getLabel().startsWith("istio-dp::")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
         load("expected/metricsservice/services.yml").as(ServicesMatcher.class).verify(services);
         for (final Service service : services) {
