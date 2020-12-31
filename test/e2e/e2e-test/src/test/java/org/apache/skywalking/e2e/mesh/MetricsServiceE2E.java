@@ -104,6 +104,7 @@ public class MetricsServiceE2E extends SkyWalkingTestAdapter {
             LOGGER.info("instances: {}", instances);
 
             String instancesFile = "expected/metricsservice/instances-" + service.getLabel() + ".yml";
+            instancesFile = instancesFile.replaceAll(":", "-");
             if (!exists(instancesFile)) {
                 instancesFile = "expected/metricsservice/instances.yml";
             }
