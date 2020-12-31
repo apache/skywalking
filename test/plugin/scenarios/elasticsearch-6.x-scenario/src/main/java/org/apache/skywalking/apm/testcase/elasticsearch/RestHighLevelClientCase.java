@@ -161,7 +161,7 @@ public class RestHighLevelClientCase {
         request.settings(Settings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0));
 
         CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
-        if (createIndexResponse.isAcknowledged() == false) {
+        if (!createIndexResponse.isAcknowledged()) {
             String message = "elasticsearch create index fail.";
             LOGGER.error(message);
             throw new RuntimeException(message);

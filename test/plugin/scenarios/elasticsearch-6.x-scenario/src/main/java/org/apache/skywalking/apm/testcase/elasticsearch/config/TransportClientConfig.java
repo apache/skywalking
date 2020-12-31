@@ -34,7 +34,7 @@ public class TransportClientConfig {
     @Value("${elasticsearch.server}")
     private String elasticsearchHost;
 
-    public final static Integer PORT = 9300; //端口
+    public final static Integer PORT = 9300; //port
 
     @Bean
     public TransportClient getESClientConnection()

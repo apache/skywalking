@@ -115,7 +115,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
         if (!Strings.isNullOrEmpty(keyword)) {
-            where.and(contains(ServiceTraffic.NAME, keyword));
+            where.and(contains(NAME, keyword));
         }
         return buildServices(where);
     }
@@ -125,7 +125,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
         final WhereQueryImpl<SelectQueryImpl> whereQuery = select(ID_COLUMN, NAME, ServiceTraffic.GROUP)
             .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
             .where(eq(TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())));
-        whereQuery.and(eq(InfluxConstants.NAME, serviceCode));
+        whereQuery.and(eq(NAME, serviceCode));
         return buildServices(whereQuery).get(0);
     }
 
@@ -139,7 +139,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
             .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
             .where(eq(TagName.SERVICE_ID, String.valueOf(serviceId)));
         if (!Strings.isNullOrEmpty(keyword)) {
-            where.and(contains(EndpointTraffic.NAME, keyword.replaceAll("/", "\\\\/")));
+            where.and(contains(NAME, keyword.replaceAll("/", "\\\\/")));
         }
         where.limit(limit);
 
@@ -172,8 +172,8 @@ public class MetadataQuery implements IMetadataQueryDAO {
             .from(InstanceTraffic.INDEX_NAME)
             .where()
             .and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket))
-            .and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId))
-            .groupBy(TagName.NAME, TagName.SERVICE_ID);
+            .and(eq(TagName.SERVICE_ID, serviceId))
+            .groupBy(TagName.NAME);
 
         SelectQueryImpl query = select().column(ID_COLUMN)
                                         .column(NAME)

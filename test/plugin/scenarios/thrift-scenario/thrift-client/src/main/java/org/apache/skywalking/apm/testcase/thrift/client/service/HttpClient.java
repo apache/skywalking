@@ -43,7 +43,6 @@ public class HttpClient implements IClient {
         transport.close();
     }
 
-
     @Override
     public String echo(String message) throws TException {
         return client.echo(message);

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/log4j")
 public class CaseController {
 
-    private static final Logger logger = LogManager.getLogger(CaseController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CaseController.class);
     private static final String SUCCESS = "Success";
     @Value("${logger.host:localhost:8080}")
     private String loggerAddress;
@@ -38,14 +38,14 @@ public class CaseController {
     @RequestMapping("/no-param")
     @ResponseBody
     public String noParam() {
-        logger.error("no-param");
+        LOGGER.error("no-param");
         return "no-param";
     }
 
     @RequestMapping("/one-param")
     @ResponseBody
     public String oneParam() {
-        logger.error("throwable-param", new Exception());
+        LOGGER.error("throwable-param", new Exception());
         return "one param";
     }
 

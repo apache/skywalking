@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.testcase.finagle.service;
 import com.twitter.util.Future;
 import org.apache.skywalking.apm.testcase.finagle.interfaces.FinagleRpcDemoService;
 
-
 public class FinagleRpcDemoServiceImpl implements FinagleRpcDemoService.ServiceIface {
 
     public Future<String> hello(String name) {
