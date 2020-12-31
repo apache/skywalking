@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * witness test
+ * unit test for WitnessFinder
  */
 public class WitnessTest {
 
@@ -47,6 +47,13 @@ public class WitnessTest {
                 .and(ElementMatchers.returnsGeneric(target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
                 .and(ElementMatchers.takesGenericArgument(0, target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
                 .and(ElementMatchers.takesArgument(1, target -> "java.lang.String".equals(target.getName())));
+        WitnessMethod witnessMethod = new WitnessMethod(className, junction);
+        Assert.assertTrue(WitnessFinder.exist(witnessMethod, this.getClass().getClassLoader()));
+    }
+
+    @Test
+    public void testWitnessMethodOnlyUsingName() {
+        ElementMatcher.Junction<MethodDescription> junction = ElementMatchers.named("foo");
         WitnessMethod witnessMethod = new WitnessMethod(className, junction);
         Assert.assertTrue(WitnessFinder.exist(witnessMethod, this.getClass().getClassLoader()));
     }

@@ -30,7 +30,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 public class WitnessMethod {
 
     /**
-     * java.lang.reflect.Method#getDeclaringClass()
+     * the class or interface name where the witness method is declared.
      */
     @Getter
     private final String declaringClassName;
