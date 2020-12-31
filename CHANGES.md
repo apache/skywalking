@@ -39,6 +39,7 @@ Release Notes.
 * Fix searchService method error in storage-influxdb-plugin.
 * Add JavaScript component ID.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
+* Improve query performance in storage-influxdb-plugin.
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -55,6 +56,8 @@ Release Notes.
 * Add icon for Python aiohttp plugin.
 * Add icon for Python pyramid plugin.
 * Fix topology render all services nodes when groups changed.
+* Fix rk-footer utc input's width.
+* Update rk-icon and rewrite rk-header svg tags with rk-icon.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
