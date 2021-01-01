@@ -41,6 +41,7 @@ Release Notes.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
 * Improve query performance in storage-influxdb-plugin.
 * Fix the uuid field in GRPCConfigWatcherRegister is not updated.
+* Support Envoy {AccessLog,Metrics}Service API V3.
 
 #### UI
 * Fix un-removed tags in trace query.

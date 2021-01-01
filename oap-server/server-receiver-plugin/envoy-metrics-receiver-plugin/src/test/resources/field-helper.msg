@@ -82,8 +82,7 @@
       "locality": {
         "region": "us-central1",
         "zone": "us-central1-a"
-      },
-      "buildVersion": "262253d9d066f8ef7ed82fd175c28b8f95acbec0/1.15.0/Clean/RELEASE/BoringSSL"
+      }
     },
     "logName": "http_envoy_accesslog"
   }
