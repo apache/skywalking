@@ -16,25 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als;
+package org.apache.skywalking.oap.server.receiver.envoy;
 
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v3.AccessLogServiceGrpc;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import java.util.List;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
 
-/**
- * Analysis source metrics from ALS
- */
-public interface ALSHTTPAnalysis {
-    String name();
+@RequiredArgsConstructor
+public class AccessLogServiceGRPCHandlerV3 extends AccessLogServiceGrpc.AccessLogServiceImplBase {
+    private final AccessLogServiceGRPCHandler delegate;
 
-    void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException;
-
-    List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role);
-
-    Role identify(StreamAccessLogsMessage.Identifier alsIdentifier, Role prev);
+    @Override
+    public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(final StreamObserver<StreamAccessLogsResponse> responseObserver) {
+        return delegate.streamAccessLogs(responseObserver);
+    }
 }
