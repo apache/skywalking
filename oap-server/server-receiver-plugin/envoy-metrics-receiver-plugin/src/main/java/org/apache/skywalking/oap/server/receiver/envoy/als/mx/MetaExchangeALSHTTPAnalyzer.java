@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.MapEntry;
-import com.google.protobuf.MapField;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
