@@ -40,6 +40,7 @@ Release Notes.
 * Add JavaScript component ID.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
 * Improve query performance in storage-influxdb-plugin.
+* Fix the uuid field in GRPCConfigWatcherRegister is not updated.
 
 #### UI
 * Fix un-removed tags in trace query.
