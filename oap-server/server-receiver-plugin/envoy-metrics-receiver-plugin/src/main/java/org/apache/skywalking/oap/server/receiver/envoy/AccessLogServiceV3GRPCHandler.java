@@ -22,24 +22,23 @@ import io.envoyproxy.envoy.service.accesslog.v3.AccessLogServiceGrpc;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
 import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 @Slf4j
+@RequiredArgsConstructor
 public class AccessLogServiceV3GRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
-    private final AccessLogServiceGRPCHandler handler;
+    private final ModuleManager manager;
+    private final EnvoyMetricReceiverConfig config;
 
-    public AccessLogServiceV3GRPCHandler(final ModuleManager manager, final EnvoyMetricReceiverConfig config) throws ModuleStartException {
-        handler = new AccessLogServiceGRPCHandler(manager, config);
-    }
-
+    @Override
+    @SneakyThrows
     public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(final StreamObserver<StreamAccessLogsResponse> responseObserver) {
-        return new StreamObserver<StreamAccessLogsMessage>() {
-            {
-                handler.reset();
-            }
+        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(manager, config);
 
+        return new StreamObserver<StreamAccessLogsMessage>() {
             @Override
             public void onNext(StreamAccessLogsMessage message) {
                 handler.handle(message);

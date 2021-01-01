@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.Any;
+import com.google.protobuf.MapEntry;
 import com.google.protobuf.MapField;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
@@ -67,8 +68,8 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
 
     @Override
     public List<ServiceMeshMetric.Builder> analysis(Identifier identifier, Message entry, Role role) {
-        final Optional<MapField<String, Any>> stateMap = findField(entry, "common_properties.filter_state_objects");
-        if (!stateMap.isPresent()) {
+        final List<MapEntry<String, Any>> stateMap = findField(entry, "common_properties.filter_state_objects", null);
+        if (stateMap == null) {
             return Collections.emptyList();
         }
 
@@ -82,7 +83,9 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
 
         final List<ServiceMeshMetric.Builder> result = new ArrayList<>();
         final AtomicBoolean downstreamExists = new AtomicBoolean();
-        stateMap.get().getMap().forEach((key, value) -> {
+        stateMap.forEach(ntry -> {
+            final String key = ntry.getKey();
+            final Any value = ntry.getValue();
             if (!key.equals(UPSTREAM_KEY) && !key.equals(DOWNSTREAM_KEY)) {
                 return;
             }

@@ -22,24 +22,23 @@ import io.envoyproxy.envoy.service.metrics.v2.MetricsServiceGrpc;
 import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsMessage;
 import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsResponse;
 import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
+@RequiredArgsConstructor
 public class MetricServiceV2GRPCHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
-    private final MetricServiceGRPCHandler handler;
-
-    public MetricServiceV2GRPCHandler(ModuleManager moduleManager) {
-        handler = new MetricServiceGRPCHandler(moduleManager);
-    }
+    private final ModuleManager manager;
+    private final EnvoyMetricReceiverConfig config;
 
     @Override
+    @SneakyThrows
     public StreamObserver<StreamMetricsMessage> streamMetrics(StreamObserver<StreamMetricsResponse> responseObserver) {
-        return new StreamObserver<StreamMetricsMessage>() {
-            {
-                handler.reset();
-            }
+        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(manager, config);
 
+        return new StreamObserver<StreamMetricsMessage>() {
             @Override
             public void onNext(StreamMetricsMessage message) {
                 handler.handle(message);
