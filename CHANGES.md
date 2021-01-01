@@ -40,6 +40,8 @@ Release Notes.
 * Add JavaScript component ID.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
 * Improve query performance in storage-influxdb-plugin.
+* Fix the uuid field in GRPCConfigWatcherRegister is not updated.
+* Support Envoy {AccessLog,Metrics}Service API V3.
 * Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
 
 #### UI

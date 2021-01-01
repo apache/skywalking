@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.TextFormat;
-import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;

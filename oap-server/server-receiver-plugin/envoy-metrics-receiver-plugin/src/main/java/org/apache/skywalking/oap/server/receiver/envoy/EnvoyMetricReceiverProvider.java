@@ -62,9 +62,13 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
                                                   .provider()
                                                   .getService(GRPCHandlerRegister.class);
         if (config.isAcceptMetricsService()) {
-            service.addHandler(new MetricServiceGRPCHandler(getManager(), config));
+            final MetricServiceGRPCHandler handler = new MetricServiceGRPCHandler(getManager());
+            service.addHandler(handler);
+            service.addHandler(new MetricServiceGRPCHandlerV3(handler));
         }
-        service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
+        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(getManager(), config);
+        service.addHandler(handler);
+        service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
     }
 
     @Override

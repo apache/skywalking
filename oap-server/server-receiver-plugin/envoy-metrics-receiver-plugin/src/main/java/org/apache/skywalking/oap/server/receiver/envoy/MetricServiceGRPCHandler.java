@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import io.envoyproxy.envoy.api.v2.core.Node;
-import io.envoyproxy.envoy.service.metrics.v2.MetricsServiceGrpc;
-import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsMessage;
-import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsResponse;
+import io.envoyproxy.envoy.config.core.v3.Node;
+import io.envoyproxy.envoy.service.metrics.v3.MetricsServiceGrpc;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsMessage;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsResponse;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Metrics;
 import java.util.List;

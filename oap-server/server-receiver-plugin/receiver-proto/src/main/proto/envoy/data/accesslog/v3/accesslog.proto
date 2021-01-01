@@ -1,20 +1,23 @@
 syntax = "proto3";
 
-package envoy.data.accesslog.v2;
+package envoy.data.accesslog.v3;
 
-option java_outer_classname = "AccesslogProto";
-option java_multiple_files = true;
-option java_package = "io.envoyproxy.envoy.data.accesslog.v2";
-
-import "envoy/api/v2/core/address.proto";
-import "envoy/api/v2/core/base.proto";
+import "envoy/config/core/v3/address.proto";
+import "envoy/config/core/v3/base.proto";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
+import "udpa/annotations/status.proto";
+import "udpa/annotations/versioning.proto";
 import "validate/validate.proto";
+
+option java_package = "io.envoyproxy.envoy.data.accesslog.v3";
+option java_outer_classname = "AccesslogProto";
+option java_multiple_files = true;
+option (udpa.annotations.file_status).package_version_status = ACTIVE;
 
 // [#protodoc-title: gRPC access logs]
 // Envoy access logs describe incoming interaction with Envoy over a fixed
@@ -28,6 +31,9 @@ import "validate/validate.proto";
 // in their name.
 
 message TCPAccessLogEntry {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.TCPAccessLogEntry";
+
   // Common properties shared by all Envoy access logs.
   AccessLogCommon common_properties = 1;
 
@@ -36,6 +42,9 @@ message TCPAccessLogEntry {
 }
 
 message HTTPAccessLogEntry {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.HTTPAccessLogEntry";
+
   // HTTP version
   enum HTTPVersion {
     PROTOCOL_UNSPECIFIED = 0;
@@ -59,6 +68,9 @@ message HTTPAccessLogEntry {
 
 // Defines fields for a connection
 message ConnectionProperties {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.ConnectionProperties";
+
   // Number of bytes received from downstream.
   uint64 received_bytes = 1;
 
@@ -69,6 +81,9 @@ message ConnectionProperties {
 // Defines fields that are shared by all Envoy access logs.
 // [#next-free-field: 22]
 message AccessLogCommon {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.AccessLogCommon";
+
   // [#not-implemented-hide:]
   // This field indicates the rate at which this log entry was sampled.
   // Valid range is (0.0, 1.0].
@@ -77,10 +92,10 @@ message AccessLogCommon {
   // This field is the remote/origin address on which the request from the user was received.
   // Note: This may not be the physical peer. E.g, if the remote address is inferred from for
   // example the x-forwarder-for header, proxy protocol, etc.
-  envoy.api.v2.core.Address downstream_remote_address = 2;
+  config.core.v3.Address downstream_remote_address = 2;
 
   // This field is the local/destination address on which the request from the user was received.
-  envoy.api.v2.core.Address downstream_local_address = 3;
+  config.core.v3.Address downstream_local_address = 3;
 
   // If the connection is secure,S this field will contain TLS properties.
   TLSProperties tls_properties = 4;
@@ -129,10 +144,10 @@ message AccessLogCommon {
 
   // The upstream remote/destination address that handles this exchange. This does not include
   // retries.
-  envoy.api.v2.core.Address upstream_remote_address = 13;
+  config.core.v3.Address upstream_remote_address = 13;
 
   // The upstream local/origin address that handles this exchange. This does not include retries.
-  envoy.api.v2.core.Address upstream_local_address = 14;
+  config.core.v3.Address upstream_local_address = 14;
 
   // The upstream cluster that *upstream_remote_address* belongs to.
   string upstream_cluster = 15;
@@ -148,7 +163,7 @@ message AccessLogCommon {
   // route created from a higher level forwarding rule with some ID can place
   // that ID in this field and cross reference later. It can also be used to
   // determine if a canary endpoint was used or not.
-  envoy.api.v2.core.Metadata metadata = 17;
+  config.core.v3.Metadata metadata = 17;
 
   // If upstream connection failed due to transport socket (e.g. TLS handshake), provides the
   // failure reason from the transport socket. The format of this field depends on the configured
@@ -162,7 +177,7 @@ message AccessLogCommon {
   // This field is the downstream direct remote address on which the request from the user was
   // received. Note: This is always the physical peer, even if the remote address is inferred from
   // for example the x-forwarder-for header, proxy protocol, etc.
-  envoy.api.v2.core.Address downstream_direct_remote_address = 20;
+  config.core.v3.Address downstream_direct_remote_address = 20;
 
   // Map of filter state in stream info that have been configured to be logged. If the filter
   // state serialized to any message other than `google.protobuf.Any` it will be packed into
@@ -171,9 +186,15 @@ message AccessLogCommon {
 }
 
 // Flags indicating occurrences during request/response processing.
-// [#next-free-field: 20]
+// [#next-free-field: 24]
 message ResponseFlags {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.ResponseFlags";
+
   message Unauthorized {
+    option (udpa.annotations.versioning).previous_message_type =
+        "envoy.data.accesslog.v2.ResponseFlags.Unauthorized";
+
     // Reasons why the request was unauthorized
     enum Reason {
       REASON_UNSPECIFIED = 0;
@@ -242,11 +263,26 @@ message ResponseFlags {
 
   // Indicates there was an HTTP protocol error on the downstream request.
   bool downstream_protocol_error = 19;
+
+  // Indicates there was a max stream duration reached on the upstream request.
+  bool upstream_max_stream_duration_reached = 20;
+
+  // Indicates the response was served from a cache filter.
+  bool response_from_cache_filter = 21;
+
+  // Indicates that a filter configuration is not available.
+  bool no_filter_config_found = 22;
+
+  // Indicates that request or connection exceeded the downstream connection duration.
+  bool duration_timeout = 23;
 }
 
 // Properties of a negotiated TLS connection.
 // [#next-free-field: 7]
 message TLSProperties {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.TLSProperties";
+
   enum TLSVersion {
     VERSION_UNSPECIFIED = 0;
     TLSv1 = 1;
@@ -256,7 +292,13 @@ message TLSProperties {
   }
 
   message CertificateProperties {
+    option (udpa.annotations.versioning).previous_message_type =
+        "envoy.data.accesslog.v2.TLSProperties.CertificateProperties";
+
     message SubjectAltName {
+      option (udpa.annotations.versioning).previous_message_type =
+          "envoy.data.accesslog.v2.TLSProperties.CertificateProperties.SubjectAltName";
+
       oneof san {
         string uri = 1;
 
@@ -297,8 +339,11 @@ message TLSProperties {
 
 // [#next-free-field: 14]
 message HTTPRequestProperties {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.HTTPRequestProperties";
+
   // The request method (RFC 7231/2616).
-  envoy.api.v2.core.RequestMethod request_method = 1 [(validate.rules).enum = {defined_only: true}];
+  config.core.v3.RequestMethod request_method = 1 [(validate.rules).enum = {defined_only: true}];
 
   // The scheme portion of the incoming request URI.
   string scheme = 2;
@@ -350,6 +395,9 @@ message HTTPRequestProperties {
 
 // [#next-free-field: 7]
 message HTTPResponseProperties {
+  option (udpa.annotations.versioning).previous_message_type =
+      "envoy.data.accesslog.v2.HTTPResponseProperties";
+
   // The HTTP response code returned by Envoy.
   google.protobuf.UInt32Value response_code = 1;
 
