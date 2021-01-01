@@ -68,9 +68,13 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
                         .getService(OALEngineLoaderService.class)
                         .load(EnvoyOALDefine.INSTANCE);
 
-            service.addHandler(new MetricServiceGRPCHandler(getManager()));
+            final MetricServiceGRPCHandler handler = new MetricServiceGRPCHandler(getManager());
+            service.addHandler(handler);
+            service.addHandler(new MetricServiceGRPCHandlerV3(handler));
         }
-        service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
+        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(getManager(), config);
+        service.addHandler(handler);
+        service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
     }
 
     @Override
