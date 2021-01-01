@@ -19,8 +19,10 @@ import "validate/validate.proto";
 // Service for streaming metrics to server that consumes the metrics data. It uses Prometheus metric
 // data model as a standard to represent metrics information.
 service MetricsService {
-  // Envoy will connect and send StreamMetricsMessage messages forever. It does not expect any
-  // response to be sent as nothing would be done in the case of failure.
+  // In order to simultaneously support Envoy MetricsService V2 and V3 without duplicating too many codes,
+  // we combine the V2 service definition and V3 message protobuf and delegate the V2 service handler to V3,
+  // this is only feasible when the message protobuf of V3 is compatible with V2 (i.e. backward compatibility).
+  // For more about MetricsService, read envoy/service/metrics/v3/metrics_service.proto
   rpc StreamMetrics(stream envoy.service.metrics.v3.StreamMetricsMessage) returns (envoy.service.metrics.v3.StreamMetricsResponse) {
   }
 }
