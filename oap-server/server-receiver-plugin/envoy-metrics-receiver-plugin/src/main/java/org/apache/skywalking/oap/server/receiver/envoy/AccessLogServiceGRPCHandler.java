@@ -101,10 +101,4 @@ public class AccessLogServiceGRPCHandler {
             sourceResult.forEach(TelemetryDataDispatcher::process);
         }
     }
-
-    public void reset() {
-        role = null;
-        isFirst = true;
-        identifier = null;
-    }
 }

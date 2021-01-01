@@ -31,12 +31,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 @RequiredArgsConstructor
 public class MetricServiceV2GRPCHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
     private final ModuleManager manager;
-    private final EnvoyMetricReceiverConfig config;
 
     @Override
     @SneakyThrows
     public StreamObserver<StreamMetricsMessage> streamMetrics(StreamObserver<StreamMetricsResponse> responseObserver) {
-        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(manager, config);
+        final MetricServiceGRPCHandler handler = new MetricServiceGRPCHandler(manager);
 
         return new StreamObserver<StreamMetricsMessage>() {
             @Override
