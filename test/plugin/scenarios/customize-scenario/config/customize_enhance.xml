@@ -17,7 +17,7 @@
   ~
   -->
 <enhanced>
-    <class class_name="test.org.apache.skywalking.apm.testcase.customize.service.TestService1">
+    <class class_name="test.apache.skywalking.apm.testcase.customize.service.TestService1">
         <method method="staticMethod()" operation_name="/is_static_method" static="true"></method>
         <method method="staticMethod(java.lang.String,int.class,java.util.Map,java.util.List,[Ljava.lang.Object;)"
                 operation_name="/is_static_method_args" static="true">
@@ -35,7 +35,7 @@
             <log key="log_1">arg[1]</log>
         </method>
         <method
-            method="method(test.org.apache.skywalking.apm.testcase.customize.model.Model0,java.lang.String,int.class)"
+            method="method(test.apache.skywalking.apm.testcase.customize.model.Model0,java.lang.String,int.class)"
             operation_name="/method_3" static="false">
             <operation_name_suffix>arg[0].id</operation_name_suffix>
             <operation_name_suffix>arg[0].model1.name</operation_name_suffix>
@@ -44,7 +44,7 @@
             <log key="log_map">arg[0].getM().['k1']</log>
         </method>
     </class>
-    <class class_name="test.org.apache.skywalking.apm.testcase.customize.service.TestService2">
+    <class class_name="test.apache.skywalking.apm.testcase.customize.service.TestService2">
         <method method="staticMethod(java.lang.String,int.class)" operation_name="/is_2_static_method" static="true">
             <tag key="tag_2_1">arg[0]</tag>
             <log key="log_1_1">arg[1]</log>

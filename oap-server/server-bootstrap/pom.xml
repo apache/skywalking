@@ -264,6 +264,7 @@
                         <exclude>endpoint-name-grouping.yml</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>envoy-metrics-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>

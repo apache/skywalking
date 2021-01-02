@@ -91,7 +91,7 @@ Topology map shows the relationship among the services and instances with metric
 
 * Topology shows the default global topology including all services.
 * **Service Selector** provides 2 level selectors, service group list and service name list. The group name is separated from 
-the service name if it follows <group name>::<logic name> format. Topology map is available for single group, single service, 
+the service name if it follows `<group name>::<logic name>` format. Topology map is available for single group, single service, 
 or global(include all services).
 * **Custom Group** provides the any sub topology capability of service group.
 * **Service Deep Dive** opens when you click any service. The honeycomb could do metrics, trace and alarm query of the selected service.

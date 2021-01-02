@@ -34,6 +34,6 @@ public class DockerService {
     private List<String> expose;
     private List<String> entrypoint;
     private List<String> healthcheck;
-    private List<String> depends_on;
+    private List<String> dependsOn;
     private List<String> environment;
 }

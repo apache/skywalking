@@ -54,21 +54,21 @@ for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM
 NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
 
 # Downloads
-Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+Please head to the [releases page](https://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+
+# Compiling project
+Follow this [document](docs/en/guides/How-to-build.md).
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-Find the demo and screenshots on our [homepage](https://skywalking.apache.org/).
+Find the [demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch) on our website.
 
 **Video on youtube.com**
 
 [![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
-
-# Compiling project
-Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
@@ -77,13 +77,10 @@ Follow this [document](docs/en/guides/How-to-build.md).
 * QQ Group: 901167865(Recommended), 392443393
 * [bilibili B站 视频](https://space.bilibili.com/390683219)
 
-# Who Uses SkyWalking?
+# Our Users
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.
+Visit our [website](http://skywalking.apache.org/#users) to find the user page.
 
-<img src="http://skywalking.apache.org/assets/users-20200726.png"/>
-
-The [PoweredBy](docs/powered-by.md) page includes more users of the project.
-Users are encouraged to add themselves to there.
 
 # Landscapes
 

@@ -86,15 +86,15 @@ public class PrometheusMetricConverter {
     private Stream<Tuple2<String, SampleFamily>> convertMetric(Metric metric) {
         return Match(metric).of(
             Case($(instanceOf(Histogram.class)), t -> Stream.of(
-                Tuple.of(metric.getName() + "_count", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_count")
+                Tuple.of(escapedName(metric.getName() + "_count"), SampleFamilyBuilder.newBuilder(Sample.builder().name(escapedName(metric.getName() + "_count"))
                     .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Histogram) metric).getSampleCount()).build()).build()),
-                Tuple.of(metric.getName() + "_sum", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_sum")
+                Tuple.of(escapedName(metric.getName() + "_sum"), SampleFamilyBuilder.newBuilder(Sample.builder().name(escapedName(metric.getName() + "_sum"))
                     .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Histogram) metric).getSampleSum()).build()).build()),
                 convertToSample(metric).orElse(NIL))),
             Case($(instanceOf(Summary.class)), t -> Stream.of(
-                Tuple.of(metric.getName() + "_count", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_count")
+                Tuple.of(escapedName(metric.getName() + "_count"), SampleFamilyBuilder.newBuilder(Sample.builder().name(escapedName(metric.getName() + "_count"))
                     .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Summary) metric).getSampleCount()).build()).build()),
-                Tuple.of(metric.getName() + "_sum", SampleFamilyBuilder.newBuilder(Sample.builder().name(metric.getName() + "_sum")
+                Tuple.of(escapedName(metric.getName() + "_sum"), SampleFamilyBuilder.newBuilder(Sample.builder().name(escapedName(metric.getName() + "_sum"))
                     .timestamp(metric.getTimestamp()).labels(ImmutableMap.copyOf(metric.getLabels())).value(((Summary) metric).getSampleSum()).build()).build()),
                 convertToSample(metric).orElse(NIL))),
             Case($(), t -> Stream.of(convertToSample(metric).orElse(NIL)))
@@ -104,13 +104,13 @@ public class PrometheusMetricConverter {
     private Optional<Tuple2<String, SampleFamily>> convertToSample(Metric metric) {
         Sample[] ss = Match(metric).of(
             Case($(instanceOf(Counter.class)), t -> Collections.singletonList(Sample.builder()
-                .name(t.getName())
+                .name(escapedName(t.getName()))
                 .labels(ImmutableMap.copyOf(t.getLabels()))
                 .timestamp(t.getTimestamp())
                 .value(t.getValue())
                 .build())),
             Case($(instanceOf(Gauge.class)), t -> Collections.singletonList(Sample.builder()
-                .name(t.getName())
+                .name(escapedName(t.getName()))
                 .labels(ImmutableMap.copyOf(t.getLabels()))
                 .timestamp(t.getTimestamp())
                 .value(t.getValue())
@@ -118,7 +118,7 @@ public class PrometheusMetricConverter {
             Case($(instanceOf(Histogram.class)), t -> t.getBuckets()
                 .entrySet().stream()
                 .map(b -> Sample.builder()
-                    .name(t.getName())
+                    .name(escapedName(t.getName()))
                     .labels(ImmutableMap.<String, String>builder()
                         .putAll(t.getLabels())
                         .put("le", b.getKey().toString())
@@ -129,7 +129,7 @@ public class PrometheusMetricConverter {
             Case($(instanceOf(Summary.class)),
                 t -> t.getQuantiles().entrySet().stream()
                     .map(b -> Sample.builder()
-                        .name(t.getName())
+                        .name(escapedName(t.getName()))
                         .labels(ImmutableMap.<String, String>builder()
                             .putAll(t.getLabels())
                             .put("quantile", b.getKey().toString())
@@ -141,6 +141,11 @@ public class PrometheusMetricConverter {
         if (ss.length < 1) {
             return Optional.empty();
         }
-        return Optional.of(Tuple.of(metric.getName(), SampleFamilyBuilder.newBuilder(ss).build()));
+        return Optional.of(Tuple.of(escapedName(metric.getName()), SampleFamilyBuilder.newBuilder(ss).build()));
+    }
+
+    // Returns the escaped name of the given one, with "." replaced by "_"
+    protected String escapedName(final String name) {
+        return name.replaceAll("\\.", "_");
     }
 }

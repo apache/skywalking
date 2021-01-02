@@ -67,6 +67,7 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
                     table.add(new ConfigTable.ConfigItem(name, config.getValue()));
                 }
             });
+            this.uuid = responseUuid;
         } catch (Exception e) {
             LOGGER.error("Remote config center [" + settings + "] is not available.", e);
         }

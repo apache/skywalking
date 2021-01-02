@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/case")
 public class CaseController {
@@ -44,7 +43,7 @@ public class CaseController {
     @RequestMapping("/finagle")
     @ResponseBody
     public String finagle() throws Exception {
-        System.out.println(Await.result(finagleRpcDemoService.hello("finagle")));
+        Await.result(finagleRpcDemoService.hello("finagle"));
         return SUCCESS;
     }
 }
