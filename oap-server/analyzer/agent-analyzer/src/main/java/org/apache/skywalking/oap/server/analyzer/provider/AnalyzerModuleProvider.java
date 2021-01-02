@@ -63,7 +63,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
     private List<MeterConfig> meterConfigs;
     @Getter
-    private MeterProcessService meterProcessService;
+    private MeterProcessService processService;
 
     public AnalyzerModuleProvider() {
         this.moduleConfig = new AnalyzerModuleConfig();
@@ -103,8 +103,8 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         meterConfigs = MeterConfigs.loadConfig(
             moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
-        meterProcessService = new MeterProcessService(getManager());
-        this.registerServiceImplementation(IMeterProcessService.class, meterProcessService);
+        processService = new MeterProcessService(getManager());
+        this.registerServiceImplementation(IMeterProcessService.class, processService);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         segmentParserService.setListenerManager(listenerManager());
 
-        meterProcessService.start(meterConfigs);
+        processService.start(meterConfigs);
     }
 
     @Override

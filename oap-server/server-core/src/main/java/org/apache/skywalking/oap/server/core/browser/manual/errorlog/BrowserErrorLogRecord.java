@@ -88,7 +88,7 @@ public class BrowserErrorLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = DATA_BINARY, storageOnly = true)
+    @Column(columnName = DATA_BINARY)
     private byte[] dataBinary;
 
     public static class Builder implements StorageBuilder<BrowserErrorLogRecord> {
