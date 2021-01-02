@@ -54,17 +54,25 @@ public class TableMetaInfo {
             storageAndColumnMap.put(columnName.getStorageName(), columnName.getName());
         });
 
+        storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
         if (model.getName().endsWith("_traffic")) {
-            // instance_traffic name, service_id
-            // endpoint_traffic name, service_id
-            storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
-            if (InstanceTraffic.INDEX_NAME.equals(model.getName())
-                || EndpointTraffic.INDEX_NAME.equals(model.getName())) {
-                storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
-            } else {
-                // service_traffic  name, node_type, group
-                storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
-                storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
+            switch (model.getName()) {
+                // instance_traffic name, service_id
+                case InstanceTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
+                    storageAndTagMap.put(InstanceTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+                    break;
+                }
+                // endpoint_traffic service_id
+                case EndpointTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+                    break;
+                }
+                // service_traffic  name, group
+                case ServiceTraffic.INDEX_NAME: {
+                    storageAndTagMap.put(ServiceTraffic.GROUP, InfluxConstants.TagName.SERVICE_GROUP);
+                    storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+                }
             }
         } else {
 

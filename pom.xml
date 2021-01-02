@@ -503,6 +503,7 @@
                         <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
                         <exclude>**/src/main/fbs/istio/**</exclude>
                         <exclude>**/src/main/proto/envoy/**</exclude>
+                        <exclude>**/src/main/proto/udpa/**</exclude>
                         <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
                         <exclude>**/src/main/proto/google/**</exclude>
                         <exclude>**/src/main/proto/istio/**</exclude>

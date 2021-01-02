@@ -27,7 +27,6 @@ public interface IServer {
 
     void close() throws Exception;
 
-
     final class AsyncHandler implements GreeterService.AsyncIface {
 
         @Override

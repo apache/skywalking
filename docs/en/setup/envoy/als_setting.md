@@ -23,7 +23,7 @@ You need three steps to open ALS.
 `k8s-mesh` uses the metadata from Kubernetes cluster, hence in this analyzer OAP needs access roles to `Pod`, `Service`, and `Endpoints`;
 `mx-mesh` uses the Envoy metadata exchange mechanism to get the service name, etc.,
 this analyzer requires Istio to enable the metadata exchange filter(you can enable it by
-`--set telemetry.v2.enabled=true`, or if you're using Istio 1.7+ and installing it with profile `demo`/`preview`,
+`--set values.telemetry.v2.enabled=true`, or if you're using Istio 1.7+ and installing it with profile `demo`/`preview`,
 it should be enabled then).
 Setting system env variable **SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS** to activate the analyzer,
 such as `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh`.

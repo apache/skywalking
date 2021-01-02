@@ -38,6 +38,11 @@ Release Notes.
 * Add component ID for NodeJS Axios plugin.
 * Fix searchService method error in storage-influxdb-plugin.
 * Add JavaScript component ID.
+* Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
+* Improve query performance in storage-influxdb-plugin.
+* Fix the uuid field in GRPCConfigWatcherRegister is not updated.
+* Support Envoy {AccessLog,Metrics}Service API V3.
+* Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -54,11 +59,14 @@ Release Notes.
 * Add icon for Python aiohttp plugin.
 * Add icon for Python pyramid plugin.
 * Fix topology render all services nodes when groups changed.
+* Fix rk-footer utc input's width.
+* Update rk-icon and rewrite rk-header svg tags with rk-icon.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
 * Add documents about the group name of service.
 * Update docs about the latest UI.
+* Update the document of backend trace sampling with the latest configuration.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 

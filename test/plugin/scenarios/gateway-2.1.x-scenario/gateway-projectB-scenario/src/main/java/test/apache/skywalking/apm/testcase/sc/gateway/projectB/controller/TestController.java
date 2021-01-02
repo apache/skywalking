@@ -25,7 +25,6 @@ public class TestController {
 
     @RequestMapping("/provider/b/testcase")
     public String testcase() {
-        System.out.println(1);
         return "1";
     }
 

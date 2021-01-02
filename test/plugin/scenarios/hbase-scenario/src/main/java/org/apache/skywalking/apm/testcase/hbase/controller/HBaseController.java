@@ -19,10 +19,25 @@
 package org.apache.skywalking.apm.testcase.hbase.controller;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.*;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.PrefixFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
@@ -41,6 +56,7 @@ public class HBaseController {
     private String address;
 
     private Table table;
+    private final static Logger LOGGER = LoggerFactory.getLogger(HBaseController.class);
 
     @PostConstruct
     public void init() {
@@ -71,7 +87,7 @@ public class HBaseController {
             put.addColumn("family1".getBytes(), "qualifier1".getBytes(), "value1".getBytes());
             table.put(put);
             Scan s = new Scan();
-            s.setFilter(new PrefixFilter(("rowkey").getBytes()));
+            s.setFilter(new PrefixFilter("rowkey".getBytes()));
             s.setCaching(100);
             ResultScanner results = table.getScanner(s);
             for (Result result : results) {
@@ -80,7 +96,7 @@ public class HBaseController {
                         String family = Bytes.toString(CellUtil.cloneFamily(cell));
                         String colName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                         String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                        System.out.println("family: " + family + " colName:" + colName + " value:" + value);
+                        LOGGER.debug("family: " + family + " colName:" + colName + " value:" + value);
                     }
                 }
             }
@@ -89,7 +105,7 @@ public class HBaseController {
                 String family = Bytes.toString(CellUtil.cloneFamily(cell));
                 String colName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                System.out.println("family: " + family + " colName:" + colName + " value:" + value);
+                LOGGER.debug("family: " + family + " colName:" + colName + " value:" + value);
             }
             table.delete(new Delete("rowkey1".getBytes()));
         } catch (Exception e) {

@@ -36,7 +36,7 @@ segmentItems:
       - logEvent:
         - {key: log_1, value: '3'}
       skipAnalysis: 'false'
-    - {operationName: test.org.apache.skywalking.apm.testcase.customize.service.TestService1.method(),
+    - {operationName: test.apache.skywalking.apm.testcase.customize.service.TestService1.method(),
       operationId: 0, parentSpanId: 0, spanId: 3, startTime: nq 0, endTime: nq 0,
       isError: false, spanType: Local, skipAnalysis: 'false'}
     - operationName: /method_2/str0

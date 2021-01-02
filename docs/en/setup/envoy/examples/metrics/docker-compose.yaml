@@ -17,7 +17,7 @@
 version: "3"
 services:
   envoy:
-    image: envoyproxy/envoy-alpine:latest
+    image: envoyproxy/envoy-alpine:v1.16.2
     command: /usr/local/bin/envoy -c /etc/envoy.yaml --service-cluster envoy-proxy
     ports:
     - 10000:10000
