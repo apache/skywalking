@@ -18,16 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import com.google.common.base.Strings;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
@@ -35,29 +40,61 @@ import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.STATUS_CODE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
 
 public class H2LogQueryDAO implements ILogQueryDAO {
-    private JDBCHikariCPClient h2Client;
+    private final JDBCHikariCPClient h2Client;
+    private int numOfSearchValuesPerTag;
+    private List<String> searchableTagKeys;
+
+    public H2LogQueryDAO(final JDBCHikariCPClient h2Client,
+                         final ModuleManager manager,
+                         final int maxSizeOfArrayColumn,
+                         final int numOfSearchValuesPerTag) {
+        this.h2Client = h2Client;
+        this.numOfSearchValuesPerTag = numOfSearchValuesPerTag;
+        final ConfigService configService = manager.find(CoreModule.NAME)
+                                                   .provider()
+                                                   .getService(ConfigService.class);
+        List<String> searchableTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
+        if (searchableTagKeys.size() > maxSizeOfArrayColumn) {
+            searchableTagKeys = searchableTagKeys.subList(0, maxSizeOfArrayColumn);
+        }
+        this.searchableTagKeys = searchableTagKeys;
+    }
 
     public H2LogQueryDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
-                          LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
-                          long endSecondTB) throws IOException {
+    public Logs queryLogs(String metricName,
+                          String serviceId,
+                          String serviceInstanceId,
+                          String endpointId,
+                          String endpointName,
+                          TraceScopeCondition relatedTrace,
+                          LogState state,
+                          Pagination paging,
+                          int from,
+                          int limit,
+                          final long startSecondTB,
+                          final long endSecondTB,
+                          final List<Tag> tags) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 
@@ -70,11 +107,11 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             parameters.add(endSecondTB);
         }
 
-        if (serviceId != Const.NONE) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             sql.append(" and ").append(SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
-        if (serviceInstanceId != Const.NONE) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             sql.append(" and ").append(AbstractLogRecord.SERVICE_INSTANCE_ID).append(" = ?");
             parameters.add(serviceInstanceId);
         }
@@ -82,20 +119,48 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             sql.append(" and ").append(AbstractLogRecord.ENDPOINT_ID).append(" = ?");
             parameters.add(endpointId);
         }
-        if (!Strings.isNullOrEmpty(stateCode)) {
-            sql.append(" and ").append(AbstractLogRecord.STATUS_CODE).append(" = ?");
-            parameters.add(stateCode);
+        if (StringUtil.isNotEmpty(endpointName)) {
+            sql.append(" and ").append(ENDPOINT_NAME).append(" like concat('%',?,'%')");
+            parameters.add(endpointName);
         }
-        if (!Strings.isNullOrEmpty(traceId)) {
-            sql.append(" and ").append(TRACE_ID).append(" = ?");
-            parameters.add(traceId);
+        if (nonNull(relatedTrace)) {
+            if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
+                sql.append(" and ").append(TRACE_ID).append(" = ?");
+                parameters.add(relatedTrace.getTraceId());
+            }
+            if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
+                sql.append(" and ").append(TRACE_SEGMENT_ID).append(" = ?");
+                parameters.add(relatedTrace.getSegmentId());
+            }
+            // TODO add span id
         }
+
         if (LogState.ERROR.equals(state)) {
             sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
             parameters.add(BooleanUtils.booleanToValue(true));
         } else if (LogState.SUCCESS.equals(state)) {
             sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
             parameters.add(BooleanUtils.booleanToValue(false));
+        }
+
+        if (CollectionUtils.isNotEmpty(tags)) {
+            for (final Tag tag : tags) {
+                final int foundIdx = searchableTagKeys.indexOf(tag.getKey());
+                if (foundIdx > -1) {
+                    sql.append(" and (");
+                    for (int i = 0; i < numOfSearchValuesPerTag; i++) {
+                        final String physicalColumn = LogRecord.TAGS + "_" + (foundIdx * numOfSearchValuesPerTag + i);
+                        sql.append(physicalColumn).append(" = ? ");
+                        parameters.add(tag.toString());
+                        if (i != numOfSearchValuesPerTag - 1) {
+                            sql.append(" or ");
+                        }
+                    }
+                    sql.append(")");
+                } else {
+                    return new Logs();
+                }
+            }
         }
 
         Logs logs = new Logs();
@@ -120,7 +185,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setEndpointName(resultSet.getString(ENDPOINT_NAME));
                     log.setTraceId(resultSet.getString(TRACE_ID));
                     log.setTimestamp(resultSet.getString(TIMESTAMP));
-                    log.setStatusCode(resultSet.getString(STATUS_CODE));
+                    log.setError(BooleanUtils.valueToBoolean(resultSet.getInt(IS_ERROR)));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
                     log.setContent(resultSet.getString(CONTENT));
                     logs.getLogs().add(log);

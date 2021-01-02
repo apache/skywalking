@@ -22,9 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogReportServiceGrpc;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.log.ILogProcessService;
-import org.apache.skywalking.oap.server.analyzer.provider.log.LogProcessor;
+import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -39,17 +38,16 @@ public class LogReportServiceHandler extends LogReportServiceGrpc.LogReportServi
     private final ModuleManager moduleManager;
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
-    private LogProcessor logProcessor;
+    private ILogAnalyzerService logAnalyzerService;
 
     public LogReportServiceHandler(final ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
-        this.logProcessor = moduleManager.find(AnalyzerModule.NAME)
-                                         .provider()
-                                         .getService(ILogProcessService.class)
-                                         .createProcessor();
+        this.logAnalyzerService = moduleManager.find(LogAnalyzerModule.NAME)
+                                               .provider()
+                                               .getService(ILogAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
             "log_in_latency", "The process latency of log",
@@ -70,7 +68,7 @@ public class LogReportServiceHandler extends LogReportServiceGrpc.LogReportServi
                 }
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    logProcessor.process(logData);
+                    logAnalyzerService.doAnalysis(logData);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);

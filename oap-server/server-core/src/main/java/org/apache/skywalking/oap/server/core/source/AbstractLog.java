@@ -23,7 +23,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.manual.log.LogTag;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 
 @Setter
@@ -38,11 +38,9 @@ public abstract class AbstractLog extends Source {
     private String traceId;
     private String traceSegmentId;
     private int spanId;
-    private int isError;
-    private String statusCode;
     private ContentType contentType = ContentType.NONE;
     private String content;
-    private List<LogTag> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();
 
     @Override
     public String getEntityId() {

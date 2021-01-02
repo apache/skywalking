@@ -25,6 +25,13 @@ import lombok.Setter;
 @ScopeDeclaration(id = DefaultScopeDefine.LOG, name = "Log")
 public class Log extends AbstractLog {
 
+    private String uniqueId;
+
+    @Override
+    public String getEntityId() {
+        return uniqueId;
+    }
+
     @Override
     public int scope() {
         return DefaultScopeDefine.LOG;

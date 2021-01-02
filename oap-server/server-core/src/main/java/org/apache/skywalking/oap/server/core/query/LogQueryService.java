@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
@@ -45,21 +48,30 @@ public class LogQueryService implements Service {
         return logQueryDAO;
     }
 
-    public Logs queryLogs(final String metricName,
-                          int serviceId,
-                          int serviceInstanceId,
+    public Logs queryLogs(String metricName,
+                          String serviceId,
+                          String serviceInstanceId,
                           String endpointId,
-                          String traceId,
+                          String endpointName,
+                          TraceScopeCondition relatedTrace,
                           LogState state,
-                          String stateCode,
                           Pagination paging,
                           final long startTB,
-                          final long endTB) throws IOException {
+                          final long endTB,
+                          final List<Tag> tags) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        Logs logs = getLogQueryDAO().queryLogs(
-            metricName, serviceId, serviceInstanceId, endpointId, traceId, state, stateCode, paging, page
-                .getFrom(), page.getLimit(), startTB, endTB);
+        Logs logs = getLogQueryDAO().queryLogs(metricName,
+                                               serviceId,
+                                               serviceInstanceId,
+                                               endpointId,
+                                               endpointName,
+                                               relatedTrace,
+                                               state,
+                                               paging,
+                                               page.getFrom(), page.getLimit(),
+                                               startTB, endTB, tags
+        );
         logs.getLogs().forEach(log -> {
             if (StringUtil.isNotEmpty(log.getServiceId())) {
                 final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
@@ -71,7 +83,6 @@ public class LogQueryService implements Service {
                     .analysisId(log.getServiceInstanceId());
                 log.setServiceInstanceName(instanceIDDefinition.getName());
             }
-            log.setEndpointId(log.getEndpointId());
         });
         return logs;
     }

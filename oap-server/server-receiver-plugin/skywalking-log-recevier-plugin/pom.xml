@@ -31,7 +31,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>agent-analyzer</artifactId>
+            <artifactId>log-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

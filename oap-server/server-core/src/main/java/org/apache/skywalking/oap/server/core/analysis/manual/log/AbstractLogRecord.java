@@ -18,19 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
 
 public abstract class AbstractLogRecord extends Record {
 
@@ -42,7 +39,6 @@ public abstract class AbstractLogRecord extends Record {
     public static final String TRACE_SEGMENT_ID = "trace_segment_id";
     public static final String SPAN_ID = "span_id";
     public static final String IS_ERROR = "is_error";
-    public static final String STATUS_CODE = "status_code";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
     public static final String TIMESTAMP = "timestamp";
@@ -66,11 +62,11 @@ public abstract class AbstractLogRecord extends Record {
     private String endpointName;
     @Setter
     @Getter
-    @Column(columnName = TRACE_ID)
+    @Column(columnName = TRACE_ID, length = 150)
     private String traceId;
     @Setter
     @Getter
-    @Column(columnName = TRACE_SEGMENT_ID)
+    @Column(columnName = TRACE_SEGMENT_ID, length = 150)
     private String traceSegmentId;
     @Setter
     @Getter
@@ -82,15 +78,11 @@ public abstract class AbstractLogRecord extends Record {
     private int isError;
     @Setter
     @Getter
-    @Column(columnName = STATUS_CODE)
-    private String statusCode;
-    @Setter
-    @Getter
-    @Column(columnName = CONTENT_TYPE)
+    @Column(columnName = CONTENT_TYPE, storageOnly = true)
     private int contentType = ContentType.NONE.value();
     @Setter
     @Getter
-    @Column(columnName = CONTENT, length = 1_000_000)
+    @Column(columnName = CONTENT, length = 1_000_000, storageOnly = true)
     private String content;
     @Setter
     @Getter
@@ -107,7 +99,7 @@ public abstract class AbstractLogRecord extends Record {
      */
     @Setter
     @Getter
-    private List<LogTag> tagsRawData;
+    private List<Tag> tagsRawData;
 
     @Override
     public String id() {
@@ -116,55 +108,35 @@ public abstract class AbstractLogRecord extends Record {
 
     public static abstract class Builder<T extends AbstractLogRecord> implements StorageBuilder<T> {
 
-        @Override
-        public Map<String, Object> data2Map(AbstractLogRecord record) {
-            Map<String, Object> map = new HashMap<>();
+        protected void data2Map(Map<String, Object> map, AbstractLogRecord record) {
             map.put(SERVICE_ID, record.getServiceId());
+            map.put(SERVICE_INSTANCE_ID, record.getServiceInstanceId());
+            map.put(ENDPOINT_ID, record.getEndpointId());
+            map.put(ENDPOINT_NAME, record.getEndpointName());
+            map.put(TRACE_ID, record.getTraceId());
+            map.put(TRACE_SEGMENT_ID, record.getTraceSegmentId());
+            map.put(SPAN_ID, record.getSpanId());
             map.put(IS_ERROR, record.getIsError());
-            map.put(STATUS_CODE, record.getStatusCode());
             map.put(TIME_BUCKET, record.getTimeBucket());
             map.put(CONTENT_TYPE, record.getContentType());
             map.put(CONTENT, record.getContent());
             map.put(TIMESTAMP, record.getTimestamp());
-            // optional
-            of(record.getServiceInstanceId())
-                .ifPresent(serviceInstanceId -> map.put(SERVICE_INSTANCE_ID, serviceInstanceId));
-            ofNullable(record.getEndpointId())
-                .ifPresent(endpointId -> map.put(ENDPOINT_ID, endpointId));
-            ofNullable(record.getEndpointName())
-                .ifPresent(endpointName -> map.put(ENDPOINT_NAME, endpointName));
-            ofNullable(record.getTraceId())
-                .ifPresent(traceId -> map.put(TRACE_ID, traceId));
-            ofNullable(record.getTraceSegmentId())
-                .ifPresent(traceSegmentId -> {
-                    map.put(TRACE_SEGMENT_ID, traceSegmentId);
-                    map.put(SPAN_ID, record.getSpanId());
-                });
             map.put(TAGS, record.getTags());
-            return map;
         }
 
         protected void map2Data(T record, Map<String, Object> dbMap) {
             record.setServiceId((String) dbMap.get(SERVICE_ID));
+            record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
+            record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
+            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
+            record.setTraceId((String) dbMap.get(TRACE_ID));
+            record.setTraceSegmentId((String) dbMap.get(TRACE_SEGMENT_ID));
+            record.setSpanId(((Number) dbMap.get(SPAN_ID)).intValue());
             record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
-            record.setStatusCode((String) dbMap.get(STATUS_CODE));
             record.setContentType(((Number) dbMap.get(CONTENT_TYPE)).intValue());
             record.setContent((String) dbMap.get(CONTENT));
             record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            // optional
-            ofNullable(dbMap.get(SERVICE_INSTANCE_ID))
-                .ifPresent(
-                    serviceInstanceId -> record.setServiceInstanceId((String) serviceInstanceId));
-            ofNullable(dbMap.get(ENDPOINT_NAME))
-                .ifPresent(endpointName -> record.setEndpointName((String) endpointName));
-            ofNullable(dbMap.get(ENDPOINT_ID))
-                .ifPresent(endpointId -> record.setEndpointId((String) endpointId));
-            ofNullable(dbMap.get(TRACE_ID))
-                .ifPresent(traceId -> record.setTraceId((String) traceId));
-            ofNullable(dbMap.get(TRACE_SEGMENT_ID))
-                .ifPresent(traceSegmentId -> record.setTraceSegmentId((String) traceSegmentId));
-            ofNullable(dbMap.get(SPAN_ID)).ifPresent(spanId -> record.setSpanId(((Number) spanId).intValue()));
         }
     }
 }

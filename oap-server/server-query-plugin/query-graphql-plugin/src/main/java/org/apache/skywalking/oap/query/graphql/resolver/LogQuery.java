@@ -21,11 +21,13 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class LogQuery implements GraphQLQueryResolver {
@@ -44,6 +46,9 @@ public class LogQuery implements GraphQLQueryResolver {
     }
 
     public Logs queryLogs(LogQueryCondition condition) throws IOException {
+        if (isNull(condition.getQueryDuration()) && isNull(condition.getRelatedTrace())) {
+            throw new UnexpectedException("The condition must contains either queryDuration or relatedTrace.");
+        }
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
@@ -52,9 +57,16 @@ public class LogQuery implements GraphQLQueryResolver {
         }
 
         return getQueryService().queryLogs(
-            condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition
-                .getEndpointId(), condition.getTraceId(), condition.getState(), condition.getStateCode(),
-            condition.getPaging(), startSecondTB, endSecondTB
+            condition.getMetricName(),
+            condition.getServiceId(),
+            condition.getServiceInstanceId(),
+            condition.getEndpointId(),
+            condition.getEndpointName(),
+            condition.getRelatedTrace(),
+            condition.getState(),
+            condition.getPaging(),
+            startSecondTB, endSecondTB,
+            condition.getTags()
         );
     }
 }

@@ -21,10 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.log.ILogProcessService;
-import org.apache.skywalking.oap.server.analyzer.provider.log.LogProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -38,15 +37,14 @@ public class LogHandler implements KafkaHandler {
     private final KafkaFetcherConfig config;
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
-    private final LogProcessor logProcessor;
+    private final ILogAnalyzerService logAnalyzerService;
 
     public LogHandler(final ModuleManager moduleManager,
                       final KafkaFetcherConfig config) {
         this.config = config;
-        this.logProcessor = moduleManager.find(AnalyzerModule.NAME)
-                                         .provider()
-                                         .getService(ILogProcessService.class)
-                                         .createProcessor();
+        this.logAnalyzerService = moduleManager.find(LogAnalyzerModule.NAME)
+                                               .provider()
+                                               .getService(ILogAnalyzerService.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
@@ -76,7 +74,7 @@ public class LogHandler implements KafkaHandler {
         HistogramMetrics.Timer timer = histogram.createTimer();
         try {
             LogData logData = LogData.parseFrom(record.value().get());
-            logProcessor.process(logData);
+            logAnalyzerService.doAnalysis(logData);
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);

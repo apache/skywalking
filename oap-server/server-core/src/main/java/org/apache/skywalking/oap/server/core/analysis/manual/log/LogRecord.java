@@ -17,10 +17,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
+import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 
 @SuperDataset
@@ -29,13 +33,35 @@ public class LogRecord extends AbstractLogRecord {
 
     public static final String INDEX_NAME = "log";
 
+    public static final String UNIQUE_ID = "unique_id";
+
+    @Setter
+    @Getter
+    @Column(columnName = UNIQUE_ID)
+    private String uniqueId;
+
+    @Override
+    public String id() {
+        return uniqueId;
+    }
+
     public static class Builder extends AbstractLogRecord.Builder<LogRecord> {
 
         @Override
         public LogRecord map2Data(final Map<String, Object> dbMap) {
-            LogRecord log = new LogRecord();
-            super.map2Data(log, dbMap);
-            return log;
+            LogRecord record = new LogRecord();
+            map2Data(record, dbMap);
+            record.setUniqueId((String) dbMap.get(UNIQUE_ID));
+            return record;
+        }
+
+        @Override
+        public Map<String, Object> data2Map(final LogRecord record) {
+            Map<String, Object> dbMap = new HashMap<>();
+            data2Map(dbMap, record);
+            dbMap.put(UNIQUE_ID, record.getUniqueId());
+            return dbMap;
         }
     }
+
 }
