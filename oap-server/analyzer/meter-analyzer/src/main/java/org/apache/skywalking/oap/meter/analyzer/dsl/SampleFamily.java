@@ -52,6 +52,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -174,11 +175,25 @@ public class SampleFamily {
     }
 
     public SampleFamily avg(List<String> by) {
-        final SampleFamily summation = aggregate(by, Double::sum);
-        for (int i = 0; i < summation.samples.length; i++) {
-            summation.samples[i] = summation.samples[i].newValue(s -> s / summation.samples.length);
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
+        if (this == EMPTY) {
+            return EMPTY;
         }
-        return summation;
+        if (by == null) {
+            double result = Arrays.stream(samples).mapToDouble(s -> s.value).average().orElse(0.0D);
+            return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
+        }
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(sample -> Tuple.of(by.stream()
+                                            .collect(toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
+                  .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
+                  .entrySet().stream()
+                  .map(entry -> newSample(entry.getKey(), entry.getValue().get(0).timestamp, entry.getValue().stream()
+                                                                                                  .mapToDouble(s -> s.value).average().orElse(0.0D)))
+                  .toArray(Sample[]::new)
+        );
     }
 
     protected SampleFamily aggregate(List<String> by, DoubleBinaryOperator aggregator) {
@@ -192,8 +207,7 @@ public class SampleFamily {
         }
         return SampleFamily.build(this.context, Arrays.stream(samples)
             .map(sample -> Tuple.of(by.stream()
-                .collect(ImmutableMap
-                    .toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
+                .collect(toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
             .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
             .entrySet().stream()
             .map(entry -> newSample(entry.getKey(), entry.getValue().get(0).timestamp, entry.getValue().stream()
