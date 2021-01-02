@@ -29,7 +29,6 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 @Setter
 @Getter
 public abstract class AbstractLog extends Source {
-    private long timeBucket;
     private long timestamp;
     private String serviceId;
     private String serviceInstanceId;
