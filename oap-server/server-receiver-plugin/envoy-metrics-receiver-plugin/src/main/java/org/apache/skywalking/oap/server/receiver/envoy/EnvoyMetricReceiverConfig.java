@@ -24,7 +24,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
@@ -38,5 +41,9 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
             return Collections.emptyList();
         }
         return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    }
+
+    public List<Rule> rules() throws ModuleStartException {
+        return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy"));
     }
 }
