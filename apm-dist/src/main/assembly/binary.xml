@@ -51,6 +51,7 @@
                 <include>gateways.yml</include>
                 <include>service-apdex-threshold.yml</include>
                 <include>endpoint-name-grouping.yml</include>
+                <include>metadata-service-mapping.yaml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
                 <include>envoy-metrics-rules/*.yaml</include>
