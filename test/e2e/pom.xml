@@ -41,6 +41,7 @@
         <module>e2e-service-provider</module>
         <module>e2e-service-consumer</module>
         <module>e2e-test</module>
+        <module>e2e-log-producer</module>
     </modules>
 
     <properties>

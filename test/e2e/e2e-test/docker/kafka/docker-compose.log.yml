@@ -31,5 +31,33 @@ services:
         condition: service_healthy
       broker-b:
         condition: service_healthy
+  provider_kafka:
+    build:
+      context: ../../../
+      dockerfile: e2e-test/docker/kafka/Dockerfile.log.producer
+      args:
+        - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
+    networks:
+      - e2e
+    expose:
+      - 8080
+    volumes:
+      - ../../../../jacoco:/jacoco
+    environment:
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
+         -Dbootstrap.service=broker-a:9092,broker-b:9092
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 8080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
+        condition: service_healthy
+      broker-a:
+        condition: service_healthy
+      broker-b:
+        condition: service_healthy
 networks:
   e2e:
