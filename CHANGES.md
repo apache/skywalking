@@ -43,6 +43,7 @@ Release Notes.
 * Fix the uuid field in GRPCConfigWatcherRegister is not updated.
 * Support Envoy {AccessLog,Metrics}Service API V3.
 * Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
+* Fix the priority setting doesn't work of the ALS analyzers.
 
 #### UI
 * Fix un-removed tags in trace query.
