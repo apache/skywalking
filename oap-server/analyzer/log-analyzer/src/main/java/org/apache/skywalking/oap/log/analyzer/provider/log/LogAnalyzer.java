@@ -46,7 +46,7 @@ public class LogAnalyzer {
 
         LogData.Builder builder = logData.toBuilder();
         if (builder.getTimestamp() == 0) {
-            // If not set, OAP server would use the received timestamp as log's timestamp
+            // If no timestamp, OAP server would use the received timestamp as log's timestamp
             builder.setTimestamp(System.currentTimeMillis());
         }
 
