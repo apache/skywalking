@@ -113,7 +113,17 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     public void verifyLog() throws Exception {
-        final List<Log> logs = graphql.logs(new LogsQuery().start(startTime).end(Times.now()));
+        final List<Log> logs = graphql.logs(new LogsQuery().serviceId("ZTJl.1")
+                                                           .serviceInstanceId("ZTJl.1_ZTJlLWluc3RhbmNl")
+                                                           .endpointId("ZTJl.1_L3RyYWZmaWM=")
+                                                           .endpointName("/traffic")
+                                                           .traceId("ac81b308-0d66-4c69-a7af-a023a536bd3e")
+                                                           .segmentId(
+                                                               "6024a2b1fcff48e4a641d69d388bac53.41.16088574455279608")
+                                                           .spanId("0")
+                                                           .tag("status_code", "200")
+                                                           .start(startTime)
+                                                           .end(Times.now()));
         LOGGER.info("logs: {}", logs);
 
         load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);

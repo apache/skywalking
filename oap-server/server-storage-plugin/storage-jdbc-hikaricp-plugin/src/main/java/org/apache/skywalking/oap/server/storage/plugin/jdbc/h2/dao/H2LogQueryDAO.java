@@ -52,6 +52,7 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
@@ -133,7 +134,10 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                 sql.append(" and ").append(TRACE_SEGMENT_ID).append(" = ?");
                 parameters.add(relatedTrace.getSegmentId());
             }
-            // TODO add span id
+            if (nonNull(relatedTrace.getSpanId())) {
+                sql.append(" and ").append(SPAN_ID).append(" = ?");
+                parameters.add(relatedTrace.getSpanId());
+            }
         }
 
         if (LogState.ERROR.equals(state)) {

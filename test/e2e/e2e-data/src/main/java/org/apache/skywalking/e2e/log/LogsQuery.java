@@ -23,6 +23,15 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     private String metricName = "log";
     private String state = "ALL";
+    private String serviceId;
+    private String serviceInstanceId;
+    private String endpointId;
+    private String endpointName;
+    private String traceId;
+    private String segmentId;
+    private String spanId;
+    private String tagKey;
+    private String tagValue;
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
@@ -42,6 +51,83 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     public LogsQuery state(String state) {
         this.state = state;
+        return this;
+    }
+
+    public String serviceId() {
+        return serviceId;
+    }
+
+    public LogsQuery serviceId(String serviceId) {
+        this.serviceId = serviceId;
+        return this;
+    }
+
+    public String serviceInstanceId() {
+        return serviceInstanceId;
+    }
+
+    public LogsQuery serviceInstanceId(String serviceInstanceId) {
+        this.serviceInstanceId = serviceInstanceId;
+        return this;
+    }
+
+    public String endpointId() {
+        return endpointId;
+    }
+
+    public LogsQuery endpointId(String endpointId) {
+        this.endpointId = endpointId;
+        return this;
+    }
+
+    public String endpointName() {
+        return endpointName;
+    }
+
+    public LogsQuery endpointName(String endpointName) {
+        this.endpointName = endpointName;
+        return this;
+    }
+
+    public String traceId() {
+        return traceId;
+    }
+
+    public LogsQuery traceId(String traceId) {
+        this.traceId = traceId;
+        return this;
+    }
+
+    public String segmentId() {
+        return segmentId;
+    }
+
+    public LogsQuery segmentId(String segmentId) {
+        this.segmentId = segmentId;
+        return this;
+    }
+
+    public String spanId() {
+        return spanId;
+    }
+
+    public LogsQuery spanId(String spanId) {
+        this.spanId = spanId;
+        return this;
+    }
+
+    public String tagKey() {
+        return tagKey;
+    }
+
+    public String tagValue() {
+        return tagValue;
+    }
+
+    public LogsQuery tag(String key, String value) {
+        this.tagKey = key;
+        this.tagValue = value;
         return this;
     }
 

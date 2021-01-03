@@ -35,11 +35,26 @@
         "condition": {
             "metricName": "log",
             "state": "ALL",
+            "serviceId": "{serviceId}",
+            "serviceInstanceId": "{serviceInstanceId}",
+            "endpointId": "{endpointId}",
+            "endpointName": "{endpointName}",
+            "relatedTrace": {
+                "traceId": "{traceId}",
+                "segmentId": "{segmentId}",
+                "spanId": {spanId}
+            },
             "queryDuration": {
                 "start": "{start}",
                 "end": "{end}",
                 "step": "{step}"
             },
+            "tags": [
+                {
+                    "key": "{tagKey}",
+                    "value": "{tagValue}"
+                }
+            ],
             "paging": {
                 "pageNum": {pageNum},
                 "pageSize": {pageSize},

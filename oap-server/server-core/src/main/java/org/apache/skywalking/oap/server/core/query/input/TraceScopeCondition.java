@@ -26,5 +26,5 @@ public class TraceScopeCondition {
 
     private String traceId;
     private String segmentId;
-    private int spanId;
+    private Integer spanId;
 }

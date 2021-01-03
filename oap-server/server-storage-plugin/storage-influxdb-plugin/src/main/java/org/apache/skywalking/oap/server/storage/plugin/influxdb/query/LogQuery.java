@@ -52,6 +52,7 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
 import static org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord.TIMESTAMP;
@@ -106,7 +107,9 @@ public class LogQuery implements ILogQueryDAO {
             if (isNotEmpty(relatedTrace.getSegmentId())) {
                 recallQuery.and(eq(TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
             }
-            // TODO add span id
+            if (nonNull(relatedTrace.getSpanId())) {
+                recallQuery.and(eq(SPAN_ID, relatedTrace.getSpanId()));
+            }
         }
 
         switch (state) {

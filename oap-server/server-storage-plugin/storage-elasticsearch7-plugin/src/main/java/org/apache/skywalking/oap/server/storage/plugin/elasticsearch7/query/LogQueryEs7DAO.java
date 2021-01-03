@@ -98,7 +98,10 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
                 boolQueryBuilder.must().add(
                     QueryBuilders.termQuery(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
             }
-            // TODO add span id
+            if (nonNull(relatedTrace.getSpanId())) {
+                boolQueryBuilder.must().add(
+                    QueryBuilders.termQuery(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
+            }
         }
 
         if (LogState.ERROR.equals(state)) {
@@ -133,6 +136,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             log.setServiceInstanceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_INSTANCE_ID));
             log.setEndpointId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID));
             log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
+            log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));
             log.setTimestamp(searchHit.getSourceAsMap().get(AbstractLogRecord.TIMESTAMP).toString());
             log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
                                                                         .get(AbstractLogRecord.IS_ERROR)).intValue()));

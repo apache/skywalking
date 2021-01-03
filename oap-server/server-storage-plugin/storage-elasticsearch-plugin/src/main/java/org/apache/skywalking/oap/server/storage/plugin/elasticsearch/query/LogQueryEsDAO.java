@@ -96,7 +96,10 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                 boolQueryBuilder.must().add(
                     QueryBuilders.termQuery(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
             }
-            // TODO add span id
+            if (nonNull(relatedTrace.getSpanId())) {
+                boolQueryBuilder.must().add(
+                    QueryBuilders.termQuery(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
+            }
         }
         if (LogState.ERROR.equals(state)) {
             boolQueryBuilder.must()
