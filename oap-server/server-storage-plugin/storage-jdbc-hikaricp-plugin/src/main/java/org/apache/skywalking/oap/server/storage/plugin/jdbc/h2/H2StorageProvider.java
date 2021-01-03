@@ -139,7 +139,15 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(h2Client));
-        this.registerServiceImplementation(ILogQueryDAO.class, new H2LogQueryDAO(h2Client));
+        this.registerServiceImplementation(
+            ILogQueryDAO.class,
+            new H2LogQueryDAO(
+                h2Client,
+                getManager(),
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()
+            )
+        );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(h2Client));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(h2Client));

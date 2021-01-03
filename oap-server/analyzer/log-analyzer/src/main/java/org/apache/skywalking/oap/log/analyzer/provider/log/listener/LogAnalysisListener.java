@@ -32,5 +32,5 @@ public interface LogAnalysisListener {
     /**
      * Parse the raw data from the probe.
      */
-    void parse(LogData logData);
+    void parse(LogData.Builder logData);
 }

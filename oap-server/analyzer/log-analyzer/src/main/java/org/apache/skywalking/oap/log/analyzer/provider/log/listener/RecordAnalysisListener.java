@@ -57,18 +57,12 @@ public class RecordAnalysisListener implements LogAnalysisListener {
     }
 
     @Override
-    public void parse(final LogData logData) {
+    public void parse(final LogData.Builder logData) {
         LogDataBody body = logData.getBody();
         log.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
         // timestamp
-        long timestamp;
-        if (logData.getTimestamp() == 0) {
-            timestamp = System.currentTimeMillis();
-        } else {
-            timestamp = logData.getTimestamp();
-        }
-        log.setTimestamp(timestamp);
-        log.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
+        log.setTimestamp(logData.getTimestamp());
+        log.setTimeBucket(TimeBucket.getRecordTimeBucket(logData.getTimestamp()));
 
         // service
         String serviceName = namingControl.formatServiceName(logData.getService());
@@ -110,7 +104,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         log.getTags().addAll(appendSearchableTags(logData));
     }
 
-    private Collection<Tag> appendSearchableTags(LogData logData) {
+    private Collection<Tag> appendSearchableTags(LogData.Builder logData) {
         HashSet<Tag> logTags = new HashSet<>();
         logData.getTagsList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {

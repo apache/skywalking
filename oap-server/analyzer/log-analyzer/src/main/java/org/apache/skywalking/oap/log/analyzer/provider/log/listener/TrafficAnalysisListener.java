@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -60,14 +61,8 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
     }
 
     @Override
-    public void parse(final LogData logData) {
-        long timeBucket;
-        if (logData.getTimestamp() == 0) {
-            timeBucket = TimeBucket.getRecordTimeBucket(System.currentTimeMillis());
-        } else {
-            timeBucket = TimeBucket.getRecordTimeBucket(logData.getTimestamp());
-        }
-        TimeBucket.getRecordTimeBucket(timeBucket);
+    public void parse(final LogData.Builder logData) {
+        final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // service
         String serviceName = namingControl.formatServiceName(logData.getService());
         String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);

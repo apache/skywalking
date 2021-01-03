@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO;
 
 public class MySQLLogQueryDAO extends H2LogQueryDAO {
 
-    public MySQLLogQueryDAO(JDBCHikariCPClient h2Client) {
-        super(h2Client);
+    public MySQLLogQueryDAO(final JDBCHikariCPClient h2Client,
+                            final ModuleManager manager,
+                            final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
+        super(h2Client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
     }
 
     @Override

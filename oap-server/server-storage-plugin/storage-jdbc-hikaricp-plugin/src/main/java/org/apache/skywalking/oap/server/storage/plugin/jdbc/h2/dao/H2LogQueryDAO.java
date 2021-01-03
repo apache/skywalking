@@ -58,7 +58,9 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 
 public class H2LogQueryDAO implements ILogQueryDAO {
     private final JDBCHikariCPClient h2Client;
-    private int numOfSearchValuesPerTag;
+    private final ModuleManager manager;
+    private final int maxSizeOfArrayColumn;
+    private final int numOfSearchValuesPerTag;
     private List<String> searchableTagKeys;
 
     public H2LogQueryDAO(final JDBCHikariCPClient h2Client,
@@ -66,19 +68,9 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                          final int maxSizeOfArrayColumn,
                          final int numOfSearchValuesPerTag) {
         this.h2Client = h2Client;
+        this.manager = manager;
+        this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
         this.numOfSearchValuesPerTag = numOfSearchValuesPerTag;
-        final ConfigService configService = manager.find(CoreModule.NAME)
-                                                   .provider()
-                                                   .getService(ConfigService.class);
-        List<String> searchableTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
-        if (searchableTagKeys.size() > maxSizeOfArrayColumn) {
-            searchableTagKeys = searchableTagKeys.subList(0, maxSizeOfArrayColumn);
-        }
-        this.searchableTagKeys = searchableTagKeys;
-    }
-
-    public H2LogQueryDAO(JDBCHikariCPClient h2Client) {
-        this.h2Client = h2Client;
     }
 
     @Override
@@ -95,6 +87,15 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                           final long startSecondTB,
                           final long endSecondTB,
                           final List<Tag> tags) throws IOException {
+        if (searchableTagKeys == null) {
+            final ConfigService configService = manager.find(CoreModule.NAME)
+                                                       .provider()
+                                                       .getService(ConfigService.class);
+            searchableTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
+            if (searchableTagKeys.size() > maxSizeOfArrayColumn) {
+                searchableTagKeys = searchableTagKeys.subList(0, maxSizeOfArrayColumn);
+            }
+        }
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 

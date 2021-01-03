@@ -144,7 +144,6 @@ public class LogE2E extends SkyWalkingTestAdapter {
     private boolean sendLog() {
         try {
             LogData logData = LogData.newBuilder()
-                                     .setTimestamp(System.currentTimeMillis())
                                      .setService("e2e")
                                      .setServiceInstance("e2e-instance")
                                      .setEndpoint("/traffic")

@@ -129,7 +129,15 @@ public class TiDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
-        this.registerServiceImplementation(ILogQueryDAO.class, new MySQLLogQueryDAO(mysqlClient));
+        this.registerServiceImplementation(
+            ILogQueryDAO.class,
+            new MySQLLogQueryDAO(
+                mysqlClient,
+                getManager(),
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()
+            )
+        );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));

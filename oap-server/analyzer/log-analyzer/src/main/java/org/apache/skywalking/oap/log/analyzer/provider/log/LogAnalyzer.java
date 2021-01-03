@@ -20,11 +20,14 @@ package org.apache.skywalking.oap.log.analyzer.provider.log;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+@Slf4j
 @RequiredArgsConstructor
 public class LogAnalyzer {
     private final ModuleManager moduleManager;
@@ -34,14 +37,25 @@ public class LogAnalyzer {
     private final List<LogAnalysisListener> listeners = new ArrayList<>();
 
     public void doAnalysis(LogData logData) {
+        if (StringUtil.isEmpty(logData.getService())) {
+            // If the service name is empty, the log will be ignored.
+            log.debug("The log is ignored because the Service name is empty");
+            return;
+        }
         createListeners();
 
-        notifyListener(logData);
+        LogData.Builder builder = logData.toBuilder();
+        if (builder.getTimestamp() == 0) {
+            // If not set, OAP server would use the received timestamp as log's timestamp
+            builder.setTimestamp(System.currentTimeMillis());
+        }
+
+        notifyListener(builder);
         notifyListenerToBuild();
     }
 
-    private void notifyListener(LogData logData) {
-        listeners.forEach(listener -> listener.parse(logData));
+    private void notifyListener(LogData.Builder builder) {
+        listeners.forEach(listener -> listener.parse(builder));
     }
 
     private void notifyListenerToBuild() {
