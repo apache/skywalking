@@ -56,7 +56,7 @@ calls:
       - SERVER
   - id: not null
     source: ZTJlOjpwcm9kdWN0cGFnZQ==.1
-    target: ZGV0YWlscw==.1
+    target: ZTJlOjpkZXRhaWxz.1
     detectPoints:
       - CLIENT
       - SERVER
