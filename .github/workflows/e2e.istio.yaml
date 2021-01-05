@@ -71,7 +71,9 @@ jobs:
           cd skywalking-kubernetes
           git reset --hard dd749f25913830c47a97430618cefc4167612e75
           cd chart
-          mkdir -p skywalking/files/conf.d/oap/ && echo 'serviceName: e2e::${LABELS.app}\nserviceInstanceName: ${NAME}' > skywalking/files/conf.d/oap/metadata-service-mapping.yaml
+          mkdir -p skywalking/files/conf.d/oap/ && \
+              echo 'serviceName: e2e::${LABELS.app}' > skywalking/files/conf.d/oap/metadata-service-mapping.yaml && \
+              echo 'serviceInstanceName: ${NAME}' >> skywalking/files/conf.d/oap/metadata-service-mapping.yaml
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \
                --set fullnameOverride=skywalking \
@@ -90,7 +92,7 @@ jobs:
           kubectl -n istio-system get pods
 
           sleep 3
-          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
+          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=300s
           kubectl get pods -A -o wide --show-labels
           kubectl get services -A -o wide
 
@@ -184,7 +186,7 @@ jobs:
           kubectl -n istio-system get pods
 
           sleep 3
-          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
+          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=300s
           kubectl get pods -A -o wide --show-labels
           kubectl get services -A -o wide
 
