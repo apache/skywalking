@@ -71,6 +71,7 @@ jobs:
           cd skywalking-kubernetes
           git reset --hard dd749f25913830c47a97430618cefc4167612e75
           cd chart
+          mkdir -p skywalking/files/conf.d/oap/ && echo 'serviceName: e2e::${LABELS.app}\nserviceInstanceName: ${NAME}' > skywalking/files/conf.d/oap/metadata-service-mapping.yaml
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \
                --set fullnameOverride=skywalking \
@@ -78,6 +79,7 @@ jobs:
                --set elasticsearch.minimumMasterNodes=1 \
                --set elasticsearch.imageTag=7.5.1 \
                --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=${{ matrix.analyzer }} \
+               --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
                --set oap.envoy.als.enabled=true \
                --set oap.replicas=1 \
                --set ui.image.repository=skywalking/ui \

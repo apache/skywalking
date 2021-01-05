@@ -15,22 +15,22 @@
 
 nodes:
   - id: not null
-    name: ratings
+    name: e2e::ratings
     type: http
     isReal: true
   - id: not null
-    name: reviews
+    name: e2e::reviews
     type: http
     isReal: true
   - id: not null
-    name: productpage
+    name: e2e::productpage
     isReal: true
   - id: not null
-    name: details
+    name: e2e::details
     type: http
     isReal: true
   - id: not null
-    name: istio-ingressgateway
+    name: e2e::istio-ingressgateway
     type: http
     isReal: true
   - id: not null
@@ -39,30 +39,30 @@ nodes:
 calls:
   - id: not null
     source: VU5LTk9XTg==.1
-    target: aXN0aW8taW5ncmVzc2dhdGV3YXk=.1
+    target: ZTJlOjppc3Rpby1pbmdyZXNzZ2F0ZXdheQ==.1
     detectPoints:
       - SERVER
   - id: not null
-    source: aXN0aW8taW5ncmVzc2dhdGV3YXk=.1
-    target: cHJvZHVjdHBhZ2U=.1
-    detectPoints:
-      - CLIENT
-      - SERVER
-  - id: not null
-    source: cHJvZHVjdHBhZ2U=.1
-    target: cmV2aWV3cw==.1
+    source: ZTJlOjppc3Rpby1pbmdyZXNzZ2F0ZXdheQ==.1
+    target: ZTJlOjpwcm9kdWN0cGFnZQ==.1
     detectPoints:
       - CLIENT
       - SERVER
   - id: not null
-    source: cHJvZHVjdHBhZ2U=.1
+    source: ZTJlOjpwcm9kdWN0cGFnZQ==.1
+    target: ZTJlOjpyZXZpZXdz.1
+    detectPoints:
+      - CLIENT
+      - SERVER
+  - id: not null
+    source: ZTJlOjpwcm9kdWN0cGFnZQ==.1
     target: ZGV0YWlscw==.1
     detectPoints:
       - CLIENT
       - SERVER
   - id: not null
-    source: cmV2aWV3cw==.1
-    target: cmF0aW5ncw==.1
+    source: ZTJlOjpyZXZpZXdz.1
+    target: ZTJlOjpyYXRpbmdz.1
     detectPoints:
       - CLIENT
       - SERVER
