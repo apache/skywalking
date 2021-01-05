@@ -63,6 +63,8 @@ Release Notes.
 * Fix topology render all services nodes when groups changed.
 * Fix rk-footer utc input's width.
 * Update rk-icon and rewrite rk-header svg tags with rk-icon.
+* Fix rk-footer utc without local storage.
+* Sort group names in the topology.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
