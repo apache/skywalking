@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.mssql.jdbc.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.mssql.commons.define.AbstractConnectionInstrumentation;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
