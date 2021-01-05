@@ -92,7 +92,7 @@ jobs:
           kubectl -n istio-system get pods
 
           sleep 3
-          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=300s
+          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
           kubectl get pods -A -o wide --show-labels
           kubectl get services -A -o wide
 
@@ -186,7 +186,7 @@ jobs:
           kubectl -n istio-system get pods
 
           sleep 3
-          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=300s
+          kubectl -n istio-system wait --for=condition=available deployments/skywalking-oap --timeout=1200s
           kubectl get pods -A -o wide --show-labels
           kubectl get services -A -o wide
 
