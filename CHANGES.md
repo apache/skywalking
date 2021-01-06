@@ -23,6 +23,7 @@ Release Notes.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
 * Add Dolphinscheduler plugin definition.
+* Fix bug that rocketmq-plugin set the wrong tag.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
