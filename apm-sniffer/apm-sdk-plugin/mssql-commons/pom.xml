@@ -24,14 +24,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-mssql-jtds-1.x-plugin</artifactId>
+    <artifactId>apm-mssql-commons</artifactId>
     <packaging>jar</packaging>
 
-    <name>mssql-jtds-1.x-plugin</name>
+    <name>apm-mssql-commons</name>
     <url>http://maven.apache.org</url>
 
     <properties>
-        <mssql-jtds.version>1.2.6</mssql-jtds.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -41,18 +41,13 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-mssql-commons</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
-            <version>${mssql-jtds.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
