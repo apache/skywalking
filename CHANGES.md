@@ -23,6 +23,7 @@ Release Notes.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
 * Add Dolphinscheduler plugin definition.
+* make sampling still works when the trace ignores plug-in activation.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
