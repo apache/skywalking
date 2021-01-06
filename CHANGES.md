@@ -45,6 +45,8 @@ Release Notes.
 * Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
 * Fix the priority setting doesn't work of the ALS analyzers.
 * Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
+* Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
+* Add zero value judgment before set "time_bucket" query parameter in influxdb storage plugin.
 
 #### UI
 * Fix un-removed tags in trace query.
