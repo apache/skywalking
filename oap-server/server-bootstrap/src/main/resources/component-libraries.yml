@@ -347,6 +347,9 @@ mssql-jdbc-driver:
 Apache-CXF:
   id: 105
   languages: Java
+dolphinscheduler:
+  id: 106
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

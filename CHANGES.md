@@ -23,6 +23,7 @@ Release Notes.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
+* Add Dolphinscheduler plugin definition.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -67,6 +68,7 @@ Release Notes.
 * Add icon for http type.
 * Fix rk-footer utc without local storage.
 * Sort group names in the topology.
+* Add logo for Dolphinscheduler.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
