@@ -98,7 +98,6 @@ metrics based on the tracing data.
   * [Spring @Scheduled](https://github.com/spring-projects/spring-framework) 3.1+
   * [Quartz Scheduler](https://github.com/quartz-scheduler/quartz) 2.x (Optional²)
   * [XXL Job](https://github.com/xuxueli/xxl-job) 2.x
-  * [Dolphinscheduler](https://github.com/apache/incubator-dolphinscheduler)
 * OpenTracing community supported
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON
