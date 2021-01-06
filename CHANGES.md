@@ -68,6 +68,9 @@ Release Notes.
 * Fix rk-footer utc without local storage.
 * Sort group names in the topology.
 * Add logo for Dolphinscheduler.
+* Fix dashboard wrong instance.
+* Add a legend for topology.
+* Update the condition of error cube.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
