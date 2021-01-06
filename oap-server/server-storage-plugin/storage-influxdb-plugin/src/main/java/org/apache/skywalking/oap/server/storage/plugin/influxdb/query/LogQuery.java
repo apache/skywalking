@@ -98,9 +98,10 @@ public class LogQuery implements ILogQueryDAO {
         if (!Strings.isNullOrEmpty(stateCode)) {
             recallQuery.and(eq(STATUS_CODE, stateCode));
         }
-        recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
-                   .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
-
+        if (startTB != 0 && endTB != 0) {
+            recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
+                       .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
+        }
         if (from > Const.NONE) {
             recallQuery.limit(limit, from);
         } else {
