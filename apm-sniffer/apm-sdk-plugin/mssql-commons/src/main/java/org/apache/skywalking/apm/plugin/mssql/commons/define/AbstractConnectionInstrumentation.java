@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mssql.jtds.v1.define;
+package org.apache.skywalking.apm.plugin.mssql.commons.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -32,10 +32,10 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  * {@link AbstractConnectionInstrumentation} define how to enhance the following methods that the class which extend
  * {@link java.sql.Connection}.
  * <p>
- * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
- * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
- * 3. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCStatementInterceptor</code>
- * 4. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
+ * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.mssql.commons.CreatePreparedStatementInterceptor</code>
+ * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.mssql.commons.CreateCallableStatementInterceptor</code>
+ * 3. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.mssql.commons.CreateStatementInterceptor</code>
+ * 4. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.ConnectionServiceMethodInterceptor</code>
  */
 public abstract class AbstractConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -50,44 +50,12 @@ public abstract class AbstractConnectionInstrumentation extends ClassInstanceMet
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME).and(takesArguments(1));
+                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME);
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return Constants.PREPARE_STATEMENT_INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME).and(takesArguments(3));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return Constants.PREPARE_STATEMENT_INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME).and(takesArguments(4));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return Constants.PREPARE_STATEMENT_INTERCEPT_CLASS;
+                    return org.apache.skywalking.apm.plugin.mssql.commons.Constants.CREATE_PREPARED_STATEMENT_INTERCEPTOR;
                 }
 
                 @Override
@@ -103,7 +71,7 @@ public abstract class AbstractConnectionInstrumentation extends ClassInstanceMet
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return Constants.PREPARE_CALL_INTERCEPT_CLASS;
+                    return org.apache.skywalking.apm.plugin.mssql.commons.Constants.CREATE_CALLABLE_STATEMENT_INTERCEPTOR;
                 }
 
                 @Override
@@ -114,12 +82,12 @@ public abstract class AbstractConnectionInstrumentation extends ClassInstanceMet
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.CREATE_STATEMENT_METHOD_NAME);
+                    return named(Constants.CREATE_STATEMENT_METHOD_NAME).and(takesArguments(2));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return Constants.CREATE_STATEMENT_INTERCEPT_CLASS;
+                    return org.apache.skywalking.apm.plugin.mssql.commons.Constants.CREATE_STATEMENT_INTERCEPTOR;
                 }
 
                 @Override
@@ -146,5 +114,6 @@ public abstract class AbstractConnectionInstrumentation extends ClassInstanceMet
                 }
             }
         };
+
     }
 }
