@@ -16,7 +16,20 @@
  *
  */
 
-// Envoy instance metrics
-envoy_heap_memory_max_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.memory_heap_size").maxDouble();
-envoy_total_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.total_connections").maxDouble();
-envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.parent_connections").maxDouble();
+package org.apache.skywalking.oap.server.receiver.envoy;
+
+import io.envoyproxy.envoy.service.accesslog.v3.AccessLogServiceGrpc;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class AccessLogServiceGRPCHandlerV3 extends AccessLogServiceGrpc.AccessLogServiceImplBase {
+    private final AccessLogServiceGRPCHandler delegate;
+
+    @Override
+    public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(final StreamObserver<StreamAccessLogsResponse> responseObserver) {
+        return delegate.streamAccessLogs(responseObserver);
+    }
+}

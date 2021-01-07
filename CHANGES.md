@@ -8,6 +8,7 @@ Release Notes.
 * Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 * Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; The OAP server supports previous agent releases, whereas the previous OAP server (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
+* Add ElasticSearch 7.10 to test matrix and verify it works.
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
@@ -23,6 +24,8 @@ Release Notes.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
 * Add witness method mechanism in the agent plugin core.
+* Add Dolphinscheduler plugin definition.
+* Fix mssql-plugin occur ClassCastException when call the method of return generate key.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -41,6 +44,12 @@ Release Notes.
 * Add JavaScript component ID.
 * Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
 * Improve query performance in storage-influxdb-plugin.
+* Fix the uuid field in GRPCConfigWatcherRegister is not updated.
+* Support Envoy {AccessLog,Metrics}Service API V3.
+* Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
+* Fix the priority setting doesn't work of the ALS analyzers.
+* Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
+* Fix bug that istio version metric type on UI template mismatches the otel rule.
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -59,6 +68,13 @@ Release Notes.
 * Fix topology render all services nodes when groups changed.
 * Fix rk-footer utc input's width.
 * Update rk-icon and rewrite rk-header svg tags with rk-icon.
+* Add icon for http type.
+* Fix rk-footer utc without local storage.
+* Sort group names in the topology.
+* Add logo for Dolphinscheduler.
+* Fix dashboard wrong instance.
+* Add a legend for the topology.
+* Update the condition of unhealthy cube.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

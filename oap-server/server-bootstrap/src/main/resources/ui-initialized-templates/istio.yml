@@ -41,9 +41,9 @@ templates:
                   "height": 350,
                   "entityType": "Service",
                   "independentSelector": false,
-                  "metricType": "REGULAR_VALUE",
+                  "metricType": "LABELED_VALUE",
                   "metricName": "meter_istio_pilot_version",
-                  "queryMetricType": "readMetricsValues",
+                  "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartArea"
                 },
                 {

@@ -18,18 +18,18 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+import io.envoyproxy.envoy.service.metrics.v3.MetricsServiceGrpc;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsMessage;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsResponse;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
 
-/**
- * Envoy OAl script includes the metrics related to Envoy only.
- */
-public class EnvoyOALDefine  extends OALDefine {
-    public static final EnvoyOALDefine INSTANCE = new EnvoyOALDefine();
+@RequiredArgsConstructor
+public class MetricServiceGRPCHandlerV3 extends MetricsServiceGrpc.MetricsServiceImplBase {
+    private final MetricServiceGRPCHandler delegate;
 
-    private EnvoyOALDefine() {
-        super(
-            "oal/envoy.oal",
-            "org.apache.skywalking.oap.server.core.source"
-        );
+    @Override
+    public StreamObserver<StreamMetricsMessage> streamMetrics(final StreamObserver<StreamMetricsResponse> responseObserver) {
+        return delegate.streamMetrics(responseObserver);
     }
 }
