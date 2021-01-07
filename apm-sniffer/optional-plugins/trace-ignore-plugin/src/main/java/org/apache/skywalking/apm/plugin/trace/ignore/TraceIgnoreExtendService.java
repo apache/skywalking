@@ -37,6 +37,8 @@ public class TraceIgnoreExtendService extends SamplingService {
 
     @Override
     public void boot() {
+        super.boot();
+
         IgnoreConfigInitializer.initialize();
         if (StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
             patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
@@ -53,6 +55,7 @@ public class TraceIgnoreExtendService extends SamplingService {
 
     @Override
     public void shutdown() {
+        super.shutdown();
     }
 
     @Override
@@ -65,10 +68,11 @@ public class TraceIgnoreExtendService extends SamplingService {
                 }
             }
         }
-        return true;
+        return super.trySampling(operationName);
     }
 
     @Override
     public void forceSampled() {
+        super.forceSampled();
     }
 }
