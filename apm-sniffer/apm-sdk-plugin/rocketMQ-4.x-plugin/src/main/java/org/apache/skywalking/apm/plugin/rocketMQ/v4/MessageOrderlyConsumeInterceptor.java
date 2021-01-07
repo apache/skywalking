@@ -40,7 +40,7 @@ public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInte
         if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
-            Tags.STATUS_CODE.set(activeSpan, status.name());
+            Tags.MQ_STATUS.set(activeSpan, status.name());
         }
         ContextManager.stopSpan();
         return ret;
