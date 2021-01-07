@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.dubbo;
 
+import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
@@ -123,6 +124,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      */
     private String generateOperationName(URL requestURL, Invocation invocation) {
         StringBuilder operationName = new StringBuilder();
+        String group = requestURL.getParameter(Constants.GROUP_KEY);
+        group = null == group ? "" : group;
+        operationName.append(group);
         operationName.append(requestURL.getPath());
         operationName.append("." + invocation.getMethodName() + "(");
         for (Class<?> classes : invocation.getParameterTypes()) {
