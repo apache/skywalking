@@ -26,6 +26,7 @@ Release Notes.
 * Add Dolphinscheduler plugin definition.
 * Make sampling still works when the trace ignores plug-in activation.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
+* Fix bug that rocketmq-plugin set the wrong tag.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
