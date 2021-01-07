@@ -104,6 +104,7 @@
         <module>httpclient-commons</module>
         <module>asynchttpclient-2.x-plugin</module>
         <module>dbcp-2.x-plugin</module>
+        <module>mssql-commons</module>
         <module>mssql-jtds-1.x-plugin</module>
         <module>mssql-jdbc-plugin</module>
         <module>cxf-3.x-plugin</module>
