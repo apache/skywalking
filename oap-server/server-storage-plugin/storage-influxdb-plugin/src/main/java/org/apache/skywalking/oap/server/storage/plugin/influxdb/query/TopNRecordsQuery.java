@@ -101,8 +101,8 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
     }
 
     private static final Comparator<SelectedRecord> ASCENDING = Comparator.comparingLong(
-        a -> Long.parseLong(a.getValue()));
+        a -> ((Number) Double.parseDouble(a.getValue())).longValue());
 
     private static final Comparator<SelectedRecord> DESCENDING = (a, b) -> Long.compare(
-        Long.parseLong(b.getValue()), Long.parseLong(a.getValue()));
+        ((Number) Double.parseDouble(b.getValue())).longValue(), ((Number) Double.parseDouble(a.getValue())).longValue());
 }
