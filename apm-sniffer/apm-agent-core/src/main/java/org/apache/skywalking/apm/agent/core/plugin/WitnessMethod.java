@@ -16,21 +16,30 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mssql.jdbc.define;
+package org.apache.skywalking.apm.agent.core.plugin;
 
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.mssql.commons.define.AbstractConnectionInstrumentation;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
 
 /**
- * {@link ConnectionInstrumentation} presents that skywalking intercepts {@link com.microsoft.sqlserver.jdbc.SQLServerConnection}.
+ * Witness Method for plugin activation
  */
-public class ConnectionInstrumentation extends AbstractConnectionInstrumentation {
-    public static final String ENHANCE_SQL_SERVER_CONNECTION_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerConnection";
+@ToString
+@RequiredArgsConstructor
+public class WitnessMethod {
 
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_SQL_SERVER_CONNECTION_CLASS);
-    }
+    /**
+     * the class or interface name where the witness method is declared.
+     */
+    @Getter
+    private final String declaringClassName;
+    /**
+     * matcher to match the witness method
+     */
+    @Getter
+    private final ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;
+
 }

@@ -8,6 +8,7 @@ Release Notes.
 * Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 * Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; The OAP server supports previous agent releases, whereas the previous OAP server (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
+* Add ElasticSearch 7.10 to test matrix and verify it works.
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
@@ -22,6 +23,11 @@ Release Notes.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
+* Add witness method mechanism in the agent plugin core.
+* Add Dolphinscheduler plugin definition.
+* Make sampling still works when the trace ignores plug-in activation.
+* Fix mssql-plugin occur ClassCastException when call the method of return generate key.
+* Fix bug that rocketmq-plugin set the wrong tag.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -46,7 +52,8 @@ Release Notes.
 * Fix the priority setting doesn't work of the ALS analyzers.
 * Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
-* Add zero value judgment before set "time_bucket" query parameter in influxdb storage plugin.
+* Fix bug that istio version metric type on UI template mismatches the otel rule.
+* Improve ReadWriteSafeCache concurrency read-write performance
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -68,6 +75,10 @@ Release Notes.
 * Add icon for http type.
 * Fix rk-footer utc without local storage.
 * Sort group names in the topology.
+* Add logo for Dolphinscheduler.
+* Fix dashboard wrong instance.
+* Add a legend for the topology.
+* Update the condition of unhealthy cube.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

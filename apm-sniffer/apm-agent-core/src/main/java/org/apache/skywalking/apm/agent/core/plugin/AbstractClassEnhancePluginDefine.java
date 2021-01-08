@@ -27,7 +27,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import java.util.List;
 
 /**
  * Basic abstract class of all sky-walking auto-instrumentation plugins.
@@ -57,15 +60,24 @@ public abstract class AbstractClassEnhancePluginDefine {
         }
 
         LOGGER.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
-
+        WitnessFinder finder = WitnessFinder.INSTANCE;
         /**
          * find witness classes for enhance class
          */
         String[] witnessClasses = witnessClasses();
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
-                if (!WitnessClassFinder.INSTANCE.exist(witnessClass, classLoader)) {
+                if (!finder.exist(witnessClass, classLoader)) {
                     LOGGER.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName, witnessClass);
+                    return null;
+                }
+            }
+        }
+        List<WitnessMethod> witnessMethods = witnessMethods();
+        if (!CollectionUtil.isEmpty(witnessMethods)) {
+            for (WitnessMethod witnessMethod : witnessMethods) {
+                if (!finder.exist(witnessMethod, classLoader)) {
+                    LOGGER.warn("enhance class {} by plugin {} is not working. Because witness method {} is not existed.", transformClassName, interceptorDefineClassName, witnessMethod);
                     return null;
                 }
             }
@@ -102,6 +114,10 @@ public abstract class AbstractClassEnhancePluginDefine {
      */
     protected String[] witnessClasses() {
         return new String[] {};
+    }
+
+    protected List<WitnessMethod> witnessMethods() {
+        return null;
     }
 
     public boolean isBootstrapInstrumentation() {

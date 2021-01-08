@@ -16,52 +16,34 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.rocketMQ.v4;
+package org.apache.skywalking.apm.plugin.mssql.commons;
 
 import java.lang.reflect.Method;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.client.producer.SendStatus;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.rocketMQ.v4.define.SendCallBackEnhanceInfo;
+import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-/**
- * {@link OnSuccessInterceptor} create local span when the method {@link org.apache.rocketmq.client.producer.SendCallback#onSuccess(SendResult)}
- * execute.
- */
-public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
-
-    public static final String CALLBACK_OPERATION_NAME_PREFIX = "RocketMQ/";
-
+public class CreateCallableStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        AbstractSpan activeSpan = ContextManager.createLocalSpan(CALLBACK_OPERATION_NAME_PREFIX + enhanceInfo.getTopicId() + "/Producer/Callback");
-        activeSpan.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
-        SendStatus sendStatus = ((SendResult) allArguments[0]).getSendStatus();
-        if (sendStatus != SendStatus.SEND_OK) {
-            activeSpan.errorOccurred();
-            Tags.MQ_STATUS.set(activeSpan, sendStatus.name());
-        }
-        ContextManager.continued(enhanceInfo.getContextSnapshot());
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        if (ret instanceof EnhancedInstance) {
+            ((EnhancedInstance) ret).setSkyWalkingDynamicField(new StatementEnhanceInfos((ConnectionInfo) objInst.getSkyWalkingDynamicField(), (String) allArguments[0], "CallableStatement"));
+        }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().log(t);
+
     }
 }

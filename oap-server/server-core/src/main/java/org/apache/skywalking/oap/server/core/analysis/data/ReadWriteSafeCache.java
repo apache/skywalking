@@ -85,10 +85,10 @@ public class ReadWriteSafeCache<T> {
             BufferedData<T> tempPointer = writeBufferPointer;
             writeBufferPointer = readBufferPointer;
             readBufferPointer = tempPointer;
-
-            return readBufferPointer.read();
         } finally {
             lock.unlock();
         }
+        // Call read method outside of write lock for concurrency read-write.
+        return readBufferPointer.read();
     }
 }
