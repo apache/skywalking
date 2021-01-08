@@ -52,6 +52,7 @@ Release Notes.
 * Fix the priority setting doesn't work of the ALS analyzers.
 * Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
 * Fix bug that istio version metric type on UI template mismatches the otel rule.
+* Improve ReadWriteSafeCache concurrency read-write performance
 
 #### UI
 * Fix un-removed tags in trace query.
