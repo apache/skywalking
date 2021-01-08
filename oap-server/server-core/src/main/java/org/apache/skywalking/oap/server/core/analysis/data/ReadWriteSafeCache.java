@@ -34,13 +34,9 @@ public class ReadWriteSafeCache<T> {
      */
     private volatile BufferedData<T> writeBufferPointer;
     /**
-     * Write-buffer lock.
-     *
-     * Access of read-buffer is no need to be locked,
-     * because only {@link org.apache.skywalking.oap.server.core.storage.PersistenceTimer}
-     * thread reads data from read-buffer. No concurrency reading exists.
+     * Read/Write lock.
      */
-    private final ReentrantLock writeLock;
+    private final ReentrantLock lock;
 
     /**
      * Build the Cache through two given buffer instances.
@@ -51,7 +47,7 @@ public class ReadWriteSafeCache<T> {
     public ReadWriteSafeCache(BufferedData<T> buffer1, BufferedData<T> buffer2) {
         readBufferPointer = buffer1;
         writeBufferPointer = buffer2;
-        writeLock = new ReentrantLock();
+        lock = new ReentrantLock();
     }
 
     /**
@@ -60,11 +56,11 @@ public class ReadWriteSafeCache<T> {
      * @param data to enqueue.
      */
     public void write(T data) {
-        writeLock.lock();
+        lock.lock();
         try {
             writeBufferPointer.accept(data);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -74,23 +70,23 @@ public class ReadWriteSafeCache<T> {
      * @param data to enqueue.
      */
     public void write(List<T> data) {
-        writeLock.lock();
+        lock.lock();
         try {
             data.forEach(writeBufferPointer::accept);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
     public List<T> read() {
-        writeLock.lock();
+        lock.lock();
         try {
             // Switch the read and write pointers, when there is no writing.
             BufferedData<T> tempPointer = writeBufferPointer;
             writeBufferPointer = readBufferPointer;
             readBufferPointer = tempPointer;
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
         // Call read method outside of write lock for concurrency read-write.
         return readBufferPointer.read();
