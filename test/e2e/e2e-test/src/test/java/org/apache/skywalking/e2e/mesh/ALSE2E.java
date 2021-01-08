@@ -76,10 +76,10 @@ public class ALSE2E extends SkyWalkingTestAdapter {
 
     private final Map<Predicate<Service>, String> serviceEndpointExpectedDataFiles =
         ImmutableMap.<Predicate<Service>, String>builder()
-            .put(service -> service.getLabel().startsWith("ratings"), "expected/als/endpoints-ratings.yml")
-            .put(service -> service.getLabel().startsWith("details"), "expected/als/endpoints-details.yml")
-            .put(service -> service.getLabel().startsWith("reviews"), "expected/als/endpoints-reviews.yml")
-            .put(service -> service.getLabel().startsWith("productpage"), "expected/als/endpoints-productpage.yml")
+            .put(service -> service.getLabel().contains("ratings"), "expected/als/endpoints-ratings.yml")
+            .put(service -> service.getLabel().contains("details"), "expected/als/endpoints-details.yml")
+            .put(service -> service.getLabel().contains("reviews"), "expected/als/endpoints-reviews.yml")
+            .put(service -> service.getLabel().contains("productpage"), "expected/als/endpoints-productpage.yml")
             .build();
 
     @BeforeAll
@@ -154,7 +154,7 @@ public class ALSE2E extends SkyWalkingTestAdapter {
         LOGGER.info("instances: {}", instances);
 
         String file = "expected/als/instances.yml";
-        if (service.getLabel().equals("reviews")) {
+        if (service.getLabel().equals("e2e::reviews")) {
             file = "expected/als/instances-reviews.yml";
         }
         load(file).as(InstancesMatcher.class).verify(instances);
