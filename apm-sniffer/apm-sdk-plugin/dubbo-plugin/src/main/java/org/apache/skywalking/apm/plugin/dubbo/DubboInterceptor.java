@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.springframework.util.StringUtils;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * {@link DubboInterceptor} define how to enhance class {@link com.alibaba.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
@@ -126,7 +126,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     private String generateOperationName(URL requestURL, Invocation invocation) {
         StringBuilder operationName = new StringBuilder();
         String groupStr = requestURL.getParameter(Constants.GROUP_KEY);
-        groupStr = StringUtils.isEmpty(groupStr) ? "" : groupStr + "/";
+        groupStr = StringUtil.isEmpty(groupStr) ? "" : groupStr + "/";
         operationName.append(groupStr);
         operationName.append(requestURL.getPath());
         operationName.append("." + invocation.getMethodName() + "(");
