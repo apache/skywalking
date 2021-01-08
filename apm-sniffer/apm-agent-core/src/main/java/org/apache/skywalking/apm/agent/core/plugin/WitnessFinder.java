@@ -18,24 +18,36 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
 import net.bytebuddy.pool.TypePool;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * The <code>WitnessClassFinder</code> represents a pool of {@link TypePool}s, each {@link TypePool} matches a {@link
- * ClassLoader}, which helps to find the class define existed or not.
+ * The <code>WitnessFinder</code> represents a pool of {@link TypePool}s, each {@link TypePool} matches a {@link
+ * ClassLoader}, which helps to find the class declaration existed or not.
  */
-public enum WitnessClassFinder {
+public enum WitnessFinder {
     INSTANCE;
 
-    private Map<ClassLoader, TypePool> poolMap = new HashMap<ClassLoader, TypePool>();
+    private final Map<ClassLoader, TypePool> poolMap = new HashMap<ClassLoader, TypePool>();
 
     /**
      * @param classLoader for finding the witnessClass
      * @return true, if the given witnessClass exists, through the given classLoader.
      */
     public boolean exist(String witnessClass, ClassLoader classLoader) {
+        return getResolution(witnessClass, classLoader)
+                .isResolved();
+    }
+
+    /**
+     * get TypePool.Resolution of the witness class
+     * @param witnessClass class name
+     * @param classLoader classLoader for finding the witnessClass
+     * @return TypePool.Resolution
+     */
+    private TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
         ClassLoader mappingKey = classLoader == null ? NullClassLoader.INSTANCE : classLoader;
         if (!poolMap.containsKey(mappingKey)) {
             synchronized (poolMap) {
@@ -46,9 +58,24 @@ public enum WitnessClassFinder {
             }
         }
         TypePool typePool = poolMap.get(mappingKey);
-        TypePool.Resolution witnessClassResolution = typePool.describe(witnessClass);
-        return witnessClassResolution.isResolved();
+        return typePool.describe(witnessClass);
     }
+
+    /**
+     * @param classLoader for finding the witness method
+     * @return true, if the given witness method exists, through the given classLoader.
+     */
+    public boolean exist(WitnessMethod witnessMethod, ClassLoader classLoader) {
+        TypePool.Resolution resolution = getResolution(witnessMethod.getDeclaringClassName(), classLoader);
+        if (!resolution.isResolved()) {
+            return false;
+        }
+        return !resolution.resolve()
+                .getDeclaredMethods()
+                .filter(witnessMethod.getElementMatcher())
+                .isEmpty();
+    }
+
 }
 
 final class NullClassLoader extends ClassLoader {
