@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class EndpointCallRelationTest {
     @Test
-    public void testServiceInstanceRelationClientSideMetricsEquals() {
+    public void testEndpointRelationServerSideMetricsEquals() {
         EndpointRelationServerSideMetrics thisObject = new EndpointRelationServerSideMetrics();
         thisObject.setEntityId(
             "VXNlcg==.0-VXNlcg==-em1iaXotcHJvbW90aW9uMi1hZG1pbkAxMjUyNw==.1-L0Bpbi9hcGkvaGVhbHRo");
@@ -38,7 +38,7 @@ public class EndpointCallRelationTest {
     }
 
     @Test
-    public void testServiceInstanceRelationClientSideMetricsNotEquals() {
+    public void testEndpointRelationServerSideMetricsNotEquals() {
         EndpointRelationServerSideMetrics thisObject = new EndpointRelationServerSideMetrics();
         thisObject.setEntityId(
             "VXNlcg==.0-VXNlcg==-em1iaXotcHJvbW90aW9uMi1hZG1pbkAxMjUyNw==.1-L0Bpbi9hcGkvaGVhbHRo");
