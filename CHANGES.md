@@ -54,6 +54,7 @@ Release Notes.
 * Fix bug that istio version metric type on UI template mismatches the otel rule.
 * Improve ReadWriteSafeCache concurrency read-write performance
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
+* Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
 
 #### UI
 * Fix un-removed tags in trace query.

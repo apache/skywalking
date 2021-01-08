@@ -35,9 +35,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @Stream(name = ServiceInstanceRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_RELATION,
     builder = ServiceInstanceRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 @EqualsAndHashCode(of = {
-    "entityId",
-    "timeBucket"
-})
+    "entityId"
+}, callSuper = true)
 public class ServiceInstanceRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_instance_relation_client_side";
