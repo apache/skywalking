@@ -100,6 +100,7 @@ public class LogQuery implements ILogQueryDAO {
         }
         recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
                    .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
+
         if (from > Const.NONE) {
             recallQuery.limit(limit, from);
         } else {
