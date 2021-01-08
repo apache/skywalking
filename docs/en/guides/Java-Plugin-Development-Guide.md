@@ -299,6 +299,31 @@ The following sections will tell you how to implement the interceptor.
 tomcat-7.x/8.x=TomcatInstrumentation
 ```
 
+4. Set up `witnessClasses` and/or `witnessMethods` if the instrumentation should be activated in specific versions.
+
+   Example:
+
+   ```java
+   // The plugin is activated only when the foo.Bar class exists.
+   @Override
+   protected String[] witnessClasses() {
+     return new String[] {
+       "foo.Bar"
+     };
+   }
+   
+   // The plugin is activated only when the foo.Bar#hello method exists.
+   @Override
+   protected List<WitnessMethod> witnessMethods() {
+     List<WitnessMethod> witnessMethodList = new ArrayList<>();
+     WitnessMethod witnessMethod = new WitnessMethod("foo.Bar", ElementMatchers.named("hello"));
+     witnessMethodList.add(witnessMethod);
+     return witnessMethodList;
+   }
+   ```
+   For more example, see [WitnessTest.java](/apm-sniffer/apm-agent-core/src/test/java/org/apache/skywalking/apm/agent/core/plugin/witness/WitnessTest.java)
+
+   
 
 ### Implement an interceptor
 As an interceptor for an instance method, the interceptor implements 
