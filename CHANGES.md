@@ -25,6 +25,7 @@ Release Notes.
 * Support building gRPC TLS channel but CA file is not required.
 * Add Dolphinscheduler plugin definition.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
+* The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue OldOperationName` format
 
 #### OAP-Backend
 * Make meter receiver support MAL.
