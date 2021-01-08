@@ -71,9 +71,7 @@ jobs:
           cd skywalking-kubernetes
           git reset --hard dd749f25913830c47a97430618cefc4167612e75
           cd chart
-          mkdir -p skywalking/files/conf.d/oap/ && \
-              echo 'serviceName: e2e::${LABELS.app}' > skywalking/files/conf.d/oap/metadata-service-mapping.yaml && \
-              echo 'serviceInstanceName: ${NAME}' >> skywalking/files/conf.d/oap/metadata-service-mapping.yaml
+          mkdir -p skywalking/files/conf.d/oap/ && cp test/e2e/e2e-test/src/test/resources/metadata-service-mapping.yaml skywalking/files/conf.d/oap/metadata-service-mapping.yaml
           helm dep up skywalking
           helm -n istio-system install skywalking skywalking \
                --set fullnameOverride=skywalking \
