@@ -13,14 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-services:
-  - key: not null
-    label: e2e::ratings
-  - key: not null
-    label: e2e::reviews
-  - key: not null
-    label: e2e::productpage
-  - key: not null
-    label: e2e::details
-  - key: not null
-    label: e2e::istio-ingressgateway
+serviceName: e2e::${LABELS.app}
+serviceInstanceName: ${NAME}
