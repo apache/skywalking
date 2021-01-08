@@ -23,6 +23,7 @@ Release Notes.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
+* Add witness method mechanism in the agent plugin core.
 * Add Dolphinscheduler plugin definition.
 * Make sampling still works when the trace ignores plug-in activation.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
@@ -51,6 +52,9 @@ Release Notes.
 * Fix the priority setting doesn't work of the ALS analyzers.
 * Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
 * Fix bug that istio version metric type on UI template mismatches the otel rule.
+* Improve ReadWriteSafeCache concurrency read-write performance
+* Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
+* Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
 
 #### UI
 * Fix un-removed tags in trace query.
