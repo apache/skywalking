@@ -124,9 +124,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      */
     private String generateOperationName(URL requestURL, Invocation invocation) {
         StringBuilder operationName = new StringBuilder();
-        String group = requestURL.getParameter(Constants.GROUP_KEY);
-        group = null == group ? "" : group;
-        operationName.append(group);
+        String groupStr = requestURL.getParameter(Constants.GROUP_KEY);
+        groupStr = null == groupStr ? "" : groupStr + " ";
+        operationName.append(groupStr);
         operationName.append(requestURL.getPath());
         operationName.append("." + invocation.getMethodName() + "(");
         for (Class<?> classes : invocation.getParameterTypes()) {
