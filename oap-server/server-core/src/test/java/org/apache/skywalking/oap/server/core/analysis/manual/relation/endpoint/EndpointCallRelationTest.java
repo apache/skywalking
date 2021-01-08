@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class EndpointCallRelation {
+public class EndpointCallRelationTest {
     @Test
     public void testServiceInstanceRelationClientSideMetricsEquals() {
         EndpointRelationServerSideMetrics thisObject = new EndpointRelationServerSideMetrics();
