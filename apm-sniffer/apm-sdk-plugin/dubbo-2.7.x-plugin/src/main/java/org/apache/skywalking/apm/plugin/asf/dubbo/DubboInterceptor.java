@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
@@ -138,7 +139,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     private String generateOperationName(URL requestURL, Invocation invocation) {
         StringBuilder operationName = new StringBuilder();
         String groupStr = requestURL.getParameter(Constants.GROUP_KEY);
-        groupStr = null == groupStr ? "" : groupStr + " ";
+        groupStr = StringUtils.isEmpty(groupStr) ? "" : groupStr + "/";
         operationName.append(groupStr);
         operationName.append(requestURL.getPath());
         operationName.append("." + invocation.getMethodName() + "(");
