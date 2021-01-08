@@ -23,6 +23,7 @@ Release Notes.
 * Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
 * Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
 * Support building gRPC TLS channel but CA file is not required.
+* Add witness method mechanism in the agent plugin core.
 * Add Dolphinscheduler plugin definition.
 * Make sampling still works when the trace ignores plug-in activation.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
