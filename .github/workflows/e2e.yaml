@@ -23,7 +23,7 @@ on:
       - '**'
       - '!**.md'
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 18 * * *'
 
 env:
   SKIP_TEST: true
