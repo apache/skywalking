@@ -19,7 +19,7 @@ name: CI AND IT
 on:
   pull_request:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 18 * * *'  # TimeZone: UTC 0
 
 env:
   MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
