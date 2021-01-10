@@ -125,6 +125,14 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+    /**
+     * Define the set of logs tag keys, which should be searchable through the GraphQL.
+     *
+     * @since 8.4.0
+     */
+    @Setter
+    @Getter
+    private String searchableLogsTags = "";
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

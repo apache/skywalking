@@ -17,12 +17,17 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.DATA_BINARY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.CONTENT_TYPE;
@@ -61,6 +66,12 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
         record.setContent((String) dbMap.get(CONTENT));
         record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
         record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+        if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
+            record.setDataBinary(new byte[] {});
+        } else {
+            // Don't read the tags as they has been in the data binary already.
+            record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
+        }
         return record;
     }
 
@@ -81,6 +92,11 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
         map.put(CONTENT_TYPE, storageData.getContentType());
         map.put(CONTENT, storageData.getContent());
         map.put(TIMESTAMP, storageData.getTimestamp());
+        if (CollectionUtils.isEmpty(storageData.getDataBinary())) {
+            map.put(DATA_BINARY, Const.EMPTY_STRING);
+        } else {
+            map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
+        }
         analysisSearchTag(storageData.getTagsRawData(), map);
         return map;
     }

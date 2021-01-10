@@ -80,8 +80,9 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
         // endpoint
         if (StringUtil.isNotEmpty(logData.getEndpoint())) {
             endpointMeta = new EndpointMeta();
-            endpointMeta.setServiceId(serviceId);
-            endpointMeta.setName(namingControl.formatEndpointName(serviceName, logData.getEndpoint()));
+            endpointMeta.setServiceName(serviceName);
+            endpointMeta.setServiceNodeType(NodeType.Normal);
+            endpointMeta.setEndpoint(namingControl.formatEndpointName(serviceName, logData.getEndpoint()));
             endpointMeta.setTimeBucket(timeBucket);
         }
     }

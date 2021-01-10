@@ -32,13 +32,16 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+/**
+ * Collect log data
+ */
 @Slf4j
 public class LogReportServiceHandler extends LogReportServiceGrpc.LogReportServiceImplBase implements GRPCHandler {
 
     private final ModuleManager moduleManager;
-    private HistogramMetrics histogram;
-    private CounterMetrics errorCounter;
-    private ILogAnalyzerService logAnalyzerService;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
+    private final ILogAnalyzerService logAnalyzerService;
 
     public LogReportServiceHandler(final ModuleManager moduleManager) {
         this.moduleManager = moduleManager;

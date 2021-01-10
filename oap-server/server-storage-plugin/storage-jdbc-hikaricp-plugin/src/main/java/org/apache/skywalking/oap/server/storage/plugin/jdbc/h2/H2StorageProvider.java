@@ -161,9 +161,16 @@ public class H2StorageProvider extends ModuleProvider {
         final ConfigService configService = getManager().find(CoreModule.NAME)
                                                         .provider()
                                                         .getService(ConfigService.class);
-        final int numOfSearchableTags = configService.getSearchableTracesTags().split(Const.COMMA).length;
-        if (numOfSearchableTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
-            throw new ModuleStartException("Size of searchableTracesTags[" + numOfSearchableTags
+        final int numOfSearchableTracesTags = configService.getSearchableTracesTags().split(Const.COMMA).length;
+        if (numOfSearchableTracesTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+            throw new ModuleStartException("Size of searchableTracesTags[" + numOfSearchableTracesTags
+                                               + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
+                                               + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
+                                               + "]. Potential out of bound in the runtime.");
+        }
+        final int numOfSearchableLogsTags = configService.getSearchableLogsTags().split(Const.COMMA).length;
+        if (numOfSearchableLogsTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+            throw new ModuleStartException("Size of searchableLogsTags[" + numOfSearchableLogsTags
                                                + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
                                                + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
                                                + "]. Potential out of bound in the runtime.");

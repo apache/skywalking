@@ -18,16 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public abstract class AbstractLogRecord extends Record {
 
@@ -41,6 +45,7 @@ public abstract class AbstractLogRecord extends Record {
     public static final String IS_ERROR = "is_error";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
+    public static final String DATA_BINARY = "data_binary";
     public static final String TIMESTAMP = "timestamp";
     public static final String TAGS = "tags";
 
@@ -88,6 +93,14 @@ public abstract class AbstractLogRecord extends Record {
     @Getter
     @Column(columnName = TIMESTAMP)
     private long timestamp;
+
+    /**
+     * All tag binary data, used when querying.
+     */
+    @Setter
+    @Getter
+    @Column(columnName = DATA_BINARY, storageOnly = true)
+    private byte[] dataBinary;
     @Setter
     @Getter
     @Column(columnName = TAGS)
@@ -121,6 +134,11 @@ public abstract class AbstractLogRecord extends Record {
             map.put(CONTENT_TYPE, record.getContentType());
             map.put(CONTENT, record.getContent());
             map.put(TIMESTAMP, record.getTimestamp());
+            if (CollectionUtils.isEmpty(record.getDataBinary())) {
+                map.put(DATA_BINARY, Const.EMPTY_STRING);
+            } else {
+                map.put(DATA_BINARY, new String(Base64.getEncoder().encode(record.getDataBinary())));
+            }
             map.put(TAGS, record.getTags());
         }
 
@@ -136,6 +154,12 @@ public abstract class AbstractLogRecord extends Record {
             record.setContentType(((Number) dbMap.get(CONTENT_TYPE)).intValue());
             record.setContent((String) dbMap.get(CONTENT));
             record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
+            if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
+                record.setDataBinary(new byte[] {});
+            } else {
+                // Don't read the tags as they has been in the data binary already.
+                record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
+            }
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
         }
     }

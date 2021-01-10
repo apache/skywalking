@@ -70,7 +70,7 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
                 this.storageBuilder = new H2LogRecordBuilder(
                     maxSizeOfArrayColumn,
                     numOfSearchableValuesPerTag,
-                    Arrays.asList(configService.getSearchableTracesTags()
+                    Arrays.asList(configService.getSearchableLogsTags()
                                                .split(Const.COMMA))
                 );
             } else {

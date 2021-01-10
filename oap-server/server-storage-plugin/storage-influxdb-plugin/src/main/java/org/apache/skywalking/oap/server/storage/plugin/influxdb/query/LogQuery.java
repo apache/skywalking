@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
+import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
@@ -184,6 +185,10 @@ public class LogQuery implements ILogQueryDAO {
                 log.setContentType(
                     ContentType.instanceOf(((Number) data.get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
                 log.setContent((String) data.get(AbstractLogRecord.CONTENT));
+                String dataBinaryBase64 = (String) data.get(AbstractLogRecord.DATA_BINARY);
+                if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                    parserDataBinary(dataBinaryBase64, log.getTags());
+                }
                 logs.getLogs().add(log);
             });
         });

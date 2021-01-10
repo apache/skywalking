@@ -101,12 +101,13 @@ public class RecordAnalysisListener implements LogAnalysisListener {
             log.setContentType(ContentType.JSON);
             log.setContent(body.getJson().getJson());
         }
+        log.setDataBinary(logData.getTags().toByteArray());
         log.getTags().addAll(appendSearchableTags(logData));
     }
 
     private Collection<Tag> appendSearchableTags(LogData.Builder logData) {
         HashSet<Tag> logTags = new HashSet<>();
-        logData.getTagsList().forEach(tag -> {
+        logData.getTags().getDataList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
                 final Tag logTag = new Tag(tag.getKey(), tag.getValue());
                 if (!logTags.contains(logTag)) {

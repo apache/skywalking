@@ -20,15 +20,23 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
-@Getter
-@Setter
 @ScopeDeclaration(id = DefaultScopeDefine.ENDPOINT_META, name = "EndpointMeta")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class EndpointMeta extends Source {
 
+    @Getter
     private String serviceId;
-    private String name;
+    @Getter
+    @Setter
+    private String serviceName;
+    @Getter
+    @Setter
+    private NodeType serviceNodeType;
+    @Getter
+    @Setter
+    private String endpoint;
 
     @Override
     public int scope() {
@@ -37,6 +45,11 @@ public class EndpointMeta extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.EndpointID.buildId(serviceId, name);
+        return IDManager.EndpointID.buildId(serviceId, endpoint);
+    }
+
+    @Override
+    public void prepare() {
+        this.serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
     }
 }

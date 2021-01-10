@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -142,7 +143,10 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                                                                          .get(
                                                                              AbstractLogRecord.CONTENT_TYPE)).intValue()));
             log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
-
+            String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(AbstractLogRecord.DATA_BINARY);
+            if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                parserDataBinary(dataBinaryBase64, log.getTags());
+            }
             logs.getLogs().add(log);
         }
         return logs;

@@ -39,6 +39,7 @@ public abstract class AbstractLog extends Source {
     private int spanId;
     private ContentType contentType = ContentType.NONE;
     private String content;
+    private byte[] dataBinary;
     private List<Tag> tags = new ArrayList<>();
 
     @Override

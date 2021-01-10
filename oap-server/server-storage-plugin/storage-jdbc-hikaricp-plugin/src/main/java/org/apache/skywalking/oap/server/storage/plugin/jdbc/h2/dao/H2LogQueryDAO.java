@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -47,6 +48,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.DATA_BINARY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
@@ -92,7 +94,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()
                                                        .getService(ConfigService.class);
-            searchableTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
+            searchableTagKeys = Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA));
             if (searchableTagKeys.size() > maxSizeOfArrayColumn) {
                 searchableTagKeys = searchableTagKeys.subList(0, maxSizeOfArrayColumn);
             }
@@ -193,6 +195,10 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setError(BooleanUtils.valueToBoolean(resultSet.getInt(IS_ERROR)));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
                     log.setContent(resultSet.getString(CONTENT));
+                    String dataBinaryBase64 = resultSet.getString(DATA_BINARY);
+                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                        parserDataBinary(dataBinaryBase64, log.getTags());
+                    }
                     logs.getLogs().add(log);
                 }
             }

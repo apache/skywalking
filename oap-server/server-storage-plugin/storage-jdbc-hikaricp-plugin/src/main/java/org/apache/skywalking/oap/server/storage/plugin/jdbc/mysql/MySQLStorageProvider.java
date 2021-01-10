@@ -155,6 +155,13 @@ public class MySQLStorageProvider extends ModuleProvider {
                                                + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
                                                + "]. Potential out of bound in the runtime.");
         }
+        final int numOfSearchableLogsTags = configService.getSearchableLogsTags().split(Const.COMMA).length;
+        if (numOfSearchableLogsTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+            throw new ModuleStartException("Size of searchableLogsTags[" + numOfSearchableLogsTags
+                                               + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
+                                               + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
+                                               + "]. Potential out of bound in the runtime.");
+        }
 
         try {
             mysqlClient.connect();

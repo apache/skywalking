@@ -48,11 +48,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - name: Compile and Build
         run: make docker && ES_VERSION=es7 TAG=latest-es7 make docker
       - name: Copy dist package
