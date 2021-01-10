@@ -18,9 +18,8 @@ name: E2E
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: '0 18 * * *'
 
 env:
   SKIP_TEST: true
@@ -34,7 +33,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.9', 'influxdb', 'tidb']
+        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'influxdb', 'tidb']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
