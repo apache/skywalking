@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -51,6 +52,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, SegmentListener {
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
+    private final TraceIgnorePathHandler traceIgnoreHandler;
     private final boolean forceSampleErrorSegment;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
@@ -128,7 +130,12 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     @Override
     public void parseSegment(SegmentObject segmentObject) {
         segment.setTraceId(segmentObject.getTraceId());
+        AtomicReference<String> rootOperationName = new AtomicReference<>();
         segmentObject.getSpansList().forEach(span -> {
+            if (span.getSpanId() == 0) {
+                rootOperationName.set(span.getOperationName());
+            }
+
             if (startTimestamp == 0 || startTimestamp > span.getStartTime()) {
                 startTimestamp = span.getStartTime();
             }
@@ -138,6 +145,11 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             isError = isError || segmentStatusAnalyzer.isError(span);
             appendSearchableTags(span);
         });
+
+        if (traceIgnoreHandler.shouldIgnore(rootOperationName.get())) {
+            sampleStatus = SAMPLE_STATUS.IGNORE;
+        }
+
         final long accurateDuration = endTimestamp - startTimestamp;
         duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
 
@@ -191,6 +203,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final TraceSegmentSampler sampler;
+        private final TraceIgnorePathHandler traceIgnoreHandler;
         private final boolean forceSampleErrorSegment;
         private final NamingControl namingControl;
         private final List<String> searchTagKeys;
@@ -204,6 +217,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                                                              .getService(ConfigService.class);
             this.searchTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
             this.sampler = new TraceSegmentSampler(config.getTraceSampleRateWatcher());
+            this.traceIgnoreHandler = new TraceIgnorePathHandler(config.getTraceIgnorePathWatcher());
             this.forceSampleErrorSegment = config.isForceSampleErrorSegment();
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
@@ -218,6 +232,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             return new SegmentAnalysisListener(
                 sourceReceiver,
                 sampler,
+                traceIgnoreHandler,
                 forceSampleErrorSegment,
                 namingControl,
                 searchTagKeys,

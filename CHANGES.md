@@ -56,6 +56,7 @@ Release Notes.
 * Improve ReadWriteSafeCache concurrency read-write performance
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
 * Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
+* Support trace path ignore with patterns match.
 
 #### UI
 * Fix un-removed tags in trace query.

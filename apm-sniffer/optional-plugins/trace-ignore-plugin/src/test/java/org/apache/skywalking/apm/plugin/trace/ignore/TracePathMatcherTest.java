@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
+import org.apache.skywalking.apm.util.matcher.FastPathMatcher;
+import org.apache.skywalking.apm.util.matcher.TracePathMatcher;
 import org.junit.Assert;
 import org.junit.Test;
 

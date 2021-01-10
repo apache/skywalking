@@ -18,20 +18,20 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceIgnorePathWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSampleRateWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_SPAN_STATUS;
 
@@ -43,6 +43,11 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private int sampleRate = 10000;
+
+    @Setter
+    @Getter
+    private String traceIgnorePathPatterns = "";
+
     /**
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
@@ -58,7 +63,9 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Getter
     private String slowDBAccessThreshold = "default:200";
     /**
-     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
+     * Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even
+     * the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit,
+     * millisecond.
      */
     @Setter
     @Getter
@@ -72,6 +79,9 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private TraceSampleRateWatcher traceSampleRateWatcher;
+    @Setter
+    @Getter
+    private TraceIgnorePathWatcher traceIgnorePathWatcher;
     @Setter
     @Getter
     private TraceLatencyThresholdsAndWatcher traceLatencyThresholdsAndWatcher;

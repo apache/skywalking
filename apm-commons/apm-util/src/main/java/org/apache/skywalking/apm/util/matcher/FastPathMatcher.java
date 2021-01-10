@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.trace.ignore.matcher;
+package org.apache.skywalking.apm.util.matcher;
 
 public class FastPathMatcher implements TracePathMatcher {
     @Override
