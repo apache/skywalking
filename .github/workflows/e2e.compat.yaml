@@ -18,9 +18,8 @@ name: E2E
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: '0 18 * * *'
 
 env:
   SKIP_TEST: true

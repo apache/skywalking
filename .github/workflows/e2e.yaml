@@ -22,9 +22,8 @@ on:
     paths:
       - '**'
       - '!**.md'
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: '0 18 * * *'
 
 env:
   SKIP_TEST: true
