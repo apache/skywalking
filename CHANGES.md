@@ -44,6 +44,7 @@ Release Notes.
 * Support Envoy {AccessLog,Metrics}Service API V3.
 * Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
 * Fix the priority setting doesn't work of the ALS analyzers.
+* Support Zabbix protocol to receive agent metrics.
 
 #### UI
 * Fix un-removed tags in trace query.
