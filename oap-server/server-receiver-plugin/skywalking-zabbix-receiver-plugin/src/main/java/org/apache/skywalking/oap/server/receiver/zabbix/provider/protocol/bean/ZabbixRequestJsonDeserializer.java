@@ -48,7 +48,8 @@ public class ZabbixRequestJsonDeserializer implements JsonDeserializer<ZabbixReq
         if (requestType == ZabbixProtocolType.AGENT_DATA) {
             data.setAgentDataList(context
                 .deserialize(json.getAsJsonObject().getAsJsonArray("data"),
-                    new TypeToken<List<ZabbixRequest.AgentData>>() {}.getType()));
+                    new TypeToken<List<ZabbixRequest.AgentData>>() {
+                    }.getType()));
         } else if (requestType == ZabbixProtocolType.ACTIVE_CHECKS) {
             ZabbixRequest.ActiveChecks checksData = new ZabbixRequest.ActiveChecks();
             checksData.setHostName(json.getAsJsonObject().get("host").getAsString());

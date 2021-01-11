@@ -205,7 +205,7 @@ public class ZabbixMetrics {
                 .total(sampleFamilies.size())
                 // Setting all as success
                 .success(sampleFamilies.size())
-                .useTime(((double)stopWatch.getTime()) / 1000)
+                .useTime(((double) stopWatch.getTime()) / 1000)
                 .build();
         }
 

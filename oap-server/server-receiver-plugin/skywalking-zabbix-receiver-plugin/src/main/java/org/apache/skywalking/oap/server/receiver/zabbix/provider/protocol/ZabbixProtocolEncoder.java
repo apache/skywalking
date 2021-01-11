@@ -41,10 +41,10 @@ public class ZabbixProtocolEncoder extends MessageToMessageEncoder<ZabbixRespons
         int payloadLength = responsePayload.length();
         byte[] header = new byte[] {
             'Z', 'B', 'X', 'D', '\1',
-            (byte)(payloadLength & 0xFF),
-            (byte)(payloadLength >> 8 & 0xFF),
-            (byte)(payloadLength >> 16 & 0xFF),
-            (byte)(payloadLength >> 24 & 0xFF),
+            (byte) (payloadLength & 0xFF),
+            (byte) (payloadLength >> 8 & 0xFF),
+            (byte) (payloadLength >> 16 & 0xFF),
+            (byte) (payloadLength >> 24 & 0xFF),
             '\0', '\0', '\0', '\0'};
 
         // Build and write ByteBuf
