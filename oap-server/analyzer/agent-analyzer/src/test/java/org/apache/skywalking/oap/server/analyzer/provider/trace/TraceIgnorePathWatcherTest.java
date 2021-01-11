@@ -61,7 +61,7 @@ public class TraceIgnorePathWatcherTest {
             Thread.sleep(2000);
         }
         assertThat(watcher.getTraceIgnorePathPatterns(), is("/ignore/path/**"));
-        assertThat(provider.getModuleConfig().getTraceIgnorePathPatterns(), is("/ignore/path/**"));
+        assertThat(provider.getModuleConfig().getTraceIgnorePathPatterns(), is(""));
     }
 
     @Test
