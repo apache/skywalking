@@ -252,6 +252,12 @@ receiver-profile:
   selector: ${SW_RECEIVER_PROFILE:default}
   default:
 
+receiver-zabbix:
+  selector: ${SW_RECEIVER_ZABBIX:default}
+  default:
+    port: 13800
+    activeFiles: agent.yaml
+
 service-mesh:
   selector: ${SW_SERVICE_MESH:default}
   default:
