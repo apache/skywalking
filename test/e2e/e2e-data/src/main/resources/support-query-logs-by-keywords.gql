@@ -13,18 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-logs:
-  - serviceName: e2e
-    serviceId: not null
-    serviceInstanceName: "e2e-instance"
-    serviceInstanceId: not null
-    endpointName: /traffic
-    endpointId: not null
-    traceId: "ac81b308-0d66-4c69-a7af-a023a536bd3e"
-    timestamp: not null
-    isError: false
-    contentType: TEXT
-    content: not null
-    tags:
-      - key: status_code
-        value: 200
+{
+    "query": "query supportQueryLogsByKeywords {
+        support: supportQueryLogsByKeywords
+    }"
+}

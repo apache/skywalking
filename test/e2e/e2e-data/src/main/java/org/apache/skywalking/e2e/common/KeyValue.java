@@ -15,27 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.e2e.log;
+package org.apache.skywalking.e2e.common;
 
-import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.skywalking.e2e.common.KeyValue;
 
 @Data
 @Accessors(chain = true)
-public class Log {
+public class KeyValue {
 
-    private String serviceName;
-    private String serviceId;
-    private String serviceInstanceName;
-    private String serviceInstanceId;
-    private String endpointName;
-    private String endpointId;
-    private String traceId;
-    private String timestamp;
-    private boolean isError;
-    private String contentType;
-    private String content;
-    private List<KeyValue> tags;
+    private String key;
+    private String value;
 }

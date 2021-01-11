@@ -18,13 +18,17 @@
 package org.apache.skywalking.e2e.log;
 
 import com.google.common.base.Strings;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.skywalking.e2e.common.KeyValue;
+import org.apache.skywalking.e2e.common.KeyValueMatcher;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.fail;
 
 @Setter
 @Getter
@@ -42,6 +46,7 @@ public class LogMatcher extends AbstractMatcher<Log> {
     private String isError;
     private String contentType;
     private String content;
+    private List<KeyValueMatcher> tags;
 
     @Override
     public void verify(final Log log) {
@@ -77,6 +82,20 @@ public class LogMatcher extends AbstractMatcher<Log> {
         }
         if (nonNull(getContent())) {
             doVerify(getContent(), log.getContent());
+        }
+        for (final KeyValueMatcher matcher : getTags()) {
+            boolean matched = false;
+            for (final KeyValue keyValue : log.getTags()) {
+                try {
+                    matcher.verify(keyValue);
+                    matched = true;
+                } catch (Throwable ignore) {
+
+                }
+            }
+            if (!matched) {
+                fail("\nExpected: %s\n Actual: %s", getTags(), log.getTags());
+            }
         }
     }
 }

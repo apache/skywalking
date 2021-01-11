@@ -20,7 +20,9 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -28,7 +30,6 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -52,6 +53,11 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
     }
 
     @Override
+    public boolean supportQueryLogsByKeywords() {
+        return true;
+    }
+
+    @Override
     public Logs queryLogs(String metricName,
                           final String serviceId,
                           final String serviceInstanceId,
@@ -59,12 +65,13 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
                           final LogState state,
-                          final Pagination paging,
                           final int from,
                           final int limit,
                           final long startSecondTB,
                           final long endSecondTB,
-                          final List<Tag> tags) throws IOException {
+                          final List<Tag> tags,
+                          final List<String> keywordsOfContent,
+                          final List<String> excludingKeywordsOfContent) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -120,8 +127,24 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             mustQueryList.add(tagMatchQuery);
         }
 
+        if (CollectionUtils.isNotEmpty(keywordsOfContent)) {
+            mustQueryList.add(
+                QueryBuilders.matchPhraseQuery(
+                    MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
+                    String.join(Const.SPACE, keywordsOfContent)
+                ));
+        }
+
+        if (CollectionUtils.isNotEmpty(excludingKeywordsOfContent)) {
+            boolQueryBuilder.mustNot(QueryBuilders.matchPhraseQuery(
+                MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
+                String.join(Const.SPACE, excludingKeywordsOfContent)
+            ));
+        }
+
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
+        sourceBuilder.sort(LogRecord.TIMESTAMP);
 
         SearchResponse response = getClient().search(metricName, sourceBuilder);
 

@@ -35,6 +35,7 @@ import org.apache.skywalking.e2e.browser.BrowserErrorLogsData;
 import org.apache.skywalking.e2e.log.Log;
 import org.apache.skywalking.e2e.log.LogData;
 import org.apache.skywalking.e2e.log.LogsQuery;
+import org.apache.skywalking.e2e.log.SupportQueryLogsByKeywords;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
@@ -411,7 +412,10 @@ public class SimpleQueryClient {
                                             .replace("{tagValue}", query.tagValue())
                                             .replace("{pageNum}", query.pageNum())
                                             .replace("{pageSize}", query.pageSize())
-                                            .replace("{needTotal}", query.needTotal());
+                                            .replace("{needTotal}", query.needTotal())
+                                            .replace("{keywordsOfContent}", query.keywordsOfContent())
+                                            .replace(
+                                                "{excludingKeywordsOfContent}", query.excludingKeywordsOfContent());
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<LogData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -422,5 +426,23 @@ public class SimpleQueryClient {
             throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
         }
         return Objects.requireNonNull(responseEntity.getBody()).getData().getLogs().getData();
+    }
+
+    public boolean supportQueryLogsByKeywords() throws Exception {
+        final URL queryFileUrl = Resources.getResource("support-query-logs-by-keywords.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<SupportQueryLogsByKeywords>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<SupportQueryLogsByKeywords>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody().getData().isSupport());
     }
 }

@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -80,12 +79,13 @@ public class LogQuery implements ILogQueryDAO {
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
                           final LogState state,
-                          final Pagination paging,
                           final int from,
                           final int limit,
                           final long startTB,
                           final long endTB,
-                          final List<Tag> tags) throws IOException {
+                          final List<Tag> tags,
+                          final List<String> keywordsOfContent,
+                          final List<String> excludingKeywordsOfContent) throws IOException {
         WhereQueryImpl<SelectQueryImpl> recallQuery = select().raw(ALL_FIELDS)
                                                               .from(client.getDatabase(), metricName)
                                                               .where();

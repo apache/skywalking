@@ -32,7 +32,7 @@ public class LogAnalyzerServiceImpl implements ILogAnalyzerService, ILogAnalysis
     private final List<LogAnalysisListenerFactory> factories = new ArrayList<>();
 
     @Override
-    public void doAnalysis(final LogData log) {
+    public void doAnalysis(final LogData.Builder log) {
         LogAnalyzer analyzer = new LogAnalyzer(moduleManager, moduleConfig, this);
         analyzer.doAnalysis(log);
     }

@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -84,12 +83,13 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                           String endpointName,
                           TraceScopeCondition relatedTrace,
                           LogState state,
-                          Pagination paging,
                           int from,
                           int limit,
                           final long startSecondTB,
                           final long endSecondTB,
-                          final List<Tag> tags) throws IOException {
+                          final List<Tag> tags,
+                          final List<String> keywordsOfContent,
+                          final List<String> excludingKeywordsOfContent) throws IOException {
         if (searchableTagKeys == null) {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()

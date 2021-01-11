@@ -48,6 +48,10 @@ public class LogQueryService implements Service {
         return logQueryDAO;
     }
 
+    public boolean supportQueryLogsByKeywords() {
+        return getLogQueryDAO().supportQueryLogsByKeywords();
+    }
+
     public Logs queryLogs(String metricName,
                           String serviceId,
                           String serviceInstanceId,
@@ -58,7 +62,9 @@ public class LogQueryService implements Service {
                           Pagination paging,
                           final long startTB,
                           final long endTB,
-                          final List<Tag> tags) throws IOException {
+                          final List<Tag> tags,
+                          final List<String> keywordsOfContent,
+                          final List<String> excludingKeywordsOfContent) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         Logs logs = getLogQueryDAO().queryLogs(metricName,
@@ -68,9 +74,9 @@ public class LogQueryService implements Service {
                                                endpointName,
                                                relatedTrace,
                                                state,
-                                               paging,
                                                page.getFrom(), page.getLimit(),
-                                               startTB, endTB, tags
+                                               startTB, endTB, tags,
+                                               keywordsOfContent, excludingKeywordsOfContent
         );
         logs.getLogs().forEach(log -> {
             if (StringUtil.isNotEmpty(log.getServiceId())) {

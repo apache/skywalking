@@ -28,10 +28,14 @@ import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ILogQueryDAO extends Service {
+
+    default boolean supportQueryLogsByKeywords() {
+        return false;
+    }
+
     Logs queryLogs(String metricName,
                    String serviceId,
                    String serviceInstanceId,
@@ -39,12 +43,13 @@ public interface ILogQueryDAO extends Service {
                    String endpointName,
                    TraceScopeCondition relatedTrace,
                    LogState state,
-                   Pagination paging,
                    int from,
                    int limit,
                    final long startTB,
                    final long endTB,
-                   final List<Tag> tags) throws IOException;
+                   final List<Tag> tags,
+                   final List<String> keywordsOfContent,
+                   final List<String> excludingKeywordsOfContent) throws IOException;
 
     /**
      * Parser the raw tags.

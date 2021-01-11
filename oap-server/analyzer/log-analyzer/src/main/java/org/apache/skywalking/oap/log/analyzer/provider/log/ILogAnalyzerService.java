@@ -25,6 +25,10 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ILogAnalyzerService extends Service {
 
-    void doAnalysis(LogData log);
+    void doAnalysis(LogData.Builder log);
+
+    default void doAnalysis(LogData logData) {
+        doAnalysis(logData.toBuilder());
+    }
 
 }

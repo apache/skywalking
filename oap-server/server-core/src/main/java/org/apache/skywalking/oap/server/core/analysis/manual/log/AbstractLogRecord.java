@@ -87,7 +87,7 @@ public abstract class AbstractLogRecord extends Record {
     private int contentType = ContentType.NONE.value();
     @Setter
     @Getter
-    @Column(columnName = CONTENT, length = 1_000_000, storageOnly = true)
+    @Column(columnName = CONTENT, length = 1_000_000, matchQuery = true)
     private String content;
     @Setter
     @Getter

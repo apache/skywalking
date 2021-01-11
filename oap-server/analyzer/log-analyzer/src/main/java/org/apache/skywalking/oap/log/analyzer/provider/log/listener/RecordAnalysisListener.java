@@ -101,7 +101,9 @@ public class RecordAnalysisListener implements LogAnalysisListener {
             log.setContentType(ContentType.JSON);
             log.setContent(body.getJson().getJson());
         }
-        log.setDataBinary(logData.getTags().toByteArray());
+        if (logData.getTags().getDataCount() > 0) {
+            log.setDataBinary(logData.getTags().toByteArray());
+        }
         log.getTags().addAll(appendSearchableTags(logData));
     }
 
@@ -133,7 +135,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
             ConfigService configService = moduleManager.find(CoreModule.NAME)
                                                        .provider()
                                                        .getService(ConfigService.class);
-            this.searchableTagKeys = Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA));
+            this.searchableTagKeys = Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA));
         }
 
         @Override

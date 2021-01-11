@@ -38,4 +38,6 @@ public class LogQueryCondition {
     private LogState state;
     private Pagination paging;
     private List<Tag> tags;
+    private List<String> keywordsOfContent;
+    private List<String> excludingKeywordsOfContent;
 }

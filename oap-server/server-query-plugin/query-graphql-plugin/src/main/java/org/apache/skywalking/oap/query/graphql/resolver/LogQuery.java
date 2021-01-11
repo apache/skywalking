@@ -45,6 +45,10 @@ public class LogQuery implements GraphQLQueryResolver {
         return logQueryService;
     }
 
+    public boolean supportQueryLogsByKeywords() {
+        return getQueryService().supportQueryLogsByKeywords();
+    }
+
     public Logs queryLogs(LogQueryCondition condition) throws IOException {
         if (isNull(condition.getQueryDuration()) && isNull(condition.getRelatedTrace())) {
             throw new UnexpectedException("The condition must contains either queryDuration or relatedTrace.");
@@ -66,7 +70,9 @@ public class LogQuery implements GraphQLQueryResolver {
             condition.getState(),
             condition.getPaging(),
             startSecondTB, endSecondTB,
-            condition.getTags()
+            condition.getTags(),
+            condition.getKeywordsOfContent(),
+            condition.getExcludingKeywordsOfContent()
         );
     }
 }

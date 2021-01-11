@@ -27,7 +27,10 @@
                 timestamp,
                 isError,
                 contentType,
-                content
+                content,
+                tags{
+                    key, value
+                }
             }
         }
     }",
@@ -49,6 +52,12 @@
                 "end": "{end}",
                 "step": "{step}"
             },
+            "keywordsOfContent": [
+                {keywordsOfContent}
+            ],
+            "excludingKeywordsOfContent": [
+                {excludingKeywordsOfContent}
+            ],
             "tags": [
                 {
                     "key": "{tagKey}",

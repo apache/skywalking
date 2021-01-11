@@ -36,15 +36,13 @@ public class LogAnalyzer {
 
     private final List<LogAnalysisListener> listeners = new ArrayList<>();
 
-    public void doAnalysis(LogData logData) {
-        if (StringUtil.isEmpty(logData.getService())) {
+    public void doAnalysis(LogData.Builder builder) {
+        if (StringUtil.isEmpty(builder.getService())) {
             // If the service name is empty, the log will be ignored.
             log.debug("The log is ignored because the Service name is empty");
             return;
         }
         createListeners();
-
-        LogData.Builder builder = logData.toBuilder();
         if (builder.getTimestamp() == 0) {
             // If no timestamp, OAP server would use the received timestamp as log's timestamp
             builder.setTimestamp(System.currentTimeMillis());

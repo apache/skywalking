@@ -35,6 +35,8 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
+    private String keywordsOfContent = "";
+    private String excludingKeywordsOfContent = "";
 
     public String metricName() {
         return metricName;
@@ -156,5 +158,31 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
     public LogsQuery needTotal(String needTotal) {
         this.needTotal = needTotal;
         return this;
+    }
+
+    public LogsQuery keywordsOfContent(String... keywords) {
+        this.keywordsOfContent = joinQuotes(keywords);
+        return this;
+    }
+
+    public String keywordsOfContent() {
+        return keywordsOfContent;
+    }
+
+    public LogsQuery excludingKeywordsOfContent(String... keywords) {
+        this.excludingKeywordsOfContent = joinQuotes(keywords);
+        return this;
+    }
+
+    public String excludingKeywordsOfContent() {
+        return excludingKeywordsOfContent;
+    }
+
+    private String joinQuotes(String... keywords) {
+        for (int i = 0; i < keywords.length; i++) {
+            String keyword = keywords[i];
+            keywords[i] = "\"" + keyword + "\"";
+        }
+        return String.join(",", keywords);
     }
 }

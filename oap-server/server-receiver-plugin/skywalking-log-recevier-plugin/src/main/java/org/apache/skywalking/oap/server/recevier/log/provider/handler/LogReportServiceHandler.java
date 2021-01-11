@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogReportServiceGrpc;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -64,6 +65,21 @@ public class LogReportServiceHandler extends LogReportServiceGrpc.LogReportServi
     @Override
     public StreamObserver<LogData> collect(final StreamObserver<Commands> responseObserver) {
         return new StreamObserver<LogData>() {
+
+            private String serviceName;
+
+            /**
+             * If this is not the first element of the streaming,
+             * use the previous not-null name as the service name.
+             */
+            private void setServiceName(LogData.Builder builder) {
+                if (StringUtil.isEmpty(serviceName) && StringUtil.isNotEmpty(builder.getService())) {
+                    serviceName = builder.getService();
+                } else if (StringUtil.isNotEmpty(serviceName)) {
+                    builder.setService(serviceName);
+                }
+            }
+
             @Override
             public void onNext(final LogData logData) {
                 if (log.isDebugEnabled()) {
@@ -71,7 +87,9 @@ public class LogReportServiceHandler extends LogReportServiceGrpc.LogReportServi
                 }
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    logAnalyzerService.doAnalysis(logData);
+                    LogData.Builder builder = logData.toBuilder();
+                    setServiceName(builder);
+                    logAnalyzerService.doAnalysis(builder);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);

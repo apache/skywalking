@@ -39,6 +39,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
+import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.springframework.beans.factory.annotation.Value;
@@ -101,10 +102,15 @@ public class LogController {
                                      .setEndpoint("/traffic")
                                      .setBody(
                                          LogDataBody.newBuilder()
-                                                    .setText(TextLog.newBuilder().setText("log").build())
+                                                    .setText(
+                                                        TextLog.newBuilder().setText("[main] INFO log message").build())
                                                     .build())
-                                     .addTags(
-                                         KeyStringValuePair.newBuilder().setKey("status_code").setValue("200").build())
+                                     .setTags(LogTags.newBuilder()
+                                                     .addData(KeyStringValuePair.newBuilder()
+                                                                                .setKey("status_code")
+                                                                                .setValue("200")
+                                                                                .build())
+                                                     .build())
                                      .setTraceContext(TraceContext.newBuilder()
                                                                   .setTraceId("ac81b308-0d66-4c69-a7af-a023a536bd3e")
                                                                   .setTraceSegmentId(
