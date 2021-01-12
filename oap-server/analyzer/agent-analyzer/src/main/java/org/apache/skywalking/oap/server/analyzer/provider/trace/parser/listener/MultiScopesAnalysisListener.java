@@ -198,11 +198,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (sourceBuilder.getType().equals(RequestType.DATABASE)) {
             boolean isSlowDBAccess = false;
 
-            DatabaseSlowStatement statement = new DatabaseSlowStatement();
+            DatabaseSlowStatement statement = new DatabaseSlowStatement(namingControl);
             statement.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
-            statement.setDatabaseServiceId(
-                IDManager.ServiceID.buildId(networkAddress, NodeType.Database)
-            );
+            statement.setServiceName(networkAddress);
             statement.setLatency(sourceBuilder.getLatency());
             statement.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
             statement.setTraceId(segmentObject.getTraceId());
@@ -271,6 +269,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     @Override
     public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
+            entrySourceBuilder.prepare();
             sourceReceiver.receive(entrySourceBuilder.toAll());
             sourceReceiver.receive(entrySourceBuilder.toService());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstance());
@@ -292,6 +291,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
+            exitSourceBuilder.prepare();
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
 
             /*
@@ -307,9 +307,13 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
         });
 
-        slowDatabaseAccesses.forEach(sourceReceiver::receive);
+        slowDatabaseAccesses.forEach(databaseSlowStatement -> {
+            databaseSlowStatement.prepare();
+            sourceReceiver.receive(databaseSlowStatement);
+        });
 
         logicEndpointBuilders.forEach(logicEndpointBuilder -> {
+            logicEndpointBuilder.prepare();
             sourceReceiver.receive(logicEndpointBuilder.toEndpoint());
         });
     }

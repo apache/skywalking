@@ -19,18 +19,30 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
 
 @ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
+@RequiredArgsConstructor
 public class DatabaseSlowStatement extends Source {
+    private final NamingControl namingControl;
+
     @Getter
     @Setter
     private String id;
     @Getter
     @Setter
+    private String serviceName;
+    @Getter
+    @Setter
+    private NodeType type;
+    @Getter
     private String databaseServiceId;
     @Getter
     @Setter
@@ -52,4 +64,13 @@ public class DatabaseSlowStatement extends Source {
         return Const.EMPTY_STRING;
     }
 
+    @Override
+    public void prepare() {
+        super.prepare();
+        if (this.type == null) {
+            this.type = NodeType.Database;
+        }
+        this.serviceName = namingControl.formatServiceName(serviceName);
+        this.databaseServiceId = IDManager.ServiceID.buildId(serviceName, type);
+    }
 }
