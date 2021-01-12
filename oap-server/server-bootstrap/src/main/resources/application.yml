@@ -215,7 +215,7 @@ receiver-sharing-server:
     # For Jetty server
     restHost: ${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
     restPort: ${SW_RECEIVER_SHARING_REST_PORT:0}
-    contextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
+    restContextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
     restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
     restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
     restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
