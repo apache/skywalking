@@ -115,11 +115,14 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          * And make sure the source codes manipulation only occurs once.
          *
          */
-        if (!context.isObjectExtended()) {
-            newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
-                                             .implement(EnhancedInstance.class)
-                                             .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
-            context.extendObjectCompleted();
+        if (!typeDescription.isAssignableTo(EnhancedInstance.class)) {
+            if (!context.isObjectExtended()) {
+                newClassBuilder = newClassBuilder.defineField(
+                    CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
+                                                 .implement(EnhancedInstance.class)
+                                                 .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
+                context.extendObjectCompleted();
+            }
         }
 
         /**
