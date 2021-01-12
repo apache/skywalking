@@ -271,6 +271,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     @Override
     public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
+            entrySourceBuilder.prepare();
             sourceReceiver.receive(entrySourceBuilder.toAll());
             sourceReceiver.receive(entrySourceBuilder.toService());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstance());
@@ -292,6 +293,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
+            exitSourceBuilder.prepare();
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
 
             /*
@@ -310,6 +312,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         slowDatabaseAccesses.forEach(sourceReceiver::receive);
 
         logicEndpointBuilders.forEach(logicEndpointBuilder -> {
+            logicEndpointBuilder.prepare();
             sourceReceiver.receive(logicEndpointBuilder.toEndpoint());
         });
     }

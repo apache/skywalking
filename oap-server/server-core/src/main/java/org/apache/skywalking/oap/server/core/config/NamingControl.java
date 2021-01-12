@@ -44,7 +44,7 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #serviceNameMaxLength};
      */
     public String formatServiceName(String serviceName) {
-        if (serviceName.length() > serviceNameMaxLength) {
+        if (serviceName != null && serviceName.length() > serviceNameMaxLength) {
             final String rename = serviceName.substring(0, serviceNameMaxLength);
             if (log.isDebugEnabled()) {
                 log.debug(
@@ -69,7 +69,7 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #instanceNameMaxLength};
      */
     public String formatInstanceName(String instanceName) {
-        if (instanceName.length() > instanceNameMaxLength) {
+        if (instanceName != null && instanceName.length() > instanceNameMaxLength) {
             final String rename = instanceName.substring(0, instanceNameMaxLength);
             if (log.isDebugEnabled()) {
                 log.debug(
@@ -95,6 +95,10 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #endpointNameMaxLength};
      */
     public String formatEndpointName(String serviceName, String endpointName) {
+        if (endpointName == null) {
+            return null;
+        }
+
         String lengthControlledName = endpointName;
         if (endpointName.length() > endpointNameMaxLength) {
             lengthControlledName = endpointName.substring(0, endpointNameMaxLength);

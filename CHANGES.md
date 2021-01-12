@@ -58,6 +58,7 @@ Release Notes.
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
 * Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
 * Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
+* Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
 
 #### UI
 * Fix un-removed tags in trace query.

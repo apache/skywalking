@@ -47,7 +47,7 @@ class SourceBuilder {
     private String sourceServiceName;
 
     public void setSourceServiceName(final String sourceServiceName) {
-        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
+        this.sourceServiceName = sourceServiceName;
     }
 
     @Getter
@@ -57,7 +57,7 @@ class SourceBuilder {
     private String sourceServiceInstanceName;
 
     public void setSourceServiceInstanceName(final String sourceServiceInstanceName) {
-        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceServiceInstanceName = sourceServiceInstanceName;
     }
 
     /**
@@ -68,21 +68,21 @@ class SourceBuilder {
     private String sourceEndpointOwnerServiceName;
 
     public void setSourceEndpointOwnerServiceName(final String sourceServiceName) {
-        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceServiceName);
+        this.sourceEndpointOwnerServiceName = sourceServiceName;
     }
 
     @Getter
     private String sourceEndpointName;
 
     public void setSourceEndpointName(final String sourceEndpointName) {
-        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
+        this.sourceEndpointName = sourceEndpointName;
     }
 
     @Getter
     private String destServiceName;
 
     public void setDestServiceName(final String destServiceName) {
-        this.destServiceName = namingControl.formatServiceName(destServiceName);
+        this.destServiceName = destServiceName;
     }
 
     @Getter
@@ -92,14 +92,14 @@ class SourceBuilder {
     private String destServiceInstanceName;
 
     public void setDestServiceInstanceName(final String destServiceInstanceName) {
-        this.destServiceInstanceName = namingControl.formatServiceName(destServiceInstanceName);
+        this.destServiceInstanceName = destServiceInstanceName;
     }
 
     @Getter
     private String destEndpointName;
 
     public void setDestEndpointName(final String destEndpointName) {
-        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
+        this.destEndpointName = destEndpointName;
     }
 
     @Getter
@@ -125,6 +125,16 @@ class SourceBuilder {
     private long timeBucket;
     @Getter
     private final List<String> tags = new ArrayList<>();
+
+    void prepare() {
+        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
+        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceEndpointOwnerServiceName);
+        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
+        this.destServiceName = namingControl.formatServiceName(destServiceName);
+        this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
+        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
+    }
 
     /**
      * The global level metrics source
