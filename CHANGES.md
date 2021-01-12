@@ -29,6 +29,7 @@ Release Notes.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
+* Fix duplicated `EnhancedInstance` interface added.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -56,6 +57,7 @@ Release Notes.
 * Improve ReadWriteSafeCache concurrency read-write performance
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
 * Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
+* Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
 
 #### UI
 * Fix un-removed tags in trace query.
