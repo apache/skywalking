@@ -83,18 +83,20 @@ public class LogMatcher extends AbstractMatcher<Log> {
         if (nonNull(getContent())) {
             doVerify(getContent(), log.getContent());
         }
-        for (final KeyValueMatcher matcher : getTags()) {
-            boolean matched = false;
-            for (final KeyValue keyValue : log.getTags()) {
-                try {
-                    matcher.verify(keyValue);
-                    matched = true;
-                } catch (Throwable ignore) {
+        if (nonNull(getTags())) {
+            for (final KeyValueMatcher matcher : getTags()) {
+                boolean matched = false;
+                for (final KeyValue keyValue : log.getTags()) {
+                    try {
+                        matcher.verify(keyValue);
+                        matched = true;
+                    } catch (Throwable ignore) {
 
+                    }
                 }
-            }
-            if (!matched) {
-                fail("\nExpected: %s\n Actual: %s", getTags(), log.getTags());
+                if (!matched) {
+                    fail("\nExpected: %s\n Actual: %s", getTags(), log.getTags());
+                }
             }
         }
     }

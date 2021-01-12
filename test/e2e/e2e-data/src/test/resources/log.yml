@@ -25,3 +25,6 @@ logs:
     isError: false
     contentType: TEXT
     content: log
+    tags:
+      - key: not null
+        value: not null

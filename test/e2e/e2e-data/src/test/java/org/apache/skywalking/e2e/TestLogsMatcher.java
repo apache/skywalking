@@ -20,7 +20,9 @@ package org.apache.skywalking.e2e;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.e2e.common.KeyValue;
 import org.apache.skywalking.e2e.log.Log;
 import org.apache.skywalking.e2e.log.LogsMatcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +54,9 @@ public class TestLogsMatcher {
                           .setTimestamp("1609665785987")
                           .setError(false)
                           .setContentType("TEXT")
-                          .setContent("log"));
+                          .setContent("log")
+                          .setTags(
+                              Collections.singletonList(new KeyValue().setKey("key").setValue("value"))));
         logs.add(new Log().setServiceName("e2e")
                           .setServiceId("ZTJl.1")
                           .setServiceInstanceName("e2e-instance")
@@ -63,7 +67,9 @@ public class TestLogsMatcher {
                           .setTimestamp("1609665785987")
                           .setError(false)
                           .setContentType("TEXT")
-                          .setContent("log"));
+                          .setContent("log")
+                          .setTags(
+                              Collections.singletonList(new KeyValue().setKey("key").setValue("value"))));
 
         logsMatcher.verifyLoosely(logs);
     }
