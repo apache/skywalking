@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -68,6 +69,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.Storag
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AggregationQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AlarmQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.BrowserLogQueryEs7DAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.ES7EventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.LogQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.MetadataQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.MetricsQueryEs7DAO;
@@ -197,6 +199,8 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
             ));
         this.registerServiceImplementation(
             UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearch7Client));
+
+        this.registerServiceImplementation(IEventQueryDAO.class, new ES7EventQueryDAO(elasticSearch7Client));
     }
 
     @Override

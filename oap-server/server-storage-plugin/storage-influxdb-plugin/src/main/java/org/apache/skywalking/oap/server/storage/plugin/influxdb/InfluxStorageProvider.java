@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -51,6 +52,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStora
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.BrowserLogQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.EventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
@@ -119,6 +121,8 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteDAO(client));
         this.registerServiceImplementation(UITemplateManagementDAO.class, new UITemplateManagementDAOImpl(client));
+
+        this.registerServiceImplementation(IEventQueryDAO.class, new EventQueryDAO(client));
     }
 
     @Override

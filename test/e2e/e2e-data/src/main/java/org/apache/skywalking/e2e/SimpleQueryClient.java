@@ -32,6 +32,9 @@ import org.apache.skywalking.e2e.alarm.GetAlarmData;
 import org.apache.skywalking.e2e.browser.BrowserErrorLog;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogQuery;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogsData;
+import org.apache.skywalking.e2e.event.Event;
+import org.apache.skywalking.e2e.event.EventData;
+import org.apache.skywalking.e2e.event.EventsQuery;
 import org.apache.skywalking.e2e.log.Log;
 import org.apache.skywalking.e2e.log.LogData;
 import org.apache.skywalking.e2e.log.LogsQuery;
@@ -436,5 +439,23 @@ public class SimpleQueryClient {
             throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
         }
         return Objects.requireNonNull(responseEntity.getBody().getData().isSupport());
+    }
+
+    public List<Event> events(final EventsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("events.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream().filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{uuid}", query.uuid());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<EventData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<EventData>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getEvents().getData();
     }
 }
