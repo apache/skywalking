@@ -29,7 +29,7 @@ Release Notes.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
-* Update kafka plugin support version to latest(2.7.0).
+* Update kafka plugin support version to 2.6.1.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
