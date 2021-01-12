@@ -1,0 +1,42 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+type: jvm
+entryService: http://localhost:8080/canal-scenario/case/canal-case
+healthCheck: http://localhost:8080/canal-scenario/case/healthCheck
+startScript: ./bin/startup.sh
+environment:
+  - CANAL_HOST=canal-server
+  - CANAL_PORT=11111
+depends_on:
+  - mysql
+  - canal-server
+dependencies:
+  mysql:
+    image: mysql:5.7
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=000000
+  canal-server:
+    image: canal/canal-server:v1.1.0
+    hostname: canal-server
+    environment:
+      - canal.instance.master.address=mysql:3306
+      - canal.instance.master.journal.name=mysql-bin.000001
+      - canal.instance.dbUsername=root
+      - canal.instance.dbPassword=000000
+    depends_on:
+      - mysql

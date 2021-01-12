@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+expSuffix: instance(['service'], ['instance'])
+metricPrefix: meter
+metricsRules:
+  - name: http_server_requests_count
+    exp: http_server_requests_count.increase("PT1M")
+  - name: http_server_requests_duration
+    exp: http_server_requests_sum.increase("PT1M")
+  - name: jdbc_connections_active
+    exp: jdbc_connections_active
+  - name: jdbc_connections_idle
+    exp: jdbc_connections_idle
+  - name: jdbc_connections_max
+    exp: jdbc_connections_max
+  - name: jvm_classes_loaded
+    exp: jvm_classes_loaded
+  - name: jvm_classes_unloaded
+    exp: jvm_classes_unloaded.increase("PT1M")
+  - name: jvm_gc_pause_count
+    exp: jvm_gc_pause_count.increase("PT1M")
+  - name: jvm_gc_pause_duration
+    exp: jvm_gc_pause_sum.increase("PT1M")
+  - name: jvm_memory_committed
+    exp: jvm_memory_committed
+  - name: jvm_memory_max
+    exp: jvm_memory_max
+  - name: jvm_memory_used
+    exp: jvm_memory_used
+  - name: jvm_threads_daemon
+    exp: jvm_threads_daemon
+  - name: jvm_threads_live
+    exp: jvm_threads_live
+  - name: jvm_threads_peak
+    exp: jvm_threads_peak
+  - name: process_cpu_usage
+    exp: process_cpu_usage.multiply(100)
+  - name: system_cpu_usage
+    exp: system_cpu_usage.multiply(100)
+  - name: system_load_average_1m
+    exp: system_load_average_1m
+  - name: tomcat_sessions_active_current
+    exp: tomcat_sessions_active_current
+  - name: tomcat_sessions_active_max
+    exp: tomcat_sessions_active_max
+  - name: tomcat_sessions_rejected
+    exp: tomcat_sessions_rejected.increase("PT1M")
+  - name: process_files_max
+    exp: process_files_max
+  - name: process_files_open
+    exp: process_files_open

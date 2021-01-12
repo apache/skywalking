@@ -1,0 +1,182 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  zookeeper:
+    image: zookeeper:3.4
+    hostname: zookeeper
+    expose:
+      - 2181
+    networks:
+      - e2e
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 2181"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  broker-a:
+    image: bitnami/kafka:2.4.1
+    hostname: broker-a
+    expose:
+      - 9092
+    networks:
+      - e2e
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_BROKER_ID=10
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  broker-b:
+    image: bitnami/kafka:2.4.1
+    hostname: broker-b
+    expose:
+      - 9092
+    networks:
+      - e2e
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_BROKER_ID=24
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
+    extends:
+      file: ../base-compose.yml
+      service: oap
+    environment:
+      SW_PROMETHEUS_FETCHER: "default"
+      SW_TELEMETRY: prometheus
+      SW_KAFKA_FETCHER: default
+      SW_KAFKA_FETCHER_SERVERS: broker-a:9092,broker-b:9092
+      SW_KAFKA_FETCHER_PARTITIONS: 2
+      SW_KAFKA_FETCHER_PARTITIONS_FACTOR: 1
+    depends_on:
+      broker-a:
+        condition: service_healthy
+      broker-b:
+        condition: service_healthy
+
+  ui:
+    extends:
+      file: ../base-compose.yml
+      service: ui
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  provider:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    networks:
+      - e2e
+    expose:
+      - 9091
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_AGENT_INSTANCE: provider-instance
+    depends_on:
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9091"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    entrypoint: ['python3', '/provider.py']
+
+  medium:
+    extends:
+      file: ../base-compose.yml
+      service: consumer
+    environment:
+      PROVIDER_URL: http://provider:9091
+    depends_on:
+      oap:
+        condition: service_healthy
+      provider:
+        condition: service_healthy
+
+  provider-kafka:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    networks:
+      - e2e
+    expose:
+      - 9089
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_AGENT_INSTANCE: provider-kafka-instance
+      SW_KAFKA_REPORTER_BOOTSTRAP_SERVERS: broker-a:9092,broker-b:9092
+    depends_on:
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9089"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    entrypoint: ['python3', '/provider-kafka.py']
+
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    networks:
+      - e2e
+    expose:
+      - 9090
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      PROVIDER_URL: http://medium:9092/users
+      SW_AGENT_INSTANCE: consumer-instance
+    depends_on:
+      oap:
+        condition: service_healthy
+      medium:
+        condition: service_healthy
+      provider-kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9090"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    entrypoint: ['python3', '/consumer.py']
+
+networks:
+  e2e:

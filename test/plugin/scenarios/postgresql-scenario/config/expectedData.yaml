@@ -1,0 +1,101 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: postgresql-scenario
+  segmentSize: ge 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: PostgreSQL/JDBI/PreparedStatement/execute
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 1
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: postgres}
+      - key: db.statement
+        value: "CREATE TABLE test_007(\nid VARCHAR(1) PRIMARY KEY, \nvalue VARCHAR(1)\
+          \ NOT NULL)"
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 37
+      peer: postgresql-server:5432
+      skipAnalysis: 'false'
+    - operationName: PostgreSQL/JDBI/CallableStatement/execute
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 2
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: postgres}
+      - {key: db.statement, value: 'INSERT INTO test_007(id, value) VALUES(?,?)'}
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 37
+      peer: postgresql-server:5432
+      skipAnalysis: 'false'
+    - operationName: PostgreSQL/JDBI/Statement/execute
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 3
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: postgres}
+      - {key: db.statement, value: DROP table test_007}
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 37
+      peer: postgresql-server:5432
+      skipAnalysis: 'false'
+    - operationName: PostgreSQL/JDBI/Connection/close
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 4
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: postgres}
+      - {key: db.statement, value: ''}
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 37
+      peer: postgresql-server:5432
+      skipAnalysis: 'false'
+    - operationName: /postgresql-scenario/case/postgres
+      operationId: eq 0
+      parentSpanId: -1
+      spanId: 0
+      startTime: nq 0
+      endTime: nq 0
+      spanLayer: Http
+      isError: false
+      spanType: Entry
+      componentId: 1
+      tags:
+      - {key: url, value: 'http://localhost:8080/postgresql-scenario/case/postgres'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
