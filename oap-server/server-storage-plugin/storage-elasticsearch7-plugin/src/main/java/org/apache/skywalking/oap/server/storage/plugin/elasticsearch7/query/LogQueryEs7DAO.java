@@ -167,7 +167,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
                                                                          .get(
                                                                              AbstractLogRecord.CONTENT_TYPE)).intValue()));
             log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
-            String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(AbstractLogRecord.DATA_BINARY);
+            String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(AbstractLogRecord.TAGS_RAW_DATA);
             if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                 parserDataBinary(dataBinaryBase64, log.getTags());
             }

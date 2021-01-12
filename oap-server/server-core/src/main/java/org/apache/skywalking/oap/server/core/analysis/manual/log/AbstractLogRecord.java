@@ -45,7 +45,7 @@ public abstract class AbstractLogRecord extends Record {
     public static final String IS_ERROR = "is_error";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
-    public static final String DATA_BINARY = "data_binary";
+    public static final String TAGS_RAW_DATA = "tags_raw_data";
     public static final String TIMESTAMP = "timestamp";
     public static final String TAGS = "tags";
 
@@ -95,24 +95,24 @@ public abstract class AbstractLogRecord extends Record {
     private long timestamp;
 
     /**
-     * All tag binary data, used when querying.
+     * All tag binary data.
      */
     @Setter
     @Getter
-    @Column(columnName = DATA_BINARY, storageOnly = true)
-    private byte[] dataBinary;
+    @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
+    private byte[] tagsRawData;
     @Setter
     @Getter
     @Column(columnName = TAGS)
-    private List<String> tags;
+    private List<String> tagsInString;
 
     /**
-     * Tags raw data is a duplicate field of {@link #tags}. Some storage don't support array values in a single column.
-     * Then, those implementations could use this raw data to generate necessary data structures.
+     * tags is a duplicate field of {@link #tagsInString}. Some storage don't support array values in a single
+     * column. Then, those implementations could use this raw data to generate necessary data structures.
      */
     @Setter
     @Getter
-    private List<Tag> tagsRawData;
+    private List<Tag> tags;
 
     @Override
     public String id() {
@@ -134,12 +134,12 @@ public abstract class AbstractLogRecord extends Record {
             map.put(CONTENT_TYPE, record.getContentType());
             map.put(CONTENT, record.getContent());
             map.put(TIMESTAMP, record.getTimestamp());
-            if (CollectionUtils.isEmpty(record.getDataBinary())) {
-                map.put(DATA_BINARY, Const.EMPTY_STRING);
+            if (CollectionUtils.isEmpty(record.getTagsRawData())) {
+                map.put(TAGS_RAW_DATA, Const.EMPTY_STRING);
             } else {
-                map.put(DATA_BINARY, new String(Base64.getEncoder().encode(record.getDataBinary())));
+                map.put(TAGS_RAW_DATA, new String(Base64.getEncoder().encode(record.getTagsRawData())));
             }
-            map.put(TAGS, record.getTags());
+            map.put(TAGS, record.getTagsInString());
         }
 
         protected void map2Data(T record, Map<String, Object> dbMap) {
@@ -154,11 +154,11 @@ public abstract class AbstractLogRecord extends Record {
             record.setContentType(((Number) dbMap.get(CONTENT_TYPE)).intValue());
             record.setContent((String) dbMap.get(CONTENT));
             record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
-            if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
-                record.setDataBinary(new byte[] {});
+            if (StringUtil.isEmpty((String) dbMap.get(TAGS_RAW_DATA))) {
+                record.setTagsRawData(new byte[] {});
             } else {
                 // Don't read the tags as they has been in the data binary already.
-                record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
+                record.setTagsRawData(Base64.getDecoder().decode((String) dbMap.get(TAGS_RAW_DATA)));
             }
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
         }

@@ -102,7 +102,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
             log.setContent(body.getJson().getJson());
         }
         if (logData.getTags().getDataCount() > 0) {
-            log.setDataBinary(logData.getTags().toByteArray());
+            log.setTagsRawData(logData.getTags().toByteArray());
         }
         log.getTags().addAll(appendSearchableTags(logData));
     }

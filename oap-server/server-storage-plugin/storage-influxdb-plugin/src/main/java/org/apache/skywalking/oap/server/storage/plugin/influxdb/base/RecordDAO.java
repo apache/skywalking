@@ -61,7 +61,7 @@ public class RecordDAO implements IRecordDAO {
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
             rawTags = ((SegmentRecord) record).getTagsRawData();
         } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
-            rawTags = ((LogRecord) record).getTagsRawData();
+            rawTags = ((LogRecord) record).getTags();
         }
         if (nonNull(rawTags)) {
             Map<String, List<Tag>> collect = rawTags.stream()

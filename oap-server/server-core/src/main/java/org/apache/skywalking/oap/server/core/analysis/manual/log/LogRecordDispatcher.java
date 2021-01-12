@@ -39,9 +39,9 @@ public class LogRecordDispatcher implements SourceDispatcher<Log> {
         record.setSpanId(source.getSpanId());
         record.setContentType(source.getContentType().value());
         record.setContent(source.getContent());
-        record.setDataBinary(source.getDataBinary());
-        record.setTags(Tag.Util.toStringList(source.getTags()));
-        record.setTagsRawData(source.getTags());
+        record.setTagsRawData(source.getTagsRawData());
+        record.setTagsInString(Tag.Util.toStringList(source.getTags()));
+        record.setTags(source.getTags());
 
         RecordStreamProcessor.getInstance().in(record);
     }

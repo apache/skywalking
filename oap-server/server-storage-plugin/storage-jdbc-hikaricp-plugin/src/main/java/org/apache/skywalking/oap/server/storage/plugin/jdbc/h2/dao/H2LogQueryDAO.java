@@ -47,13 +47,13 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.DATA_BINARY;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TAGS_RAW_DATA;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
@@ -195,7 +195,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setError(BooleanUtils.valueToBoolean(resultSet.getInt(IS_ERROR)));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
                     log.setContent(resultSet.getString(CONTENT));
-                    String dataBinaryBase64 = resultSet.getString(DATA_BINARY);
+                    String dataBinaryBase64 = resultSet.getString(TAGS_RAW_DATA);
                     if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         parserDataBinary(dataBinaryBase64, log.getTags());
                     }

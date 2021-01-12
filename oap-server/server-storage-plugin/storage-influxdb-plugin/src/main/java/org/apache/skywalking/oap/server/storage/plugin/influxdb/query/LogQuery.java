@@ -185,7 +185,7 @@ public class LogQuery implements ILogQueryDAO {
                 log.setContentType(
                     ContentType.instanceOf(((Number) data.get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
                 log.setContent((String) data.get(AbstractLogRecord.CONTENT));
-                String dataBinaryBase64 = (String) data.get(AbstractLogRecord.DATA_BINARY);
+                String dataBinaryBase64 = (String) data.get(AbstractLogRecord.TAGS_RAW_DATA);
                 if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                     parserDataBinary(dataBinaryBase64, log.getTags());
                 }
