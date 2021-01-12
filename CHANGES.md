@@ -29,7 +29,6 @@ Release Notes.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
-* Update kafka plugin support version to 2.6.1.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -88,6 +87,7 @@ Release Notes.
 * Add documents about the group name of service.
 * Update docs about the latest UI.
 * Update the document of backend trace sampling with the latest configuration.
+* Update kafka plugin support version to 2.6.1.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 
