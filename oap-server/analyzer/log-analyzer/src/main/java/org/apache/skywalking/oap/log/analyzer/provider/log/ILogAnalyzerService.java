@@ -21,7 +21,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Analyze the collected logs
+ * Analyze the collected log data.
  */
 public interface ILogAnalyzerService extends Service {
 

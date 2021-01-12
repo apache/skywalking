@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import static java.util.Objects.nonNull;
 
 /**
- *
+ * Generate service, service instance and endpoint traffic by log data.
  */
 @RequiredArgsConstructor
 public class TrafficAnalysisListener implements LogAnalysisListener {
@@ -63,21 +63,21 @@ public class TrafficAnalysisListener implements LogAnalysisListener {
     @Override
     public void parse(final LogData.Builder logData) {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
-        // service
+        // to service traffic
         String serviceName = namingControl.formatServiceName(logData.getService());
         String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
         serviceMeta = new ServiceMeta();
         serviceMeta.setName(namingControl.formatServiceName(logData.getService()));
         serviceMeta.setNodeType(NodeType.Normal);
         serviceMeta.setTimeBucket(timeBucket);
-        // service instance
+        // to service instance traffic
         if (StringUtil.isNotEmpty(logData.getServiceInstance())) {
             instanceMeta = new ServiceInstanceUpdate();
             instanceMeta.setServiceId(serviceId);
             instanceMeta.setName(namingControl.formatInstanceName(logData.getServiceInstance()));
             instanceMeta.setTimeBucket(timeBucket);
         }
-        // endpoint
+        // to endpoint traffic
         if (StringUtil.isNotEmpty(logData.getEndpoint())) {
             endpointMeta = new EndpointMeta();
             endpointMeta.setServiceName(serviceName);

@@ -110,7 +110,6 @@ public class KafkaLogE2E extends SkyWalkingTestAdapter {
                                                  "6024a2b1fcff48e4a641d69d388bac53.41.16088574455279608")
                                              .spanId("0")
                                              .tag("status_code", "200")
-
                                              .start(startTime)
                                              .end(Times.now());
         if (graphql.supportQueryLogsByKeywords()) {

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 /**
- * LogAnalysisListener represents the callback when OAP does the log analysis.
+ * LogAnalysisListener represents the callback when OAP does the log data analysis.
  */
 public interface LogAnalysisListener {
     /**
