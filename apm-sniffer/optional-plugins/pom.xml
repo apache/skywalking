@@ -50,6 +50,7 @@
         <module>kotlin-coroutine-plugin</module>
         <module>quartz-scheduler-2.x-plugin</module>
         <module>logger-plugin</module>
+        <module>percentage-sampling-plugin</module>
     </modules>
 
     <dependencies>
