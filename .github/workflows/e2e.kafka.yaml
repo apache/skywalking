@@ -25,15 +25,22 @@ on:
     - cron: '0 18 * * *'
 
 env:
-  SKIP_TEST: true
   SW_AGENT_JDK_VERSION: 8
-  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   Kafka:
-    name: Kafka
+    name: ${{ matrix.case.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      matrix:
+        case:
+          - name: Kafka
+            class: org.apache.skywalking.e2e.kafka.KafkaE2E
+          - name: Profiling
+            class: org.apache.skywalking.e2e.kafka.KafkaProfileE2E
+          - name: Meter
+            class: org.apache.skywalking.e2e.kafka.KafkaMeterE2E
     steps:
       - uses: actions/checkout@v2
         with:
@@ -45,72 +52,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Kafka
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
         with:
-          name: logs
-          path: logs
-  profile:
-    name: Kafka(profiling)
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    env:
-      SW_STORAGE: influxdb
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Kafka Profiling
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaProfileE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
-  meter:
-    name: Kafka(meter)
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Kafka Meter System
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaMeterE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+          test_class: ${{ matrix.case.class }}
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
