@@ -32,7 +32,7 @@ import org.elasticsearch.client.RestClientBuilder;
 
 public class RestHighLevelClientConInterceptor implements InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(RestHighLevelClientConInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(RestHighLevelClientConInterceptor.class);
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -48,7 +48,7 @@ public class RestHighLevelClientConInterceptor implements InstanceConstructorInt
         try {
             restClient.close();
         } catch (IOException e) {
-            logger.error("close restClient error , error message is " + e.getMessage(), e);
+            LOGGER.error("close restClient error , error message is " + e.getMessage(), e);
         }
     }
 }
