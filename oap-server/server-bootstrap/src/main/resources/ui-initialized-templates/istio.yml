@@ -100,8 +100,8 @@ templates:
                   "height": 350,
                   "entityType": "Service",
                   "independentSelector": false,
-                  "metricType": "UNKNOWN",
-                  "metricName": "meter_istio_pilot_xds_cds_reject,meter_pilot_xds_eds_reject,meter_pilot_xds_rds_reject,meter_pilot_xds_lds_reject,meter_pilot_xds_write_timeout,meter_pilot_total_xds_internal_errors,meter_pilot_total_xds_rejects,meter_pilot_xds_push_context_errors,meter_pilot_xds_pushes_error,meter_pilot_xds_push_errors,meter_pilot_xds_push_timeout,meter_pilot_xds_push_timeout_failures",
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_pilot_xds_cds_reject,meter_pilot_xds_eds_reject,meter_pilot_xds_rds_reject,meter_pilot_xds_lds_reject,meter_pilot_xds_write_timeout,meter_pilot_total_xds_internal_errors,meter_pilot_total_xds_rejects,meter_pilot_xds_push_context_errors,meter_pilot_xds_push_timeout",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea"
                 },
@@ -120,7 +120,7 @@ templates:
                   "unit": "%"
                 },
                 {
-                  "width": "4",
+                  "width": "6",
                   "title": "Conflicts",
                   "height": 350,
                   "entityType": "Service",
@@ -131,7 +131,7 @@ templates:
                   "chartType": "ChartBar"
                 },
                 {
-                  "width": "4",
+                  "width": "6",
                   "title": "ADS Monitoring",
                   "height": 350,
                   "entityType": "Service",
@@ -146,7 +146,7 @@ templates:
                   "title": "Configuration Validation",
                   "height": 350,
                   "entityType": "Service",
-                  "independentSelector": true,
+                  "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
