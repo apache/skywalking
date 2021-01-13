@@ -325,4 +325,32 @@ public class Config {
          */
         public static String AUTO_TAG_KEYS = "";
     }
+
+    public static class GRPCLog {
+        /**
+         * The host of gRPC log server.
+         */
+        public static String SERVER_HOST = "localhost";
+
+        /**
+         * The port of gRPC log server.
+         */
+        public static int SERVER_PORT = 8000;
+
+        /**
+         * The max size of message to send to server.Default is 10 MB
+         */
+        public static int MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
+
+        /**
+         * The log body type to send to the server, includes text(2),json(3),yaml(4).Default is text.
+         */
+        public static int LOG_BODY_TYPE = 2;
+
+        /**
+         * How long grpc client will timeout in sending data to upstream.
+         */
+        public static int UPSTREAM_TIMEOUT = 30;
+    }
+
 }
