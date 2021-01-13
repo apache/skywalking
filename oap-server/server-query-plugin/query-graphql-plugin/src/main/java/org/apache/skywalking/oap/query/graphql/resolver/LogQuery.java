@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -59,6 +60,7 @@ public class LogQuery implements GraphQLQueryResolver {
             startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
             endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
+        Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
 
         return getQueryService().queryLogs(
             condition.getMetricName(),
@@ -69,6 +71,7 @@ public class LogQuery implements GraphQLQueryResolver {
             condition.getRelatedTrace(),
             condition.getState(),
             condition.getPaging(),
+            queryOrder,
             startSecondTB, endSecondTB,
             condition.getTags(),
             condition.getKeywordsOfContent(),

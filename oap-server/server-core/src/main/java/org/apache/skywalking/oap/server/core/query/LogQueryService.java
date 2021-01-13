@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
@@ -60,6 +61,7 @@ public class LogQueryService implements Service {
                           TraceScopeCondition relatedTrace,
                           LogState state,
                           Pagination paging,
+                          Order queryOrder,
                           final long startTB,
                           final long endTB,
                           final List<Tag> tags,
@@ -74,6 +76,7 @@ public class LogQueryService implements Service {
                                                endpointName,
                                                relatedTrace,
                                                state,
+                                               queryOrder,
                                                page.getFrom(), page.getLimit(),
                                                startTB, endTB, tags,
                                                keywordsOfContent, excludingKeywordsOfContent

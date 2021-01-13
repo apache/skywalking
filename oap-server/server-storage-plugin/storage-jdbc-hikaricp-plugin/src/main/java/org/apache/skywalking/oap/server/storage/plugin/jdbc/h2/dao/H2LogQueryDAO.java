@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogReco
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
@@ -43,6 +44,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
@@ -83,6 +85,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                           String endpointName,
                           TraceScopeCondition relatedTrace,
                           LogState state,
+                          Order queryOrder,
                           int from,
                           int limit,
                           final long startSecondTB,
@@ -169,6 +172,11 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                 }
             }
         }
+
+        sql.append(" order by ")
+           .append(TIMESTAMP)
+           .append(" ")
+           .append(Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
 
         Logs logs = new Logs();
         try (Connection connection = h2Client.getConnection()) {

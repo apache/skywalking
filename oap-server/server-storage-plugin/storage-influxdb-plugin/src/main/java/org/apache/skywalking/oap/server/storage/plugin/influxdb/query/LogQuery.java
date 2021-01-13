@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
@@ -79,6 +79,7 @@ public class LogQuery implements ILogQueryDAO {
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
                           final LogState state,
+                          final Order queryOrder,
                           final int from,
                           final int limit,
                           final long startTB,
@@ -87,8 +88,14 @@ public class LogQuery implements ILogQueryDAO {
                           final List<String> keywordsOfContent,
                           final List<String> excludingKeywordsOfContent) throws IOException {
         WhereQueryImpl<SelectQueryImpl> recallQuery = select().raw(ALL_FIELDS)
+                                                              .function(
+                                                                  Order.DES.equals(
+                                                                      queryOrder) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC,
+                                                                  AbstractLogRecord.TIMESTAMP, limit + from
+                                                              )
                                                               .from(client.getDatabase(), metricName)
                                                               .where();
+
         if (isNotEmpty(serviceId)) {
             recallQuery.and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId));
         }
@@ -134,12 +141,6 @@ public class LogQuery implements ILogQueryDAO {
                 nested.and(contains(tag.getKey(), "'" + tag.getValue() + "'"));
             }
             nested.close();
-        }
-
-        if (from > Const.NONE) {
-            recallQuery.limit(limit, from);
-        } else {
-            recallQuery.limit(limit);
         }
 
         SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);

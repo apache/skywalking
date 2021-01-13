@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogReco
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
@@ -43,6 +44,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
@@ -65,6 +67,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
                           final LogState state,
+                          final Order queryOrder,
                           final int from,
                           final int limit,
                           final long startSecondTB,
@@ -142,9 +145,9 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             ));
         }
 
+        sourceBuilder.sort(LogRecord.TIMESTAMP, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
-        sourceBuilder.sort(LogRecord.TIMESTAMP);
 
         SearchResponse response = getClient().search(metricName, sourceBuilder);
 
