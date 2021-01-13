@@ -195,7 +195,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         setPublicAttrs(sourceBuilder, span);
         exitSourceBuilders.add(sourceBuilder);
 
-        if (sourceBuilder.getType().equals(RequestType.DATABASE)) {
+        if (RequestType.DATABASE.equals(sourceBuilder.getType())) {
             boolean isSlowDBAccess = false;
 
             DatabaseSlowStatement statement = new DatabaseSlowStatement(namingControl);

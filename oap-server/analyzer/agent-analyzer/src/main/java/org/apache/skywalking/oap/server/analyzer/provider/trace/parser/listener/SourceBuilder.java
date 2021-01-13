@@ -46,14 +46,12 @@ class SourceBuilder {
     @Getter
     @Setter
     private String sourceServiceName;
-
     @Getter
     @Setter
     private NodeType sourceNodeType;
     @Getter
     @Setter
     private String sourceServiceInstanceName;
-
     /**
      * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
      * cases. This service always comes from the span.ref, so it is always a normal service.
@@ -61,26 +59,21 @@ class SourceBuilder {
     @Getter
     @Setter
     private String sourceEndpointOwnerServiceName;
-
     @Getter
     @Setter
     private String sourceEndpointName;
-
     @Getter
     @Setter
     private String destServiceName;
-
     @Getter
     @Setter
     private NodeType destNodeType;
     @Getter
     @Setter
     private String destServiceInstanceName;
-
     @Getter
     @Setter
     private String destEndpointName;
-
     @Getter
     @Setter
     private int componentId;
