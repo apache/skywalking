@@ -30,6 +30,7 @@ Release Notes.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
 * Fix duplicated `EnhancedInstance` interface added.
+* Support Alarm to feishu
 
 #### OAP-Backend
 * Make meter receiver support MAL.
