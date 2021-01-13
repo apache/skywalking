@@ -84,12 +84,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Add checkstyle-plugin
-        run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"${{ matrix.case }}"'<\/sourceDirectory>' test/plugin/pom.xml
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
+      - uses: ./.github/actions/pre/plugins-test
       - name: ${{ matrix.case }}
         run: bash test/plugin/run.sh ${{ matrix.case }}
       - name: Report Coverage

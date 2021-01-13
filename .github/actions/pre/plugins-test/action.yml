@@ -1,0 +1,14 @@
+name: 'Prepare Plugin Tests'
+description: 'Preparation steps for plugin tests'
+runs:
+  using: "composite"
+  steps:
+    - name: Add checkstyle-plugin
+      run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"${{ matrix.case }}"'<\/sourceDirectory>' test/plugin/pom.xml
+      shell: bash
+    - name: Build SkyWalking Agent
+      run: ./mvnw --batch-mode clean package -DskipTests -Pagent
+      shell: bash
+    - name: Build Docker image
+      run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
+      shell: bash
