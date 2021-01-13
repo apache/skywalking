@@ -30,7 +30,6 @@ Release Notes.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
 * Fix duplicated `EnhancedInstance` interface added.
-* Support Alarm to feishu
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -60,6 +59,7 @@ Release Notes.
 * Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
 * Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
 * Istio control plane: remove redundant metrics and polish panel layout.
+* Support Alarm to feishu
 
 #### UI
 * Fix un-removed tags in trace query.
