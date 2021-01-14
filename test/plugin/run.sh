@@ -30,7 +30,7 @@ jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
 num_of_testcases=
 
-image_version="1.0.0"
+image_version="jdk8-1.0.0"
 
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"

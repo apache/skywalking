@@ -41,7 +41,7 @@
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <ant-nodeps.version>1.8.1</ant-nodeps.version>
 
-        <kafk-clients.version>2.4.1</kafk-clients.version>
+        <kafka-clients.version>2.4.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 

@@ -22,9 +22,7 @@ on:
     - cron: '0 18 * * *'
 
 env:
-  SKIP_TEST: true
   SW_AGENT_JDK_VERSION: 8
-  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   CoordinatorsStorage:
@@ -49,14 +47,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker && ES_VERSION=es7 TAG=latest-es7 make docker.oap
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Cluster with ${{ matrix.coordinator }} and ${{ matrix.storage }}
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.ClusterE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
+        with:
+          test_class: org.apache.skywalking.e2e.ClusterE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

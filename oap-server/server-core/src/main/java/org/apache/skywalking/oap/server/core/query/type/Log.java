@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,4 +38,9 @@ public class Log {
     private String statusCode;
     private ContentType contentType = ContentType.NONE;
     private String content;
+    private final List<KeyValue> tags;
+
+    public Log() {
+        tags = new ArrayList<>();
+    }
 }
