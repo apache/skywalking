@@ -42,7 +42,6 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.RequestType;
@@ -62,7 +61,7 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.Sp
 public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
     private final List<SourceBuilder> entrySourceBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> exitSourceBuilders = new ArrayList<>(10);
-    private final List<DatabaseSlowStatement> slowDatabaseAccesses = new ArrayList<>(10);
+    private final List<DatabaseSlowStatementBuilder> dbSlowStatementBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
     private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
@@ -198,22 +197,21 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (RequestType.DATABASE.equals(sourceBuilder.getType())) {
             boolean isSlowDBAccess = false;
 
-            DatabaseSlowStatement statement = new DatabaseSlowStatement();
-            statement.setNamingControl(namingControl);
-            statement.setServiceName(networkAddress);
-            statement.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
-            statement.setLatency(sourceBuilder.getLatency());
-            statement.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
-            statement.setTraceId(segmentObject.getTraceId());
+            DatabaseSlowStatementBuilder slowStatementBuilder = new DatabaseSlowStatementBuilder(namingControl);
+            slowStatementBuilder.setServiceName(networkAddress);
+            slowStatementBuilder.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
+            slowStatementBuilder.setLatency(sourceBuilder.getLatency());
+            slowStatementBuilder.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+            slowStatementBuilder.setTraceId(segmentObject.getTraceId());
             for (KeyStringValuePair tag : span.getTagsList()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
                     if (StringUtil.isEmpty(sqlStatement)) {
-                        statement.setStatement("[No statement]/" + span.getOperationName());
+                        slowStatementBuilder.setStatement("[No statement]/" + span.getOperationName());
                     } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                        statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
+                        slowStatementBuilder.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
                     } else {
-                        statement.setStatement(sqlStatement);
+                        slowStatementBuilder.setStatement(sqlStatement);
                     }
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
@@ -226,7 +224,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
 
             if (isSlowDBAccess) {
-                slowDatabaseAccesses.add(statement);
+                dbSlowStatementBuilders.add(slowStatementBuilder);
             }
         }
     }
@@ -308,9 +306,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
         });
 
-        slowDatabaseAccesses.forEach(databaseSlowStatement -> {
-            databaseSlowStatement.prepare();
-            sourceReceiver.receive(databaseSlowStatement);
+        dbSlowStatementBuilders.forEach(dbSlowStatBuilder -> {
+            dbSlowStatBuilder.prepare();
+            sourceReceiver.receive(dbSlowStatBuilder.toDatabaseSlowStatement());
         });
 
         logicEndpointBuilders.forEach(logicEndpointBuilder -> {
