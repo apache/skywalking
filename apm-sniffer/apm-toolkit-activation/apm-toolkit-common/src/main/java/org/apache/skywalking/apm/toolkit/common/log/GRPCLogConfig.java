@@ -1,0 +1,54 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.apm.toolkit.common.log;
+
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
+
+public class GRPCLogConfig {
+
+    public static class Plugin {
+        @PluginConfig(root = GRPCLogConfig.class)
+        public static class GRPCLog {
+            /**
+             * The host of gRPC log server.
+             */
+            public static String SERVER_HOST = "127.0.0.1";
+
+            /**
+             * The port of gRPC log server.
+             */
+            public static int SERVER_PORT = 8000;
+
+            /**
+             * The max size of message to send to server.Default is 10 MB
+             */
+            public static int MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
+
+            /**
+             * The log body type to send to the server, includes text(2),json(3),yaml(4).Default is text.
+             */
+            public static int LOG_BODY_TYPE = 2;
+
+            /**
+             * How long grpc client will timeout in sending data to upstream.
+             */
+            public static int UPSTREAM_TIMEOUT = 30;
+        }
+    }
+}

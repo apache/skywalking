@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.log;
+package org.apache.skywalking.apm.toolkit.common.log;
 
 import java.util.List;
 import java.util.Objects;
@@ -65,10 +65,11 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
         carrier = new DataCarrier<>("gRPC-log", "gRPC-log", Config.Buffer.CHANNEL_SIZE, Config.Buffer.BUFFER_SIZE,
                 BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
-        channel = ManagedChannelBuilder.forAddress(Config.GRPCLog.SERVER_HOST, Config.GRPCLog.SERVER_PORT)
+        channel = ManagedChannelBuilder
+                .forAddress(GRPCLogConfig.Plugin.GRPCLog.SERVER_HOST, GRPCLogConfig.Plugin.GRPCLog.SERVER_PORT)
                 .usePlaintext().build();
         asyncStub = LogReportServiceGrpc.newStub(channel)
-                .withMaxOutboundMessageSize(Config.GRPCLog.MAX_MESSAGE_SIZE);
+                .withMaxOutboundMessageSize(GRPCLogConfig.Plugin.GRPCLog.MAX_MESSAGE_SIZE);
     }
 
     @Override
@@ -108,7 +109,7 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
         final GRPCStreamServiceStatus waitStatus = new GRPCStreamServiceStatus(false);
         try {
             reportStreamObserver = asyncStub.withDeadlineAfter(
-                    Config.GRPCLog.UPSTREAM_TIMEOUT, TimeUnit.SECONDS
+                    GRPCLogConfig.Plugin.GRPCLog.UPSTREAM_TIMEOUT, TimeUnit.SECONDS
             ).collect(new StreamObserver<Commands>() {
                 @Override
                 public void onNext(Commands commands) {

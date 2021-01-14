@@ -26,7 +26,6 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.log.LogReportServiceClient;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -37,6 +36,8 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.apm.network.logging.v3.YAMLLog;
+import org.apache.skywalking.apm.toolkit.common.log.GRPCLogConfig;
+import org.apache.skywalking.apm.toolkit.common.log.LogReportServiceClient;
 
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -91,7 +92,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
 
         LogDataBody.Builder logDataBodyBuilder = LogDataBody.newBuilder();
         LogDataBody.ContentCase contentType = Optional.ofNullable(LogDataBody.ContentCase.forNumber(
-                Config.GRPCLog.LOG_BODY_TYPE)).orElse(LogDataBody.ContentCase.TEXT);
+                GRPCLogConfig.Plugin.GRPCLog.LOG_BODY_TYPE)).orElse(LogDataBody.ContentCase.TEXT);
         switch (contentType) {
             case JSON:
                 logDataBodyBuilder.setType(LogDataBody.ContentCase.JSON.name())
