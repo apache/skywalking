@@ -23,36 +23,41 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
+import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.ConjunctionClause;
 
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
+import static java.util.Objects.nonNull;
+import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.STATUS_CODE;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
+import static org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
@@ -67,24 +72,54 @@ public class LogQuery implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
-                          LogState state, String stateCode, Pagination paging, int from, int limit,
-                          long startTB, long endTB) throws IOException {
+    public Logs queryLogs(String metricName,
+                          final String serviceId,
+                          final String serviceInstanceId,
+                          final String endpointId,
+                          final String endpointName,
+                          final TraceScopeCondition relatedTrace,
+                          final LogState state,
+                          final Order queryOrder,
+                          final int from,
+                          final int limit,
+                          final long startTB,
+                          final long endTB,
+                          final List<Tag> tags,
+                          final List<String> keywordsOfContent,
+                          final List<String> excludingKeywordsOfContent) throws IOException {
         WhereQueryImpl<SelectQueryImpl> recallQuery = select().raw(ALL_FIELDS)
+                                                              .function(
+                                                                  Order.DES.equals(
+                                                                      queryOrder) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC,
+                                                                  AbstractLogRecord.TIMESTAMP, limit + from
+                                                              )
                                                               .from(client.getDatabase(), metricName)
                                                               .where();
-        if (serviceId != Const.NONE) {
-            recallQuery.and(eq(InfluxConstants.TagName.SERVICE_ID, String.valueOf(serviceId)));
+
+        if (isNotEmpty(serviceId)) {
+            recallQuery.and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId));
         }
-        if (serviceInstanceId != Const.NONE) {
+        if (isNotEmpty(serviceInstanceId)) {
             recallQuery.and(eq(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (StringUtil.isNotEmpty(endpointId)) {
+        if (isNotEmpty(endpointId)) {
             recallQuery.and(eq(ENDPOINT_ID, endpointId));
         }
-        if (!Strings.isNullOrEmpty(traceId)) {
-            recallQuery.and(eq(TRACE_ID, traceId));
+        if (isNotEmpty(endpointName)) {
+            recallQuery.and(contains(ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
+        if (nonNull(relatedTrace)) {
+            if (isNotEmpty(relatedTrace.getTraceId())) {
+                recallQuery.and(eq(TRACE_ID, relatedTrace.getTraceId()));
+            }
+            if (isNotEmpty(relatedTrace.getSegmentId())) {
+                recallQuery.and(eq(TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
+            }
+            if (nonNull(relatedTrace.getSpanId())) {
+                recallQuery.and(eq(SPAN_ID, relatedTrace.getSpanId()));
+            }
+        }
+
         switch (state) {
             case ERROR: {
                 recallQuery.and(eq(IS_ERROR, true));
@@ -95,16 +130,17 @@ public class LogQuery implements ILogQueryDAO {
                 break;
             }
         }
-        if (!Strings.isNullOrEmpty(stateCode)) {
-            recallQuery.and(eq(STATUS_CODE, stateCode));
+        if (startTB != 0 && endTB != 0) {
+            recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
+                       .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
         }
-        recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
-                   .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
 
-        if (from > Const.NONE) {
-            recallQuery.limit(limit, from);
-        } else {
-            recallQuery.limit(limit);
+        if (CollectionUtils.isNotEmpty(tags)) {
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
+            for (final Tag tag : tags) {
+                nested.and(contains(tag.getKey(), "'" + tag.getValue() + "'"));
+            }
+            nested.close();
         }
 
         SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);
@@ -140,19 +176,20 @@ public class LogQuery implements ILogQueryDAO {
                     }
                     data.put(columns.get(i), value);
                 }
-                log.setContent((String) data.get(CONTENT));
-                log.setContentType(ContentType.instanceOf(((Number) data.get(CONTENT_TYPE)).intValue()));
-
+                log.setServiceId((String) data.get(SERVICE_ID));
+                log.setServiceInstanceId((String) data.get(SERVICE_INSTANCE_ID));
                 log.setEndpointId((String) data.get(ENDPOINT_ID));
                 log.setEndpointName((String) data.get(ENDPOINT_NAME));
                 log.setTraceId((String) data.get(TRACE_ID));
-                log.setTimestamp((String) data.get(TIMESTAMP));
-
-                log.setStatusCode((String) data.get(STATUS_CODE));
-
-                log.setServiceId((String) data.get(SERVICE_ID));
-                log.setServiceInstanceId((String) data.get(SERVICE_INSTANCE_ID));
-
+                log.setTimestamp(data.get(TIMESTAMP).toString());
+                log.setError(BooleanUtils.valueToBoolean(((Number) data.get(IS_ERROR)).intValue()));
+                log.setContentType(
+                    ContentType.instanceOf(((Number) data.get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
+                log.setContent((String) data.get(AbstractLogRecord.CONTENT));
+                String dataBinaryBase64 = (String) data.get(AbstractLogRecord.TAGS_RAW_DATA);
+                if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                    parserDataBinary(dataBinaryBase64, log.getTags());
+                }
                 logs.getLogs().add(log);
             });
         });

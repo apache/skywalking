@@ -86,6 +86,7 @@ public class TraceSegmentHandler implements KafkaHandler {
                 segmentParserService.send(segment);
             } catch (Exception e) {
                 errorCounter.inc();
+                log.error(e.getMessage(), e);
             } finally {
                 timer.finish();
             }

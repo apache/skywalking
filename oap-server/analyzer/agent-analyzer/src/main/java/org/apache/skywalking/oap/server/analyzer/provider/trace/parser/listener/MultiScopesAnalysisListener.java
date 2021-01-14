@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.RequestType;
@@ -61,7 +62,7 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.Sp
 public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
     private final List<SourceBuilder> entrySourceBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> exitSourceBuilders = new ArrayList<>(10);
-    private final List<SourceBuilder> slowDatabaseAccessesBuilders = new ArrayList<>(10);
+    private final List<DatabaseSlowStatement> slowDatabaseAccesses = new ArrayList<>(10);
     private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
     private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
@@ -197,22 +198,22 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (RequestType.DATABASE.equals(sourceBuilder.getType())) {
             boolean isSlowDBAccess = false;
 
-            SourceBuilder dbSlowStatSourceBuilder = new SourceBuilder(namingControl);
-            dbSlowStatSourceBuilder.setType(sourceBuilder.getType());
-            dbSlowStatSourceBuilder.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
-            dbSlowStatSourceBuilder.setDatabaseServiceId(networkAddress);
-            dbSlowStatSourceBuilder.setLatency(sourceBuilder.getLatency());
-            dbSlowStatSourceBuilder.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
-            dbSlowStatSourceBuilder.setTraceId(segmentObject.getTraceId());
+            DatabaseSlowStatement statement = new DatabaseSlowStatement();
+            statement.setNamingControl(namingControl);
+            statement.setServiceName(networkAddress);
+            statement.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
+            statement.setLatency(sourceBuilder.getLatency());
+            statement.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+            statement.setTraceId(segmentObject.getTraceId());
             for (KeyStringValuePair tag : span.getTagsList()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
                     if (StringUtil.isEmpty(sqlStatement)) {
-                        dbSlowStatSourceBuilder.setStatement("[No statement]/" + span.getOperationName());
+                        statement.setStatement("[No statement]/" + span.getOperationName());
                     } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                        dbSlowStatSourceBuilder.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
+                        statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
                     } else {
-                        dbSlowStatSourceBuilder.setStatement(sqlStatement);
+                        statement.setStatement(sqlStatement);
                     }
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
@@ -225,7 +226,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
 
             if (isSlowDBAccess) {
-                slowDatabaseAccessesBuilders.add(dbSlowStatSourceBuilder);
+                slowDatabaseAccesses.add(statement);
             }
         }
     }
@@ -307,9 +308,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
         });
 
-        slowDatabaseAccessesBuilders.forEach(dbSlowStatSourceBuilder -> {
-            dbSlowStatSourceBuilder.prepare();
-            sourceReceiver.receive(dbSlowStatSourceBuilder.toDatabaseSlowStatement());
+        slowDatabaseAccesses.forEach(databaseSlowStatement -> {
+            databaseSlowStatement.prepare();
+            sourceReceiver.receive(databaseSlowStatement);
         });
 
         logicEndpointBuilders.forEach(logicEndpointBuilder -> {

@@ -25,12 +25,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
-import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
@@ -99,35 +97,15 @@ class SourceBuilder {
     private long timeBucket;
     @Getter
     private final List<String> tags = new ArrayList<>();
-    /**
-     * Database request attributes
-     */
-    @Getter
-    @Setter
-    private String id;
-    @Getter
-    @Setter
-    private String traceId;
-    @Getter
-    @Setter
-    private String statement;
-    @Getter
-    @Setter
-    private String databaseServiceId;
 
     void prepare() {
-        if (RequestType.DATABASE.equals(type)) {
-            this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
-            this.databaseServiceId = IDManager.ServiceID.buildId(databaseServiceId, NodeType.Database);
-        } else {
-            this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
-            this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceEndpointOwnerServiceName);
-            this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
-            this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
-            this.destServiceName = namingControl.formatServiceName(destServiceName);
-            this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
-            this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
-        }
+        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
+        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceEndpointOwnerServiceName);
+        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
+        this.destServiceName = namingControl.formatServiceName(destServiceName);
+        this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
+        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
     }
 
     /**
@@ -306,23 +284,6 @@ class SourceBuilder {
         databaseAccess.setStatus(status);
         databaseAccess.setTimeBucket(timeBucket);
         return databaseAccess;
-    }
-
-    /**
-     * Slow database statement metrics source. The metrics base on the OAL scripts.
-     */
-    DatabaseSlowStatement toDatabaseSlowStatement() {
-        if (!RequestType.DATABASE.equals(type)) {
-            return null;
-        }
-        DatabaseSlowStatement databaseSlowStatement = new DatabaseSlowStatement();
-        databaseSlowStatement.setId(id);
-        databaseSlowStatement.setTraceId(traceId);
-        databaseSlowStatement.setLatency(latency);
-        databaseSlowStatement.setStatement(statement);
-        databaseSlowStatement.setDatabaseServiceId(databaseServiceId);
-        databaseSlowStatement.setTimeBucket(timeBucket);
-        return databaseSlowStatement;
     }
 
     public void setTag(KeyStringValuePair tag) {

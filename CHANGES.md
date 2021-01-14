@@ -62,6 +62,8 @@ Release Notes.
 * Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
 * Istio control plane: remove redundant metrics and polish panel layout.
 * Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
+* Fix receiver analysis error count metrics
+* Log collecting and query implementation
 
 #### UI
 * Fix un-removed tags in trace query.

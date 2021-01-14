@@ -126,7 +126,15 @@ public class MySQLStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
-        this.registerServiceImplementation(ILogQueryDAO.class, new MySQLLogQueryDAO(mysqlClient));
+        this.registerServiceImplementation(
+            ILogQueryDAO.class,
+            new MySQLLogQueryDAO(
+                mysqlClient,
+                getManager(),
+                config.getMaxSizeOfArrayColumn(),
+                config.getNumOfSearchableValuesPerTag()
+            )
+        );
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(mysqlClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(mysqlClient));
@@ -143,6 +151,13 @@ public class MySQLStorageProvider extends ModuleProvider {
         final int numOfSearchableTags = configService.getSearchableTracesTags().split(Const.COMMA).length;
         if (numOfSearchableTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
             throw new ModuleStartException("Size of searchableTracesTags[" + numOfSearchableTags
+                                               + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
+                                               + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
+                                               + "]. Potential out of bound in the runtime.");
+        }
+        final int numOfSearchableLogsTags = configService.getSearchableLogsTags().split(Const.COMMA).length;
+        if (numOfSearchableLogsTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+            throw new ModuleStartException("Size of searchableLogsTags[" + numOfSearchableLogsTags
                                                + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
                                                + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
                                                + "]. Potential out of bound in the runtime.");

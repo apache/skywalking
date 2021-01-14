@@ -249,7 +249,7 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
 
             @Override
             public void onError(Throwable throwable) {
-                throwable.printStackTrace();
+                LOGGER.warn(throwable.getMessage(), throwable);
                 latch.countDown();
             }
 
@@ -274,7 +274,7 @@ public class BrowserE2E extends SkyWalkingTestAdapter {
 
                     @Override
                     public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
+                        LOGGER.warn(throwable.getMessage(), throwable);
                         latch.countDown();
                     }
 
