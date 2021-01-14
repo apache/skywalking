@@ -25,7 +25,6 @@ on:
     - cron: '0 18 * * *'
 
 env:
-  SKIP_TEST: true
   SW_AGENT_JDK_VERSION: 8
 
 jobs:
@@ -44,9 +43,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: NodeJS Agent
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.NodeJSE2E
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
+        with:
+          test_class: org.apache.skywalking.e2e.NodeJSE2E
