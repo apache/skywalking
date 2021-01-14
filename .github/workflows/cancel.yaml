@@ -169,3 +169,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sourceRunId: ${{ github.event.workflow_run.id }}
           workflowFileName: plugins-test.3.yaml
+      - uses: apache/airflow-cancel-workflow-runs@953e057dc81d3458935a18d1184c386b0f6b5738
+        name: Cancel Outdated Builds e2e.log.yaml
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+          workflowFileName: e2e.log.yaml

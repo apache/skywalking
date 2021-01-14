@@ -78,6 +78,9 @@ public class DefaultScopeDefine {
     public static final int BROWSER_APP_SINGLE_VERSION_TRAFFIC = 39;
     public static final int BROWSER_APP_PAGE_TRAFFIC = 40;
 
+    public static final int LOG = 41;
+    public static final int ENDPOINT_META = 42;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */

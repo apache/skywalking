@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -73,7 +73,7 @@ public class TraceQuery implements ITraceQueryDAO {
                                        int from,
                                        TraceState traceState,
                                        QueryOrder queryOrder,
-                                       final List<SpanTag> tags)
+                                       final List<Tag> tags)
         throws IOException {
 
         String orderBy = SegmentRecord.START_TIME;
@@ -127,7 +127,7 @@ public class TraceQuery implements ITraceQueryDAO {
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
-            for (final SpanTag tag : tags) {
+            for (final Tag tag : tags) {
                 nested.and(contains(tag.getKey(), "'" + tag.getValue() + "'"));
             }
             nested.close();
