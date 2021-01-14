@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EntryAnalysisListener;
@@ -33,6 +32,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.FirstAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.LocalAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SegmentListener;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,30 +49,26 @@ public class TraceAnalyzer {
 
         createSpanListeners();
 
-        try {
-            notifySegmentListener(segmentObject);
+        notifySegmentListener(segmentObject);
 
-            segmentObject.getSpansList().forEach(spanObject -> {
-                if (spanObject.getSpanId() == 0) {
-                    notifyFirstListener(spanObject, segmentObject);
-                }
+        segmentObject.getSpansList().forEach(spanObject -> {
+            if (spanObject.getSpanId() == 0) {
+                notifyFirstListener(spanObject, segmentObject);
+            }
 
-                if (SpanType.Exit.equals(spanObject.getSpanType())) {
-                    notifyExitListener(spanObject, segmentObject);
-                } else if (SpanType.Entry.equals(spanObject.getSpanType())) {
-                    notifyEntryListener(spanObject, segmentObject);
-                } else if (SpanType.Local.equals(spanObject.getSpanType())) {
-                    notifyLocalListener(spanObject, segmentObject);
-                } else {
-                    log.error("span type value was unexpected, span type name: {}", spanObject.getSpanType()
-                                                                                              .name());
-                }
-            });
+            if (SpanType.Exit.equals(spanObject.getSpanType())) {
+                notifyExitListener(spanObject, segmentObject);
+            } else if (SpanType.Entry.equals(spanObject.getSpanType())) {
+                notifyEntryListener(spanObject, segmentObject);
+            } else if (SpanType.Local.equals(spanObject.getSpanType())) {
+                notifyLocalListener(spanObject, segmentObject);
+            } else {
+                log.error("span type value was unexpected, span type name: {}", spanObject.getSpanType()
+                                                                                          .name());
+            }
+        });
 
-            notifyListenerToBuild();
-        } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-        }
+        notifyListenerToBuild();
     }
 
     private void notifyListenerToBuild() {

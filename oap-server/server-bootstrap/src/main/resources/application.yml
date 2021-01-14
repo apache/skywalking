@@ -100,6 +100,8 @@ core:
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
     # Define the set of span tag keys, which should be searchable through the GraphQL.
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+    # Define the set of log tag keys, which should be searchable through the GraphQL.
+    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:""}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -209,6 +211,10 @@ agent-analyzer:
     slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:-1} # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:spring-sleuth.yaml} # Which files could be meter analyzed, files split by ","
 
+log-analyzer:
+  selector: ${SW_LOG_ANALYZER:default}
+  default:
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
@@ -279,6 +285,7 @@ kafka-fetcher:
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    enableLog: ${SW_KAFKA_FETCHER_ENABLE_LOG:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
     kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
@@ -317,6 +324,10 @@ receiver-browser:
   default:
     # The sample rate precision is 1/10000. 10000 means 100% sample in default.
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+
+receiver-log:
+  selector: ${SW_RECEIVER_LOG:default}
+  default:
 
 query:
   selector: ${SW_QUERY:graphql}
