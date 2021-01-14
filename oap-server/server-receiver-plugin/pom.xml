@@ -42,6 +42,7 @@
         <module>otel-receiver-plugin</module>
         <module>skywalking-meter-receiver-plugin</module>
         <module>skywalking-browser-receiver-plugin</module>
+        <module>skywalking-log-recevier-plugin</module>
     </modules>
 
     <dependencies>

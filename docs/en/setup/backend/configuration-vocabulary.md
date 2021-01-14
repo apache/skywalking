@@ -30,6 +30,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | instanceNameMaxLength| Max length limitation of service instance name. The max length of service + instance names should be less than 200.|SW_INSTANCE_NAME_MAX_LENGTH|70|
 | - | - | endpointNameMaxLength| Max length limitation of endpoint name. The max length of service + endpoint names should be less than 240.|SW_ENDPOINT_NAME_MAX_LENGTH|150|
 | - | - | searchableTracesTags | Define the set of span tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_TAG_KEYS | http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker|
+| - | - | searchableLogsTags | Define the set of log tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_LOGS_TAG_KEYS | - |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_CORE_GRPC_THREAD_POOL_SIZE | CPU core * 4|
 | - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_CORE_GRPC_POOL_QUEUE_SIZE | 10000|
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CALL | - |
@@ -204,6 +205,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | createTopicIfNotExist | If true, create the Kafka topic when it does not exist. | - | true |
 | - | - | partitions | The number of partitions for the topic being created. | SW_KAFKA_FETCHER_PARTITIONS | 3 |
 | - | - | enableMeterSystem | To enable to fetch and handle [Meter System](backend-meter.md) data. | SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM | false |
+| - | - | enableLog | To enable to fetch and handle log data. | SW_KAFKA_FETCHER_ENABLE_LOG | false |
 | - | - | replicationFactor | The replication factor for each partition in the topic being created. | SW_KAFKA_FETCHER_PARTITIONS_FACTOR | 2 |
 | - | - | kafkaHandlerThreadPoolSize | Pool size of kafka message handler executor. | SW_KAFKA_HANDLER_THREAD_POOL_SIZE | CPU core * 2 |
 | - | - | kafkaHandlerThreadPoolQueueSize | The queue size of kafka message handler executor. | SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE | 10000 |
@@ -212,12 +214,13 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | topicNameOfProfiling | Specifying Kafka topic name for Profiling data. | - | skywalking-profilings |
 | - | - | topicNameOfTracingSegments | Specifying Kafka topic name for Tracing data. | - | skywalking-segments |
 | - | - | topicNameOfManagements | Specifying Kafka topic name for service instance reporting and registering. | - | skywalking-managements |
+| - | - | topicNameOfLogs | Specifying Kafka topic name for log data. | - | skywalking-logs |
 | receiver-browser | default | Read [receiver doc](backend-receivers.md) for more details | - | - | - |
 | - | - | sampleRate | Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default. | SW_RECEIVER_BROWSER_SAMPLE_RATE | 10000 |
 | query | graphql | - | GraphQL query implementation | - |
 | - | - | path | Root path of GraphQL query and mutation. | SW_QUERY_GRAPHQL_PATH | /graphql|
 | alarm | default | - | Read [alarm doc](backend-alarm.md) for more details. | - |
-| telemetry | - | - | Read [telemetry doc](backend-telemetry.md) for more details. | - | 
+| telemetry | - | - | Read [telemetry doc](backend-telemetry.md) for more details. | - |
 | - | none| - | No op implementation | - |
 | - | prometheus| host | Binding host for Prometheus server fetching data| SW_TELEMETRY_PROMETHEUS_HOST|0.0.0.0|
 | - | - | port|  Binding port for Prometheus server fetching data|SW_TELEMETRY_PROMETHEUS_PORT|1234|
@@ -239,7 +242,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | etcd| clusterName| Service name used for SkyWalking cluster. |SW_CONFIG_ETCD_CLUSTER_NAME|default|
 | - | - | serverAddr| hosts and ports used of etcd cluster.| SW_CONFIG_ETCD_SERVER_ADDR|localhost:2379|
 | - | - | group |Additional prefix of the configuration key| SW_CONFIG_ETCD_GROUP | skywalking|
-| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 
+| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60
 | - | consul | hostPort| hosts and ports used of Consul cluster.| SW_CONFIG_CONSUL_HOST_AND_PORTS|localhost:8500|
 | - | - | aclToken| ALC Token of Consul. Empty string means `without ALC token`.| SW_CONFIG_CONSUL_ACL_TOKEN | - |
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_CONSUL_PERIOD | 60 |

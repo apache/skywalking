@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
@@ -43,7 +43,7 @@ public interface ITraceQueryDAO extends Service {
                                 int from,
                                 TraceState traceState,
                                 QueryOrder queryOrder,
-                                final List<SpanTag> tags) throws IOException;
+                                final List<Tag> tags) throws IOException;
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
 

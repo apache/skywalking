@@ -29,6 +29,8 @@ SkyWalking javaagent begins to support this since 8.0.0.
 
 [SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md) defines the communication way and format between agent and backend.
 
+[SkyWalking Log Data Protocol](Log-Data-Protocol.md) defines the communication way and format between agent and backend.
+
 ### Browser probe protocol
 
 The browser probe, such as  [skywalking-client-js](https://github.com/apache/skywalking-client-js) could use this protocol to send to backend. This service provided by gRPC.

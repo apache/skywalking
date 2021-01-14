@@ -31,8 +31,8 @@ import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -77,7 +77,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                                        int from,
                                        TraceState traceState,
                                        QueryOrder queryOrder,
-                                       final List<SpanTag> tags) throws IOException {
+                                       final List<Tag> tags) throws IOException {
         if (searchableTagKeys == null) {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()
@@ -130,7 +130,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             parameters.add(traceId);
         }
         if (CollectionUtils.isNotEmpty(tags)) {
-            for (final SpanTag tag : tags) {
+            for (final Tag tag : tags) {
                 final int foundIdx = searchableTagKeys.indexOf(tag.getKey());
                 if (foundIdx > -1) {
                     sql.append(" and (");

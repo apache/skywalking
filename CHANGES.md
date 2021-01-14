@@ -30,6 +30,8 @@ Release Notes.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
 * Fix duplicated `EnhancedInstance` interface added.
+* Fix thread leaks caused by the elasticsearch-6.x-plugin plugin.
+
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -58,6 +60,10 @@ Release Notes.
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
 * Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
 * Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
+* Istio control plane: remove redundant metrics and polish panel layout.
+* Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
+* Fix receiver analysis error count metrics
+* Log collecting and query implementation
 
 #### UI
 * Fix un-removed tags in trace query.
