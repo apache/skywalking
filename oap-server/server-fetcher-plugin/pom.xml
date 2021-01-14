@@ -31,6 +31,7 @@
     <modules>
         <module>prometheus-fetcher-plugin</module>
         <module>kafka-fetcher-plugin</module>
+        <module>pulsar-fetcher-plugin</module>
     </modules>
 
     <dependencies>

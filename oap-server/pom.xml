@@ -95,7 +95,7 @@
         <vavr.version>0.10.3</vavr.version>
         <groovy.version>3.0.3</groovy.version>
         <mvel.version>2.4.8.Final</mvel.version>
-
+        <pulsar-clients.version>2.7.0</pulsar-clients.version>
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>

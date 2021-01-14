@@ -110,7 +110,7 @@ kafka-fetcher:
 
 In cluster mode, all topics have the same number of partitions. Then we have to set `"isSharding"` to `"true"` and assign the partitions to consume for OAP server. The OAP server can use commas to separate multiple partitions.
 
-Kafka Fetcher allows to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
+Kafka Fetcher allows to configure all the Kafka consumer listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
@@ -143,3 +143,23 @@ kafka-fetcher:
       enable.auto.commit: true
       ...
 ```
+
+## Pulsar Fetcher 
+Pulsar Fetcher pulls messages from Pulsar Cluster like Kafka Fetcher.
+
+Different from Kafka Fetcher,you should create pulsar topic first.Default topic name:
+- Topic name of metrics: persistent://public/default/skywalking-metrics
+- Topic name of profiling: persistent://public/default/skywalking-profilings
+- Topic name of tracingSegments: persistent://public/default/skywalking-segments
+- Topic name of managements: persistent://public/default/skywalking-managements
+
+Configurations demo:
+```yaml
+pulsar-fetcher:
+  selector: ${SW_PULSAR_FETCHER:default}
+  default:
+    serviceUrl: "pulsar://localhost:6650"
+    pulsarConsumerConfig:
+        receiverQueueSize: 1000
+```
+All Pulsar consumer configurations listed [here](http://pulsar.apache.org/docs/en/client-libraries-java/#configure-consumer).

@@ -139,6 +139,11 @@
             <artifactId>kafka-fetcher-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>pulsar-fetcher-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- fetcher module -->
 
         <!-- storage module -->

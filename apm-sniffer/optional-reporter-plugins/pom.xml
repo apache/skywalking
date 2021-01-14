@@ -30,6 +30,7 @@
 
     <modules>
         <module>kafka-reporter-plugin</module>
+        <module>pulsar-reporter-plugin</module>
     </modules>
 
     <properties>
@@ -42,6 +43,7 @@
         <ant-nodeps.version>1.8.1</ant-nodeps.version>
 
         <kafk-clients.version>2.4.1</kafk-clients.version>
+        <pulsar-clients.version>2.7.0</pulsar-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
