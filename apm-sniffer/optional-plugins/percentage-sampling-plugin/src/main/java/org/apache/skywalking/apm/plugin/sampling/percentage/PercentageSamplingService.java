@@ -64,6 +64,7 @@ public class PercentageSamplingService extends SamplingService {
      * @param operationName The first operation name of the new tracing context.
      * @return true, if sampling mechanism is on
      */
+    @Override
     public boolean trySampling(String operationName) {
         if (on) {
             return ThreadLocalRandom.current().nextInt(0, MAX_N) < DFT_SAMPLING_RATE;
@@ -75,6 +76,7 @@ public class PercentageSamplingService extends SamplingService {
      * Increase the sampling factor by force, to avoid sampling too many traces. If many distributed traces require
      * sampled, the trace beginning at local, has less chance to be sampled.
      */
+    @Override
     public void forceSampled() {
     }
 }
