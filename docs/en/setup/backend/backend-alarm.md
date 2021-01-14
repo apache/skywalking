@@ -237,15 +237,6 @@ dingtalkHooks:
       secret: dummysecret
 ```
 
-## Update the settings dynamically
-Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
-which will override the settings in `alarm-settings.yml`.
-
-In order to determine that whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
-each alarm rule, if any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
-the sliding window will be destroyed and re-created, causing the alarm of this specific rule to restart again.
-
-
 ## Feishu Hook
 To do this you need to follow the [Feishu Webhooks guide](https://www.feishu.cn/hc/zh-cn/articles/360024984973) and create new Webhooks.
 For security issue, you can config optional secret for individual webhook url.
@@ -265,3 +256,11 @@ feishuHooks:
     - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
       secret: dummysecret
 ```
+
+## Update the settings dynamically
+Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
+which will override the settings in `alarm-settings.yml`.
+
+In order to determine that whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
+each alarm rule, if any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
+the sliding window will be destroyed and re-created, causing the alarm of this specific rule to restart again.
