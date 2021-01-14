@@ -55,8 +55,7 @@ public class TopoMatcher extends AbstractMatcher<Topology> {
                 try {
                     getNodes().get(i).verify(topology.getNodes().get(j));
                     matched = true;
-                } catch (Throwable e) {
-                    e.printStackTrace();
+                } catch (Throwable ignore) {
                 }
             }
             if (!matched) {
@@ -72,8 +71,7 @@ public class TopoMatcher extends AbstractMatcher<Topology> {
                 try {
                     getCalls().get(i).verify(topology.getCalls().get(j));
                     matched = true;
-                } catch (Throwable e) {
-                    e.printStackTrace();
+                } catch (Throwable ignore) {
                 }
             }
             if (!matched) {

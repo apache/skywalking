@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -118,7 +119,7 @@ public class SegmentRecord extends Record {
      */
     @Setter
     @Getter
-    private List<SpanTag> tagsRawData;
+    private List<Tag> tagsRawData;
 
     @Override
     public String id() {

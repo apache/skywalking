@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.Segment;
@@ -155,10 +155,10 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     }
 
     private void appendSearchableTags(SpanObject span) {
-        HashSet<SpanTag> segmentTags = new HashSet<>();
+        HashSet<Tag> segmentTags = new HashSet<>();
         span.getTagsList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
-                final SpanTag spanTag = new SpanTag(tag.getKey(), tag.getValue());
+                final Tag spanTag = new Tag(tag.getKey(), tag.getValue());
                 if (!segmentTags.contains(spanTag)) {
                     segmentTags.add(spanTag);
                 }

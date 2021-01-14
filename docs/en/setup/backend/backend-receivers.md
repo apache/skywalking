@@ -16,6 +16,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-otel**. See [details](#opentelemetry-receiver).
 1. **receiver-meter**. See [details](backend-meter.md).
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
+1. **receiver-log**. gRPC services accept log data.
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -61,6 +62,10 @@ receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
   default:
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+
+receiver-log:
+  selector: ${SW_RECEIVER_LOG:default}
+  default:
 ```
 
 ## gRPC/HTTP server for receiver

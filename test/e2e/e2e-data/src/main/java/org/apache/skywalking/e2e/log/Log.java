@@ -6,30 +6,36 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.segment;
+package org.apache.skywalking.e2e.log;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.List;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.apache.skywalking.e2e.common.KeyValue;
 
-public class SpanTagTest {
-    @Test
-    public void testEqual() {
-        final SpanTag spanTag = new SpanTag("tag1", "value1");
-        final SpanTag spanTag1 = new SpanTag("tag1", "value2");
-        final SpanTag spanTag2 = new SpanTag("tag2", "value3");
-        final SpanTag spanTag3 = new SpanTag("tag1", "value1");
-        Assert.assertEquals(spanTag, spanTag3);
-        Assert.assertNotEquals(spanTag, spanTag1);
-        Assert.assertNotEquals(spanTag, spanTag2);
-    }
+@Data
+@Accessors(chain = true)
+public class Log {
+
+    private String serviceName;
+    private String serviceId;
+    private String serviceInstanceName;
+    private String serviceInstanceId;
+    private String endpointName;
+    private String endpointId;
+    private String traceId;
+    private String timestamp;
+    private boolean isError;
+    private String contentType;
+    private String content;
+    private List<KeyValue> tags;
 }

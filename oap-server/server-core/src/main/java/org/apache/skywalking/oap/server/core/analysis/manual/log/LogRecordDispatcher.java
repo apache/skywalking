@@ -13,20 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.HTTPAccessLog;
+import org.apache.skywalking.oap.server.core.source.Log;
 
-public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> {
+public class LogRecordDispatcher implements SourceDispatcher<Log> {
 
     @Override
-    public void dispatch(HTTPAccessLog source) {
-        HTTPAccessLogRecord record = new HTTPAccessLogRecord();
+    public void dispatch(final Log source) {
+        LogRecord record = new LogRecord();
+        record.setUniqueId(source.getUniqueId());
         record.setTimestamp(source.getTimestamp());
         record.setTimeBucket(source.getTimeBucket());
         record.setServiceId(source.getServiceId());
@@ -34,10 +35,13 @@ public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> 
         record.setEndpointId(source.getEndpointId());
         record.setEndpointName(source.getEndpointName());
         record.setTraceId(source.getTraceId());
-        record.setIsError(source.getIsError());
-        record.setStatusCode(source.getStatusCode());
+        record.setTraceSegmentId(source.getTraceSegmentId());
+        record.setSpanId(source.getSpanId());
         record.setContentType(source.getContentType().value());
         record.setContent(source.getContent());
+        record.setTagsRawData(source.getTagsRawData());
+        record.setTagsInString(Tag.Util.toStringList(source.getTags()));
+        record.setTags(source.getTags());
 
         RecordStreamProcessor.getInstance().in(record);
     }

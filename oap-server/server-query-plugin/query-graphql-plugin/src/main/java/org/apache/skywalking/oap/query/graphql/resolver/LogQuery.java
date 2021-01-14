@@ -21,11 +21,14 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class LogQuery implements GraphQLQueryResolver {
@@ -43,18 +46,36 @@ public class LogQuery implements GraphQLQueryResolver {
         return logQueryService;
     }
 
+    public boolean supportQueryLogsByKeywords() {
+        return getQueryService().supportQueryLogsByKeywords();
+    }
+
     public Logs queryLogs(LogQueryCondition condition) throws IOException {
+        if (isNull(condition.getQueryDuration()) && isNull(condition.getRelatedTrace())) {
+            throw new UnexpectedException("The condition must contains either queryDuration or relatedTrace.");
+        }
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
             startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
             endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
+        Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
 
         return getQueryService().queryLogs(
-            condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition
-                .getEndpointId(), condition.getTraceId(), condition.getState(), condition.getStateCode(),
-            condition.getPaging(), startSecondTB, endSecondTB
+            condition.getMetricName(),
+            condition.getServiceId(),
+            condition.getServiceInstanceId(),
+            condition.getEndpointId(),
+            condition.getEndpointName(),
+            condition.getRelatedTrace(),
+            condition.getState(),
+            condition.getPaging(),
+            queryOrder,
+            startSecondTB, endSecondTB,
+            condition.getTags(),
+            condition.getKeywordsOfContent(),
+            condition.getExcludingKeywordsOfContent()
         );
     }
 }
