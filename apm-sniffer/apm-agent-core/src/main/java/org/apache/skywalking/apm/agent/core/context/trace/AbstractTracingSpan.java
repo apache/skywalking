@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
@@ -49,7 +47,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * Parent span id starts from 0. -1 means no parent span.
      */
     protected int parentSpanId;
-    protected List<TagValuePair> tags;
+    protected Set<TagValuePair> tags;
     protected String operationName;
     protected SpanLayer layer;
     /**
@@ -120,7 +118,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
         if (tags == null) {
-            tags = new ArrayList<>(8);
+            tags = new HashSet<>(8);
         }
 
         if (tag.isCanOverwrite()) {
