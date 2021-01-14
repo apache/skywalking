@@ -19,9 +19,7 @@
 package org.apache.skywalking.apm.toolkit.log.logback.v1.x.log;
 
 import ch.qos.logback.core.AppenderBase;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class GRPCLogClientAppender<E> extends AppenderBase<E> {
 
     @Override
