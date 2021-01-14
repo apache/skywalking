@@ -75,7 +75,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
                                       Model model) throws JDBCClientException {
         int indexSeq = 0;
         for (final ModelColumn modelColumn : model.getColumns()) {
-            if (!modelColumn.isStorageOnly()) {
+            if (!modelColumn.isStorageOnly() && modelColumn.getLength() < 256) {
                 final Class<?> type = modelColumn.getType();
                 if (List.class.isAssignableFrom(type)) {
                     for (int i = 0; i < maxSizeOfArrayColumn; i++) {

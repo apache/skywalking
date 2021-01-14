@@ -40,6 +40,7 @@
         <module>e2e-protocol</module>
         <module>e2e-service-provider</module>
         <module>e2e-service-consumer</module>
+        <module>e2e-log-producer</module>
         <module>e2e-test</module>
     </modules>
 
@@ -58,6 +59,7 @@
         <h2.version>1.4.199</h2.version>
         <mysql.version>8.0.13</mysql.version>
         <lombok.version>1.18.10</lombok.version>
+        <kafka-clients.version>2.4.1</kafka-clients.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>

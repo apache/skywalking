@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.query.type;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 public enum ContentType {
-    TEXT(1), JSON(2), NONE(0);
+    NONE(0), TEXT(1), JSON(2), YAML(3);
 
     private int value;
 
@@ -35,12 +35,14 @@ public enum ContentType {
 
     public static ContentType instanceOf(int value) {
         switch (value) {
+            case 0:
+                return NONE;
             case 1:
                 return TEXT;
             case 2:
                 return JSON;
-            case 0:
-                return NONE;
+            case 3:
+                return YAML;
             default:
                 throw new UnexpectedException("unexpected value=" + value);
         }

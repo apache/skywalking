@@ -116,3 +116,31 @@ jobs:
         with:
           name: logs
           path: logs
+  log:
+    name: Kafka(log)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Compile and Build
+        run: make docker
+      - name: Copy dist package
+        run: cp -R dist test/e2e/
+      - name: Kafka Log
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.kafka.KafkaLogE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: logs
+          path: logs
