@@ -73,24 +73,24 @@ public class ContextManager implements BootService {
      * @return the first global trace id if needEnhance. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
-        AbstractTracerContext segment = CONTEXT.get();
-        return Objects.nonNull(segment) ? segment.getReadablePrimaryTraceId() : EMPTY_TRACE_CONTEXT_ID;
+        AbstractTracerContext context = CONTEXT.get();
+        return Objects.nonNull(context) ? context.getReadablePrimaryTraceId() : EMPTY_TRACE_CONTEXT_ID;
     }
 
     /**
      * @return the current segment id if needEnhance. Otherwise, "N/A".
      */
     public static String getSegmentId() {
-        AbstractTracerContext segment = CONTEXT.get();
-        return Objects.nonNull(segment) ? segment.getSegmentId() : EMPTY_TRACE_CONTEXT_ID;
+        AbstractTracerContext context = CONTEXT.get();
+        return Objects.nonNull(context) ? context.getSegmentId() : EMPTY_TRACE_CONTEXT_ID;
     }
 
     /**
      * @return the current span id if needEnhance. Otherwise, "N/A".
      */
     public static String getSpanId() {
-        AbstractTracerContext segment = CONTEXT.get();
-        return Objects.nonNull(segment) ? segment.getSpanId() : EMPTY_TRACE_CONTEXT_ID;
+        AbstractTracerContext context = CONTEXT.get();
+        return Objects.nonNull(context) ? context.getSpanId() : EMPTY_TRACE_CONTEXT_ID;
     }
 
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
