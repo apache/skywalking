@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -38,6 +39,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.OPERATION_N
  * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
  */
 public class ContextManager implements BootService {
+    private static final String EMPTY_TRACE_CONTEXT_ID = "N/A";
     private static final ILog LOGGER = LogManager.getLogger(ContextManager.class);
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
     private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
@@ -72,11 +74,23 @@ public class ContextManager implements BootService {
      */
     public static String getGlobalTraceId() {
         AbstractTracerContext segment = CONTEXT.get();
-        if (segment == null) {
-            return "N/A";
-        } else {
-            return segment.getReadablePrimaryTraceId();
-        }
+        return Objects.nonNull(segment) ? segment.getReadablePrimaryTraceId() : EMPTY_TRACE_CONTEXT_ID;
+    }
+
+    /**
+     * @return the current segment id if needEnhance. Otherwise, "N/A".
+     */
+    public static String getSegmentId() {
+        AbstractTracerContext segment = CONTEXT.get();
+        return Objects.nonNull(segment) ? segment.getSegmentId() : EMPTY_TRACE_CONTEXT_ID;
+    }
+
+    /**
+     * @return the current span id if needEnhance. Otherwise, "N/A".
+     */
+    public static String getSpanId() {
+        AbstractTracerContext segment = CONTEXT.get();
+        return Objects.nonNull(segment) ? segment.getSpanId() : EMPTY_TRACE_CONTEXT_ID;
     }
 
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {

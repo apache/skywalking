@@ -243,6 +243,16 @@ public class TracingContext implements AbstractTracerContext {
         return segment.getRelatedGlobalTraces().get(0);
     }
 
+    @Override
+    public String getSegmentId() {
+        return segment.getTraceSegmentId();
+    }
+
+    @Override
+    public String getSpanId() {
+        return String.valueOf(activeSpan().getSpanId());
+    }
+
     /**
      * Create an entry span
      *

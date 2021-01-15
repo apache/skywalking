@@ -37,6 +37,24 @@ public class TraceContext {
     }
 
     /**
+     * Try to get the segmentId of current trace context.
+     *
+     * @return segmentId, if it exists, or empty {@link String}.
+     */
+    public static String segmentId() {
+        return "";
+    }
+
+    /**
+     * Try to get the spanId of current trace context.
+     *
+     * @return spanId, if it exists, or empty {@link String}.
+     */
+    public static String spanId() {
+        return "";
+    }
+
+    /**
      * Try to get the custom value from trace context.
      *
      * @return custom data value.
