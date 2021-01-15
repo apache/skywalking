@@ -32,6 +32,7 @@ Release Notes.
 * Fix bug that rocketmq-plugin set the wrong tag.
 * Fix duplicated `EnhancedInstance` interface added.
 * Fix thread leaks caused by the elasticsearch-6.x-plugin plugin.
+* Export the segmentId and spanId with toolkit.
 
 
 #### OAP-Backend
