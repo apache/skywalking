@@ -216,7 +216,6 @@
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
-        <apache-rat-plugin.version>0.12</apache-rat-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
@@ -420,127 +419,6 @@
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <version>${apache-rat-plugin.version}</version>
-                <configuration>
-                    <excludeSubProjects>false</excludeSubProjects>
-                    <addDefaultLicenseMatchers>false</addDefaultLicenseMatchers>
-                    <licenses>
-                        <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
-                            <licenseFamilyCategory>AL20</licenseFamilyCategory>
-                            <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
-                            <patterns>
-                                <pattern>Licensed to the Apache Software Foundation (ASF)</pattern>
-                            </patterns>
-                        </license>
-                    </licenses>
-                    <licenseFamilies>
-                        <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
-                            <familyName>Apache License, 2.0</familyName>
-                        </licenseFamily>
-                    </licenseFamilies>
-                    <excludes>
-                        <exclude>**/target/**</exclude>
-                        <exclude>**/licenses/**</exclude>
-                        <exclude>**/ui-licenses/**</exclude>
-                        <exclude>**/codeStyle.xml</exclude>
-
-                        <!-- IDE files -->
-                        <exclude>**/*.iml</exclude>
-                        <exclude>**/.idea/**</exclude>
-                        <exclude>**/*.classpath</exclude>
-                        <exclude>**/.project</exclude>
-                        <exclude>**/.settings/**</exclude>
-                        <exclude>**/dependency-reduced-pom.xml</exclude>
-                        <exclude>**/.vscode/**</exclude>
-                        <exclude>**/.factorypath</exclude>
-
-                        <!-- Docker compose envrioment variables file -->
-                        <excludes>**/.env/**</excludes>
-
-                        <!-- UI IDE configs -->
-                        <exclude>**/skywalking-ui/.editorconfig</exclude>
-                        <!-- UI ignore -->
-                        <exclude>**/skywalking-ui/.browserslistrc</exclude>
-                        <!-- UI prettier config -->
-                        <exclude>**/skywalking-ui/.prettierrc</exclude>
-
-                        <!-- git files -->
-                        <exclude>**/.gitignore</exclude>
-                        <exclude>**/.gitmodules</exclude>
-                        <exclude>**/.git/**</exclude>
-
-                        <!-- CI files -->
-                        <exclude>**/.muse/**</exclude>
-                        <exclude>**/.travis.yml</exclude>
-
-                        <!-- GitHub files -->
-                        <exclude>**/.github/**</exclude>
-
-                        <!-- document files -->
-                        <exclude>**/*.md</exclude>
-                        <excldue>**/*.MD</excldue>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/docs/**</exclude>
-
-                        <!-- Test cases data in JSON format -->
-                        <exclude>**/src/test/resources/json/*.json</exclude>
-
-                        <!-- front end libary and generated files -->
-                        <exclude>**/skywalking-ui/node_modules/**</exclude>
-                        <exclude>**/skywalking-ui/node/**</exclude>
-                        <exclude>**/skywalking-ui/dist/**</exclude>
-
-                        <!-- web UI dependencies descriptions -->
-                        <exclude>skywalking-ui/package.json</exclude>
-                        <exclude>skywalking-ui/package-lock.json</exclude>
-
-                        <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
-                        <exclude>**/src/main/fbs/istio/**</exclude>
-                        <exclude>**/src/main/proto/envoy/**</exclude>
-                        <exclude>**/src/main/proto/udpa/**</exclude>
-                        <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
-                        <exclude>**/src/main/proto/google/**</exclude>
-                        <exclude>**/src/main/proto/istio/**</exclude>
-                        <exclude>**/src/main/proto/jaeger/**</exclude>
-                        <exclude>**/src/main/proto/mixer/**</exclude>
-                        <exclude>**/src/main/proto/policy/**</exclude>
-                        <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
-                        <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
-                        <exclude>**/src/main/proto/validate/validate.proto</exclude>
-                        <exclude>**/src/main/proto/opencensus/**</exclude>
-
-                        <!-- generated file from oal grammar and rt template -->
-                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/OALLexer.tokens</exclude>
-                        <exclude>**/src/main/resources/code-templates/*/*.ftl</exclude>
-
-                        <!-- Maven Wrapper generated files -->
-                        <exclude>.mvn/wrapper/**</exclude>
-                        <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
-                        <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
-
-                        <!-- generated file from test agent plugin scenarios -->
-                        <exclude>**/test/plugin/workspace/**</exclude>
-                        <exclude>**/test/jacoco/**</exclude>
-
-                        <!-- TSL relevant files for e2e test -->
-                        <exclude>**/*.crt</exclude>
-                        <exclude>**/*.pem</exclude>
-
-                        <exclude>.m2/**</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

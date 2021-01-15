@@ -9,6 +9,7 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 * Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; The OAP server supports previous agent releases, whereas the previous OAP server (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
 * Add ElasticSearch 7.10 to test matrix and verify it works.
+* Replace Apache RAT with skywalking-eyes to check license headers.
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
@@ -89,6 +90,10 @@ Release Notes.
 * Fix dashboard wrong instance.
 * Add a legend for the topology.
 * Update the condition of unhealthy cube.
+* Fix: use icons to replace buttons for task list in profile.
+* Fix: support `=` in the tag value in the trace query page.
+* Add envoy proxy component logo.
+* Chore: set up license-eye to check license headers and add missing license headers.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

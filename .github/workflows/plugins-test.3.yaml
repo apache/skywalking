@@ -40,7 +40,6 @@ jobs:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
-      fail-fast: true
       matrix:
         case:
           - mysql-scenario
@@ -86,16 +85,10 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Add checkstyle-plugin
-        run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"${{ matrix.case }}"'<\/sourceDirectory>' test/plugin/pom.xml
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case }}
-        run: bash test/plugin/run.sh ${{ matrix.case }}
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run Plugin Test
+        uses: ./.github/actions/plugins-test
+        with:
+          test_case: ${{ matrix.case }}
 
   Oracle:
     name: Oracle
