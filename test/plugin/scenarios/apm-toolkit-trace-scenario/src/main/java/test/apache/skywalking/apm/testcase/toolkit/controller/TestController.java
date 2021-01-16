@@ -59,6 +59,9 @@ public class TestController {
         testService.testTagAnnotation("testTagAnnotationParam1", "testTagAnnotationParam2");
         testService.testTagAnnotationReturnInfo("zhangsan", 15);
         TraceContext.putCorrelation(CORRELATION_CONTEXT_KEY, CORRELATION_CONTEXT_VALUE);
+        ActiveSpan.tag("traceID", TraceContext.traceId());
+        ActiveSpan.tag("segmentID", TraceContext.segmentId());
+        ActiveSpan.tag("spanID", TraceContext.spanId());
         testService.asyncCallable(() -> {
             visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable");
             return true;
@@ -83,7 +86,7 @@ public class TestController {
         MeterFactory.counter("test_counter").tag("ck1", "cv1").build().increment(2d);
         MeterFactory.gauge("test_gauge", () -> 1d).tag("gk1", "gv1").build();
         MeterFactory.histogram("test_histogram").tag("hk1", "hv1").steps(Arrays.asList(1d, 5d, 10d))
-            .build().addValue(4d);
+                    .build().addValue(4d);
         return SUCCESS;
     }
 

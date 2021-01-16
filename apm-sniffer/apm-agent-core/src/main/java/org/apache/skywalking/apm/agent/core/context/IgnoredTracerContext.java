@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
  */
 public class IgnoredTracerContext implements AbstractTracerContext {
     private static final NoopSpan NOOP_SPAN = new NoopSpan();
+    private static final String IGNORE_TRACE = "Ignored_Trace";
 
     private final CorrelationContext correlationContext;
     private final ExtensionContext extensionContext;
@@ -65,7 +66,17 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     @Override
     public String getReadablePrimaryTraceId() {
-        return "Ignored_Trace";
+        return IGNORE_TRACE;
+    }
+
+    @Override
+    public String getSegmentId() {
+        return IGNORE_TRACE;
+    }
+
+    @Override
+    public String getSpanId() {
+        return IGNORE_TRACE;
     }
 
     @Override
