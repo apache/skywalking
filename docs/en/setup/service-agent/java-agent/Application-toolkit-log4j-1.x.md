@@ -21,7 +21,7 @@ log4j.appender.CONSOLE.layout.ConversionPattern=%d [%T] %-5p %c{1}:%L - %m%n
 
 # gRPC reporter
 
-The grpc log plugin support report log to grpc Server. 
+The gRPC report could forward the collected logs to SkyWalking OAP server, or [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite). Trace id, segment id, and span id will attach to logs automatically. You don't need to change the layout.
 
 * Dependency the toolkit, such as using maven or gradle
 
