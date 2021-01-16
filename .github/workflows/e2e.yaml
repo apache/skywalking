@@ -26,9 +26,7 @@ on:
     - cron: '0 18 * * *'
 
 env:
-  SKIP_TEST: true
   SW_AGENT_JDK_VERSION: 8
-  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   FeatureGroup01:
@@ -51,14 +49,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: ${{ matrix.case }}
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
+        with:
+          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
@@ -66,9 +60,20 @@ jobs:
           path: logs
 
   FeatureGroup02:
-    name: Lua Nginx
+    name: ${{ matrix.case.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      matrix:
+        case:
+          - name: Lua Nginx
+            class: org.apache.skywalking.e2e.LuaE2E
+          - name: Gateway
+            class: org.apache.skywalking.e2e.GatewayE2E
+          - name: Meter
+            class: org.apache.skywalking.e2e.meter.MeterE2E
+          - name: Alarm
+            class: org.apache.skywalking.e2e.alarm.AlarmE2E
     steps:
       - uses: actions/checkout@v2
         with:
@@ -80,101 +85,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Nginx Lua
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.LuaE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
         with:
-          name: logs
-          path: logs
-
-  FeatureGroup03:
-    name: Gateway
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Uninstrumnented gateway
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.GatewayE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
-
-  FeatureGroup04:
-    name: Meter
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Meter receiver
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.meter.MeterE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
-
-  FeatureGroup05:
-    name: Alarm
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Compile and Build
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Meter receiver
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.alarm.AlarmE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+          test_class: ${{ matrix.case.class }}
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

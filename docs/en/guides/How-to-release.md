@@ -218,7 +218,7 @@ are in `https://dist.apache.org/repos/dist/dev/skywalking/x.y.z` with .asc, .sha
 1. Check `shasum -c apache-skywalking-apm-x.y.z-src.tgz.sha512`
 1. Check `gpg --verify apache-skywalking-apm-x.y.z-src.tgz.asc apache-skywalking-apm-x.y.z-src.tgz`
 1. Build distribution from source code package (apache-skywalking-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/skywalking/blob/master/docs/en/guides/How-to-build.md#build-from-apache-source-code-release).
-1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
+1. Check Apache License Header. Run `docker run --rm -v $(pwd):/github/workspace apache/skywalking-eyes header check`. (No binary in source codes)
 
 
 Vote result should follow these.
