@@ -19,7 +19,7 @@ log4j.appender.CONSOLE.layout.ConversionPattern=%d [%T] %-5p %c{1}:%L - %m%n
 
 * When you use `-javaagent` to active the sky-walking tracer, log4j will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
 
-# grpc log log4j plugin
+# gRPC reporter
 
 The grpc log plugin support report log to grpc Server. 
 
