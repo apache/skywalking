@@ -23,16 +23,15 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCStreamServiceStatus;
+import org.apache.skywalking.apm.agent.core.remote.LogReportServiceClient;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogReportServiceGrpc;
@@ -42,10 +41,13 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
-@DefaultImplementor
-public class LogReportServiceClient implements BootService, IConsumer<LogData> {
+/**
+ * Report log to server by grpc
+ */
+@OverrideImplementor(LogReportServiceClient.class)
+public class GRPCLogReportServiceClient extends LogReportServiceClient {
 
-    private static final ILog LOGGER = LogManager.getLogger(LogReportServiceClient.class);
+    private static final ILog LOGGER = LogManager.getLogger(GRPCLogReportServiceClient.class);
 
     private volatile DataCarrier<LogData> carrier;
 
@@ -54,11 +56,6 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
     private ManagedChannel channel;
 
     private AtomicBoolean disconnected = new AtomicBoolean(false);
-
-    @Override
-    public void prepare() throws Throwable {
-
-    }
 
     @Override
     public void boot() throws Throwable {
@@ -73,9 +70,6 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
     }
 
     @Override
-    public void onComplete() throws Throwable {
-    }
-
     public void shutdown() {
         try {
             if (channel != null) {
@@ -88,10 +82,6 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
     }
 
     @Override
-    public void init() {
-
-    }
-
     public void produce(LogData logData) {
         if (Objects.nonNull(logData)) {
             if (!carrier.produce(logData)) {
@@ -148,15 +138,5 @@ public class LogReportServiceClient implements BootService, IConsumer<LogData> {
             }
             waitStatus.wait4Finish();
         }
-    }
-
-    @Override
-    public void onError(List<LogData> data, Throwable t) {
-
-    }
-
-    @Override
-    public void onExit() {
-
     }
 }

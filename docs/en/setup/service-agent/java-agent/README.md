@@ -162,7 +162,6 @@ property key | Description | Default |
 `plugin.grpclog.service_host` | Specify which grpc server's host for log data to report to. | `127.0.0.1` |
 `plugin.grpclog.service_port` | Specify which grpc server's port for traces data to report to. | `8000` |
 `plugin.grpclog.max_message_size` | Specify the maximum size of log data for grpc client to report to. | `10MB` |
-`plugin.grpclog.log_body_type` | Specify the type for log data to report to. | `2,TXT` |
 `plugin.grpclog.upstream_timeout` | How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 
 ## Optional Plugins

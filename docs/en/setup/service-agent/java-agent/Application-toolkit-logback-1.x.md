@@ -108,3 +108,32 @@
             </providers>
 </encoder>
 ```
+
+# grpc log logback plugin
+
+The grpc log plugin support report log to grpc Server. 
+
+* Dependency the toolkit, such as using maven or gradle
+
+```xml
+<dependency>
+    <groupId>org.apache.skywalking</groupId>
+    <artifactId>apm-toolkit-logback-1.x</artifactId>
+    <version>${skywalking.version}</version>
+</dependency>
+```
+
+* add `GRPCLogClientAppender` in logback.xml
+
+```xml
+    <appender name="grpc-log" class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender">
+    </appender>
+```
+
+*  modify config of the plugin 
+```properties
+plugin.grpclog.service_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1}
+plugin.grpclog.service_port=${SW_GRPC_LOG_SERVER_PORT:8000}
+plugin.grpclog.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE:10485760}
+plugin.grpclog.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
+```

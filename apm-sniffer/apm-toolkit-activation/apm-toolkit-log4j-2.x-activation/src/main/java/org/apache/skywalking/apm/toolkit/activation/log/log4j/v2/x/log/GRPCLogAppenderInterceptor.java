@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.log;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -29,15 +28,13 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.remote.LogReportServiceClient;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
-import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
+import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
-import org.apache.skywalking.apm.network.logging.v3.YAMLLog;
-import org.apache.skywalking.apm.toolkit.common.log.GRPCLogConfig;
-import org.apache.skywalking.apm.toolkit.common.log.LogReportServiceClient;
 
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -53,11 +50,8 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
             }
         }
         LogEvent event = (LogEvent) allArguments[0];
-        if (event != null) {
-            LogData logData = transform(event);
-            if (Objects.nonNull(logData)) {
-                client.produce(logData);
-            }
+        if (Objects.nonNull(event)) {
+            client.produce(transform(event));
         }
     }
 
@@ -74,44 +68,26 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
     }
 
     private LogData transform(LogEvent event) {
-        if (Objects.isNull(event)) {
-            return null;
-        }
-        LogData.Builder logBuilder = LogData.newBuilder()
+        return LogData.newBuilder()
                 .setTimestamp(event.getTimeMillis())
                 .setService(Config.Agent.SERVICE_NAME)
                 .setServiceInstance(Config.Agent.INSTANCE_NAME)
                 .setTraceContext(TraceContext.newBuilder()
-                        .setTraceId(ContextManager.getGlobalTraceId()).build())
-                .addTags(KeyStringValuePair.newBuilder()
-                        .setKey("level").setValue(event.getLevel().toString()).build())
-                .addTags(KeyStringValuePair.newBuilder()
-                        .setKey("logger").setValue(event.getLoggerName()).build())
-                .addTags(KeyStringValuePair.newBuilder()
-                        .setKey("thread").setValue(event.getThreadName()).build());
-
-        LogDataBody.Builder logDataBodyBuilder = LogDataBody.newBuilder();
-        LogDataBody.ContentCase contentType = Optional.ofNullable(LogDataBody.ContentCase.forNumber(
-                GRPCLogConfig.Plugin.GRPCLog.LOG_BODY_TYPE)).orElse(LogDataBody.ContentCase.TEXT);
-        switch (contentType) {
-            case JSON:
-                logDataBodyBuilder.setType(LogDataBody.ContentCase.JSON.name())
-                        .setJson(JSONLog.newBuilder().setJson(event.getMessage().getFormattedMessage()).build())
-                        .build();
-                break;
-            case YAML:
-                logDataBodyBuilder.setType(LogDataBody.ContentCase.YAML.name())
-                        .setYaml(YAMLLog.newBuilder().setYaml(event.getMessage().getFormattedMessage()).build())
-                        .build();
-                break;
-            case TEXT:
-            default:
-                logDataBodyBuilder.setType(LogDataBody.ContentCase.TEXT.name())
+                        .setTraceId(ContextManager.getGlobalTraceId())
+                        .setSpanId(ContextManager.getSpanId())
+                        .setTraceSegmentId(ContextManager.getSegmentId())
+                        .build())
+                .setTags(LogTags.newBuilder()
+                        .addData(KeyStringValuePair.newBuilder()
+                                .setKey("level").setValue(event.getLevel().toString()).build())
+                        .addData(KeyStringValuePair.newBuilder()
+                                .setKey("logger").setValue(event.getLoggerName()).build())
+                        .addData(KeyStringValuePair.newBuilder()
+                                .setKey("thread").setValue(event.getThreadName()).build())
+                        .build())
+                .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
                         .setText(TextLog.newBuilder().setText(event.getMessage().getFormattedMessage()).build())
-                        .build();
-        }
-        logBuilder.setBody(logDataBodyBuilder);
-
-        return logBuilder.build();
+                        .build())
+                .build();
     }
 }
