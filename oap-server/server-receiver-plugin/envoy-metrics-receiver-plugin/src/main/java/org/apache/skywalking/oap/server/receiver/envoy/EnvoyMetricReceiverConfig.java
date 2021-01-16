@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -31,7 +32,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
+    @Setter
     private boolean acceptMetricsService = false;
+    @Getter
+    @Setter
+    private boolean enableALS = true;
     private String alsHTTPAnalysis;
     @Getter
     private String k8sServiceNameRule;

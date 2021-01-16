@@ -18,14 +18,17 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import com.google.protobuf.TextFormat;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -48,25 +51,34 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
     private final CounterMetrics counter;
     private final HistogramMetrics histogram;
     private final CounterMetrics sourceDispatcherCounter;
+    private final ALSCounterCollector alsCounterCollector;
 
     public AccessLogServiceGRPCHandler(ModuleManager manager,
                                        EnvoyMetricReceiverConfig config) throws ModuleStartException {
         ServiceLoader<ALSHTTPAnalysis> alshttpAnalyses = ServiceLoader.load(ALSHTTPAnalysis.class);
         envoyHTTPAnalysisList = new ArrayList<>();
+        if (config.getAlsHTTPAnalysis().isEmpty()) {
+            throw new ModuleStartException("There is no any ALS analysis here");
+        }
+        Set<String> names = new HashSet<>(3);
         for (String httpAnalysisName : config.getAlsHTTPAnalysis()) {
             for (ALSHTTPAnalysis httpAnalysis : alshttpAnalyses) {
+                names.add(httpAnalysis.name());
                 if (httpAnalysisName.equals(httpAnalysis.name())) {
                     httpAnalysis.init(manager, config);
                     envoyHTTPAnalysisList.add(httpAnalysis);
                 }
             }
         }
+        if (envoyHTTPAnalysisList.isEmpty()) {
+            throw new ModuleStartException("Analysis name must be one of " + names);
+        }
 
         LOGGER.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         counter = metricCreator.createCounter(
-            "envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
+            "envoy_als_total_count", "The total count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
         histogram = metricCreator.createHistogramMetric(
@@ -77,6 +89,11 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             "envoy_als_source_dispatch_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
+        alsCounterCollector = ALSCounterCollector.newInstance(
+            "envoy_als_in_count", "The count of envoy ALS received, its labels indicate where/which envoy it's from",
+            "id", "cluster"
+        );
+        alsCounterCollector.register();
     }
 
     @Override
@@ -106,9 +123,8 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(
-                            "Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
-                                .getNode()
-                                .getId(), role, logCase, message);
+                            "Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}",
+                            identifier.getNode().getId(), role, logCase, TextFormat.shortDebugString(message));
                     }
 
                     switch (logCase) {
@@ -129,6 +145,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                             }
 
                             sourceDispatcherCounter.inc(sourceResult.size());
+                            alsCounterCollector.inc(identifier.getNode().getId(), sourceResult.size(), identifier.getNode().getCluster());
                             sourceResult.forEach(TelemetryDataDispatcher::process);
                             break;
                     }

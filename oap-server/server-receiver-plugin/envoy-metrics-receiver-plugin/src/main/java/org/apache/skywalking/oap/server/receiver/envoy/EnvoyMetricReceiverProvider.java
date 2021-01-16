@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class EnvoyMetricReceiverProvider extends ModuleProvider {
-    private final EnvoyMetricReceiverConfig config;
+    protected EnvoyMetricReceiverConfig config;
 
     protected String fieldMappingFile = "metadata-service-mapping.yaml";
 
@@ -73,9 +73,11 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
             service.addHandler(handler);
             service.addHandler(new MetricServiceGRPCHandlerV3(handler));
         }
-        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(getManager(), config);
-        service.addHandler(handler);
-        service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
+        if (config.isEnableALS()) {
+            final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(getManager(), config);
+            service.addHandler(handler);
+            service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
+        }
     }
 
     @Override

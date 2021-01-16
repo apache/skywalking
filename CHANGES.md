@@ -67,6 +67,7 @@ Release Notes.
 * Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
 * Fix receiver analysis error count metrics
 * Log collecting and query implementation
+* Add a config to enable / disable metrics service and some polishes of ALS.
 
 #### UI
 * Fix un-removed tags in trace query.

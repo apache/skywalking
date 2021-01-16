@@ -33,9 +33,6 @@ public abstract class AbstractALSAnalyzer implements ALSHTTPAnalysis {
             return defaultRole;
         }
         final Node node = alsIdentifier.getNode();
-        if (node == null) {
-            return defaultRole;
-        }
         final String id = node.getId();
         if (id.startsWith("router~")) {
             return Role.PROXY;
