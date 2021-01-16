@@ -27,7 +27,6 @@ on:
 env:
   SKIP_TEST: true
   ES_VERSION: es7
-  ISTIO_VERSION: 1.7.1
   TAG: ${{ github.sha }}
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
   SW_OAP_BASE_IMAGE: openjdk:11-jdk
@@ -40,7 +39,10 @@ jobs:
       fail-fast: true
       matrix:
         analyzer: [k8s-mesh, mx-mesh]
-    name: Istio+ALS(${{ matrix.analyzer }})
+        istio_version: [1.7.1, 1.8.2]
+    name: Istio(${{ matrix.istio_version }})+ALS(${{ matrix.analyzer }})
+    env:
+      ISTIO_VERSION: ${{ matrix.istio_version }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -134,7 +136,13 @@ jobs:
   metrics-service:
     runs-on: ubuntu-16.04
     timeout-minutes: 60
-    name: MetricsService
+    name: Istio(${{ matrix.istio_version }})+MetricsService
+    strategy:
+      fail-fast: true
+      matrix:
+        istio_version: [1.7.1, 1.8.2]
+    env:
+      ISTIO_VERSION: ${{ matrix.istio_version }}
     steps:
       - uses: actions/checkout@v2
         with:

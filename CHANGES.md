@@ -10,6 +10,7 @@ Release Notes.
 * Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; The OAP server supports previous agent releases, whereas the previous OAP server (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
 * Add ElasticSearch 7.10 to test matrix and verify it works.
 * Replace Apache RAT with skywalking-eyes to check license headers.
+* Set up test of Envoy ALS / MetricsService under Istio 1.8.2 to verify Envoy V3 protocol
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
