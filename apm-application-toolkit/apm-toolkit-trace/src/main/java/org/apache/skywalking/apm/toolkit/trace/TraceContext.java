@@ -46,12 +46,13 @@ public class TraceContext {
     }
 
     /**
-     * Try to get the spanId of current trace context.
+     * Try to get the spanId of current trace context. The spanId is a negative number when the trace context is
+     * missing.
      *
      * @return spanId, if it exists, or empty {@link String}.
      */
-    public static String spanId() {
-        return "";
+    public static int spanId() {
+        return -1;
     }
 
     /**

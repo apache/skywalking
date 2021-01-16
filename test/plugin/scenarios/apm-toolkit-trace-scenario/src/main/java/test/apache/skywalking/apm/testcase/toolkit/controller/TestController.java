@@ -61,7 +61,9 @@ public class TestController {
         TraceContext.putCorrelation(CORRELATION_CONTEXT_KEY, CORRELATION_CONTEXT_VALUE);
         ActiveSpan.tag("traceID", TraceContext.traceId());
         ActiveSpan.tag("segmentID", TraceContext.segmentId());
-        ActiveSpan.tag("spanID", TraceContext.spanId());
+        if (TraceContext.spanId() > -1) {
+            ActiveSpan.tag("spanID", String.valueOf(TraceContext.spanId()));
+        }
         testService.asyncCallable(() -> {
             visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable");
             return true;
