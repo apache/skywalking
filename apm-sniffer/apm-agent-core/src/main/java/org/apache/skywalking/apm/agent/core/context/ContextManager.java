@@ -88,7 +88,7 @@ public class ContextManager implements BootService {
     /**
      * @return the current span id if needEnhance. Otherwise, the value is -1.
      */
-    public static Integer getSpanId() {
+    public static int getSpanId() {
         AbstractTracerContext context = CONTEXT.get();
         return Objects.nonNull(context) ? context.getSpanId() : -1;
     }

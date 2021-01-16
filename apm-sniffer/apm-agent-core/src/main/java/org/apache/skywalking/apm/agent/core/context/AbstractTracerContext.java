@@ -74,7 +74,7 @@ public interface AbstractTracerContext {
      *
      * @return the string represents the id.
      */
-    Integer getSpanId();
+    int getSpanId();
 
     /**
      * Create an entry span

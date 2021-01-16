@@ -249,7 +249,7 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override
-    public Integer getSpanId() {
+    public int getSpanId() {
         return activeSpan().getSpanId();
     }
 

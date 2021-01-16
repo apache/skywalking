@@ -51,7 +51,7 @@ public class TraceContext {
      *
      * @return spanId, if it exists, or empty {@link String}.
      */
-    public static Integer spanId() {
+    public static int spanId() {
         return -1;
     }
 
