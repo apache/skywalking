@@ -36,12 +36,12 @@ public class GRPCLogConfig {
             public static int SERVER_PORT = 8000;
 
             /**
-             * The max size of message to send to server.Default is 10 MB
+             * The max size of message to send to server.Default is 10 MB.
              */
             public static int MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
 
             /**
-             * How long grpc client will timeout in sending data to upstream.
+             * How long grpc client will timeout in sending data to upstream. The unit is second.
              */
             public static int UPSTREAM_TIMEOUT = 30;
         }

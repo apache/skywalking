@@ -83,10 +83,8 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
 
     @Override
     public void produce(LogData logData) {
-        if (Objects.nonNull(logData)) {
-            if (!carrier.produce(logData)) {
-                LOGGER.error("LogReportServiceClient discard logData: " + logData.toString());
-            }
+        if (Objects.nonNull(logData) && !carrier.produce(logData)) {
+                LOGGER.warn("LogReportServiceClient discard logData: " + logData.toString());
         }
     }
 
@@ -130,7 +128,7 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
             }
         } catch (Throwable e) {
             if (!(e instanceof StatusRuntimeException)) {
-                LOGGER.error(e, "Report grpc log to server fail.");
+                LOGGER.error(e, "Report log failure with the gRPC client.");
             }
         } finally {
             if (reportStreamObserver != null) {

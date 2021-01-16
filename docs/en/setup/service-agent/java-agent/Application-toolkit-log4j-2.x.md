@@ -102,28 +102,19 @@
 ```
 * When you use `-javaagent` to active the sky-walking tracer, log4j2 will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
 
-# grpc log log4j2 plugin
+# gRPC reporter
 
-The grpc log plugin support report log to grpc Server. 
+The gRPC report could forward the collected logs to SkyWalking OAP server, or [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite). Trace id, segment id, and span id will attach to logs automatically. You don't need to change the layout.
 
-* Dependency the toolkit, such as using maven or gradle
-
-```xml
-   <dependency>
-      <groupId>org.apache.skywalking</groupId>
-      <artifactId>apm-toolkit-log4j-2.x</artifactId>
-      <version>{project.release.version}</version>
-   </dependency>
-```
-
-* add `GRPCLogClientAppender` in logback.xml
+* Add `GRPCLogClientAppender` in log4j2.xml
 
 ```xml
     <appender name="grpc-log" class="org.apache.skywalking.apm.toolkit.log.log4j.v2.x.log.GRPCLogClientAppenderr">
     </appender>
 ```
 
-*  modify config of the plugin 
+*  Add config of the plugin or use default
+
 ```properties
 plugin.grpclog.service_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1}
 plugin.grpclog.service_port=${SW_GRPC_LOG_SERVER_PORT:8000}
