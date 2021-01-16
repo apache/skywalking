@@ -70,7 +70,7 @@ public class ContextManager implements BootService {
     }
 
     /**
-     * @return the first global trace id if needEnhance. Otherwise, "N/A".
+     * @return the first global trace id when tracing. Otherwise, "N/A".
      */
     public static String getGlobalTraceId() {
         AbstractTracerContext context = CONTEXT.get();
@@ -78,7 +78,7 @@ public class ContextManager implements BootService {
     }
 
     /**
-     * @return the current segment id if needEnhance. Otherwise, "N/A".
+     * @return the current segment id when tracing. Otherwise, "N/A".
      */
     public static String getSegmentId() {
         AbstractTracerContext context = CONTEXT.get();
@@ -86,7 +86,7 @@ public class ContextManager implements BootService {
     }
 
     /**
-     * @return the current span id if needEnhance. Otherwise, the value is -1.
+     * @return the current span id when tracing. Otherwise, the value is -1.
      */
     public static int getSpanId() {
         AbstractTracerContext context = CONTEXT.get();
