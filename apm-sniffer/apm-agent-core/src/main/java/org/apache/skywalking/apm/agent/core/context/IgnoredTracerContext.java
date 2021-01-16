@@ -75,8 +75,8 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public String getSpanId() {
-        return IGNORE_TRACE;
+    public Integer getSpanId() {
+        return -1;
     }
 
     @Override

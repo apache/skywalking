@@ -249,8 +249,8 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override
-    public String getSpanId() {
-        return String.valueOf(activeSpan().getSpanId());
+    public Integer getSpanId() {
+        return activeSpan().getSpanId();
     }
 
     /**
