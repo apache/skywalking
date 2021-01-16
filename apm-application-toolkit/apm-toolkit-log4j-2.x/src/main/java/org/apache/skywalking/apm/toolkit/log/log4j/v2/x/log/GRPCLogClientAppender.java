@@ -18,21 +18,38 @@
 
 package org.apache.skywalking.apm.toolkit.log.log4j.v2.x.log;
 
-import java.io.Serializable;
-
 import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
+@Plugin(name = "GRPCLogClientAppender", category = "Core", elementType = "appender")
 public class GRPCLogClientAppender extends AbstractAppender {
 
-    protected GRPCLogClientAppender(String name, Filter filter, Layout<? extends Serializable> layout) {
-        super(name, filter, layout);
+    private GRPCLogClientAppender(final String name, final Filter filter, final boolean ignoreExceptions) {
+        super(name, filter, null, ignoreExceptions);
     }
 
     @Override
     public void append(LogEvent logEvent) {
 
+    }
+
+    @PluginFactory
+    public static GRPCLogClientAppender createAppender(@PluginAttribute("name") final String name,
+                                                       @PluginElement("Filter") final Filter filter,
+                                                       @PluginConfiguration final Configuration config,
+                                                       @PluginAttribute("ignoreExceptions") final String ignore) {
+
+        String appenderName = (name == null) ? "gRPCLogClientAppender" : name;
+
+        final boolean ignoreExceptions = "true".equalsIgnoreCase(ignore) || (!"false".equalsIgnoreCase(ignore));
+
+        return new GRPCLogClientAppender(appenderName, filter, ignoreExceptions);
     }
 }

@@ -116,8 +116,7 @@ The gRPC report could forward the collected logs to SkyWalking OAP server, or [S
 * Add `GRPCLogClientAppender` in logback.xml
 
 ```xml
-    <appender name="grpc-log" class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender">
-    </appender>
+    <appender name="grpc-log" class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender"/>
 ```
 
 *  Add config of the plugin or use default
