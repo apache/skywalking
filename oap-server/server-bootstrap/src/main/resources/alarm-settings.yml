@@ -88,7 +88,8 @@ feishuHooks:
       "msg_type": "text",
       "content": {
         "text": "Apache SkyWalking Alarm: \n %s."
-      },
+      }
+#      ,
 #      "ats":"feishu_user_id_1,feishu_user_id_2"
     }
   webhooks:
