@@ -160,6 +160,9 @@ property key | Description | Default |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
 `plugin.springannotation.classname_match_regex` |  Match spring beans with regular expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
 
+## Dynamic Configurations
+All configurations above are static, if you need to change some agent settings in the runtime, please read [CDS - Configuration Discovery Service document](configuration-discovery.md) for more details.
+
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
 For using these plugins, you need to put the target plugin jar file into `/plugins`.
