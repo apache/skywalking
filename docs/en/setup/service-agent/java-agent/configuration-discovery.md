@@ -1,33 +1,29 @@
-# ConfigurationDiscovery
+# CDS - Configuration Discovery Service
 
-ConfigurationDiscovery used to dynamic configuration for the agent.
+CDS - Configuration Discovery Service provides the dynamic configuration for the agent, defined in [gRPC](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/ConfigurationDiscoveryService.proto).
 
 ## Configuration Format
 
-The configuration content includes the service name and their configs, This configuration item is registered in OAP  [`dynamic-config`](../../backend/dynamic-config.md)
-
+The configuration content includes the service name and their configs. The 
 ```yml
-rules:
-	//service name
-  dubbox-provider:
-  	// The number of sampled traces per 3 seconds
-    agent.sample_n_per_3_secs: 1
-    // If the operation name of the first span is matching, this segment should be ignored
-    trace.ignore_path: /api/seller/seller/*
-  dubbox-consumer:
-  	// The number of sampled traces per 3 seconds
-    agent.sample_n_per_3_secs: 1
-    // If the operation name of the first span is matching, this segment should be ignored
-    trace.ignore_path: /api/seller/seller/*
+configurations:
+  //service name
+  serviceA:
+    // Configurations of service A
+    // Key and Value are determined by the agent side.
+    // Check the agent setup doc for all available configurations.
+    key1: value1
+    key2: value2
+    ...
+  serviceB:
     ...
 ```
 
-The service configuration items are as follows
+## Available key(s) and value(s) in Java Agent.
+Java agent supports the following dynamic configurations.
 
-|        Config Key         |                      Value Description                       | Value Format Example  |
-| :-----------------------: | :----------------------------------------------------------: | :-------------------: |
-| agent.sample_n_per_3_secs |          The number of sampled traces per 3 seconds          |          -1           |
-|     trace.ignore_path     | If the operation name of the first span is matching, this segment should be ignored | /eureka/\*\*,/consul/\*\* |
+|        Config Key         |                      Value Description                       | Value Format Example  | Required Plugin(s) |
+| :-----------------------: | :----------------------------------------------------------: | :-------------------: | :----------------: |
+| agent.sample_n_per_3_secs |          The number of sampled traces per 3 seconds          |          -1           | - |
 
-**Note** The above dynamic configuration items have not yet been implemented on the agent side. The relevant implementation will be submitted in the next two days. The agent uses dynamic configuration and needs to register a dynamic configuration listener on the agent side. Not all agent configurations support dynamic configuration.
-
+* `Required plugin(s)`, the configuration affects only when the required plugins activated.
