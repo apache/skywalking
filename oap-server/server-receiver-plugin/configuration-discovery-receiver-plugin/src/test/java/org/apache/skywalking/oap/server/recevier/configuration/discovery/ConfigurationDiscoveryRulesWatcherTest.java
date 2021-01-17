@@ -46,7 +46,7 @@ public class ConfigurationDiscoveryRulesWatcherTest {
     public void shouldSetRulesOnEventChanged() throws IOException {
         assertTrue(configurationDiscoveryRulesWatcher.getActiveConfigRules().getRules().isEmpty());
 
-        Reader reader = ResourceUtils.read("agent-dynamic-config.yml");
+        Reader reader = ResourceUtils.read("configurationRules.yml");
         char[] chars = new char[1024 * 1024];
         int length = reader.read(chars);
 
@@ -75,7 +75,7 @@ public class ConfigurationDiscoveryRulesWatcherTest {
 
     @Test
     public void shouldClearRulesOnEventDeleted() throws IOException {
-        Reader reader = ResourceUtils.read("agent-dynamic-config.yml");
+        Reader reader = ResourceUtils.read("configurationRules.yml");
         ConfigurationDiscoveryRules defaultRules = new ConfigurationDiscoveryRulesReader(reader).readRules();
 
         configurationDiscoveryRulesWatcher = spy(new ConfigurationDiscoveryRulesWatcher(defaultRules, null));

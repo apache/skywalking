@@ -29,7 +29,7 @@ public class ConfigurationDiscoveryRulesWatcher extends ConfigChangeWatcher {
 
     public ConfigurationDiscoveryRulesWatcher(ConfigurationDiscoveryRules configurationDiscoveryRules,
                                               ModuleProvider provider) {
-        super(ConfigurationDiscoveryModule.NAME, provider, "agent-dynamic-config");
+        super(ConfigurationDiscoveryModule.NAME, provider, "configurationRules");
         this.settingsString = Const.EMPTY_STRING;
         this.activeConfigurationDiscoveryRules = configurationDiscoveryRules;
     }

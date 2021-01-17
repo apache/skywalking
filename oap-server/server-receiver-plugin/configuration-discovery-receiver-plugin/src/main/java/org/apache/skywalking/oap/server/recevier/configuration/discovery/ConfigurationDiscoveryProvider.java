@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -28,7 +26,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.handler.grpc.ConfigurationDiscoveryServiceHandler;
 
@@ -54,16 +51,8 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        Reader applicationReader;
-        try {
-            applicationReader = ResourceUtils.read("agent-dynamic-config.yml");
-        } catch (FileNotFoundException e) {
-            throw new ModuleStartException("can't load agent-dynamic-config.yml", e);
-        }
-        ConfigurationDiscoveryRulesReader reader = new ConfigurationDiscoveryRulesReader(applicationReader);
-        ConfigurationDiscoveryRules configurationDiscoveryRules = reader.readRules();
-
-        configurationDiscoveryRulesWatcher = new ConfigurationDiscoveryRulesWatcher(configurationDiscoveryRules, this);
+        configurationDiscoveryRulesWatcher = new ConfigurationDiscoveryRulesWatcher(
+            new ConfigurationDiscoveryRules(), this);
         configurationDiscoveryService = new ConfigurationDiscoveryService(configurationDiscoveryRulesWatcher);
     }
 

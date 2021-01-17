@@ -26,7 +26,7 @@ public class ConfigurationDiscoveryRulesReaderTest {
     @Test
     public void testReadRules() {
         ConfigurationDiscoveryRulesReader reader = new ConfigurationDiscoveryRulesReader(
-            this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-config.yml"));
+            this.getClass().getClassLoader().getResourceAsStream("configurationRules.yml"));
 
         ConfigurationDiscoveryRules configurationDiscoveryRules = reader.readRules();
         Map<String, ServiceConfiguration> rules = configurationDiscoveryRules.getRules();
