@@ -35,8 +35,8 @@ log4j.appender.CustomAppender=org.apache.skywalking.apm.toolkit.log.log4j.v1.x.l
 *  Add config of the plugin or use default
 
 ```properties
-plugin.grpclog.service_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1}
-plugin.grpclog.service_port=${SW_GRPC_LOG_SERVER_PORT:11800}
-plugin.grpclog.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE:10485760}
-plugin.grpclog.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
+plugin.toolkit.log.grpc.reporter.server_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1}
+plugin.toolkit.log.grpc.reporter.server_port=${SW_GRPC_LOG_SERVER_PORT:11800}
+plugin.toolkit.log.grpc.reporter.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE:10485760}
+plugin.toolkit.log.grpc.reporter.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
 ```
