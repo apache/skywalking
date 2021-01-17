@@ -44,13 +44,13 @@ public class AgentConfigurationsReader {
         yamlData = (Map) yaml.load(io);
     }
 
-    public AgentConfigurations readRules() {
+    public AgentConfigurations readAgentConfigurations() {
         AgentConfigurations agentConfigurations = new AgentConfigurations();
         try {
             if (Objects.nonNull(yamlData)) {
-                Map rulesData = (Map) yamlData.get("configurations");
-                if (rulesData != null) {
-                    rulesData.forEach((k, v) -> {
+                Map configurationsData = (Map) yamlData.get("configurations");
+                if (configurationsData != null) {
+                    configurationsData.forEach((k, v) -> {
                         Map map = (Map) v;
                         Map<String, String> config = new HashMap<>(map.size());
                         map.forEach((key, value) -> {
@@ -58,13 +58,13 @@ public class AgentConfigurationsReader {
                         });
 
                         ServiceConfiguration serviceConfiguration = new ServiceConfiguration((String) k, config);
-                        agentConfigurations.getRules().put(
+                        agentConfigurations.getConfigurationMap().put(
                             serviceConfiguration.getService(), serviceConfiguration);
                     });
                 }
             }
         } catch (Exception e) {
-            log.error("Read ConfigurationDiscovery rules error.", e);
+            log.error("Read ConfigurationDiscovery configurations error.", e);
         }
         return agentConfigurations;
     }

@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
- * ConfigurationDiscoveryRulesWatcher used to handle dynamic configuration changes, and convert the configuration of the
+ * AgentConfigurationsWatcher used to handle dynamic configuration changes, and convert the configuration of the
  * String type to {@link AgentConfigurations}
  */
 public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
@@ -47,7 +47,7 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
             settingsString = value.getNewValue();
             AgentConfigurationsReader agentConfigurationsReader =
                 new AgentConfigurationsReader(new StringReader(value.getNewValue()));
-            this.activeAgentConfigurations = agentConfigurationsReader.readRules();
+            this.activeAgentConfigurations = agentConfigurationsReader.readAgentConfigurations();
         }
     }
 
@@ -56,7 +56,7 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
         return settingsString;
     }
 
-    public AgentConfigurations getActiveConfigRules() {
+    public AgentConfigurations getActiveAgentConfigurations() {
         return activeAgentConfigurations;
     }
 }

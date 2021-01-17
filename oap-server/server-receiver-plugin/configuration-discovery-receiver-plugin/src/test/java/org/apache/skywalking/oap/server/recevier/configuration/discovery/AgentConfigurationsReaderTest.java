@@ -24,21 +24,21 @@ import org.junit.Test;
 
 public class AgentConfigurationsReaderTest {
     @Test
-    public void testReadRules() {
+    public void testReadAgentConfigurations() {
         AgentConfigurationsReader reader = new AgentConfigurationsReader(
-            this.getClass().getClassLoader().getResourceAsStream("configurationRules.yml"));
+            this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-configuration.yml"));
 
-        AgentConfigurations agentConfigurations = reader.readRules();
-        Map<String, ServiceConfiguration> rules = agentConfigurations.getRules();
-        Assert.assertEquals(2, rules.size());
-        ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
+        AgentConfigurations agentConfigurations = reader.readAgentConfigurations();
+        Map<String, ServiceConfiguration> configurationMap = agentConfigurations.getConfigurationMap();
+        Assert.assertEquals(2, configurationMap.size());
+        ServiceConfiguration serviceConfigurationProvider = configurationMap.get("serviceA");
         Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
         Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = rules.get("serviceB");
+        ServiceConfiguration serviceConfigurationConsumer = configurationMap.get("serviceB");
         Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
         Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));

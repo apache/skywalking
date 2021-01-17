@@ -43,10 +43,10 @@ public class AgentConfigurationsWatcherTest {
     }
 
     @Test
-    public void shouldSetRulesOnEventChanged() throws IOException {
-        assertTrue(agentConfigurationsWatcher.getActiveConfigRules().getRules().isEmpty());
+    public void testConfigModifyEvent() throws IOException {
+        assertTrue(agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationMap().isEmpty());
 
-        Reader reader = ResourceUtils.read("configurationRules.yml");
+        Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         char[] chars = new char[1024 * 1024];
         int length = reader.read(chars);
 
@@ -55,17 +55,17 @@ public class AgentConfigurationsWatcherTest {
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveConfigRules();
-        Map<String, ServiceConfiguration> rules = agentConfigurations.getRules();
-        Assert.assertEquals(2, rules.size());
-        ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
+        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveAgentConfigurations();
+        Map<String, ServiceConfiguration> configurationMap = agentConfigurations.getConfigurationMap();
+        Assert.assertEquals(2, configurationMap.size());
+        ServiceConfiguration serviceConfigurationProvider = configurationMap.get("serviceA");
         Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
         Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = rules.get("serviceB");
+        ServiceConfiguration serviceConfigurationConsumer = configurationMap.get("serviceB");
         Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
         Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));
@@ -74,20 +74,20 @@ public class AgentConfigurationsWatcherTest {
     }
 
     @Test
-    public void shouldClearRulesOnEventDeleted() throws IOException {
-        Reader reader = ResourceUtils.read("configurationRules.yml");
-        AgentConfigurations defaultRules = new AgentConfigurationsReader(reader).readRules();
+    public void testConfigDeleteEvent() throws IOException {
+        Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
+        AgentConfigurations configurations = new AgentConfigurationsReader(reader).readAgentConfigurations();
 
-        agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(defaultRules, null));
+        agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(configurations, null));
 
         agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveConfigRules();
-        Map<String, ServiceConfiguration> rules = agentConfigurations.getRules();
-        Assert.assertEquals(0, rules.size());
-        ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
-        ServiceConfiguration serviceConfigurationConsumer = rules.get("serviceB");
+        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveAgentConfigurations();
+        Map<String, ServiceConfiguration> configurationMap = agentConfigurations.getConfigurationMap();
+        Assert.assertEquals(0, configurationMap.size());
+        ServiceConfiguration serviceConfigurationProvider = configurationMap.get("serviceA");
+        ServiceConfiguration serviceConfigurationConsumer = configurationMap.get("serviceB");
 
         Assert.assertNull(null, serviceConfigurationProvider);
         Assert.assertNull(null, serviceConfigurationConsumer);

@@ -25,15 +25,15 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Configuration rules, include the relationship between service and service's agent dynamic configuration.
+ * AgentConfigurations, include the relationship between service and service's agent dynamic configuration.
  */
 @Setter
 @Getter
 @ToString
 public class AgentConfigurations {
-    private Map<String, ServiceConfiguration> rules;
+    private Map<String, ServiceConfiguration> configurationMap;
 
     public AgentConfigurations() {
-        this.rules = new HashMap<>();
+        this.configurationMap = new HashMap<>();
     }
 }
