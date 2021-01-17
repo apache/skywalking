@@ -28,7 +28,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
- * Used to parse the configuration of the String type to {@link AgentConfigurations}
+ * Used to parse the String configuration to AgentConfigurations.
  */
 @Slf4j
 public class AgentConfigurationsReader {
@@ -44,8 +44,8 @@ public class AgentConfigurationsReader {
         yamlData = (Map) yaml.load(io);
     }
 
-    public AgentConfigurations readAgentConfigurations() {
-        AgentConfigurations agentConfigurations = new AgentConfigurations();
+    public Map<String, AgentConfigurations> readAgentConfigurations() {
+        Map<String, AgentConfigurations> configurationCache = new HashMap<>();
         try {
             if (Objects.nonNull(yamlData)) {
                 Map configurationsData = (Map) yamlData.get("configurations");
@@ -57,15 +57,14 @@ public class AgentConfigurationsReader {
                             config.put(key.toString(), value.toString());
                         });
 
-                        ServiceConfiguration serviceConfiguration = new ServiceConfiguration((String) k, config);
-                        agentConfigurations.getConfigurationCache().put(
-                            serviceConfiguration.getService(), serviceConfiguration);
+                        AgentConfigurations agentConfigurations = new AgentConfigurations((String) k, config);
+                        configurationCache.put(agentConfigurations.getService(), agentConfigurations);
                     });
                 }
             }
         } catch (Exception e) {
             log.error("Read ConfigurationDiscovery configurations error.", e);
         }
-        return agentConfigurations;
+        return configurationCache;
     }
 }

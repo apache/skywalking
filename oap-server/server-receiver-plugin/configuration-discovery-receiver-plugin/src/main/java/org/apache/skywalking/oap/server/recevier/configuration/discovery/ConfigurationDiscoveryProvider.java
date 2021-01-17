@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
+import java.util.HashMap;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -51,7 +52,7 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         agentConfigurationsWatcher = new AgentConfigurationsWatcher(
-            new AgentConfigurations(), this);
+            new HashMap<>(), this);
     }
 
     @Override

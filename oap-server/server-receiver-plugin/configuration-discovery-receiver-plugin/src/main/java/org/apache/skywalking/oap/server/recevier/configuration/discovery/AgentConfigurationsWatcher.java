@@ -19,35 +19,36 @@
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
- * AgentConfigurationsWatcher used to handle dynamic configuration changes, and convert the configuration of the
- * String type to {@link AgentConfigurations}
+ * AgentConfigurationsWatcher used to handle dynamic configuration changes.
  */
 public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
-    private volatile AgentConfigurations activeAgentConfigurations;
+    private volatile Map<String, AgentConfigurations> activeAgentConfigurationsCache;
 
-    public AgentConfigurationsWatcher(AgentConfigurations agentConfigurations,
+    public AgentConfigurationsWatcher(Map<String, AgentConfigurations> agentConfigurationsCache,
                                       ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
         this.settingsString = Const.EMPTY_STRING;
-        this.activeAgentConfigurations = agentConfigurations;
+        this.activeAgentConfigurationsCache = agentConfigurationsCache;
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
             settingsString = Const.EMPTY_STRING;
-            this.activeAgentConfigurations = new AgentConfigurations();
+            this.activeAgentConfigurationsCache = new HashMap<>();
         } else {
             settingsString = value.getNewValue();
             AgentConfigurationsReader agentConfigurationsReader =
                 new AgentConfigurationsReader(new StringReader(value.getNewValue()));
-            this.activeAgentConfigurations = agentConfigurationsReader.readAgentConfigurations();
+            this.activeAgentConfigurationsCache = agentConfigurationsReader.readAgentConfigurations();
         }
     }
 
@@ -56,7 +57,7 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
         return settingsString;
     }
 
-    public AgentConfigurations getActiveAgentConfigurations() {
-        return activeAgentConfigurations;
+    public Map<String, AgentConfigurations> getActiveAgentConfigurationsCache() {
+        return activeAgentConfigurationsCache;
     }
 }

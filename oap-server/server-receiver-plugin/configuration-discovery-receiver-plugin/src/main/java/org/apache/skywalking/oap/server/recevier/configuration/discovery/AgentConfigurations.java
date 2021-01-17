@@ -18,22 +18,23 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * AgentConfigurations, include the relationship between service and service's agent dynamic configuration.
+ * Dynamic configuration items, save the dynamic configuration of the agent corresponding to the service.
  */
 @Setter
 @Getter
 @ToString
 public class AgentConfigurations {
-    private Map<String, ServiceConfiguration> configurationCache;
+    private String service;
+    private Map<String, String> configuration;
 
-    public AgentConfigurations() {
-        this.configurationCache = new HashMap<>();
+    public AgentConfigurations(final String service, final Map<String, String> configuration) {
+        this.service = service;
+        this.configuration = configuration;
     }
 }

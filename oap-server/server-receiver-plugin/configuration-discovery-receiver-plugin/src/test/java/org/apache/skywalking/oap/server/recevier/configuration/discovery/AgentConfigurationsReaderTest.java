@@ -28,21 +28,20 @@ public class AgentConfigurationsReaderTest {
         AgentConfigurationsReader reader = new AgentConfigurationsReader(
             this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-configuration.yml"));
 
-        AgentConfigurations agentConfigurations = reader.readAgentConfigurations();
-        Map<String, ServiceConfiguration> configurationCache = agentConfigurations.getConfigurationCache();
+        Map<String, AgentConfigurations> configurationCache = reader.readAgentConfigurations();
         Assert.assertEquals(2, configurationCache.size());
-        ServiceConfiguration serviceConfigurationProvider = configurationCache.get("serviceA");
-        Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
-        Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
-        Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
+        AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
+        Assert.assertEquals("serviceA", agentConfigurations0.getService());
+        Assert.assertEquals(2, agentConfigurations0.getConfiguration().size());
+        Assert.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
-            "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
+            "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = configurationCache.get("serviceB");
-        Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
-        Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
-        Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));
+        AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
+        Assert.assertEquals("serviceB", agentConfigurations1.getService());
+        Assert.assertEquals(2, agentConfigurations1.getConfiguration().size());
+        Assert.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
-            "/api/seller/seller/*", serviceConfigurationConsumer.getConfiguration().get("trace.ignore_path"));
+            "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
     }
 }

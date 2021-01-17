@@ -30,8 +30,8 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.recevier.configuration.discovery.AgentConfigurations;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.AgentConfigurationsWatcher;
-import org.apache.skywalking.oap.server.recevier.configuration.discovery.ServiceConfiguration;
 
 /**
  * Provide query agent dynamic configuration, through the gRPC protocol,
@@ -55,27 +55,27 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
                                     final StreamObserver<Commands> responseObserver) {
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
-        ServiceConfiguration serviceDynamicConfig =
-            agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationCache().get(request.getService());
-        if (null != serviceDynamicConfig) {
+        AgentConfigurations agentConfigurations =
+            agentConfigurationsWatcher.getActiveAgentConfigurationsCache().get(request.getService());
+        if (null != agentConfigurations) {
             ConfigurationDiscoveryCommand configurationDiscoveryCommand =
-                newAgentDynamicConfigCommand(serviceDynamicConfig, request.getUuid());
+                newAgentDynamicConfigCommand(agentConfigurations, request.getUuid());
             commandsBuilder.addCommands(configurationDiscoveryCommand.serialize().build());
         }
         responseObserver.onNext(commandsBuilder.build());
         responseObserver.onCompleted();
     }
 
-    public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(ServiceConfiguration serviceConfiguration,
+    public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(AgentConfigurations agentConfigurations,
                                                                       String requestId) {
         List<KeyStringValuePair> configurationList = Lists.newArrayList();
-        String hashCode = String.valueOf(serviceConfiguration.getConfiguration().hashCode());
+        String hashCode = String.valueOf(agentConfigurations.getConfiguration().hashCode());
 
         /*
          * If requestId matched, configuration content is not required.
          */
         if (!Objects.equals(requestId, hashCode)) {
-            serviceConfiguration.getConfiguration().forEach((k, v) -> {
+            agentConfigurations.getConfiguration().forEach((k, v) -> {
                 KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(k).setValue(v);
                 configurationList.add(builder.build());
             });

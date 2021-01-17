@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.spy;
 public class AgentConfigurationsWatcherTest {
     @Spy
     private AgentConfigurationsWatcher agentConfigurationsWatcher = new AgentConfigurationsWatcher(
-        new AgentConfigurations(), null);
+        new HashMap<>(), null);
 
     @Before
     public void setUp() {
@@ -44,7 +45,7 @@ public class AgentConfigurationsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() throws IOException {
-        assertTrue(agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationCache().isEmpty());
+        assertTrue(agentConfigurationsWatcher.getActiveAgentConfigurationsCache().isEmpty());
 
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         char[] chars = new char[1024 * 1024];
@@ -55,41 +56,38 @@ public class AgentConfigurationsWatcherTest {
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveAgentConfigurations();
-        Map<String, ServiceConfiguration> configurationCache = agentConfigurations.getConfigurationCache();
+        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getActiveAgentConfigurationsCache();
         Assert.assertEquals(2, configurationCache.size());
-        ServiceConfiguration serviceConfigurationProvider = configurationCache.get("serviceA");
-        Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
-        Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
-        Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
+        AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
+        Assert.assertEquals("serviceA", agentConfigurations0.getService());
+        Assert.assertEquals(2, agentConfigurations0.getConfiguration().size());
+        Assert.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
-            "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
+            "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = configurationCache.get("serviceB");
-        Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
-        Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
-        Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));
+        AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
+        Assert.assertEquals("serviceB", agentConfigurations1.getService());
+        Assert.assertEquals(2, agentConfigurations1.getConfiguration().size());
+        Assert.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
-            "/api/seller/seller/*", serviceConfigurationConsumer.getConfiguration().get("trace.ignore_path"));
+            "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
     }
 
     @Test
     public void testConfigDeleteEvent() throws IOException {
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
-        AgentConfigurations configurations = new AgentConfigurationsReader(reader).readAgentConfigurations();
-
-        agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(configurations, null));
+        agentConfigurationsWatcher = spy(
+            new AgentConfigurationsWatcher(new AgentConfigurationsReader(reader).readAgentConfigurations(), null));
 
         agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveAgentConfigurations();
-        Map<String, ServiceConfiguration> configurationCache = agentConfigurations.getConfigurationCache();
+        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getActiveAgentConfigurationsCache();
         Assert.assertEquals(0, configurationCache.size());
-        ServiceConfiguration serviceConfigurationProvider = configurationCache.get("serviceA");
-        ServiceConfiguration serviceConfigurationConsumer = configurationCache.get("serviceB");
+        AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
+        AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
 
-        Assert.assertNull(null, serviceConfigurationProvider);
-        Assert.assertNull(null, serviceConfigurationConsumer);
+        Assert.assertNull(null, agentConfigurations0);
+        Assert.assertNull(null, agentConfigurations1);
     }
 }
