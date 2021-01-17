@@ -58,7 +58,7 @@ public class AgentConfigurationsReader {
                         });
 
                         ServiceConfiguration serviceConfiguration = new ServiceConfiguration((String) k, config);
-                        agentConfigurations.getConfigurationMap().put(
+                        agentConfigurations.getConfigurationCache().put(
                             serviceConfiguration.getService(), serviceConfiguration);
                     });
                 }

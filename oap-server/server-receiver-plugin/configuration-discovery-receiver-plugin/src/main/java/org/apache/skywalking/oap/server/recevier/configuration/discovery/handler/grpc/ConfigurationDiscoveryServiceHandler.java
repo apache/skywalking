@@ -56,7 +56,7 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
         ServiceConfiguration serviceDynamicConfig =
-            agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationMap().get(request.getService());
+            agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationCache().get(request.getService());
         if (null != serviceDynamicConfig) {
             ConfigurationDiscoveryCommand configurationDiscoveryCommand =
                 newAgentDynamicConfigCommand(serviceDynamicConfig, request.getUuid());

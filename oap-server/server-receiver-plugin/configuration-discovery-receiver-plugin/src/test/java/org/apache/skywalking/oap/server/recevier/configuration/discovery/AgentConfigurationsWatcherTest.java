@@ -44,7 +44,7 @@ public class AgentConfigurationsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() throws IOException {
-        assertTrue(agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationMap().isEmpty());
+        assertTrue(agentConfigurationsWatcher.getActiveAgentConfigurations().getConfigurationCache().isEmpty());
 
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         char[] chars = new char[1024 * 1024];
@@ -56,16 +56,16 @@ public class AgentConfigurationsWatcherTest {
         ));
 
         AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveAgentConfigurations();
-        Map<String, ServiceConfiguration> configurationMap = agentConfigurations.getConfigurationMap();
-        Assert.assertEquals(2, configurationMap.size());
-        ServiceConfiguration serviceConfigurationProvider = configurationMap.get("serviceA");
+        Map<String, ServiceConfiguration> configurationCache = agentConfigurations.getConfigurationCache();
+        Assert.assertEquals(2, configurationCache.size());
+        ServiceConfiguration serviceConfigurationProvider = configurationCache.get("serviceA");
         Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
         Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = configurationMap.get("serviceB");
+        ServiceConfiguration serviceConfigurationConsumer = configurationCache.get("serviceB");
         Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
         Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));
@@ -84,10 +84,10 @@ public class AgentConfigurationsWatcherTest {
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
         AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveAgentConfigurations();
-        Map<String, ServiceConfiguration> configurationMap = agentConfigurations.getConfigurationMap();
-        Assert.assertEquals(0, configurationMap.size());
-        ServiceConfiguration serviceConfigurationProvider = configurationMap.get("serviceA");
-        ServiceConfiguration serviceConfigurationConsumer = configurationMap.get("serviceB");
+        Map<String, ServiceConfiguration> configurationCache = agentConfigurations.getConfigurationCache();
+        Assert.assertEquals(0, configurationCache.size());
+        ServiceConfiguration serviceConfigurationProvider = configurationCache.get("serviceA");
+        ServiceConfiguration serviceConfigurationConsumer = configurationCache.get("serviceB");
 
         Assert.assertNull(null, serviceConfigurationProvider);
         Assert.assertNull(null, serviceConfigurationConsumer);

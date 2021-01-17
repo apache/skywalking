@@ -31,9 +31,9 @@ import lombok.ToString;
 @Getter
 @ToString
 public class AgentConfigurations {
-    private Map<String, ServiceConfiguration> configurationMap;
+    private Map<String, ServiceConfiguration> configurationCache;
 
     public AgentConfigurations() {
-        this.configurationMap = new HashMap<>();
+        this.configurationCache = new HashMap<>();
     }
 }

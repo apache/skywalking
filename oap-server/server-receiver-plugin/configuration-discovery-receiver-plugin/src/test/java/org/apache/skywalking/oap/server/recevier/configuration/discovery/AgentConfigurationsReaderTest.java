@@ -29,16 +29,16 @@ public class AgentConfigurationsReaderTest {
             this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-configuration.yml"));
 
         AgentConfigurations agentConfigurations = reader.readAgentConfigurations();
-        Map<String, ServiceConfiguration> configurationMap = agentConfigurations.getConfigurationMap();
-        Assert.assertEquals(2, configurationMap.size());
-        ServiceConfiguration serviceConfigurationProvider = configurationMap.get("serviceA");
+        Map<String, ServiceConfiguration> configurationCache = agentConfigurations.getConfigurationCache();
+        Assert.assertEquals(2, configurationCache.size());
+        ServiceConfiguration serviceConfigurationProvider = configurationCache.get("serviceA");
         Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
         Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = configurationMap.get("serviceB");
+        ServiceConfiguration serviceConfigurationConsumer = configurationCache.get("serviceB");
         Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
         Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));
