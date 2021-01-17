@@ -19,31 +19,31 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
-public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
+public class SpanIDInterceptor implements StaticMethodsAroundInterceptor {
 
-    private static final ILog LOGGER = LogManager.getLogger(TraceContextInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(SpanIDInterceptor.class);
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        MethodInterceptResult result) {
-        result.defineReturnValue(ContextManager.getGlobalTraceId());
+                             MethodInterceptResult result) {
+        result.defineReturnValue(ContextManager.getSpanId());
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        Object ret) {
+                              Object ret) {
         return ret;
     }
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        Throwable t) {
-        LOGGER.error("Failed to getDefault trace Id.", t);
+                                      Throwable t) {
+        LOGGER.error("Failed to getDefault span Id.", t);
     }
 }

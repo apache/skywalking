@@ -143,6 +143,9 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/tool-kit'}
       - {key: http.method, value: GET}
+      - {key: traceID, value: not null}
+      - {key: segmentID, value: not null}
+      - {key: spanID, value: not null}
       skipAnalysis: 'true'
       refs:
       - {parentEndpoint: /app, networkAddress: '127.0.0.1:8080', refType: CrossProcess,
