@@ -28,12 +28,13 @@
     <artifactId>apm-toolkit-logging-common</artifactId>
 
     <properties>
+        <toolkit.shade.package>org.apache.skywalking.apm.dependencies</toolkit.shade.package>
         <shade.com.google.source>com.google</shade.com.google.source>
-        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
+        <shade.com.google.target>${toolkit.shade.package}.${shade.com.google.source}</shade.com.google.target>
         <shade.io.grpc.source>io.grpc</shade.io.grpc.source>
-        <shade.io.grpc.target>${shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
+        <shade.io.grpc.target>${toolkit.shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
         <shade.io.netty.source>io.netty</shade.io.netty.source>
-        <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
+        <shade.io.netty.target>${toolkit.shade.package}.${shade.io.netty.source}</shade.io.netty.target>
     </properties>
 
     <dependencies>
@@ -77,19 +78,6 @@
                                     <shadedPattern>${shade.io.netty.target}</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <filters>
-                                <filter>
-                                    <artifact>com.google.protobuf:protobuf-java</artifact>
-                                    <excludes>
-                                        <exclude>google/protobuf/*.proto</exclude>
-                                        <exclude>google/protobuf/compiler/*.proto</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
