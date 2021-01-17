@@ -30,25 +30,33 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.recevier.configuration.discovery.ConfigurationDiscoveryService;
+import org.apache.skywalking.oap.server.recevier.configuration.discovery.ConfigurationDiscoveryRulesWatcher;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.ServiceConfiguration;
 
+/**
+ * Provide query agent dynamic configuration, through the gRPC protocol,
+ */
 @Slf4j
 public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscoveryServiceGrpc.ConfigurationDiscoveryServiceImplBase implements GRPCHandler {
 
-    private final ConfigurationDiscoveryService configurationDiscoveryService;
+    private final ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher;
 
-    public ConfigurationDiscoveryServiceHandler(ConfigurationDiscoveryService configurationDiscoveryService) {
-        this.configurationDiscoveryService = configurationDiscoveryService;
+    public ConfigurationDiscoveryServiceHandler(ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher) {
+        this.configurationDiscoveryRulesWatcher = configurationDiscoveryRulesWatcher;
     }
 
+    /*
+     * Process the request for querying the dynamic configuration of the agent.
+     * If there is agent dynamic configuration information corresponding to the service,
+     * the ConfigurationDiscoveryCommand is returned to represent the dynamic configuration information.
+     */
     @Override
     public void fetchConfigurations(final ConfigurationSyncRequest request,
                                     final StreamObserver<Commands> responseObserver) {
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
         ServiceConfiguration serviceDynamicConfig =
-            configurationDiscoveryService.findServiceDynamicConfig(request.getService());
+            configurationDiscoveryRulesWatcher.getActiveConfigRules().getRules().get(request.getService());
         if (null != serviceDynamicConfig) {
             ConfigurationDiscoveryCommand configurationDiscoveryCommand =
                 newAgentDynamicConfigCommand(serviceDynamicConfig, request.getUuid());
@@ -59,11 +67,14 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
     }
 
     public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(ServiceConfiguration serviceConfiguration,
-                                                                      String uuid) {
+                                                                      String requestId) {
         List<KeyStringValuePair> configurationList = Lists.newArrayList();
         String hashCode = String.valueOf(serviceConfiguration.getConfiguration().hashCode());
 
-        if (!Objects.equals(uuid, hashCode)) {
+        /*
+         * If requestId matched, configuration content is not required.
+         */
+        if (!Objects.equals(requestId, hashCode)) {
             serviceConfiguration.getConfiguration().forEach((k, v) -> {
                 KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(k).setValue(v);
                 configurationList.add(builder.build());

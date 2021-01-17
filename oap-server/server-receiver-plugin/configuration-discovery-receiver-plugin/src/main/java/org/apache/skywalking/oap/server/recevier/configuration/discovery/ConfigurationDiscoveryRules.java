@@ -24,6 +24,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Configuration rules, include the relationship between service and service's agent dynamic configuration.
+ */
 @Setter
 @Getter
 @ToString

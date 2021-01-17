@@ -27,6 +27,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
+/**
+ * Used to parse the configuration of the character type to {@link ConfigurationDiscoveryRules}
+ */
 @Slf4j
 public class ConfigurationDiscoveryRulesReader {
     private Map yamlData;
@@ -37,15 +40,15 @@ public class ConfigurationDiscoveryRulesReader {
     }
 
     public ConfigurationDiscoveryRulesReader(Reader io) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(io, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(io);
     }
 
     public ConfigurationDiscoveryRules readRules() {
         ConfigurationDiscoveryRules configurationDiscoveryRules = new ConfigurationDiscoveryRules();
         try {
             if (Objects.nonNull(yamlData)) {
-                Map rulesData = (Map) yamlData.get("rules");
+                Map rulesData = (Map) yamlData.get("configurations");
                 if (rulesData != null) {
                     rulesData.forEach((k, v) -> {
                         Map map = (Map) v;

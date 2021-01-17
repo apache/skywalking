@@ -23,6 +23,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Dynamic configuration items, save the dynamic configuration of the agent corresponding to the service.
+ */
 @Setter
 @Getter
 @ToString

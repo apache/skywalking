@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rules:
-  dubbox-provider:
+configurations:
+  serviceA:
     trace.sample_rate: 1000
     trace.ignore_path: /api/seller/seller/*
-  dubbox-consumer:
+  serviceB:
     trace.sample_rate: 1000
     trace.ignore_path: /api/seller/seller/*

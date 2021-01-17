@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.recevier.configuration.discovery.handler
 public class ConfigurationDiscoveryProvider extends ModuleProvider {
 
     private ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher;
-    private ConfigurationDiscoveryService configurationDiscoveryService;
 
     @Override
     public String name() {
@@ -53,7 +52,6 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         configurationDiscoveryRulesWatcher = new ConfigurationDiscoveryRulesWatcher(
             new ConfigurationDiscoveryRules(), this);
-        configurationDiscoveryService = new ConfigurationDiscoveryService(configurationDiscoveryRulesWatcher);
     }
 
     @Override
@@ -64,10 +62,13 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
                                                                                   DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(configurationDiscoveryRulesWatcher);
 
+        /*
+         * Register ConfigurationDiscoveryServiceHandler to process gRPC requests for ConfigurationDiscovery.
+         */
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(configurationDiscoveryService));
+        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(configurationDiscoveryRulesWatcher));
     }
 
     @Override

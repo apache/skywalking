@@ -31,15 +31,15 @@ public class ConfigurationDiscoveryRulesReaderTest {
         ConfigurationDiscoveryRules configurationDiscoveryRules = reader.readRules();
         Map<String, ServiceConfiguration> rules = configurationDiscoveryRules.getRules();
         Assert.assertEquals(2, rules.size());
-        ServiceConfiguration serviceConfigurationProvider = rules.get("dubbox-provider");
-        Assert.assertEquals("dubbox-provider", serviceConfigurationProvider.getService());
+        ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
+        Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
         Assert.assertEquals(2, serviceConfigurationProvider.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationProvider.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", serviceConfigurationProvider.getConfiguration().get("trace.ignore_path"));
 
-        ServiceConfiguration serviceConfigurationConsumer = rules.get("dubbox-consumer");
-        Assert.assertEquals("dubbox-consumer", serviceConfigurationConsumer.getService());
+        ServiceConfiguration serviceConfigurationConsumer = rules.get("serviceB");
+        Assert.assertEquals("serviceB", serviceConfigurationConsumer.getService());
         Assert.assertEquals(2, serviceConfigurationConsumer.getConfiguration().size());
         Assert.assertEquals("1000", serviceConfigurationConsumer.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(

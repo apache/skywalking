@@ -23,6 +23,10 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
+/**
+ * ConfigurationDiscoveryRulesWatcher used to handle dynamic configuration changes, and convert the configuration of the
+ * character type to {@link ConfigurationDiscoveryRules}
+ */
 public class ConfigurationDiscoveryRulesWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
     private volatile ConfigurationDiscoveryRules activeConfigurationDiscoveryRules;
