@@ -30,10 +30,10 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class ConfigurationDiscoveryRules {
+public class AgentConfigurations {
     private Map<String, ServiceConfiguration> rules;
 
-    public ConfigurationDiscoveryRules() {
+    public AgentConfigurations() {
         this.rules = new HashMap<>();
     }
 }

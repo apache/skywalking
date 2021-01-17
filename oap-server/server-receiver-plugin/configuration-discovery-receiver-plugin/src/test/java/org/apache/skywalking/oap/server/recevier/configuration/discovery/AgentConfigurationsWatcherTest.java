@@ -32,10 +32,10 @@ import org.mockito.Spy;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 
-public class ConfigurationDiscoveryRulesWatcherTest {
+public class AgentConfigurationsWatcherTest {
     @Spy
-    private ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher = new ConfigurationDiscoveryRulesWatcher(
-        new ConfigurationDiscoveryRules(), null);
+    private AgentConfigurationsWatcher agentConfigurationsWatcher = new AgentConfigurationsWatcher(
+        new AgentConfigurations(), null);
 
     @Before
     public void setUp() {
@@ -44,19 +44,19 @@ public class ConfigurationDiscoveryRulesWatcherTest {
 
     @Test
     public void shouldSetRulesOnEventChanged() throws IOException {
-        assertTrue(configurationDiscoveryRulesWatcher.getActiveConfigRules().getRules().isEmpty());
+        assertTrue(agentConfigurationsWatcher.getActiveConfigRules().getRules().isEmpty());
 
         Reader reader = ResourceUtils.read("configurationRules.yml");
         char[] chars = new char[1024 * 1024];
         int length = reader.read(chars);
 
-        configurationDiscoveryRulesWatcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
+        agentConfigurationsWatcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
             new String(chars, 0, length),
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        ConfigurationDiscoveryRules configurationDiscoveryRules = configurationDiscoveryRulesWatcher.getActiveConfigRules();
-        Map<String, ServiceConfiguration> rules = configurationDiscoveryRules.getRules();
+        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveConfigRules();
+        Map<String, ServiceConfiguration> rules = agentConfigurations.getRules();
         Assert.assertEquals(2, rules.size());
         ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
         Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());
@@ -76,15 +76,15 @@ public class ConfigurationDiscoveryRulesWatcherTest {
     @Test
     public void shouldClearRulesOnEventDeleted() throws IOException {
         Reader reader = ResourceUtils.read("configurationRules.yml");
-        ConfigurationDiscoveryRules defaultRules = new ConfigurationDiscoveryRulesReader(reader).readRules();
+        AgentConfigurations defaultRules = new AgentConfigurationsReader(reader).readRules();
 
-        configurationDiscoveryRulesWatcher = spy(new ConfigurationDiscoveryRulesWatcher(defaultRules, null));
+        agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(defaultRules, null));
 
-        configurationDiscoveryRulesWatcher.notify(
+        agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        ConfigurationDiscoveryRules configurationDiscoveryRules = configurationDiscoveryRulesWatcher.getActiveConfigRules();
-        Map<String, ServiceConfiguration> rules = configurationDiscoveryRules.getRules();
+        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getActiveConfigRules();
+        Map<String, ServiceConfiguration> rules = agentConfigurations.getRules();
         Assert.assertEquals(0, rules.size());
         ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
         ServiceConfiguration serviceConfigurationConsumer = rules.get("serviceB");

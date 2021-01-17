@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.recevier.configuration.discovery.handler
 
 public class ConfigurationDiscoveryProvider extends ModuleProvider {
 
-    private ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher;
+    private AgentConfigurationsWatcher agentConfigurationsWatcher;
 
     @Override
     public String name() {
@@ -50,8 +50,8 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        configurationDiscoveryRulesWatcher = new ConfigurationDiscoveryRulesWatcher(
-            new ConfigurationDiscoveryRules(), this);
+        agentConfigurationsWatcher = new AgentConfigurationsWatcher(
+            new AgentConfigurations(), this);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
                                                                               .provider()
                                                                               .getService(
                                                                                   DynamicConfigurationService.class);
-        dynamicConfigurationService.registerConfigChangeWatcher(configurationDiscoveryRulesWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(agentConfigurationsWatcher);
 
         /*
          * Register ConfigurationDiscoveryServiceHandler to process gRPC requests for ConfigurationDiscovery.
@@ -68,7 +68,7 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(configurationDiscoveryRulesWatcher));
+        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(agentConfigurationsWatcher));
     }
 
     @Override

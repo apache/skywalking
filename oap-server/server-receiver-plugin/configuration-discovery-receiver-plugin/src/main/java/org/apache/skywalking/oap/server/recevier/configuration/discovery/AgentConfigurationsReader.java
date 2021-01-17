@@ -28,24 +28,24 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
- * Used to parse the configuration of the String type to {@link ConfigurationDiscoveryRules}
+ * Used to parse the configuration of the String type to {@link AgentConfigurations}
  */
 @Slf4j
-public class ConfigurationDiscoveryRulesReader {
+public class AgentConfigurationsReader {
     private Map yamlData;
 
-    public ConfigurationDiscoveryRulesReader(InputStream inputStream) {
+    public AgentConfigurationsReader(InputStream inputStream) {
         Yaml yaml = new Yaml(new SafeConstructor());
         yamlData = (Map) yaml.load(inputStream);
     }
 
-    public ConfigurationDiscoveryRulesReader(Reader io) {
+    public AgentConfigurationsReader(Reader io) {
         Yaml yaml = new Yaml(new SafeConstructor());
         yamlData = (Map) yaml.load(io);
     }
 
-    public ConfigurationDiscoveryRules readRules() {
-        ConfigurationDiscoveryRules configurationDiscoveryRules = new ConfigurationDiscoveryRules();
+    public AgentConfigurations readRules() {
+        AgentConfigurations agentConfigurations = new AgentConfigurations();
         try {
             if (Objects.nonNull(yamlData)) {
                 Map rulesData = (Map) yamlData.get("configurations");
@@ -58,7 +58,7 @@ public class ConfigurationDiscoveryRulesReader {
                         });
 
                         ServiceConfiguration serviceConfiguration = new ServiceConfiguration((String) k, config);
-                        configurationDiscoveryRules.getRules().put(
+                        agentConfigurations.getRules().put(
                             serviceConfiguration.getService(), serviceConfiguration);
                     });
                 }
@@ -66,6 +66,6 @@ public class ConfigurationDiscoveryRulesReader {
         } catch (Exception e) {
             log.error("Read ConfigurationDiscovery rules error.", e);
         }
-        return configurationDiscoveryRules;
+        return agentConfigurations;
     }
 }

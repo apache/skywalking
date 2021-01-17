@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.recevier.configuration.discovery.ConfigurationDiscoveryRulesWatcher;
+import org.apache.skywalking.oap.server.recevier.configuration.discovery.AgentConfigurationsWatcher;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.ServiceConfiguration;
 
 /**
@@ -39,10 +39,10 @@ import org.apache.skywalking.oap.server.recevier.configuration.discovery.Service
 @Slf4j
 public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscoveryServiceGrpc.ConfigurationDiscoveryServiceImplBase implements GRPCHandler {
 
-    private final ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher;
+    private final AgentConfigurationsWatcher agentConfigurationsWatcher;
 
-    public ConfigurationDiscoveryServiceHandler(ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher) {
-        this.configurationDiscoveryRulesWatcher = configurationDiscoveryRulesWatcher;
+    public ConfigurationDiscoveryServiceHandler(AgentConfigurationsWatcher agentConfigurationsWatcher) {
+        this.agentConfigurationsWatcher = agentConfigurationsWatcher;
     }
 
     /*
@@ -56,7 +56,7 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
         ServiceConfiguration serviceDynamicConfig =
-            configurationDiscoveryRulesWatcher.getActiveConfigRules().getRules().get(request.getService());
+            agentConfigurationsWatcher.getActiveConfigRules().getRules().get(request.getService());
         if (null != serviceDynamicConfig) {
             ConfigurationDiscoveryCommand configurationDiscoveryCommand =
                 newAgentDynamicConfigCommand(serviceDynamicConfig, request.getUuid());

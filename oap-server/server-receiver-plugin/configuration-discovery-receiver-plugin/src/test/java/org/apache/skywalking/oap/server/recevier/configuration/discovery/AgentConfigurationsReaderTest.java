@@ -22,14 +22,14 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ConfigurationDiscoveryRulesReaderTest {
+public class AgentConfigurationsReaderTest {
     @Test
     public void testReadRules() {
-        ConfigurationDiscoveryRulesReader reader = new ConfigurationDiscoveryRulesReader(
+        AgentConfigurationsReader reader = new AgentConfigurationsReader(
             this.getClass().getClassLoader().getResourceAsStream("configurationRules.yml"));
 
-        ConfigurationDiscoveryRules configurationDiscoveryRules = reader.readRules();
-        Map<String, ServiceConfiguration> rules = configurationDiscoveryRules.getRules();
+        AgentConfigurations agentConfigurations = reader.readRules();
+        Map<String, ServiceConfiguration> rules = agentConfigurations.getRules();
         Assert.assertEquals(2, rules.size());
         ServiceConfiguration serviceConfigurationProvider = rules.get("serviceA");
         Assert.assertEquals("serviceA", serviceConfigurationProvider.getService());

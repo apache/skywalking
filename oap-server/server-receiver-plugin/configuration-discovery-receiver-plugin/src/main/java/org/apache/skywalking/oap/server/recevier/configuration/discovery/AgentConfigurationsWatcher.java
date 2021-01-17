@@ -25,29 +25,29 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
  * ConfigurationDiscoveryRulesWatcher used to handle dynamic configuration changes, and convert the configuration of the
- * String type to {@link ConfigurationDiscoveryRules}
+ * String type to {@link AgentConfigurations}
  */
-public class ConfigurationDiscoveryRulesWatcher extends ConfigChangeWatcher {
+public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
-    private volatile ConfigurationDiscoveryRules activeConfigurationDiscoveryRules;
+    private volatile AgentConfigurations activeAgentConfigurations;
 
-    public ConfigurationDiscoveryRulesWatcher(ConfigurationDiscoveryRules configurationDiscoveryRules,
-                                              ModuleProvider provider) {
+    public AgentConfigurationsWatcher(AgentConfigurations agentConfigurations,
+                                      ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
         this.settingsString = Const.EMPTY_STRING;
-        this.activeConfigurationDiscoveryRules = configurationDiscoveryRules;
+        this.activeAgentConfigurations = agentConfigurations;
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
             settingsString = Const.EMPTY_STRING;
-            this.activeConfigurationDiscoveryRules = new ConfigurationDiscoveryRules();
+            this.activeAgentConfigurations = new AgentConfigurations();
         } else {
             settingsString = value.getNewValue();
-            ConfigurationDiscoveryRulesReader configurationDiscoveryRulesReader =
-                new ConfigurationDiscoveryRulesReader(new StringReader(value.getNewValue()));
-            this.activeConfigurationDiscoveryRules = configurationDiscoveryRulesReader.readRules();
+            AgentConfigurationsReader agentConfigurationsReader =
+                new AgentConfigurationsReader(new StringReader(value.getNewValue()));
+            this.activeAgentConfigurations = agentConfigurationsReader.readRules();
         }
     }
 
@@ -56,7 +56,7 @@ public class ConfigurationDiscoveryRulesWatcher extends ConfigChangeWatcher {
         return settingsString;
     }
 
-    public ConfigurationDiscoveryRules getActiveConfigRules() {
-        return activeConfigurationDiscoveryRules;
+    public AgentConfigurations getActiveConfigRules() {
+        return activeAgentConfigurations;
     }
 }
