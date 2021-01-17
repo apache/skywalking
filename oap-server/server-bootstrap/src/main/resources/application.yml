@@ -413,3 +413,7 @@ health-checker:
   selector: ${SW_HEALTH_CHECKER:-}
   default:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
+
+configuration-discovery:
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
+  default:
