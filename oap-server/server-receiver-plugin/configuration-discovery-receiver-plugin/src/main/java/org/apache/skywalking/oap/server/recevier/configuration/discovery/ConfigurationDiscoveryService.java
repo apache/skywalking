@@ -18,9 +18,15 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+public class ConfigurationDiscoveryService {
 
-public interface ConfigurationDiscoveryService extends Service {
+    private final ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher;
 
-    ServiceConfiguration findServiceDynamicConfig(String serviceName);
+    public ConfigurationDiscoveryService(ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher) {
+        this.configurationDiscoveryRulesWatcher = configurationDiscoveryRulesWatcher;
+    }
+
+    public ServiceConfiguration findServiceDynamicConfig(final String serviceName) {
+        return configurationDiscoveryRulesWatcher.getActiveConfigRules().getRules().get(serviceName);
+    }
 }

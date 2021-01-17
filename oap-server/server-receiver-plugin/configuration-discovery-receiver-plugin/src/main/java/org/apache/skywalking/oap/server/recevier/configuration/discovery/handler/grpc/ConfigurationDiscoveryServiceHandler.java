@@ -29,20 +29,17 @@ import org.apache.skywalking.apm.network.agent.dynamic.configuration.v3.Configur
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.recevier.configuration.discovery.ConfigurationDiscoveryModule;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.ConfigurationDiscoveryService;
 import org.apache.skywalking.oap.server.recevier.configuration.discovery.ServiceConfiguration;
 
 @Slf4j
 public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscoveryServiceGrpc.ConfigurationDiscoveryServiceImplBase implements GRPCHandler {
 
-    private final ConfigurationDiscoveryService configService;
+    private final ConfigurationDiscoveryService configurationDiscoveryService;
 
-    public ConfigurationDiscoveryServiceHandler(ModuleManager moduleManager) {
-        this.configService = moduleManager.find(ConfigurationDiscoveryModule.NAME)
-                                          .provider().getService(ConfigurationDiscoveryService.class);
+    public ConfigurationDiscoveryServiceHandler(ConfigurationDiscoveryService configurationDiscoveryService) {
+        this.configurationDiscoveryService = configurationDiscoveryService;
     }
 
     @Override
@@ -50,7 +47,8 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
                                     final StreamObserver<Commands> responseObserver) {
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
-        ServiceConfiguration serviceDynamicConfig = configService.findServiceDynamicConfig(request.getService());
+        ServiceConfiguration serviceDynamicConfig =
+            configurationDiscoveryService.findServiceDynamicConfig(request.getService());
         if (null != serviceDynamicConfig) {
             ConfigurationDiscoveryCommand configurationDiscoveryCommand =
                 newAgentDynamicConfigCommand(serviceDynamicConfig, request.getUuid());
@@ -72,7 +70,6 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
             });
         }
         String serialNumber = UUID.randomUUID().toString();
-        return new ConfigurationDiscoveryCommand(
-            serialNumber, serviceConfiguration.getService(), hashCode, configurationList);
+        return new ConfigurationDiscoveryCommand(serialNumber, hashCode, configurationList);
     }
 }

@@ -25,33 +25,26 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 public class ConfigurationDiscoveryCommand extends BaseCommand implements Serializable, Deserializable<ConfigurationDiscoveryCommand> {
     public static final Deserializable<ConfigurationDiscoveryCommand> DESERIALIZER = new ConfigurationDiscoveryCommand(
-        "", "", "", new ArrayList<>());
+        "", "", new ArrayList<>());
     public static final String NAME = ConfigurationDiscoveryCommand.class.getSimpleName();
 
     public static final String UUID_CONST_NAME = "UUID";
     public static final String SERIAL_NUMBER_CONST_NAME = "SerialNumber";
-    public static final String SERVICE_CONST_NAME = "SERVICE";
 
     /*
      * If config is unchanged, then could response the same uuid, and config is not required.
      */
     private String uuid;
     /*
-     * Current service name.
-     */
-    private String service;
-    /*
      * The configuration of service.
      */
     private List<KeyStringValuePair> config;
 
     public ConfigurationDiscoveryCommand(String serialNumber,
-                                         String service,
                                          String uuid,
                                          List<KeyStringValuePair> config) {
         super(NAME, serialNumber);
         this.uuid = uuid;
-        this.service = service;
         this.config = config;
     }
 
@@ -67,20 +60,17 @@ public class ConfigurationDiscoveryCommand extends BaseCommand implements Serial
                 serialNumber = pair.getValue();
             } else if (UUID_CONST_NAME.equals(pair.getKey())) {
                 uuid = pair.getValue();
-            } else if (SERVICE_CONST_NAME.equals(pair.getKey())) {
-                serviceName = pair.getValue();
             } else {
                 //add config item to config list.
                 config.add(pair);
             }
         }
-        return new ConfigurationDiscoveryCommand(serialNumber, serviceName, uuid, config);
+        return new ConfigurationDiscoveryCommand(serialNumber, uuid, config);
     }
 
     @Override
     public Command.Builder serialize() {
         final Command.Builder builder = commandBuilder();
-        builder.addArgs(KeyStringValuePair.newBuilder().setKey(SERVICE_CONST_NAME).setValue(service));
         builder.addArgs(KeyStringValuePair.newBuilder().setKey(UUID_CONST_NAME).setValue(uuid));
         builder.addAllArgs(config);
         return builder;
@@ -88,10 +78,6 @@ public class ConfigurationDiscoveryCommand extends BaseCommand implements Serial
 
     public String getUuid() {
         return uuid;
-    }
-
-    public String getService() {
-        return service;
     }
 
     public List<KeyStringValuePair> getConfig() {
@@ -102,7 +88,6 @@ public class ConfigurationDiscoveryCommand extends BaseCommand implements Serial
     public String toString() {
         return "ConfigurationDiscoveryCommand{" +
             "uuid='" + uuid + '\'' +
-            ", service='" + service + '\'' +
             ", config=" + config +
             '}';
     }

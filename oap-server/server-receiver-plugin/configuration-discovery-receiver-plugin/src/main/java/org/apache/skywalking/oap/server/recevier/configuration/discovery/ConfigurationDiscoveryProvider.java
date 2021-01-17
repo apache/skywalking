@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -36,6 +35,7 @@ import org.apache.skywalking.oap.server.recevier.configuration.discovery.handler
 public class ConfigurationDiscoveryProvider extends ModuleProvider {
 
     private ConfigurationDiscoveryRulesWatcher configurationDiscoveryRulesWatcher;
+    private ConfigurationDiscoveryService configurationDiscoveryService;
 
     @Override
     public String name() {
@@ -64,10 +64,7 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
         ConfigurationDiscoveryRules configurationDiscoveryRules = reader.readRules();
 
         configurationDiscoveryRulesWatcher = new ConfigurationDiscoveryRulesWatcher(configurationDiscoveryRules, this);
-        this.registerServiceImplementation(
-            ConfigurationDiscoveryService.class,
-            new DefaultConfigurationDiscoveryService(configurationDiscoveryRulesWatcher)
-        );
+        configurationDiscoveryService = new ConfigurationDiscoveryService(configurationDiscoveryRulesWatcher);
     }
 
     @Override
@@ -81,7 +78,7 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(configurationDiscoveryService));
     }
 
     @Override
@@ -91,8 +88,8 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
     @Override
     public String[] requiredModules() {
         return new String[] {
-            CoreModule.NAME,
-            ConfigurationModule.NAME
+            ConfigurationModule.NAME,
+            SharingServerModule.NAME
         };
     }
 }

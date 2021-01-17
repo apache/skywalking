@@ -29,6 +29,6 @@ public class ConfigurationDiscoveryModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {ConfigurationDiscoveryService.class};
+        return new Class[0];
     }
 }
