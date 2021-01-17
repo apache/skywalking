@@ -20,10 +20,10 @@ package org.apache.skywalking.apm.toolkit.logging.common.log;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class GRPCLogConfig {
+public class ToolkitConfig {
 
     public static class Plugin {
-        @PluginConfig(root = GRPCLogConfig.class)
+        @PluginConfig(root = ToolkitConfig.class)
         public static class GRPCLog {
             /**
              * The host of gRPC log server.

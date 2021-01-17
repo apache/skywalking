@@ -63,10 +63,10 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
                 BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
         channel = ManagedChannelBuilder
-                .forAddress(GRPCLogConfig.Plugin.GRPCLog.SERVER_HOST, GRPCLogConfig.Plugin.GRPCLog.SERVER_PORT)
+                .forAddress(ToolkitConfig.Plugin.GRPCLog.SERVER_HOST, ToolkitConfig.Plugin.GRPCLog.SERVER_PORT)
                 .usePlaintext().build();
         asyncStub = LogReportServiceGrpc.newStub(channel)
-                .withMaxOutboundMessageSize(GRPCLogConfig.Plugin.GRPCLog.MAX_MESSAGE_SIZE);
+                .withMaxOutboundMessageSize(ToolkitConfig.Plugin.GRPCLog.MAX_MESSAGE_SIZE);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
         final GRPCStreamServiceStatus waitStatus = new GRPCStreamServiceStatus(false);
         try {
             reportStreamObserver = asyncStub.withDeadlineAfter(
-                    GRPCLogConfig.Plugin.GRPCLog.UPSTREAM_TIMEOUT, TimeUnit.SECONDS
+                    ToolkitConfig.Plugin.GRPCLog.UPSTREAM_TIMEOUT, TimeUnit.SECONDS
             ).collect(new StreamObserver<Commands>() {
                 @Override
                 public void onNext(Commands commands) {

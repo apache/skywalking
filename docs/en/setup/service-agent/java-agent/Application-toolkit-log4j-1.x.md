@@ -7,6 +7,8 @@
    </dependency>
 ```
 
+# Print trace ID in your logs
+
 * Config a layout
 ```properties
 log4j.appender.CONSOLE.layout=TraceIdPatternLayout

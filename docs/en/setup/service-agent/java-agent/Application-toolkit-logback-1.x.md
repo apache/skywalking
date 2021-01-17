@@ -8,6 +8,8 @@
      </dependency>
 ```
 
+# Print trace ID in your logs
+
 * set `%tid` in `Pattern` section of logback.xml
 ```xml
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">

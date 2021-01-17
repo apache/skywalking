@@ -7,6 +7,8 @@
    </dependency>
 ```
 
+# Print trace ID in your logs
+
 * Config the `[%traceId]` pattern in your log4j2.xml
 ```xml
    <Appenders>

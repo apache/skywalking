@@ -27,6 +27,15 @@
 
     <artifactId>apm-toolkit-logging-common</artifactId>
 
+    <properties>
+        <shade.com.google.source>com.google</shade.com.google.source>
+        <shade.com.google.target>${shade.package}.${shade.com.google.source}</shade.com.google.target>
+        <shade.io.grpc.source>io.grpc</shade.io.grpc.source>
+        <shade.io.grpc.target>${shade.package}.${shade.io.grpc.source}</shade.io.grpc.target>
+        <shade.io.netty.source>io.netty</shade.io.netty.source>
+        <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -34,5 +43,58 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
+                                    <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
+                                    <exclude>com.google.android:annotations:jar:</exclude>
+                                    <exclude>com.google.api.grpc:proto-google-common-protos:jar:</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.com.google.source}</pattern>
+                                    <shadedPattern>${shade.com.google.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.grpc.source}</pattern>
+                                    <shadedPattern>${shade.io.grpc.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.netty.source}</pattern>
+                                    <shadedPattern>${shade.io.netty.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>com.google.protobuf:protobuf-java</artifact>
+                                    <excludes>
+                                        <exclude>google/protobuf/*.proto</exclude>
+                                        <exclude>google/protobuf/compiler/*.proto</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
