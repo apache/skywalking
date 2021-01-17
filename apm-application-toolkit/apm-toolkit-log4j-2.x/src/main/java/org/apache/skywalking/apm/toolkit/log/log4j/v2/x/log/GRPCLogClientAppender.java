@@ -46,10 +46,8 @@ public class GRPCLogClientAppender extends AbstractAppender {
                                                        @PluginConfiguration final Configuration config,
                                                        @PluginAttribute("ignoreExceptions") final String ignore) {
 
-        String appenderName = (name == null) ? "gRPCLogClientAppender" : name;
-
-        final boolean ignoreExceptions = "true".equalsIgnoreCase(ignore) || (!"false".equalsIgnoreCase(ignore));
-
+        String appenderName = name == null ? "gRPCLogClientAppender" : name;
+        final boolean ignoreExceptions = "true".equalsIgnoreCase(ignore) || !"false".equalsIgnoreCase(ignore);
         return new GRPCLogClientAppender(appenderName, filter, ignoreExceptions);
     }
 }

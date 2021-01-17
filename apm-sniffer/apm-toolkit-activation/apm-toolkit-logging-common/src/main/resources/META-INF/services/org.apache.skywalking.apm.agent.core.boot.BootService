@@ -19,4 +19,4 @@
 #
 #
 
-org.apache.skywalking.apm.toolkit.common.log.GRPCLogReportServiceClient
+org.apache.skywalking.apm.toolkit.logging.common.log.GRPCLogReportServiceClient

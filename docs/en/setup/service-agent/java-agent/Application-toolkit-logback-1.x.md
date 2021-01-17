@@ -123,7 +123,7 @@ The gRPC report could forward the collected logs to SkyWalking OAP server, or [S
 
 ```properties
 plugin.grpclog.service_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1}
-plugin.grpclog.service_port=${SW_GRPC_LOG_SERVER_PORT:8000}
+plugin.grpclog.service_port=${SW_GRPC_LOG_SERVER_PORT:11800}
 plugin.grpclog.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE:10485760}
 plugin.grpclog.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
 ```

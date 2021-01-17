@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.common.log;
+package org.apache.skywalking.apm.toolkit.logging.common.log;
 
 import java.util.List;
 import java.util.Objects;
@@ -84,7 +84,9 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
     @Override
     public void produce(LogData logData) {
         if (Objects.nonNull(logData) && !carrier.produce(logData)) {
-                LOGGER.warn("LogReportServiceClient discard logData: " + logData.toString());
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("One log has been abandoned, cause by buffer is full.");
+            }
         }
     }
 
@@ -111,7 +113,7 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
                         disconnected.set(true);
                     }
 
-                    LOGGER.error("LogReportServiceClient discard logData: " + dataList.toString());
+                    LOGGER.error(t, "Try to send {} log data to collector, with unexpected exception.", dataList.size());
                 }
 
                 @Override

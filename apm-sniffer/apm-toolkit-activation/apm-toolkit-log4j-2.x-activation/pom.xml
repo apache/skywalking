@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-toolkit-common</artifactId>
+            <artifactId>apm-toolkit-logging-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

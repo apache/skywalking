@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.common.log;
+package org.apache.skywalking.apm.toolkit.logging.common.log;
 
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
@@ -33,7 +33,7 @@ public class GRPCLogConfig {
             /**
              * The port of gRPC log server.
              */
-            public static int SERVER_PORT = 8000;
+            public static int SERVER_PORT = 11800;
 
             /**
              * The max size of message to send to server.Default is 10 MB.
