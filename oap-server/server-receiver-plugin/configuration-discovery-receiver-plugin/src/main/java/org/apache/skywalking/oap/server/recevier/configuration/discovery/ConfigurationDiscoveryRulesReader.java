@@ -28,7 +28,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
- * Used to parse the configuration of the character type to {@link ConfigurationDiscoveryRules}
+ * Used to parse the configuration of the String type to {@link ConfigurationDiscoveryRules}
  */
 @Slf4j
 public class ConfigurationDiscoveryRulesReader {
