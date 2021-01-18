@@ -67,6 +67,7 @@ Release Notes.
 * Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
 * Fix receiver analysis error count metrics
 * Log collecting and query implementation
+* Support Alarm to feishu
 
 #### UI
 * Fix un-removed tags in trace query.

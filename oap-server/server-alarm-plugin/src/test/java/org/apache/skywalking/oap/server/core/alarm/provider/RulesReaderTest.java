@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
@@ -86,5 +87,14 @@ public class RulesReaderTest {
         assertThat(webHookUrls.get(0).getSecret(), is("dummysecret"));
         assertThat(webHookUrls.get(1).getUrl(), is("https://oapi.dingtalk.com/robot/send?access_token=dummy_token2"));
         assertNull(webHookUrls.get(1).getSecret());
+
+        FeishuSettings feishuSettings = rules.getFeishus();
+        assertThat(feishuSettings.getTextTemplate(), any(String.class));
+        List<FeishuSettings.WebHookUrl> feishuSettingsWebhooks = feishuSettings.getWebhooks();
+        assertThat(feishuSettingsWebhooks.size(), is(2));
+        assertThat(feishuSettingsWebhooks.get(0).getUrl(), is("https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token"));
+        assertThat(feishuSettingsWebhooks.get(0).getSecret(), is("dummysecret"));
+        assertThat(feishuSettingsWebhooks.get(1).getUrl(), is("https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2"));
+        assertNull(feishuSettingsWebhooks.get(1).getSecret());
     }
 }
