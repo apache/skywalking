@@ -48,7 +48,7 @@ segmentItems:
       spanType: Exit
       peer: github.com:443
       tags:
-      - {key: url, value: 'https://github.com:-1/apache/skywalking'}
+      - {key: url, value: 'https://github.com/apache/skywalking'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
     - operationName: Threading/test.apache.skywalking.apm.testcase.jdk.threading.Application$TestController$1/run
@@ -81,7 +81,7 @@ segmentItems:
       spanType: Exit
       peer: github.com:443
       tags:
-      - {key: url, value: 'https://github.com:-1/apache/skywalking'}
+      - {key: url, value: 'https://github.com/apache/skywalking'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
     - operationName: Threading/test.apache.skywalking.apm.testcase.jdk.threading.Application$TestController$2/call

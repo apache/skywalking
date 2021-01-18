@@ -34,6 +34,7 @@ Release Notes.
 * Fix duplicated `EnhancedInstance` interface added.
 * Fix thread leaks caused by the elasticsearch-6.x-plugin plugin.
 * Support reading segmentId and spanId with toolkit.
+* Fix RestTemplate plugin recording url tag with wrong port
 
 
 #### OAP-Backend
