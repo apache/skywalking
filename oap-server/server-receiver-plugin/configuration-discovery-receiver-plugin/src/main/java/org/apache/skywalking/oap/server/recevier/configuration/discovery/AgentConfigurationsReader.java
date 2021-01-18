@@ -44,8 +44,8 @@ public class AgentConfigurationsReader {
         yamlData = (Map) yaml.load(io);
     }
 
-    public Map<String, AgentConfigurations> readAgentConfigurations() {
-        Map<String, AgentConfigurations> configurationCache = new HashMap<>();
+    public AgentConfigurationsTable readAgentConfigurationsTable() {
+        AgentConfigurationsTable agentConfigurationsTable = new AgentConfigurationsTable();
         try {
             if (Objects.nonNull(yamlData)) {
                 Map configurationsData = (Map) yamlData.get("configurations");
@@ -58,13 +58,14 @@ public class AgentConfigurationsReader {
                         });
 
                         AgentConfigurations agentConfigurations = new AgentConfigurations((String) k, config);
-                        configurationCache.put(agentConfigurations.getService(), agentConfigurations);
+                        agentConfigurationsTable.getAgentConfigurationsCache()
+                                                .put(agentConfigurations.getService(), agentConfigurations);
                     });
                 }
             }
         } catch (Exception e) {
             log.error("Read ConfigurationDiscovery configurations error.", e);
         }
-        return configurationCache;
+        return agentConfigurationsTable;
     }
 }

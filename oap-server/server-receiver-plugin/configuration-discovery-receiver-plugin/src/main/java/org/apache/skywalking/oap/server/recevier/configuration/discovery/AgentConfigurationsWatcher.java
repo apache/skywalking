@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -30,26 +29,39 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
  */
 public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
-    private volatile Map<String, AgentConfigurations> activeAgentConfigurationsCache;
+    private volatile AgentConfigurationsTable agentConfigurationsTable;
+    /**
+     * The uuid is based on calculation by md5.
+     */
+    private volatile String uuid;
 
-    public AgentConfigurationsWatcher(Map<String, AgentConfigurations> agentConfigurationsCache,
-                                      ModuleProvider provider) {
+    public AgentConfigurationsWatcher(ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
         this.settingsString = Const.EMPTY_STRING;
-        this.activeAgentConfigurationsCache = agentConfigurationsCache;
+        this.agentConfigurationsTable = new AgentConfigurationsTable();
+    }
+
+    /**
+     * For testing use only. manually load configuration items.
+     */
+    public AgentConfigurationsWatcher(AgentConfigurationsTable agentConfigurationsTable, ModuleProvider provider) {
+        super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
+        this.settingsString = Const.EMPTY_STRING;
+        this.agentConfigurationsTable = agentConfigurationsTable;
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
             settingsString = Const.EMPTY_STRING;
-            this.activeAgentConfigurationsCache = new HashMap<>();
+            this.agentConfigurationsTable = new AgentConfigurationsTable();
         } else {
             settingsString = value.getNewValue();
             AgentConfigurationsReader agentConfigurationsReader =
                 new AgentConfigurationsReader(new StringReader(value.getNewValue()));
-            this.activeAgentConfigurationsCache = agentConfigurationsReader.readAgentConfigurations();
+            this.agentConfigurationsTable = agentConfigurationsReader.readAgentConfigurationsTable();
         }
+        uuid = DigestUtils.md5Hex(settingsString);
     }
 
     @Override
@@ -57,7 +69,18 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
         return settingsString;
     }
 
-    public Map<String, AgentConfigurations> getActiveAgentConfigurationsCache() {
-        return activeAgentConfigurationsCache;
+    /**
+     * For testing use only.
+     */
+    public AgentConfigurationsTable getAgentConfigurationsTable() {
+        return agentConfigurationsTable;
+    }
+
+    public AgentConfigurations getAgentConfigurations(String service) {
+        return agentConfigurationsTable.getAgentConfigurationsCache().get(service);
+    }
+
+    public String getLatestUUID() {
+        return uuid;
     }
 }

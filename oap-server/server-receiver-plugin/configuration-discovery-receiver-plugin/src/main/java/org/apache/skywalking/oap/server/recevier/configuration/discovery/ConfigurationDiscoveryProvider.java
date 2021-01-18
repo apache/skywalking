@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import java.util.HashMap;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -33,6 +32,7 @@ import org.apache.skywalking.oap.server.recevier.configuration.discovery.handler
 public class ConfigurationDiscoveryProvider extends ModuleProvider {
 
     private AgentConfigurationsWatcher agentConfigurationsWatcher;
+    private ConfigurationDiscoveryModuleConfig configurationDiscoveryModuleConfig;
 
     @Override
     public String name() {
@@ -44,15 +44,18 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
         return ConfigurationDiscoveryModule.class;
     }
 
+    public ConfigurationDiscoveryProvider() {
+        configurationDiscoveryModuleConfig = new ConfigurationDiscoveryModuleConfig();
+    }
+
     @Override
     public ModuleConfig createConfigBeanIfAbsent() {
-        return new EmptySettings();
+        return configurationDiscoveryModuleConfig;
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        agentConfigurationsWatcher = new AgentConfigurationsWatcher(
-            new HashMap<>(), this);
+        agentConfigurationsWatcher = new AgentConfigurationsWatcher(this);
     }
 
     @Override
@@ -69,7 +72,10 @@ public class ConfigurationDiscoveryProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(agentConfigurationsWatcher));
+        grpcHandlerRegister.addHandler(new ConfigurationDiscoveryServiceHandler(
+            agentConfigurationsWatcher,
+            configurationDiscoveryModuleConfig.isDisableMessageDigest()
+        ));
     }
 
     @Override

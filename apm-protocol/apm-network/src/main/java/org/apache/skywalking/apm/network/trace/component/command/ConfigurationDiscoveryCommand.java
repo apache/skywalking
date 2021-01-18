@@ -52,7 +52,6 @@ public class ConfigurationDiscoveryCommand extends BaseCommand implements Serial
     public ConfigurationDiscoveryCommand deserialize(Command command) {
         String serialNumber = null;
         String uuid = null;
-        String serviceName = null;
         List<KeyStringValuePair> config = new ArrayList<>();
 
         for (final KeyStringValuePair pair : command.getArgsList()) {

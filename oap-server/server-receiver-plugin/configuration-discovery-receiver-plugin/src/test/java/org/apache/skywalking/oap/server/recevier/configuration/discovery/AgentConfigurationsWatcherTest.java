@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -35,8 +34,7 @@ import static org.mockito.Mockito.spy;
 
 public class AgentConfigurationsWatcherTest {
     @Spy
-    private AgentConfigurationsWatcher agentConfigurationsWatcher = new AgentConfigurationsWatcher(
-        new HashMap<>(), null);
+    private AgentConfigurationsWatcher agentConfigurationsWatcher = new AgentConfigurationsWatcher(null);
 
     @Before
     public void setUp() {
@@ -45,7 +43,7 @@ public class AgentConfigurationsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() throws IOException {
-        assertTrue(agentConfigurationsWatcher.getActiveAgentConfigurationsCache().isEmpty());
+        assertTrue(agentConfigurationsWatcher.getAgentConfigurationsTable().getAgentConfigurationsCache().isEmpty());
 
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         char[] chars = new char[1024 * 1024];
@@ -56,7 +54,8 @@ public class AgentConfigurationsWatcherTest {
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getActiveAgentConfigurationsCache();
+        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getAgentConfigurationsTable()
+                                                                                        .getAgentConfigurationsCache();
         Assert.assertEquals(2, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         Assert.assertEquals("serviceA", agentConfigurations0.getService());
@@ -77,12 +76,13 @@ public class AgentConfigurationsWatcherTest {
     public void testConfigDeleteEvent() throws IOException {
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         agentConfigurationsWatcher = spy(
-            new AgentConfigurationsWatcher(new AgentConfigurationsReader(reader).readAgentConfigurations(), null));
+            new AgentConfigurationsWatcher(new AgentConfigurationsReader(reader).readAgentConfigurationsTable(), null));
 
         agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getActiveAgentConfigurationsCache();
+        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getAgentConfigurationsTable()
+                                                                                        .getAgentConfigurationsCache();
         Assert.assertEquals(0, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");

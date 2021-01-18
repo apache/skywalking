@@ -28,7 +28,8 @@ public class AgentConfigurationsReaderTest {
         AgentConfigurationsReader reader = new AgentConfigurationsReader(
             this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-configuration.yml"));
 
-        Map<String, AgentConfigurations> configurationCache = reader.readAgentConfigurations();
+        Map<String, AgentConfigurations> configurationCache = reader.readAgentConfigurationsTable()
+                                                                    .getAgentConfigurationsCache();
         Assert.assertEquals(2, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         Assert.assertEquals("serviceA", agentConfigurations0.getService());

@@ -41,8 +41,16 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
 
     private final AgentConfigurationsWatcher agentConfigurationsWatcher;
 
-    public ConfigurationDiscoveryServiceHandler(AgentConfigurationsWatcher agentConfigurationsWatcher) {
+    /**
+     * If the current configuration is true, the requestId and uuid will not be judged, and the dynamic configuration of
+     * the service corresponding to the agent will be returned directly
+     */
+    private boolean disableMessageDigest = false;
+
+    public ConfigurationDiscoveryServiceHandler(AgentConfigurationsWatcher agentConfigurationsWatcher,
+                                                boolean disableMessageDigest) {
         this.agentConfigurationsWatcher = agentConfigurationsWatcher;
+        this.disableMessageDigest = disableMessageDigest;
     }
 
     /*
@@ -55,32 +63,27 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
                                     final StreamObserver<Commands> responseObserver) {
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
-        AgentConfigurations agentConfigurations =
-            agentConfigurationsWatcher.getActiveAgentConfigurationsCache().get(request.getService());
-        if (null != agentConfigurations) {
-            ConfigurationDiscoveryCommand configurationDiscoveryCommand =
-                newAgentDynamicConfigCommand(agentConfigurations, request.getUuid());
-            commandsBuilder.addCommands(configurationDiscoveryCommand.serialize().build());
+        final String latestUUID = agentConfigurationsWatcher.getLatestUUID();
+        if (disableMessageDigest || !Objects.equals(latestUUID, request.getUuid())) {
+            AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getAgentConfigurations(
+                request.getService());
+            if (null != agentConfigurations) {
+                ConfigurationDiscoveryCommand configurationDiscoveryCommand = newAgentDynamicConfigCommand(
+                    agentConfigurations, latestUUID);
+                commandsBuilder.addCommands(configurationDiscoveryCommand.serialize().build());
+            }
         }
         responseObserver.onNext(commandsBuilder.build());
         responseObserver.onCompleted();
     }
 
     public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(AgentConfigurations agentConfigurations,
-                                                                      String requestId) {
+                                                                      String uuid) {
         List<KeyStringValuePair> configurationList = Lists.newArrayList();
-        String hashCode = String.valueOf(agentConfigurations.getConfiguration().hashCode());
-
-        /*
-         * If requestId matched, configuration content is not required.
-         */
-        if (!Objects.equals(requestId, hashCode)) {
-            agentConfigurations.getConfiguration().forEach((k, v) -> {
-                KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(k).setValue(v);
-                configurationList.add(builder.build());
-            });
-        }
-        String serialNumber = UUID.randomUUID().toString();
-        return new ConfigurationDiscoveryCommand(serialNumber, hashCode, configurationList);
+        agentConfigurations.getConfiguration().forEach((k, v) -> {
+            KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(k).setValue(v);
+            configurationList.add(builder.build());
+        });
+        return new ConfigurationDiscoveryCommand(UUID.randomUUID().toString(), uuid, configurationList);
     }
 }

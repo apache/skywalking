@@ -18,7 +18,22 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-public class EmptySettings extends ModuleConfig {
+/**
+ * Dynamic configuration items, save the dynamic configuration of the agent corresponding to the service.
+ */
+@Setter
+@Getter
+@ToString
+public class AgentConfigurationsTable {
+    private Map<String, AgentConfigurations> agentConfigurationsCache;
+
+    public AgentConfigurationsTable() {
+        this.agentConfigurationsCache = new HashMap<>();
+    }
 }
