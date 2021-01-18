@@ -108,9 +108,8 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
                 @Override
                 public void onError(Throwable t) {
                     waitStatus.finished();
-                    if (!disconnected.get()) {
+                    if (disconnected.compareAndSet(false, true)) {
                         LOGGER.error("Send log to gRPC server fail with an internal exception.", t);
-                        disconnected.set(true);
                     }
 
                     LOGGER.error(t, "Try to send {} log data to collector, with unexpected exception.",
