@@ -118,7 +118,7 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
 
                 @Override
                 public void onCompleted() {
-                    disconnected.compareAndSet(true, false)
+                    disconnected.compareAndSet(true, false);
                     waitStatus.finished();
                 }
             });

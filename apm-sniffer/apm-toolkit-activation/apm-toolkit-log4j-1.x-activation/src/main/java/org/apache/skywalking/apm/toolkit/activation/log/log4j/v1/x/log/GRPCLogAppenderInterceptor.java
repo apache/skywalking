@@ -67,8 +67,14 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
 
     }
 
+    /**
+     * transforms {@link LoggingEvent}  to {@link LogData}
+     *
+     * @param event {@link LoggingEvent}
+     * @return {@link LogData} with filtered trace context in order to reduce the cost on the network
+     */
     private LogData transform(LoggingEvent event) {
-        return LogData.newBuilder()
+        LogData.Builder builder = LogData.newBuilder()
                 .setTimestamp(event.getTimeStamp())
                 .setService(Config.Agent.SERVICE_NAME)
                 .setServiceInstance(Config.Agent.INSTANCE_NAME)
@@ -86,7 +92,12 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                                 .setKey("thread").setValue(event.getThreadName()).build())
                         .build())
                 .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
-                        .setText(TextLog.newBuilder().setText(event.getMessage()).build()).build())
-                .build();
+                        .setText(TextLog.newBuilder().setText(event.getMessage()).build()).build());
+        return -1 == ContextManager.getSpanId() ? builder.build()
+                : builder.setTraceContext(TraceContext.newBuilder()
+                        .setTraceId(ContextManager.getGlobalTraceId())
+                        .setSpanId(ContextManager.getSpanId())
+                        .setTraceSegmentId(ContextManager.getSegmentId())
+                        .build()).build();
     }
 }

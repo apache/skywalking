@@ -67,16 +67,17 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
 
     }
 
+    /**
+     * transforms {@link LogEvent}  to {@link LogData}
+     *
+     * @param event {@link LogEvent}
+     * @return {@link LogData} with filtered trace context in order to reduce the cost on the network
+     */
     private LogData transform(LogEvent event) {
-        return LogData.newBuilder()
+        LogData.Builder builder = LogData.newBuilder()
                 .setTimestamp(event.getTimeMillis())
                 .setService(Config.Agent.SERVICE_NAME)
                 .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                .setTraceContext(TraceContext.newBuilder()
-                        .setTraceId(ContextManager.getGlobalTraceId())
-                        .setSpanId(ContextManager.getSpanId())
-                        .setTraceSegmentId(ContextManager.getSegmentId())
-                        .build())
                 .setTags(LogTags.newBuilder()
                         .addData(KeyStringValuePair.newBuilder()
                                 .setKey("level").setValue(event.getLevel().toString()).build())
@@ -87,7 +88,12 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                         .build())
                 .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
                         .setText(TextLog.newBuilder().setText(event.getMessage().getFormattedMessage()).build())
-                        .build())
-                .build();
+                        .build());
+        return -1 == ContextManager.getSpanId() ? builder.build()
+                : builder.setTraceContext(TraceContext.newBuilder()
+                        .setTraceId(ContextManager.getGlobalTraceId())
+                        .setSpanId(ContextManager.getSpanId())
+                        .setTraceSegmentId(ContextManager.getSegmentId())
+                        .build()).build();
     }
 }
