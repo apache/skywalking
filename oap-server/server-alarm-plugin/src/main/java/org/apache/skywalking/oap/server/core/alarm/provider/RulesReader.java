@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
@@ -61,6 +62,7 @@ public class RulesReader {
             readWechatConfig(rules);
             readCompositeRuleConfig(rules);
             readDingtalkConfig(rules);
+            readFeishuConfig(rules);
         }
         return rules;
     }
@@ -90,9 +92,9 @@ public class RulesReader {
                 alarmRule.setIncludeNamesRegex((String) settings.getOrDefault("include-names-regex", ""));
                 alarmRule.setExcludeNamesRegex((String) settings.getOrDefault("exclude-names-regex", ""));
                 alarmRule.setIncludeLabels(
-                    (ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
+                        (ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
                 alarmRule.setExcludeLabels(
-                    (ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
+                        (ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
                 alarmRule.setIncludeLabelsRegex((String) settings.getOrDefault("include-labels-regex", ""));
                 alarmRule.setExcludeLabelsRegex((String) settings.getOrDefault("exclude-labels-regex", ""));
                 alarmRule.setThreshold(settings.get("threshold").toString());
@@ -103,8 +105,8 @@ public class RulesReader {
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
                 alarmRule.setOnlyAsCondition((Boolean) settings.getOrDefault("only-as-condition", false));
                 alarmRule.setMessage(
-                    (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
-                        .getAlarmRuleName()));
+                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
+                                .getAlarmRuleName()));
 
                 rules.getRules().add(alarmRule);
             }
@@ -200,7 +202,7 @@ public class RulesReader {
                 }
                 compositeAlarmRule.setExpression(expression);
                 compositeAlarmRule.setMessage(
-                    (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
+                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
                 rules.getCompositeRules().add(compositeAlarmRule);
             }
         });
@@ -224,6 +226,27 @@ public class RulesReader {
                 });
             }
             rules.setDingtalks(dingtalkSettings);
+        }
+    }
+
+    /**
+     * Read feishu hook config into {@link FeishuSettings}
+     */
+    private void readFeishuConfig(Rules rules) {
+        Map feishuConfig = (Map) yamlData.get("feishuHooks");
+        if (feishuConfig != null) {
+            FeishuSettings feishuSettings = new FeishuSettings();
+            Object textTemplate = feishuConfig.getOrDefault("textTemplate", "");
+            feishuSettings.setTextTemplate((String) textTemplate);
+            List<Map<String, Object>> wechatWebhooks = (List<Map<String, Object>>) feishuConfig.get("webhooks");
+            if (wechatWebhooks != null) {
+                wechatWebhooks.forEach(wechatWebhook -> {
+                    Object secret = wechatWebhook.getOrDefault("secret", "");
+                    Object url = wechatWebhook.getOrDefault("url", "");
+                    feishuSettings.getWebhooks().add(new FeishuSettings.WebHookUrl((String) secret, (String) url));
+                });
+            }
+            rules.setFeishus(feishuSettings);
         }
     }
 }
