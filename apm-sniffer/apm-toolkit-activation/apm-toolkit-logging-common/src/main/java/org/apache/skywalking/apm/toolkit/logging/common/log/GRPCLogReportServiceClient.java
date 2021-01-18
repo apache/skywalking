@@ -72,10 +72,10 @@ public class GRPCLogReportServiceClient extends LogReportServiceClient {
     @Override
     public void shutdown() {
         try {
+            carrier.shutdownConsumers();
             if (channel != null) {
                 channel.shutdownNow();
             }
-            carrier.shutdownConsumers();
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
         }
