@@ -69,6 +69,7 @@ Release Notes.
 * Fix receiver analysis error count metrics
 * Log collecting and query implementation
 * Support Alarm to feishu
+* Fix bug in `parseInternalErrorCode` where some error codes are never reached.
 
 #### UI
 * Fix un-removed tags in trace query.
