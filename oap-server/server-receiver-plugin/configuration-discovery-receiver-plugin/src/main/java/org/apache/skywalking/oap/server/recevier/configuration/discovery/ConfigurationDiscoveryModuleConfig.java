@@ -24,8 +24,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 public class ConfigurationDiscoveryModuleConfig extends ModuleConfig {
     /**
-     * If the current configuration is true, the requestId and uuid will not be judged, and the dynamic configuration of
-     * the service corresponding to the agent will be returned directly
+     *  If true, agent receives the latest configuration every time even without change. 
+     *  In default, OAP uses SHA512 message digest mechanism to detect changes of configuration. 
      */
     @Setter
     @Getter
