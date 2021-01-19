@@ -37,6 +37,10 @@ public class AgentConfigurationsReaderTest {
         Assert.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
+        Assert.assertEquals(
+            "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
+            agentConfigurations0.getUuid()
+        );
 
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
         Assert.assertEquals("serviceB", agentConfigurations1.getService());
@@ -44,5 +48,9 @@ public class AgentConfigurationsReaderTest {
         Assert.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
         Assert.assertEquals(
             "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
+        Assert.assertEquals(
+            "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
+            agentConfigurations0.getUuid()
+        );
     }
 }

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -52,12 +53,15 @@ public class AgentConfigurationsReader {
                 if (configurationsData != null) {
                     configurationsData.forEach((k, v) -> {
                         Map map = (Map) v;
+                        StringBuilder serviceConfigStr = new StringBuilder();
                         Map<String, String> config = new HashMap<>(map.size());
                         map.forEach((key, value) -> {
                             config.put(key.toString(), value.toString());
-                        });
 
-                        AgentConfigurations agentConfigurations = new AgentConfigurations((String) k, config);
+                            serviceConfigStr.append(key.toString()).append(":").append(value.toString());
+                        });
+                        AgentConfigurations agentConfigurations = new AgentConfigurations(
+                            k.toString(), config, DigestUtils.sha512Hex(serviceConfigStr.toString()));
                         agentConfigurationsTable.getAgentConfigurationsCache()
                                                 .put(agentConfigurations.getService(), agentConfigurations);
                     });

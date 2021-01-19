@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import java.io.StringReader;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -30,10 +29,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
     private volatile AgentConfigurationsTable agentConfigurationsTable;
-    /**
-     * The uuid is based on calculation by md5.
-     */
-    private volatile String uuid;
 
     public AgentConfigurationsWatcher(ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
@@ -61,7 +56,6 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
                 new AgentConfigurationsReader(new StringReader(value.getNewValue()));
             this.agentConfigurationsTable = agentConfigurationsReader.readAgentConfigurationsTable();
         }
-        uuid = DigestUtils.md5Hex(settingsString);
     }
 
     @Override
@@ -78,9 +72,5 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
 
     public AgentConfigurations getAgentConfigurations(String service) {
         return agentConfigurationsTable.getAgentConfigurationsCache().get(service);
-    }
-
-    public String getLatestUUID() {
-        return uuid;
     }
 }

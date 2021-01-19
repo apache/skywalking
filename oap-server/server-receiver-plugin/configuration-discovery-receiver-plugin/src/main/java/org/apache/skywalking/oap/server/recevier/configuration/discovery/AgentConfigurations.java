@@ -32,9 +32,14 @@ import lombok.ToString;
 public class AgentConfigurations {
     private String service;
     private Map<String, String> configuration;
+    /**
+     * The uuid is calculated by the dynamic configuration of the service.
+     */
+    private volatile String uuid;
 
-    public AgentConfigurations(final String service, final Map<String, String> configuration) {
+    public AgentConfigurations(final String service, final Map<String, String> configuration, final String uuid) {
         this.service = service;
         this.configuration = configuration;
+        this.uuid = uuid;
     }
 }

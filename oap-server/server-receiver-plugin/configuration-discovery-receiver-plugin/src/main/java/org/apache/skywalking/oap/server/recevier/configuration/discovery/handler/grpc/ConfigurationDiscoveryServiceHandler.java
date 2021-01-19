@@ -63,13 +63,12 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
                                     final StreamObserver<Commands> responseObserver) {
         Commands.Builder commandsBuilder = Commands.newBuilder();
 
-        final String latestUUID = agentConfigurationsWatcher.getLatestUUID();
-        if (disableMessageDigest || !Objects.equals(latestUUID, request.getUuid())) {
-            AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getAgentConfigurations(
-                request.getService());
-            if (null != agentConfigurations) {
-                ConfigurationDiscoveryCommand configurationDiscoveryCommand = newAgentDynamicConfigCommand(
-                    agentConfigurations, latestUUID);
+        AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getAgentConfigurations(
+            request.getService());
+        if (null != agentConfigurations) {
+            if (disableMessageDigest || !Objects.equals(agentConfigurations.getUuid(), request.getUuid())) {
+                ConfigurationDiscoveryCommand configurationDiscoveryCommand =
+                    newAgentDynamicConfigCommand(agentConfigurations);
                 commandsBuilder.addCommands(configurationDiscoveryCommand.serialize().build());
             }
         }
@@ -77,13 +76,13 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
         responseObserver.onCompleted();
     }
 
-    public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(AgentConfigurations agentConfigurations,
-                                                                      String uuid) {
+    public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(AgentConfigurations agentConfigurations) {
         List<KeyStringValuePair> configurationList = Lists.newArrayList();
         agentConfigurations.getConfiguration().forEach((k, v) -> {
             KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(k).setValue(v);
             configurationList.add(builder.build());
         });
-        return new ConfigurationDiscoveryCommand(UUID.randomUUID().toString(), uuid, configurationList);
+        return new ConfigurationDiscoveryCommand(
+            UUID.randomUUID().toString(), agentConfigurations.getUuid(), configurationList);
     }
 }
