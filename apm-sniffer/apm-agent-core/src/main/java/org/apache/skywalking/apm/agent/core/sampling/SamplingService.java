@@ -50,6 +50,11 @@ public class SamplingService implements BootService {
 
     private SamplingRateWatcher samplingRateWatcher;
 
+    /**
+     * Avoid multiple registrations in test cases.
+     */
+    private boolean needRegisterAgentConfigChangeWatcher;
+
     @Override
     public void prepare() {
         samplingRateWatcher = new SamplingRateWatcher("agent.sample_n_per_3_secs", this);
@@ -57,8 +62,11 @@ public class SamplingService implements BootService {
 
     @Override
     public void boot() {
-        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
-                               .registerAgentConfigChangeWatcher(samplingRateWatcher);
+        if (!needRegisterAgentConfigChangeWatcher) {
+            ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
+                                   .registerAgentConfigChangeWatcher(samplingRateWatcher);
+            needRegisterAgentConfigChangeWatcher = true;
+        }
 
         resetScheduledFuture();
     }
