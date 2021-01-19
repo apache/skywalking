@@ -36,15 +36,6 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
         this.agentConfigurationsTable = new AgentConfigurationsTable();
     }
 
-    /**
-     * For testing use only. manually load configuration items.
-     */
-    public AgentConfigurationsWatcher(AgentConfigurationsTable agentConfigurationsTable, ModuleProvider provider) {
-        super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
-        this.settingsString = Const.EMPTY_STRING;
-        this.agentConfigurationsTable = agentConfigurationsTable;
-    }
-
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType().equals(EventType.DELETE)) {
@@ -61,13 +52,6 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     @Override
     public String value() {
         return settingsString;
-    }
-
-    /**
-     * For testing use only.
-     */
-    public AgentConfigurationsTable getAgentConfigurationsTable() {
-        return agentConfigurationsTable;
     }
 
     public AgentConfigurations getAgentConfigurations(String service) {

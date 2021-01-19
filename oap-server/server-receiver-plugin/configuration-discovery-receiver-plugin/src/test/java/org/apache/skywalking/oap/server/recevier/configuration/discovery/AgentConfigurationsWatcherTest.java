@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
@@ -43,7 +44,9 @@ public class AgentConfigurationsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() throws IOException {
-        assertTrue(agentConfigurationsWatcher.getAgentConfigurationsTable().getAgentConfigurationsCache().isEmpty());
+        AgentConfigurationsTable agentConfigurationsTable = Whitebox.getInternalState(
+            agentConfigurationsWatcher, "agentConfigurationsTable");
+        assertTrue(agentConfigurationsTable.getAgentConfigurationsCache().isEmpty());
 
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         char[] chars = new char[1024 * 1024];
@@ -54,8 +57,9 @@ public class AgentConfigurationsWatcherTest {
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getAgentConfigurationsTable()
-                                                                                        .getAgentConfigurationsCache();
+        AgentConfigurationsTable modifyAgentConfigurationsTable = Whitebox.getInternalState(
+            agentConfigurationsWatcher, "agentConfigurationsTable");
+        Map<String, AgentConfigurations> configurationCache = modifyAgentConfigurationsTable.getAgentConfigurationsCache();
         Assert.assertEquals(2, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         Assert.assertEquals("serviceA", agentConfigurations0.getService());
@@ -83,14 +87,20 @@ public class AgentConfigurationsWatcherTest {
     @Test
     public void testConfigDeleteEvent() throws IOException {
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
-        agentConfigurationsWatcher = spy(
-            new AgentConfigurationsWatcher(new AgentConfigurationsReader(reader).readAgentConfigurationsTable(), null));
+        agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(null));
+
+        Whitebox.setInternalState(
+            agentConfigurationsWatcher, "agentConfigurationsTable",
+            new AgentConfigurationsReader(reader).readAgentConfigurationsTable()
+        );
 
         agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        Map<String, AgentConfigurations> configurationCache = agentConfigurationsWatcher.getAgentConfigurationsTable()
-                                                                                        .getAgentConfigurationsCache();
+        AgentConfigurationsTable agentConfigurationsTable = Whitebox.getInternalState(
+            agentConfigurationsWatcher, "agentConfigurationsTable");
+        Map<String, AgentConfigurations> configurationCache = agentConfigurationsTable.getAgentConfigurationsCache();
+
         Assert.assertEquals(0, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
