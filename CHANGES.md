@@ -69,6 +69,7 @@ Release Notes.
 * Fix receiver analysis error count metrics
 * Log collecting and query implementation
 * Support Alarm to feishu
+* Add the implementation of ConfigurationDiscovery on the OAP side.
 
 #### UI
 * Fix un-removed tags in trace query.

@@ -25,6 +25,8 @@ public class CommandDeserializer {
         final String commandName = command.getCommand();
         if (ProfileTaskCommand.NAME.equals(commandName)) {
             return ProfileTaskCommand.DESERIALIZER.deserialize(command);
+        } else if (ConfigurationDiscoveryCommand.NAME.equals(commandName)) {
+            return ConfigurationDiscoveryCommand.DESERIALIZER.deserialize(command);
         }
         throw new UnsupportedCommandException(command);
     }
