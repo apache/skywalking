@@ -19,3 +19,4 @@ toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async
 toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.Log4jLogEventInstrumentation
 toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.RingBufferLogEventInstrumentation
 toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.AsyncAppenderInstrumentation
+toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.log.GRPCLogAppenderActivation
