@@ -60,7 +60,6 @@ public class ConfigurationDiscoveryCommand extends BaseCommand implements Serial
             } else if (UUID_CONST_NAME.equals(pair.getKey())) {
                 uuid = pair.getValue();
             } else {
-                //add config item to config list.
                 config.add(pair);
             }
         }
