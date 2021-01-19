@@ -48,48 +48,26 @@ public class InMatchTest {
                                 }
             ));
 
-        Assert.assertTrue(new InMatch().match(1, new double[] {
+        Assert.assertTrue(new InMatch().match(1, new long[] {
             1,
             2,
             3
         }));
-        Assert.assertFalse(new InMatch().match(4, new double[] {
-            1,
-            2,
-            3
-        }));
-
-        Assert.assertTrue(new InMatch().match(1L, new double[] {
-            1,
-            2,
-            3
-        }));
-        Assert.assertFalse(new InMatch().match(4L, new double[] {
+        Assert.assertFalse(new InMatch().match(4, new long[] {
             1,
             2,
             3
         }));
 
-        Assert.assertTrue(new InMatch().match(1.0F, new double[] {
-            1.0,
-            2.0,
-            3.0
+        Assert.assertTrue(new InMatch().match(1L, new long[] {
+            1,
+            2,
+            3
         }));
-        Assert.assertFalse(new InMatch().match(4.0F, new double[] {
-            1.0,
-            2.0,
-            3.0
-        }));
-
-        Assert.assertTrue(new InMatch().match(1.0D, new double[] {
-            1.0,
-            2.0,
-            3.0
-        }));
-        Assert.assertFalse(new InMatch().match(4.0D, new double[] {
-            1.0,
-            2.0,
-            3.0
+        Assert.assertFalse(new InMatch().match(4L, new long[] {
+            1,
+            2,
+            3
         }));
     }
 }

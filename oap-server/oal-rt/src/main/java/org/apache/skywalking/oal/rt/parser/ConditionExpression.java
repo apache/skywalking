@@ -61,7 +61,7 @@ public class ConditionExpression {
 
     public void exitMultiConditionValue() {
         value = number ?
-            "new double[]{" + String.join(",", values) + "}" :
+            "new long[]{" + String.join(",", values) + "}" :
             "new Object[]{" + String.join(",", values) + "}";
     }
 }
