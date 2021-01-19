@@ -51,7 +51,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 public class ConfigurationDiscoveryService implements BootService, GRPCChannelListener {
 
     /**
-     * Uuid of the last return value.
+     * UUID of the last return value.
      */
     private String uuid;
     private Register register = new Register();
