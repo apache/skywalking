@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -88,6 +87,10 @@ public class TelemetryDataDispatcher {
             if (data.getEndpoint() != null) {
                 data.setEndpoint(NAME_LENGTH_CONTROL.formatEndpointName(data.getDestServiceName(), data.getEndpoint()));
             }
+            if (data.getInternalErrorCode() == null) {
+                // Add this since 8.2.0, set the default value.
+                data.setInternalErrorCode(Const.EMPTY_STRING);
+            }
 
             doDispatch(data);
         } finally {
@@ -98,7 +101,6 @@ public class TelemetryDataDispatcher {
     static void doDispatch(ServiceMeshMetric.Builder metrics) {
         long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getStartTime());
 
-        heartbeat(metrics, minuteTimeBucket);
         if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
             toAll(metrics, minuteTimeBucket);
             toService(metrics, minuteTimeBucket);
@@ -111,33 +113,6 @@ public class TelemetryDataDispatcher {
         if (StringUtil.isNotEmpty(sourceService)) {
             toServiceRelation(metrics, minuteTimeBucket);
             toServiceInstanceRelation(metrics, minuteTimeBucket);
-        }
-    }
-
-    private static void heartbeat(ServiceMeshMetric.Builder metrics, long minuteTimeBucket) {
-        // source
-        final String sourceServiceName = metrics.getSourceServiceName();
-        final String sourceServiceInstance = metrics.getSourceServiceInstance();
-        // Don't generate source heartbeat, if no source.
-        if (StringUtil.isNotEmpty(sourceServiceName) && StringUtil.isNotEmpty(sourceServiceInstance)) {
-            final ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-            serviceInstanceUpdate.setServiceId(
-                IDManager.ServiceID.buildId(sourceServiceName, NodeType.Normal)
-            );
-            serviceInstanceUpdate.setName(sourceServiceInstance);
-            serviceInstanceUpdate.setTimeBucket(minuteTimeBucket);
-        }
-
-        // dest
-        final String destServiceName = metrics.getDestServiceName();
-        final String destServiceInstance = metrics.getDestServiceInstance();
-        if (StringUtil.isNotEmpty(destServiceName) && StringUtil.isNotEmpty(destServiceInstance)) {
-            final ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-            serviceInstanceUpdate.setServiceId(
-                IDManager.ServiceID.buildId(destServiceName, NodeType.Normal)
-            );
-            serviceInstanceUpdate.setName(destServiceInstance);
-            serviceInstanceUpdate.setTimeBucket(minuteTimeBucket);
         }
     }
 
@@ -166,6 +141,7 @@ public class TelemetryDataDispatcher {
         service.setStatus(metrics.getStatus());
         service.setResponseCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
+        service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(service);
     }
@@ -187,6 +163,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
+        serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -202,6 +179,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setStatus(metrics.getStatus());
         serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
+        serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(serviceInstance);
     }
@@ -223,6 +201,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
+        serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -238,6 +217,7 @@ public class TelemetryDataDispatcher {
         endpoint.setStatus(metrics.getStatus());
         endpoint.setResponseCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
+        endpoint.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
 
         SOURCE_RECEIVER.receive(endpoint);
     }

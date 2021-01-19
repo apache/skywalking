@@ -72,7 +72,7 @@ This is the properties list supported in `agent/config/agent.config`.
 property key | Description | Default |
 ----------- | ---------- | --------- | 
 `agent.namespace` | Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`. | Not set | 
-`agent.service_name` | The service name to represent a logic group providing the same capabilities/logic. Suggestion: set a unique name for every logic service group, service instance nodes share the same code, Max length is 50(UTF-8 char) | `Your_ApplicationName` |
+`agent.service_name` | The service name to represent a logic group providing the same capabilities/logic. Suggestion: set a unique name for every logic service group, service instance nodes share the same code, Max length is 50(UTF-8 char). Optional, once `service_name` follows `<group name>::<logic name>` format, OAP server assigns the group name to the service metadata.| `Your_ApplicationName` |
 `agent.sample_n_per_3_secs`|Negative or zero means off, by default.SAMPLE_N_PER_3_SECS means sampling N TraceSegment in 3 seconds tops.|Not set|
 `agent.authentication`|Authentication active is based on backend setting, see application.yml for more details.For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.|Not set|
 `agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, SkyWalking keep your application memory cost estimated.|300 |
@@ -86,13 +86,15 @@ property key | Description | Default |
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
 `agent.operation_name_threshold `|The operationName max length, setting this value > 190 is not recommended.|`150`|
 `agent.keep_tracing`|Keep tracing even the backend is not available if this value is `true`.|`false`|
+`agent.force_tls`|Force open TLS for gRPC channel if this value is `true`.|`false`|
 `osinfo.ipv4_list_size`| Limit the length of the ipv4 list size. |`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.heartbeat_period`|agent heartbeat report period. Unit, second.|`30`|
+`collector.properties_report_period_factor`|The agent sends the instance properties to the backend every `collector.heartbeat_period * collector.properties_report_period_factor` seconds |`10`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 `collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
-`logging.level`|The log level. Default is debug.|`DEBUG`|
+`logging.level`|Log level: TRACE, DEBUG, INFO, WARN, ERROR, OFF. Default is info.|`INFO`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
 `logging.dir`|Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located |`""`|
@@ -102,6 +104,9 @@ property key | Description | Default |
 `logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
 `statuscheck.ignored_exceptions`|Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a way of controlling business flow.|`""`|
 `statuscheck.max_recursive_depth`|The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored, which means all exceptions would make the span tagged in error status.|`1`|
+`correlation.element_max_number`|Max element count in the correlation context.|3|
+`correlation.value_max_length`|Max value length of each element.|`128`|
+`correlation.auto_tag_keys`|Tag the span by the key/value in the correlation context, when the keys listed here exist.|`""`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|
@@ -121,12 +126,9 @@ property key | Description | Default |
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
 `plugin.springmvc.use_qualified_name_as_endpoint_name`|If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.|`false`|
 `plugin.toolit.use_qualified_name_as_operation_name`|If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.|`false`|
-`plugin.mysql.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
-`plugin.mysql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
-`plugin.postgresql.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
-`plugin.postgresql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
-`plugin.mariadb.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
-`plugin.mariadb.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
+`plugin.jdbc.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
+`plugin.jdbc.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
+`plugin.jdbc.sql_body_max_length`|If set to positive number, the `db.statement` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`2048`|
 `plugin.solrj.trace_statement`|If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.|`false`|
 `plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 `plugin.light4j.trace_handler_chain`|If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request.|false|
@@ -135,6 +137,7 @@ property key | Description | Default |
 `plugin.jdkthreading.threading_class_prefixes` | Threading classes (`java.lang.Runnable` and `java.util.concurrent.Callable`) and their subclasses, including anonymous inner classes whose name match any one of the `THREADING_CLASS_PREFIXES` (splitted by `,`) will be instrumented, make sure to only specify as narrow prefixes as what you're expecting to instrument, (`java.` and `javax.` will be ignored due to safety issues) | Not set |
 `plugin.tomcat.collect_http_params`| This config item controls that whether the Tomcat plugin should collect the parameters of the request. Also, activate implicitly in the profiled trace. | `false` |
 `plugin.springmvc.collect_http_params`| This config item controls that whether the SpringMVC plugin should collect the parameters of the request, when your Spring application is based on Tomcat, consider only setting either `plugin.tomcat.collect_http_params` or `plugin.springmvc.collect_http_params`. Also, activate implicitly in the profiled trace. | `false` |
+`plugin.httpclient.collect_http_params`| This config item controls that whether the HttpClient plugin should collect the parameters of the request | `false` |
 `plugin.http.http_params_length_threshold`| When `COLLECT_HTTP_PARAMS` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added for the sake of performance.  | `1024` |
 `plugin.http.http_headers_length_threshold`| When `include_http_headers` declares header names, this threshold controls the length limitation of all header values. use negative values to keep and send the complete headers. Note. this config item is added for the sake of performance. | `2048` |
 `plugin.http.include_http_headers`| Set the header names, which should be collected by the plugin. Header name must follow `javax.servlet.http` definition. Multiple names should be split by comma.  | ``(No header would be collected) |
@@ -142,13 +145,12 @@ property key | Description | Default |
 `plugin.feign.filter_length_limit`| When `COLLECT_REQUEST_BODY` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete body.  | `1024` |
 `plugin.feign.supported_content_types_prefix`| When `COLLECT_REQUEST_BODY` is enabled and content-type start with SUPPORTED_CONTENT_TYPES_PREFIX, collect the body of the request , multiple paths should be separated by `,`  | `application/json,text/` |
 `plugin.influxdb.trace_influxql`|If true, trace all the influxql(query and write) in InfluxDB access, default is true.|`true`|
-`correlation.element_max_number`|Max element count of the correlation context.|`3`|
-`correlation.value_max_length`|Max value length of correlation context element.|`128`|
 `plugin.dubbo.collect_consumer_arguments`| Apache Dubbo consumer collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
 `plugin.dubbo.consumer_arguments_length_threshold`| When `plugin.dubbo.collect_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
 `plugin.dubbo.collect_provider_arguments`| Apache Dubbo provider collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
 `plugin.dubbo.consumer_provider_length_threshold`| When `plugin.dubbo.provider_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
-`plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
+`plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`|
+`plugin.kafka.get_topic_timeout`| Timeout period of reading topics from the Kafka server, the unit is second. |`10`|
 `plugin.kafka.consumer_config`| Kafka producer configuration. ||
 `plugin.kafka.producer_config`| Kafka producer configuration. Read [producer configure](http://kafka.apache.org/24/documentation.html#producerconfigs) to get more details. Check [Kafka report doc](How-to-enable-kafka-reporter.md) for more details and examples. | |
 `plugin.kafka.topic_meter` | Specify which Kafka topic name for Meter System data to report to. | `skywalking_meters` |
@@ -157,6 +159,13 @@ property key | Description | Default |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
 `plugin.springannotation.classname_match_regex` |  Match spring beans with regular expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
+`plugin.toolkit.log.grpc.reporter.server_host` | Specify which grpc server's host for log data to report to. | `127.0.0.1` |
+`plugin.toolkit.log.grpc.reporter.server_port` | Specify which grpc server's port for log data to report to. | `11800` |
+`plugin.toolkit.log.grpc.reporter.max_message_size` | Specify the maximum size of log data for grpc client to report to. | `10485760` |
+`plugin.toolkit.log.grpc.reporter.upstream_timeout` | How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
+
+## Dynamic Configurations
+All configurations above are static, if you need to change some agent settings at runtime, please read [CDS - Configuration Discovery Service document](configuration-discovery.md) for more details.
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -174,6 +183,7 @@ Now, we have the following known optional plugins.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
 * Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
 * Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
+* [Plugin of logger(logback, log4j, log4j2)](agent-optional-plugins/Logger-plugin.md) in the optional plugin folder. For the performance perspective, please only activate it when you need to add logs(from logback,log4j, or log4j2) to the span log event. **Notice, collecting logs in the tracing would impact the performance and memory seriously. Only collect necessary logs.**
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
@@ -183,6 +193,19 @@ Now, we have the following known bootstrap plugins.
 * Plugin of JDK HttpURLConnection. Agent is compatible with JDK 1.6+
 * Plugin of JDK Callable and Runnable. Agent is compatible with JDK 1.6+
 
+## The Logic Endpoint
+In default, all the RPC server-side names as entry spans, such as RESTFul API path and gRPC service name, would be endpoints with metrics.
+At the same time, SkyWalking introduces the logic endpoint concept, which allows plugins and users to add new endpoints without adding new spans.
+The following logic endpoints are added automatically by plugins.
+1. GraphQL Query and Mutation are logic endpoints by using the names of them.
+1. Spring's ScheduledMethodRunnable jobs are logic endpoints. The name format is `SpringScheduled`/`${className}`/`${methodName}`.
+1. Apache ShardingSphere ElasticJob's jobs are logic endpoints. The name format is `ElasticJob`/`${jobName}`.
+1. XXLJob's jobs are logic endpoints. The name formats include `xxl-job`/`MethodJob`/`${className}`.`${methodName}`, `xxl-job`/`ScriptJob`/`${GlueType}`/`id`/`${jobId}`, and `xxl-job`/`SimpleJob`/`${className}`.
+1. Quartz(optional plugin)'s jobs are logic endpoints. the name format is `quartz-scheduler`/`${className}`.
+
+User could use the SkyWalking's application toolkits to add the tag into the local span to label the span as a logic endpoint in the analysis stage.
+The tag is, key=`x-le` and value = `{"logic-span":true}`.
+
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
 * Use gRPC TLS to link backend. See [open TLS](TLS.md)
@@ -191,7 +214,7 @@ Now, we have the following known bootstrap plugins.
 * Application Toolkit, are a collection of libraries, provided by SkyWalking APM. Using them, you have a bridge between your application and SkyWalking APM agent. 
     * If you want your codes to interact with SkyWalking agent, including `getting trace id`, `setting tags`, `propagating custom data` etc.. Try [SkyWalking manual APIs](Application-toolkit-trace.md).
     * If you require customized metrics, try [SkyWalking Meter System Toolkit](Application-toolkit-meter.md).
-    * If you want to print trace context(e.g. traceId) in your logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
+    * If you want to print trace context(e.g. traceId) in your logs, or collect logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
 [log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
     * If you want to forward MicroMeter/Spring Sleuth metrics to Meter System, use [SkyWalking MicroMeter Register](Application-toolkit-micrometer.md).

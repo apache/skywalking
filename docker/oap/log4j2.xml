@@ -28,7 +28,10 @@
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.meter.analyzer" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
+        <logger name="org.apache.skywalking.oap.server.fetcher.prometheus" level="DEBUG"/>
+        <logger name="org.apache.skywalking.oap.server.receiver.envoy.als" level="DEBUG"/>
         <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>

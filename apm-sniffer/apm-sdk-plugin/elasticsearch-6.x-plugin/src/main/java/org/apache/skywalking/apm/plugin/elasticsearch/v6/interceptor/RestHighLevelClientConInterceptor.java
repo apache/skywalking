@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
+import java.io.IOException;
 import java.util.List;
+
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -34,7 +36,7 @@ public class RestHighLevelClientConInterceptor implements InstanceConstructorInt
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        RestClientBuilder restClientBuilder = (RestClientBuilder) (allArguments[0]);
+        RestClientBuilder restClientBuilder = (RestClientBuilder) allArguments[0];
         RestClient restClient = restClientBuilder.build();
 
         RestClientEnhanceInfo restClientEnhanceInfo = new RestClientEnhanceInfo();
@@ -42,7 +44,11 @@ public class RestHighLevelClientConInterceptor implements InstanceConstructorInt
         for (Node node : nodeList) {
             restClientEnhanceInfo.addHttpHost(node.getHost());
         }
-
         objInst.setSkyWalkingDynamicField(restClientEnhanceInfo);
+        try {
+            restClient.close();
+        } catch (IOException e) {
+            LOGGER.error("close restClient error , error message is " + e.getMessage(), e);
+        }
     }
 }

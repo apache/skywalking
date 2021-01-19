@@ -29,14 +29,14 @@ SkywalkingMeterRegistry skywalkingMeterRegistry() {
 
 ## Set up backend receiver
 
-1. Enable meter receiver in the `applicaiton.yml`.
+1. Make sure enable meter receiver in the `applicaiton.yml`.
 ```yaml
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
   default:
 ```
 
-2. Configure the meter config file, It already has the [spring sleuth meter config](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring-sleuth.yaml).
+2. Configure the meter config file, It already has the [spring sleuth meter config](../../../../oap-server/server-bootstrap/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
 If you also has some customized meter at the agent side, please read [meter document](backend-meter.md#meters-configure) to configure meter.
 
 ## Add UI dashboard

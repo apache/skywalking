@@ -70,11 +70,14 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_MULTIPLE_LINEAR_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LINER_METRICS;
@@ -120,7 +123,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void services() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> !s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        services = services.stream().filter(s -> !s.getLabel().equals("oap::oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
 
         load("expected/storage/services.yml").as(ServicesMatcher.class).verify(services);
@@ -230,7 +233,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void so11y() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-        services = services.stream().filter(s -> s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        services = services.stream().filter(s -> s.getLabel().equals("oap::oap-server")).collect(Collectors.toList());
         LOGGER.info("services: {}", services);
         load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
         for (final Service service : services) {
@@ -342,6 +345,10 @@ public class StorageE2E extends SkyWalkingTestAdapter {
 
                 LOGGER.info("{}: {}", metricName, metrics);
             }
+
+            for (String metricName : ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS) {
+                verifyPercentileMetrics(graphql, metricName, endpoint.getKey(), startTime);
+            }
         }
     }
 
@@ -358,6 +365,10 @@ public class StorageE2E extends SkyWalkingTestAdapter {
             instanceRespTimeMatcher.setValue(greaterThanZero);
             instanceRespTimeMatcher.verify(serviceMetrics);
             LOGGER.info("{}: {}", metricName, serviceMetrics);
+        }
+
+        for (String metricName : ALL_SERVICE_MULTIPLE_LINEAR_METRICS) {
+            verifyPercentileMetrics(graphql, metricName, service.getKey(), startTime);
         }
     }
 

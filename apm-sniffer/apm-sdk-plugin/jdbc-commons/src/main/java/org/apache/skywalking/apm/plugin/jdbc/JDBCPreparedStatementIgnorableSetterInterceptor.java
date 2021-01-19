@@ -31,8 +31,10 @@ public class JDBCPreparedStatementIgnorableSetterInterceptor implements Instance
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         final StatementEnhanceInfos statementEnhanceInfos = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
-        final int index = (Integer) allArguments[0];
-        statementEnhanceInfos.setParameter(index, Constants.SQL_PARAMETER_PLACEHOLDER);
+        if (statementEnhanceInfos != null) {
+          final int index = (Integer) allArguments[0];
+          statementEnhanceInfos.setParameter(index, Constants.SQL_PARAMETER_PLACEHOLDER);
+        }
     }
 
     @Override

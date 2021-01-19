@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
+import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
@@ -62,13 +63,14 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             comparator = DESCENDING;
         }
 
-        WhereQueryImpl query = select()
+        final WhereQueryImpl<SelectQueryImpl> query = select()
             .function(function, valueColumnName, condition.getTopN())
             .column(TopN.STATEMENT)
             .column(TopN.TRACE_ID)
             .from(client.getDatabase(), condition.getName())
-            .where()
-            .and(gte(TopN.TIME_BUCKET, duration.getStartTimeBucketInSec()))
+            .where();
+
+        query.and(gte(TopN.TIME_BUCKET, duration.getStartTimeBucketInSec()))
             .and(lte(TopN.TIME_BUCKET, duration.getEndTimeBucketInSec()));
 
         if (StringUtil.isNotEmpty(condition.getParentService())) {
@@ -94,13 +96,13 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             records.add(record);
         });
 
-        Collections.sort(records, comparator); // re-sort by self, because of the result order by time.
+        records.sort(comparator); // re-sort by self, because of the result order by time.
         return records;
     }
 
-    private static final Comparator<SelectedRecord> ASCENDING = (a, b) -> Long.compare(
-        Long.parseLong(a.getValue()), Long.parseLong(b.getValue()));
+    private static final Comparator<SelectedRecord> ASCENDING = Comparator.comparingLong(
+        a -> ((Number) Double.parseDouble(a.getValue())).longValue());
 
     private static final Comparator<SelectedRecord> DESCENDING = (a, b) -> Long.compare(
-        Long.parseLong(b.getValue()), Long.parseLong(a.getValue()));
+        ((Number) Double.parseDouble(b.getValue())).longValue(), ((Number) Double.parseDouble(a.getValue())).longValue());
 }

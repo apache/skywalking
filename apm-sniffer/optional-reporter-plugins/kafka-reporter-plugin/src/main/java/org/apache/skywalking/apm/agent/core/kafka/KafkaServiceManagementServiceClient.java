@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -57,6 +58,7 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
     private KafkaProducer<String, Bytes> producer;
 
     private String topic;
+    private AtomicInteger sendPropertiesCounter = new AtomicInteger(0);
 
     @Override
     public void prepare() {
@@ -85,28 +87,32 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
             this,
             t -> LOGGER.error("unexpected exception.", t)
         ), 0, Config.Collector.HEARTBEAT_PERIOD, TimeUnit.SECONDS);
-
-        InstanceProperties instance = InstanceProperties.newBuilder()
-                                                        .setService(Config.Agent.SERVICE_NAME)
-                                                        .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                                                        .addAllProperties(OSUtil.buildOSInfo(
-                                                            Config.OsInfo.IPV4_LIST_SIZE))
-                                                        .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
-                                                        .build();
-        producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(), Bytes.wrap(instance.toByteArray())));
-        producer.flush();
     }
 
     @Override
     public void run() {
-        InstancePingPkg ping = InstancePingPkg.newBuilder()
-                                              .setService(Config.Agent.SERVICE_NAME)
-                                              .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                                              .build();
-        if (LOGGER.isDebugEnable()) {
-            LOGGER.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
+        if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
+            InstanceProperties instance = InstanceProperties.newBuilder()
+                                                            .setService(Config.Agent.SERVICE_NAME)
+                                                            .setServiceInstance(Config.Agent.INSTANCE_NAME)
+                                                            .addAllProperties(OSUtil.buildOSInfo(
+                                                                Config.OsInfo.IPV4_LIST_SIZE))
+                                                            .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
+                                                            .build();
+            producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(),
+                                               Bytes.wrap(instance.toByteArray())
+            ));
+            producer.flush();
+        } else {
+            InstancePingPkg ping = InstancePingPkg.newBuilder()
+                                                  .setService(Config.Agent.SERVICE_NAME)
+                                                  .setServiceInstance(Config.Agent.INSTANCE_NAME)
+                                                  .build();
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
+            }
+            producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
         }
-        producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
     }
 
     @Override

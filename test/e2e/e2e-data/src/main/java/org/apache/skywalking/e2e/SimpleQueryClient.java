@@ -26,9 +26,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.e2e.alarm.AlarmQuery;
+import org.apache.skywalking.e2e.alarm.GetAlarm;
+import org.apache.skywalking.e2e.alarm.GetAlarmData;
 import org.apache.skywalking.e2e.browser.BrowserErrorLog;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogQuery;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogsData;
+import org.apache.skywalking.e2e.log.Log;
+import org.apache.skywalking.e2e.log.LogData;
+import org.apache.skywalking.e2e.log.LogsQuery;
+import org.apache.skywalking.e2e.log.SupportQueryLogsByKeywords;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
@@ -201,6 +208,8 @@ public class SimpleQueryClient {
     }
 
     public Topology topo(final TopoQuery query) throws Exception {
+        LOGGER.info("topo {}", query);
+
         final URL queryFileUrl = Resources.getResource("topo.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream()
@@ -209,17 +218,27 @@ public class SimpleQueryClient {
                                             .replace("{step}", query.step())
                                             .replace("{start}", query.start())
                                             .replace("{end}", query.end());
-        final ResponseEntity<GQLResponse<TopologyResponse>> responseEntity = restTemplate.exchange(
-            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
-            new ParameterizedTypeReference<GQLResponse<TopologyResponse>>() {
+
+        LOGGER.info("query string {}", queryString);
+
+        try {
+            final ResponseEntity<GQLResponse<TopologyResponse>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<TopologyResponse>>() {
+                }
+            );
+
+            LOGGER.info("response {}", responseEntity);
+
+            if (responseEntity.getStatusCode() != HttpStatus.OK) {
+                throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
             }
-        );
 
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+            return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
-
-        return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+        return new Topology();
     }
 
     public ServiceInstanceTopology serviceInstanceTopo(final ServiceInstanceTopologyQuery query) throws Exception {
@@ -345,5 +364,85 @@ public class SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getReadLabeledMetricsValues();
+    }
+
+    public GetAlarm readAlarms(final AlarmQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("read-alarms.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{step}", query.step())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{pageSize}", "20")
+                                            .replace("{needTotal}", "true");
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<GetAlarmData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<GetAlarmData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getGetAlarm();
+    }
+
+    public List<Log> logs(final LogsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("logs.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream().filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{metricName}", query.metricName())
+                                            .replace("{state}", query.state())
+                                            .replace("{serviceId}", query.serviceId())
+                                            .replace("{serviceInstanceId}", query.serviceInstanceId())
+                                            .replace("{endpointId}", query.endpointId())
+                                            .replace("{endpointName}", query.endpointName())
+                                            .replace("{traceId}", query.traceId())
+                                            .replace("{segmentId}", query.segmentId())
+                                            .replace("{spanId}", query.spanId())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{step}", query.step())
+                                            .replace("{tagKey}", query.tagKey())
+                                            .replace("{tagValue}", query.tagValue())
+                                            .replace("{pageNum}", query.pageNum())
+                                            .replace("{pageSize}", query.pageSize())
+                                            .replace("{needTotal}", query.needTotal())
+                                            .replace("{keywordsOfContent}", query.keywordsOfContent())
+                                            .replace(
+                                                "{excludingKeywordsOfContent}", query.excludingKeywordsOfContent());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<LogData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<LogData>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getLogs().getData();
+    }
+
+    public boolean supportQueryLogsByKeywords() throws Exception {
+        final URL queryFileUrl = Resources.getResource("support-query-logs-by-keywords.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<SupportQueryLogsByKeywords>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<SupportQueryLogsByKeywords>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody().getData().isSupport());
     }
 }

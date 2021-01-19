@@ -62,10 +62,14 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecord
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.UITemplateManagementDAOImpl;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
-    private InfluxStorageConfig config;
+    private final InfluxStorageConfig config;
     private InfluxClient client;
 
     public InfluxStorageProvider() {
@@ -119,6 +123,12 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME)
+                                                   .provider()
+                                                   .getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge(
+            "storage_influxdb", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        client.registerChecker(healthChecker);
         try {
             client.connect();
 
@@ -130,7 +140,7 @@ public class InfluxStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

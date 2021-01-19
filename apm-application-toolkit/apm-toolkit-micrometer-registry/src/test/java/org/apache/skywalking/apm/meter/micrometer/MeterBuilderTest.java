@@ -43,21 +43,10 @@ public class MeterBuilderTest {
             .serviceLevelObjectives(Duration.ofMillis(1).toNanos(), Duration.ofMillis(5).toNanos(), Duration.ofMillis(10).toNanos())
             .minimumExpectedValue(0d).build();
 
-        // Check buckets
+        // Check histogram
         final Optional<Histogram> histogramOptional = MeterBuilder.buildHistogram(meterId, true, statisticConfig, true);
         final Histogram histogram = histogramOptional.orElse(null);
         Assert.assertNotNull(histogram);
-        final Histogram.Bucket[] buckets = histogram.getBuckets();
-        Assert.assertEquals(4, buckets.length);
-        Assert.assertEquals(0d, buckets[0].getBucket(), 0.0);
-        Assert.assertEquals(1d, buckets[1].getBucket(), 0.0);
-        Assert.assertEquals(5d, buckets[2].getBucket(), 0.0);
-        Assert.assertEquals(10d, buckets[3].getBucket(), 0.0);
-
-        // Check meter id
-        Assert.assertEquals("test_histogram", histogram.getMeterId().getName());
-        Assert.assertEquals(MeterId.MeterType.HISTOGRAM, histogram.getMeterId().getType());
-        Assert.assertEquals(Arrays.asList(new MeterId.Tag("k1", "v1")), histogram.getMeterId().getTags());
 
         // Don't need the histogram
         Assert.assertNull(MeterBuilder.buildHistogram(meterId, true, DistributionStatisticConfig.DEFAULT, true).orElse(null));

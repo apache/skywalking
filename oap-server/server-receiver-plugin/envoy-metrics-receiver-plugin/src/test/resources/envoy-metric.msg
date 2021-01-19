@@ -34,8 +34,7 @@ identifier {
         region: "ap-southeast-1"
         zone: "zone1"
         sub_zone: "subzone1"
-      },
-      build_version: "caf7ab123964cedd172a2d4cb29b2f2e05ca9156/1.10.0-dev/Clean/RELEASE/BoringSSL"
+      }
     }
 }
 envoy_metrics [

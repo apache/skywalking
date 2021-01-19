@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -51,14 +50,14 @@ public class MeterServiceHandler implements KafkaHandler {
             meterDataCollection.getMeterDataList().forEach(meterData -> processor.read(meterData));
             processor.process();
 
-        } catch (InvalidProtocolBufferException e) {
-            log.error("", e);
+        } catch (Exception e) {
+            log.error("handle record failed", e);
         }
     }
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfMeters();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfMeters();
     }
 
     @Override

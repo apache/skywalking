@@ -26,22 +26,25 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static net.bytebuddy.matcher.ElementMatchers.isPublic;
+import static net.bytebuddy.matcher.ElementMatchers.isPrivate;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Enhance {@link org.quartz.core.JobRunShell} instance and intercept {@link org.quartz.core.JobRunShell#run()} method,
- * this method is a unified entrance of execute schedule job.
+ * Enhance {@link org.quartz.core.JobRunShell} instance and intercept {@link org.quartz.core.JobRunShell#run()},{@link org.quartz.core.JobRunShell#notifyJobListenersComplete(org.quartz.JobExecutionContext, org.quartz.JobExecutionException)} methods,
+ * this class is a unified entrance of execute schedule job.
  *
  * @see org.apache.skywalking.apm.plugin.quartz.JobRunShellConstructorInterceptor
  * @see org.apache.skywalking.apm.plugin.quartz.JobRunShellMethodInterceptor
+ * @see org.apache.skywalking.apm.plugin.quartz.JobExecuteStateMethodInterceptor
  */
 public class JobRunShellInterceptorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.quartz.JobRunShellConstructorInterceptor";
-    public static final String METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.quartz.JobRunShellMethodInterceptor";
+    public static final String JOB_EXECUTE_METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.quartz.JobRunShellMethodInterceptor";
+    public static final String JOB_EXECUTE_STATE_METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.quartz.JobExecuteStateMethodInterceptor";
     public static final String ENHANC_CLASS = "org.quartz.core.JobRunShell";
 
     @Override
@@ -81,7 +84,26 @@ public class JobRunShellInterceptorInstrumentation extends ClassInstanceMethodsE
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return METHOD_INTERCEPTOR_CLASS;
+                        return JOB_EXECUTE_METHOD_INTERCEPTOR_CLASS;
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named("notifyJobListenersComplete")
+                                .and(isPrivate())
+                                .and(takesArguments(2))
+                                .and(takesArgument(1, named("org.quartz.JobExecutionException")));
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return JOB_EXECUTE_STATE_METHOD_INTERCEPTOR_CLASS;
                     }
 
                     @Override

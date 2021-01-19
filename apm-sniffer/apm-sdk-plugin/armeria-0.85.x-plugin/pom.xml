@@ -20,7 +20,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,9 +28,6 @@
     <name>armeria-0.85.x-plugin</name>
     <packaging>jar</packaging>
     <description>SkyWalking Agent Plugin for Armeria 0.85.0 ~ 0.98.0</description>
-    <properties>
-        <compiler.version>1.8</compiler.version>
-    </properties>
 
     <dependencies>
         <dependency>

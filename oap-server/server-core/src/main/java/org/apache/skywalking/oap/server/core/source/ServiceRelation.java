@@ -96,6 +96,9 @@ public class ServiceRelation extends Source {
     @Getter
     @Setter
     private String tlsMode;
+    @Getter
+    @Setter
+    private SideCar sideCar = new SideCar();
 
     @Override
     public void prepare() {

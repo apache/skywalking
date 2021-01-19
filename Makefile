@@ -28,16 +28,16 @@ init:
 .PHONY: build.all build.agent build.backend build.ui build.docker
 
 build.all:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST)
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
 
 build.agent:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pagent,dist
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pagent,dist
 
 build.backend:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
 
 build.ui:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
 
 DOCKER_BUILD_TOP:=${SW_OUT}/docker_build
 
@@ -63,8 +63,8 @@ else
   DIST_NAME := apache-skywalking-apm-bin
 endif
 
-ifneq ($(SW_OAP_JAVA_VERSION),)
-  BUILD_ARGS := $(BUILD_ARGS) --build-arg JAVA_VERSION=$(SW_OAP_JAVA_VERSION)
+ifneq ($(SW_OAP_BASE_IMAGE),)
+  BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
 endif
 
 BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST_NAME=$(DIST_NAME)

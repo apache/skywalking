@@ -27,14 +27,22 @@ You can go to their project repositories for additional info about guides and re
 
 - [SkyAPM Node.js agent](https://github.com/SkyAPM/SkyAPM-nodejs). See Node.js server side agent project document for more details.
 
-- [SkyAPM PHP SDK](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
+- [SkyAPM PHP agent](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
 
-- [SkyAPM GO2Sky](https://github.com/SkyAPM/go2sky). See GO2Sky project document for more details.
+- [SkyAPM Go SDK](https://github.com/SkyAPM/go2sky). See go2sky project document for more details.
+
+- [SkyAPM C++ SDK](https://github.com/SkyAPM/cpp2sky). See cpp2sky project document for more details.
+
+## Browser Monitoring
+[Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js). Support collecting metrics and error logs
+for the Browser or JavaScript based mobile app. 
+
+Note, make sure the [`receiver-browser`](backend/backend-receivers.md) has been opened, default is **ON** since 8.2.0.
 
 ## Service Mesh
 
   - Istio
-    - [SkyWalking on Istio](istio/README.md). Introduces how to use Istio Mixer bypass adapter to work with SkyWalking.
+    - [SkyWalking on Istio](istio/README.md). Introduces how to analyze Istio metrics.
   - Envoy
     - Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](envoy/als_setting.md) for guides.
 
@@ -50,6 +58,3 @@ Follow [backend and UI setup document](backend/backend-ui-setup.md) to understan
 ## Changes log
 
 Backend, UI and Java agent changes are available [here](../../../CHANGES.md).
-
-## Upgrade FAQ
-[6.x version upgrade FAQ](../FAQ/v6-version-upgrade.md) introduces the recommendation ways to do SkyWalking upgrade.

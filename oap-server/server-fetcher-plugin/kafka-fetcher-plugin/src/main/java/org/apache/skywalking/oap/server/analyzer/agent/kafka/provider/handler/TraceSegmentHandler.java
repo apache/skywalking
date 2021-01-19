@@ -86,17 +86,18 @@ public class TraceSegmentHandler implements KafkaHandler {
                 segmentParserService.send(segment);
             } catch (Exception e) {
                 errorCounter.inc();
+                log.error(e.getMessage(), e);
             } finally {
                 timer.finish();
             }
         } catch (InvalidProtocolBufferException e) {
-            log.error(e.getMessage(), e);
+            log.error("handle record failed", e);
         }
     }
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfTracingSegments();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfTracingSegments();
     }
 
     @Override

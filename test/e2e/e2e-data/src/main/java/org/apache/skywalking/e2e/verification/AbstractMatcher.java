@@ -29,6 +29,7 @@ public abstract class AbstractMatcher<T> {
     private static final Pattern GT_MATCHER = Pattern.compile("gt\\s+(?<val>.+)");
     private static final Pattern GE_MATCHER = Pattern.compile("ge\\s+(?<val>.+)");
     private static final Pattern NN_MATCHER = Pattern.compile("^not null$");
+    private static final Pattern RE_MATCHER = Pattern.compile("^re\\((?<regexp>.+)\\)$");
 
     public abstract void verify(T t);
 
@@ -69,6 +70,15 @@ public abstract class AbstractMatcher<T> {
 
             assertThat(val).isNotBlank();
             assertThat(Double.parseDouble(actual)).isEqualTo(Double.parseDouble(val));
+            return;
+        }
+
+        matcher = RE_MATCHER.matcher(expected);
+        if (matcher.find()) {
+            String regexp = matcher.group("regexp");
+
+            assertThat(regexp).isNotBlank();
+            assertThat(actual).matches(regexp);
             return;
         }
 

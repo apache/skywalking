@@ -30,6 +30,8 @@ import org.joda.time.format.DateTimeFormatter;
 public enum DurationUtils {
     INSTANCE;
 
+    private static final int MAX_TIME_RANGE = 500;
+
     private static final DateTimeFormatter YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
     private static final DateTimeFormatter YYYY_MM_DD_HH = DateTimeFormat.forPattern("yyyy-MM-dd HH");
     private static final DateTimeFormatter YYYY_MM_DD_HHMM = DateTimeFormat.forPattern("yyyy-MM-dd HHmm");
@@ -119,9 +121,13 @@ public enum DurationUtils {
                     break;
             }
             i++;
-            if (i > 500) {
-                throw new UnexpectedException(
-                    "Duration data error, step: " + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
+            if (i > MAX_TIME_RANGE) {
+                // days, hours, minutes or seconds
+                String stepStr = step.name().toLowerCase() + "s";
+                String errorMsg = String.format(
+                        "Duration data error, the range between the start time and the end time can't exceed %d %s",
+                        MAX_TIME_RANGE, stepStr);
+                throw new UnexpectedException(errorMsg);
             }
         }
         while (endTimeBucket != durations.get(durations.size() - 1).getPoint());

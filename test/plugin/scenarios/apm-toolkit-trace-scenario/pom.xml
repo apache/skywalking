@@ -59,6 +59,11 @@
             <artifactId>httpclient</artifactId>
             <version>4.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-meter</artifactId>
+            <version>8.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

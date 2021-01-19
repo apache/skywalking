@@ -18,42 +18,37 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doCallRealMethod;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class MeterBuilderTest extends MeterBaseTest {
 
     @Test
     public void testBuildAndSend() throws ModuleStartException {
         List<AcceptableValue> values = new ArrayList<>();
         doAnswer(invocationOnMock -> {
-            values.add(invocationOnMock.getArgumentAt(0, AcceptableValue.class));
+            values.add(invocationOnMock.getArgument(0, AcceptableValue.class));
             return null;
         }).when(meterSystem).doStreamingCalculation(any());
-
-        final MeterProcessService context = (MeterProcessService) Whitebox.getInternalState(processor, "processService");
-        context.enabledBuilders().stream().peek(b -> doCallRealMethod().when(b).buildAndSend(any(), any()));
-        context.initMeters();
 
         // Prcess the meters
         processor.process();
@@ -61,7 +56,7 @@ public class MeterBuilderTest extends MeterBaseTest {
         Assert.assertEquals(3, values.size());
         // Check avg
         final AvgFunction avg = (AvgFunction) values.get(0);
-        Assert.assertEquals(100, avg.getSummation());
+        Assert.assertEquals(1, avg.getSummation());
         Assert.assertEquals(1, avg.getCount());
         Assert.assertEquals(IDManager.ServiceID.buildId("service", true), avg.getServiceId());
         Assert.assertEquals(IDManager.ServiceID.buildId("service", true), avg.getEntityId());
@@ -85,13 +80,13 @@ public class MeterBuilderTest extends MeterBaseTest {
             IDManager.ServiceID.buildId("service", true), "test_endpoint"), avgPercentile.getEntityId());
         verifyDataTable(avgPercentile.getSummation(), 1, 10, 5, 15, 10, 3);
         verifyDataTable(avgPercentile.getCount(), 1, 1, 5, 1, 10, 1);
-
     }
 
     private void verifyDataTable(DataTable table, Object... data) {
         Assert.assertEquals(data.length / 2, table.size());
         for (int i = 0; i < data.length; i += 2) {
-            Assert.assertEquals(Long.parseLong(String.valueOf(data[i + 1])), table.get(String.valueOf(data[i])).longValue());
+            Assert.assertEquals(
+                Long.parseLong(String.valueOf(data[i + 1])), table.get(String.valueOf(data[i])).longValue());
         }
     }
 }

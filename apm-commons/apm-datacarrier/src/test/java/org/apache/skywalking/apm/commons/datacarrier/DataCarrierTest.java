@@ -33,11 +33,7 @@ import org.powermock.api.support.membermodification.MemberModifier;
 public class DataCarrierTest {
     @Test
     public void testCreateDataCarrier() throws IllegalAccessException {
-        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(5, 100);
-        Assert.assertEquals(((Integer) (MemberModifier.field(DataCarrier.class, "bufferSize")
-                                                      .get(carrier))).intValue(), 100);
-        Assert.assertEquals(((Integer) (MemberModifier.field(DataCarrier.class, "channelSize")
-                                                      .get(carrier))).intValue(), 5);
+        DataCarrier<SampleData> carrier = new DataCarrier<>(5, 100, BufferStrategy.IF_POSSIBLE);
 
         Channels<SampleData> channels = (Channels<SampleData>) (MemberModifier.field(DataCarrier.class, "channels")
                                                                               .get(carrier));
@@ -46,8 +42,7 @@ public class DataCarrierTest {
         QueueBuffer<SampleData> buffer = channels.getBuffer(0);
         Assert.assertEquals(100, buffer.getBufferSize());
 
-        Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy").get(buffer), BufferStrategy.BLOCKING);
-        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
+        Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy").get(buffer), BufferStrategy.IF_POSSIBLE);
         Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy")
                                           .get(buffer), BufferStrategy.IF_POSSIBLE);
 
@@ -85,8 +80,7 @@ public class DataCarrierTest {
 
     @Test
     public void testIfPossibleProduce() throws IllegalAccessException {
-        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
-        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
+        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100, BufferStrategy.IF_POSSIBLE);
 
         for (int i = 0; i < 200; i++) {
             Assert.assertTrue(carrier.produce(new SampleData().setName("d" + i)));
@@ -116,39 +110,36 @@ public class DataCarrierTest {
         }
 
         long time1 = System.currentTimeMillis();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                IConsumer<SampleData> consumer = new IConsumer<SampleData>() {
-                    int i = 0;
-
-                    @Override
-                    public void init() {
-
-                    }
-
-                    @Override
-                    public void consume(List<SampleData> data) {
-
-                    }
-
-                    @Override
-                    public void onError(List<SampleData> data, Throwable t) {
-
-                    }
-
-                    @Override
-                    public void onExit() {
-
-                    }
-                };
-                carrier.consume(consumer, 1);
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            IConsumer<SampleData> consumer = new IConsumer<SampleData>() {
+                int i = 0;
+
+                @Override
+                public void init() {
+
+                }
+
+                @Override
+                public void consume(List<SampleData> data) {
+
+                }
+
+                @Override
+                public void onError(List<SampleData> data, Throwable t) {
+
+                }
+
+                @Override
+                public void onExit() {
+
+                }
+            };
+            carrier.consume(consumer, 1);
         }).start();
 
         carrier.produce(new SampleData().setName("blocking-data"));

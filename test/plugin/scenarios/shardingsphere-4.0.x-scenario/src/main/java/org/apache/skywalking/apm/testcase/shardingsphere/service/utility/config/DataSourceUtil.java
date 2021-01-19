@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -31,19 +31,18 @@ public class DataSourceUtil {
 
     private static final String DEFAULT_SCHEMA = "";
 
-    private static final Map<String, DataSource> datasourceMap = new HashMap<>();
+    private static final Map<String, DataSource> DATA_SOURCE_MAP = new HashMap<>();
 
     public static void createDataSource(final String dataSourceName) {
-        BasicDataSource result = new BasicDataSource();
-        result.setDriverClassName("org.h2.Driver");
-        result.setUrl(String.format("jdbc:h2:mem:%s", dataSourceName));
-        result.setUsername("sa");
+        JdbcDataSource result = new JdbcDataSource();
+        result.setUrl("jdbc:h2:mem:" + dataSourceName + ";DB_CLOSE_DELAY=-1");
+        result.setUser("sa");
         result.setPassword("");
-        datasourceMap.put(dataSourceName, result);
+        DATA_SOURCE_MAP.put(dataSourceName, result);
     }
 
     public static DataSource getDataSource(final String dataSourceName) {
-        return datasourceMap.get(dataSourceName);
+        return DATA_SOURCE_MAP.get(dataSourceName);
     }
 
     public static void createSchema(final String dataSourceName) {

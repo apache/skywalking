@@ -24,8 +24,10 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,8 +35,8 @@ public class ProviderInterceptor implements ServerInterceptor {
     private static final Logger LOGGER = LogManager.getLogger(ProviderInterceptor.class);
 
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata metadata,
-        ServerCallHandler<ReqT, RespT> handler) {
+    public <REQ_T, RESQ_T> ServerCall.Listener<REQ_T> interceptCall(ServerCall<REQ_T, RESQ_T> call, Metadata metadata,
+                                                                    ServerCallHandler<REQ_T, RESQ_T> handler) {
         Map<String, String> headerMap = new HashMap<String, String>();
         for (String key : metadata.keys()) {
             LOGGER.info("Receive key: {}", key);
@@ -45,7 +47,7 @@ public class ProviderInterceptor implements ServerInterceptor {
             }
         }
         LOGGER.info("authority : {}", call.getAuthority());
-        return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+        return new ForwardingServerCallListener.SimpleForwardingServerCallListener<REQ_T>(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall<REQ_T, RESQ_T>(call) {
             @Override
             public void sendHeaders(Metadata responseHeaders) {
                 LOGGER.info("sendHeaders....");
@@ -55,7 +57,7 @@ public class ProviderInterceptor implements ServerInterceptor {
             }
 
             @Override
-            public void sendMessage(RespT message) {
+            public void sendMessage(RESQ_T message) {
                 delegate().sendMessage(message);
             }
 
@@ -85,7 +87,7 @@ public class ProviderInterceptor implements ServerInterceptor {
             }
 
             @Override
-            public void onMessage(ReqT message) {
+            public void onMessage(REQ_T message) {
                 LOGGER.info("onMessage....");
                 delegate().onMessage(message);
             }

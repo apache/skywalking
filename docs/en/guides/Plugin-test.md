@@ -211,7 +211,7 @@ as the version number, it will be changed in the test for every version.
 | `null` | Null or empty String |
 | `eq` | Equal(default) |
 
-**Segment verify description format**
+**Expected Data Format Of The Segment**
 ```yml
 segmentItems:
 -
@@ -231,7 +231,7 @@ segmentItems:
 | segmentId | trace ID.
 | spans | segment span list. Follow the next section to see how to describe every span.
 
-**Span verify description format**
+**Expected Data Format Of The Span**
 
 **Notice**: The order of span list should follow the order of the span finish time.
 
@@ -293,6 +293,46 @@ The verify description for SegmentRef
 | parentEndpoint |  The endpoint of parent/downstream service.
 | networkAddress | The peer value of parent exit span.
 | refType | Ref type, options, CrossProcess or CrossThread.
+
+**Expected Data Format Of The Meter Items**
+```yml
+meterItems:
+-
+  serviceName: SERVICE_NAME(string)
+  meterSize: METER_SIZE(int)
+  meters:
+  - ...
+```
+
+| Field |  Description
+| --- | ---  
+| serviceName | Service Name.
+| meterSize | The number of meters is expected.
+| meters | meter list. Follow the next section to see how to describe every meter.
+
+**Expected Data Format Of The Meter**
+
+```yml
+    meterId: 
+        name: NAME(string)
+        tags:
+        - {name: TAG_NAME(string), value: TAG_VALUE(string)}
+    singleValue: SINGLE_VALUE(double)
+    histogramBuckets:
+    - HISTOGRAM_BUCKET(double)
+    ...
+```
+
+The verify description for MeterId
+
+| Field | Description 
+|--- |--- 
+| name | meter name.
+| tags | meter tags.
+| tags.name | tag name.
+| tags.value | tag value.
+| singleValue | counter or gauge value. Using condition operate of the number to validate, such as `gt`, `ge`. If current meter is histogram, don't need to write this field.
+| histogramBuckets | histogram bucket. The bucket list must be ordered. The tool assert at least one bucket of the histogram having nonzero count. If current meter is counter or gauge, don't need to write this field.
 
 ### startup.sh
 
@@ -378,9 +418,9 @@ dependent services are database or cluster.
 Notice, because heartbeat service could be traced fully or partially, so, segmentSize in `expectedData.yaml` should use `ge` as the operator,
 and don't include the segments of heartbeat service in the expected segment data.
 
-### The example Process of Writing Expected Data
+### The example Process of Writing Tracing Expected Data
 
-Expected data file, `expectedData.yaml`, include `SegmentItems`.
+Expected data file, `expectedData.yaml`, include `SegmentItems` part.
 
 We are using the HttpClient plugin to show how to write the expected data.
 
@@ -485,6 +525,80 @@ SegmentB span list should like following
     - {parentEndpoint: /httpclient-case/case/httpclient, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
 ```
 
+### The example Process of Writing Meter Expected Data
+
+Expected data file, `expectedData.yaml`, include `MeterItems` part.
+
+We are using the toolkit plugin to demonstrate how to write the expected data. When write the [meter plugin](Java-Plugin-Development-Guide.md#meter-plugin), the expected data file keeps the same.
+
+There is one key point of testing
+1. Build a meter and operate it.
+
+Such as `Counter`:
+```java
+MeterFactory.counter("test_counter").tag("ck1", "cv1").build().increment(1d);
+MeterFactory.histogram("test_histogram").tag("hk1", "hv1").steps(1d, 5d, 10d).build().addValue(2d);
+```
+
+```
++-------------+         +------------------+
+|   Plugin    |         |    Agent core    |
+|             |         |                  |
++-----|-------+         +---------|--------+
+      |                           |         
+      |                           |         
+      |    Build or operate      +-+        
+      +------------------------> |-|        
+      |                          |-]
+      |                          |-|        
+      |                          |-|        
+      |                          |-|
+      |                          |-|        
+      | <--------------------------|        
+      |                          +-+        
+      |                           |         
+      |                           |         
+      |                           |         
+      |                           |         
+      +                           +         
+```
+
+#### meterItems
+
+By following the flow of the toolkit case,  there should be two meters created.
+1. Meter `test_counter` created from `MeterFactory#counter`. Let's name it as `MeterA`.
+1. Meter `test_histogram` created from `MeterFactory#histogram`. Let's name it as `MeterB`.
+
+```yml
+meterItems:
+  - serviceName: toolkit-case
+    meterSize: 2
+```
+
+They're showing two kinds of meter, MeterA has a single value, MeterB has a histogram value.
+
+MeterA should like following, `counter` and `gauge` use the same data format.
+```yaml
+- meterId:
+    name: test_counter
+    tags:
+      - {name: ck1, value: cv1}
+  singleValue: gt 0
+```
+
+MeterB should like following.
+```yaml
+- meterId:
+    name: test_histogram
+    tags:
+      - {name: hk1, value: hv1}
+  histogramBuckets:
+    - 0.0
+    - 1.0
+    - 5.0
+    - 10.0
+```
+
 ## Local Test and Pull Request To The Upstream
 
 First of all, the test case project could be compiled successfully, with right project structure and be able to deploy.
@@ -504,11 +618,12 @@ rather than recompiling it every time.
 
 Use `${SKYWALKING_HOME}/test/plugin/run.sh -h` to know more command options.
 
-If the local test passed, then you could add it to `.github/workflows/plugins-test.<n>.yaml` file, which will drive the tests running on the Github Actions of official SkyWalking repository.
+If the local test passed, then you could add it to `.github/workflows/plugins-test.<n>.yaml` file, which will drive the tests running on the GitHub Actions of official SkyWalking repository.
 Based on your plugin's name, please add the test case into file `.github/workflows/plugins-test.<n>.yaml`, by alphabetical orders.
 
-Every test case is a Github Actions Job. Please use the `<scenario name> + <version range> + (<supported version count>)` as the Job `title`, and the scenario directory as the Job `name`,
+Every test case is a GitHub Actions Job. Please use the scenario directory name as the case `name`,
 mostly you'll just need to decide which file (`plugins-test.<n>.yaml`) to add your test case, and simply put one line (as follows) in it, take the existed cases as examples.
+You can run `python3 tools/select-group.py` to see which file contains the least cases and add your cases into it, in order to balance the running time of each group.
 
 If a test case required to run in JDK 14 environment, please add you test case into file `plugins-jdk14-test.<n>.yaml`.
 
@@ -523,6 +638,6 @@ jobs:
       matrix:
         case:
           # ...
-          - { name: '<your case name>', title: '<PluginName, i.e. Spring> (<Supported Version Count, i.e 12>)' } # <<== insert one line by alphabetical orders
+          - <your scenario test directory name>
           # ...
 ```

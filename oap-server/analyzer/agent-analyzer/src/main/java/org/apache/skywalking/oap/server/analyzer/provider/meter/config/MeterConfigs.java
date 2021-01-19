@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -30,6 +29,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,10 +43,14 @@ public class MeterConfigs {
     /**
      * Load all configs from path
      */
-    public static List<MeterConfig> loadConfig(String path) throws ModuleStartException {
+    public static List<MeterConfig> loadConfig(String path, String[] fileNames) throws ModuleStartException {
+        if (fileNames == null || fileNames.length == 0) {
+            return Collections.emptyList();
+        }
+
         File[] configs;
         try {
-            configs = ResourceUtils.getPathFiles(path);
+            configs = ResourceUtils.getPathFiles(path, fileNames);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load meter configs failed", e);
         }
@@ -54,19 +58,14 @@ public class MeterConfigs {
         return Arrays.stream(configs)
             .map(f -> {
                 try (Reader r = new FileReader(f)) {
-                    return new Yaml().loadAs(r, Config.class);
+                    return new Yaml().loadAs(r, MeterConfig.class);
                 } catch (IOException e) {
                     log.warn("Reading file {} failed", f, e);
                 }
                 return null;
             })
             .filter(Objects::nonNull)
-            .flatMap(c -> c.getMeters().stream())
             .collect(Collectors.toList());
     }
 
-    @Data
-    public static class Config {
-        private List<MeterConfig> meters;
-    }
 }

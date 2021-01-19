@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
 import com.google.gson.JsonObject;
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,8 +66,8 @@ public class ServiceManagementHandler implements KafkaHandler {
             } else {
                 keepAlive(InstancePingPkg.parseFrom(record.value().get()));
             }
-        } catch (InvalidProtocolBufferException e) {
-            log.error("", e);
+        } catch (Exception e) {
+            log.error("handle record failed", e);
         }
     }
 
@@ -125,7 +124,7 @@ public class ServiceManagementHandler implements KafkaHandler {
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfManagements();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfManagements();
     }
 
     @Override

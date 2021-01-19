@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -62,14 +61,14 @@ public class ProfileTaskHandler implements KafkaHandler {
             snapshotRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(snapshot.getTime()));
 
             RecordStreamProcessor.getInstance().in(snapshotRecord);
-        } catch (InvalidProtocolBufferException e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("handle record failed", e);
         }
     }
 
     @Override
     public String getTopic() {
-        return config.getTopicNameOfProfiling();
+        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfProfiling();
     }
 
     @Override

@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import com.google.common.collect.Maps;
-import java.util.HashMap;
-import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
@@ -32,19 +30,22 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
+
+import java.util.HashMap;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
 public abstract class MeterBaseTest {
-    private static final String CONFIG_PATH = "meter-receive-config";
+    private static final String CONFIG_PATH = "meter-analyzer-config";
 
     @Mock
     protected CoreModuleProvider moduleProvider;
@@ -80,7 +81,7 @@ public abstract class MeterBaseTest {
         Whitebox.setInternalState(meterSystem, "functionRegister", map);
 
         // load context
-        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH);
+        List<MeterConfig> meterConfigs = MeterConfigs.loadConfig(CONFIG_PATH, new String[] {"config.yaml"});
         final MeterProcessService service = new MeterProcessService(moduleManager);
         service.start(meterConfigs);
 
@@ -90,19 +91,34 @@ public abstract class MeterBaseTest {
         timestamp = System.currentTimeMillis();
         // single value
         processor.read(MeterData.newBuilder()
-            .setService("service").setServiceInstance("instance").setTimestamp(timestamp)
-            .setSingleValue(MeterSingleValue.newBuilder().setName("test_count1")
-                .addLabels(Label.newBuilder().setName("k1").setValue("v1").build()).setValue(1).build())
-            .build());
+                                .setService("service").setServiceInstance("instance").setTimestamp(timestamp)
+                                .setSingleValue(MeterSingleValue.newBuilder().setName("test_count1")
+                                                                .addLabels(Label.newBuilder()
+                                                                                .setName("k1")
+                                                                                .setValue("v1")
+                                                                                .build()).setValue(1).build())
+                                .build());
 
         // histogram
         processor.read(MeterData.newBuilder()
-            .setHistogram(MeterHistogram.newBuilder().setName("test_histogram")
-                .addLabels(Label.newBuilder().setName("k2").setValue("v2").build())
-                .addValues(MeterBucketValue.newBuilder().setBucket(1).setCount(10).build())
-                .addValues(MeterBucketValue.newBuilder().setBucket(5).setCount(15).build())
-                .addValues(MeterBucketValue.newBuilder().setBucket(10).setCount(3).build())
-                .build())
-            .build());
+                                .setHistogram(MeterHistogram.newBuilder().setName("test_histogram")
+                                                            .addLabels(
+                                                                Label.newBuilder().setName("k2").setValue("v2").build())
+                                                            .addLabels(
+                                                                Label.newBuilder().setName("endpoint").setValue("test_endpoint").build())
+                                                            .addValues(MeterBucketValue.newBuilder()
+                                                                                       .setBucket(1)
+                                                                                       .setCount(10)
+                                                                                       .build())
+                                                            .addValues(MeterBucketValue.newBuilder()
+                                                                                       .setBucket(5)
+                                                                                       .setCount(15)
+                                                                                       .build())
+                                                            .addValues(MeterBucketValue.newBuilder()
+                                                                                       .setBucket(10)
+                                                                                       .setCount(3)
+                                                                                       .build())
+                                                            .build())
+                                .build());
     }
 }

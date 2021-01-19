@@ -18,15 +18,8 @@ name: E2E
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
-
-env:
-  SKIP_TEST: true
-  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
+  schedule:
+    - cron: '0 18 * * *'
 
 jobs:
   JavaVersions:
@@ -44,18 +37,21 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Set Up Java
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
-      - name: Build Docker Image
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Agent on JDK Version ${{ matrix.jdk }}
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
+        with:
+          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

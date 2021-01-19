@@ -41,8 +41,9 @@ public enum ValueColumnMetadata {
                             String valueCName,
                             Column.ValueDataType dataType,
                             Function function,
-                            int defaultValue) {
-        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, dataType, function, defaultValue));
+                            int defaultValue,
+                            int scopeId) {
+        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, dataType, function, defaultValue, scopeId));
     }
 
     /**
@@ -63,8 +64,18 @@ public enum ValueColumnMetadata {
         return findColumn(metricsName).defaultValue;
     }
 
+    /**
+     * @return metric metadata if found
+     */
     public Optional<ValueColumn> readValueColumnDefinition(String metricsName) {
         return Optional.ofNullable(mapping.get(metricsName));
+    }
+
+    /**
+     * @return all metrics metadata.
+     */
+    public Map<String, ValueColumn> getAllMetadata() {
+        return mapping;
     }
 
     private ValueColumn findColumn(String metricsName) {
@@ -82,5 +93,6 @@ public enum ValueColumnMetadata {
         private final Column.ValueDataType dataType;
         private final Function function;
         private final int defaultValue;
+        private final int scopeId;
     }
 }

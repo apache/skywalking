@@ -36,6 +36,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 public enum NamespacedPodListInformer {
 
@@ -81,7 +83,7 @@ public enum NamespacedPodListInformer {
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedPodCall(
                 podConfig.getNamespace(), null, null, null, null,
-                podConfig.getLabelSelector(), Integer.MAX_VALUE, params.resourceVersion, params.timeoutSeconds,
+                podConfig.getLabelSelector(), Integer.MAX_VALUE, params.resourceVersion, 300,
                 params.watch, null
             ),
             V1Pod.class, V1PodList.class
@@ -92,7 +94,9 @@ public enum NamespacedPodListInformer {
     }
 
     public Optional<List<V1Pod>> listPods() {
-
+        if (isNull(podLister)) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(podLister.list().size() != 0
                                        ? podLister.list()
                                                   .stream()

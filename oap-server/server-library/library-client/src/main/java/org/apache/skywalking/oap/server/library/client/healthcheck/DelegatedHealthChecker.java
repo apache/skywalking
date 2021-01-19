@@ -33,6 +33,11 @@ public class DelegatedHealthChecker implements HealthChecker {
         Optional.ofNullable(delegated.get()).ifPresent(d -> d.unHealth(t));
     }
 
+    @Override
+    public void unHealth(String reason) {
+        Optional.ofNullable(delegated.get()).ifPresent(d -> d.unHealth(reason));
+    }
+
     public void register(HealthChecker healthChecker) {
         delegated.set(healthChecker);
     }

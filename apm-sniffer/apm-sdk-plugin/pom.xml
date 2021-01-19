@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -100,6 +100,14 @@
         <module>hbase-1.x-plugin</module>
         <module>graphql-plugin</module>
         <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
+        <module>httpclient-commons</module>
+        <module>asynchttpclient-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
+        <module>mssql-commons</module>
+        <module>mssql-jtds-1.x-plugin</module>
+        <module>mssql-jdbc-plugin</module>
+        <module>cxf-3.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -125,6 +133,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${bytebuddy.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -9,14 +9,15 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-register**. gRPC and HTTPRestful services to provide service, service instance and endpoint register.
 1. **service-mesh**. gRPC services accept data from inbound mesh probes.
 1. **receiver-jvm**. gRPC services accept JVM metrics data.
-1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
 1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics.
 1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
-1. **receiver-oc**. See [details](#opencensus-receiver).
+1. **receiver-otel**. See [details](#opentelemetry-receiver).
 1. **receiver-meter**. See [details](backend-meter.md).
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
+1. **receiver-log**. gRPC services accept log data.
+1. **configuration-discovery**. gRPC services handle configurationDiscovery.
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -34,10 +35,6 @@ receiver-jvm:
 
 service-mesh:
   selector: ${SW_SERVICE_MESH:default}
-  default:
-
-istio-telemetry:
-  selector: ${SW_ISTIO_TELEMETRY:default}
   default:
 
 envoy-metric:
@@ -66,6 +63,14 @@ receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
   default:
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+
+receiver-log:
+  selector: ${SW_RECEIVER_LOG:default}
+  default:
+  
+configuration-discovery:
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
+  default:
 ```
 
 ## gRPC/HTTP server for receiver
@@ -153,25 +158,29 @@ receiver_jaeger:
   default:
     gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
-``` 
+```
 
 NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
 
-## Opencensus receiver
+## OpenTelemetry receiver
 
-Opencensus receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
-If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/oc-rules`.
+OpenTelemetry receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
+If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/otel-<handler>-rules`.
+Eg, the `oc` handler loads fules from `$CLASSPATH/otel-oc-rules`, 
 
-The file is written in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
-Notice, `receiver-oc` only support `metricsRules` node of scheme due to the push mode it opts to.
+Supported handlers:
+    * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) gRPC service handler.
 
-To active the `default` implementation:
+The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
+Notice, `receiver-otel` only support `group`, `defaultMetricLevel` and `metricsRules` nodes of scheme due to the push mode it opts to.
+
+To active the `oc` handler and `istio` relevant rules:
 ```yaml
-receiver-oc:
-  selector: ${SW_OC_RECEIVER:-}
+receiver-otel:
+  selector: ${SW_OTEL_RECEIVER:default}
   default:
-    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 ```
 
 ## Meter receiver

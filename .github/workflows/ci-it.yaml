@@ -18,11 +18,8 @@ name: CI AND IT
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
+  schedule:
+    - cron: '0 18 * * *'  # TimeZone: UTC 0
 
 env:
   MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
@@ -36,6 +33,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Check License Header
+        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8
@@ -47,6 +55,28 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
+
+  CI-on-JDK11:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Check License Header
+        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: 'Install & Test'
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
   CI-on-Windows:
     runs-on: windows-latest
@@ -69,6 +99,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8

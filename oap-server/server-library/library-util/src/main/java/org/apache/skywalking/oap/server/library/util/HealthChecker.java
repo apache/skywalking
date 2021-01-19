@@ -34,4 +34,11 @@ public interface HealthChecker {
      * @param t details of unhealthy status
      */
     void unHealth(Throwable t);
+
+    /**
+     * It's unHealth.
+     *
+     * @param reason details reason of unhealthy status
+     */
+    void unHealth(String reason);
 }

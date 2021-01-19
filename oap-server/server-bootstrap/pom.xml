@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -83,11 +83,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-istio-telemetry-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-management-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -118,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>opencensus-receiver-plugin</artifactId>
+            <artifactId>otel-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -129,6 +124,16 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-browser-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-log-recevier-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-discovery-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->
@@ -155,6 +160,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-influxdb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-tidb-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->
@@ -257,14 +267,13 @@
                         <exclude>gateways.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
                         <exclude>endpoint-name-grouping.yml</exclude>
-                        <exclude>ui-initialized-templates.yml</exclude>
-                        <exclude>oal/browser.oal</exclude>
-                        <exclude>oal/core.oal</exclude>
-                        <exclude>oal/java-agent.oal</exclude>
-                        <exclude>oal/dotnet-agent.oal</exclude>
-                        <exclude>oal/envoy.oal</exclude>
+                        <exclude>metadata-service-mapping.yaml</exclude>
+                        <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
-                        <exclude>meter-receive-config/</exclude>
+                        <exclude>envoy-metrics-rules/</exclude>
+                        <exclude>meter-analyzer-config/</exclude>
+                        <exclude>otel-oc-rules/</exclude>
+                        <exclude>ui-initialized-templates/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

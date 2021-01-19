@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.test.helper;
 import java.lang.reflect.Field;
 
 public class FieldGetter {
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T> T getValue(Object instance,
         String fieldName) throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getDeclaredField(fieldName);
@@ -28,6 +29,7 @@ public class FieldGetter {
         return (T) field.get(instance);
     }
 
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T> T getParentFieldValue(Object instance,
         String fieldName) throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getSuperclass().getDeclaredField(fieldName);
@@ -35,6 +37,7 @@ public class FieldGetter {
         return (T) field.get(instance);
     }
 
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T> T get2LevelParentFieldValue(Object instance,
         String fieldName) throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getSuperclass().getSuperclass().getDeclaredField(fieldName);
