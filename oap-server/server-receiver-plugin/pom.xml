@@ -43,6 +43,7 @@
         <module>skywalking-meter-receiver-plugin</module>
         <module>skywalking-browser-receiver-plugin</module>
         <module>skywalking-log-recevier-plugin</module>
+        <module>configuration-discovery-receiver-plugin</module>
     </modules>
 
     <dependencies>

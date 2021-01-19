@@ -202,7 +202,7 @@ public class LogEntry2MetricsAdapter {
                 return "fault_injected";
             } else if (responseFlags.getRateLimited()) {
                 return "rate_limited";
-            } else if (responseFlags.getUnauthorizedDetails() != null) {
+            } else if (responseFlags.hasUnauthorizedDetails()) {
                 return "unauthorized_details";
             } else if (responseFlags.getRateLimitServiceError()) {
                 return "rate_limit_service_error";
