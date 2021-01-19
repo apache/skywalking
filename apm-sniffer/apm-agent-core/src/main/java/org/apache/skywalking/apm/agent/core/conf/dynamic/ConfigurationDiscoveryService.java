@@ -89,7 +89,8 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
                 t -> LOGGER.error("Sync config from OAP error.", t)
             ),
             Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL,
-            Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL, TimeUnit.SECONDS
+            Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL, 
+            TimeUnit.SECONDS
         );
     }
 
