@@ -70,6 +70,7 @@ Release Notes.
 * Log collecting and query implementation
 * Support Alarm to feishu
 * Add the implementation of ConfigurationDiscovery on the OAP side.
+* Fix bug in `parseInternalErrorCode` where some error codes are never reached.
 
 #### UI
 * Fix un-removed tags in trace query.
