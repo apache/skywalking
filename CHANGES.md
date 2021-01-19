@@ -36,7 +36,7 @@ Release Notes.
 * Support reading segmentId and spanId with toolkit.
 * Fix RestTemplate plugin recording url tag with wrong port
 * Support collecting logs and forwarding through gRPC.
-* Support dynamic change SAMPLE_N_PER_3_SECS on java agent.
+* Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
