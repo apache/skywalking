@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.apm.agent.core.conf.dynamic;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 public abstract class AgentConfigChangeWatcher {
-    private final String itemName;
+    // Config key, should match KEY in the Table of Agent Configuration Properties.
+    private final String propertyKey;
 
-    public AgentConfigChangeWatcher(String itemName) {
-        this.itemName = itemName;
+    public AgentConfigChangeWatcher(String propertyKey) {
+        this.propertyKey = propertyKey;
     }
 
     /**
@@ -45,20 +45,15 @@ public abstract class AgentConfigChangeWatcher {
     @Override
     public String toString() {
         return "AgentConfigChangeWatcher{" +
-            "itemName='" + itemName + '\'' +
+            "propertyKey='" + propertyKey + '\'' +
             '}';
     }
 
-    @Setter(AccessLevel.PACKAGE)
     @Getter
+    @RequiredArgsConstructor
     public static class ConfigChangeEvent {
-        private String newValue;
-        private EventType eventType;
-
-        public ConfigChangeEvent(String newValue, EventType eventType) {
-            this.newValue = newValue;
-            this.eventType = eventType;
-        }
+        private final String newValue;
+        private final EventType eventType;
     }
 
     public enum EventType {

@@ -123,7 +123,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
      *
      * @param configurationDiscoveryCommand Describe dynamic configuration information
      */
-    public void handConfigurationDiscoveryCommand(ConfigurationDiscoveryCommand configurationDiscoveryCommand) {
+    public void handleConfigurationDiscoveryCommand(ConfigurationDiscoveryCommand configurationDiscoveryCommand) {
         final String responseUuid = configurationDiscoveryCommand.getUuid();
         final List<KeyStringValuePair> config = configurationDiscoveryCommand.getConfig();
 
@@ -131,13 +131,13 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
             return;
         }
 
-        config.forEach(item -> {
-            String itemName = item.getKey();
-            WatcherHolder holder = register.get(itemName);
+        config.forEach(property -> {
+            String propertyKey = property.getKey();
+            WatcherHolder holder = register.get(propertyKey);
             if (holder != null) {
                 AgentConfigChangeWatcher watcher = holder.getWatcher();
-                String newItemValue = item.getValue();
-                if (newItemValue == null) {
+                String newPropertyValue = property.getValue();
+                if (newPropertyValue == null) {
                     if (watcher.value() != null) {
                         // Notify watcher, the new value is null with delete event type.
                         watcher.notify(
@@ -148,16 +148,16 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
                         // Don't need to notify, stay in null.
                     }
                 } else {
-                    if (!newItemValue.equals(watcher.value())) {
+                    if (!newPropertyValue.equals(watcher.value())) {
                         watcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
-                            newItemValue, AgentConfigChangeWatcher.EventType.MODIFY
+                            newPropertyValue, AgentConfigChangeWatcher.EventType.MODIFY
                         ));
                     } else {
                         // Don't need to notify, stay in the same config value.
                     }
                 }
             } else {
-                LOGGER.warn("Config {} from OAP, doesn't match any watcher, ignore.", itemName);
+                LOGGER.warn("Config {} from OAP, doesn't match any watcher, ignore.", propertyKey);
             }
         });
         this.uuid = responseUuid;
@@ -213,7 +213,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
         @Override
         public String toString() {
             StringBuilder registerTableDescription = new StringBuilder();
-            registerTableDescription.append("Following dynamic config items are available.").append(LINE_SEPARATOR);
+            registerTableDescription.append("Following dynamic config property are available.").append(LINE_SEPARATOR);
             registerTableDescription.append("---------------------------------------------").append(LINE_SEPARATOR);
             register.forEach((key, holder) -> {
                 AgentConfigChangeWatcher watcher = holder.getWatcher();
@@ -234,7 +234,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
         public WatcherHolder(AgentConfigChangeWatcher watcher) {
             this.watcher = watcher;
-            this.key = watcher.getItemName();
+            this.key = watcher.getPropertyKey();
         }
     }
 }

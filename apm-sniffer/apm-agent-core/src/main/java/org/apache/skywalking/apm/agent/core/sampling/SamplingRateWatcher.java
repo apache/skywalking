@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.sampling;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -26,15 +26,14 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 public class SamplingRateWatcher extends AgentConfigChangeWatcher {
 
-    private AtomicReference<Integer> samplingRateReference;
+    private AtomicInteger samplingRate;
     private final SamplingService samplingService;
 
     private static final ILog LOGGER = LogManager.getLogger(SamplingRateWatcher.class);
 
-    public SamplingRateWatcher(final String itemName, SamplingService samplingService) {
-        super(itemName);
-        this.samplingRateReference = new AtomicReference<>();
-        this.samplingRateReference.set(getDefaultValue());
+    public SamplingRateWatcher(final String propertyKey, SamplingService samplingService) {
+        super(propertyKey);
+        this.samplingRate = new AtomicInteger(getDefaultValue());
         this.samplingService = samplingService;
     }
 
@@ -43,15 +42,14 @@ public class SamplingRateWatcher extends AgentConfigChangeWatcher {
             LOGGER.debug("Updating using new static config: {}", config);
         }
         try {
-            final int samplingRate = Integer.parseInt(config);
-            samplingRateReference.set(samplingRate);
+            this.samplingRate = new AtomicInteger(Integer.parseInt(config));
 
             /*
              * We need reset ScheduledFuture to support samplingRate changed.
              */
             samplingService.resetScheduledFuture();
         } catch (NumberFormatException ex) {
-            LOGGER.error(ex, "Cannot load {} from: {}", getItemName(), config);
+            LOGGER.error(ex, "Cannot load {} from: {}", getPropertyKey(), config);
         }
     }
 
@@ -66,7 +64,7 @@ public class SamplingRateWatcher extends AgentConfigChangeWatcher {
 
     @Override
     public String value() {
-        return String.valueOf(samplingRateReference.get());
+        return String.valueOf(samplingRate.get());
     }
 
     private int getDefaultValue() {
@@ -74,6 +72,6 @@ public class SamplingRateWatcher extends AgentConfigChangeWatcher {
     }
 
     public int getSamplingRate() {
-        return samplingRateReference.get();
+        return samplingRate.get();
     }
 }

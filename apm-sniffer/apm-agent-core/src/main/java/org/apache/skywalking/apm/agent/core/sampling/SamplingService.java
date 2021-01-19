@@ -60,13 +60,6 @@ public class SamplingService implements BootService {
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                .registerAgentConfigChangeWatcher(samplingRateWatcher);
 
-        if (scheduledFuture != null) {
-            /*
-             * If {@link #boot()} invokes twice, mostly in test cases,
-             * cancel the old one.
-             */
-            scheduledFuture.cancel(true);
-        }
         resetScheduledFuture();
     }
 

@@ -37,7 +37,7 @@ public class ConfigurationDiscoveryCommandExecutor implements CommandExecutor {
             ConfigurationDiscoveryCommand agentDynamicConfigurationCommand = (ConfigurationDiscoveryCommand) command;
 
             ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
-                                   .handConfigurationDiscoveryCommand(agentDynamicConfigurationCommand);
+                                   .handleConfigurationDiscoveryCommand(agentDynamicConfigurationCommand);
         } catch (Exception e) {
             LOGGER.error(e, "Handle ConfigurationDiscoveryCommand error, command:{}", command.toString());
         }

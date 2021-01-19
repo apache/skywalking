@@ -36,13 +36,12 @@ public class SamplingRateWatcherTest {
     public void testConfigModifyEvent() {
         SamplingRateWatcher samplingRateWatcher = Whitebox.getInternalState(
             samplingService, "samplingRateWatcher");
-        Assert.assertEquals(-1, samplingRateWatcher.getSamplingRate());
         samplingRateWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
             "10",
             AgentConfigChangeWatcher.EventType.MODIFY
         ));
         Assert.assertEquals(10, samplingRateWatcher.getSamplingRate());
-        Assert.assertEquals("agent.sample_n_per_3_secs", samplingRateWatcher.getItemName());
+        Assert.assertEquals("agent.sample_n_per_3_secs", samplingRateWatcher.getPropertyKey());
     }
 
     @Test
@@ -53,7 +52,6 @@ public class SamplingRateWatcherTest {
             null,
             AgentConfigChangeWatcher.EventType.DELETE
         ));
-        Assert.assertEquals(-1, samplingRateWatcher.getSamplingRate());
-        Assert.assertEquals("agent.sample_n_per_3_secs", samplingRateWatcher.getItemName());
+        Assert.assertEquals("agent.sample_n_per_3_secs", samplingRateWatcher.getPropertyKey());
     }
 }
