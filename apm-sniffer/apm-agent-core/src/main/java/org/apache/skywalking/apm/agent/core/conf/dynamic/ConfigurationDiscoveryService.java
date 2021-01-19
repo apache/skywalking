@@ -51,7 +51,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 public class ConfigurationDiscoveryService implements BootService, GRPCChannelListener {
 
     /**
-     * Uuid of the last return value.
+     * UUID of the last return value.
      */
     private String uuid;
     private Register register = new Register();
@@ -89,7 +89,8 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
                 t -> LOGGER.error("Sync config from OAP error.", t)
             ),
             Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL,
-            Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL, TimeUnit.SECONDS
+            Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL, 
+            TimeUnit.SECONDS
         );
     }
 
