@@ -69,6 +69,8 @@ Release Notes.
 * Fix receiver analysis error count metrics
 * Log collecting and query implementation
 * Support Alarm to feishu
+* Add the implementation of ConfigurationDiscovery on the OAP side.
+* Fix bug in `parseInternalErrorCode` where some error codes are never reached.
 * OAL supports multiple values when as numeric
 
 #### UI

@@ -17,6 +17,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-meter**. See [details](backend-meter.md).
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
 1. **receiver-log**. gRPC services accept log data.
+1. **configuration-discovery**. gRPC services handle configurationDiscovery.
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -65,6 +66,10 @@ receiver-browser:
 
 receiver-log:
   selector: ${SW_RECEIVER_LOG:default}
+  default:
+  
+configuration-discovery:
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
 ```
 
@@ -153,7 +158,7 @@ receiver_jaeger:
   default:
     gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
-``` 
+```
 
 NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
 
