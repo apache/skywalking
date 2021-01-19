@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -43,13 +45,16 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 public class SamplingService implements BootService {
     private static final ILog LOGGER = LogManager.getLogger(SamplingService.class);
 
-    private volatile boolean on = false;
     private volatile AtomicInteger samplingFactorHolder;
     private volatile ScheduledFuture<?> scheduledFuture;
 
+    private SamplingRateWatcher samplingRateWatcher;
+
     @Override
     public void prepare() {
-
+        samplingRateWatcher = new SamplingRateWatcher("agent.sample_n_per_3_secs", this);
+        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
+                               .registerAgentConfigChangeWatcher(samplingRateWatcher);
     }
 
     @Override
@@ -61,16 +66,7 @@ public class SamplingService implements BootService {
              */
             scheduledFuture.cancel(true);
         }
-        if (Config.Agent.SAMPLE_N_PER_3_SECS > 0) {
-            on = true;
-            this.resetSamplingFactor();
-            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
-                new DefaultNamedThreadFactory("SamplingService"));
-            scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(
-                this::resetSamplingFactor, t -> LOGGER.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
-            LOGGER.debug(
-                "Agent sampling mechanism started. Sample {} traces in 3 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
-        }
+        resetScheduledFuture();
     }
 
     @Override
@@ -90,9 +86,9 @@ public class SamplingService implements BootService {
      * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
     public boolean trySampling(String operationName) {
-        if (on) {
+        if (samplingRateWatcher.getSamplingRate() > 0) {
             int factor = samplingFactorHolder.get();
-            if (factor < Config.Agent.SAMPLE_N_PER_3_SECS) {
+            if (factor < samplingRateWatcher.getSamplingRate()) {
                 return samplingFactorHolder.compareAndSet(factor, factor + 1);
             } else {
                 return false;
@@ -106,12 +102,32 @@ public class SamplingService implements BootService {
      * sampled, the trace beginning at local, has less chance to be sampled.
      */
     public void forceSampled() {
-        if (on) {
+        if (samplingRateWatcher.getSamplingRate() > 0) {
             samplingFactorHolder.incrementAndGet();
         }
     }
 
     private void resetSamplingFactor() {
         samplingFactorHolder = new AtomicInteger(0);
+    }
+
+    /**
+     * reset ScheduledFuture to support samplingRate changed.
+     */
+    void resetScheduledFuture() {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+        }
+        if (samplingRateWatcher.getSamplingRate() > 0) {
+            this.resetSamplingFactor();
+            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
+                new DefaultNamedThreadFactory("SamplingService"));
+            scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(
+                this::resetSamplingFactor, t -> LOGGER.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
+            LOGGER.debug(
+                "Agent sampling mechanism started. Sample {} traces in 3 seconds.",
+                samplingRateWatcher.getSamplingRate()
+            );
+        }
     }
 }
