@@ -45,6 +45,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 public class SamplingService implements BootService {
     private static final ILog LOGGER = LogManager.getLogger(SamplingService.class);
 
+    private volatile boolean on = false;
     private volatile AtomicInteger samplingFactorHolder;
     private volatile ScheduledFuture<?> scheduledFuture;
 
@@ -88,7 +89,7 @@ public class SamplingService implements BootService {
      * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
     public boolean trySampling(String operationName) {
-        if (samplingRateWatcher.getSamplingRate() > 0) {
+        if (on) {
             int factor = samplingFactorHolder.get();
             if (factor < samplingRateWatcher.getSamplingRate()) {
                 return samplingFactorHolder.compareAndSet(factor, factor + 1);
@@ -104,7 +105,7 @@ public class SamplingService implements BootService {
      * sampled, the trace beginning at local, has less chance to be sampled.
      */
     public void forceSampled() {
-        if (samplingRateWatcher.getSamplingRate() > 0) {
+        if (on) {
             samplingFactorHolder.incrementAndGet();
         }
     }
@@ -120,7 +121,9 @@ public class SamplingService implements BootService {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
+        on = false;
         if (samplingRateWatcher.getSamplingRate() > 0) {
+            on = true;
             this.resetSamplingFactor();
             ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("SamplingService"));

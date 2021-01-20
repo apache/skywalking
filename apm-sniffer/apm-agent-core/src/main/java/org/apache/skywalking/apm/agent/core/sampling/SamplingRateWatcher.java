@@ -25,11 +25,10 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 public class SamplingRateWatcher extends AgentConfigChangeWatcher {
+    private static final ILog LOGGER = LogManager.getLogger(SamplingRateWatcher.class);
 
     private AtomicInteger samplingRate;
     private final SamplingService samplingService;
-
-    private static final ILog LOGGER = LogManager.getLogger(SamplingRateWatcher.class);
 
     public SamplingRateWatcher(final String propertyKey, SamplingService samplingService) {
         super(propertyKey);
@@ -42,10 +41,10 @@ public class SamplingRateWatcher extends AgentConfigChangeWatcher {
             LOGGER.debug("Updating using new static config: {}", config);
         }
         try {
-            this.samplingRate = new AtomicInteger(Integer.parseInt(config));
+            this.samplingRate.set(Integer.parseInt(config));
 
             /*
-             * We need reset ScheduledFuture to support samplingRate changed.
+             * We need reset scheduledFuture to support samplingRate changed.
              */
             samplingService.resetScheduledFuture();
         } catch (NumberFormatException ex) {
