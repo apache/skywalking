@@ -60,7 +60,6 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ConfigurationDiscoveryServiceGrpc.ConfigurationDiscoveryServiceBlockingStub configurationDiscoveryServiceBlockingStub;
 
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
     private static final ILog LOGGER = LogManager.getLogger(ConfigurationDiscoveryService.class);
 
     @Override
@@ -89,7 +88,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
                 t -> LOGGER.error("Sync config from OAP error.", t)
             ),
             Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL,
-            Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL, 
+            Config.Collector.GET_AGENT_DYNAMIC_CONFIG_INTERVAL,
             TimeUnit.SECONDS
         );
     }
@@ -163,7 +162,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
         });
         this.uuid = responseUuid;
 
-        LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
+        LOGGER.trace("Current configurations after the sync, configurations:{}", register.toString());
     }
 
     /**
@@ -214,15 +213,12 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
         @Override
         public String toString() {
             StringBuilder registerTableDescription = new StringBuilder();
-            registerTableDescription.append("Following dynamic config property are available.").append(LINE_SEPARATOR);
-            registerTableDescription.append("---------------------------------------------").append(LINE_SEPARATOR);
             register.forEach((key, holder) -> {
                 AgentConfigChangeWatcher watcher = holder.getWatcher();
                 registerTableDescription.append("key:")
                                         .append(key)
-                                        .append("    value(current):")
-                                        .append(watcher.value())
-                                        .append(LINE_SEPARATOR);
+                                        .append("value(current):")
+                                        .append(watcher.value());
             });
             return registerTableDescription.toString();
         }

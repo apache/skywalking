@@ -115,7 +115,7 @@ public class SamplingService implements BootService {
     }
 
     /**
-     * reset ScheduledFuture to support samplingRate changed.
+     * Reset scheduledFuture to support samplingRate changed.
      */
     void resetScheduledFuture() {
         if (scheduledFuture != null) {
