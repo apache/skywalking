@@ -44,9 +44,9 @@ public class SamplingRateWatcher extends AgentConfigChangeWatcher {
             this.samplingRate.set(Integer.parseInt(config));
 
             /*
-             * We need reset scheduledFuture to support samplingRate changed.
+             * We need to notify samplingService the samplingRate changed.
              */
-            samplingService.resetScheduledFuture();
+            samplingService.handleSamplingRateChanged();
         } catch (NumberFormatException ex) {
             LOGGER.error(ex, "Cannot load {} from: {}", getPropertyKey(), config);
         }

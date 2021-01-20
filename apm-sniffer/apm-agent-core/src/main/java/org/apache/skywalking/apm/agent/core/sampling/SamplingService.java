@@ -69,7 +69,7 @@ public class SamplingService implements BootService {
             needRegisterAgentConfigChangeWatcher = true;
         }
 
-        resetScheduledFuture();
+        handleSamplingRateChanged();
     }
 
     @Override
@@ -115,24 +115,29 @@ public class SamplingService implements BootService {
     }
 
     /**
-     * Reset scheduledFuture to support samplingRate changed.
+     * Handle the samplingRate changed.
      */
-    void resetScheduledFuture() {
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-        }
-        on = false;
+    void handleSamplingRateChanged() {
         if (samplingRateWatcher.getSamplingRate() > 0) {
-            on = true;
-            this.resetSamplingFactor();
-            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
-                new DefaultNamedThreadFactory("SamplingService"));
-            scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(
-                this::resetSamplingFactor, t -> LOGGER.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
-            LOGGER.debug(
-                "Agent sampling mechanism started. Sample {} traces in 3 seconds.",
-                samplingRateWatcher.getSamplingRate()
-            );
+            if (!on) {
+                on = true;
+                this.resetSamplingFactor();
+                ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
+                    new DefaultNamedThreadFactory("SamplingService"));
+                scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(
+                    this::resetSamplingFactor, t -> LOGGER.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
+                LOGGER.debug(
+                    "Agent sampling mechanism started. Sample {} traces in 3 seconds.",
+                    samplingRateWatcher.getSamplingRate()
+                );
+            }
+        } else {
+            if (on) {
+                if (scheduledFuture != null) {
+                    scheduledFuture.cancel(true);
+                }
+                on = false;
+            }
         }
     }
 }

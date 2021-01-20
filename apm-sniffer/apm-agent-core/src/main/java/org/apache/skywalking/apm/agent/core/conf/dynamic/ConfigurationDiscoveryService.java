@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.conf.dynamic;
 
 import io.grpc.Channel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
@@ -212,16 +214,15 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
         @Override
         public String toString() {
-            StringBuilder registerTableDescription = new StringBuilder();
+            ArrayList<String> registerTableDescription = new ArrayList<>(register.size());
             register.forEach((key, holder) -> {
                 AgentConfigChangeWatcher watcher = holder.getWatcher();
-                registerTableDescription.append("key:")
-                                        .append(key)
-                                        .append("value(current):")
-                                        .append(watcher.value())
-                                        .append(".");
+                registerTableDescription.add(new StringBuilder().append("key:")
+                                                                .append(key)
+                                                                .append("value(current):")
+                                                                .append(watcher.value()).toString());
             });
-            return registerTableDescription.toString();
+            return registerTableDescription.stream().collect(Collectors.joining(",", "[", "]"));
         }
     }
 
