@@ -218,7 +218,8 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
                 registerTableDescription.append("key:")
                                         .append(key)
                                         .append("value(current):")
-                                        .append(watcher.value());
+                                        .append(watcher.value())
+                                        .append(".");
             });
             return registerTableDescription.toString();
         }
