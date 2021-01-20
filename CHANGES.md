@@ -101,6 +101,7 @@ Release Notes.
 * Fix: support `=` in the tag value in the trace query page.
 * Add envoy proxy component logo.
 * Chore: set up license-eye to check license headers and add missing license headers.
+* Fix prop for instances-survey and endpoints-survey.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
