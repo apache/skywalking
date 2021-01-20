@@ -46,6 +46,7 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
@@ -56,7 +57,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
      * UUID of the last return value.
      */
     private String uuid;
-    private Register register = new Register();
+    private final Register register = new Register();
 
     private volatile ScheduledFuture<?> getDynamicConfigurationFuture;
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
@@ -139,7 +140,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
             if (holder != null) {
                 AgentConfigChangeWatcher watcher = holder.getWatcher();
                 String newPropertyValue = property.getValue();
-                if (newPropertyValue == null) {
+                if (StringUtil.isBlank(newPropertyValue)) {
                     if (watcher.value() != null) {
                         // Notify watcher, the new value is null with delete event type.
                         watcher.notify(
@@ -197,8 +198,8 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     /**
      * Local dynamic configuration center.
      */
-    public class Register {
-        private Map<String, WatcherHolder> register = new HashMap<>();
+    public static class Register {
+        private final Map<String, WatcherHolder> register = new HashMap<>();
 
         private boolean containsKey(String key) {
             return register.containsKey(key);
@@ -227,8 +228,8 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     }
 
     @Getter
-    private class WatcherHolder {
-        private AgentConfigChangeWatcher watcher;
+    private static class WatcherHolder {
+        private final AgentConfigChangeWatcher watcher;
         private final String key;
 
         public WatcherHolder(AgentConfigChangeWatcher watcher) {

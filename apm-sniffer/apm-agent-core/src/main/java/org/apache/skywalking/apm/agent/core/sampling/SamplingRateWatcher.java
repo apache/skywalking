@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 public class SamplingRateWatcher extends AgentConfigChangeWatcher {
     private static final ILog LOGGER = LogManager.getLogger(SamplingRateWatcher.class);
 
-    private AtomicInteger samplingRate;
+    private final AtomicInteger samplingRate;
     private final SamplingService samplingService;
 
     public SamplingRateWatcher(final String propertyKey, SamplingService samplingService) {
