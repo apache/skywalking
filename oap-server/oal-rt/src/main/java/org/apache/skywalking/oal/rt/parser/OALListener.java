@@ -196,6 +196,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterNumberConditionValue(OALParser.NumberConditionValueContext ctx) {
+        conditionExpression.isNumber();
         enterConditionValue(ctx.getText());
     }
 
