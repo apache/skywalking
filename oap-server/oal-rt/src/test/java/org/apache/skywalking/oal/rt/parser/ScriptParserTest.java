@@ -227,11 +227,31 @@ public class ScriptParserTest {
             "org.apache.skywalking.oap.server.core.analysis.metrics.expression.InMatch",
             expression.getExpressionObject()
         );
-        Assert.assertEquals("new Object[]{1,2,3}", expression.getRight());
+        Assert.assertEquals("new long[]{1,2,3}", expression.getRight());
     }
 
     @Test
     public void testParse8() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_response_s4_summary = from(Service.latency).filter(latency != 1).filter(latency in [\"1\",\"2\", \"3\"]).sum();",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        Assert.assertEquals(1, results.size());
+        AnalysisResult result = results.get(0);
+        List<Expression> expressions = result.getFilterExpressions();
+        Assert.assertEquals(2, expressions.size());
+        Expression expression = expressions.get(1);
+        Assert.assertEquals("source.getLatency()", expression.getLeft());
+        Assert.assertEquals(
+            "org.apache.skywalking.oap.server.core.analysis.metrics.expression.InMatch",
+            expression.getExpressionObject()
+        );
+        Assert.assertEquals("new Object[]{\"1\",\"2\",\"3\"}", expression.getRight());
+    }
+
+    @Test
+    public void testParse9() throws IOException {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "ServicePercent = from(Service.sidecar.internalError).filter(sidecar.internalError == \"abc\").percent(sidecar.internalError != \"\");", TEST_SOURCE_PACKAGE);
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
