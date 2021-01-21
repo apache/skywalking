@@ -36,6 +36,7 @@ Release Notes.
 * Support reading segmentId and spanId with toolkit.
 * Fix RestTemplate plugin recording url tag with wrong port
 * Support collecting logs and forwarding through gRPC.
+* Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
 * Support DNS period resolving mechanism to update backend service.
 
 #### OAP-Backend
@@ -71,6 +72,8 @@ Release Notes.
 * Log collecting and query implementation
 * Support Alarm to feishu
 * Add the implementation of ConfigurationDiscovery on the OAP side.
+* Fix bug in `parseInternalErrorCode` where some error codes are never reached.
+* OAL supports multiple values when as numeric
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -100,6 +103,7 @@ Release Notes.
 * Fix: support `=` in the tag value in the trace query page.
 * Add envoy proxy component logo.
 * Chore: set up license-eye to check license headers and add missing license headers.
+* Fix prop for instances-survey and endpoints-survey.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

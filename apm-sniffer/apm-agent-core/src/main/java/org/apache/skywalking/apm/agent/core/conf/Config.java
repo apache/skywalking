@@ -164,6 +164,10 @@ public class Config {
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
         /**
+         * Get agent dynamic config interval
+         */
+        public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
+        /**
          * If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses. Otherwise disable
          */
         public static boolean DNS_PERIOD_RESOLVE_ACTIVE = false;

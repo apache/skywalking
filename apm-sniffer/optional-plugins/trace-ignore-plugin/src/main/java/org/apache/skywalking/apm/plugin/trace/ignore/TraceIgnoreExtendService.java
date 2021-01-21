@@ -47,6 +47,7 @@ public class TraceIgnoreExtendService extends SamplingService {
 
     @Override
     public void prepare() {
+        super.prepare();
     }
 
     @Override
