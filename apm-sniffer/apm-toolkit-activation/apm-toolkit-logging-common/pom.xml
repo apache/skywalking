@@ -42,6 +42,7 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-network</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -56,14 +57,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
-                                    <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
-                                    <exclude>com.google.android:annotations:jar:</exclude>
-                                    <exclude>com.google.api.grpc:proto-google-common-protos:jar:</exclude>
-                                </excludes>
-                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>${shade.com.google.source}</pattern>
