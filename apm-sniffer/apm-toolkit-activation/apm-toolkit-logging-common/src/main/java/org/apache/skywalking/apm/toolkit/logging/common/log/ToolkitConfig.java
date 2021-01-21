@@ -23,33 +23,33 @@ import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 public class ToolkitConfig {
 
     public static class Plugin {
-        @PluginConfig(root = ToolkitConfig.class)
         public static class Toolkit {
-           public static class Log {
-               public static class GRPC {
-                   public static class Reporter {
-                       /**
-                        * The host of gRPC log server.
-                        */
-                       public static String SERVER_HOST = "127.0.0.1";
+            public static class Log {
+                public static class GRPC {
+                    @PluginConfig(root = ToolkitConfig.class)
+                    public static class Reporter {
+                        /**
+                         * The host of gRPC log server.
+                         */
+                        public static String SERVER_HOST = "127.0.0.1";
 
-                       /**
-                        * The port of gRPC log server.
-                        */
-                       public static int SERVER_PORT = 11800;
+                        /**
+                         * The port of gRPC log server.
+                         */
+                        public static int SERVER_PORT = 11800;
 
-                       /**
-                        * The max size of message to send to server.Default is 10 MB.
-                        */
-                       public static int MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
+                        /**
+                         * The max size of message to send to server.Default is 10 MB.
+                         */
+                        public static int MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
 
-                       /**
-                        * How long grpc client will timeout in sending data to upstream. The unit is second.
-                        */
-                       public static int UPSTREAM_TIMEOUT = 30;
-                   }
-               }
-           }
+                        /**
+                         * How long grpc client will timeout in sending data to upstream. The unit is second.
+                         */
+                        public static int UPSTREAM_TIMEOUT = 30;
+                    }
+                }
+            }
         }
     }
 }

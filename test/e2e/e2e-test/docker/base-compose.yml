@@ -33,7 +33,6 @@ services:
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
-      SW_SEARCHABLE_LOGS_TAG_KEYS: http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap,destfile=/jacoco/oap.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
@@ -60,7 +59,6 @@ services:
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
-      SW_SEARCHABLE_LOGS_TAG_KEYS: http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap,destfile=/jacoco/oap.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
@@ -94,6 +92,8 @@ services:
       - ../../../jacoco:/jacoco
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_GRPC_LOG_SERVER_HOST: oap
+      SW_GRPC_LOG_SERVER_PORT: 11800
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE

@@ -13,41 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+FROM golang:1.14 AS builder
 
-services:
-  h2db:
-    build:
-      context: .
-      dockerfile: ../Dockerfile.h2
-    networks:
-      - e2e
-    expose:
-      - 1521
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 1521"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+ARG COMMIT_HASH=cfbbf0689bd7089591593ff79275a7daf145d732
+ARG SATELLITE_CODE=${COMMIT_HASH}.tar.gz
+ARG SATELLITE_CODE_URL=https://github.com/apache/skywalking-satellite/archive/${SATELLITE_CODE}
 
-  oap:
-    extends:
-      file: ../base-compose.yml
-      service: oap
-    environment:
-      SW_STORAGE: h2
-      SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db
-    depends_on:
-      h2db:
-        condition: service_healthy
+WORKDIR /skywalking-satellite
 
-  provider:
-    extends:
-      file: ../base-compose.yml
-      service: provider
-    depends_on:
-      oap:
-        condition: service_healthy
+ADD ${SATELLITE_CODE_URL} .
+RUN tar -xf ${SATELLITE_CODE} --strip 1
+RUN rm ${SATELLITE_CODE}
 
-networks:
-  e2e:
+RUN make linux
+
+FROM alpine:3.10
+
+COPY --from=builder /skywalking-satellite/bin/skywalking-satellite-latest-linux-amd64 .
+ENTRYPOINT ["/skywalking-satellite-latest-linux-amd64"]

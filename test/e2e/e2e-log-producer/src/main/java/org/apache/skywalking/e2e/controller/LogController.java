@@ -99,7 +99,7 @@ public class LogController {
             LogData logData = LogData.newBuilder()
                                      .setService("e2e")
                                      .setServiceInstance("e2e-instance")
-                                     .setEndpoint("/traffic")
+                                     .setEndpoint("/logs/traffic")
                                      .setBody(
                                          LogDataBody.newBuilder()
                                                     .setText(
@@ -107,8 +107,8 @@ public class LogController {
                                                     .build())
                                      .setTags(LogTags.newBuilder()
                                                      .addData(KeyStringValuePair.newBuilder()
-                                                                                .setKey("status_code")
-                                                                                .setValue("200")
+                                                                                .setKey("level")
+                                                                                .setValue("INFO")
                                                                                 .build())
                                                      .build())
                                      .setTraceContext(TraceContext.newBuilder()
