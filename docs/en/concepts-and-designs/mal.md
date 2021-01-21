@@ -59,7 +59,7 @@ Between two scalars: they evaluate to another scalar that is the result of the o
 1 + 2
 ```
 
-Between a sample family and a scalar, the operator is applied to the value of every sample in the smaple family. For example:
+Between a sample family and a scalar, the operator is applied to the value of every sample in the sample family. For example:
 
 ```
 instance_trace_count + 2
@@ -110,9 +110,9 @@ Sample family supports the following aggregation operations that can be used to 
 resulting in a new sample family of fewer samples(even single one) with aggregated values:
 
  - sum (calculate sum over dimensions)
- - min (select minimum over dimensions) (TODO)
- - max (select maximum over dimensions) (TODO)
- - avg (calculate the average over dimensions) (TODO)
+ - min (select minimum over dimensions)
+ - max (select maximum over dimensions)
+ - avg (calculate the average over dimensions)
  
 These operations can be used to aggregate over all label dimensions or preserve distinct dimensions by inputting `by` parameter. 
 

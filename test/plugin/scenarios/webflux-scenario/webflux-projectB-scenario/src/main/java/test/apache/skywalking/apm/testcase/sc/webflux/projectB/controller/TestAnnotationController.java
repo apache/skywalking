@@ -44,9 +44,9 @@ public class TestAnnotationController {
         }
         return "1";
     }
-    
+
     @RequestMapping("/testcase/webclient/server")
-    public String webclientServer(){
+    public String webclientServer() {
         return "success";
     }
 

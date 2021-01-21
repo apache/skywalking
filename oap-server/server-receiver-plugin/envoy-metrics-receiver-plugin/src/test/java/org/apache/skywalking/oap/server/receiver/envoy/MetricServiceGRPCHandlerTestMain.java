@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 
 import com.google.protobuf.TextFormat;
 import io.envoyproxy.envoy.service.metrics.v2.MetricsServiceGrpc;
-import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsMessage;
-import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsResponse;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsMessage;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;

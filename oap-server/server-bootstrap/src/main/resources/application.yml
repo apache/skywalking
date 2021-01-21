@@ -100,6 +100,8 @@ core:
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
     # Define the set of span tag keys, which should be searchable through the GraphQL.
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+    # Define the set of log tag keys, which should be searchable through the GraphQL.
+    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:""}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -154,7 +156,7 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   h2:
     driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
     user: ${SW_STORAGE_H2_USER:sa}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
     maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
@@ -209,13 +211,17 @@ agent-analyzer:
     slowTraceSegmentThreshold: ${SW_SLOW_TRACE_SEGMENT_THRESHOLD:-1} # Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond.
     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:spring-sleuth.yaml} # Which files could be meter analyzed, files split by ","
 
+log-analyzer:
+  selector: ${SW_LOG_ANALYZER:default}
+  default:
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
     # For Jetty server
     restHost: ${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
     restPort: ${SW_RECEIVER_SHARING_REST_PORT:0}
-    contextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
+    restContextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
     restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
     restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
     restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
@@ -279,6 +285,7 @@ kafka-fetcher:
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
+    enableLog: ${SW_KAFKA_FETCHER_ENABLE_LOG:false}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
     kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
@@ -317,6 +324,10 @@ receiver-browser:
   default:
     # The sample rate precision is 1/10000. 10000 means 100% sample in default.
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+
+receiver-log:
+  selector: ${SW_RECEIVER_LOG:default}
+  default:
 
 query:
   selector: ${SW_QUERY:graphql}
@@ -402,3 +413,8 @@ health-checker:
   selector: ${SW_HEALTH_CHECKER:-}
   default:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
+
+configuration-discovery:
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
+  default:
+    disableMessageDigest: ${SW_DISABLE_MESSAGE_DIGEST:false}

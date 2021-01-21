@@ -30,7 +30,11 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.apm.testcase.grpc.consumr.ConsumerInterceptor;
-import org.apache.skywalking.apm.testcase.grpc.proto.*;
+import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingErrorGrpc;
+import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingGrpc;
+import org.apache.skywalking.apm.testcase.grpc.proto.GreeterGrpc;
+import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
+import org.apache.skywalking.apm.testcase.grpc.proto.HelloReply;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +47,7 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private final String gprcProviderHost = "127.0.0.1";
+    private final String grpcProviderHost = "127.0.0.1";
     private final int grpcProviderPort = 18080;
     private ManagedChannel channel;
     private GreeterGrpc.GreeterStub greeterStub;
@@ -52,7 +56,7 @@ public class CaseController {
 
     @PostConstruct
     public void up() {
-        channel = ManagedChannelBuilder.forAddress(gprcProviderHost, grpcProviderPort).usePlaintext(true).build();
+        channel = ManagedChannelBuilder.forAddress(grpcProviderHost, grpcProviderPort).usePlaintext(true).build();
         greeterStub = GreeterGrpc.newStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
         greeterBlockingStub = GreeterBlockingGrpc.newBlockingStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
         greeterBlockingErrorStub = GreeterBlockingErrorGrpc.newBlockingStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));

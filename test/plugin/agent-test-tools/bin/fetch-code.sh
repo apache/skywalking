@@ -21,7 +21,7 @@ RESPOSITORY=$2
 COMMIT_ID=$3
 DIST_DIRECTORY=$4
 
-HOME_DIR="$(cd "$(dirname $0)"; pwd)"
+ROOT_DIR="$(cd "$(dirname $0)"; pwd)"
 
 git clone $RESPOSITORY $WORK_DIRECTORY
 
@@ -29,7 +29,7 @@ cd $WORK_DIRECTORY
 
 git checkout $COMMIT_ID
 
-mvn -B package -DskipTests
+"$ROOT_DIR"/../../../../mvnw -B package -DskipTests
 
 [[ -d $DIST_DIRECTORY ]] || mkdir -p $DIST_DIRECTORY
 

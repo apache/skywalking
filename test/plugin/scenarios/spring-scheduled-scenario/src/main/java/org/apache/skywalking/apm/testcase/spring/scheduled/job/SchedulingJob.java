@@ -33,16 +33,16 @@ import java.io.IOException;
 @EnableScheduling
 public class SchedulingJob {
 
-    private static final Logger logger = LogManager.getLogger(SchedulingJob.class);
+    private static final Logger LOGGER = LogManager.getLogger(SchedulingJob.class);
     
-    private static final OkHttpClient client = new OkHttpClient.Builder().build();
+    private static final OkHttpClient CLIENT = new OkHttpClient.Builder().build();
 
     @Scheduled(fixedDelay = 5000)
     public void work() throws IOException {
-        logger.info("work job running!");
+        LOGGER.info("work job running!");
 
         Request request = new Request.Builder().url("http://localhost:8080/spring-scheduled-scenario/case/call").build();
-        Response response = client.newCall(request).execute();
+        Response response = CLIENT.newCall(request).execute();
         response.body().close();
     }
 }

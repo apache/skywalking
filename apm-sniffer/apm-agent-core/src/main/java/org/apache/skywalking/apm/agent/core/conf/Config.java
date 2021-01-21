@@ -124,6 +124,11 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+
+        /**
+         * Force open TLS for gRPC channel if true.
+         */
+        public static boolean FORCE_TLS = false;
     }
 
     public static class OsInfo {
@@ -159,6 +164,10 @@ public class Config {
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
 
+        /**
+         * Get agent dynamic config interval
+         */
+        public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
     }
 
     public static class Profile {

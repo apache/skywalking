@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
 import com.google.protobuf.util.JsonFormat;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
