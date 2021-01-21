@@ -164,6 +164,10 @@ public class Config {
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
 
+        /**
+         * Get agent dynamic config interval
+         */
+        public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
     }
 
     public static class Profile {

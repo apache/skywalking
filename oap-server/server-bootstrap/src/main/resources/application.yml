@@ -415,6 +415,6 @@ health-checker:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
 
 configuration-discovery:
-  selector: ${SW_CONFIGURATION_DISCOVERY:-}
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
     disableMessageDigest: ${SW_DISABLE_MESSAGE_DIGEST:false}
