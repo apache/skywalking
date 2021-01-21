@@ -58,13 +58,20 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
         return new StreamObserver<ExportMetricsServiceRequest>() {
-            @Override public void onNext(ExportMetricsServiceRequest request) {
+            private Node node;
+
+            @Override
+            public void onNext(ExportMetricsServiceRequest request) {
+                if (request.hasNode())
+                    node = request.getNode();
                 metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()
                     .flatMap(metric -> metric.getTimeseriesList().stream().map(timeSeries ->
                         Tuple.of(metric.getMetricDescriptor(),
-                                 buildLabelsWithNodeInfo(
-                                     request.getNode(), metric.getMetricDescriptor().getLabelKeysList(),
-                                     timeSeries.getLabelValuesList()
+                                 buildLabelsFromNodeInfo(
+                                     node, buildLabels(
+                                         metric.getMetricDescriptor().getLabelKeysList(),
+                                         timeSeries.getLabelValuesList()
+                                     )
                                  ),
                             timeSeries)))
                     .flatMap(t -> t._3.getPointsList().stream().map(point -> Tuple.of(t._1, t._2, point)))
@@ -111,13 +118,11 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         return result;
     }
 
-    private static Map<String, String> buildLabelsWithNodeInfo(Node node,
-                                                               List<LabelKey> keys,
-                                                               List<LabelValue> values) {
-        Map<String, String> result = buildLabels(keys, values);
+    private static Map<String, String> buildLabelsFromNodeInfo(Node node,
+                                                               Map<String, String> buildLabelsResult) {
         if (node != null)
-            result.put("node_identifier_host_name", node.getIdentifier().getHostName());
-        return result;
+            buildLabelsResult.put("node_identifier_host_name", node.getIdentifier().getHostName());
+        return buildLabelsResult;
     }
 
     private static Map<Double, Long> buildBuckets(DistributionValue distributionValue) {
