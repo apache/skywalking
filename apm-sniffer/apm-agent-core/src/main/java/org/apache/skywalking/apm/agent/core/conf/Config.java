@@ -163,7 +163,10 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
-
+        /**
+         * if true, skywalking agent will enable periodically resolving DNS to update receiver service addresses. Otherwise disable
+         */
+        public static boolean DNS_PERIOD_RESOLVE_ACTIVE = false;
     }
 
     public static class Profile {
