@@ -32,6 +32,7 @@ Release Notes.
 * Fix H2 in-memory database table missing issues
 * Add component ID for Python pyramid plugin server.
 * Add component ID for NodeJS Axios plugin.
+* Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 
 #### UI
 * Fix un-removed tags in trace query.

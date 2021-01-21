@@ -62,7 +62,10 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
                 metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()
                     .flatMap(metric -> metric.getTimeseriesList().stream().map(timeSeries ->
                         Tuple.of(metric.getMetricDescriptor(),
-                                buildLabelsWithNodeInfo(request.getNode(), metric.getMetricDescriptor().getLabelKeysList(), timeSeries.getLabelValuesList()),
+                                 buildLabelsWithNodeInfo(
+                                     request.getNode(), metric.getMetricDescriptor().getLabelKeysList(),
+                                     timeSeries.getLabelValuesList()
+                                 ),
                             timeSeries)))
                     .flatMap(t -> t._3.getPointsList().stream().map(point -> Tuple.of(t._1, t._2, point)))
                     .map(Function1.liftTry(t -> {
@@ -108,10 +111,12 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         return result;
     }
 
-    private static Map<String, String> buildLabelsWithNodeInfo(Node node, List<LabelKey> keys, List<LabelValue> values) {
+    private static Map<String, String> buildLabelsWithNodeInfo(Node node,
+                                                               List<LabelKey> keys,
+                                                               List<LabelValue> values) {
         Map<String, String> result = buildLabels(keys, values);
-        if(node != null)
-        result.put("node_identifier_host_name", node.getIdentifier().getHostName());
+        if (node != null)
+            result.put("node_identifier_host_name", node.getIdentifier().getHostName());
         return result;
     }
 
