@@ -1,3 +1,4 @@
+# Fix compiling on MacBook M1 chip
 ### Problem
 - When compiling according to [How-to-build](../guides/How-to-build.md), The following problems will occur, causing the build to fail.
 ```
@@ -27,4 +28,3 @@ Because the dependent Protocol Buffers v3.14.0 does not have an osx-aarch_64 ver
 
 ### Resolve
 We can add -Dos.detected.classifier=osx-x86_64 after the original compilation parameters, for example: `./mvnw clean package -DskipTests -Dos.detected.classifier=osx-x86_64`, After specifying, compile and run normally.
-
