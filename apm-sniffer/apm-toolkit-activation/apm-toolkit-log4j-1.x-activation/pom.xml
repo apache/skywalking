@@ -43,5 +43,10 @@
             <artifactId>apm-toolkit-log4j-1.x</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-logging-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

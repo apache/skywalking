@@ -21,12 +21,12 @@ package org.apache.skywalking.oap.server.receiver.envoy.als;
 import com.google.protobuf.Duration;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.UInt32Value;
-import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
-import io.envoyproxy.envoy.data.accesslog.v2.ResponseFlags;
-import io.envoyproxy.envoy.data.accesslog.v2.TLSProperties;
+import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPRequestProperties;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
+import io.envoyproxy.envoy.data.accesslog.v3.ResponseFlags;
+import io.envoyproxy.envoy.data.accesslog.v3.TLSProperties;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -202,7 +202,7 @@ public class LogEntry2MetricsAdapter {
                 return "fault_injected";
             } else if (responseFlags.getRateLimited()) {
                 return "rate_limited";
-            } else if (responseFlags.getUnauthorizedDetails() != null) {
+            } else if (responseFlags.hasUnauthorizedDetails()) {
                 return "unauthorized_details";
             } else if (responseFlags.getRateLimitServiceError()) {
                 return "rate_limit_service_error";

@@ -73,14 +73,8 @@ metricsRules:
     exp: pilot_total_xds_rejects.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
   - name: pilot_xds_push_context_errors
     exp: pilot_xds_push_context_errors.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
-  - name: pilot_xds_pushes_error
-    exp: pilot_xds_pushes.tagEqual('app', 'istiod').tagNotMatch('type', 'lds|cds|rds|eds').sum(['cluster', 'app', 'type']).rate('PT1M')
-  - name: pilot_xds_push_errors
-    exp: pilot_xds_push_errors.tagEqual('app', 'istiod').sum(['cluster', 'app', 'type']).rate('PT1M')
   - name: pilot_xds_push_timeout
     exp: pilot_xds_push_timeout.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
-  - name: pilot_xds_push_timeout_failures
-    exp: pilot_xds_push_timeout_failures.tagEqual('app', 'istiod').sum(['cluster', 'app']).rate('PT1M')
   # Proxy Push Time
   - name: pilot_proxy_push_percentile
     exp: pilot_proxy_convergence_time.sum(['cluster', 'app', 'le']).rate('PT1M').histogram().histogram_percentile([50,90,99])

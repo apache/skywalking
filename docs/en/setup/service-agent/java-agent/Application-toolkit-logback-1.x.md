@@ -8,6 +8,8 @@
      </dependency>
 ```
 
+# Print trace ID in your logs
+
 * set `%tid` in `Pattern` section of logback.xml
 ```xml
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -107,4 +109,23 @@
                 </pattern>
             </providers>
 </encoder>
+```
+
+# gRPC reporter
+
+The gRPC report could forward the collected logs to SkyWalking OAP server, or [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite). Trace id, segment id, and span id will attach to logs automatically. You don't need to change the layout.
+
+* Add `GRPCLogClientAppender` in logback.xml
+
+```xml
+    <appender name="grpc-log" class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender"/>
+```
+
+*  Add config of the plugin or use default
+
+```properties
+plugin.toolkit.log.grpc.reporter.server_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1}
+plugin.toolkit.log.grpc.reporter.server_port=${SW_GRPC_LOG_SERVER_PORT:11800}
+plugin.toolkit.log.grpc.reporter.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE:10485760}
+plugin.toolkit.log.grpc.reporter.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
 ```

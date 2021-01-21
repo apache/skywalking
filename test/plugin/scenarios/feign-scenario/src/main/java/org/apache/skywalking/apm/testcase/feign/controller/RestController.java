@@ -37,12 +37,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Controller
 public class RestController {
 
-    private static final Map<Integer, User> users = new ConcurrentHashMap<>();
+    private static final Map<Integer, User> USERS = new ConcurrentHashMap<>();
 
     @GetMapping(value = "/get/{id}")
     @ResponseBody
     private ResponseEntity<User> getUser(@PathVariable("id") int id) throws InterruptedException {
-        User currentUser = users.get(id);
+        User currentUser = USERS.get(id);
         return ResponseEntity.ok(currentUser);
     }
 
@@ -50,7 +50,7 @@ public class RestController {
     @ResponseBody
     public ResponseEntity<Void> createUser(@RequestBody User user,
         UriComponentsBuilder ucBuilder) throws InterruptedException {
-        users.put(user.getId(), user);
+        USERS.put(user.getId(), user);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri());
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
@@ -75,11 +75,11 @@ public class RestController {
     @DeleteMapping(value = "/delete/{id}")
     @ResponseBody
     public ResponseEntity<User> deleteUser(@PathVariable("id") int id) throws InterruptedException {
-        User currentUser = users.get(id);
+        User currentUser = USERS.get(id);
         if (currentUser == null) {
             return ResponseEntity.noContent().build();
         }
-        users.remove(id);
+        USERS.remove(id);
         return ResponseEntity.noContent().build();
     }
 }

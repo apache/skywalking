@@ -30,7 +30,7 @@ jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
 num_of_testcases=
 
-image_version="1.0.0"
+image_version="jdk8-1.0.0"
 
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
@@ -140,11 +140,19 @@ if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
+# if it fails last time, relevant information will be deleted
+sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+# add scenario_name into plugin/pom.xml
+echo check code with the checkstyle-plugin
+sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
+
 if [[ "$force_build" == "on" ]]; then
     profile=
     [[ $image_version =~ "jdk14-" ]] && profile="-Pjdk14"
     ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests ${profile}
 fi
+# remove scenario_name into plugin/pom.xml
+sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace
