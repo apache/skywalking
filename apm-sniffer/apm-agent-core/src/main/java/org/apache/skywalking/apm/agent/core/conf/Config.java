@@ -168,9 +168,9 @@ public class Config {
          */
         public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
         /**
-         * If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses. Otherwise disable
+         * If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses.
          */
-        public static boolean DNS_PERIOD_RESOLVE_ACTIVE = false;
+        public static boolean IS_RESOLVE_DNS_PERIODICALLY = false;
     }
 
     public static class Profile {

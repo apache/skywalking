@@ -41,7 +41,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.DNS_PERIOD_RESOLVE_ACTIVE;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.IS_RESOLVE_DNS_PERIODICALLY;
 
 @DefaultImplementor
 public class GRPCChannelManager implements BootService, Runnable {
@@ -97,7 +97,8 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void run() {
-        if (DNS_PERIOD_RESOLVE_ACTIVE) {
+        LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
+        if (IS_RESOLVE_DNS_PERIODICALLY || reconnect) {
             String backendService = Config.Collector.BACKEND_SERVICE.split(",")[0];
             try {
                 String[] domainAndPort = backendService.split(":");
@@ -114,7 +115,6 @@ public class GRPCChannelManager implements BootService, Runnable {
             }
         }
 
-        LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
             if (grpcServers.size() > 0) {
                 String server = "";
