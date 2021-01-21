@@ -15,3 +15,4 @@
 # limitations under the License.
 
 toolkit-log4j=org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.TraceIdPatternConverterActivation
+toolkit-log4j=org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.log.GRPCLogAppenderActivation

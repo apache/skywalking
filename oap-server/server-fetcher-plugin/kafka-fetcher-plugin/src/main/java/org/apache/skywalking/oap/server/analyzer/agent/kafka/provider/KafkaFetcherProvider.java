@@ -19,16 +19,17 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandlerRegister;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JVMMetricsHandler;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.LogHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.MeterServiceHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ProfileTaskHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ServiceManagementHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.TraceSegmentHandler;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -40,8 +41,6 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class KafkaFetcherProvider extends ModuleProvider {
     private KafkaFetcherHandlerRegister handlerRegister;
     private KafkaFetcherConfig config;
-
-    private IMeterProcessService processService;
 
     public KafkaFetcherProvider() {
         config = new KafkaFetcherConfig();
@@ -75,8 +74,10 @@ public class KafkaFetcherProvider extends ModuleProvider {
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
 
         if (config.isEnableMeterSystem()) {
-            processService = getManager().find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
             handlerRegister.register(new MeterServiceHandler(getManager(), config));
+        }
+        if (config.isEnableLog()) {
+            handlerRegister.register(new LogHandler(getManager(), config));
         }
         handlerRegister.start();
     }
@@ -89,6 +90,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             AnalyzerModule.NAME,
+            LogAnalyzerModule.NAME,
             CoreModule.NAME
         };
     }

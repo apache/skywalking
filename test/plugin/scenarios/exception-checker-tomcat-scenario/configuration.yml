@@ -20,4 +20,4 @@ healthCheck: http://localhost:8080/exception-checker-tomcat-scenario/case/health
 runningMode: with_optional
 withPlugins: apm-spring-annotation-plugin-*.jar
 environment:
-  - CATALINA_OPTS="-Dskywalking.statuscheck.max_recursive_depth=2 -Dskywalking.statuscheck.max_recursive_depth=2 -Dskywalking.statuscheck.ignored_exceptions=test.org.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException"
+  - CATALINA_OPTS="-Dskywalking.statuscheck.max_recursive_depth=2 -Dskywalking.statuscheck.max_recursive_depth=2 -Dskywalking.statuscheck.ignored_exceptions=test.apache.skywalking.apm.testcase.exceptionchecker.exception.TestListedException"

@@ -31,4 +31,9 @@ import lombok.experimental.Accessors;
 public final class HostAndPort {
     private final String host;
     private final int port;
+
+    @Override
+    public String toString() {
+        return host + ":" + port;
+    }
 }

@@ -86,7 +86,9 @@ Refer to [Build docker image](../../../docker) for more details.
 1. Set **Generated Source Codes** folders.
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/receiver-proto/target/generated-sources/fbs**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/receiver-proto/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/exporter/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-configuration/grpc-configuration-sync/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-alarm-plugin/target/generated-sources/protobuf**
     * `antlr4` folder in **oap-server/oal-grammar/target/generated-sources**

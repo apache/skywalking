@@ -25,8 +25,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -71,7 +71,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        int from,
                                        TraceState traceState,
                                        QueryOrder queryOrder,
-                                       final List<SpanTag> tags) throws IOException {
+                                       final List<Tag> tags) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -126,9 +126,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             BoolQueryBuilder tagMatchQuery = QueryBuilders.boolQuery();
-            tags.forEach(tag -> {
-                tagMatchQuery.must(QueryBuilders.termQuery(SegmentRecord.TAGS, tag.toString()));
-            });
+            tags.forEach(tag -> tagMatchQuery.must(QueryBuilders.termQuery(SegmentRecord.TAGS, tag.toString())));
             mustQueryList.add(tagMatchQuery);
         }
         sourceBuilder.size(limit);

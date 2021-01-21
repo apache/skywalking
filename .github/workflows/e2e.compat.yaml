@@ -18,12 +18,8 @@ name: E2E
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
-
-env:
-  SKIP_TEST: true
+  schedule:
+    - cron: '0 18 * * *'
 
 jobs:
   Compatability:
@@ -49,12 +45,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Build Docker Image
-        run: make docker
-      - name: Copy dist package
-        run: cp -R dist test/e2e/
-      - name: Compatability Test (8.3.0 Agent)
-        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
+      - name: Run E2E Test
+        uses: ./.github/actions/e2e-test
+        with:
+          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

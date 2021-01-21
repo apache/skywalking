@@ -185,7 +185,7 @@ public class ConfigurationImpl implements IConfiguration {
 
         root.put("expose", caseConfiguration().getExpose());
         root.put("hostname", caseConfiguration().getHostname());
-        root.put("depends_on", caseConfiguration().getDepends_on());
+        root.put("depends_on", caseConfiguration().getDependsOn());
         root.put("environments", caseConfiguration().getEnvironment());
 
         root.put("network_name", dockerNetworkName());
@@ -240,10 +240,10 @@ public class ConfigurationImpl implements IConfiguration {
             service.setName(name);
             service.setImageName(imageName);
             service.setExpose(dependency.getExpose());
-            service.setLinks(dependency.getDepends_on());
+            service.setLinks(dependency.getDependsOn());
             service.setStartScript(dependency.getStartScript());
             service.setHostname(dependency.getHostname());
-            service.setDepends_on(dependency.getDepends_on());
+            service.setDependsOn(dependency.getDependsOn());
             service.setEntrypoint(dependency.getEntrypoint());
             service.setHealthcheck(dependency.getHealthcheck());
             service.setEnvironment(dependency.getEnvironment());

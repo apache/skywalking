@@ -126,6 +126,16 @@
             <artifactId>skywalking-browser-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-log-recevier-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-discovery-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
@@ -257,8 +267,10 @@
                         <exclude>gateways.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
                         <exclude>endpoint-name-grouping.yml</exclude>
+                        <exclude>metadata-service-mapping.yaml</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>envoy-metrics-rules/</exclude>
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
