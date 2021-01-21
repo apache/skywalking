@@ -172,9 +172,10 @@ receiver-otel:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 ```
-The receiver will add a labelkey 'node_identifier_host_name' to the collected data samples，
-the labelvalue is from opencensus.proto.agent.common.v1.Node.identifier.host_name, 
-to support the identification of the source of the metric data.
+The receiver adds a label with `key = node_identifier_host_name` to the collected data samples，
+and value from `Node.identifier.host_name` defined in opencensus agent proto,
+to be the identification of the metric data.
+
 ## Meter receiver
 
 Meter receiver supports accept the metrics into the meter-system. OAP can load the configuration at bootstrap. 
