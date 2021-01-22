@@ -98,7 +98,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void run() {
         LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
-        if (IS_RESOLVE_DNS_PERIODICALLY || reconnect) {
+        if (IS_RESOLVE_DNS_PERIODICALLY && reconnect) {
             String backendService = Config.Collector.BACKEND_SERVICE.split(",")[0];
             try {
                 String[] domainAndPort = backendService.split(":");
