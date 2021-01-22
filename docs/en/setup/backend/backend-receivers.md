@@ -182,8 +182,8 @@ receiver-otel:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
     enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
 ```
-The receiver adds a label with `key = node_identifier_host_name` to the collected data samples，
-and value from `Node.identifier.host_name` defined in opencensus agent proto,
+The receiver adds labels with `key = node_identifier_host_name` and `key = node_identifier_pid` to the collected data samples，
+and values from `Node.identifier.host_name` and `Node.identifier.pid` defined in opencensus agent proto,
 to be the identification of the metric data.
 
 ## Meter receiver
