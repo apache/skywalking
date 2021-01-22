@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
@@ -59,16 +60,27 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
         return new StreamObserver<ExportMetricsServiceRequest>() {
             private Node node;
+            private Map<String, String> nodeLabels = new HashMap<>();
 
             @Override
             public void onNext(ExportMetricsServiceRequest request) {
-                if (request.hasNode())
+                if (request.hasNode()) {
                     node = request.getNode();
+                    nodeLabels.clear();
+                    if (node.hasIdentifier()) {
+                        if (StringUtil.isNotBlank(node.getIdentifier().getHostName())) {
+                            nodeLabels.put("node_identifier_host_name", node.getIdentifier().getHostName());
+                        }
+                        if (node.getIdentifier().getPid() > 0) {
+                            nodeLabels.put("node_identifier_pid", String.valueOf(node.getIdentifier().getPid()));
+                        }
+                    }
+                }
                 metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()
                     .flatMap(metric -> metric.getTimeseriesList().stream().map(timeSeries ->
                         Tuple.of(metric.getMetricDescriptor(),
                                  buildLabelsFromNodeInfo(
-                                     node, buildLabels(
+                                     nodeLabels, buildLabels(
                                          metric.getMetricDescriptor().getLabelKeysList(),
                                          timeSeries.getLabelValuesList()
                                      )
@@ -118,10 +130,9 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         return result;
     }
 
-    private static Map<String, String> buildLabelsFromNodeInfo(Node node,
+    private static Map<String, String> buildLabelsFromNodeInfo(Map<String, String> nodeLabels,
                                                                Map<String, String> buildLabelsResult) {
-        if (node != null)
-            buildLabelsResult.put("node_identifier_host_name", node.getIdentifier().getHostName());
+        buildLabelsResult.putAll(nodeLabels);
         return buildLabelsResult;
     }
 
