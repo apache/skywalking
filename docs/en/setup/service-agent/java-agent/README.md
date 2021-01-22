@@ -95,6 +95,7 @@ property key | Description | Default |
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 `collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
 `collector.get_agent_dynamic_config_interval`|Sniffer get agent dynamic config interval|`20`|
+`collector.dns_period_resolve_active`|If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses.|`false`|
 `logging.level`|Log level: TRACE, DEBUG, INFO, WARN, ERROR, OFF. Default is info.|`INFO`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
