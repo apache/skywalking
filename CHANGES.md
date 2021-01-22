@@ -74,6 +74,7 @@ Release Notes.
 * Add the implementation of ConfigurationDiscovery on the OAP side.
 * Fix bug in `parseInternalErrorCode` where some error codes are never reached.
 * OAL supports multiple values when as numeric
+* Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 
 #### UI
 * Fix un-removed tags in trace query.
