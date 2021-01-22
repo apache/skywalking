@@ -110,6 +110,7 @@ Release Notes.
 * Update docs about the latest UI.
 * Update the document of backend trace sampling with the latest configuration.
 * Update kafka plugin support version to 2.6.1.
+* Add FAQ about `Fix compiling on Mac M1 chip`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 
