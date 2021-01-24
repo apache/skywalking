@@ -149,4 +149,13 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         METER_PROCESS_FILES_MAX
     };
 
+    public static String ZABBIX_SYSTEM_CPU_UTIL = "meter_agent_system_cpu_util";
+    public static String ZABBIX_VM_MEMORY_SIZE = "meter_agent_vm_memory_size";
+    public static String ZABBIX_VFS_FS_SIZE = "meter_agent_vfs_fs_size";
+    public static String[] SIMPLE_ZABBIX_METERS = {
+        ZABBIX_SYSTEM_CPU_UTIL,
+        ZABBIX_VFS_FS_SIZE,
+        ZABBIX_VM_MEMORY_SIZE
+    };
+
 }

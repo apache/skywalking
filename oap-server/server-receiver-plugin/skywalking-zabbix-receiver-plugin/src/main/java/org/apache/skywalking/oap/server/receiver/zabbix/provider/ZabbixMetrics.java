@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.zabbix.provider;
 
 import com.google.common.collect.ImmutableMap;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -27,8 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.text.StringTokenizer;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -36,6 +40,8 @@ import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixCo
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixRequest;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +55,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 /**
  * Management all Zabbix metrics
  */
@@ -60,12 +68,12 @@ public class ZabbixMetrics {
     /**
      * All enabled service and instance group
      */
-    private List<ServiceGroup> allServices = new ArrayList<>();
+    private List<InstanceGroup> allServices = new ArrayList<>();
 
     /**
      * Cache host name to service group, help to quick find service group when receive agent request
      */
-    private Map<String, ServiceGroup> hostWithGroupCache = new ConcurrentHashMap<>();
+    private Map<String, InstanceGroup> hostWithGroupCache = new ConcurrentHashMap<>();
 
     public ZabbixMetrics(List<ZabbixConfig> originalConfigs, MeterSystem meterSystem) {
         this.originalConfigs = originalConfigs;
@@ -76,8 +84,8 @@ public class ZabbixMetrics {
      * Get all key names when Zabbix agent queried
      */
     public Set<String> getAllMonitorMetricNames(String hostName) {
-        // Find service group
-        return findServiceGroup(hostName).map(ServiceGroup::getEnabledKeys).orElse(null);
+        // Find instance group
+        return findInstanceGroup(hostName).map(InstanceGroup::getEnabledKeys).orElse(null);
     }
 
     /**
@@ -92,31 +100,31 @@ public class ZabbixMetrics {
             // Group by host
             .collect(Collectors.groupingBy(ZabbixRequest.AgentData::getHost)).entrySet().stream()
             // Convert every agent data list
-            .map(e -> findServiceGroup(e.getKey()).map(serviceGroup -> serviceGroup.convertToMeter(e.getValue())).orElse(null))
+            .map(e -> findInstanceGroup(e.getKey()).map(instanceGroup -> instanceGroup.convertToMeter(e.getValue())).orElse(null))
             .filter(Objects::nonNull)
             // Merge all statics
             .reduce(ConvertStatics::merge)
             .orElse(ConvertStatics.EMPTY);
     }
 
-    private Optional<ServiceGroup> findServiceGroup(String hostName) {
+    private Optional<InstanceGroup> findInstanceGroup(String hostName) {
         // Find service group, support using cache
         return Optional.ofNullable(hostWithGroupCache.computeIfAbsent(hostName,
-            host -> allServices.stream().filter(group -> group.matchesWithHostName(host)).findAny().orElse(null)));
+            host -> allServices.stream().filter(group -> group.matchesWithHostName(host)).findAny().orElse(InstanceGroup.EMPTY)));
     }
 
     private void initConfigs(MeterSystem meterSystem) {
-        // Temporary service group cache, encase generate multiple service group
-        HashMap<String, ServiceGroup> tmpGroupCache = new HashMap<>();
+        // Temporary instance group cache, encase generate multiple instance group
+        HashMap<String, InstanceGroup> tmpGroupCache = new HashMap<>();
 
         // Each config entities
         originalConfigs.forEach(c ->
-            c.getEntities().forEach(entity ->
-                tmpGroupCache.computeIfAbsent(entity.getInstancePattern(), instance -> {
-                    ServiceGroup serviceGroup = new ServiceGroup(instance, meterSystem);
-                    allServices.add(serviceGroup);
-                    return serviceGroup;
-                }).appendMetricsToService(entity.getService(), c)));
+            c.getEntities().getHostPatterns().forEach(instance ->
+                tmpGroupCache.computeIfAbsent(instance, ins -> {
+                    InstanceGroup instanceGroup = new InstanceGroup(ins, meterSystem);
+                    allServices.add(instanceGroup);
+                    return instanceGroup;
+                }).appendMetrics(c)));
     }
 
     /**
@@ -141,30 +149,40 @@ public class ZabbixMetrics {
     }
 
     /**
-     * Service group metrics
+     * Instance group metrics
      */
-    private class ServiceGroup {
-        private final Pattern paramSplitter = Pattern.compile("[^\\/]*\\,");
+    private static class InstanceGroup {
+        static final InstanceGroup EMPTY = new InstanceGroup("", null);
+
         private final Pattern instancePattern;
         private final MeterSystem meterSystem;
         @Getter
         private Set<String> enabledKeys;
-        private Map<String, List<MetricConvert>> serviceMetricsConverters;
+        private List<MetricConvert> metricConverts;
+        private List<ZabbixConfig.EntityLabel> labels;
 
-        public ServiceGroup(String instancePattern, MeterSystem meterSystem) {
+        public InstanceGroup(String instancePattern, MeterSystem meterSystem) {
             this.instancePattern = Pattern.compile(instancePattern);
             this.meterSystem = meterSystem;
             this.enabledKeys = new HashSet<>();
-            this.serviceMetricsConverters = new HashMap<>();
+            this.metricConverts = new ArrayList<>();
+            this.labels = new ArrayList<>();
         }
 
-        public void appendMetricsToService(String serviceName, ZabbixConfig config) {
+        public void appendMetrics(ZabbixConfig config) {
             // Append metrics to converters
-            List<MetricConvert> converts = serviceMetricsConverters.computeIfAbsent(serviceName, service -> new ArrayList<>());
-            converts.add(new MetricConvert(config, meterSystem));
+            metricConverts.add(new MetricConvert(config, meterSystem));
 
-            // Append all keys
-            config.getMetrics().stream().flatMap(m -> m.getKeys().stream()).forEach(enabledKeys::add);
+            // Append labels and add to item keys
+            if (CollectionUtils.isNotEmpty(config.getEntities().getLabels())) {
+                labels.addAll(config.getEntities().getLabels());
+
+                config.getEntities().getLabels().stream().filter(l -> StringUtils.isNotBlank(l.getFromItem()))
+                    .forEach(l -> enabledKeys.add(l.getFromItem()));
+            }
+
+            // Append all metric keys
+            config.getMetrics().stream().forEach(m -> enabledKeys.addAll(m.getKeys()));
         }
 
         public boolean matchesWithHostName(String hostName) {
@@ -174,29 +192,30 @@ public class ZabbixMetrics {
 
         public ConvertStatics convertToMeter(List<ZabbixRequest.AgentData> dataList) {
             StopWatch stopWatch = new StopWatch();
-            Map<String, List<SampleBuilder>> sampleFamilies = null;
+            Collection<SampleFamily> sampleFamilies = null;
             try {
                 stopWatch.start();
-                // Convert to SampleFamily
-                sampleFamilies = dataList.stream()
+
+                // Parse config labels
+                Map<String, String> configLabels = parseConfigLabels(dataList);
+
+                // Build metrics
+                ImmutableMap<String, SampleFamily> families = dataList.stream()
                     // Correct state
                     .filter(d -> d.getState() == 0 && NumberUtils.isParsable(d.getValue()))
                     // Parse data to list
                     .map(this::parseAgentData)
+                    .map(b -> b.build(configLabels))
                     // Combine to sample family
-                    .collect(Collectors.groupingBy(SampleBuilder::getName));
+                    .collect(Collectors.groupingBy(Sample::getName))
+                    .entrySet().stream().collect(toImmutableMap(
+                        Map.Entry::getKey,
+                        e -> SampleFamilyBuilder.newBuilder(e.getValue().stream().toArray(Sample[]::new)).build()));
+
+                sampleFamilies = families.values();
 
                 // Each all converters
-                Map<String, List<SampleBuilder>> finalSampleFamilies = sampleFamilies;
-                serviceMetricsConverters.entrySet().forEach(serviceEntry ->
-                    serviceEntry.getValue().forEach(converter ->
-                        // Build Samples and send to meter system
-                        converter.toMeter(finalSampleFamilies.entrySet().stream()
-                            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, entry ->
-                                SampleFamilyBuilder.newBuilder(
-                                    entry.getValue().stream().map(s -> s.build(serviceEntry.getKey())).toArray(Sample[]::new)
-                                ).build())))
-                ));
+                metricConverts.forEach(converter -> converter.toMeter(families));
             } finally {
                 stopWatch.stop();
             }
@@ -209,6 +228,31 @@ public class ZabbixMetrics {
                 .build();
         }
 
+        /**
+         * Parsing config labels from original value or agent data
+         */
+        private Map<String, String> parseConfigLabels(List<ZabbixRequest.AgentData> dataList) {
+            if (CollectionUtils.isEmpty(labels)) {
+                return Collections.emptyMap();
+            }
+
+            return labels.stream().map(label -> {
+                // Exists Value
+                if (StringUtil.isNotBlank(label.getValue())) {
+                    return Tuple.of(label.getName(), label.getValue());
+                } else if (StringUtil.isNotBlank(label.getFromItem())) {
+                    // Searching from Agent data
+                    return dataList.stream()
+                        .filter(d -> Objects.equals(d.getKey(), label.getFromItem())).findFirst()
+                        .map(d -> Tuple.of(label.getName(), d.getValue())).orElse(null);
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toMap(Tuple2::_1, Tuple2::_2));
+        }
+
+        /**
+         * Parsing Zabbix agent data to sample builder
+         */
         private SampleBuilder parseAgentData(ZabbixRequest.AgentData data) {
             String keyName = data.getKey();
             SampleBuilder.SampleBuilderBuilder builder = SampleBuilder.builder();
@@ -230,7 +274,7 @@ public class ZabbixMetrics {
                 builder.name(keyName).labels(ImmutableMap.of());
             }
 
-            return builder.instanceName(data.getHost())
+            return builder.hostName(data.getHost())
                 .timestamp(TimeUnit.SECONDS.toMillis(data.getClock()))
                 .value(Double.parseDouble(data.getValue()))
                 .build();
@@ -242,20 +286,21 @@ public class ZabbixMetrics {
     private static class SampleBuilder {
 
         private final String name;
-        private final String instanceName;
+        private final String hostName;
         private final long timestamp;
         private final ImmutableMap<String, String> labels;
         private final double value;
 
-        public Sample build(String service) {
+        public Sample build(Map<String, String> configLabels) {
             return Sample.builder()
                 .name(name)
                 .labels(ImmutableMap.<String, String>builder()
                     // Put original labels
                     .putAll(labels)
-                    // Put report service and instance to labels
-                    .put("service", service)
-                    .put("instance", instanceName)
+                    // Put config labels
+                    .putAll(configLabels)
+                    // Put report instance to labels
+                    .put("host", hostName)
                     .build())
                 .value(value)
                 .timestamp(timestamp).build();

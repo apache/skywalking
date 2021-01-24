@@ -28,7 +28,7 @@ public class ZabbixConfig implements MetricRuleConfig {
 
     private String metricPrefix;
     private String expSuffix;
-    private List<Entity> entities;
+    private Entities entities;
     private List<Metric> metrics;
 
     @Override
@@ -37,9 +37,16 @@ public class ZabbixConfig implements MetricRuleConfig {
     }
 
     @Data
-    public static class Entity {
-        private String service;
-        private String instancePattern;
+    public static class Entities {
+        private List<String> hostPatterns;
+        private List<EntityLabel> labels;
+    }
+
+    @Data
+    public static class EntityLabel {
+        private String name;
+        private String fromItem;
+        private String value;
     }
 
     @Data

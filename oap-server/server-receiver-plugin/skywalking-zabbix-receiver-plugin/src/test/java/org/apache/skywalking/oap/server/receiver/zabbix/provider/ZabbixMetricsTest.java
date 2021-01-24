@@ -103,23 +103,24 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         socketClient.writeZabbixMessage("{\"request\":\"active checks\",\"host\":\"test-01\"}");
         String activeChecksRespData = socketClient.waitAndGetResponsePayload();
         assertZabbixActiveChecksRequest(0, "test-01");
-        assertZabbixActiveChecksResponse(activeChecksRespData, "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]");
+        assertZabbixActiveChecksResponse(activeChecksRespData, "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]", "agent.hostname");
 
         // Verify Agent data
         socketClient.writeZabbixMessage("{\"request\":\"agent data\",\"session\":\"f32425dc61971760bf791f731931a92e\",\"data\":[" +
             "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg1]\",\"value\":\"1.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}," +
             "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg5]\",\"value\":\"2.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}," +
-            "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg15]\",\"value\":\"3.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}" +
+            "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg15]\",\"value\":\"3.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}," +
+            "{\"host\":\"test-01\",\"key\":\"agent.hostname\",\"value\":\"test-01-hostname\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}" +
             "],\"clock\":1609588568,\"ns\":102244476}");
         String agentDataRespData = socketClient.waitAndGetResponsePayload();
-        assertZabbixAgentDataRequest(1, "test-01", "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]");
+        assertZabbixAgentDataRequest(1, "test-01", "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]", "agent.hostname");
         assertZabbixAgentDataResponse(agentDataRespData);
 
         // Verify meter system received data
         Assert.assertEquals(1, values.size());
         AvgLabeledFunction avgLabeledFunction = (AvgLabeledFunction) values.get(0);
-        String serviceId = IDManager.ServiceID.buildId("zabbix::all", true);
-        Assert.assertEquals(IDManager.ServiceInstanceID.buildId(serviceId, "test-01"), avgLabeledFunction.getEntityId());
+        String serviceId = IDManager.ServiceID.buildId("zabbix::test-01-hostname", true);
+        Assert.assertEquals(serviceId, avgLabeledFunction.getEntityId());
         Assert.assertEquals(serviceId, avgLabeledFunction.getServiceId());
         Assert.assertEquals(1, avgLabeledFunction.getSummation().get("avg1"), 0.0);
         Assert.assertEquals(2, avgLabeledFunction.getSummation().get("avg5"), 0.0);

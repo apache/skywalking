@@ -28,6 +28,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.server.tcp.TCPServerManager;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixProtocolDecoder;
@@ -182,7 +183,8 @@ public abstract class ZabbixBaseTest {
             for (ZabbixRequest.AgentData agentData : agentDataList) {
                 if (Objects.equals(keyName, agentData.getKey())) {
                     Assert.assertEquals(hostName, agentData.getHost());
-                    Assert.assertTrue(Double.parseDouble(agentData.getValue()) > 0);
+                    Assert.assertTrue(NumberUtils.isParsable(agentData.getValue()) ?
+                        Double.parseDouble(agentData.getValue()) > 0 : StringUtil.isNotBlank(agentData.getValue()));
                     Assert.assertTrue(agentData.getId() > 0);
                     Assert.assertTrue(agentData.getClock() > 0);
                     Assert.assertTrue(agentData.getNs() > 0);

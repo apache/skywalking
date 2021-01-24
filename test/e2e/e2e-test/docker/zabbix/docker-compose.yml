@@ -13,20 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-metricPrefix: meter_agent
-expSuffix: tag({tags -> tags.cur_host_name = 'zabbix::' + tags.cur_host_name}).service(['cur_host_name'])
-entities:
-  hostPatterns:
-    - test.+
-  labels:
-    - name: temp_value
-      value: all
-    - name: cur_host_name
-      fromItem: agent.hostname
-metrics:
-  - name: system_cpu_load
-    keys:
-      - system.cpu.load[all,avg1]
-      - system.cpu.load[all,avg5]
-      - system.cpu.load[all,avg15]
-    exp: system.cpu.load.avg(['2', 'cur_host_name'])
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../base-compose.yml
+      service: oap
+
+  zabbix-client:
+    image: zabbix/zabbix-agent:latest
+    networks:
+      - e2e
+    volumes:
+      - ./zabbix_agentd.conf:/etc/zabbix/zabbix_agentd.d/zabbix_agentd.conf
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  ui:
+    extends:
+      file: ../base-compose.yml
+      service: ui
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:
