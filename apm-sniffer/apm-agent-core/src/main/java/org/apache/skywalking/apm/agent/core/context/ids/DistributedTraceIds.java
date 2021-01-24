@@ -26,7 +26,7 @@ public class DistributedTraceIds {
     private LinkedList<DistributedTraceId> relatedGlobalTraces;
 
     public DistributedTraceIds() {
-        relatedGlobalTraces = new LinkedList<DistributedTraceId>();
+        relatedGlobalTraces = new LinkedList<>();
     }
 
     public List<DistributedTraceId> getRelatedGlobalTraces() {

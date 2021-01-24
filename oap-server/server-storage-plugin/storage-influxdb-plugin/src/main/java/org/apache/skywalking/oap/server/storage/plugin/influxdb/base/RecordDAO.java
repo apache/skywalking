@@ -25,14 +25,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
+
+import static java.util.Objects.nonNull;
 
 public class RecordDAO implements IRecordDAO {
     private static final int PADDING_SIZE = 1_000_000;
@@ -54,15 +57,19 @@ public class RecordDAO implements IRecordDAO {
             .time(timestamp, TimeUnit.NANOSECONDS);
 
         TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach(request::addFieldAsTag);
-
+        List<Tag> rawTags = null;
         if (SegmentRecord.INDEX_NAME.equals(model.getName())) {
-            Map<String, List<SpanTag>> collect = ((SegmentRecord) record).getTagsRawData()
-                                                                         .stream()
-                                                                         .collect(
-                                                                             Collectors.groupingBy(SpanTag::getKey));
+            rawTags = ((SegmentRecord) record).getTagsRawData();
+        } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
+            rawTags = ((LogRecord) record).getTags();
+        }
+        if (nonNull(rawTags)) {
+            Map<String, List<Tag>> collect = rawTags.stream()
+                                                    .collect(
+                                                        Collectors.groupingBy(Tag::getKey));
             collect.forEach((key, value) -> request.tag(
                 key,
-                "'" + Joiner.on("'").join(value.stream().map(SpanTag::getValue).collect(Collectors.toSet())) + "'"
+                "'" + Joiner.on("'").join(value.stream().map(Tag::getValue).collect(Collectors.toSet())) + "'"
             ));
         }
         return request;

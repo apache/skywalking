@@ -9,6 +9,8 @@ Release Notes.
 * Chore: adapt `create_source_release.sh` to make it runnable on Linux.
 * Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; The OAP server supports previous agent releases, whereas the previous OAP server (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
 * Add ElasticSearch 7.10 to test matrix and verify it works.
+* Replace Apache RAT with skywalking-eyes to check license headers.
+* Set up test of Envoy ALS / MetricsService under Istio 1.8.2 to verify Envoy V3 protocol
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
@@ -29,6 +31,13 @@ Release Notes.
 * Fix mssql-plugin occur ClassCastException when call the method of return generate key.
 * The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
 * Fix bug that rocketmq-plugin set the wrong tag.
+* Fix duplicated `EnhancedInstance` interface added.
+* Fix thread leaks caused by the elasticsearch-6.x-plugin plugin.
+* Support reading segmentId and spanId with toolkit.
+* Fix RestTemplate plugin recording url tag with wrong port
+* Support collecting logs and forwarding through gRPC.
+* Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
+* Support DNS periodic resolving mechanism to update backend service.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -56,6 +65,16 @@ Release Notes.
 * Improve ReadWriteSafeCache concurrency read-write performance
 * Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
 * Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
+* Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
+* Istio control plane: remove redundant metrics and polish panel layout.
+* Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
+* Fix receiver analysis error count metrics
+* Log collecting and query implementation
+* Support Alarm to feishu
+* Add the implementation of ConfigurationDiscovery on the OAP side.
+* Fix bug in `parseInternalErrorCode` where some error codes are never reached.
+* OAL supports multiple values when as numeric
+* Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 * Support Zabbix protocol to receive agent metrics.
 
 #### UI
@@ -82,12 +101,19 @@ Release Notes.
 * Fix dashboard wrong instance.
 * Add a legend for the topology.
 * Update the condition of unhealthy cube.
+* Fix: use icons to replace buttons for task list in profile.
+* Fix: support `=` in the tag value in the trace query page.
+* Add envoy proxy component logo.
+* Chore: set up license-eye to check license headers and add missing license headers.
+* Fix prop for instances-survey and endpoints-survey.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
 * Add documents about the group name of service.
 * Update docs about the latest UI.
 * Update the document of backend trace sampling with the latest configuration.
+* Update kafka plugin support version to 2.6.1.
+* Add FAQ about `Fix compiling on Mac M1 chip`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 

@@ -38,5 +38,10 @@
             <version>${logback-classic.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-logging-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

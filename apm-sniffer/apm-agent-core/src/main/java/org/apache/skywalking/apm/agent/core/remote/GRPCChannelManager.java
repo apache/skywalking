@@ -21,6 +21,8 @@ package org.apache.skywalking.apm.agent.core.remote;
 import io.grpc.Channel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,6 +31,8 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -36,6 +40,8 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.IS_RESOLVE_DNS_PERIODICALLY;
 
 @DefaultImplementor
 public class GRPCChannelManager implements BootService, Runnable {
@@ -92,6 +98,23 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void run() {
         LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
+        if (IS_RESOLVE_DNS_PERIODICALLY && reconnect) {
+            String backendService = Config.Collector.BACKEND_SERVICE.split(",")[0];
+            try {
+                String[] domainAndPort = backendService.split(":");
+
+                List<String> newGrpcServers = Arrays
+                        .stream(InetAddress.getAllByName(domainAndPort[0]))
+                        .map(InetAddress::getHostAddress)
+                        .map(ip -> String.format("%s:%s", ip, domainAndPort[1]))
+                        .collect(Collectors.toList());
+
+                grpcServers = newGrpcServers;
+            } catch (Throwable t) {
+                LOGGER.error(t, "Failed to resolve {} of backend service.", backendService);
+            }
+        }
+
         if (reconnect) {
             if (grpcServers.size() > 0) {
                 String server = "";
