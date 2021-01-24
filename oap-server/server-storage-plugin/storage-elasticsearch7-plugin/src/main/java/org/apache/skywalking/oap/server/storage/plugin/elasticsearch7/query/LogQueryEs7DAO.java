@@ -60,8 +60,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName,
-                          final String serviceId,
+    public Logs queryLogs(final String serviceId,
                           final String serviceInstanceId,
                           final String endpointId,
                           final String endpointName,
@@ -152,7 +151,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
+        SearchResponse response = getClient().search(LogRecord.INDEX_NAME, sourceBuilder);
 
         Logs logs = new Logs();
         logs.setTotal((int) response.getHits().getTotalHits().value);
