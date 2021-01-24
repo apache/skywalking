@@ -22,9 +22,11 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -113,12 +115,30 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.refresh_interval", model.isRecord()
             ? TimeValue.timeValueSeconds(10).toString()
             : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
-        setting.put("analysis.analyzer.oap_analyzer.type", "stop");
+        setting.put("analysis", getAnalyzerSetting(model.getAnalyzer()));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
             advancedSettings.forEach(setting::put);
         }
         return setting;
+    }
+
+    private Map getAnalyzerSetting(Set<Column.AnalyzerType> analyzerTypes) {
+        AnalyzerSetting analyzerSetting = new AnalyzerSetting();
+        for (final Column.AnalyzerType type : analyzerTypes) {
+            switch (type) {
+                case OAP_ANALYZER:
+                    analyzerSetting.combine(gson.fromJson(config.getOapAnalyzer(), AnalyzerSetting.class));
+                    break;
+                case OAP_LOG_ANALYZER:
+                    analyzerSetting.combine(gson.fromJson(config.getOapLogAnalyzer(), AnalyzerSetting.class));
+                    break;
+                default:
+                    log.error("the analyzer {} is not supported in the es storage", type.name());
+                    break;
+            }
+        }
+        return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
     }
 
     protected Map<String, Object> createMapping(Model model) {
@@ -135,17 +155,19 @@ public class StorageEsInstaller extends ModelInstaller {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
 
                 Map<String, Object> originalColumn = new HashMap<>();
-                originalColumn.put("type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
+                originalColumn.put(
+                    "type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
                 originalColumn.put("copy_to", matchCName);
                 properties.put(columnDefine.getColumnName().getName(), originalColumn);
 
                 Map<String, Object> matchColumn = new HashMap<>();
                 matchColumn.put("type", "text");
-                matchColumn.put("analyzer", "oap_analyzer");
+                matchColumn.put("analyzer", columnDefine.getAnalyzer().name().toLowerCase());
                 properties.put(matchCName, matchColumn);
             } else {
                 Map<String, Object> column = new HashMap<>();
-                column.put("type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
+                column.put(
+                    "type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
                 if (columnDefine.isStorageOnly()) {
                     column.put("index", false);
                 }

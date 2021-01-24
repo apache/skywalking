@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
@@ -41,7 +42,8 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int indexReplicasNumber = 0;
     private int indexShardsNumber = 1;
     /**
-     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater than 0
+     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater
+     * than 0
      */
     private int superDatasetDayStep = -1;
     /**
@@ -76,5 +78,17 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int metadataQueryMaxSize = 5000;
     private int segmentQueryMaxSize = 200;
     private int profileTaskQueryMaxSize = 200;
+    /**
+     * The default analyzer for match query field. {@link Column.AnalyzerType#OAP_ANALYZER}
+     *
+     * @since 8.4.0
+     */
+    private String oapAnalyzer = "{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}";
+    /**
+     * The log analyzer for match query field. {@link Column.AnalyzerType#OAP_LOG_ANALYZER}
+     *
+     * @since 8.4.0
+     */
+    private String oapLogAnalyzer = "{\"filter\":{\"cjk_log_stop_filter\":{\"type\":\"stop\",\"stopwords\":\"_none_\"},\"cjk_log_bigram_filter\":{\"output_unigrams\":\"true\",\"type\":\"cjk_bigram\"},\"cjk_log_word_delimiter\":{\"type\":\"word_delimiter\",\"preserve_original\":\"true\",\"split_on_numerics\":\"false\"}},\"analyzer\":{\"oap_log_analyzer\":{\"filter\":[\"cjk_width\",\"lowercase\",\"cjk_log_bigram_filter\",\"cjk_log_word_delimiter\",\"cjk_log_stop_filter\"],\"type\":\"custom\",\"tokenizer\":\"standard\"}}}";
     private String advanced;
 }
