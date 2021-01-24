@@ -107,7 +107,7 @@ public class AnalyzerSettingTest {
                         put("filter", Arrays.asList("lowercase", "english_stop"));
                     }
                 });
-                put("cjk_log", new HashMap<String, Object>() {
+                put("oap_log_analyzer", new HashMap<String, Object>() {
                     {
                         put(
                             "filter", Arrays.asList("cjk_width", "lowercase", "cjk_log_bigram_filter",
@@ -216,7 +216,7 @@ public class AnalyzerSettingTest {
         analyzerSetting.setFilter(filterMap);
         HashMap<String, Object> analyzerMap = new HashMap<String, Object>() {
             {
-                put("cjk_log", new HashMap<String, Object>() {
+                put("oap_log_analyzer", new HashMap<String, Object>() {
                     {
                         put(
                             "filter", Arrays.asList("cjk_width", "lowercase", "cjk_log_bigram_filter",
