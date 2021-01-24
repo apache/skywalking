@@ -53,8 +53,7 @@ public class LogQueryService implements Service {
         return getLogQueryDAO().supportQueryLogsByKeywords();
     }
 
-    public Logs queryLogs(String metricName,
-                          String serviceId,
+    public Logs queryLogs(String serviceId,
                           String serviceInstanceId,
                           String endpointId,
                           String endpointName,
@@ -69,8 +68,7 @@ public class LogQueryService implements Service {
                           final List<String> excludingKeywordsOfContent) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        Logs logs = getLogQueryDAO().queryLogs(metricName,
-                                               serviceId,
+        Logs logs = getLogQueryDAO().queryLogs(serviceId,
                                                serviceInstanceId,
                                                endpointId,
                                                endpointName,

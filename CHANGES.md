@@ -36,6 +36,8 @@ Release Notes.
 * Support reading segmentId and spanId with toolkit.
 * Fix RestTemplate plugin recording url tag with wrong port
 * Support collecting logs and forwarding through gRPC.
+* Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
+* Support DNS periodic resolving mechanism to update backend service.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -72,6 +74,7 @@ Release Notes.
 * Add the implementation of ConfigurationDiscovery on the OAP side.
 * Fix bug in `parseInternalErrorCode` where some error codes are never reached.
 * OAL supports multiple values when as numeric
+* Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -109,6 +112,7 @@ Release Notes.
 * Update docs about the latest UI.
 * Update the document of backend trace sampling with the latest configuration.
 * Update kafka plugin support version to 2.6.1.
+* Add FAQ about `Fix compiling on Mac M1 chip`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
 

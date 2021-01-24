@@ -396,7 +396,6 @@ public class SimpleQueryClient {
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream().filter(it -> !it.startsWith("#"))
                                             .collect(Collectors.joining())
-                                            .replace("{metricName}", query.metricName())
                                             .replace("{state}", query.state())
                                             .replace("{serviceId}", query.serviceId())
                                             .replace("{serviceInstanceId}", query.serviceInstanceId())

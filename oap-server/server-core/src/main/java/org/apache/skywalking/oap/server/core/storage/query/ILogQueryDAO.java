@@ -37,8 +37,7 @@ public interface ILogQueryDAO extends Service {
         return false;
     }
 
-    Logs queryLogs(String metricName,
-                   String serviceId,
+    Logs queryLogs(String serviceId,
                    String serviceInstanceId,
                    String endpointId,
                    String endpointName,

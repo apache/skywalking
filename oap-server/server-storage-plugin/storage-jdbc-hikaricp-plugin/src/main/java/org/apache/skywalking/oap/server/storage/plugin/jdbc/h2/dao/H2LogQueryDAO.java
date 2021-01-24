@@ -78,8 +78,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName,
-                          String serviceId,
+    public Logs queryLogs(String serviceId,
                           String serviceInstanceId,
                           String endpointId,
                           String endpointName,
@@ -105,7 +104,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 
-        sql.append("from ").append(metricName).append(" where ");
+        sql.append("from ").append(LogRecord.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
         if (startSecondTB != 0 && endSecondTB != 0) {
             sql.append(" and ").append(AbstractLogRecord.TIME_BUCKET).append(" >= ?");

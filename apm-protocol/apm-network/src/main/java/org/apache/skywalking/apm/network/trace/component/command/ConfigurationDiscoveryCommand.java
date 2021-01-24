@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 public class ConfigurationDiscoveryCommand extends BaseCommand implements Serializable, Deserializable<ConfigurationDiscoveryCommand> {
     public static final Deserializable<ConfigurationDiscoveryCommand> DESERIALIZER = new ConfigurationDiscoveryCommand(
         "", "", new ArrayList<>());
-    public static final String NAME = ConfigurationDiscoveryCommand.class.getSimpleName();
+    public static final String NAME = "ConfigurationDiscoveryCommand";
 
     public static final String UUID_CONST_NAME = "UUID";
     public static final String SERIAL_NUMBER_CONST_NAME = "SerialNumber";
