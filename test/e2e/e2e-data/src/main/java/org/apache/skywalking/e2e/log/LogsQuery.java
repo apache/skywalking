@@ -21,7 +21,6 @@ import org.apache.skywalking.e2e.AbstractQuery;
 
 public class LogsQuery extends AbstractQuery<LogsQuery> {
 
-    private String metricName = "log";
     private String state = "ALL";
     private String serviceId;
     private String serviceInstanceId;
@@ -37,15 +36,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
     private String needTotal = "true";
     private String keywordsOfContent = "";
     private String excludingKeywordsOfContent = "";
-
-    public String metricName() {
-        return metricName;
-    }
-
-    public LogsQuery metricName(String metricName) {
-        this.metricName = metricName;
-        return this;
-    }
 
     public String state() {
         return state;

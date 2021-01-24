@@ -36,8 +36,7 @@
     }",
     "variables": {
         "condition": {
-            "metricName": "log",
-            "state": "ALL",
+            "state": "{state}",
             "serviceId": "{serviceId}",
             "serviceInstanceId": "{serviceInstanceId}",
             "endpointId": "{endpointId}",
