@@ -162,7 +162,7 @@ public class StorageEsInstaller extends ModelInstaller {
 
                 Map<String, Object> matchColumn = new HashMap<>();
                 matchColumn.put("type", "text");
-                matchColumn.put("analyzer", columnDefine.getAnalyzer().name().toLowerCase());
+                matchColumn.put("analyzer", columnDefine.getAnalyzer().getName());
                 properties.put(matchCName, matchColumn);
             } else {
                 Map<String, Object> column = new HashMap<>();
