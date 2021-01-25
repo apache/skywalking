@@ -103,7 +103,7 @@ public class StorageEsInstaller extends ModelInstaller {
         }
     }
 
-    protected Map<String, Object> createSetting(Model model) {
+    protected Map<String, Object> createSetting(Model model) throws StorageException {
         Map<String, Object> setting = new HashMap<>();
 
         setting.put("index.number_of_replicas", model.isSuperDataset()
@@ -123,20 +123,11 @@ public class StorageEsInstaller extends ModelInstaller {
         return setting;
     }
 
-    private Map getAnalyzerSetting(Set<Column.AnalyzerType> analyzerTypes) {
+    private Map getAnalyzerSetting(Set<Column.AnalyzerType> analyzerTypes) throws StorageException {
         AnalyzerSetting analyzerSetting = new AnalyzerSetting();
         for (final Column.AnalyzerType type : analyzerTypes) {
-            switch (type) {
-                case OAP_ANALYZER:
-                    analyzerSetting.combine(gson.fromJson(config.getOapAnalyzer(), AnalyzerSetting.class));
-                    break;
-                case OAP_LOG_ANALYZER:
-                    analyzerSetting.combine(gson.fromJson(config.getOapLogAnalyzer(), AnalyzerSetting.class));
-                    break;
-                default:
-                    log.error("the analyzer {} is not supported in the es storage", type.name());
-                    break;
-            }
+            AnalyzerSetting setting = AnalyzerSetting.Generator.GetGenerator(type).GetGenerateFunc().generate(config);
+            analyzerSetting.combine(setting);
         }
         return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
     }

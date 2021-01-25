@@ -18,15 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 
 @Getter
 @Setter
+@Slf4j
 public class AnalyzerSetting {
     /**
      * A built-in or customised tokenizer.
@@ -69,6 +75,44 @@ public class AnalyzerSetting {
     @Override
     public int hashCode() {
         return Objects.hash(getTokenizer(), getCharFilter(), getFilter(), getAnalyzer());
+    }
+
+    public enum Generator {
+        OAP_ANALYZER_SETTING_GENERATOR(
+            Column.AnalyzerType.OAP_ANALYZER,
+            config -> new Gson().fromJson(config.getOapAnalyzer(), AnalyzerSetting.class)
+        ),
+        OAP_LOG_ANALYZER_SETTING_GENERATOR(
+            Column.AnalyzerType.OAP_LOG_ANALYZER,
+            config -> new Gson().fromJson(config.getOapLogAnalyzer(), AnalyzerSetting.class)
+        );
+
+        private final Column.AnalyzerType type;
+        private final GenerateAnalyzerSettingFunc func;
+
+        Generator(final Column.AnalyzerType type,
+                  final GenerateAnalyzerSettingFunc func) {
+            this.type = type;
+            this.func = func;
+        }
+
+        public GenerateAnalyzerSettingFunc GetGenerateFunc() {
+            return this.func;
+        }
+
+        public static Generator GetGenerator(Column.AnalyzerType type) throws StorageException {
+            for (final Generator value : Generator.values()) {
+                if (value.type == type) {
+                    return value;
+                }
+            }
+            throw new StorageException("cannot found the AnalyzerSettingGenerator for the " + type.getName() + " type");
+        }
+    }
+
+    @FunctionalInterface
+    public interface GenerateAnalyzerSettingFunc {
+        AnalyzerSetting generate(StorageModuleElasticsearchConfig config);
     }
 }
 
