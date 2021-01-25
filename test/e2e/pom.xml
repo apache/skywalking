@@ -40,7 +40,6 @@
         <module>e2e-protocol</module>
         <module>e2e-service-provider</module>
         <module>e2e-service-consumer</module>
-        <module>e2e-log-producer</module>
         <module>e2e-test</module>
     </modules>
 

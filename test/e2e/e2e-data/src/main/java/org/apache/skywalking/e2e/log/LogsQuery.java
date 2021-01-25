@@ -23,12 +23,8 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     private String state = "ALL";
     private String serviceId;
-    private String serviceInstanceId;
-    private String endpointId;
-    private String endpointName;
-    private String traceId;
-    private String segmentId;
-    private String spanId;
+    private String endpointId = "";
+    private String endpointName = "";
     private String tagKey;
     private String tagValue;
     private String pageNum = "1";
@@ -55,15 +51,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
         return this;
     }
 
-    public String serviceInstanceId() {
-        return serviceInstanceId;
-    }
-
-    public LogsQuery serviceInstanceId(String serviceInstanceId) {
-        this.serviceInstanceId = serviceInstanceId;
-        return this;
-    }
-
     public String endpointId() {
         return endpointId;
     }
@@ -79,33 +66,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     public LogsQuery endpointName(String endpointName) {
         this.endpointName = endpointName;
-        return this;
-    }
-
-    public String traceId() {
-        return traceId;
-    }
-
-    public LogsQuery traceId(String traceId) {
-        this.traceId = traceId;
-        return this;
-    }
-
-    public String segmentId() {
-        return segmentId;
-    }
-
-    public LogsQuery segmentId(String segmentId) {
-        this.segmentId = segmentId;
-        return this;
-    }
-
-    public String spanId() {
-        return spanId;
-    }
-
-    public LogsQuery spanId(String spanId) {
-        this.spanId = spanId;
         return this;
     }
 

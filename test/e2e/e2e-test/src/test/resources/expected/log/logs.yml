@@ -14,12 +14,10 @@
 # limitations under the License.
 
 logs:
-  - serviceName: e2e
+  - serviceName: not null
     serviceId: not null
     serviceInstanceName: not null
     serviceInstanceId: not null
-    endpointName: /logs/traffic
-    endpointId: not null
     traceId: not null
     timestamp: not null
     isError: false

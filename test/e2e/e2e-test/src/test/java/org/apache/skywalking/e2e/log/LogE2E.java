@@ -66,7 +66,7 @@ public class LogE2E extends SkyWalkingTestAdapter {
     @BeforeAll
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
-        trafficController(providerHostPort, "/logs/traffic");
+        trafficController(providerHostPort, "/logs/trigger");
     }
 
     @AfterAll
@@ -89,18 +89,13 @@ public class LogE2E extends SkyWalkingTestAdapter {
             LOGGER.info("verifying service instance: {}", service);
             // instance
             verifyServiceInstances(service);
-            // endpoint
-            verifyServiceEndpoints(service);
         }
     }
 
     @RetryableTest
     public void verifyLog() throws Exception {
-        LogsQuery logsQuery = new LogsQuery().serviceId("ZTJl.1")
-                                             .serviceInstanceId("ZTJl.1_ZTJlLWluc3RhbmNl")
-                                             .endpointId("ZTJl.1_L3RyYWZmaWM=")
-                                             .endpointName("/logs/traffic")
-                                             .tag("level", "INFO")
+        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
+                                             .tag("logger", "org.apache.skywalking.e2e.controller.LogController")
                                              .start(startTime)
                                              .end(Times.now());
         if (graphql.supportQueryLogsByKeywords()) {

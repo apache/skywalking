@@ -23,9 +23,8 @@ on:
       - '!**.md'
   schedule:
     - cron: '0 18 * * *'
-
 env:
-  SKIP_TEST: true
+  SW_AGENT_JDK_VERSION: 8
 
 jobs:
   Log:
