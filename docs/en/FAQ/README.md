@@ -8,6 +8,7 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Protoc plugin fails in maven build](Protoc-Plugin-Fails-When-Build.md)
 * [Required items could not be found, when import project into Eclipse](Import-Project-Eclipse-RequireItems-Exception.md)
 * [Maven compilation failure with `python2 not found` error](maven-compile-npm-failure.md)
+* [Fix compiling on Mac M1 chip](How-to-build-with-mac-m1.md)
 
 ## Runtime
 * [8.x+ upgrade](v8-version-upgrade.md)
@@ -26,7 +27,6 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Compatible with other javaagent bytecode processing](Compatible-with-other-javaagent-bytecode-processing.md)
 * [**Java agent memory leak** when enhance `Worker thread` at use Thread Pool](Memory-leak-enhance-Worker-thread.md)
 * [Thrift plugin](thrift-plugin.md)
-* [Fix compiling on Mac M1 chip](How-to-build-with-mac-m1.md)
 
 ## UI
 * [What is **VNode**? And why does SkyWalking have that?](vnode.md)
