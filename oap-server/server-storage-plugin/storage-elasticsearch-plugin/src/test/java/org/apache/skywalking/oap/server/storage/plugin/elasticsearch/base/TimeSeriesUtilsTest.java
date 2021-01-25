@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.util.HashSet;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.junit.Assert;
@@ -38,13 +37,13 @@ public class TimeSeriesUtilsTest {
     @Before
     public void prepare() {
         superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(), Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, true, new HashSet<>()
+                                      0, DownSampling.Minute, true, true
         );
         normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(), Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, false, new HashSet<>()
+                                      0, DownSampling.Minute, true, false
         );
         normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(), Lists.newArrayList(),
-                                       0, DownSampling.Minute, false, false, new HashSet<>()
+                                       0, DownSampling.Minute, false, false
         );
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
         TimeSeriesUtils.setDAY_STEP(3);
