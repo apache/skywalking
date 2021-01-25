@@ -21,12 +21,11 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -115,7 +114,7 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.refresh_interval", model.isRecord()
             ? TimeValue.timeValueSeconds(10).toString()
             : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
-        setting.put("analysis", getAnalyzerSetting(model.getAnalyzer()));
+        setting.put("analysis", getAnalyzerSetting(model.getColumns()));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
             advancedSettings.forEach(setting::put);
@@ -123,10 +122,12 @@ public class StorageEsInstaller extends ModelInstaller {
         return setting;
     }
 
-    private Map getAnalyzerSetting(Set<Column.AnalyzerType> analyzerTypes) throws StorageException {
+    private Map getAnalyzerSetting(List<ModelColumn> analyzerTypes) throws StorageException {
         AnalyzerSetting analyzerSetting = new AnalyzerSetting();
-        for (final Column.AnalyzerType type : analyzerTypes) {
-            AnalyzerSetting setting = AnalyzerSetting.Generator.GetGenerator(type).getGenerateFunc().generate(config);
+        for (final ModelColumn column : analyzerTypes) {
+            AnalyzerSetting setting = AnalyzerSetting.Generator.GetGenerator(column.getAnalyzer())
+                                                               .getGenerateFunc()
+                                                               .generate(config);
             analyzerSetting.combine(setting);
         }
         return gson.fromJson(gson.toJson(analyzerSetting), Map.class);

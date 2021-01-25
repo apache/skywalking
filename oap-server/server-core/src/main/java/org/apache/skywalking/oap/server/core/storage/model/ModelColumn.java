@@ -39,7 +39,8 @@ public class ModelColumn {
                        boolean matchQuery,
                        boolean storageOnly,
                        boolean isValue,
-                       int length, final Column.AnalyzerType analyzer) {
+                       int length,
+                       Column.AnalyzerType analyzer) {
         this.columnName = columnName;
         this.type = type;
         this.genericType = genericType;

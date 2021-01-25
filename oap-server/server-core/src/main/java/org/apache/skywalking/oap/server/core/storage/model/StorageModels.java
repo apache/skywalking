@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -63,7 +61,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
             storage.getDownsampling(), record, isSuperDatasetModel(aClass)
-            , selectAnalyzer(modelColumns)
         );
 
         this.followColumnNameRules(model);
@@ -73,10 +70,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             listener.whenCreating(model);
         }
         return model;
-    }
-
-    private Set<Column.AnalyzerType> selectAnalyzer(List<ModelColumn> modelColumns) {
-        return modelColumns.stream().map(ModelColumn::getAnalyzer).collect(Collectors.toSet());
     }
 
     private boolean isSuperDatasetModel(Class<?> aClass) {

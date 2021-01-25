@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
-import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * The model definition of a logic entity.
@@ -39,7 +37,6 @@ public class Model {
     private final boolean record;
     private final boolean superDataset;
     private final boolean isTimeSeries;
-    private final Set<Column.AnalyzerType> analyzer;
 
     public Model(final String name,
                  final List<ModelColumn> columns,
@@ -47,8 +44,7 @@ public class Model {
                  final int scopeId,
                  final DownSampling downsampling,
                  final boolean record,
-                 final boolean superDataset,
-                 final Set<Column.AnalyzerType> analyzer) {
+                 final boolean superDataset) {
         this.name = name;
         this.columns = columns;
         this.extraQueryIndices = extraQueryIndices;
@@ -57,6 +53,5 @@ public class Model {
         this.isTimeSeries = !DownSampling.None.equals(downsampling);
         this.record = record;
         this.superDataset = superDataset;
-        this.analyzer = analyzer;
     }
 }
