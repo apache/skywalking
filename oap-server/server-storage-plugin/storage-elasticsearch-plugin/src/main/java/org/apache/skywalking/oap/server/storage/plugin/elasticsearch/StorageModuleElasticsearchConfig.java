@@ -88,6 +88,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      *
      * @since 8.4.0
      */
-    private String oapLogAnalyzer = "{\"filter\":{\"cjk_log_stop_filter\":{\"type\":\"stop\",\"stopwords\":\"_none_\"},\"cjk_log_bigram_filter\":{\"output_unigrams\":\"true\",\"type\":\"cjk_bigram\"},\"cjk_log_word_delimiter\":{\"type\":\"word_delimiter\",\"preserve_original\":\"true\",\"split_on_numerics\":\"false\"}},\"analyzer\":{\"oap_log_analyzer\":{\"filter\":[\"cjk_width\",\"lowercase\",\"cjk_log_bigram_filter\",\"cjk_log_word_delimiter\",\"cjk_log_stop_filter\"],\"type\":\"custom\",\"tokenizer\":\"standard\"}}}";
+    private String oapLogAnalyzer = "{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}";
     private String advanced;
 }
