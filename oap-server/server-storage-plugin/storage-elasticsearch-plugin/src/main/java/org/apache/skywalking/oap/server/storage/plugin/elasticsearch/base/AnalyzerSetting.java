@@ -96,7 +96,7 @@ public class AnalyzerSetting {
             this.func = func;
         }
 
-        public GenerateAnalyzerSettingFunc GetGenerateFunc() {
+        public GenerateAnalyzerSettingFunc getGenerateFunc() {
             return this.func;
         }
 

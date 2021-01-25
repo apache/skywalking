@@ -126,7 +126,7 @@ public class StorageEsInstaller extends ModelInstaller {
     private Map getAnalyzerSetting(Set<Column.AnalyzerType> analyzerTypes) throws StorageException {
         AnalyzerSetting analyzerSetting = new AnalyzerSetting();
         for (final Column.AnalyzerType type : analyzerTypes) {
-            AnalyzerSetting setting = AnalyzerSetting.Generator.GetGenerator(type).GetGenerateFunc().generate(config);
+            AnalyzerSetting setting = AnalyzerSetting.Generator.GetGenerator(type).getGenerateFunc().generate(config);
             analyzerSetting.combine(setting);
         }
         return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
