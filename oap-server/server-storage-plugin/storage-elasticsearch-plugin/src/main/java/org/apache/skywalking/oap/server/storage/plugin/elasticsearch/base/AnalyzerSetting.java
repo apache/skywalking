@@ -100,7 +100,7 @@ public class AnalyzerSetting {
             return this.func;
         }
 
-        public static Generator GetGenerator(Column.AnalyzerType type) throws StorageException {
+        public static Generator getGenerator(Column.AnalyzerType type) throws StorageException {
             for (final Generator value : Generator.values()) {
                 if (value.type == type) {
                     return value;

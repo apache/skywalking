@@ -76,25 +76,6 @@ public class AnalyzerSettingTest {
                         put("stopwords", "_english_");
                     }
                 });
-                put("cjk_log_stop_filter", new HashMap<String, String>() {
-                    {
-                        put("type", "stop");
-                        put("stopwords", "_none_");
-                    }
-                });
-                put("cjk_log_bigram_filter", new HashMap<String, String>() {
-                    {
-                        put("output_unigrams", "true");
-                        put("type", "cjk_bigram");
-                    }
-                });
-                put("cjk_log_word_delimiter", new HashMap<String, String>() {
-                    {
-                        put("type", "word_delimiter");
-                        put("preserve_original", "true");
-                        put("split_on_numerics", "false");
-                    }
-                });
             }
         });
         analyzerSetting.setAnalyzer(new HashMap<String, Object>() {
@@ -109,13 +90,7 @@ public class AnalyzerSettingTest {
                 });
                 put("oap_log_analyzer", new HashMap<String, Object>() {
                     {
-                        put(
-                            "filter", Arrays.asList("cjk_width", "lowercase", "cjk_log_bigram_filter",
-                                                    "cjk_log_word_delimiter", "cjk_log_stop_filter"
-                            )
-                        );
-                        put("type", "custom");
-                        put("tokenizer", "standard");
+                        put("type", "standard");
                     }
                 });
                 put("oap_analyzer", new HashMap<String, Object>() {
@@ -189,42 +164,11 @@ public class AnalyzerSettingTest {
 
     private AnalyzerSetting getDefaultOapLogAnalyzer() {
         AnalyzerSetting analyzerSetting = new AnalyzerSetting();
-        HashMap<String, Object> filterMap = new HashMap<String, Object>() {
-            {
-                put("cjk_log_stop_filter", new HashMap<String, String>() {
-                    {
-                        put("type", "stop");
-                        put("stopwords", "_none_");
-                    }
-                });
-                put("cjk_log_bigram_filter", new HashMap<String, String>() {
-                    {
-                        put("output_unigrams", "true");
-                        put("type", "cjk_bigram");
-                    }
-                });
-                put("cjk_log_word_delimiter", new HashMap<String, String>() {
-                    {
-                        put("type", "word_delimiter");
-                        put("preserve_original", "true");
-                        put("split_on_numerics", "false");
-                    }
-                });
-            }
-
-        };
-        analyzerSetting.setFilter(filterMap);
         HashMap<String, Object> analyzerMap = new HashMap<String, Object>() {
             {
                 put("oap_log_analyzer", new HashMap<String, Object>() {
                     {
-                        put(
-                            "filter", Arrays.asList("cjk_width", "lowercase", "cjk_log_bigram_filter",
-                                                    "cjk_log_word_delimiter", "cjk_log_stop_filter"
-                            )
-                        );
-                        put("type", "custom");
-                        put("tokenizer", "standard");
+                        put("type", "standard");
                     }
                 });
             }
