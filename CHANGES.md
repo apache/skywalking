@@ -76,6 +76,7 @@ Release Notes.
 * OAL supports multiple values when as numeric
 * Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 * Fix bug that the same sample name in one MAL expression caused `IllegalArgumentException` in `Analyzer.analyse`.
+* Add the text analyzer for querying log in the es storage.
 
 #### UI
 * Fix un-removed tags in trace query.
