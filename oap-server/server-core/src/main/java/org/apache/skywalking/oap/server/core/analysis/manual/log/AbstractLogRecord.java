@@ -87,7 +87,7 @@ public abstract class AbstractLogRecord extends Record {
     private int contentType = ContentType.NONE.value();
     @Setter
     @Getter
-    @Column(columnName = CONTENT, length = 1_000_000, matchQuery = true)
+    @Column(columnName = CONTENT, length = 1_000_000, matchQuery = true, analyzer = Column.AnalyzerType.OAP_LOG_ANALYZER)
     private String content;
     @Setter
     @Getter
@@ -107,8 +107,8 @@ public abstract class AbstractLogRecord extends Record {
     private List<String> tagsInString;
 
     /**
-     * tags is a duplicate field of {@link #tagsInString}. Some storage don't support array values in a single
-     * column. Then, those implementations could use this raw data to generate necessary data structures.
+     * tags is a duplicate field of {@link #tagsInString}. Some storage don't support array values in a single column.
+     * Then, those implementations could use this raw data to generate necessary data structures.
      */
     @Setter
     @Getter
