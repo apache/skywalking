@@ -239,6 +239,20 @@ public class ArithmeticTest {
                 false,
             },
             {
+                "sameSampleFamily-minus-sameSampleFamily",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t1" , "service", "service1")).value(100).build(),
+                    Sample.builder().labels(of("idc", "t2" , "service", "service1")).value(30).build(),
+                    Sample.builder().labels(of("idc", "t3" , "service", "service1")).value(40).build(),
+                    Sample.builder().labels(of("region", "us" , "service", "service1")).value(80).build()
+                ).build()),
+                "http_success_request.sum(['service']) - http_success_request.sum(['service'])",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("service", "service1")).value(0).build()
+                ).build()),
+                false,
+                },
+            {
                 "empty-multiple-empty",
                 of("http_success_request", SampleFamily.EMPTY,
                     "http_error_request", SampleFamily.EMPTY),
