@@ -49,7 +49,6 @@
         <module>customize-enhance-plugin</module>
         <module>kotlin-coroutine-plugin</module>
         <module>quartz-scheduler-2.x-plugin</module>
-        <module>logger-plugin</module>
     </modules>
 
     <dependencies>

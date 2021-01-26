@@ -55,9 +55,6 @@ jobs:
           - kafka-scenario
           - kotlin-coroutine-scenario
           - lettuce-scenario
-          - logger-logback-scenario
-          - logger-log4j-scenario
-          - logger-log4j2-scenario
           - mongodb-3.x-scenario
           - mongodb-4.x-scenario
           - netty-socketio-scenario

@@ -16,7 +16,6 @@ Release Notes.
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
 * Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
 * Add interceptors of method(analyze, searchScroll, clearScroll, searchTemplate and deleteByQuery) for elasticsearch-6.x-plugin.
-* Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
 * Fix the unexpected RunningContext recreation in the Tomcat plugin.
 * Fix the potential NPE when trace_sql_parameters is enabled.
 * Update `byte-buddy` to 1.10.19.
@@ -107,6 +106,9 @@ Release Notes.
 * Add envoy proxy component logo.
 * Chore: set up license-eye to check license headers and add missing license headers.
 * Fix prop for instances-survey and endpoints-survey.
+* Fix envoy icon in topology.
+* Implement the service logs on UI.
+* Change the flask icon to light version for a better view of topology dark theme.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
