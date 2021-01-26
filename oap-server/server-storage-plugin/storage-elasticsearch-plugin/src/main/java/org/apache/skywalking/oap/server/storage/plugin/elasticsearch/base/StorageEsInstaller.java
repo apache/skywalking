@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -101,7 +102,7 @@ public class StorageEsInstaller extends ModelInstaller {
         }
     }
 
-    protected Map<String, Object> createSetting(Model model) {
+    protected Map<String, Object> createSetting(Model model) throws StorageException {
         Map<String, Object> setting = new HashMap<>();
 
         setting.put("index.number_of_replicas", model.isSuperDataset()
@@ -113,12 +114,23 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.refresh_interval", model.isRecord()
             ? TimeValue.timeValueSeconds(10).toString()
             : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
-        setting.put("analysis.analyzer.oap_analyzer.type", "stop");
+        setting.put("analysis", getAnalyzerSetting(model.getColumns()));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
             advancedSettings.forEach(setting::put);
         }
         return setting;
+    }
+
+    private Map getAnalyzerSetting(List<ModelColumn> analyzerTypes) throws StorageException {
+        AnalyzerSetting analyzerSetting = new AnalyzerSetting();
+        for (final ModelColumn column : analyzerTypes) {
+            AnalyzerSetting setting = AnalyzerSetting.Generator.getGenerator(column.getAnalyzer())
+                                                               .getGenerateFunc()
+                                                               .generate(config);
+            analyzerSetting.combine(setting);
+        }
+        return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
     }
 
     protected Map<String, Object> createMapping(Model model) {
@@ -135,17 +147,19 @@ public class StorageEsInstaller extends ModelInstaller {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
 
                 Map<String, Object> originalColumn = new HashMap<>();
-                originalColumn.put("type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
+                originalColumn.put(
+                    "type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
                 originalColumn.put("copy_to", matchCName);
                 properties.put(columnDefine.getColumnName().getName(), originalColumn);
 
                 Map<String, Object> matchColumn = new HashMap<>();
                 matchColumn.put("type", "text");
-                matchColumn.put("analyzer", "oap_analyzer");
+                matchColumn.put("analyzer", columnDefine.getAnalyzer().getName());
                 properties.put(matchCName, matchColumn);
             } else {
                 Map<String, Object> column = new HashMap<>();
-                column.put("type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
+                column.put(
+                    "type", columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType()));
                 if (columnDefine.isStorageOnly()) {
                     column.put("index", false);
                 }

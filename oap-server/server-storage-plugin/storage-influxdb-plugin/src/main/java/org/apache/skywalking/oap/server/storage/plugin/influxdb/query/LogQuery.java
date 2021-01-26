@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -72,8 +73,7 @@ public class LogQuery implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName,
-                          final String serviceId,
+    public Logs queryLogs(final String serviceId,
                           final String serviceInstanceId,
                           final String endpointId,
                           final String endpointName,
@@ -93,7 +93,7 @@ public class LogQuery implements ILogQueryDAO {
                                                                       queryOrder) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC,
                                                                   AbstractLogRecord.TIMESTAMP, limit + from
                                                               )
-                                                              .from(client.getDatabase(), metricName)
+                                                              .from(client.getDatabase(), LogRecord.INDEX_NAME)
                                                               .where();
 
         if (isNotEmpty(serviceId)) {
@@ -143,7 +143,7 @@ public class LogQuery implements ILogQueryDAO {
             nested.close();
         }
 
-        SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);
+        SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), LogRecord.INDEX_NAME);
         for (ConjunctionClause clause : recallQuery.getClauses()) {
             countQuery.where(clause);
         }

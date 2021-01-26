@@ -29,7 +29,6 @@ import org.apache.skywalking.oap.server.core.query.type.Pagination;
 @Getter
 @Setter
 public class LogQueryCondition {
-    private String metricName;
     private String serviceId;
     private String serviceInstanceId;
     private String endpointId;

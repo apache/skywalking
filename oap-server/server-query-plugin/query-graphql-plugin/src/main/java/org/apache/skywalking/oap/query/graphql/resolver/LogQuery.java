@@ -63,7 +63,6 @@ public class LogQuery implements GraphQLQueryResolver {
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
 
         return getQueryService().queryLogs(
-            condition.getMetricName(),
             condition.getServiceId(),
             condition.getServiceInstanceId(),
             condition.getEndpointId(),
