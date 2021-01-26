@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.junit.Test;
@@ -74,6 +75,18 @@ public class ExpressionParsingTest {
                                         .percentiles(new int[]{50, 99}).build(),
                 false,
             },
+            {
+                "sameSamples",
+                "(node_cpu_seconds_total.sum(['node_identifier_host_name']) - node_cpu_seconds_total.tagEqual('mode', 'idle').sum(['node_identifier_host_name'])).service(['node_identifier_host_name']) ",
+                ExpressionParsingContext.builder()
+                                        .samples(Collections.singletonList("node_cpu_seconds_total"))
+                                        .scopeType(ScopeType.SERVICE)
+                                        .scopeLabels(Collections.singletonList("node_identifier_host_name"))
+                                        .aggregationLabels(Lists.newArrayList("node_identifier_host_name" , "node_identifier_host_name"))
+                                        .downsampling(DownsamplingType.AVG)
+                                        .isHistogram(false).build(),
+                false,
+                },
         });
     }
 
