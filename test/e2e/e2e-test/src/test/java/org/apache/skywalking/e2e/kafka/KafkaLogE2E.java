@@ -61,10 +61,6 @@ public class KafkaLogE2E extends SkyWalkingTestAdapter {
     private HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "oap", port = 11800)
-    private HostAndPort oapHostPost;
-
-    @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider", port = 9090)
     private HostAndPort serviceHostPort;
 

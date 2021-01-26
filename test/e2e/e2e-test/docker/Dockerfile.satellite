@@ -15,9 +15,11 @@
 
 FROM golang:1.14 AS builder
 
-ARG COMMIT_HASH=cfbbf0689bd7089591593ff79275a7daf145d732
+ARG COMMIT_HASH=827f3a45e44cb2a64f874ff17d9eb454a680d08f
 ARG SATELLITE_CODE=${COMMIT_HASH}.tar.gz
 ARG SATELLITE_CODE_URL=https://github.com/apache/skywalking-satellite/archive/${SATELLITE_CODE}
+
+ENV CGO_ENABLED=0
 
 WORKDIR /skywalking-satellite
 
@@ -29,5 +31,6 @@ RUN make linux
 
 FROM alpine:3.10
 
-COPY --from=builder /skywalking-satellite/bin/skywalking-satellite-latest-linux-amd64 .
-ENTRYPOINT ["/skywalking-satellite-latest-linux-amd64"]
+COPY --from=builder /skywalking-satellite/bin/skywalking-satellite-latest-linux-amd64 /sw-satellite
+
+ENTRYPOINT ["/sw-satellite"]

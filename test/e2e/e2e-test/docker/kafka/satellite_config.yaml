@@ -54,7 +54,7 @@ pipes:
         plugin_name: none-fallbacker
       flush_time: 1000
       max_buffer_size: 200
-      min_flush_events: 100
+      min_flush_events: 5
       client_name: kafka-client
       forwarders:
         - plugin_name: nativelog-kafka-forwarder
