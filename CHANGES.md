@@ -107,6 +107,9 @@ Release Notes.
 * Add envoy proxy component logo.
 * Chore: set up license-eye to check license headers and add missing license headers.
 * Fix prop for instances-survey and endpoints-survey.
+* Fix envoy icon in topology.
+* Implement the service logs on UI.
+* Change the flask icon to light version for a better view of topology dark theme.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
