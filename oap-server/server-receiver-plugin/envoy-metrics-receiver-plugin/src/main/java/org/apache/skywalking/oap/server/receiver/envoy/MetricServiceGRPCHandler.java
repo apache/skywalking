@@ -31,12 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
@@ -51,13 +46,11 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
-    private final SourceReceiver sourceReceiver;
     private final CounterMetrics counter;
     private final HistogramMetrics histogram;
     private final List<PrometheusMetricConverter> converters;
 
     public MetricServiceGRPCHandler(final ModuleManager moduleManager, final EnvoyMetricReceiverConfig config) throws ModuleStartException {
-        sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
@@ -102,12 +95,9 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
 
                 if (service != null && StringUtil.isNotEmpty(service.getServiceName()) && StringUtil.isNotEmpty(service.getServiceInstanceName())) {
                     List<Metrics.MetricFamily> list = message.getEnvoyMetricsList();
-                    boolean needHeartbeatUpdate = true;
 
                     for (final Metrics.MetricFamily metricFamily : list) {
                         counter.inc();
-
-                        final String serviceId = IDManager.ServiceID.buildId(service.getServiceName(), NodeType.Normal);
 
                         try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
                             final ProtoMetricFamily2MetricsAdapter adapter = new ProtoMetricFamily2MetricsAdapter(metricFamily);
@@ -116,18 +106,6 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                 it.getLabels().putIfAbsent("instance", service.getServiceInstanceName());
                             });
                             converters.forEach(converter -> converter.toMeter(metrics));
-
-                            if (needHeartbeatUpdate && list.get(0).getMetricCount() > 0) {
-                                final long timestamp = adapter.adaptTimestamp(list.get(0).getMetric(0));
-
-                                // Send heartbeat
-                                ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-                                serviceInstanceUpdate.setName(service.getServiceInstanceName());
-                                serviceInstanceUpdate.setServiceId(serviceId);
-                                serviceInstanceUpdate.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestamp));
-                                sourceReceiver.receive(serviceInstanceUpdate);
-                                needHeartbeatUpdate = false;
-                            }
                         }
                     }
                 }
