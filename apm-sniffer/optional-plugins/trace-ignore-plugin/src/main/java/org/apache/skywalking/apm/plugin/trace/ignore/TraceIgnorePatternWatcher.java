@@ -40,12 +40,9 @@ public class TraceIgnorePatternWatcher extends AgentConfigChangeWatcher {
         if (LOGGER.isDebugEnable()) {
             LOGGER.debug("Updating using new static config: {}", config);
         }
-        try {
-            this.traceIgnorePathPatterns.set(config);
-            traceIgnoreExtendService.handleTraceIgnorePatternsChanged();
-        } catch (NumberFormatException ex) {
-            LOGGER.error(ex, "Cannot load {} from: {}", getPropertyKey(), config);
-        }
+
+        this.traceIgnorePathPatterns.set(config);
+        traceIgnoreExtendService.handleTraceIgnorePatternsChanged();
     }
 
     @Override
