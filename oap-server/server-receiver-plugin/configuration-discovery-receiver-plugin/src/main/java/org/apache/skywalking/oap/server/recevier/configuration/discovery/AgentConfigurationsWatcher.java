@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import java.io.StringReader;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+
+import java.io.StringReader;
+import java.util.HashMap;
 
 /**
  * AgentConfigurationsWatcher used to handle dynamic configuration changes.
@@ -29,11 +32,15 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
     private volatile AgentConfigurationsTable agentConfigurationsTable;
+    private final AgentConfigurations emptyAgentConfigurations;
 
     public AgentConfigurationsWatcher(ModuleProvider provider) {
         super(ConfigurationDiscoveryModule.NAME, provider, "agentConfigurations");
         this.settingsString = Const.EMPTY_STRING;
         this.agentConfigurationsTable = new AgentConfigurationsTable();
+        this.emptyAgentConfigurations = new AgentConfigurations(
+            null, new HashMap<>(), DigestUtils.sha512Hex("EMPTY")
+        );
     }
 
     @Override
@@ -54,7 +61,20 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
         return settingsString;
     }
 
+    /**
+     * Get service dynamic configuration information, if there is no dynamic configuration information, return to empty
+     * dynamic configuration to prevent the server from deleted the dynamic configuration, but it does not take effect
+     * on the agent side.
+     *
+     * @param service Service name to be queried
+     * @return Service dynamic configuration information
+     */
     public AgentConfigurations getAgentConfigurations(String service) {
-        return agentConfigurationsTable.getAgentConfigurationsCache().get(service);
+        AgentConfigurations agentConfigurations = agentConfigurationsTable.getAgentConfigurationsCache().get(service);
+        if (null == agentConfigurations) {
+            return emptyAgentConfigurations;
+        } else {
+            return agentConfigurations;
+        }
     }
 }

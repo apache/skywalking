@@ -96,6 +96,11 @@ public class Expression {
         expression.setDelegate(new GroovyObjectSupport() {
 
             public SampleFamily propertyMissing(String metricName) {
+                ExpressionParsingContext.get().ifPresent(ctx -> {
+                    if (!ctx.samples.contains(metricName)) {
+                        ctx.samples.add(metricName);
+                    }
+                });
                 ImmutableMap<String, SampleFamily> sampleFamilies = propertyRepository.get();
                 if (sampleFamilies == null) {
                     return SampleFamily.EMPTY;
