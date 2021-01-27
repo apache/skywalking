@@ -43,6 +43,11 @@ services:
     volumes:
       - ./satellite_config.yaml:/configs/satellite_config.yaml
     command: ["start"]
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -z 127.0.0.1 11800" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
     depends_on:
       oap:
         condition: service_healthy
@@ -59,6 +64,8 @@ services:
       SW_GRPC_LOG_SERVER_HOST: sw-satellite
     depends_on:
       oap:
+        condition: service_healthy
+      sw-satellite:
         condition: service_healthy
 networks:
   e2e:
