@@ -11,7 +11,6 @@ Release Notes.
 * Add ElasticSearch 7.10 to test matrix and verify it works.
 * Replace Apache RAT with skywalking-eyes to check license headers.
 * Set up test of Envoy ALS / MetricsService under Istio 1.8.2 to verify Envoy V3 protocol
-* Chore:  Remove duplicate codes in Envoy ALS handler
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
@@ -77,6 +76,7 @@ Release Notes.
 * Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 * Fix bug that the same sample name in one MAL expression caused `IllegalArgumentException` in `Analyzer.analyse`.
 * Add the text analyzer for querying log in the es storage.
+* Chore:  Remove duplicate codes in Envoy ALS handler
 
 #### UI
 * Fix un-removed tags in trace query.
