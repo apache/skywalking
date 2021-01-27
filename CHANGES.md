@@ -38,6 +38,7 @@ Release Notes.
 * Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
 * Support DNS periodic resolving mechanism to update backend service.
 * Support config `agent.trace.ignore_path` can be changed in the runtime.
+
 #### OAP-Backend
 * Make meter receiver support MAL.
 * Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
