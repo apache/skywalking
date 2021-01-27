@@ -77,6 +77,7 @@ Release Notes.
 * Fix bug that the same sample name in one MAL expression caused `IllegalArgumentException` in `Analyzer.analyse`.
 * Add the text analyzer for querying log in the es storage.
 * Chore:  Remove duplicate codes in Envoy ALS handler
+* Fix a legal metric query adoption bug. Don't support global level metric query.
 
 #### UI
 * Fix un-removed tags in trace query.
