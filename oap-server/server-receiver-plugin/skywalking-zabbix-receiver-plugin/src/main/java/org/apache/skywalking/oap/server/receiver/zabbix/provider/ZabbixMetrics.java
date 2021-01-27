@@ -191,6 +191,9 @@ public class ZabbixMetrics {
         }
 
         public ConvertStatics convertToMeter(List<ZabbixRequest.AgentData> dataList) {
+            if (log.isDebugEnabled()) {
+                log.debug("Receive zabbix agent data: {}", dataList);
+            }
             StopWatch stopWatch = new StopWatch();
             Collection<SampleFamily> sampleFamilies = null;
             try {
@@ -263,6 +266,7 @@ public class ZabbixMetrics {
                 // Split params, support quote mode, label name start at 1
                 StringTokenizer tokenizer = new StringTokenizer(
                     StringUtils.substringAfter(keyName.substring(0, keyName.length() - 1), "["), ',', '\"');
+                tokenizer.setIgnoreEmptyTokens(false);
                 int inx = 1;
                 ImmutableMap.Builder<String, String> paramBuilder = ImmutableMap.builder();
                 while (tokenizer.hasNext()) {

@@ -279,6 +279,7 @@
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
+                        <exclude>zabbix-receive-config/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -13,25 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-  "query":"query queryData($condition: MetricsCondition!, $labels: [String!]!, $duration: Duration!) {\n  readLabeledMetricsValues: readLabeledMetricsValues(\n    condition: $condition,\n    labels: $labels,\n    duration: $duration) {\n    label\n    values {\n      values {value}\n    }\n  }}",
-  "variables":{
-    "duration":{
-      "start":"{start}",
-      "end":"{end}",
-      "step":"{step}"
-    },
-    "condition":{
-      "name":"{metricsName}",
-      "entity":{
-        "scope":"{scope}",
-        "serviceName":"{serviceName}",
-        "serviceInstanceName":"{instanceName}",
-        "normal":true
-      }
-    },
-    "labels":[
-      {labels}
-    ]
-  }
-}
+services:
+  - key: not null
+    label: "vm::Zabbix-agent-docker-client"
