@@ -67,16 +67,17 @@ Release Notes.
 * Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
 * Istio control plane: remove redundant metrics and polish panel layout.
 * Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
-* Fix receiver analysis error count metrics
-* Log collecting and query implementation
-* Support Alarm to feishu
+* Fix receiver analysis error count metrics.
+* Log collecting and query implementation.
+* Support Alarm to feishu.
 * Add the implementation of ConfigurationDiscovery on the OAP side.
 * Fix bug in `parseInternalErrorCode` where some error codes are never reached.
-* OAL supports multiple values when as numeric
+* OAL supports multiple values when as numeric.
 * Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 * Fix bug that the same sample name in one MAL expression caused `IllegalArgumentException` in `Analyzer.analyse`.
 * Add the text analyzer for querying log in the es storage.
-* Chore:  Remove duplicate codes in Envoy ALS handler
+* Chore:  Remove duplicate codes in Envoy ALS handler.
+* Remove the strict rule of OAL disable statement parameter.
 
 #### UI
 * Fix un-removed tags in trace query.
