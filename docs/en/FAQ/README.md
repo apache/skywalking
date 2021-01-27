@@ -27,6 +27,7 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Compatible with other javaagent bytecode processing](Compatible-with-other-javaagent-bytecode-processing.md)
 * [**Java agent memory leak** when enhance `Worker thread` at use Thread Pool](Memory-leak-enhance-Worker-thread.md)
 * [Thrift plugin](thrift-plugin.md)
+* ["java -ext.dirs" is not supported,So how to load outside jar to classpath?](Load-outside-jar-to-classpath.md)
 
 ## UI
 * [What is **VNode**? And why does SkyWalking have that?](vnode.md)
