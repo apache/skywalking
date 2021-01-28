@@ -34,7 +34,7 @@ import java.util.Arrays;
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
     
-    private String[] ignoreSuffixArray = new String[0];
+    private volatile String[] ignoreSuffixArray = new String[0];
     
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
