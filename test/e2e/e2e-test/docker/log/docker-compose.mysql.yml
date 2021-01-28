@@ -43,5 +43,13 @@ services:
         condition: service_healthy
     entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
 
+  provider:
+    extends:
+      file: ../base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
+
 networks:
   e2e:

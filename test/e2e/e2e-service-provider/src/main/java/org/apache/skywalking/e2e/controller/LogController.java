@@ -17,20 +17,18 @@
 
 package org.apache.skywalking.e2e.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
-@RequiredArgsConstructor
-public class HealthController {
-    @GetMapping("/health")
-    @SuppressWarnings("EmptyMethod")
-    @ResponseStatus(code = HttpStatus.OK)
-    public void hello() {
+public class LogController {
+
+    @RequestMapping(value = "/logs/trigger")
+    public String trigger() {
+        LOGGER.info("now: {}", System.currentTimeMillis());
+        return TraceContext.traceId();
     }
-
 }
-

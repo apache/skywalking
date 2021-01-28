@@ -61,17 +61,13 @@ public class KafkaLogE2E extends SkyWalkingTestAdapter {
     private HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "oap", port = 11800)
-    private HostAndPort oapHostPost;
-
-    @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "provider_kafka", port = 8080)
+    @ContainerHostAndPort(name = "provider", port = 9090)
     private HostAndPort serviceHostPort;
 
     @BeforeAll
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
-        trafficController(serviceHostPort, "/sendLog");
+        trafficController(serviceHostPort, "/logs/trigger");
     }
 
     @AfterAll
@@ -94,27 +90,17 @@ public class KafkaLogE2E extends SkyWalkingTestAdapter {
             LOGGER.info("verifying service instance: {}", service);
             // instance
             verifyServiceInstances(service);
-            // endpoint
-            verifyServiceEndpoints(service);
         }
     }
 
     @RetryableTest
     public void verifyLog() throws Exception {
-        LogsQuery logsQuery = new LogsQuery().serviceId("ZTJl.1")
-                                             .serviceInstanceId("ZTJl.1_ZTJlLWluc3RhbmNl")
-                                             .endpointId("ZTJl.1_L3RyYWZmaWM=")
-                                             .endpointName("/traffic")
-                                             .traceId("ac81b308-0d66-4c69-a7af-a023a536bd3e")
-                                             .segmentId(
-                                                 "6024a2b1fcff48e4a641d69d388bac53.41.16088574455279608")
-                                             .spanId("0")
-                                             .tag("status_code", "200")
+        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
+                                             .tag("logger", "org.apache.skywalking.e2e.controller.LogController")
                                              .start(startTime)
                                              .end(Times.now());
         if (graphql.supportQueryLogsByKeywords()) {
-            logsQuery.keywordsOfContent("main", "INFO")
-                     .excludingKeywordsOfContent("ERROR");
+            logsQuery.keywordsOfContent("now");
         }
         final List<Log> logs = graphql.logs(logsQuery);
         LOGGER.info("logs: {}", logs);

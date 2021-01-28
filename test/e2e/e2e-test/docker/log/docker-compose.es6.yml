@@ -25,7 +25,7 @@ services:
     environment:
       - discovery.type=single-node
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200" ]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -40,5 +40,12 @@ services:
       es:
         condition: service_healthy
 
+  provider:
+    extends:
+      file: ../base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
 networks:
   e2e:
