@@ -35,7 +35,7 @@ public class TraceIgnoreExtendService extends SamplingService {
     private static final ILog LOGGER = LogManager.getLogger(TraceIgnoreExtendService.class);
     private static final String PATTERN_SEPARATOR = ",";
     private TracePathMatcher pathMatcher = new FastPathMatcher();
-    private String[] patterns = new String[] {};
+    private volatile String[] patterns = new String[] {};
     private TraceIgnorePatternWatcher traceIgnorePatternWatcher;
 
     @Override

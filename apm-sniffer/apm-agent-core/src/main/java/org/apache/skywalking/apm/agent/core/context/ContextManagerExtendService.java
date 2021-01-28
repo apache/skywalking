@@ -22,28 +22,36 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.util.Arrays;
 
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
     
-    private String[] ignoreSuffixArray = new String[0];
+    private volatile String[] ignoreSuffixArray = new String[0];
     
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
+
+    private IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher;
 
     @Override
     public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
+        ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
     }
 
     @Override
     public void boot() {
         ignoreSuffixArray = Config.Agent.IGNORE_SUFFIX.split(",");
+        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
+                .registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
+        handleIgnoreSuffixPatternsChanged();
     }
 
     @Override
@@ -83,5 +91,11 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
     @Override
     public void statusChanged(final GRPCChannelStatus status) {
         this.status = status;
+    }
+
+    void handleIgnoreSuffixPatternsChanged() {
+        if (StringUtil.isNotBlank(ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns())) {
+            ignoreSuffixArray = ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns().split(",");
+        }
     }
 }
