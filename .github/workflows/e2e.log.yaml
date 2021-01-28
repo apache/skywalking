@@ -23,6 +23,7 @@ on:
       - '!**.md'
   schedule:
     - cron: '0 18 * * *'
+
 env:
   SW_AGENT_JDK_VERSION: 8
 

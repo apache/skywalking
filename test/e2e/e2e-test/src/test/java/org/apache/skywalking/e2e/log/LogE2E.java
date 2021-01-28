@@ -91,7 +91,6 @@ public class LogE2E extends SkyWalkingTestAdapter {
     @RetryableTest
     public void verifyLog() throws Exception {
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
-                                             .tag("logger", "org.apache.skywalking.e2e.controller.LogController")
                                              .start(startTime)
                                              .end(Times.now());
         if (graphql.supportQueryLogsByKeywords()) {

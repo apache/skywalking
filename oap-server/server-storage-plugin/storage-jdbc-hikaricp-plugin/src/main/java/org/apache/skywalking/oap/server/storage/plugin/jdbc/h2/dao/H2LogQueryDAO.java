@@ -37,12 +37,10 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
-import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -51,7 +49,6 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
@@ -83,7 +80,6 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                           String endpointId,
                           String endpointName,
                           TraceScopeCondition relatedTrace,
-                          LogState state,
                           Order queryOrder,
                           int from,
                           int limit,
@@ -144,14 +140,6 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             }
         }
 
-        if (LogState.ERROR.equals(state)) {
-            sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
-            parameters.add(BooleanUtils.booleanToValue(true));
-        } else if (LogState.SUCCESS.equals(state)) {
-            sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
-            parameters.add(BooleanUtils.booleanToValue(false));
-        }
-
         if (CollectionUtils.isNotEmpty(tags)) {
             for (final Tag tag : tags) {
                 final int foundIdx = searchableTagKeys.indexOf(tag.getKey());
@@ -199,7 +187,6 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setEndpointName(resultSet.getString(ENDPOINT_NAME));
                     log.setTraceId(resultSet.getString(TRACE_ID));
                     log.setTimestamp(resultSet.getString(TIMESTAMP));
-                    log.setError(BooleanUtils.valueToBoolean(resultSet.getInt(IS_ERROR)));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
                     log.setContent(resultSet.getString(CONTENT));
                     String dataBinaryBase64 = resultSet.getString(TAGS_RAW_DATA);

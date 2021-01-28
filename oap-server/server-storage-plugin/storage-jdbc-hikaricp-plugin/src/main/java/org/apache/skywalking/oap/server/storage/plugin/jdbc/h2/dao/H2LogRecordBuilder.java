@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TAGS_RAW_DATA;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord.CONTENT_TYPE;
@@ -61,7 +60,6 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
         record.setTraceId((String) dbMap.get(TRACE_ID));
         record.setTraceSegmentId((String) dbMap.get(TRACE_SEGMENT_ID));
         record.setSpanId(((Number) dbMap.get(SPAN_ID)).intValue());
-        record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
         record.setContentType(((Number) dbMap.get(CONTENT_TYPE)).intValue());
         record.setContent((String) dbMap.get(CONTENT));
         record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
@@ -87,7 +85,6 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
         map.put(TRACE_ID, storageData.getTraceId());
         map.put(TRACE_SEGMENT_ID, storageData.getTraceSegmentId());
         map.put(SPAN_ID, storageData.getSpanId());
-        map.put(IS_ERROR, storageData.getIsError());
         map.put(TIME_BUCKET, storageData.getTimeBucket());
         map.put(CONTENT_TYPE, storageData.getContentType());
         map.put(CONTENT, storageData.getContent());
