@@ -36,12 +36,12 @@ jobs:
     strategy:
       matrix:
         case:
-#          - name: Kafka
-#            class: org.apache.skywalking.e2e.kafka.KafkaE2E
-#          - name: Profiling
-#            class: org.apache.skywalking.e2e.kafka.KafkaProfileE2E
-#          - name: Meter
-#            class: org.apache.skywalking.e2e.kafka.KafkaMeterE2E
+          - name: Kafka
+            class: org.apache.skywalking.e2e.kafka.KafkaE2E
+          - name: Profiling
+            class: org.apache.skywalking.e2e.kafka.KafkaProfileE2E
+          - name: Meter
+            class: org.apache.skywalking.e2e.kafka.KafkaMeterE2E
           - name: Log
             class: org.apache.skywalking.e2e.kafka.KafkaLogE2E
     steps:
