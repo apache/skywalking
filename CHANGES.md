@@ -37,6 +37,7 @@ Release Notes.
 * Support collecting logs and forwarding through gRPC.
 * Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
 * Support DNS periodic resolving mechanism to update backend service.
+* Support config `agent.trace.ignore_path` can be changed in the runtime.
 
 #### OAP-Backend
 * Make meter receiver support MAL.
@@ -78,6 +79,7 @@ Release Notes.
 * Add the text analyzer for querying log in the es storage.
 * Chore:  Remove duplicate codes in Envoy ALS handler.
 * Remove the strict rule of OAL disable statement parameter.
+* Fix a legal metric query adoption bug. Don't support global level metric query.
 
 #### UI
 * Fix un-removed tags in trace query.
