@@ -77,7 +77,7 @@ Release Notes.
 * Add node information from the Openensus proto to the labels of the samples, to support the identification of the source of the Metric data.
 * Fix bug that the same sample name in one MAL expression caused `IllegalArgumentException` in `Analyzer.analyse`.
 * Add the text analyzer for querying log in the es storage.
-* Chore:  Remove duplicate codes in Envoy ALS handler
+* Chore:  Remove duplicate codes in Envoy ALS handler.
 * Remove the strict rule of OAL disable statement parameter.
 * Fix a legal metric query adoption bug. Don't support global level metric query.
 
