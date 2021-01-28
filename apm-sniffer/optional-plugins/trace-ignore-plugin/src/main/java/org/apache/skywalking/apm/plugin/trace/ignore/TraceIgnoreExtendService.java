@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
@@ -34,6 +36,13 @@ public class TraceIgnoreExtendService extends SamplingService {
     private static final String PATTERN_SEPARATOR = ",";
     private TracePathMatcher pathMatcher = new FastPathMatcher();
     private String[] patterns = new String[] {};
+    private TraceIgnorePatternWatcher traceIgnorePatternWatcher;
+
+    @Override
+    public void prepare() {
+        super.prepare();
+        traceIgnorePatternWatcher = new TraceIgnorePatternWatcher("agent.trace.ignore_path", this);
+    }
 
     @Override
     public void boot() {
@@ -43,11 +52,11 @@ public class TraceIgnoreExtendService extends SamplingService {
         if (StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
             patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
         }
-    }
 
-    @Override
-    public void prepare() {
-        super.prepare();
+        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
+                               .registerAgentConfigChangeWatcher(traceIgnorePatternWatcher);
+
+        handleTraceIgnorePatternsChanged();
     }
 
     @Override
@@ -75,5 +84,11 @@ public class TraceIgnoreExtendService extends SamplingService {
     @Override
     public void forceSampled() {
         super.forceSampled();
+    }
+
+    void handleTraceIgnorePatternsChanged() {
+        if (StringUtil.isNotBlank(traceIgnorePatternWatcher.getTraceIgnorePathPatterns())) {
+            patterns = traceIgnorePatternWatcher.getTraceIgnorePathPatterns().split(PATTERN_SEPARATOR);
+        }
     }
 }

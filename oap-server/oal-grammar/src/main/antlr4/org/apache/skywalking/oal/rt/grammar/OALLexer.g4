@@ -53,24 +53,6 @@ SRC_BROWSER_APP_TRAFFIC: 'BrowserAppTraffic';
 SRC_BROWSER_APP_PAGE_TRAFFIC: 'BrowserAppPageTraffic';
 SRC_BROWSER_APP_SINGLE_VERSION_TRAFFIC: 'BrowserAppSingleVersionTraffic';
 
-//hard code entities, only used when need to be deactived.
-//Disable is targeting @Stream#name
-SRC_SEGMENT: 'segment';
-SRC_TOP_N_DB_STATEMENT: 'top_n_database_statement';
-SRC_ENDPOINT_RELATION_SERVER_SIDE: 'endpoint_relation_server_side';
-SRC_SERVICE_RELATION_SERVER_SIDE: 'service_relation_server_side';
-SRC_SERVICE_RELATION_CLIENT_SIDE: 'service_relation_client_side';
-SRC_ALARM_RECORD: 'alarm_record';
-SRC_HTTP_ACCESS_LOG: 'http_access_log';
-
-SRC_ZIPKIN_SPAN: 'zipkin_span';
-SRC_JAEGER_SPAN: 'jaeger_span';
-SRC_PROFILE_TASK: 'profile_task';
-SRC_PROFILE_TASK_LOG: 'profile_task_log';
-SRC_PROFILE_THREAD_SHANPSHOT: 'profile_task_segment_snapshot';
-
-SRC_BROWSER_ERROR_LOG: 'browser_error_log';
-
 // Constructors symbols
 
 DOT:                                 '.';
