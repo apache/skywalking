@@ -62,6 +62,7 @@ public class SkyWalkingAgent {
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
+            // 初始化配置信息
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
         } catch (Exception e) {
             // try to resolve a new logger, and use the new logger to write the error log here
@@ -74,6 +75,7 @@ public class SkyWalkingAgent {
         }
 
         try {
+            // AgentClassLoader 加载插件类并进行实例化
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
         } catch (AgentPackageNotFoundException ape) {
             LOGGER.error(ape, "Locate agent.jar failure. Shutting down.");
@@ -83,6 +85,7 @@ public class SkyWalkingAgent {
             return;
         }
 
+        // 创建 AgentBuilder
         final ByteBuddy byteBuddy = new ByteBuddy().with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
         AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy).ignore(
@@ -127,11 +130,13 @@ public class SkyWalkingAgent {
                     .installOn(instrumentation);
 
         try {
+            // 使用 JDK API 方式加载并启动 BootService 服务
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
             LOGGER.error(e, "Skywalking agent boot failure.");
         }
 
+        // 添加 JVM 钩子
         Runtime.getRuntime()
                 .addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown, "skywalking service shutdown thread"));
     }
