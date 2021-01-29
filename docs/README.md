@@ -82,7 +82,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Deploy in kubernetes](en/setup/backend/backend-k8s.md). Guides you to build and use SkyWalking image, and deploy in k8s.
       * [Choose storage](en/setup/backend/backend-storage.md). As we know, in default quick start, backend is running with H2 DB. But clearly, it doesn't fit the product env. In here, you could find what other choices do you have. Choose the one you like, we also welcome anyone to contribute new storage implementors.
       * [Set receivers](en/setup/backend/backend-receivers.md). You could choose receivers by your requirements, most receivers are harmless, at least our default receivers are. You would set and active all receivers provided.
-      * [Open fetchers](en/setup/backend/backend-fetcher.md). You could open different fetchers to read metrics from the target applications. These ones works like receivers, but in pulling mode, typically like Prometheus.
+      * [Open fetchers](en/setup/backend/backend-fetcher.md). You could open different fetchers to read metrics from the target applications. These ones work like receivers, but in pulling mode, typically like Prometheus.
       * Do [trace sampling](en/setup/backend/trace-sampling.md) at backend. Trace sampling allows you to keep your metrics accurate, whilst only keeping some traces in storage based on rate.
       * Follow [slow DB statement threshold](en/setup/backend/slow-db-statement.md) config document to understand how to detect slow database statements (including SQL statements) in your system.
       * Official [OAL scripts](en/guides/backend-oal-scripts.md). As you known from our [OAL introduction](en/concepts-and-designs/oal.md), most of backend analysis capabilities based on the scripts. Here is the description of official scripts, which helps you to understand which metrics data are in process, also could be used in alarm.
@@ -95,8 +95,9 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Apdex threshold](en/setup/backend/apdex-threshold.md). Configure the thresholds for different services if Apdex calculation is activated in the OAL.
       * [Service Grouping](en/setup/backend/service-auto-grouping.md). An automatic grouping mechanism for all services based on name.
       * [Group Parameterized Endpoints](en/setup/backend/endpoint-grouping-rules.md). Configure the grouping rules for parameterized endpoints, to improve the meaning of the metrics.
+      * [OpenTelemetry Metrics Analysis](backend-receivers.md#opentelemetry-receiver). Activate built-in configurations to convert the metrics forwarded from OpenTelemetry collector. And learn how to write your own conversion rules.
       * [Meter Analysis](en/setup/backend/backend-meter.md). Set up the backend analysis rules, when use [SkyWalking Meter System Toolkit](en/setup/service-agent/java-agent/README.md#advanced-features) or meter plugins. 
-      * [Spring Sleuth Metrics Analysis](en/setup/backend/spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
+      * [Spring Sleuth Metrics Analysis](en/setup/backend/spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer.
     * [UI setup document](en/setup/backend/ui-setup.md).
     * [CLI setup document](https://github.com/apache/skywalking-cli).
 * [UI Introduction](en/ui/README.md). Introduce the UI usage and features.

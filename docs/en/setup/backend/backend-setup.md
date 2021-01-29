@@ -87,13 +87,13 @@ Choose the ones you like, we are also welcome anyone to contribute new storage i
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
 1. [Open fetchers](backend-fetcher.md). You could open different fetchers to read metrics from the target applications.
-These ones works like receivers, but in pulling mode, typically like Prometheus.
+These ones work like receivers, but in pulling mode, typically like Prometheus.
 1. [Token authentication](backend-token-auth.md). You could add token authentication mechanisms to avoid `OAP` receiving untrusted data.  
 1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metrics accurate, only don't save some of traces
 in storage based on rate.
 1. Follow [slow DB statement threshold](slow-db-statement.md) config document to understand that, 
 how to detect the Slow database statements(including SQL statements) in your system.
-1. Official [OAL scripts](../../guides/backend-oal-scripts.md). As you known from our [OAL introduction](../../concepts-and-designs/oal.md),
+1. Official [OAL scripts](../../guides/backend-oal-scripts.md). As you have known from our [OAL introduction](../../concepts-and-designs/oal.md),
 most of backend analysis capabilities based on the scripts. Here is the description of official scripts,
 which helps you to understand which metrics data are in process, also could be used in alarm.
 1. [Alarm](backend-alarm.md). Alarm provides a time-series based check mechanism. You could set alarm 
@@ -111,6 +111,8 @@ to reflect the delegation in topology graph.
 1. [Service Grouping](service-auto-grouping.md). An automatic grouping mechanism for all services based on name.
 1. [Group Parameterized Endpoints](endpoint-grouping-rules.md). Configure the grouping rules for parameterized endpoints,
 to improve the meaning of the metrics.
+1. [OpenTelemetry Metrics Analysis](backend-receivers.md#opentelemetry-receiver). Activate built-in configurations to convert the metrics forwarded from OpenTelemetry collector.
+And learn how to write your own conversion rules.
 1. [Meter Analysis](backend-meter.md). Set up the backend analysis rules, when use [SkyWalking Meter System Toolkit](../service-agent/java-agent/README.md#advanced-features) 
 or meter plugins. 
 1. [Spring Sleuth Metrics Analysis](spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
