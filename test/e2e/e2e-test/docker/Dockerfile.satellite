@@ -13,15 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_JDK_VERSION=8
-ARG AGENT_JDK_BASE=adoptopenjdk/openjdk${SW_AGENT_JDK_VERSION}:alpine
+FROM golang:1.14 AS builder
 
-FROM ${AGENT_JDK_BASE}
+ARG COMMIT_HASH=827f3a45e44cb2a64f874ff17d9eb454a680d08f
+ARG SATELLITE_CODE=${COMMIT_HASH}.tar.gz
+ARG SATELLITE_CODE_URL=https://github.com/apache/skywalking-satellite/archive/${SATELLITE_CODE}
 
-VOLUME /services
+ENV CGO_ENABLED=0
 
-ADD e2e-log-producer/target/e2e-log-producer-1.0.0.jar /services/
+WORKDIR /skywalking-satellite
 
-ENV JAVA_OPTS=""
+ADD ${SATELLITE_CODE_URL} .
+RUN tar -xf ${SATELLITE_CODE} --strip 1
+RUN rm ${SATELLITE_CODE}
 
-CMD ["sh", "-c", "java $JAVA_OPTS -jar /services/e2e-log-producer-1.0.0.jar"]
+RUN make linux
+
+FROM alpine:3.10
+
+COPY --from=builder /skywalking-satellite/bin/skywalking-satellite-latest-linux-amd64 /sw-satellite
+
+ENTRYPOINT ["/sw-satellite"]

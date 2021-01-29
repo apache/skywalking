@@ -15,4 +15,4 @@
 
 instances:
   - key: not null
-    label: e2e-instance
+    label: not null

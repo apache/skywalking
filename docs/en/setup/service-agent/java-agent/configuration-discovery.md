@@ -25,6 +25,7 @@ Java agent supports the following dynamic configurations.
 |        Config Key         |                      Value Description                       | Value Format Example  | Required Plugin(s) |
 | :-----------------------: | :----------------------------------------------------------: | :-------------------: | :----------------: |
 | agent.sample_n_per_3_secs |          The number of sampled traces per 3 seconds          |          -1           | - |
-| agent.trace.ignore_path |          The value is the path that you need to ignore, multiple paths should be separated by `,` [more details](./agent-optional-plugins/trace-ignore-plugin.md)         |          `/your/path/1/**,/your/path/2/**`         | `apm-trace-ignore-plugin` |
+| agent.ignore_suffix       |          If the operation name of the first span is included in this set, this segment should be ignored. Multiple values should be separated by `,`        |          `.txt,.log`         | - |
+| agent.trace.ignore_path   |          The value is the path that you need to ignore, multiple paths should be separated by `,` [more details](./agent-optional-plugins/trace-ignore-plugin.md)         |          `/your/path/1/**,/your/path/2/**`         | `apm-trace-ignore-plugin` |
 
 * `Required plugin(s)`, the configuration affects only when the required plugins activated.

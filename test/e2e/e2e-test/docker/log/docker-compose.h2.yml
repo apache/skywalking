@@ -41,5 +41,13 @@ services:
       h2db:
         condition: service_healthy
 
+  provider:
+    extends:
+      file: ../base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
+
 networks:
   e2e:
