@@ -115,6 +115,8 @@ Release Notes.
 * Implement the service logs on UI.
 * Change the flask icon to light version for a better view of topology dark theme.
 * Implement viewing logs on trace page.
+* Fix update props of date component.
+* Fix query conditions for logs.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
