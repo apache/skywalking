@@ -1,0 +1,61 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+logger:
+  log_pattern: "%time [%level][%field] - %msg"
+  time_pattern: "2006-01-02 15:04:05.000"
+  level: "info"
+
+telemetry:
+  cluster: cluster1
+  service: service1
+  instance: instance1
+
+sharing:
+  common_config:
+    pipe_name: sharing
+  clients:
+    - plugin_name: "kafka-client"
+      brokers: broker-a:9092,broker-b:9092
+      version: 2.4.1
+  servers:
+    - plugin_name: "grpc-server"
+      address: ":11800"
+pipes:
+  - common_config:
+      pipe_name: pipe1
+    gatherer:
+      server_name: "grpc-server"
+      receiver:
+        plugin_name: "grpc-nativelog-receiver"
+      queue:
+        plugin_name: "mmap-queue"
+        segment_size: 524288
+        max_in_mem_segments: 6
+        queue_dir: "pipe1-log-grpc-receiver-queue"
+    processor:
+      filters:
+    sender:
+      fallbacker:
+        plugin_name: none-fallbacker
+      flush_time: 1000
+      max_buffer_size: 200
+      min_flush_events: 5
+      client_name: kafka-client
+      forwarders:
+        - plugin_name: nativelog-kafka-forwarder
+          topic: skywalking-logs

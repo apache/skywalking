@@ -143,7 +143,7 @@ public class LogQuery implements ILogQueryDAO {
             nested.close();
         }
 
-        SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), LogRecord.INDEX_NAME);
+        SelectQueryImpl countQuery = select().count(SERVICE_ID).from(client.getDatabase(), LogRecord.INDEX_NAME);
         for (ConjunctionClause clause : recallQuery.getClauses()) {
             countQuery.where(clause);
         }

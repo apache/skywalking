@@ -40,7 +40,6 @@
         <module>e2e-protocol</module>
         <module>e2e-service-provider</module>
         <module>e2e-service-consumer</module>
-        <module>e2e-log-producer</module>
         <module>e2e-test</module>
     </modules>
 
@@ -67,6 +66,21 @@
 
         <testcontainers.version>1.15.0</testcontainers.version>
     </properties>
+
+    <repositories>
+       <repository>
+           <id>apache.snapshots</id>
+           <name>Apache Development Snapshot Repository</name>
+           <url>https://repository.apache.org/content/groups/snapshots/</url>
+           <releases>
+               <enabled>false</enabled>
+           </releases>
+           <snapshots>
+               <enabled>true</enabled>
+           </snapshots>
+       </repository>
+    </repositories>
+
 
     <dependencyManagement>
         <dependencies>

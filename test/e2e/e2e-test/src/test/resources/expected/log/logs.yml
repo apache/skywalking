@@ -14,17 +14,15 @@
 # limitations under the License.
 
 logs:
-  - serviceName: e2e
+  - serviceName: not null
     serviceId: not null
-    serviceInstanceName: "e2e-instance"
+    serviceInstanceName: not null
     serviceInstanceId: not null
-    endpointName: /traffic
-    endpointId: not null
-    traceId: "ac81b308-0d66-4c69-a7af-a023a536bd3e"
+    traceId: not null
     timestamp: not null
     isError: false
     contentType: TEXT
     content: not null
     tags:
-      - key: status_code
-        value: 200
+      - key: level
+        value: INFO
