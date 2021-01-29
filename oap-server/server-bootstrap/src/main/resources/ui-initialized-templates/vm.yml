@@ -36,6 +36,44 @@ templates:
               "children": [
                 {
                   "width": "4",
+                  "title": "CPU Usage",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_cpu_total_percentage",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
+                  "title": "Memory RAM Usage",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_memory_used",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576"
+                },
+                {
+                  "width": "4",
+                  "title": "Memory Swap Usage",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_memory_swap_percentage",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
                   "title": "CPU Average Used",
                   "height": 350,
                   "entityType": "Service",
@@ -91,17 +129,17 @@ templates:
                 },
                 {
                   "width": "4",
-                  "title": "File System",
+                  "title": "File System Mountpoint Usage",
                   "height": 350,
                   "entityType": "Service",
                   "independentSelector": false,
-                  "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_vm_filesystem_total,meter_vm_filesystem_available",
-                  "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartArea",
-                  "aggregation": "/",
-                  "aggregationNum": "1073741824",
-                  "unit": "GB"
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_vm_filesystem_percentage",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "aggregation": "+",
+                  "aggregationNum": "0",
+                  "unit": "%"
                 },
                 {
                   "width": "4",

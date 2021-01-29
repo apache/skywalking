@@ -31,7 +31,10 @@
 expSuffix: tag({tags -> tags.node_identifier_host_name = 'vm::' + tags.node_identifier_host_name}).service(['node_identifier_host_name'])
 metricPrefix: meter_vm
 metricsRules:
-    #node cpu
+
+  #node cpu
+  - name: cpu_total_percentage
+    exp: (node_cpu_seconds_total * 100).tagNotEqual('mode' , 'idle').sum(['node_identifier_host_name']).rate('PT1M')
   - name: cpu_average_used
     exp: (node_cpu_seconds_total * 100).sum(['node_identifier_host_name' , 'mode']).rate('PT1M')
   - name: cpu_load1
@@ -52,12 +55,12 @@ metricsRules:
     exp: node_memory_SwapFree_bytes
   - name: memory_swap_total
     exp: node_memory_SwapTotal_bytes
+  - name: memory_swap_percentage
+    exp: 100 - ((node_memory_SwapFree_bytes * 100) / node_memory_SwapTotal_bytes)
 
     #node filesystem
-  - name: filesystem_total
-    exp: node_filesystem_size_bytes.sum(['node_identifier_host_name'])
-  - name: filesystem_available
-    exp: node_filesystem_avail_bytes.sum(['node_identifier_host_name'])
+  - name: filesystem_percentage
+    exp: 100 - ((node_filesystem_avail_bytes * 100).sum(['node_identifier_host_name' , 'mountpoint']) / node_filesystem_size_bytes.sum(['node_identifier_host_name' , 'mountpoint']))
 
     #node disk
   - name: disk_read
