@@ -50,7 +50,11 @@ public class SampleFamilyFinder extends SampleFamily implements GroovyIntercepta
         SampleFamily sampleFamily = sampleFamilies.get(metricNameAppender);
         if (sampleFamily != null) {
             // Add sample family name
-            ExpressionParsingContext.get().ifPresent(ctx -> ctx.samples.add(metricNameAppender));
+            ExpressionParsingContext.get().ifPresent(ctx -> {
+                if (!ctx.samples.contains(metricNameAppender)) {
+                    ctx.samples.add(metricNameAppender);
+                }
+            });
             return sampleFamily;
         }
 
@@ -69,7 +73,11 @@ public class SampleFamilyFinder extends SampleFamily implements GroovyIntercepta
 
     @Override
     public Object invokeMethod(String name, Object args) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.samples.add(metricNameAppender));
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            if (!ctx.samples.contains(metricNameAppender)) {
+                ctx.samples.add(metricNameAppender);
+            }
+        });
         if (!ExpressionParsingContext.get().isPresent()) {
             log.warn("{} referred by \"{}\" doesn't exist in {}", metricNameAppender, literal, sampleFamilies.keySet());
         }
