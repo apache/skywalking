@@ -119,7 +119,7 @@ templates:
                 },
                 {
                   "width": "4",
-                  "title": "Network Bandwidth Usage ",
+                  "title": "Network Bandwidth Usage",
                   "height": 350,
                   "entityType": "Service",
                   "independentSelector": false,
