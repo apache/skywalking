@@ -82,7 +82,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_vm_memory_SwapFree,meter_vm_memory_SwapTotal",
+                  "metricName": "meter_vm_memory_swap_free,meter_vm_memory_swap_total",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartArea",
                   "aggregation": "/",
@@ -138,7 +138,7 @@ templates:
                   "entityType": "Service",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_vm_tcp_currEstab,meter_vm_tcp_tw,meter_vm_tcp_alloc,meter_vm_sockets_used,meter_vm_udp_inuse",
+                  "metricName": "meter_vm_tcp_curr_estab,meter_vm_tcp_tw,meter_vm_tcp_alloc,meter_vm_sockets_used,meter_vm_udp_inuse",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
                 },

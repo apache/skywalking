@@ -48,9 +48,9 @@ metricsRules:
     exp: node_memory_MemAvailable_bytes
   - name: memory_used
     exp: node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
-  - name: memory_SwapFree
+  - name: memory_swap_free
     exp: node_memory_SwapFree_bytes
-  - name: memory_SwapTotal
+  - name: memory_swap_total
     exp: node_memory_SwapTotal_bytes
 
     #node filesystem
@@ -72,7 +72,7 @@ metricsRules:
     exp: node_network_transmit_bytes_total.sum(['node_identifier_host_name']).irate()
 
     #node netstat
-  - name: tcp_currEstab
+  - name: tcp_curr_estab
     exp: node_netstat_Tcp_CurrEstab
   - name: tcp_tw
     exp: node_sockstat_TCP_tw
