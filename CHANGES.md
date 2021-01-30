@@ -36,6 +36,7 @@ Release Notes.
 * Fix RestTemplate plugin recording url tag with wrong port
 * Support collecting logs and forwarding through gRPC.
 * Support config `agent.sample_n_per_3_secs` can be changed in the runtime.
+* Support config `agent.ignore_suffix` can be changed in the runtime.
 * Support DNS periodic resolving mechanism to update backend service.
 * Support config `agent.trace.ignore_path` can be changed in the runtime.
 
@@ -80,6 +81,8 @@ Release Notes.
 * Chore:  Remove duplicate codes in Envoy ALS handler.
 * Remove the strict rule of OAL disable statement parameter.
 * Fix a legal metric query adoption bug. Don't support global level metric query.
+* Add VM MAL and ui-template configration, support Prometheus node-exporter VM metrics that pushed from OpenTelemetry-collector.
+* Remove unused log query parameters.
 
 #### UI
 * Fix un-removed tags in trace query.
@@ -114,6 +117,8 @@ Release Notes.
 * Implement the service logs on UI.
 * Change the flask icon to light version for a better view of topology dark theme.
 * Implement viewing logs on trace page.
+* Fix update props of date component.
+* Fix query conditions for logs.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

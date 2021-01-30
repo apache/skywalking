@@ -90,7 +90,7 @@ public class KafkaE2E extends SkyWalkingTestAdapter {
     protected HostAndPort serviceHostPort;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "ui", port = 8080)
+    @ContainerHostAndPort(name = "oap", port = 12800)
     protected HostAndPort swWebappHostPort;
 
     @BeforeAll

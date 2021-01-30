@@ -33,6 +33,10 @@
 
     <artifactId>e2e-service-provider</artifactId>
 
+    <properties>
+        <sw.snapshot.version>8.4.0-SNAPSHOT</sw.snapshot.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -52,6 +56,16 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-toolkit-micrometer-registry</artifactId>
             <version>8.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-logback-1.x</artifactId>
+            <version>${sw.snapshot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-trace</artifactId>
+            <version>${sw.snapshot.version}</version>
         </dependency>
     </dependencies>
 

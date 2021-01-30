@@ -29,11 +29,9 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
-import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
@@ -65,7 +63,6 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
                           final String endpointId,
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
-                          final LogState state,
                           final Order queryOrder,
                           final int from,
                           final int limit,
@@ -114,18 +111,6 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             }
         }
 
-        if (LogState.ERROR.equals(state)) {
-            boolQueryBuilder.must()
-                            .add(
-                                QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
-        } else if (LogState.SUCCESS.equals(state)) {
-            boolQueryBuilder.must()
-                            .add(QueryBuilders.termQuery(
-                                AbstractLogRecord.IS_ERROR,
-                                BooleanUtils.booleanToValue(false)
-                            ));
-        }
-
         if (CollectionUtils.isNotEmpty(tags)) {
             BoolQueryBuilder tagMatchQuery = QueryBuilders.boolQuery();
             tags.forEach(tag -> tagMatchQuery.must(QueryBuilders.termQuery(AbstractLogRecord.TAGS, tag.toString())));
@@ -164,8 +149,6 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
             log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));
             log.setTimestamp(searchHit.getSourceAsMap().get(AbstractLogRecord.TIMESTAMP).toString());
-            log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
-                                                                        .get(AbstractLogRecord.IS_ERROR)).intValue()));
             log.setContentType(ContentType.instanceOf(((Number) searchHit.getSourceAsMap()
                                                                          .get(
                                                                              AbstractLogRecord.CONTENT_TYPE)).intValue()));
