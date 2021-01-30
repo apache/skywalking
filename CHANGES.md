@@ -11,6 +11,7 @@ Release Notes.
 * Add ElasticSearch 7.10 to test matrix and verify it works.
 * Replace Apache RAT with skywalking-eyes to check license headers.
 * Set up test of Envoy ALS / MetricsService under Istio 1.8.2 to verify Envoy V3 protocol
+* Test: fix flaky E2E test of Kafka.
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
