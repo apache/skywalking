@@ -24,6 +24,7 @@ public class ToolkitConfig {
 
     public static class Plugin {
         public static class Toolkit {
+            @PluginConfig(root = ToolkitConfig.class)
             public static class Log {
                 /**
                  * Whether or not to transmit logged data as pre-formatted or template + argument(s).
