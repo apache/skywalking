@@ -23,9 +23,6 @@ on:
       - '!**.md'
   schedule:
     - cron: '0 18 * * *'
-  push:
-    branches:
-      - test/fix-kafka
 
 env:
   SW_AGENT_JDK_VERSION: 8
