@@ -52,7 +52,6 @@ public class TestLogsMatcher {
                           .setEndpointId("ZTJl.1_L3RyYWZmaWM=")
                           .setTraceId("ac81b308-0d66-4c69-a7af-a023a536bd3e")
                           .setTimestamp("1609665785987")
-                          .setError(false)
                           .setContentType("TEXT")
                           .setContent("log")
                           .setTags(
@@ -65,7 +64,6 @@ public class TestLogsMatcher {
                           .setEndpointId("ZTJl.1_L3RyYWZmaWM=")
                           .setTraceId("ac81b308-0d66-4c69-a7af-a023a536bd3e")
                           .setTimestamp("1609665785987")
-                          .setError(false)
                           .setContentType("TEXT")
                           .setContent("log")
                           .setTags(

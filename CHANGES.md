@@ -81,6 +81,7 @@ Release Notes.
 * Chore:  Remove duplicate codes in Envoy ALS handler.
 * Remove the strict rule of OAL disable statement parameter.
 * Fix a legal metric query adoption bug. Don't support global level metric query.
+* Remove unused log query parameters.
 
 #### UI
 * Fix un-removed tags in trace query.

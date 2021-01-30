@@ -25,6 +25,7 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -87,7 +88,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                                 .setKey("thread").setValue(event.getThreadName()).build())
                         .build())
                 .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
-                        .setText(TextLog.newBuilder().setText(event.getMessage().getFormattedMessage()).build())
+                        .setText(TextLog.newBuilder().setText(transformLogText(event)).build())
                         .build());
         return -1 == ContextManager.getSpanId() ? builder.build()
                 : builder.setTraceContext(TraceContext.newBuilder()
@@ -95,5 +96,9 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                         .setSpanId(ContextManager.getSpanId())
                         .setTraceSegmentId(ContextManager.getSegmentId())
                         .build()).build();
+    }
+
+    private String transformLogText(final LogEvent event) {
+        return event.getMessage().getFormattedMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(event.getThrown(), 2048);
     }
 }

@@ -20,7 +20,6 @@ logs:
     serviceInstanceId: not null
     traceId: not null
     timestamp: not null
-    isError: false
     contentType: TEXT
     content: not null
     tags:

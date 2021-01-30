@@ -21,26 +21,14 @@ import org.apache.skywalking.e2e.AbstractQuery;
 
 public class LogsQuery extends AbstractQuery<LogsQuery> {
 
-    private String state = "ALL";
     private String serviceId;
     private String endpointId = "";
     private String endpointName = "";
-    private String tagKey;
-    private String tagValue;
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
     private String keywordsOfContent = "";
     private String excludingKeywordsOfContent = "";
-
-    public String state() {
-        return state;
-    }
-
-    public LogsQuery state(String state) {
-        this.state = state;
-        return this;
-    }
 
     public String serviceId() {
         return serviceId;
@@ -66,20 +54,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     public LogsQuery endpointName(String endpointName) {
         this.endpointName = endpointName;
-        return this;
-    }
-
-    public String tagKey() {
-        return tagKey;
-    }
-
-    public String tagValue() {
-        return tagValue;
-    }
-
-    public LogsQuery tag(String key, String value) {
-        this.tagKey = key;
-        this.tagValue = value;
         return this;
     }
 
