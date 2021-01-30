@@ -84,11 +84,13 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                         .setKey("logger").setValue(event.getLoggerName()).build())
                 .addData(KeyStringValuePair.newBuilder()
                         .setKey("thread").setValue(event.getThreadName()).build());
-        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED && event.getMessage().getParameters() != null) {
-            for (int i = 0; i < event.getMessage().getParameters().length; i++) {
-                String value = Optional.ofNullable(event.getMessage().getParameters()[i]).orElse("null").toString();
-                logTags.addData(KeyStringValuePair.newBuilder()
-                        .setKey("argument." + i).setValue(value).build());
+        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
+            if (event.getMessage().getParameters() != null) {
+                for (int i = 0; i < event.getMessage().getParameters().length; i++) {
+                    String value = Optional.ofNullable(event.getMessage().getParameters()[i]).orElse("null").toString();
+                    logTags.addData(KeyStringValuePair.newBuilder()
+                            .setKey("argument." + i).setValue(value).build());
+                }
             }
 
             if (event.getThrown() != null) {
