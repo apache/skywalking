@@ -34,7 +34,6 @@ public class Log {
     private String endpointId;
     private String traceId;
     private String timestamp;
-    private boolean isError;
     private String contentType;
     private String content;
     private List<KeyValue> tags;

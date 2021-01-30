@@ -30,11 +30,9 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
-import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
@@ -50,7 +48,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
@@ -78,7 +75,6 @@ public class LogQuery implements ILogQueryDAO {
                           final String endpointId,
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
-                          final LogState state,
                           final Order queryOrder,
                           final int from,
                           final int limit,
@@ -117,17 +113,6 @@ public class LogQuery implements ILogQueryDAO {
             }
             if (nonNull(relatedTrace.getSpanId())) {
                 recallQuery.and(eq(SPAN_ID, relatedTrace.getSpanId()));
-            }
-        }
-
-        switch (state) {
-            case ERROR: {
-                recallQuery.and(eq(IS_ERROR, true));
-                break;
-            }
-            case SUCCESS: {
-                recallQuery.and(eq(IS_ERROR, false));
-                break;
             }
         }
         if (startTB != 0 && endTB != 0) {
@@ -182,7 +167,6 @@ public class LogQuery implements ILogQueryDAO {
                 log.setEndpointName((String) data.get(ENDPOINT_NAME));
                 log.setTraceId((String) data.get(TRACE_ID));
                 log.setTimestamp(data.get(TIMESTAMP).toString());
-                log.setError(BooleanUtils.valueToBoolean(((Number) data.get(IS_ERROR)).intValue()));
                 log.setContentType(
                     ContentType.instanceOf(((Number) data.get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
                 log.setContent((String) data.get(AbstractLogRecord.CONTENT));

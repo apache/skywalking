@@ -11,6 +11,7 @@ Release Notes.
 * Add ElasticSearch 7.10 to test matrix and verify it works.
 * Replace Apache RAT with skywalking-eyes to check license headers.
 * Set up test of Envoy ALS / MetricsService under Istio 1.8.2 to verify Envoy V3 protocol
+* Test: fix flaky E2E test of Kafka.
 
 #### Java Agent
 * The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
@@ -81,6 +82,8 @@ Release Notes.
 * Chore:  Remove duplicate codes in Envoy ALS handler.
 * Remove the strict rule of OAL disable statement parameter.
 * Fix a legal metric query adoption bug. Don't support global level metric query.
+* Add VM MAL and ui-template configration, support Prometheus node-exporter VM metrics that pushed from OpenTelemetry-collector.
+* Remove unused log query parameters.
 * Support Zabbix protocol to receive agent metrics.
 
 #### UI
@@ -116,6 +119,8 @@ Release Notes.
 * Implement the service logs on UI.
 * Change the flask icon to light version for a better view of topology dark theme.
 * Implement viewing logs on trace page.
+* Fix update props of date component.
+* Fix query conditions for logs.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.

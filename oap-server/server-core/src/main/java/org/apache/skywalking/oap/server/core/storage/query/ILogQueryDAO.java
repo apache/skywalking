@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
-import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -42,7 +41,6 @@ public interface ILogQueryDAO extends Service {
                    String endpointId,
                    String endpointName,
                    TraceScopeCondition relatedTrace,
-                   LogState state,
                    Order queryOrder,
                    int from,
                    int limit,

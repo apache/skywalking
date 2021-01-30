@@ -30,13 +30,13 @@ env:
 
 jobs:
   Kafka:
-    name: ${{ matrix.case.name }}
+    name: Kafka (${{ matrix.case.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
         case:
-          - name: Kafka
+          - name: Base
             class: org.apache.skywalking.e2e.kafka.KafkaE2E
           - name: Profiling
             class: org.apache.skywalking.e2e.kafka.KafkaProfileE2E
