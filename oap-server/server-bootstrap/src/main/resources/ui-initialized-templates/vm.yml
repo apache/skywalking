@@ -30,6 +30,7 @@ templates:
         {
           "name": "VM",
           "type": "service",
+          "serviceGroup": "vm",
           "children": [
             {
               "name": "VM",
