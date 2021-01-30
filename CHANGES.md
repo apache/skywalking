@@ -82,6 +82,7 @@ Release Notes.
 * Remove the strict rule of OAL disable statement parameter.
 * Fix a legal metric query adoption bug. Don't support global level metric query.
 * Add VM MAL and ui-template configration, support Prometheus node-exporter VM metrics that pushed from OpenTelemetry-collector.
+* Remove unused log query parameters.
 
 #### UI
 * Fix un-removed tags in trace query.

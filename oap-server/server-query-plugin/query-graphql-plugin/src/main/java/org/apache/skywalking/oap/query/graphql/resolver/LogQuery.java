@@ -68,7 +68,6 @@ public class LogQuery implements GraphQLQueryResolver {
             condition.getEndpointId(),
             condition.getEndpointName(),
             condition.getRelatedTrace(),
-            condition.getState(),
             condition.getPaging(),
             queryOrder,
             startSecondTB, endSecondTB,

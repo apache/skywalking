@@ -101,7 +101,7 @@ core:
     # Define the set of span tag keys, which should be searchable through the GraphQL.
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
     # Define the set of log tag keys, which should be searchable through the GraphQL.
-    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level,logger,thread}
+    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:

@@ -41,6 +41,7 @@ public abstract class AbstractLog extends Source {
     private String content;
     private byte[] tagsRawData;
     private List<Tag> tags = new ArrayList<>();
+    private boolean error = false;
 
     @Override
     public String getEntityId() {

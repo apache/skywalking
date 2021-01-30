@@ -42,7 +42,6 @@ public abstract class AbstractLogRecord extends Record {
     public static final String TRACE_ID = "trace_id";
     public static final String TRACE_SEGMENT_ID = "trace_segment_id";
     public static final String SPAN_ID = "span_id";
-    public static final String IS_ERROR = "is_error";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
@@ -77,10 +76,6 @@ public abstract class AbstractLogRecord extends Record {
     @Getter
     @Column(columnName = SPAN_ID)
     private int spanId;
-    @Setter
-    @Getter
-    @Column(columnName = IS_ERROR)
-    private int isError;
     @Setter
     @Getter
     @Column(columnName = CONTENT_TYPE, storageOnly = true)
@@ -129,7 +124,6 @@ public abstract class AbstractLogRecord extends Record {
             map.put(TRACE_ID, record.getTraceId());
             map.put(TRACE_SEGMENT_ID, record.getTraceSegmentId());
             map.put(SPAN_ID, record.getSpanId());
-            map.put(IS_ERROR, record.getIsError());
             map.put(TIME_BUCKET, record.getTimeBucket());
             map.put(CONTENT_TYPE, record.getContentType());
             map.put(CONTENT, record.getContent());
@@ -150,7 +144,6 @@ public abstract class AbstractLogRecord extends Record {
             record.setTraceId((String) dbMap.get(TRACE_ID));
             record.setTraceSegmentId((String) dbMap.get(TRACE_SEGMENT_ID));
             record.setSpanId(((Number) dbMap.get(SPAN_ID)).intValue());
-            record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
             record.setContentType(((Number) dbMap.get(CONTENT_TYPE)).intValue());
             record.setContent((String) dbMap.get(CONTENT));
             record.setTimestamp(((Number) dbMap.get(TIMESTAMP)).longValue());
