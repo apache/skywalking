@@ -68,8 +68,6 @@ helm install 8.1.0 skywalking -n istio-system \
 
 You can use `kubectl -n istio-system logs -l app=skywalking | grep "K8sALSServiceMeshHTTPAnalysis"` to ensure OAP ALS `k8s-mesh` analyzer has been activated.
 
-A more detailed tutorial can be found [on the website](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/).
-
 ## SkyWalking ALS Analyzers
 
 There are two available analyzers, `k8s-mesh` and `mx-mesh`, you can specify one or more analyzers to analyze the access logs.
