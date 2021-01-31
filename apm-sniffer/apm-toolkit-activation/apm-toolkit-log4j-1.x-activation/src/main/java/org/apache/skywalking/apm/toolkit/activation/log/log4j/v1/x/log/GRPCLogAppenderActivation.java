@@ -41,7 +41,7 @@ public class GRPCLogAppenderActivation extends ClassInstanceMethodsEnhancePlugin
     private static final ILog LOGGER = LogManager.getLogger(GRPCLogAppenderActivation.class);
 
     public static final String INTERCEPT_CLASS =
-            "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.log.GRPCLogAppenderInterceptor";
+            "org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.log.GRPCLogAppenderInterceptor";
     public static final String ENHANCE_CLASS =
             "org.apache.skywalking.apm.toolkit.log.log4j.v1.x.log.GRPCLogClientAppender";
     public static final String ENHANCE_METHOD = "append";
