@@ -84,7 +84,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                         .setKey("logger").setValue(event.getLoggerName()).build())
                 .addData(KeyStringValuePair.newBuilder()
                         .setKey("thread").setValue(event.getThreadName()).build());
-        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
+        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
             if (event.getMessage().getParameters() != null) {
                 for (int i = 0; i < event.getMessage().getParameters().length; i++) {
                     String value = Optional.ofNullable(event.getMessage().getParameters()[i]).orElse("null").toString();
@@ -115,7 +115,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
     }
 
     private String transformLogText(final LogEvent event) {
-        if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
+        if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
             return event.getMessage().getFormattedMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(event.getThrown(), 2048);
         } else {
             return event.getMessage().getFormat();

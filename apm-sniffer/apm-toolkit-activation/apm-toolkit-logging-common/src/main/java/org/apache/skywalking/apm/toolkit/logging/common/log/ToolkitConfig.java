@@ -27,9 +27,9 @@ public class ToolkitConfig {
             @PluginConfig(root = ToolkitConfig.class)
             public static class Log {
                 /**
-                 * Whether or not to transmit logged data as pre-formatted or template + argument(s).
+                 * Whether or not to transmit logged data as formatted or un-formatted.
                  */
-                public static boolean TRANSMIT_PREFORMATTED = true;
+                public static boolean TRANSMIT_FORMATTED = true;
 
                 public static class GRPC {
                     @PluginConfig(root = ToolkitConfig.class)

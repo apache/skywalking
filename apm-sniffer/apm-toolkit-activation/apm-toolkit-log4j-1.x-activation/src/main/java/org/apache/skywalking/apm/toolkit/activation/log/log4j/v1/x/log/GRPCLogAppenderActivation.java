@@ -58,8 +58,8 @@ public class GRPCLogAppenderActivation extends ClassInstanceMethodsEnhancePlugin
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
-            LOGGER.warn("Log4j 1.x does not support transmitting non-preformatted messages");
+        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
+            LOGGER.warn("Log4j 1.x does not support transmitting un-formatted messages");
         }
 
         return new InstanceMethodsInterceptPoint[] {

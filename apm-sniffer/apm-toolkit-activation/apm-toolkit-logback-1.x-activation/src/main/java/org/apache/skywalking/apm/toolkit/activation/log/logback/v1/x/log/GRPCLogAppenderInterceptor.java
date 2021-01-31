@@ -87,7 +87,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                         .setKey("logger").setValue(event.getLoggerName()).build())
                 .addData(KeyStringValuePair.newBuilder()
                         .setKey("thread").setValue(event.getThreadName()).build());
-        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
+        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
             if (event.getArgumentArray() != null) {
                 for (int i = 0; i < event.getArgumentArray().length; i++) {
                     String value = Optional.ofNullable(event.getArgumentArray()[i]).orElse("null").toString();
@@ -122,13 +122,13 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
     private String transformLogText(final ILoggingEvent event) {
         final IThrowableProxy throwableProxy = event.getThrowableProxy();
         if (!(throwableProxy instanceof ThrowableProxy)) {
-            if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
+            if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
                 return event.getFormattedMessage();
             } else {
                 return event.getMessage();
             }
         }
-        if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_PREFORMATTED) {
+        if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
             final Throwable throwable = ((ThrowableProxy) throwableProxy).getThrowable();
             return event.getFormattedMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(throwable, 2048);
         } else {

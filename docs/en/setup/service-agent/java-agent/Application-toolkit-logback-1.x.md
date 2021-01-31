@@ -130,12 +130,12 @@ plugin.toolkit.log.grpc.reporter.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE
 plugin.toolkit.log.grpc.reporter.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
 ```
 
-## Trasmitting un-formatted messages
+## Transmitting un-formatted messages
 
-The logback 1.x gRPC reporter supports trasmitting logs as pre-formatted or un-formatted. Transmitting pre-formatted data is the default but can be disabled by adding the following to the agent config:
+The logback 1.x gRPC reporter supports transmitting logs as formatted or un-formatted. Transmitting formatted data is the default but can be disabled by adding the following to the agent config:
 
 ```
-plugin.toolkit.log.transmit_preformatted=false
+plugin.toolkit.log.transmit_formatted=false
 ```
 
 The above will result in the `content` field being used for the log pattern with additional log tags of `argument.0`, `argument.1`, and so on representing each logged argument as well as an additional `exception` tag which is only present if a throwable is also logged.
