@@ -67,11 +67,11 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
     * Browser performance monitoring
       * Track the performance of the browser, such as latency of redirect, dns, ttfb. For more information, [click here](https://github.com/apache/skywalking-client-js).
   * Service Mesh
-    * [SkyWalking on Istio](en/setup/istio/README.md). Introduces how to use Istio Mixer bypass Adapter to work with SkyWalking.
-    * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
+    * [Observe Istio Control Plane](en/setup/istio/README.md). Introduces how to use SkyWalking to observe the Istio control plane.
+    * [Observe Service Mesh](en/setup/envoy/als_setting.md). Introduces how to use SkyWalking and [Envoy Access Log Service (ALS)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh.
   * Proxy
     * [Envoy Proxy](https://www.envoyproxy.io/)
-      * [Sending metrics to Skywalking from Envoy](en/setup/envoy/metrics_service_setting.md). How to send metrics from Envoy to SkyWalking using [Metrics service](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/metrics/v2/metrics_service.proto.html).
+      * [Send Envoy metrics to SkyWalking with / without Istio](en/setup/envoy/metrics_service_setting.md).
   * [Backend, UI and CLI setup document](en/setup/backend/backend-ui-setup.md).
     * [Backend setup document](en/setup/backend/backend-setup.md).
       * [Configuration Vocabulary](en/setup/backend/configuration-vocabulary.md). Configuration Vocabulary lists all available configurations provided by `application.yml`.
