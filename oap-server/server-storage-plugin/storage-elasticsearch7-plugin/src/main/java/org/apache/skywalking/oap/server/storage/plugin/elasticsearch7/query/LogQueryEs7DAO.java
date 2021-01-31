@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -82,15 +81,13 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         }
 
         if (isNotEmpty(serviceId)) {
-            boolQueryBuilder.must()
-                            .add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_ID, serviceId));
+            mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_ID, serviceId));
         }
         if (isNotEmpty(serviceInstanceId)) {
-            boolQueryBuilder.must()
-                            .add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (isNotEmpty(endpointId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
+            mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
         }
         if (isNotEmpty(endpointName)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.ENDPOINT_NAME);
@@ -98,38 +95,43 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         }
         if (nonNull(relatedTrace)) {
             if (isNotEmpty(relatedTrace.getTraceId())) {
-                boolQueryBuilder.must()
-                                .add(QueryBuilders.termQuery(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
+                mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
             }
             if (isNotEmpty(relatedTrace.getSegmentId())) {
-                boolQueryBuilder.must().add(
+                mustQueryList.add(
                     QueryBuilders.termQuery(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
             }
             if (nonNull(relatedTrace.getSpanId())) {
-                boolQueryBuilder.must().add(
-                    QueryBuilders.termQuery(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
+                mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
             }
         }
 
         if (CollectionUtils.isNotEmpty(tags)) {
-            BoolQueryBuilder tagMatchQuery = QueryBuilders.boolQuery();
-            tags.forEach(tag -> tagMatchQuery.must(QueryBuilders.termQuery(AbstractLogRecord.TAGS, tag.toString())));
-            mustQueryList.add(tagMatchQuery);
+            tags.forEach(tag -> mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.TAGS, tag.toString())));
         }
 
         if (CollectionUtils.isNotEmpty(keywordsOfContent)) {
-            mustQueryList.add(
-                QueryBuilders.matchPhraseQuery(
-                    MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
-                    String.join(Const.SPACE, keywordsOfContent)
-                ));
+            keywordsOfContent.forEach(
+                content ->
+                    mustQueryList.add(
+                        QueryBuilders.matchPhraseQuery(
+                            MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
+                            content
+                        )
+                    )
+            );
         }
 
         if (CollectionUtils.isNotEmpty(excludingKeywordsOfContent)) {
-            boolQueryBuilder.mustNot(QueryBuilders.matchPhraseQuery(
-                MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
-                String.join(Const.SPACE, excludingKeywordsOfContent)
-            ));
+            excludingKeywordsOfContent.forEach(
+                content ->
+                    boolQueryBuilder.mustNot(
+                        QueryBuilders.matchPhraseQuery(
+                            MatchCNameBuilder.INSTANCE.build(AbstractLogRecord.CONTENT),
+                            content
+                        )
+                    )
+            );
         }
 
         sourceBuilder.sort(LogRecord.TIMESTAMP, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
@@ -149,9 +151,8 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
             log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));
             log.setTimestamp(searchHit.getSourceAsMap().get(AbstractLogRecord.TIMESTAMP).toString());
-            log.setContentType(ContentType.instanceOf(((Number) searchHit.getSourceAsMap()
-                                                                         .get(
-                                                                             AbstractLogRecord.CONTENT_TYPE)).intValue()));
+            log.setContentType(ContentType.instanceOf(
+                ((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
             log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
             String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(AbstractLogRecord.TAGS_RAW_DATA);
             if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
