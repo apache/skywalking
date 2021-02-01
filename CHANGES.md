@@ -40,6 +40,7 @@ Release Notes.
 * Support config `agent.ignore_suffix` can be changed in the runtime.
 * Support DNS periodic resolving mechanism to update backend service.
 * Support config `agent.trace.ignore_path` can be changed in the runtime.
+* Added support for transmitting logback 1.x and log4j 2.x formatted & un-formatted messages via gPRC
 
 #### OAP-Backend
 * Make meter receiver support MAL.
