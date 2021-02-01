@@ -121,6 +121,9 @@ Release Notes.
 * Implement viewing logs on trace page.
 * Fix update props of date component.
 * Fix query conditions for logs.
+* Fix style of selectors to word wrap.
+* Fix logs time.
+* Fix search ui for logs.
 
 #### Documentation
 * Update the documents of backend fetcher and self observability about the latest configurations.
