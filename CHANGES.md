@@ -8,6 +8,7 @@ Release Notes.
 
 
 #### Java Agent
+* Remove invalid mysql configuration in agent.config.
 
 
 #### OAP-Backend
