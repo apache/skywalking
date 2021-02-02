@@ -11,7 +11,7 @@ Release Notes.
 
 
 #### OAP-Backend
-
+* Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 
 #### UI
 
