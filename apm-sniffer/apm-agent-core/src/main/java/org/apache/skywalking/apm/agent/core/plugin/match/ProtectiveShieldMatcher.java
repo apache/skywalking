@@ -41,6 +41,7 @@ public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.Abstract
         this.matcher = matcher;
     }
 
+    @Override
     public boolean matches(T target) {
         try {
             return this.matcher.matches(target);

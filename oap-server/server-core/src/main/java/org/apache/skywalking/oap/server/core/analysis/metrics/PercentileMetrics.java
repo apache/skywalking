@@ -116,6 +116,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
         }
     }
 
+    @Override
     public int[] getValues() {
         return percentileValues.sortedValues(Comparator.comparingInt(Integer::parseInt))
                                .stream()

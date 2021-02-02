@@ -73,5 +73,6 @@ public abstract class AbstractNutzHttpInstrumentation extends ClassInstanceMetho
         };
     }
 
+    @Override
     protected abstract ClassMatch enhanceClass();
 }
