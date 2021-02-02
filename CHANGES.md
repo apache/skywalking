@@ -5,7 +5,7 @@ Release Notes.
 8.5.0
 ------------------
 #### Project
-
+* Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 
 #### Java Agent
 
