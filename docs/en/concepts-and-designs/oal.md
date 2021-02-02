@@ -123,8 +123,8 @@ endpoint_success = from(Endpoint.*).filter(status == true).percent()
 // Calculate the sum of response code in [404, 500, 503], for each service.
 endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).sum()
 
-// Calculate the sum of request type in [RequestType.PRC, RequestType.gRPC], for each service.
-endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.PRC, RequestType.gRPC]).sum()
+// Calculate the sum of request type in [RequestType.RPC, RequestType.gRPC], for each service.
+endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.RPC, RequestType.gRPC]).sum()
 
 // Calculate the sum of endpoint name in ["/v1", "/v2"], for each service.
 endpoint_url_sum = from(Endpoint.*).filter(endpointName in ["/v1", "/v2"]).sum()

@@ -113,7 +113,7 @@
 
 # gRPC reporter
 
-The gRPC report could forward the collected logs to SkyWalking OAP server, or [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite). Trace id, segment id, and span id will attach to logs automatically. You don't need to change the layout.
+The gRPC reporter could forward the collected logs to SkyWalking OAP server, or [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite). Trace id, segment id, and span id will attach to logs automatically. There is no need to modify existing layouts.
 
 * Add `GRPCLogClientAppender` in logback.xml
 
@@ -128,4 +128,40 @@ plugin.toolkit.log.grpc.reporter.server_host=${SW_GRPC_LOG_SERVER_HOST:127.0.0.1
 plugin.toolkit.log.grpc.reporter.server_port=${SW_GRPC_LOG_SERVER_PORT:11800}
 plugin.toolkit.log.grpc.reporter.max_message_size=${SW_GRPC_LOG_MAX_MESSAGE_SIZE:10485760}
 plugin.toolkit.log.grpc.reporter.upstream_timeout=${SW_GRPC_LOG_GRPC_UPSTREAM_TIMEOUT:30}
+```
+
+## Transmitting un-formatted messages
+
+The logback 1.x gRPC reporter supports transmitting logs as formatted or un-formatted. Transmitting formatted data is the default but can be disabled by adding the following to the agent config:
+
+```
+plugin.toolkit.log.transmit_formatted=false
+```
+
+The above will result in the `content` field being used for the log pattern with additional log tags of `argument.0`, `argument.1`, and so on representing each logged argument as well as an additional `exception` tag which is only present if a throwable is also logged.
+
+For example, the following code:
+```java
+log.info("{} {} {}", 1, 2, 3);
+```
+
+Will result in:
+```json
+{
+  "content": "{} {} {}",
+  "tags": [
+    {
+      "key": "argument.0",
+      "value": "1"
+    },
+    {
+      "key": "argument.1",
+      "value": "2"
+    },
+    {
+      "key": "argument.2",
+      "value": "3"
+    }
+  ]
+}
 ```
