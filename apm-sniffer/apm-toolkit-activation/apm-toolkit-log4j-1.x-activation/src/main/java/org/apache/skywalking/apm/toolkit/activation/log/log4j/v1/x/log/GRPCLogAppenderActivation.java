@@ -21,6 +21,8 @@ package org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.log;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -28,12 +30,15 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.toolkit.logging.common.log.ToolkitConfig;
 
 /**
  * enhance the method append of the grpc log send log4j class "org.apache.skywalking.apm.toolkit.log.log4j.v1.x.log
  * .GRPCLogClientAppender".
  */
 public class GRPCLogAppenderActivation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    private static final ILog LOGGER = LogManager.getLogger(GRPCLogAppenderActivation.class);
 
     public static final String INTERCEPT_CLASS =
             "org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.log.GRPCLogAppenderInterceptor";
@@ -53,6 +58,10 @@ public class GRPCLogAppenderActivation extends ClassInstanceMethodsEnhancePlugin
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        if (!ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
+            LOGGER.warn("Log4j 1.x does not support transmitting un-formatted messages");
+        }
+
         return new InstanceMethodsInterceptPoint[] {
                 new InstanceMethodsInterceptPoint() {
                     @Override

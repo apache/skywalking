@@ -4,13 +4,13 @@ Instructions for transport Istio's metrics to the SkyWalking OAP server.
 
 ## Prerequisites
 
-Istio should be installed in the kubernetes cluster. Follow [Istio getting start](https://istio.io/docs/setup/getting-started/)
+Istio should be installed in the Kubernetes cluster. Follow [Istio getting start](https://istio.io/docs/setup/getting-started/)
 to finish it.
 
-## Deploy Skywalking backend
+## Deploy SkyWalking backend
 
-Follow the [deploying backend in kubernetes](../backend/backend-k8s.md) to install the OAP server in the kubernetes cluster.
-Referring to [OpenTelemetry receiver](../backend/backend-receivers.md#OpenTelemetry-receiver) to ingest metrics.
+Follow the [deploying backend in Kubernetes](../backend/backend-k8s.md) to install the OAP server in the kubernetes cluster.
+Refer to [OpenTelemetry receiver](../backend/backend-receivers.md#OpenTelemetry-receiver) to ingest metrics.
 `otel-receiver` defaults to be inactive. Set env var `SW_OTEL_RECEIVER` to `default` to enable it.
 
 
