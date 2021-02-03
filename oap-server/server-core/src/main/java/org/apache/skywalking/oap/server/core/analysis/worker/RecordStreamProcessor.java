@@ -46,6 +46,7 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         return PROCESSOR;
     }
 
+    @Override
     public void in(Record record) {
         RecordPersistentWorker worker = workers.get(record.getClass());
         if (worker != null) {
@@ -53,6 +54,7 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Record> recordClass) throws StorageException {
         if (DisableRegister.INSTANCE.include(stream.name())) {

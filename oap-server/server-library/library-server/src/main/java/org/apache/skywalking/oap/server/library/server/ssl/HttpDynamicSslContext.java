@@ -43,6 +43,7 @@ public class HttpDynamicSslContext extends AbstractSslContext {
         super(caFile);
     }
 
+    @Override
     protected void updateContext(String caFile) {
         try {
             setCtx(SslContextBuilder.forClient().trustManager(Paths.get(caFile).toFile()).build());
@@ -51,6 +52,7 @@ public class HttpDynamicSslContext extends AbstractSslContext {
         }
     }
 
+    @Override
     protected void updateContext(final String privateKeyFile, final String certChainFile) {
         try {
             setCtx(SslContextBuilder

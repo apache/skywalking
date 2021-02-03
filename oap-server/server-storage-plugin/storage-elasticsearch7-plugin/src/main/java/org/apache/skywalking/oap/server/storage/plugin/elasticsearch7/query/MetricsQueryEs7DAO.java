@@ -83,6 +83,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
         return defaultValue;
     }
 
+    @Override
     protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
         switch (function) {
             case Avg:
