@@ -8,7 +8,8 @@ Release Notes.
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 
 #### Java Agent
-
+* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener 
+  to show detail message when redifine errors occur
 
 #### OAP-Backend
 
