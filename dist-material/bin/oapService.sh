@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,14 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env sh
-
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 [ -z "$OAP_HOME" ] && OAP_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 
-OAP_LOG_DIR="${OAP_LOG_DIR:-${OAP_HOME}/logs}"
-JAVA_OPTS=" -Xms256M -Xmx512M"
+if [ "x$OAP_LOG_DIR" = "x" ]; then
+    OAP_LOG_DIR="${OAP_LOG_DIR:-${OAP_HOME}/logs}"
+fi
+if [ "x$JAVA_OPTS" = "x" ]; then
+    JAVA_OPTS=" -Xms256M -Xmx512M"
+fi
 
 if [ ! -d "${OAP_LOG_DIR}" ]; then
     mkdir -p "${OAP_LOG_DIR}"
