@@ -79,6 +79,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         return PROCESSOR;
     }
 
+    @Override
     public void in(Metrics metrics) {
         MetricsAggregateWorker worker = entryWorkers.get(metrics.getClass());
         if (worker != null) {
@@ -93,6 +94,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
      * @param stream             definition of the metrics class.
      * @param metricsClass       data type of the streaming calculation.
      */
+    @Override
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) throws StorageException {
         this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass);
     }

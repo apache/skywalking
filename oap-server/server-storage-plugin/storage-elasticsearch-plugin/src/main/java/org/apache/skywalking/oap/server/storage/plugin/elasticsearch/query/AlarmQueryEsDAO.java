@@ -42,6 +42,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         super(client);
     }
 
+    @Override
     public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from,
         final long startTB, final long endTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();

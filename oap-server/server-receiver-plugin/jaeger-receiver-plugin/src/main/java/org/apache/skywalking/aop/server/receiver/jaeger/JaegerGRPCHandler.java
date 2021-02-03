@@ -46,6 +46,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
         this.config = config;
     }
 
+    @Override
     public void postSpans(Collector.PostSpansRequest request,
                           StreamObserver<Collector.PostSpansResponse> responseObserver) {
 

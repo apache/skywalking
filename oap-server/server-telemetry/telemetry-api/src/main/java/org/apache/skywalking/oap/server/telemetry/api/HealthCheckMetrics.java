@@ -34,10 +34,12 @@ public class HealthCheckMetrics implements HealthChecker {
         metrics.setValue(-1);
     }
 
+    @Override
     public void health() {
         metrics.setValue(0);
     }
 
+    @Override
     public void unHealth(Throwable t) {
         log.error("Health check fails", t);
         metrics.setValue(1);

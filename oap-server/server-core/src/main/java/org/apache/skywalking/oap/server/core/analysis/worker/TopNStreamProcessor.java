@@ -63,6 +63,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         return PROCESSOR;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends TopN> topNClass) throws StorageException {
         if (DisableRegister.INSTANCE.include(stream.name())) {
@@ -88,6 +89,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         workers.put(topNClass, persistentWorker);
     }
 
+    @Override
     public void in(TopN topN) {
         TopNWorker worker = workers.get(topN.getClass());
         if (worker != null) {
