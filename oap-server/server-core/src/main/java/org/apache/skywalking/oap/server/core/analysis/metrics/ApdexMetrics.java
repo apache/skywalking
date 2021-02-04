@@ -79,10 +79,11 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         tNum += ((ApdexMetrics) metrics).tNum;
         sNum += ((ApdexMetrics) metrics).sNum;
         totalNum += ((ApdexMetrics) metrics).totalNum;
+        return true;
     }
 
     @Override

@@ -72,10 +72,11 @@ public abstract class AvgLabeledFunction extends Metrics implements AcceptableVa
     private DataTable value = new DataTable(30);
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         AvgLabeledFunction longAvgMetrics = (AvgLabeledFunction) metrics;
         summation.append(longAvgMetrics.summation);
         count.append(longAvgMetrics.count);
+        return true;
     }
 
     @Override

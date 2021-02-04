@@ -108,8 +108,8 @@ public class EndpointTraffic extends Metrics {
     }
 
     @Override
-    public void combine(final Metrics metrics) {
-
+    public boolean combine(final Metrics metrics) {
+        return true;
     }
 
     @Override

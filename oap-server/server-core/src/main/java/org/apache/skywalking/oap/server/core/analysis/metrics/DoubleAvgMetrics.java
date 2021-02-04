@@ -54,9 +54,10 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         DoubleAvgMetrics doubleAvgMetrics = (DoubleAvgMetrics) metrics;
         combine(doubleAvgMetrics.summation, doubleAvgMetrics.count);
+        return true;
     }
 
     @Override

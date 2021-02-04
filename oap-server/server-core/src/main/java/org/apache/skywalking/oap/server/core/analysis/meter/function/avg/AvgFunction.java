@@ -80,9 +80,10 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         AvgFunction longAvgMetrics = (AvgFunction) metrics;
         combine(longAvgMetrics.summation, longAvgMetrics.count);
+        return true;
     }
 
     @Override

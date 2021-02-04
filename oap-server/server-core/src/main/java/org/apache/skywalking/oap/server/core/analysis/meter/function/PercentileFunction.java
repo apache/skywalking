@@ -122,14 +122,14 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         PercentileFunction percentile = (PercentileFunction) metrics;
 
         if (!dataset.keysEqual(percentile.getDataset())) {
             log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
                      percentile, this, entityId
             );
-            return;
+            return true;
         }
         if (ranks.size() > 0) {
             IntList ranksOfThat = percentile.getRanks();
@@ -137,11 +137,11 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
                          ranks.size(), this.ranks.size()
                 );
-                return;
+                return true;
             } else {
                 if (!this.ranks.equals(percentile.getRanks())) {
                     log.warn("Rank {} doesn't exist in the previous ranks {}", percentile.getRanks(), ranks);
-                    return;
+                    return true;
                 }
             }
         }
@@ -149,6 +149,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         this.dataset.append(percentile.dataset);
 
         this.isCalculated = false;
+        return true;
     }
 
     @Override

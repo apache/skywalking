@@ -101,10 +101,11 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         AvgHistogramFunction histogram = (AvgHistogramFunction) metrics;
         this.summation.append(histogram.summation);
         this.count.append(histogram.count);
+        return true;
     }
 
     @Override
