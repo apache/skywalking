@@ -73,7 +73,7 @@ public class InstanceTraffic extends Metrics {
     private JsonObject properties;
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         final InstanceTraffic instanceTraffic = (InstanceTraffic) metrics;
         this.lastPingTimestamp = instanceTraffic.getLastPingTimestamp();
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
@@ -85,6 +85,7 @@ public class InstanceTraffic extends Metrics {
         if (this.getTimeBucket() > metrics.getTimeBucket()) {
             this.setTimeBucket(metrics.getTimeBucket());
         }
+        return true;
     }
 
     @Override

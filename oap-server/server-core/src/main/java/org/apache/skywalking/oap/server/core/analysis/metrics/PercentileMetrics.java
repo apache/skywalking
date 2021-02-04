@@ -77,11 +77,12 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     }
 
     @Override
-    public void combine(Metrics metrics) {
+    public boolean combine(Metrics metrics) {
         this.isCalculated = false;
 
         PercentileMetrics percentileMetrics = (PercentileMetrics) metrics;
         this.dataset.append(percentileMetrics.dataset);
+        return true;
     }
 
     @Override

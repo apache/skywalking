@@ -67,7 +67,7 @@ public class NetworkAddressAlias extends Metrics {
     private long lastUpdateTimeBucket;
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         NetworkAddressAlias alias = (NetworkAddressAlias) metrics;
         this.representServiceId = alias.getRepresentServiceId();
         this.representServiceInstanceId = alias.getRepresentServiceInstanceId();
@@ -78,6 +78,7 @@ public class NetworkAddressAlias extends Metrics {
         if (this.getTimeBucket() > metrics.getTimeBucket()) {
             this.setTimeBucket(metrics.getTimeBucket());
         }
+        return true;
     }
 
     @Override

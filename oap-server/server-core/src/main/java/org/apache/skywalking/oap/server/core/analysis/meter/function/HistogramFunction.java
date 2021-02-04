@@ -75,16 +75,17 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         HistogramFunction histogram = (HistogramFunction) metrics;
 
         if (!dataset.keysEqual(histogram.getDataset())) {
             log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
                      histogram, this, entityId
             );
-            return;
+            return true;
         }
         this.dataset.append(histogram.dataset);
+        return true;
     }
 
     @Override

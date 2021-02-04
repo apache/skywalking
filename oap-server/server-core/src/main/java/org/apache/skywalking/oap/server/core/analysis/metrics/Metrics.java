@@ -56,8 +56,9 @@ public abstract class Metrics extends StreamData implements StorageData {
      * Merge the given metrics instance, these two must be the same metrics type.
      *
      * @param metrics to be merged
+     * @return {@code true} if the combined metrics should be continuously processed, {@code false} it should be abandoned.
      */
-    public abstract void combine(Metrics metrics);
+    public abstract boolean combine(Metrics metrics);
 
     /**
      * Calculate the metrics final value when required.

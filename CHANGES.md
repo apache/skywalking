@@ -9,11 +9,12 @@ Release Notes.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
-* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redifine errors occur
+* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur
 
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
+* Metrics combination API supports abandoning results.
 
 #### UI
 
