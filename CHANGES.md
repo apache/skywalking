@@ -16,7 +16,7 @@ Release Notes.
 * Allow user-defined `JAVA_OPTS` in the startup script.
 
 #### UI
-
+Update selector scroller to show in all pages.
 
 #### Documentation
 
