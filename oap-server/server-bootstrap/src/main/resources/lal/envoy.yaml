@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,10 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-#
 
-
-org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8sALSServiceMeshHTTPAnalysis
-org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer
-org.apache.skywalking.oap.server.receiver.envoy.persistence.LogsPersistence
+rules:
+  - name: envoy
+    dsl: |
+      filter {
+        json {
+        }
+        // only collect error logs
+        if (parsed?.response?.responseCode < 500 && !parsed?.commonProperties?.responseFlags) {
+          abort {}
+        }
+        extractor {
+          tag 'status.code': parsed?.response?.responseCode as int
+          tag 'response.flag': parsed?.commonProperties?.responseFlags?.keySet()
+        }
+        sink {
+          sampler {
+            // use the service name as sampler id so that each service has its own sampler,
+            // i.e. sample by service
+            rateLimit(log.service) {
+              qps 100
+            }
+          }
+        }
+      }

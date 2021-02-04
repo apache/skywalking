@@ -70,9 +70,10 @@ You can use `kubectl -n istio-system logs -l app=skywalking | grep "K8sALSServic
 
 ## SkyWalking ALS Analyzers
 
-There are two available analyzers, `k8s-mesh` and `mx-mesh`, you can specify one or more analyzers to analyze the access logs.
-When multiple analyzers are specified, it acts as a fast-success mechanism: SkyWalking loops over the analyzers and use it to analyze the logs, once
-there is an analyzer that is able to produce a result, it stops the loop.
+There are several available analyzers, `k8s-mesh`, `mx-mesh` and `persistence`, you can specify one or more
+analyzers to analyze the access logs. When multiple analyzers are specified, it acts as a fast-success mechanism:
+SkyWalking loops over the analyzers and use it to analyze the logs, once there is an analyzer that is able to produce a
+result, it stops the loop.
 
 ### `k8s-mesh`
 
@@ -87,3 +88,14 @@ this analyzer requires Istio to enable the metadata exchange plugin (you can ena
 or if you're using Istio 1.7+ and installing it with profile `demo`/`preview`, it should be enabled then).
 
 The [blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-als/) illustrates the detail of how it works, and a step-by-step tutorial to apply it into the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo) system.
+
+### `persistence`
+
+`persistence` analyzer adapts the Envoy access log format to
+SkyWalking's [native log format](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto)
+, and forwards the formatted logs to [LAL](../../concepts-and-designs/lal.md), where you can configure persistent
+conditions, such as `sampler`, only persist error logs, etc.
+
+**Attention**: because `persistence` analyzer also needs a mechanism to map the logs into responding services, hence,
+you need to configure at least one analyzer as its antecedent so that `persistence` analyzer knows which service the
+logs belong to.
