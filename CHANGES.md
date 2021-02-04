@@ -6,6 +6,7 @@ Release Notes.
 ------------------
 #### Project
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
+* Repair bin/*.sh script according to shellcheck
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
