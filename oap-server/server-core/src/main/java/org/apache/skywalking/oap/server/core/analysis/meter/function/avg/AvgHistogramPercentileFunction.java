@@ -154,7 +154,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     }
 
     @Override
-    public void combine(final Metrics metrics) {
+    public boolean combine(final Metrics metrics) {
         AvgHistogramPercentileFunction percentile = (AvgHistogramPercentileFunction) metrics;
 
         if (ranks.size() > 0) {
@@ -162,11 +162,11 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
                          ranks.size(), this.ranks.size()
                 );
-                return;
+                return true;
             } else {
                 if (!this.ranks.equals(percentile.getRanks())) {
                     log.warn("Rank {} doesn't exist in the previous ranks {}", percentile.getRanks(), ranks);
-                    return;
+                    return true;
                 }
             }
         }
@@ -175,6 +175,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         this.count.append(percentile.count);
 
         this.isCalculated = false;
+        return true;
     }
 
     @Override

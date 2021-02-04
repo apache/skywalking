@@ -72,9 +72,10 @@ public abstract class LatestFunction extends Metrics implements AcceptableValue<
         this.value = value;
     }
 
-    @Override public final void combine(Metrics metrics) {
+    @Override public final boolean combine(Metrics metrics) {
         LatestFunction latestFunction = (LatestFunction) metrics;
         combine(latestFunction.value);
+        return true;
     }
 
     @Override public void calculate() {

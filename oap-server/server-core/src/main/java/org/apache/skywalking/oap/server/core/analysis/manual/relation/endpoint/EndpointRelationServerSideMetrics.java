@@ -69,8 +69,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     }
 
     @Override
-    public void combine(Metrics metrics) {
-
+    public boolean combine(Metrics metrics) {
+        return true;
     }
 
     @Override
