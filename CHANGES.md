@@ -13,7 +13,7 @@ Release Notes.
 
 
 #### OAP-Backend
-* Repair bin/*.sh script according to shellcheck
+* Allow user-defined `JAVA_OPTS` in the startup script.
 
 #### UI
 
