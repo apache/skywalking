@@ -17,7 +17,7 @@ Release Notes.
 * Metrics combination API supports abandoning results.
 
 #### UI
-
+Update selector scroller to show in all pages.
 
 #### Documentation
 
