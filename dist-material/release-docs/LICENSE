@@ -249,7 +249,7 @@ The text of each license is the standard Apache 2.0 license.
     Eclipse (Jetty) 9.4.28.v20200408: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
-    Joda-Convert 1.2: http://www.joda.org/joda-convert/ , Apache 2.0
+    Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
@@ -269,8 +269,8 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
-    Apache: commons-compress 1.19: https://github.com/apache/commons-compress, Apache 2.0
-    Apache: commons-collections4 4.1: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
+    Apache: commons-compress 1.20: https://github.com/apache/commons-compress, Apache 2.0
+    Apache: commons-collections4 4.4: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 4.1.42: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
@@ -307,7 +307,7 @@ The text of each license is the standard Apache 2.0 license.
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 8.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 10.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     nacos 1.3.1: https://github.com/alibaba/nacos, Apache 2.0
@@ -332,11 +332,11 @@ The text of each license is the standard Apache 2.0 license.
     moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
     logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
     msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
-    sundr-codegen 0.21.0: https://mvnrepository.com/artifact/io.sundr/sundr-codegen, Apache 2.0
-    sundr-core 0.21.0: https://mvnrepository.com/artifact/io.sundr/sundr-core, Apache 2.0
-    swagger-annotations 1.5.22: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
-    resourcecify-annotations 0.21.0: https://mvnrepository.com/artifact/io.sundr/resourcecify-annotations, Apache 2.0
-    jose4j 0.7.0: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
+    sundr-codegen 0.22.0: https://mvnrepository.com/artifact/io.sundr/sundr-codegen, Apache 2.0
+    sundr-core 0.22.0: https://mvnrepository.com/artifact/io.sundr/sundr-core, Apache 2.0
+    swagger-annotations 1.6.2: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
+    resourcecify-annotations 0.22.0: https://mvnrepository.com/artifact/io.sundr/resourcecify-annotations, Apache 2.0
+    jose4j 0.7.2: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
     converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
     kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
@@ -346,6 +346,7 @@ The text of each license is the standard Apache 2.0 license.
     mvel 2.4.8: https://github.com/mvel/mvel, Apache 2.0
     okio 1.13.0: https://github.com/square/okio Apache 2.0
     caffeine 2.6.2: https://github.com/ben-manes/caffeine Apache 2.0
+    simpleclient_httpserver from prometheus https://github.com/prometheus/client_java Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -359,9 +360,9 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     GraphQL java 8.0: https://github.com/graphql-java/graphql-java , MIT
     GraphQL Java Tools 5.2.3: https://github.com/graphql-java/graphql-java-tools , MIT
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
-    bcpkix-jdk15on 1.61: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-jdk15on 1.61: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-ext-jdk15on 1.61: http://www.bouncycastle.org/licence.html , MIT
+    bcpkix-jdk15on 1.66: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-jdk15on 1.66: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-ext-jdk15on 1.66: http://www.bouncycastle.org/licence.html , MIT
     minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
     influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
@@ -449,7 +450,7 @@ popper.js	1.14.7:	https://github.com/FezVrasta/popper.js	MIT
 vue-datepicker-local	1.0.19:	https://github.com/weifeiyue/vue-datepicker-local	MIT
 vue-js-modal	1.3.31:	https://github.com/euvl/vue-js-modal	MIT
 lodash	4.17.15:	https://github.com/lodash/lodash	MIT
-gson-fire	1.8.3:	https://mvnrepository.com/artifact/io.gsonfire/gson-fire	MIT
+gson-fire	1.8.4:	https://mvnrepository.com/artifact/io.gsonfire/gson-fire	MIT
 
 ========================================
 Apache 2.0 licenses
