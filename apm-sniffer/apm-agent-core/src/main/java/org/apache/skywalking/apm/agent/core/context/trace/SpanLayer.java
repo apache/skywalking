@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 public enum SpanLayer {
-    DB(1), RPC_FRAMEWORK(2), HTTP(3), MQ(4), CACHE(5);
+    DB(1), RPC_FRAMEWORK(2), HTTP(3), MQ(4), CACHE(5), CUSTOM_ENHANCE(9);
 
     private int code;
 
@@ -49,5 +49,9 @@ public enum SpanLayer {
 
     public static void asMQ(AbstractSpan span) {
         span.setLayer(SpanLayer.MQ);
+    }
+
+    public static void asCustomEnhance(AbstractSpan span) {
+        span.setLayer(SpanLayer.CUSTOM_ENHANCE);
     }
 }

@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.customize.interceptor;
 
+import com.google.gson.Gson;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 import org.apache.skywalking.apm.plugin.customize.conf.MethodConfiguration;
 import org.apache.skywalking.apm.plugin.customize.constants.Constants;
@@ -35,54 +38,63 @@ class BaseInterceptorMethods {
 
     void beforeMethod(Method method, Object[] allArguments) {
         Map<String, Object> configuration = CustomizeConfiguration.INSTANCE.getConfiguration(method);
-        if (!MethodConfiguration.isCloseBeforeMethod(configuration)) {
-            String operationName = MethodConfiguration.getOperationName(configuration);
-            Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
-            if (context == null || context.isEmpty()) {
-                ContextManager.createLocalSpan(operationName);
-            } else {
+        String operationName = MethodConfiguration.getOperationName(configuration);
+        String requestInfo = (allArguments == null || allArguments.length == 0) ? "" : new Gson().toJson(allArguments);
+        Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
+        AbstractSpan span;
+        if (context == null || context.isEmpty()) {
+            span = ContextManager.createLocalSpan(operationName);
+        } else {
 
-                Map<String, String> tags = MethodConfiguration.getTags(configuration);
-                Map<String, String> spanTags = new HashMap<String, String>();
-                Map<String, String> logs = MethodConfiguration.getLogs(configuration);
-                Map<String, String> spanLogs = new HashMap<String, String>();
+            Map<String, String> tags = MethodConfiguration.getTags(configuration);
+            Map<String, String> spanTags = new HashMap<String, String>();
+            Map<String, String> logs = MethodConfiguration.getLogs(configuration);
+            Map<String, String> spanLogs = new HashMap<String, String>();
 
-                List<String> operationNameSuffixes = MethodConfiguration.getOperationNameSuffixes(configuration);
-                StringBuilder operationNameSuffix = new StringBuilder();
-                if (operationNameSuffixes != null && !operationNameSuffixes.isEmpty()) {
-                    for (String expression : operationNameSuffixes) {
-                        operationNameSuffix.append(Constants.OPERATION_NAME_SEPARATOR);
-                        operationNameSuffix.append(CustomizeExpression.parseExpression(expression, context));
-                    }
-                }
-                if (tags != null && !tags.isEmpty()) {
-                    for (Map.Entry<String, String> expression: tags.entrySet()) {
-                        spanTags.put(expression.getKey(), CustomizeExpression.parseExpression(expression.getValue(), context));
-                    }
-                }
-                if (logs != null && !logs.isEmpty()) {
-                    for (Map.Entry<String, String> entries : logs.entrySet()) {
-                        String expression = logs.get(entries.getKey());
-                        spanLogs.put(entries.getKey(), CustomizeExpression.parseExpression(expression, context));
-                    }
-                }
-                operationName = operationNameSuffix.insert(0, operationName).toString();
-
-                AbstractSpan span = ContextManager.createLocalSpan(operationName);
-                if (!spanTags.isEmpty()) {
-                    for (Map.Entry<String, String> tag : spanTags.entrySet()) {
-                        span.tag(Tags.ofKey(tag.getKey()), tag.getValue());
-                    }
-                }
-                if (!spanLogs.isEmpty()) {
-                    span.log(System.currentTimeMillis(), spanLogs);
+            List<String> operationNameSuffixes = MethodConfiguration.getOperationNameSuffixes(configuration);
+            StringBuilder operationNameSuffix = new StringBuilder();
+            if (operationNameSuffixes != null && !operationNameSuffixes.isEmpty()) {
+                for (String expression : operationNameSuffixes) {
+                    operationNameSuffix.append(Constants.OPERATION_NAME_SEPARATOR);
+                    operationNameSuffix.append(CustomizeExpression.parseExpression(expression, context));
                 }
             }
+            if (tags != null && !tags.isEmpty()) {
+                for (Map.Entry<String, String> expression : tags.entrySet()) {
+                    spanTags.put(expression.getKey(), CustomizeExpression.parseExpression(expression.getValue(), context));
+                }
+            }
+            if (logs != null && !logs.isEmpty()) {
+                for (Map.Entry<String, String> entries : logs.entrySet()) {
+                    String expression = logs.get(entries.getKey());
+                    spanLogs.put(entries.getKey(), CustomizeExpression.parseExpression(expression, context));
+                }
+            }
+            operationName = operationNameSuffix.insert(0, operationName).toString();
+
+            span = ContextManager.createLocalSpan(operationName);
+            if (!spanTags.isEmpty()) {
+                for (Map.Entry<String, String> tag : spanTags.entrySet()) {
+                    span.tag(Tags.ofKey(tag.getKey()), tag.getValue());
+                }
+            }
+            if (!spanLogs.isEmpty()) {
+                span.log(System.currentTimeMillis(), spanLogs);
+            }
         }
+        span.setComponent(ComponentsDefine.CUSTOM_ENHANCE);
+        SpanLayer.asCustomEnhance(span);
+
+        // collect request info.
+        Tags.CUSTOM.PARAMS.set(span, requestInfo);
+        // collect method info.
+        Tags.CUSTOM.METHOD.set(span, MethodConfiguration.getMethodName(configuration));
     }
 
     void afterMethod(Method method) {
-        if (!MethodConfiguration.isCloseAfterMethod(CustomizeConfiguration.INSTANCE.getConfiguration(method))) {
+        // fix ThreadLocal memory leak bug.
+        // Resolves #6301 https://github.com/apache/skywalking/issues/6301
+        if (ContextManager.isActive()) {
             ContextManager.stopSpan();
         }
     }

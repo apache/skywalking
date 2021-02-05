@@ -350,6 +350,10 @@ Apache-CXF:
 dolphinscheduler:
   id: 106
   languages: Java
+# The id of supported Java component library can be increased in order (usually less than 999) and written here.
+custom-enhance:
+  id: 999
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

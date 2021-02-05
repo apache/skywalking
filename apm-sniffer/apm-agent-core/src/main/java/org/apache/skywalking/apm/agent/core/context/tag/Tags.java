@@ -98,6 +98,12 @@ public final class Tags {
         public static final StringTag HEADERS = new StringTag(14, "http.headers");
     }
 
+    public static final class CUSTOM {
+        public static final StringTag METHOD = new StringTag(20, "custom.method");
+
+        public static final StringTag PARAMS = new StringTag(21, "custom.params", false);
+    }
+
     public static final StringTag LOGIC_ENDPOINT = new StringTag(12, "x-le");
 
     public static final String VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT = "{\"logic-span\":true}";
