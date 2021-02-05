@@ -44,7 +44,11 @@ public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.Abstract
     @Override
     public boolean matches(T target) {
         try {
-            return this.matcher.matches(target);
+            boolean match = this.matcher.matches(target);
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("type={}, match={}", target, match);
+            }
+            return match;
         } catch (Throwable t) {
             if (LOGGER.isDebugEnable()) {
                 LOGGER.debug(t, "Byte-buddy occurs exception when match type.");
