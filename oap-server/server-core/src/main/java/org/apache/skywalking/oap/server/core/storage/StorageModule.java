@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -65,7 +66,8 @@ public class StorageModule extends ModuleDefine {
                 IProfileTaskLogQueryDAO.class,
                 IProfileThreadSnapshotQueryDAO.class,
                 UITemplateManagementDAO.class,
-                IBrowserLogQueryDAO.class
+                IBrowserLogQueryDAO.class,
+                IEventQueryDAO.class
         };
     }
 }

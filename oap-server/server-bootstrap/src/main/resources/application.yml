@@ -219,6 +219,10 @@ log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
 
+event-analyzer:
+  selector: ${SW_EVENT_ANALYZER:default}
+  default:
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
@@ -422,3 +426,7 @@ configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
     disableMessageDigest: ${SW_DISABLE_MESSAGE_DIGEST:false}
+
+receiver-event:
+  selector: ${SW_RECEIVER_EVENT:default}
+  default:

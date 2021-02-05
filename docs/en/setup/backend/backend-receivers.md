@@ -16,6 +16,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
 1. **receiver-log**. gRPC services accept log data.
 1. **configuration-discovery**. gRPC services handle configurationDiscovery.
+1. **receiver-event**. gRPC services to handle events data.
 1. Experimental receivers. All following receivers are in the POC stage, not production ready.
     1. **receiver_zipkin**. See [details](#zipkin-receiver). (Experimental)
     1. **receiver_jaeger**. See [details](#jaeger-receiver). (Experimental)
@@ -72,6 +73,11 @@ receiver-log:
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
+
+receiver-event:
+   selector: ${SW_RECEIVER_EVENT:default}
+   default:
+
 ```
 
 ## gRPC/HTTP server for receiver

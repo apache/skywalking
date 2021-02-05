@@ -15,6 +15,7 @@ Release Notes.
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
 * Metrics combination API supports abandoning results.
+* Add a new concept "Event" and its implementations to collect events.
 * Add some defensive codes for NPE and bump up Kubernetes client version to expose exception stack trace.
 
 #### UI

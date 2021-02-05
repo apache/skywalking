@@ -110,4 +110,7 @@ jobs:
         with:
           java-version: 8
       - name: 'Install & Test'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: |
+          # Given packaging on Mac has a high possibility to fail, we retry one more time here
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install || \
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install

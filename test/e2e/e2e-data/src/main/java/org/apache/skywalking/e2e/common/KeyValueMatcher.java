@@ -27,7 +27,7 @@ import static java.util.Objects.nonNull;
 
 @Setter
 @Getter
-@ToString(callSuper = true)
+@ToString
 @EqualsAndHashCode(callSuper = true)
 public class KeyValueMatcher extends AbstractMatcher<KeyValue> {
 
