@@ -10,6 +10,7 @@ Release Notes.
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
 * Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur
+* Add debug info when type not match in the instrumentation process.
 
 
 #### OAP-Backend
