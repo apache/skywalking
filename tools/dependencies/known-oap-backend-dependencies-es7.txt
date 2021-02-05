@@ -10,9 +10,9 @@ bcprov-ext-jdk15on-1.61.jar
 bcprov-jdk15on-1.61.jar
 builder-annotations-0.21.0.jar
 checker-qual-2.8.1.jar
-client-java-8.0.0.jar
-client-java-api-8.0.0.jar
-client-java-proto-8.0.0.jar
+client-java-10.0.0.jar
+client-java-api-10.0.0.jar
+client-java-proto-10.0.0.jar
 commons-codec-1.11.jar
 commons-collections4-4.1.jar
 commons-compress-1.19.jar
