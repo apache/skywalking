@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "latest")
@@ -138,9 +138,9 @@ public abstract class LatestFunction extends Metrics implements AcceptableValue<
         return LatestFunction.LastestStorageBuilder.class;
     }
 
-    public static class LastestStorageBuilder implements StorageBuilder<LatestFunction> {
+    public static class LastestStorageBuilder implements StorageHashMapBuilder<LatestFunction> {
         @Override
-        public LatestFunction map2Data(final Map<String, Object> dbMap) {
+        public LatestFunction storage2Entity(final Map<String, Object> dbMap) {
             LatestFunction metrics = new LatestFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
@@ -155,7 +155,7 @@ public abstract class LatestFunction extends Metrics implements AcceptableValue<
         }
 
         @Override
-        public Map<String, Object> data2Map(final LatestFunction storageData) {
+        public Map<String, Object> entity2Storage(final LatestFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(VALUE, storageData.getValue());
             map.put(TIME_BUCKET, storageData.getTimeBucket());

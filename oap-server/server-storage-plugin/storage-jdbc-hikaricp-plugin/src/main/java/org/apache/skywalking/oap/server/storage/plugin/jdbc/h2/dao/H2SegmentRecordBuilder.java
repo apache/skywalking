@@ -58,7 +58,7 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public Map<String, Object> data2Map(Record record) {
+    public Map<String, Object> entity2Storage(Record record) {
         SegmentRecord storageData = (SegmentRecord) record;
         storageData.setStatement(Strings.join(new String[] {
             storageData.getEndpointName(),
@@ -88,7 +88,7 @@ public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public Record map2Data(Map<String, Object> dbMap) {
+    public Record storage2Entity(Map<String, Object> dbMap) {
         SegmentRecord record = new SegmentRecord();
         record.setSegmentId((String) dbMap.get(SEGMENT_ID));
         record.setTraceId((String) dbMap.get(TRACE_ID));

@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @Stream(name = ServiceInstanceRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_RELATION,
@@ -146,10 +146,10 @@ public class ServiceInstanceRelationClientSideMetrics extends Metrics {
         return remoteBuilder;
     }
 
-    public static class Builder implements StorageBuilder<ServiceInstanceRelationClientSideMetrics> {
+    public static class Builder implements StorageHashMapBuilder<ServiceInstanceRelationClientSideMetrics> {
 
         @Override
-        public ServiceInstanceRelationClientSideMetrics map2Data(Map<String, Object> dbMap) {
+        public ServiceInstanceRelationClientSideMetrics storage2Entity(Map<String, Object> dbMap) {
             ServiceInstanceRelationClientSideMetrics metrics = new ServiceInstanceRelationClientSideMetrics();
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));
             metrics.setSourceServiceId((String) dbMap.get(SOURCE_SERVICE_ID));
@@ -162,7 +162,7 @@ public class ServiceInstanceRelationClientSideMetrics extends Metrics {
         }
 
         @Override
-        public Map<String, Object> data2Map(ServiceInstanceRelationClientSideMetrics storageData) {
+        public Map<String, Object> entity2Storage(ServiceInstanceRelationClientSideMetrics storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(ENTITY_ID, storageData.getEntityId());
             map.put(SOURCE_SERVICE_ID, storageData.getSourceServiceId());

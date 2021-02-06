@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function.latest;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -71,12 +71,12 @@ public class LatestFunctionTest {
         long time = 1597113447737L;
         function.accept(MeterEntity.newService("latest_sync_time"), time);
         function.calculate();
-        StorageBuilder<LatestFunction> storageBuilder = function.builder().newInstance();
+        StorageHashMapBuilder<LatestFunction> storageBuilder = function.builder().newInstance();
 
-        Map<String, Object> map = storageBuilder.data2Map(function);
+        Map<String, Object> map = storageBuilder.entity2Storage(function);
         map.put(LatestFunction.VALUE, map.get(LatestFunction.VALUE));
 
-        LatestFunction function2 = storageBuilder.map2Data(map);
+        LatestFunction function2 = storageBuilder.storage2Entity(map);
         assertThat(function2.getValue(), is(function.getValue()));
     }
 }

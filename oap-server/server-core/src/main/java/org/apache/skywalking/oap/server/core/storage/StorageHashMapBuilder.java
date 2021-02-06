@@ -19,15 +19,16 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
- * Converter between the give T and Map.
+ * Converter between the give T and Map. Map is a general usable type using in the storage implementation.
  *
  * @param <T> A storage entity implementation.
  */
-public interface StorageBuilder<T extends StorageData> {
+public interface StorageHashMapBuilder<T extends StorageData> extends StorageBuilder<T, Map<String, Object>> {
 
-    T map2Data(Map<String, Object> dbMap);
+    T storage2Entity(Map<String, Object> dbMap);
 
-    Map<String, Object> data2Map(T storageData);
+    Map<String, Object> entity2Storage(T storageData);
 }

@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHold
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -251,7 +251,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public Class<? extends StorageBuilder> builder() {
+    public Class<? extends StorageHashMapBuilder> builder() {
         return PercentileFunctionBuilder.class;
     }
 
@@ -262,10 +262,10 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         private final int[] ranks;
     }
 
-    public static class PercentileFunctionBuilder implements StorageBuilder<PercentileFunction> {
+    public static class PercentileFunctionBuilder implements StorageHashMapBuilder<PercentileFunction> {
 
         @Override
-        public PercentileFunction map2Data(final Map<String, Object> dbMap) {
+        public PercentileFunction storage2Entity(final Map<String, Object> dbMap) {
             PercentileFunction metrics = new PercentileFunction() {
                 @Override
                 public AcceptableValue<PercentileArgument> createNew() {
@@ -281,7 +281,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         }
 
         @Override
-        public Map<String, Object> data2Map(final PercentileFunction storageData) {
+        public Map<String, Object> entity2Storage(final PercentileFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
             map.put(RANKS, storageData.getRanks());

@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -182,10 +182,10 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
         return AvgHistogramFunctionBuilder.class;
     }
 
-    public static class AvgHistogramFunctionBuilder implements StorageBuilder<AvgHistogramFunction> {
+    public static class AvgHistogramFunctionBuilder implements StorageHashMapBuilder<AvgHistogramFunction> {
 
         @Override
-        public AvgHistogramFunction map2Data(final Map<String, Object> dbMap) {
+        public AvgHistogramFunction storage2Entity(final Map<String, Object> dbMap) {
             AvgHistogramFunction metrics = new AvgHistogramFunction() {
                 @Override
                 public AcceptableValue<BucketedValues> createNew() {
@@ -201,7 +201,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgHistogramFunction storageData) {
+        public Map<String, Object> entity2Storage(final AvgHistogramFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
             map.put(COUNT, storageData.getCount());
