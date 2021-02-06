@@ -17,7 +17,6 @@ Release Notes.
 * Metrics combination API supports abandoning results.
 * Add a new concept "Event" and its implementations to collect events.
 * Add some defensive codes for NPE and bump up Kubernetes client version to expose exception stack trace.
-* Refactor StorageBuilder to remove the dependency of Map.
 
 #### UI
 Update selector scroller to show in all pages.
