@@ -70,7 +70,7 @@ public class LogMatcher extends AbstractMatcher<Log> {
             doVerify(getTraceId(), log.getTraceId());
         }
         if (nonNull(getTimestamp())) {
-            doVerify(getTimestamp(), log.getTimestamp());
+            doVerify(getTimestamp(), String.valueOf(log.getTimestamp()));
         }
         if (nonNull(getContentType())) {
             doVerify(getContentType(), log.getContentType());
