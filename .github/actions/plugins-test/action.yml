@@ -43,7 +43,7 @@ runs:
       shell: bash
       run: |
         echo "::group::Add checkstyle plugin to the pom.xml"
-        sed -i "/<\/sourceDirectories>/i <sourceDirectory>scenarios\/""${{ matrix.case }}""<\/sourceDirectory>" test/plugin/pom.xml
+        sed -i "/<\/sourceDirectories>/i <sourceDirectory>scenarios\/""${{ inputs.test_case }}""<\/sourceDirectory>" test/plugin/pom.xml
         echo "::endgroup::"
     - name: Build SkyWalking Agent
       shell: bash
