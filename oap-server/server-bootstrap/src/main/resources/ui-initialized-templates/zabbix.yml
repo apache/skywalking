@@ -26,125 +26,130 @@ templates:
     type: "DASHBOARD"
     # Configuration could be defined through UI, and use `export` to format in the standard JSON.
     configuration: |-
-      [{
-      	"name": "Zabbix",
-      	"type": "service",
-      	"children": [{
-      		"name": "Zabbix",
-      		"children": [{
-      			"width": "4",
-      			"title": "CPU Usage",
-      			"height": "100",
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "REGULAR_VALUE",
-      			"metricName": "meter_agent_system_cpu_usage",
-      			"queryMetricType": "readMetricsValue",
-      			"chartType": "ChartNum",
-      			"unit": "%",
-      			"aggregation": "/",
-      			"aggregationNum": "100"
-      		}, {
-      			"width": "4",
-      			"title": "Memory RAM Usage",
-      			"height": "100",
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "REGULAR_VALUE",
-      			"metricName": "meter_agent_vm_memory_usage",
-      			"queryMetricType": "readMetricsValue",
-      			"chartType": "ChartNum",
-      			"aggregation": "/",
-      			"aggregationNum": "100",
-      			"unit": "%"
-      		}, {
-      			"width": "4",
-      			"title": "Memory Swap Usage",
-      			"height": "100",
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "REGULAR_VALUE",
-      			"metricName": "meter_agent_system_swap_usage",
-      			"queryMetricType": "readMetricsValue",
-      			"chartType": "ChartNum",
-      			"aggregation": "/",
-      			"aggregationNum": "100",
-      			"unit": "%"
-      		}, {
-      			"width": "4",
-      			"title": "CPU Average Used",
-      			"height": 350,
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "LABELED_VALUE",
-      			"queryMetricType": "readLabeledMetricsValues",
-      			"chartType": "ChartLine",
-      			"metricName": "meter_agent_system_cpu_util",
-      			"unit": "%",
-      			"aggregation": "/",
-      			"aggregationNum": "100"
-      		}, {
-      			"width": "4",
-      			"title": "CPU Load",
-      			"height": 350,
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "LABELED_VALUE",
-      			"metricName": "meter_agent_system_cpu_load",
-      			"queryMetricType": "readLabeledMetricsValues",
-      			"chartType": "ChartLine",
-      			"aggregation": "/",
-      			"aggregationNum": "100"
-      		}, {
-      			"width": "4",
-      			"title": "Memory RAM",
-      			"height": 350,
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "LABELED_VALUE",
-      			"unit": "MB",
-      			"queryMetricType": "readLabeledMetricsValues",
-      			"chartType": "ChartLine",
-      			"metricName": "meter_agent_vm_memory_size",
-      			"aggregation": "/",
-      			"aggregationNum": "1048576"
-      		}, {
-      			"width": "4",
-      			"title": "Memory Swap",
-      			"height": 350,
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "LABELED_VALUE",
-      			"metricName": "meter_agent_system_swap_size",
-      			"queryMetricType": "readLabeledMetricsValues",
-      			"chartType": "ChartLine",
-      			"aggregation": "/",
-      			"aggregationNum": "1048576",
-      			"unit": "MB"
-      		}, {
-      			"width": "4",
-      			"title": "File System Mountpoint Usage",
-      			"height": 350,
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "LABELED_VALUE",
-      			"metricName": "meter_agent_vfs_fs_inode_usage",
-      			"queryMetricType": "readLabeledMetricsValues",
-      			"chartType": "ChartLine",
-      			"unit": "%"
-      		}, {
-      			"width": "4",
-      			"title": "Disk R/W Count",
-      			"height": 350,
-      			"entityType": "Service",
-      			"independentSelector": false,
-      			"metricType": "REGULAR_VALUE",
-      			"metricName": "meter_agent_vfs_dev_read,meter_agent_vfs_dev_write",
-      			"queryMetricType": "readMetricsValues",
-      			"chartType": "ChartLine"
-      		}]
-      	}]
-      }]
+      [
+        {
+          "name": "Zabbix",
+          "type": "service",
+          "children": [
+            {
+              "name": "Zabbix",
+              "children": [{
+                "width": "4",
+                "title": "CPU Usage",
+                "height": "100",
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_agent_system_cpu_usage",
+                "queryMetricType": "readMetricsValue",
+                "chartType": "ChartNum",
+                "unit": "%",
+                "aggregation": "/",
+                "aggregationNum": "100"
+              }, {
+                "width": "4",
+                "title": "Memory RAM Usage",
+                "height": "100",
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_agent_vm_memory_usage",
+                "queryMetricType": "readMetricsValue",
+                "chartType": "ChartNum",
+                "aggregation": "/",
+                "aggregationNum": "100",
+                "unit": "%"
+              }, {
+                "width": "4",
+                "title": "Memory Swap Usage",
+                "height": "100",
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_agent_system_swap_usage",
+                "queryMetricType": "readMetricsValue",
+                "chartType": "ChartNum",
+                "aggregation": "/",
+                "aggregationNum": "100",
+                "unit": "%"
+              }, {
+                "width": "4",
+                "title": "CPU Average Used",
+                "height": 350,
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "LABELED_VALUE",
+                "queryMetricType": "readLabeledMetricsValues",
+                "chartType": "ChartLine",
+                "metricName": "meter_agent_system_cpu_util",
+                "unit": "%",
+                "aggregation": "/",
+                "aggregationNum": "100"
+              }, {
+                "width": "4",
+                "title": "CPU Load",
+                "height": 350,
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "LABELED_VALUE",
+                "metricName": "meter_agent_system_cpu_load",
+                "queryMetricType": "readLabeledMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "/",
+                "aggregationNum": "100"
+              }, {
+                "width": "4",
+                "title": "Memory RAM",
+                "height": 350,
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "LABELED_VALUE",
+                "unit": "MB",
+                "queryMetricType": "readLabeledMetricsValues",
+                "chartType": "ChartLine",
+                "metricName": "meter_agent_vm_memory_size",
+                "aggregation": "/",
+                "aggregationNum": "1048576"
+              }, {
+                "width": "4",
+                "title": "Memory Swap",
+                "height": 350,
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "LABELED_VALUE",
+                "metricName": "meter_agent_system_swap_size",
+                "queryMetricType": "readLabeledMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "/",
+                "aggregationNum": "1048576",
+                "unit": "MB"
+              }, {
+                "width": "4",
+                "title": "File System Mountpoint Usage",
+                "height": 350,
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "LABELED_VALUE",
+                "metricName": "meter_agent_vfs_fs_inode_usage",
+                "queryMetricType": "readLabeledMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "%"
+              }, {
+                "width": "4",
+                "title": "Disk R/W Count",
+                "height": 350,
+                "entityType": "Service",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_agent_vfs_dev_read,meter_agent_vfs_dev_write",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine"
+              }
+            ]
+          }
+        ]
+      }
+  ]
     # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
     # False means providing a basic template, user needs to add it manually.
     activated: true
