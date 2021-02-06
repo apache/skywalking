@@ -65,7 +65,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
-            final UITemplate uiTemplate = builder.map2Data(sourceAsMap);
+            final UITemplate uiTemplate = builder.storage2Entity(sourceAsMap);
             configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
         }
         return configs;
@@ -82,7 +82,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
                 return TemplateChangeStatus.builder().status(false).message("Template exists").build();
             }
 
-            XContentBuilder xContentBuilder = map2builder(builder.data2Map(uiTemplate));
+            XContentBuilder xContentBuilder = map2builder(builder.entity2Storage(uiTemplate));
             getClient().forceInsert(UITemplate.INDEX_NAME, uiTemplate.id(), xContentBuilder);
             return TemplateChangeStatus.builder().status(true).build();
         } catch (IOException e) {
@@ -102,7 +102,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
                 return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
             }
 
-            XContentBuilder xContentBuilder = map2builder(builder.data2Map(uiTemplate));
+            XContentBuilder xContentBuilder = map2builder(builder.entity2Storage(uiTemplate));
             getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), xContentBuilder);
             return TemplateChangeStatus.builder().status(true).build();
         } catch (IOException e) {
@@ -116,10 +116,10 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         final GetResponse response = getClient().get(UITemplate.INDEX_NAME, name);
         if (response.isExists()) {
             final UITemplate.Builder builder = new UITemplate.Builder();
-            final UITemplate uiTemplate = builder.map2Data(response.getSourceAsMap());
+            final UITemplate uiTemplate = builder.storage2Entity(response.getSourceAsMap());
             uiTemplate.setDisabled(BooleanUtils.TRUE);
 
-            XContentBuilder xContentBuilder = map2builder(builder.data2Map(uiTemplate));
+            XContentBuilder xContentBuilder = map2builder(builder.entity2Storage(uiTemplate));
             getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), xContentBuilder);
             return TemplateChangeStatus.builder().status(true).build();
         } else {

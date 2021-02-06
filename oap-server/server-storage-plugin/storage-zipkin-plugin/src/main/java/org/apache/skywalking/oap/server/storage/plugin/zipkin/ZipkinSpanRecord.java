@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -105,10 +105,10 @@ public class ZipkinSpanRecord extends Record {
         return traceId + "-" + spanId;
     }
 
-    public static class Builder implements StorageBuilder<ZipkinSpanRecord> {
+    public static class Builder implements StorageHashMapBuilder<ZipkinSpanRecord> {
 
         @Override
-        public Map<String, Object> data2Map(ZipkinSpanRecord storageData) {
+        public Map<String, Object> entity2Storage(ZipkinSpanRecord storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(TRACE_ID, storageData.getTraceId());
             map.put(SPAN_ID, storageData.getSpanId());
@@ -131,7 +131,7 @@ public class ZipkinSpanRecord extends Record {
         }
 
         @Override
-        public ZipkinSpanRecord map2Data(Map<String, Object> dbMap) {
+        public ZipkinSpanRecord storage2Entity(Map<String, Object> dbMap) {
             ZipkinSpanRecord record = new ZipkinSpanRecord();
             record.setTraceId((String) dbMap.get(TRACE_ID));
             record.setSpanId((String) dbMap.get(SPAN_ID));

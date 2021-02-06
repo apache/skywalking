@@ -26,8 +26,9 @@ import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
 public class StorageEsDAO extends EsDAO implements StorageDAO {
@@ -37,22 +38,22 @@ public class StorageEsDAO extends EsDAO implements StorageDAO {
     }
 
     @Override
-    public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new MetricsEsDAO(getClient(), storageBuilder);
+    public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
+        return new MetricsEsDAO(getClient(), (StorageHashMapBuilder<Metrics>) storageBuilder);
     }
 
     @Override
-    public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new RecordEsDAO(getClient(), storageBuilder);
+    public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
+        return new RecordEsDAO(getClient(), (StorageHashMapBuilder<Record>) storageBuilder);
     }
 
     @Override
-    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new NoneStreamEsDAO(getClient(), storageBuilder);
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
+        return new NoneStreamEsDAO(getClient(), (StorageHashMapBuilder<NoneStream>) storageBuilder);
     }
 
     @Override
-    public IManagementDAO newManagementDao(final StorageBuilder<ManagementData> storageBuilder) {
-        return new ManagementEsDAO(getClient(), storageBuilder);
+    public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
+        return new ManagementEsDAO(getClient(), (StorageHashMapBuilder<ManagementData>) storageBuilder);
     }
 }
