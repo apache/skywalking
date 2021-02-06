@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
@@ -114,7 +114,7 @@ public abstract class AbstractLogRecord extends Record {
         throw new UnexpectedException("AbstractLogRecord doesn't provide id()");
     }
 
-    public static abstract class Builder<T extends AbstractLogRecord> implements StorageBuilder<T> {
+    public static abstract class Builder<T extends AbstractLogRecord> implements StorageHashMapBuilder<T> {
 
         protected void data2Map(Map<String, Object> map, AbstractLogRecord record) {
             map.put(SERVICE_ID, record.getServiceId());

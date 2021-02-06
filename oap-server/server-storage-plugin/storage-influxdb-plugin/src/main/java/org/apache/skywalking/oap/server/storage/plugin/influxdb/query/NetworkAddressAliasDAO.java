@@ -75,7 +75,7 @@ public class NetworkAddressAliasDAO implements INetworkAddressAliasDAO {
                 for (int i = 1; i < columns.size(); i++) {
                     map.put(columnAndFieldMap.get(columns.get(i)), values.get(i));
                 }
-                networkAddressAliases.add(builder.map2Data(map));
+                networkAddressAliases.add(builder.storage2Entity(map));
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);
