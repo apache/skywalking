@@ -32,7 +32,7 @@ public class ZabbixModuleConfig extends ModuleConfig {
      */
     private int port = 13800;
 
-    public static final String CONFIG_PATH = "zabbix-receive-config";
+    public static final String CONFIG_PATH = "zabbix-rules";
 
     /**
      * active receive configs, files split by ","

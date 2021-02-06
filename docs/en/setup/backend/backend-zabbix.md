@@ -9,7 +9,7 @@ receiver-zabbix:
     # Export tcp port, Zabbix agent could connected and transport data
     port: 13800
     # Enable config when receive agent request
-    activeFiles: agent.yaml
+    activeFiles: agent
 ```
 
 ## Configuration file
@@ -17,20 +17,23 @@ Zabbix receiver is configured via a configuration file. The configuration file d
  from agents, as well as which rule files to load.
  
 OAP can load the configuration at bootstrap. If the new configuration is not well-formed, OAP fails to start up. The files
-are located at `$CLASSPATH/zabbix-receive-config`.
+are located at `$CLASSPATH/zabbix-rules`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
+A example for zabbix agent configuration could be found [here](../../../../test/e2e/e2e-test/docker/zabbix/zabbix_agentd.conf).
 You could find the Zabbix agent detail items from [Zabbix Agent docucment](https://www.zabbix.com/documentation/current/manual/config/items/itemtypes/zabbix_agent).
 
-### Zabbix agent configure
+### Configuration file
 
 ```yaml
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
 metricPrefix: <string>
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
+# Datasource from Zabbix Item keys.
+requiredZabbixItemKeys:
+ - <zabbix item keys>
 # Support agent entities information.
 entities:
   # Allow hostname patterns to build metrics.

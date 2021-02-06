@@ -21,7 +21,7 @@ services:
       file: ../base-compose.yml
       service: oap
     volumes:
-      - ./agent.yaml:/skywalking/config/zabbix-receive-config/agent.yaml
+      - ./agent.yaml:/skywalking/config/zabbix-rules/agent.yaml
 
   zabbix-client:
     image: zabbix/zabbix-agent:latest

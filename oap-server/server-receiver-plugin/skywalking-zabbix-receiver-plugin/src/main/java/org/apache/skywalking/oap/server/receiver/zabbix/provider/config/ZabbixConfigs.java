@@ -45,13 +45,19 @@ public class ZabbixConfigs {
 
         File[] configs;
         try {
-            configs = ResourceUtils.getPathFiles(path, fileNames.toArray(new String[fileNames.size()]));
+            configs = ResourceUtils.getPathFiles(path);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Load zabbix configs failed", e);
         }
 
         return Arrays.stream(configs).filter(File::isFile)
             .map(f -> {
+                String fileName = f.getName();
+                int dotIndex = fileName.lastIndexOf('.');
+                fileName = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+                if (!fileNames.contains(fileName)) {
+                    return null;
+                }
                 try (Reader r = new FileReader(f)) {
                     return new Yaml().loadAs(r, ZabbixConfig.class);
                 } catch (IOException e) {

@@ -20,6 +20,7 @@ entities:
     - .+
   labels:
 requiredZabbixItemKeys:
+  # cpu
   - system.cpu.load[all,avg15]
   - system.cpu.load[all,avg1]
   - system.cpu.load[all,avg5]
@@ -33,23 +34,46 @@ requiredZabbixItemKeys:
   - system.cpu.util[,steal]
   - system.cpu.util[,system]
   - system.cpu.util[,user]
+  # memory
+  - vm.memory.size[available]
+  - vm.memory.size[pavailable]
+  - vm.memory.size[total]
+  - vm.memory.size[pavailable]
+  # swap
   - system.swap.size[,free]
   - system.swap.size[,total]
-  - vfs.fs.inode[/,pfree]
+  - system.swap.size[,pused]
+  # file
+  - vfs.fs.inode[/,pused]
   - vfs.fs.size[/,total]
   - vfs.fs.size[/,used]
-  - vm.memory.size[available]
-  - vm.memory.size[total]
+  - vfs.dev.read[,ops,avg1]
+  - vfs.dev.write[,ops,avg1]
+
 metrics:
+  # cpu
   - name: system_cpu_load
-    exp: system.cpu.load.avg(['2', 'host'])
+    exp: system.cpu.load.avg(['2', 'host']) * 100
   - name: system_cpu_util
-    exp: system.cpu.util.avg(['2', 'host'])
+    exp: system.cpu.util.avg(['2', 'host']) * 100
+  - name: system_cpu_usage
+    exp: system.cpu.util.tagNotEqual('2', 'idle').sum(['host']) * 100
+  # memory
+  - name: vm_memory_size
+    exp: vm.memory.size.tagNotEqual('1', 'pavailable').avg(['1', 'host'])
+  - name: vm_memory_usage
+    exp: vm.memory.size.tagEqual('1', 'pavailable') * 100
+  # swap
   - name: system_swap_size
-    exp: system.swap.size.avg(['2', 'host'])
-  - name: vfs_fs_inode
-    exp: vfs.fs.inode.avg(['1', '2', 'host'])
+    exp: system.swap.size.tagNotEqual('2', 'pused').avg(['2', 'host'])
+  - name: system_swap_usage
+    exp: system.swap.size.tagEqual('2', 'pused') * 100
+  # file
+  - name: vfs_fs_inode_usage
+    exp: vfs.fs.inode.tagEqual('2', 'pused').avg(['1', 'host'])
   - name: vfs_fs_size
     exp: vfs.fs.size.avg(['1', '2', 'host'])
-  - name: vm_memory_size
-    exp: vm.memory.size.avg(['1', 'host'])
+  - name: vfs_dev_read
+    exp: vfs.dev.read
+  - name: vfs_dev_write
+    exp: vfs.dev.write

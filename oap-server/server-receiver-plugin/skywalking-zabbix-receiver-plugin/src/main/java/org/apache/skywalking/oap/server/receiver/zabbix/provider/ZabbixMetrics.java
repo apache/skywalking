@@ -182,7 +182,7 @@ public class ZabbixMetrics {
             }
 
             // Append all metric keys
-            config.getMetrics().stream().forEach(m -> enabledKeys.addAll(m.getKeys()));
+            enabledKeys.addAll(config.getRequiredZabbixItemKeys());
         }
 
         public boolean matchesWithHostName(String hostName) {
