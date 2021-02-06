@@ -25,7 +25,7 @@ package org.apache.skywalking.oap.server.core.storage.type;
  * @param <K> The data structure recognized by the storage implementation.
  */
 public interface StorageBuilder<T, K> {
-    T storage2Entity(K dbMap);
+    T storage2Entity(K storageData);
 
-    K entity2Storage(T storageData);
+    K entity2Storage(T entity);
 }
