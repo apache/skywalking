@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
  *
  * @param <T> A storage entity implementation.
  */
-public interface StorageHashMapBuilder<T extends StorageHashMapBuilder> extends StorageBuilder<T, Map<String, Object>> {
+public interface StorageHashMapBuilder<T extends StorageData> extends StorageBuilder<T, Map<String, Object>> {
 
     T storage2Entity(Map<String, Object> dbMap);
 
