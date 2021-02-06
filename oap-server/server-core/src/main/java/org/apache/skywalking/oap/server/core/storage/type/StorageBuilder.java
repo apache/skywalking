@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+
 /**
  * Converter between the give T and K.
  *
  * @param <T> A storage entity implementation.
  * @param <K> The data structure recognized by the storage implementation.
  */
-public interface StorageBuilder<T, K> {
+public interface StorageBuilder<T extends StorageData, K> {
     T storage2Entity(K storageData);
 
     K entity2Storage(T entity);

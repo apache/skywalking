@@ -95,8 +95,8 @@ public class OALRuntime implements OALEngine {
         "toDay"
     };
     private static final String[] METRICS_BUILDER_CLASS_METHODS = {
-        "data2Map",
-        "map2Data"
+        "entity2Storage",
+        "storage2Entity"
     };
     private static boolean IS_RT_TEMP_FOLDER_INIT_COMPLETED = false;
 

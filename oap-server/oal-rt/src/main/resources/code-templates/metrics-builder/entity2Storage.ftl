@@ -1,4 +1,4 @@
-public java.util.Map data2Map(org.apache.skywalking.oap.server.core.storage.StorageData input) {
+public java.util.Map entity2Storage(org.apache.skywalking.oap.server.core.storage.StorageData input) {
 ${metricsClassPackage}${metricsName}Metrics storageData = (${metricsClassPackage}${metricsName}Metrics)input;
 java.util.Map map = new java.util.HashMap();
 <#list fieldsFromSource as field>
