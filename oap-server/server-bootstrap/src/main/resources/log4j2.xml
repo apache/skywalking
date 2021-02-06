@@ -33,6 +33,7 @@
         <logger name="org.apache.http" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core" level="DEBUG"/>
+        <logger name="org.apache.skywalking.oap.server.core.storage.PersistenceTimer" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.core.analysis.worker" level="DEBUG" />
         <logger name="org.apache.skywalking.oap.server.core.remote.client" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.library.buffer" level="INFO"/>

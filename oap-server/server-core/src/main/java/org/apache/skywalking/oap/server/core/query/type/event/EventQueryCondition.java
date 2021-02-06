@@ -16,18 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.query.type.event;
 
-import java.util.Map;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 
-/**
- * Converter between the give T and Map.
- *
- * @param <T> A storage entity implementation.
- */
-public interface StorageBuilder<T extends StorageData> {
+import static org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO.DEFAULT_SIZE;
+import static org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO.MAX_SIZE;
 
-    T map2Data(Map<String, Object> dbMap);
+@Data
+public class EventQueryCondition {
+    private String uuid;
 
-    Map<String, Object> data2Map(T storageData);
+    private Source source;
+
+    private String name;
+
+    private EventType type;
+
+    private Duration time;
+
+    private Order order;
+
+    private int size;
+
+    public int getSize() {
+        return size > 0 ? Math.min(size, MAX_SIZE) : DEFAULT_SIZE;
+    }
 }

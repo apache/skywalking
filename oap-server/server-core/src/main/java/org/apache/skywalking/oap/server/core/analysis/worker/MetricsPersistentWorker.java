@@ -174,7 +174,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                     /*
                      * Merge metrics into cachedMetrics, change only happens inside cachedMetrics.
                      */
-                    cachedMetrics.combine(metrics);
+                    final boolean isAbandoned = !cachedMetrics.combine(metrics);
+                    if (isAbandoned) {
+                        continue;
+                    }
                     cachedMetrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
                     nextWorker(cachedMetrics);

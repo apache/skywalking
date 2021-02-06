@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 public class NutzHttpFilePostSenderInstrumentation extends AbstractNutzHttpInstrumentation {
 
+    @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName("org.nutz.http.sender.FilePostSender");
     }

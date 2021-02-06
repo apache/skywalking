@@ -102,6 +102,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public boolean createIndex(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -111,6 +112,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return response.isAcknowledged();
     }
 
+    @Override
     public boolean createIndex(String indexName, Map<String, Object> settings,
                                Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
@@ -141,6 +143,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return new ArrayList<>(alias.getAliases().keySet());
     }
 
+    @Override
     protected boolean deleteIndex(String indexName, boolean formatIndexName) throws IOException {
         if (formatIndexName) {
             indexName = formatIndexName(indexName);
@@ -151,12 +154,14 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return response.isAcknowledged();
     }
 
+    @Override
     public boolean isExistsIndex(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
         GetIndexRequest request = new GetIndexRequest(indexName);
         return client.indices().exists(request, RequestOptions.DEFAULT);
     }
 
+    @Override
     public boolean isExistsTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -165,6 +170,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return client.indices().existsTemplate(indexTemplatesExistRequest, RequestOptions.DEFAULT);
     }
 
+    @Override
     public boolean createTemplate(String indexName, Map<String, Object> settings,
                                   Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
@@ -182,6 +188,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return acknowledgedResponse.isAcknowledged();
     }
 
+    @Override
     public boolean deleteTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -209,6 +216,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public GetResponse get(String indexName, String id) throws IOException {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, id);
@@ -222,6 +230,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public SearchResponse ids(String indexName, String[] ids) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -237,6 +246,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
         IndexRequest request = (IndexRequest) prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
@@ -249,6 +259,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
         org.elasticsearch.action.update.UpdateRequest request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(
             indexName, id, source);
@@ -262,16 +273,19 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public InsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
         return new ElasticSearch7InsertRequest(indexName, id).source(source);
     }
 
+    @Override
     public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
         return new ElasticSearch7UpdateRequest(indexName, id).doc(source);
     }
 
+    @Override
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -286,6 +300,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return HttpStatus.SC_OK;
     }
 
+    @Override
     public void synchronousBulk(BulkRequest request) {
         request.timeout(TimeValue.timeValueMinutes(2));
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
@@ -300,6 +315,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
     }
 
+    @Override
     public BulkProcessor createBulkProcessor(int bulkActions, int flushInterval, int concurrentRequests) {
         BulkProcessor.Listener listener = createBulkListener();
 

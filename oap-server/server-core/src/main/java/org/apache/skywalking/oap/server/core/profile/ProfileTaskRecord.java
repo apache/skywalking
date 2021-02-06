@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK;
@@ -73,10 +73,10 @@ public class ProfileTaskRecord extends NoneStream {
     @Column(columnName = MAX_SAMPLING_COUNT)
     private int maxSamplingCount;
 
-    public static class Builder implements StorageBuilder<ProfileTaskRecord> {
+    public static class Builder implements StorageHashMapBuilder<ProfileTaskRecord> {
 
         @Override
-        public ProfileTaskRecord map2Data(Map<String, Object> dbMap) {
+        public ProfileTaskRecord storage2Entity(Map<String, Object> dbMap) {
             final ProfileTaskRecord record = new ProfileTaskRecord();
             record.setServiceId((String) dbMap.get(SERVICE_ID));
             record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
@@ -91,7 +91,7 @@ public class ProfileTaskRecord extends NoneStream {
         }
 
         @Override
-        public Map<String, Object> data2Map(ProfileTaskRecord storageData) {
+        public Map<String, Object> entity2Storage(ProfileTaskRecord storageData) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(ENDPOINT_NAME, storageData.getEndpointName());

@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
+import org.apache.skywalking.oap.server.core.query.EventQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
@@ -173,6 +174,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         // Management
         this.registerServiceImplementation(UITemplateManagementService.class, new UITemplateManagementService(getManager()));
+
+        this.registerServiceImplementation(EventQueryService.class, new EventQueryService(getManager()));
     }
 
     @Override

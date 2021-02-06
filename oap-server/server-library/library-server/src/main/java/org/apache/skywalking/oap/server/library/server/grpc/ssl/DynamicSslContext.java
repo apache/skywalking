@@ -50,6 +50,7 @@ public class DynamicSslContext extends AbstractSslContext {
         super(caFile);
     }
 
+    @Override
     protected void updateContext(String caFile) {
         try {
             setCtx(GrpcSslContexts.forClient().trustManager(Paths.get(caFile).toFile()).build());
@@ -58,6 +59,7 @@ public class DynamicSslContext extends AbstractSslContext {
         }
     }
 
+    @Override
     protected void updateContext(final String privateKeyFile, final String certChainFile) {
         try {
             setCtx(GrpcSslContexts

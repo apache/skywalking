@@ -50,6 +50,9 @@ the following key info:
 1. Protocol. HTTP, gRPC
 1. DetectPoint. In Service Mesh sidecar, `client` or `server`. In normal L7 proxy, value is `proxy`.
 
+### Events Report Protocol
+
+The protocol is used to report events to the backend. The [doc](../concepts-and-designs/event.md) introduces the definition of an event, and [the protocol repository](https://github.com/apache/skywalking-data-collect-protocol/blob/master/event) defines gRPC services and messages formats of events.
 
 ### 3rd-party instrument protocol
 3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats, which SkyWalking is compatible and
