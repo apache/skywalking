@@ -186,7 +186,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setEndpointId(resultSet.getString(ENDPOINT_ID));
                     log.setEndpointName(resultSet.getString(ENDPOINT_NAME));
                     log.setTraceId(resultSet.getString(TRACE_ID));
-                    log.setTimestamp(resultSet.getString(TIMESTAMP));
+                    log.setTimestamp(resultSet.getLong(TIMESTAMP));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
                     log.setContent(resultSet.getString(CONTENT));
                     String dataBinaryBase64 = resultSet.getString(TAGS_RAW_DATA);
