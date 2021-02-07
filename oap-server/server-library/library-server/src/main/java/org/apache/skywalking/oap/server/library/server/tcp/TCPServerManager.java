@@ -100,8 +100,8 @@ public class TCPServerManager {
     }
 
     private class Server {
-        private TCPBinder binder;
-        private ServerBootstrap bootstrap;
+        private final TCPBinder binder;
+        private final ServerBootstrap bootstrap;
 
         public Server(TCPBinder binder, ServerBootstrap bootstrap) {
             this.binder = binder;

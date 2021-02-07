@@ -30,6 +30,7 @@ templates:
         {
           "name": "Zabbix",
           "type": "service",
+          "serviceGroup": "vm",
           "children": [
             {
               "name": "Zabbix",

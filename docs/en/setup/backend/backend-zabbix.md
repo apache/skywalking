@@ -1,5 +1,5 @@
 # Zabbix Receiver
-Zabbix receiver is accepting the metrics of [Zabbix Agent Active Checks protocol](https://www.zabbix.com/documentation/current/manual/appendix/items/activepassive#active_checks) fromat into the [Meter System](./../../concepts-and-designs/meter.md).
+Zabbix receiver is accepting the metrics of [Zabbix Agent Active Checks protocol](https://www.zabbix.com/documentation/current/manual/appendix/items/activepassive#active_checks) format into the [Meter System](./../../concepts-and-designs/meter.md).
 
 ## Module define
 ```yaml
@@ -19,10 +19,10 @@ Zabbix receiver is configured via a configuration file. The configuration file d
 OAP can load the configuration at bootstrap. If the new configuration is not well-formed, OAP fails to start up. The files
 are located at `$CLASSPATH/zabbix-rules`.
 
-The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
+The file is written in YAML format, defined by the scheme described below. Square brackets indicate that a parameter is optional.
 
-A example for zabbix agent configuration could be found [here](../../../../test/e2e/e2e-test/docker/zabbix/zabbix_agentd.conf).
-You could find the Zabbix agent detail items from [Zabbix Agent docucment](https://www.zabbix.com/documentation/current/manual/config/items/itemtypes/zabbix_agent).
+An example for zabbix agent configuration could be found [here](../../../../test/e2e/e2e-test/docker/zabbix/zabbix_agentd.conf).
+You could find the Zabbix agent detail items from [Zabbix Agent documentation](https://www.zabbix.com/documentation/current/manual/config/items/itemtypes/zabbix_agent).
 
 ### Configuration file
 

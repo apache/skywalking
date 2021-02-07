@@ -51,6 +51,7 @@ public class ZabbixProtocolEncoder extends MessageToMessageEncoder<ZabbixRespons
         ByteBuf buffer = channelHandlerContext.alloc().buffer(header.length + payloadLength);
         buffer.writeBytes(header);
         buffer.writeBytes(responsePayload.getBytes(Charsets.UTF_8));
+        buffer.retain();
 
         channelHandlerContext.writeAndFlush(buffer);
     }
