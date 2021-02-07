@@ -21,7 +21,7 @@ logs:
     endpointName: /traffic
     endpointId: not null
     traceId: "ac81b308-0d66-4c69-a7af-a023a536bd3e"
-    timestamp: not null
+    timestamp: gt 0
     contentType: TEXT
     content: log
     tags:
