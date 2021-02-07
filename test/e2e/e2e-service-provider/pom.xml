@@ -34,7 +34,7 @@
     <artifactId>e2e-service-provider</artifactId>
 
     <properties>
-        <sw.snapshot.version>8.4.0-SNAPSHOT</sw.snapshot.version>
+        <sw.snapshot.version>8.4.0</sw.snapshot.version>
     </properties>
 
     <dependencies>
