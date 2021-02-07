@@ -21,14 +21,15 @@ package org.apache.skywalking.oap.server.receiver.zabbix.provider;
 import com.google.common.collect.Maps;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
-import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixConfig;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixConfigs;
@@ -46,6 +47,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -64,10 +66,10 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
 
         // prepare the context
         meterSystem = Mockito.spy(new MeterSystem(moduleManager));
+        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
+                                  Mockito.spy(MetricsStreamProcessor.getInstance()));
+        doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
         CoreModule coreModule = Mockito.spy(CoreModule.class);
-
-        // disable meter register
-        DisableRegister.INSTANCE.add("meter_agent_system_cpu_load");
 
         Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
         when(moduleManager.find(CoreModule.NAME)).thenReturn(coreModule);
