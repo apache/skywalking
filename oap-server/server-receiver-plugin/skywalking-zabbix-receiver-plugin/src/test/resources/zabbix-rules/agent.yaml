@@ -23,10 +23,10 @@ entities:
       value: all
     - name: cur_host_name
       fromItem: agent.hostname
+requiredZabbixItemKeys:
+  - system.cpu.load[all,avg1]
+  - system.cpu.load[all,avg5]
+  - system.cpu.load[all,avg15]
 metrics:
   - name: system_cpu_load
-    keys:
-      - system.cpu.load[all,avg1]
-      - system.cpu.load[all,avg5]
-      - system.cpu.load[all,avg15]
     exp: system.cpu.load.avg(['2', 'cur_host_name'])

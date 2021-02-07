@@ -92,7 +92,7 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         }).when(meterSystem).doStreamingCalculation(any());
 
         // load context
-        List<ZabbixConfig> zabbixConfigs = ZabbixConfigs.loadConfigs(ZabbixModuleConfig.CONFIG_PATH, Arrays.asList("agent.yaml"));
+        List<ZabbixConfig> zabbixConfigs = ZabbixConfigs.loadConfigs(ZabbixModuleConfig.CONFIG_PATH, Arrays.asList("agent"));
         return new ZabbixMetrics(zabbixConfigs, meterSystem);
     }
 
