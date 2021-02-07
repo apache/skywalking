@@ -23,3 +23,5 @@ SkyWalking already support.
   - [Overview](ui-overview.md). A simple brief about SkyWalking UI.
 - CLI
   - [SkyWalking CLI](https://github.com/apache/skywalking-cli). A command line interface for SkyWalking.
+- Events
+  - [Events](event.md). Introduce the concept of "Event" in SkyWalking.

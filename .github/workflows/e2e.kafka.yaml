@@ -30,13 +30,13 @@ env:
 
 jobs:
   Kafka:
-    name: ${{ matrix.case.name }}
+    name: Kafka (${{ matrix.case.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
         case:
-          - name: Kafka
+          - name: Base
             class: org.apache.skywalking.e2e.kafka.KafkaE2E
           - name: Profiling
             class: org.apache.skywalking.e2e.kafka.KafkaProfileE2E
@@ -48,7 +48,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
       - name: Cache local Maven repository
+        if: env.SKIP_CI != 'true'
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
@@ -56,6 +59,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Run E2E Test
+        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test
         with:
           test_class: ${{ matrix.case.class }}

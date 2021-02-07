@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.e2e.log;
 
-import com.google.common.base.Strings;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -43,7 +42,6 @@ public class LogMatcher extends AbstractMatcher<Log> {
     private String endpointId;
     private String traceId;
     private String timestamp;
-    private String isError;
     private String contentType;
     private String content;
     private List<KeyValueMatcher> tags;
@@ -73,9 +71,6 @@ public class LogMatcher extends AbstractMatcher<Log> {
         }
         if (nonNull(getTimestamp())) {
             doVerify(getTimestamp(), log.getTimestamp());
-        }
-        if (nonNull(getIsError())) {
-            doVerify(getIsError(), Strings.nullToEmpty(String.valueOf(log.isError())));
         }
         if (nonNull(getContentType())) {
             doVerify(getContentType(), log.getContentType());

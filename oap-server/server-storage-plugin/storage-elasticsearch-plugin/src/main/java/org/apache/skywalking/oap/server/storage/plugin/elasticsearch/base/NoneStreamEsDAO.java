@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -31,16 +31,16 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  */
 public class NoneStreamEsDAO extends EsDAO implements INoneStreamDAO {
 
-    private final StorageBuilder<NoneStream> storageBuilder;
+    private final StorageHashMapBuilder<NoneStream> storageBuilder;
 
-    public NoneStreamEsDAO(ElasticSearchClient client, StorageBuilder<NoneStream> storageBuilder) {
+    public NoneStreamEsDAO(ElasticSearchClient client, StorageHashMapBuilder<NoneStream> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.data2Map(noneStream));
+        XContentBuilder builder = map2builder(storageBuilder.entity2Storage(noneStream));
         String modelName = TimeSeriesUtils.writeIndexName(model, noneStream.getTimeBucket());
         getClient().forceInsert(modelName, noneStream.id(), builder);
     }

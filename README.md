@@ -10,7 +10,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm.svg)](http://skywalking.apache.org/downloads/)
-[![CI/IT Tests](https://github.com/apache/skywalking/workflows/CI%20AND%20IT/badge.svg?branch=master)](https://github.com/apache/skywalking/actions?query=branch%3Amaster+event%3Aschedule+workflow%3A%22CI+AND+IT%22)
+[![CI/IT Tests](https://github.com/apache/skywalking/workflows/CI%20AND%20IT/badge.svg?branch=master)](https://github.com/apache/skywalking/actions?query=workflow%3ACI%2BAND%2BIT+event%3Aschedule+branch%3Amaster)
 [![E2E Tests](https://github.com/apache/skywalking/workflows/E2E/badge.svg?branch=master)](https://github.com/apache/skywalking/actions?query=branch%3Amaster+event%3Aschedule+workflow%3AE2E)
 
 # Abstract
@@ -25,21 +25,24 @@ The core features are following.
 - Slow services and endpoints detected
 - Performance optimization
 - Distributed tracing and context propagation
-- Database access metrics. Detect slow database access statements(including SQL statements).
+- Database access metrics. Detect slow database access statements(including SQL statements)
 - Alarm
 - Browser performance monitoring
+- Infrastructure(VM, network, disk etc.) monitoring
+- Collaboration across metrics, traces, and logs
 
 <img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20201105"/>
 
-SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
+SkyWalking supports to collect telemetry (metrics, traces, and logs) data from multiple sources
 and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 1. Go and C++ SDKs.
 1. LUA agent especially for Nginx, OpenResty.
+1. Browser agent.
 1. Service Mesh Observability. Control panel and data panel. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer).
-1. Browser application performance, including metrics and error logs.
+1. Logs.
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
 
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 

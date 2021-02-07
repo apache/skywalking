@@ -161,6 +161,7 @@ property key | Description | Default |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
 `plugin.springannotation.classname_match_regex` |  Match spring beans with regular expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
+`plugin.toolkit.log.transmit_formatted` | Whether or not to transmit logged data as formatted or un-formatted. | `true` |
 `plugin.toolkit.log.grpc.reporter.server_host` | Specify which grpc server's host for log data to report to. | `127.0.0.1` |
 `plugin.toolkit.log.grpc.reporter.server_port` | Specify which grpc server's port for log data to report to. | `11800` |
 `plugin.toolkit.log.grpc.reporter.max_message_size` | Specify the maximum size of log data for grpc client to report to. | `10485760` |
@@ -185,7 +186,6 @@ Now, we have the following known optional plugins.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
 * Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
 * Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
-* [Plugin of logger(logback, log4j, log4j2)](agent-optional-plugins/Logger-plugin.md) in the optional plugin folder. For the performance perspective, please only activate it when you need to add logs(from logback,log4j, or log4j2) to the span log event. **Notice, collecting logs in the tracing would impact the performance and memory seriously. Only collect necessary logs.**
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.

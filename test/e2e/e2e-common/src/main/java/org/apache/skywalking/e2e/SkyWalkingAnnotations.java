@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +48,7 @@ import org.testcontainers.containers.ContainerState;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 
 import static java.util.stream.Collectors.joining;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
@@ -226,17 +228,18 @@ public final class SkyWalkingAnnotations {
                     "field cannot be annotated with both ContainerHost and ContainerPort: " + field.getName()
                 );
             }
+            final WaitStrategy waitStrategy = Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5));
             if (field.isAnnotationPresent(ContainerHost.class)) {
                 final ContainerHost host = field.getAnnotation(ContainerHost.class);
-                compose.withExposedService(host.name(), host.port(), Wait.forListeningPort());
+                compose.withExposedService(host.name(), host.port(), waitStrategy);
             }
             if (field.isAnnotationPresent(ContainerPort.class)) {
                 final ContainerPort port = field.getAnnotation(ContainerPort.class);
-                compose.withExposedService(port.name(), port.port(), Wait.forListeningPort());
+                compose.withExposedService(port.name(), port.port(), waitStrategy);
             }
             if (field.isAnnotationPresent(ContainerHostAndPort.class)) {
                 final ContainerHostAndPort hostAndPort = field.getAnnotation(ContainerHostAndPort.class);
-                compose.withExposedService(hostAndPort.name(), hostAndPort.port(), Wait.forListeningPort());
+                compose.withExposedService(hostAndPort.name(), hostAndPort.port(), waitStrategy);
             }
         }
 

@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MetricsEsDAO;
@@ -30,7 +30,7 @@ import org.elasticsearch.action.search.SearchResponse;
 
 public class MetricsEs7DAO extends MetricsEsDAO {
 
-    MetricsEs7DAO(final ElasticSearchClient client, final StorageBuilder<Metrics> storageBuilder) {
+    MetricsEs7DAO(final ElasticSearchClient client, final StorageHashMapBuilder<Metrics> storageBuilder) {
         super(client, storageBuilder);
     }
 
@@ -41,7 +41,7 @@ public class MetricsEs7DAO extends MetricsEsDAO {
 
         List<Metrics> result = new ArrayList<>(response.getHits().getHits().length);
         for (int i = 0; i < response.getHits().getHits().length; i++) {
-            Metrics source = storageBuilder.map2Data(response.getHits().getAt(i).getSourceAsMap());
+            Metrics source = storageBuilder.storage2Entity(response.getHits().getAt(i).getSourceAsMap());
             result.add(source);
         }
         return result;

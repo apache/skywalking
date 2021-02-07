@@ -46,9 +46,10 @@ public abstract class MaxLongMetrics extends Metrics implements LongValueHolder 
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         MaxLongMetrics maxLongMetrics = (MaxLongMetrics) metrics;
         combine(maxLongMetrics.value);
+        return true;
     }
 
     @Override

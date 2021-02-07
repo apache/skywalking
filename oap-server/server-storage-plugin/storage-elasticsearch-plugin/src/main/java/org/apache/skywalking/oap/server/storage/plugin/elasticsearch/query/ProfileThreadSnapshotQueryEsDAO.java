@@ -141,7 +141,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (SearchHit searchHit : response.getHits().getHits()) {
-            ProfileThreadSnapshotRecord record = builder.map2Data(searchHit.getSourceAsMap());
+            ProfileThreadSnapshotRecord record = builder.storage2Entity(searchHit.getSourceAsMap());
 
             result.add(record);
         }

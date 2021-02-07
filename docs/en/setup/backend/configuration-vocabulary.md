@@ -30,7 +30,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | instanceNameMaxLength| Max length limitation of service instance name. The max length of service + instance names should be less than 200.|SW_INSTANCE_NAME_MAX_LENGTH|70|
 | - | - | endpointNameMaxLength| Max length limitation of endpoint name. The max length of service + endpoint names should be less than 240.|SW_ENDPOINT_NAME_MAX_LENGTH|150|
 | - | - | searchableTracesTags | Define the set of span tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_TAG_KEYS | http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker|
-| - | - | searchableLogsTags | Define the set of log tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_LOGS_TAG_KEYS | - |
+| - | - | searchableLogsTags | Define the set of log tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_LOGS_TAG_KEYS | level |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_CORE_GRPC_THREAD_POOL_SIZE | CPU core * 4|
 | - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_CORE_GRPC_POOL_QUEUE_SIZE | 10000|
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CALL | - |
@@ -261,6 +261,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
 | health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
 | configuration-discovery | default | disableMessageDigest | If true, agent receives the latest configuration every time even without change. In default, OAP uses SHA512 message digest mechanism to detect changes of configuration. | SW_DISABLE_MESSAGE_DIGEST | false
+| receiver-event|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 
 ## Notice
 ¹ System Environment Variable name could be declared and changed in the application.yml. The names listed here,

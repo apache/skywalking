@@ -18,15 +18,18 @@
 
 package org.apache.skywalking.apm.agent.core.conf.dynamic;
 
+import com.google.common.collect.Lists;
 import io.grpc.Channel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
@@ -128,11 +131,12 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
      */
     public void handleConfigurationDiscoveryCommand(ConfigurationDiscoveryCommand configurationDiscoveryCommand) {
         final String responseUuid = configurationDiscoveryCommand.getUuid();
-        final List<KeyStringValuePair> config = configurationDiscoveryCommand.getConfig();
 
         if (responseUuid != null && Objects.equals(this.uuid, responseUuid)) {
             return;
         }
+
+        List<KeyStringValuePair> config = readConfig(configurationDiscoveryCommand);
 
         config.forEach(property -> {
             String propertyKey = property.getKey();
@@ -166,6 +170,30 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
         this.uuid = responseUuid;
 
         LOGGER.trace("Current configurations after the sync, configurations:{}", register.toString());
+    }
+
+    /**
+     * Read the registered dynamic configuration, compare it with the dynamic configuration information returned by the
+     * service, and complete the dynamic configuration that has been deleted on the OAP.
+     *
+     * @param configurationDiscoveryCommand Describe dynamic configuration information
+     * @return Adapted dynamic configuration information
+     */
+    private List<KeyStringValuePair> readConfig(ConfigurationDiscoveryCommand configurationDiscoveryCommand) {
+        Map<String, KeyStringValuePair> commandConfigs = configurationDiscoveryCommand.getConfig()
+                                                                                      .stream()
+                                                                                      .collect(Collectors.toMap(
+                                                                                          KeyStringValuePair::getKey,
+                                                                                          Function.identity()
+                                                                                      ));
+        List<KeyStringValuePair> configList = Lists.newArrayList();
+        for (final String name : register.keys()) {
+            KeyStringValuePair command = commandConfigs.getOrDefault(name, KeyStringValuePair.newBuilder()
+                                                                                             .setKey(name)
+                                                                                             .build());
+            configList.add(command);
+        }
+        return configList;
     }
 
     /**
@@ -211,6 +239,10 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
         public WatcherHolder get(String name) {
             return register.get(name);
+        }
+
+        public Set<String> keys() {
+            return register.keySet();
         }
 
         @Override

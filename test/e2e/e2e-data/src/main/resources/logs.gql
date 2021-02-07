@@ -25,7 +25,6 @@
                 endpointId,
                 traceId,
                 timestamp,
-                isError,
                 contentType,
                 content,
                 tags{
@@ -36,17 +35,9 @@
     }",
     "variables": {
         "condition": {
-            "metricName": "log",
-            "state": "ALL",
             "serviceId": "{serviceId}",
-            "serviceInstanceId": "{serviceInstanceId}",
             "endpointId": "{endpointId}",
             "endpointName": "{endpointName}",
-            "relatedTrace": {
-                "traceId": "{traceId}",
-                "segmentId": "{segmentId}",
-                "spanId": {spanId}
-            },
             "queryDuration": {
                 "start": "{start}",
                 "end": "{end}",
@@ -57,12 +48,6 @@
             ],
             "excludingKeywordsOfContent": [
                 {excludingKeywordsOfContent}
-            ],
-            "tags": [
-                {
-                    "key": "{tagKey}",
-                    "value": "{tagValue}"
-                }
             ],
             "paging": {
                 "pageNum": {pageNum},

@@ -101,7 +101,7 @@ core:
     # Define the set of span tag keys, which should be searchable through the GraphQL.
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
     # Define the set of log tag keys, which should be searchable through the GraphQL.
-    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:""}
+    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -128,6 +128,8 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
+    oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   elasticsearch7:
     nameSpace: ${SW_NAMESPACE:""}
@@ -153,6 +155,8 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
+    oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
   h2:
     driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
@@ -213,6 +217,10 @@ agent-analyzer:
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
+  default:
+
+event-analyzer:
+  selector: ${SW_EVENT_ANALYZER:default}
   default:
 
 receiver-sharing-server:
@@ -418,3 +426,7 @@ configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
     disableMessageDigest: ${SW_DISABLE_MESSAGE_DIGEST:false}
+
+receiver-event:
+  selector: ${SW_RECEIVER_EVENT:default}
+  default:

@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
@@ -41,9 +41,9 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 public class ManagementDAO implements IManagementDAO {
     private final InfluxClient client;
-    private final StorageBuilder<ManagementData> storageBuilder;
+    private final StorageHashMapBuilder<ManagementData> storageBuilder;
 
-    public ManagementDAO(InfluxClient client, StorageBuilder<ManagementData> storageBuilder) {
+    public ManagementDAO(InfluxClient client, StorageHashMapBuilder<ManagementData> storageBuilder) {
         this.client = client;
         this.storageBuilder = storageBuilder;
     }
@@ -65,7 +65,7 @@ public class ManagementDAO implements IManagementDAO {
         Point point = Point.measurement(UITemplate.INDEX_NAME)
                            .tag(InfluxConstants.TagName.ID_COLUMN, managementData.id())
                            .time(1L, TimeUnit.NANOSECONDS)
-                           .fields(storageBuilder.data2Map(managementData)).build();
+                           .fields(storageBuilder.entity2Storage(managementData)).build();
         client.write(point);
     }
 }

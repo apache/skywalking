@@ -41,7 +41,8 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int indexReplicasNumber = 0;
     private int indexShardsNumber = 1;
     /**
-     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater than 0
+     * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater
+     * than 0
      */
     private int superDatasetDayStep = -1;
     /**
@@ -76,5 +77,17 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int metadataQueryMaxSize = 5000;
     private int segmentQueryMaxSize = 200;
     private int profileTaskQueryMaxSize = 200;
+    /**
+     * The default analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.Column.AnalyzerType#OAP_ANALYZER}
+     *
+     * @since 8.4.0
+     */
+    private String oapAnalyzer = "{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}";
+    /**
+     * The log analyzer for match query field. {@link org.apache.skywalking.oap.server.core.storage.annotation.Column.AnalyzerType#OAP_LOG_ANALYZER}
+     *
+     * @since 8.4.0
+     */
+    private String oapLogAnalyzer = "{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}";
     private String advanced;
 }

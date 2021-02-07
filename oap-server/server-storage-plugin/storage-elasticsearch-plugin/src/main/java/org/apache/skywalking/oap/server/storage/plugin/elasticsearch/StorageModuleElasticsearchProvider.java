@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -43,6 +44,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -66,6 +68,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.Netwo
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.BrowserLogQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
@@ -111,6 +114,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+
         if (!StringUtil.isEmpty(config.getNameSpace())) {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
@@ -188,6 +193,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 .getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(
             UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient));
+
+        this.registerServiceImplementation(IEventQueryDAO.class, new ESEventQueryDAO(elasticSearchClient));
     }
 
     @Override

@@ -24,16 +24,15 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
-import org.apache.skywalking.oap.server.core.query.type.LogState;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
@@ -49,7 +48,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.skywalking.apm.util.StringUtil.isNotEmpty;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SPAN_ID;
@@ -72,13 +70,11 @@ public class LogQuery implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName,
-                          final String serviceId,
+    public Logs queryLogs(final String serviceId,
                           final String serviceInstanceId,
                           final String endpointId,
                           final String endpointName,
                           final TraceScopeCondition relatedTrace,
-                          final LogState state,
                           final Order queryOrder,
                           final int from,
                           final int limit,
@@ -93,7 +89,7 @@ public class LogQuery implements ILogQueryDAO {
                                                                       queryOrder) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC,
                                                                   AbstractLogRecord.TIMESTAMP, limit + from
                                                               )
-                                                              .from(client.getDatabase(), metricName)
+                                                              .from(client.getDatabase(), LogRecord.INDEX_NAME)
                                                               .where();
 
         if (isNotEmpty(serviceId)) {
@@ -119,17 +115,6 @@ public class LogQuery implements ILogQueryDAO {
                 recallQuery.and(eq(SPAN_ID, relatedTrace.getSpanId()));
             }
         }
-
-        switch (state) {
-            case ERROR: {
-                recallQuery.and(eq(IS_ERROR, true));
-                break;
-            }
-            case SUCCESS: {
-                recallQuery.and(eq(IS_ERROR, false));
-                break;
-            }
-        }
         if (startTB != 0 && endTB != 0) {
             recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
                        .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
@@ -143,7 +128,7 @@ public class LogQuery implements ILogQueryDAO {
             nested.close();
         }
 
-        SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);
+        SelectQueryImpl countQuery = select().count(SERVICE_ID).from(client.getDatabase(), LogRecord.INDEX_NAME);
         for (ConjunctionClause clause : recallQuery.getClauses()) {
             countQuery.where(clause);
         }
@@ -181,8 +166,7 @@ public class LogQuery implements ILogQueryDAO {
                 log.setEndpointId((String) data.get(ENDPOINT_ID));
                 log.setEndpointName((String) data.get(ENDPOINT_NAME));
                 log.setTraceId((String) data.get(TRACE_ID));
-                log.setTimestamp(data.get(TIMESTAMP).toString());
-                log.setError(BooleanUtils.valueToBoolean(((Number) data.get(IS_ERROR)).intValue()));
+                log.setTimestamp(((Number) data.get(TIMESTAMP)).longValue());
                 log.setContentType(
                     ContentType.instanceOf(((Number) data.get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
                 log.setContent((String) data.get(AbstractLogRecord.CONTENT));
