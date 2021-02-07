@@ -34,7 +34,7 @@
     <artifactId>e2e-service-provider</artifactId>
 
     <properties>
-        <sw.snapshot.version>8.4.0-SNAPSHOT</sw.snapshot.version>
+        <sw.version>8.4.0</sw.version>
     </properties>
 
     <dependencies>
@@ -60,12 +60,12 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-toolkit-logback-1.x</artifactId>
-            <version>${sw.snapshot.version}</version>
+            <version>${sw.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-toolkit-trace</artifactId>
-            <version>${sw.snapshot.version}</version>
+            <version>${sw.version}</version>
         </dependency>
     </dependencies>
 
