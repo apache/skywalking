@@ -17,6 +17,7 @@ Release Notes.
 * Metrics combination API supports abandoning results.
 * Add a new concept "Event" and its implementations to collect events.
 * Add some defensive codes for NPE and bump up Kubernetes client version to expose exception stack trace.
+* Update the `timestamp` field type for `LogQuery`.
 * Support Zabbix protocol to receive agent metrics.
 
 #### UI

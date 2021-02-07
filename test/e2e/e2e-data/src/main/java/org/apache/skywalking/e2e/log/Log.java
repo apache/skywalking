@@ -33,7 +33,7 @@ public class Log {
     private String endpointName;
     private String endpointId;
     private String traceId;
-    private String timestamp;
+    private Long timestamp;
     private String contentType;
     private String content;
     private List<KeyValue> tags;
