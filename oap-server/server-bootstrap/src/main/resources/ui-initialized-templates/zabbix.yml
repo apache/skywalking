@@ -144,12 +144,11 @@ templates:
                 "metricName": "meter_agent_vfs_dev_read,meter_agent_vfs_dev_write",
                 "queryMetricType": "readMetricsValues",
                 "chartType": "ChartLine"
-              }
-            ]
-          }
-        ]
-      }
-  ]
+              }]
+            }
+          ]
+        }
+      ]
     # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
     # False means providing a basic template, user needs to add it manually.
     activated: true
