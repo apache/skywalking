@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avg")
@@ -161,13 +161,13 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
     }
 
     @Override
-    public Class<? extends StorageBuilder> builder() {
+    public Class<? extends StorageHashMapBuilder> builder() {
         return AvgStorageBuilder.class;
     }
 
-    public static class AvgStorageBuilder implements StorageBuilder<AvgFunction> {
+    public static class AvgStorageBuilder implements StorageHashMapBuilder<AvgFunction> {
         @Override
-        public AvgFunction map2Data(final Map<String, Object> dbMap) {
+        public AvgFunction storage2Entity(final Map<String, Object> dbMap) {
             AvgFunction metrics = new AvgFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
@@ -184,7 +184,7 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgFunction storageData) {
+        public Map<String, Object> entity2Storage(final AvgFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(VALUE, storageData.getValue());

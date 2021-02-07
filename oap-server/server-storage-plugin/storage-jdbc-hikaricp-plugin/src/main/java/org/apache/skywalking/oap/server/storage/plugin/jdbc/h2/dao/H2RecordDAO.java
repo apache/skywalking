@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -37,19 +37,19 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
     private JDBCHikariCPClient h2Client;
-    private StorageBuilder<Record> storageBuilder;
+    private StorageHashMapBuilder<Record> storageBuilder;
     private final int maxSizeOfArrayColumn;
 
     public H2RecordDAO(ModuleManager manager,
                        JDBCHikariCPClient h2Client,
-                       StorageBuilder<Record> storageBuilder,
+                       StorageHashMapBuilder<Record> storageBuilder,
                        final int maxSizeOfArrayColumn,
                        final int numOfSearchableValuesPerTag) {
         this.h2Client = h2Client;
         try {
             if (SegmentRecord.class
                 .equals(
-                    storageBuilder.getClass().getMethod("map2Data", Map.class).getReturnType()
+                    storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType()
                 )
             ) {
                 this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
@@ -62,7 +62,7 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
                     Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA))
                 );
             } else if (LogRecord.class.equals(
-                storageBuilder.getClass().getMethod("map2Data", Map.class).getReturnType())) {
+                storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
                 this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
                 final ConfigService configService = manager.find(CoreModule.NAME)
                                                            .provider()

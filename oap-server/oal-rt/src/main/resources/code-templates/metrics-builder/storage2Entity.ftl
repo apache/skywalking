@@ -1,4 +1,4 @@
-public org.apache.skywalking.oap.server.core.storage.StorageData map2Data(java.util.Map dbMap) {
+public org.apache.skywalking.oap.server.core.storage.StorageData storage2Entity(java.util.Map dbMap) {
 ${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 <#list fieldsFromSource as field>
     <#if field.typeName == "long" || field.typeName == "int" || field.typeName == "double" || field.typeName == "float">

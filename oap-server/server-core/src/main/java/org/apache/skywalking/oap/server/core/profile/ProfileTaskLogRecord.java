@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
@@ -61,10 +61,10 @@ public class ProfileTaskLogRecord extends Record {
         return getTaskId() + Const.ID_CONNECTOR + getInstanceId() + Const.ID_CONNECTOR + getOperationType() + Const.ID_CONNECTOR + getOperationTime();
     }
 
-    public static class Builder implements StorageBuilder<ProfileTaskLogRecord> {
+    public static class Builder implements StorageHashMapBuilder<ProfileTaskLogRecord> {
 
         @Override
-        public ProfileTaskLogRecord map2Data(Map<String, Object> dbMap) {
+        public ProfileTaskLogRecord storage2Entity(Map<String, Object> dbMap) {
             final ProfileTaskLogRecord log = new ProfileTaskLogRecord();
             log.setTaskId((String) dbMap.get(TASK_ID));
             log.setInstanceId((String) dbMap.get(INSTANCE_ID));
@@ -75,7 +75,7 @@ public class ProfileTaskLogRecord extends Record {
         }
 
         @Override
-        public Map<String, Object> data2Map(ProfileTaskLogRecord storageData) {
+        public Map<String, Object> entity2Storage(ProfileTaskLogRecord storageData) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(TASK_ID, storageData.getTaskId());
             map.put(INSTANCE_ID, storageData.getInstanceId());

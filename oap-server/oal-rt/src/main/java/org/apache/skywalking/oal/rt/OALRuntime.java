@@ -80,7 +80,7 @@ public class OALRuntime implements OALEngine {
     private static final String CLASS_FILE_CHARSET = "UTF-8";
     private static final String METRICS_FUNCTION_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.metrics.";
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
-    private static final String STORAGE_BUILDER_INTERFACE = "org.apache.skywalking.oap.server.core.storage.StorageBuilder";
+    private static final String STORAGE_BUILDER_INTERFACE = "org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder";
     private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
     private static final String[] METRICS_CLASS_METHODS = {
@@ -95,8 +95,8 @@ public class OALRuntime implements OALEngine {
         "toDay"
     };
     private static final String[] METRICS_BUILDER_CLASS_METHODS = {
-        "data2Map",
-        "map2Data"
+        "entity2Storage",
+        "storage2Entity"
     };
     private static boolean IS_RT_TEMP_FOLDER_INIT_COMPLETED = false;
 

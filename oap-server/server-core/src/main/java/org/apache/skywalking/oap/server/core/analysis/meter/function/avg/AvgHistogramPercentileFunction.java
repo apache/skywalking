@@ -44,7 +44,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -326,10 +326,10 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         return AvgPercentileFunctionBuilder.class;
     }
 
-    public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgHistogramPercentileFunction> {
+    public static class AvgPercentileFunctionBuilder implements StorageHashMapBuilder<AvgHistogramPercentileFunction> {
 
         @Override
-        public AvgHistogramPercentileFunction map2Data(final Map<String, Object> dbMap) {
+        public AvgHistogramPercentileFunction storage2Entity(final Map<String, Object> dbMap) {
             AvgHistogramPercentileFunction metrics = new AvgHistogramPercentileFunction() {
                 @Override
                 public AcceptableValue<PercentileArgument> createNew() {
@@ -347,7 +347,7 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgHistogramPercentileFunction storageData) {
+        public Map<String, Object> entity2Storage(final AvgHistogramPercentileFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(COUNT, storageData.getCount());

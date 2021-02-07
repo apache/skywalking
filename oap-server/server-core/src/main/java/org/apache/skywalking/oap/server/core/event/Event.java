@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
@@ -193,9 +193,9 @@ public class Event extends Metrics {
         return hashCode();
     }
 
-    public static class Builder implements StorageBuilder<Event> {
+    public static class Builder implements StorageHashMapBuilder<Event> {
         @Override
-        public Map<String, Object> data2Map(Event storageData) {
+        public Map<String, Object> entity2Storage(Event storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(UUID, storageData.getUuid());
             map.put(SERVICE, storageData.getService());
@@ -212,7 +212,7 @@ public class Event extends Metrics {
         }
 
         @Override
-        public Event map2Data(Map<String, Object> dbMap) {
+        public Event storage2Entity(Map<String, Object> dbMap) {
             Event record = new Event();
             record.setUuid((String) dbMap.get(UUID));
             record.setService((String) dbMap.get(SERVICE));

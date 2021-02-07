@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedVal
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -176,15 +176,15 @@ public class AvgHistogramFunctionTest {
         );
         inst.calculate();
 
-        final StorageBuilder storageBuilder = inst.builder().newInstance();
+        final StorageHashMapBuilder storageBuilder = inst.builder().newInstance();
 
         // Simulate the storage layer do, convert the datatable to string.
-        Map<String, Object> map = storageBuilder.data2Map(inst);
+        Map<String, Object> map = storageBuilder.entity2Storage(inst);
         map.put(SUMMATION, ((DataTable) map.get(SUMMATION)).toStorageData());
         map.put(COUNT, ((DataTable) map.get(COUNT)).toStorageData());
         map.put(DATASET, ((DataTable) map.get(DATASET)).toStorageData());
 
-        final AvgHistogramFunction inst2 = (AvgHistogramFunction) storageBuilder.map2Data(map);
+        final AvgHistogramFunction inst2 = (AvgHistogramFunction) storageBuilder.storage2Entity(map);
         Assert.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
         Assert.assertEquals(inst.getDataset(), inst2.getDataset());

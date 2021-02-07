@@ -70,7 +70,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
-            AlarmRecord alarmRecord = builder.map2Data(searchHit.getSourceAsMap());
+            AlarmRecord alarmRecord = builder.storage2Entity(searchHit.getSourceAsMap());
 
             AlarmMessage message = new AlarmMessage();
             message.setId(String.valueOf(alarmRecord.getId0()));

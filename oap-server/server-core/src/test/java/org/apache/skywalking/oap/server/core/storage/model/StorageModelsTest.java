@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -92,15 +92,15 @@ public class StorageModelsTest {
         @Column(columnName = "column", storageOnly = true)
         private String column4;
 
-        static class Builder implements StorageBuilder {
+        static class Builder implements StorageHashMapBuilder<StorageData> {
 
             @Override
-            public StorageData map2Data(final Map dbMap) {
+            public StorageData storage2Entity(final Map dbMap) {
                 return null;
             }
 
             @Override
-            public Map<String, Object> data2Map(final StorageData storageData) {
+            public Map<String, Object> entity2Storage(final StorageData storageData) {
                 return null;
             }
         }
