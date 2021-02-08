@@ -20,8 +20,9 @@ Release Notes.
 * Update the `timestamp` field type for `LogQuery`.
 
 #### UI
-Update selector scroller to show in all pages.
-Implement searching logs with date.
+* Update selector scroller to show in all pages.
+* Implement searching logs with date.
+
 #### Documentation
 
 
