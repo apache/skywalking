@@ -21,7 +21,7 @@ Release Notes.
 
 #### UI
 Update selector scroller to show in all pages.
-implement searching logs with date.
+Implement searching logs with date.
 #### Documentation
 
 
