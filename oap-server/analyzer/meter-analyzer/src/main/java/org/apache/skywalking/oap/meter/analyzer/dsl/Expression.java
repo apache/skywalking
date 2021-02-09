@@ -22,10 +22,10 @@ import com.google.common.collect.ImmutableMap;
 import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
+import java.time.Instant;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Instant;
 
 /**
  * Expression is a reusable monadic container type which represents a DSL expression.
@@ -106,7 +106,6 @@ public class Expression {
                     return SampleFamily.EMPTY;
                 }
                 if (sampleFamilies.containsKey(metricName)) {
-                    ExpressionParsingContext.get().ifPresent(ctx -> ctx.samples.add(metricName));
                     return sampleFamilies.get(metricName);
                 }
                 if (!ExpressionParsingContext.get().isPresent()) {
