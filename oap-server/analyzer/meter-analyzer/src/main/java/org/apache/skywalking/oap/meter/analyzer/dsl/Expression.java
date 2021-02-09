@@ -26,7 +26,6 @@ import java.time.Instant;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-
 /**
  * Expression is a reusable monadic container type which represents a DSL expression.
  */
