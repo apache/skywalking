@@ -21,7 +21,8 @@ Release Notes.
 * Support Zabbix protocol to receive agent metrics.
 
 #### UI
-Update selector scroller to show in all pages.
+* Update selector scroller to show in all pages.
+* Implement searching logs with date.
 
 #### Documentation
 
