@@ -25,15 +25,13 @@ import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.library.server.tcp.TCPServerManager;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixProtocolDecoder;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixProtocolHandler;
-import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixTCPBinder;
+import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixServer;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixProtocolType;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixRequest;
 import org.junit.After;
@@ -62,7 +60,7 @@ public abstract class ZabbixBaseTest {
     private static final String TCP_HOST = "0.0.0.0";
     private static final int TCP_PORT = 13800;
 
-    protected TCPServerManager serverManager;
+    protected ZabbixServer zabbixServer;
     protected SocketClient socketClient;
     protected ZabbixMetrics zabbixMetrics;
 
@@ -74,19 +72,17 @@ public abstract class ZabbixBaseTest {
     @Before
     public void setupService() throws Throwable {
         // Startup server
-        serverManager = new TCPServerManager(TCP_HOST, 1, 0);
         ZabbixModuleConfig config = new ZabbixModuleConfig();
         config.setPort(TCP_PORT);
+        config.setHost(TCP_HOST);
         zabbixMetrics = buildZabbixMetrics();
-        serverManager.addBinder(new ZabbixTCPBinderWrapper(config, zabbixMetrics));
-        serverManager.startAllServer();
+        zabbixServer = new ZabbixServerWrapper(config, zabbixMetrics);
+        zabbixServer.start();
     }
 
     @After
     public void cleanup() {
-        // Close server
-        ((EventLoopGroup) Whitebox.getInternalState(serverManager, "bossGroup")).shutdownGracefully();
-        ((EventLoopGroup) Whitebox.getInternalState(serverManager, "workerGroup")).shutdownGracefully();
+        zabbixServer.stop();
     }
 
     /**
@@ -342,9 +338,9 @@ public abstract class ZabbixBaseTest {
     /**
      * Zabbix binder wrapper, support spy Zabbix message received data
      */
-    private class ZabbixTCPBinderWrapper extends ZabbixTCPBinder {
+    private class ZabbixServerWrapper extends ZabbixServer {
 
-        public ZabbixTCPBinderWrapper(ZabbixModuleConfig config, ZabbixMetrics zabbixMetrics) {
+        public ZabbixServerWrapper(ZabbixModuleConfig config, ZabbixMetrics zabbixMetrics) {
             super(config, zabbixMetrics);
         }
 

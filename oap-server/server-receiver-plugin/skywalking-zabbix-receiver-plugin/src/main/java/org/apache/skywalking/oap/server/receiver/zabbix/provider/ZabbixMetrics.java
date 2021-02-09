@@ -297,7 +297,7 @@ public class ZabbixMetrics {
 
         public Sample build(Map<String, String> configLabels) {
             return Sample.builder()
-                .name(name)
+                .name(escapedName(name))
                 .labels(ImmutableMap.<String, String>builder()
                     // Put original labels
                     .putAll(labels)
@@ -308,6 +308,11 @@ public class ZabbixMetrics {
                     .build())
                 .value(value)
                 .timestamp(timestamp).build();
+        }
+
+        // Returns the escaped name of the given one, with "." replaced by "_"
+        private String escapedName(final String name) {
+            return name.replaceAll("\\.", "_");
         }
     }
 

@@ -52,7 +52,6 @@ import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.TCPBinderRegister;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -73,7 +72,6 @@ import org.apache.skywalking.oap.server.tool.profile.core.mock.MockJettyHandlerR
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockRemoteClientManager;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockSourceReceiver;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockStreamAnnotationListener;
-import org.apache.skywalking.oap.server.tool.profile.core.mock.MockTCPBinderRegister;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockWorkerInstancesService;
 
 public class MockCoreModuleProvider extends CoreModuleProvider {
@@ -128,7 +126,6 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new MockGRPCHandlerRegister());
         this.registerServiceImplementation(JettyHandlerRegister.class, new MockJettyHandlerRegister());
-        this.registerServiceImplementation(TCPBinderRegister.class, new MockTCPBinderRegister());
 
         this.registerServiceImplementation(
                 IComponentLibraryCatalogService.class, new MockComponentLibraryCatalogService());

@@ -4,10 +4,12 @@ Zabbix receiver is accepting the metrics of [Zabbix Agent Active Checks protocol
 ## Module define
 ```yaml
 receiver-zabbix:
-  selector: ${SW_RECEIVER_METER:default}
+  selector: ${SW_RECEIVER_ZABBIX:default}
   default:
     # Export tcp port, Zabbix agent could connected and transport data
-    port: 13800
+    port: 10051
+    # Bind to host
+    host: 0.0.0.0
     # Enable config when receive agent request
     activeFiles: agent
 ```
@@ -50,7 +52,7 @@ metrics:
 #### <labels>
 
 ```yaml
-# Define the lable name. The label value must query from `value` or `fromItem` attribute.
+# Define the label name. The label value must query from `value` or `fromItem` attribute.
 name: <string>
 # Appoint value to label.
 [value: <string>]

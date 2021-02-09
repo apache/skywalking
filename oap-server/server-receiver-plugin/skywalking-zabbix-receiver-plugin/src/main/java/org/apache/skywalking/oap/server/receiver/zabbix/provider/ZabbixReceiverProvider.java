@@ -22,7 +22,6 @@ import com.google.common.base.Splitter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.server.TCPBinderRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -32,7 +31,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.receiver.zabbix.module.ZabbixReceiverModule;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixConfig;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.config.ZabbixConfigs;
-import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixTCPBinder;
+import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixServer;
 
 import java.util.Collections;
 import java.util.List;
@@ -74,11 +73,12 @@ public class ZabbixReceiverProvider extends ModuleProvider {
             zabbixMetrics = new ZabbixMetrics(configs, getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class));
 
             // Bind receiver server
-            TCPBinderRegister binderRegister = getManager().find(CoreModule.NAME)
-                .provider()
-                .getService(TCPBinderRegister.class);
-
-            binderRegister.addBinder(new ZabbixTCPBinder(moduleConfig, zabbixMetrics));
+            ZabbixServer zabbixServer = new ZabbixServer(moduleConfig, zabbixMetrics);
+            try {
+                zabbixServer.start();
+            } catch (Exception e) {
+                throw new ModuleStartException(e.getMessage(), e);
+            }
         }
     }
 

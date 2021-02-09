@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-metricPrefix: meter_agent
+metricPrefix: meter_vm
 expSuffix: tag({tags -> tags.host = 'vm::' + tags.host}).service(['host'])
 entities:
   hostPatterns:
@@ -52,28 +52,38 @@ requiredZabbixItemKeys:
 
 metrics:
   # cpu
-  - name: system_cpu_load
-    exp: system.cpu.load.avg(['2', 'host']) * 100
-  - name: system_cpu_util
-    exp: system.cpu.util.avg(['2', 'host']) * 100
-  - name: system_cpu_usage
-    exp: system.cpu.util.tagNotEqual('2', 'idle').sum(['host']) * 100
+  - name: cpu_load1
+    exp: system_cpu_load.tagEqual('2', 'avg1').avg(['host']) * 100
+  - name: cpu_load5
+    exp: system_cpu_load.tagEqual('2', 'avg5').avg(['host']) * 100
+  - name: cpu_load15
+    exp: system_cpu_load.tagEqual('2', 'avg15').avg(['host']) * 100
+  - name: cpu_average_used
+    exp: system_cpu_util.avg(['2', 'host'])
+  - name: cpu_total_percentage
+    exp: system_cpu_util.tagNotEqual('2', 'idle').sum(['host'])
   # memory
-  - name: vm_memory_size
-    exp: vm.memory.size.tagNotEqual('1', 'pavailable').avg(['1', 'host'])
-  - name: vm_memory_usage
-    exp: vm.memory.size.tagEqual('1', 'pavailable') * 100
+  - name: memory_total
+    exp: vm_memory_size.tagEqual('1', 'total').avg(['host'])
+  - name: memory_available
+    exp: vm_memory_size.tagEqual('1', 'available').avg(['host'])
+  - name: memory_used
+    exp: vm_memory_size.tagEqual('1', 'total').avg(['host']) - vm_memory_size.tagEqual('1', 'available').avg(['host'])
   # swap
-  - name: system_swap_size
-    exp: system.swap.size.tagNotEqual('2', 'pused').avg(['2', 'host'])
-  - name: system_swap_usage
-    exp: system.swap.size.tagEqual('2', 'pused') * 100
+  - name: memory_swap_free
+    exp: system_swap_size.tagEqual('2', 'free').avg(['host'])
+  - name: memory_swap_total
+    exp: system_swap_size.tagEqual('2', 'total').avg(['host'])
+  - name: memory_swap_percentage
+    exp: system_swap_size.tagEqual('2', 'pused')
   # file
-  - name: vfs_fs_inode_usage
-    exp: vfs.fs.inode.tagEqual('2', 'pused').avg(['1', 'host'])
+  - name: filesystem_percentage
+    exp: vfs_fs_inode.tagEqual('2', 'pused').avg(['1', 'host'])
   - name: vfs_fs_size
-    exp: vfs.fs.size.avg(['1', '2', 'host'])
-  - name: vfs_dev_read
-    exp: vfs.dev.read
-  - name: vfs_dev_write
-    exp: vfs.dev.write
+    exp: vfs_fs_size.avg(['1', '2', 'host'])
+  - name: disk_read
+    # Adapt the VM UI template
+    exp: vfs_dev_read * 1024
+  - name: disk_written
+    # Adapt the VM UI template
+    exp: vfs_dev_write * 1024

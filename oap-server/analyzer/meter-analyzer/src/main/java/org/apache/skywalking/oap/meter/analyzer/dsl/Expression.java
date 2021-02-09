@@ -109,8 +109,10 @@ public class Expression {
                     ExpressionParsingContext.get().ifPresent(ctx -> ctx.samples.add(metricName));
                     return sampleFamilies.get(metricName);
                 }
-                // Using finder, support "."
-                return new SampleFamilyFinder(metricName, literal, sampleFamilies);
+                if (!ExpressionParsingContext.get().isPresent()) {
+                    log.warn("{} referred by \"{}\" doesn't exist in {}", metricName, literal, sampleFamilies.keySet());
+                }
+                return SampleFamily.EMPTY;
             }
 
             public SampleFamily avg(SampleFamily sf) {

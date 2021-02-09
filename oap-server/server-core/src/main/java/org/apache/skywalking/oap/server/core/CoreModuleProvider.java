@@ -68,8 +68,6 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegisterImpl;
-import org.apache.skywalking.oap.server.core.server.TCPBinderRegister;
-import org.apache.skywalking.oap.server.core.server.TCPBinderRegisterImpl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.SourceReceiverImpl;
@@ -92,7 +90,6 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
-import org.apache.skywalking.oap.server.library.server.tcp.TCPServerManager;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
@@ -115,7 +112,6 @@ public class CoreModuleProvider extends ModuleProvider {
     private final CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
-    private TCPServerManager tcpServerManager;
     private RemoteClientManager remoteClientManager;
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
@@ -289,11 +285,6 @@ public class CoreModuleProvider extends ModuleProvider {
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
-
-        // TCP manager
-        tcpServerManager = new TCPServerManager(moduleConfig.getTcpHost(),
-            moduleConfig.getTcpBossGroupThreadCount(), moduleConfig.getTcpWorkerGroupThreadCount());
-        this.registerServiceImplementation(TCPBinderRegister.class, new TCPBinderRegisterImpl(tcpServerManager));
     }
 
     @Override
@@ -338,7 +329,6 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             grpcServer.start();
             jettyServer.start();
-            tcpServerManager.startAllServer();
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

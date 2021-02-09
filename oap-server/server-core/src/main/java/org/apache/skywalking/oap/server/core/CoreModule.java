@@ -45,7 +45,6 @@ import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
-import org.apache.skywalking.oap.server.core.server.TCPBinderRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
@@ -125,7 +124,6 @@ public class CoreModule extends ModuleDefine {
     private void addServerInterface(List<Class> classes) {
         classes.add(GRPCHandlerRegister.class);
         classes.add(JettyHandlerRegister.class);
-        classes.add(TCPBinderRegister.class);
     }
 
     private void addInsideService(List<Class> classes) {

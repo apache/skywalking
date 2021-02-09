@@ -32,6 +32,11 @@ public class ZabbixModuleConfig extends ModuleConfig {
      */
     private int port = 13800;
 
+    /**
+     * Bind to host
+     */
+    private String host = "0.0.0.0";
+
     public static final String CONFIG_PATH = "zabbix-rules";
 
     /**
