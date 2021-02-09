@@ -42,14 +42,14 @@ requiredZabbixItemKeys:
   - vm.memory.size[total]
 metrics:
   - name: system_cpu_load
-    exp: system.cpu.load.avg(['2', 'host'])
+    exp: system_cpu_load.avg(['2', 'host'])
   - name: system_cpu_util
-    exp: system.cpu.util.avg(['2', 'host'])
+    exp: system_cpu_util.avg(['2', 'host'])
   - name: system_swap_size
-    exp: system.swap.size.avg(['2', 'host'])
+    exp: system_swap_size.avg(['2', 'host'])
   - name: vfs_fs_inode
-    exp: vfs.fs.inode.avg(['1', '2', 'host'])
+    exp: vfs_fs_inode.avg(['1', '2', 'host'])
   - name: vfs_fs_size
-    exp: vfs.fs.size.avg(['1', '2', 'host'])
+    exp: vfs_fs_size.avg(['1', '2', 'host'])
   - name: vm_memory_size
-    exp: vm.memory.size.avg(['1', 'host'])
+    exp: vm_memory_size.avg(['1', 'host'])

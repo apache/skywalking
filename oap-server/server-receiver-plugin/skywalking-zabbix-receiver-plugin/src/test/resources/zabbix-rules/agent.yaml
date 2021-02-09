@@ -29,4 +29,4 @@ requiredZabbixItemKeys:
   - system.cpu.load[all,avg15]
 metrics:
   - name: system_cpu_load
-    exp: system.cpu.load.avg(['2', 'cur_host_name'])
+    exp: system_cpu_load.avg(['2', 'cur_host_name'])
