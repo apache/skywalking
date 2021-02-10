@@ -174,7 +174,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | receiver-clr| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-profile| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-zabbix| default| Read [receiver doc](backend-zabbix.md) for more details | - | - |
-| - | - | port| Export tcp port, Zabbix agent could connected and transport data| SW_RECEIVER_ZABBIX_PORT | 10051 |
+| - | - | port| Exported tcp port, Zabbix agent could connect and transport data| SW_RECEIVER_ZABBIX_PORT | 10051 |
 | - | - | host| Bind to host| SW_RECEIVER_ZABBIX_HOST | 0.0.0.0 |
 | - | - | activeFiles| Enable config when receive agent request| SW_RECEIVER_ZABBIX_ACTIVE_FILES | agent |
 | service-mesh| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
