@@ -142,7 +142,7 @@ public class ZabbixMetrics {
     }
 
     /**
-     * Instance group metrics
+     * The group of instances according to hostPatterns defined in Zabbix rule file
      */
     private static class InstanceGroup {
         static final InstanceGroup EMPTY = new InstanceGroup("", null);
