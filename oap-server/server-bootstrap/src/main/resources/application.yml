@@ -266,6 +266,13 @@ receiver-profile:
   selector: ${SW_RECEIVER_PROFILE:default}
   default:
 
+receiver-zabbix:
+  selector: ${SW_RECEIVER_ZABBIX:default}
+  default:
+    port: ${SW_RECEIVER_ZABBIX_PORT:10051}
+    host: ${SW_RECEIVER_ZABBIX_HOST:0.0.0.0}
+    activeFiles: ${SW_RECEIVER_ZABBIX_ACTIVE_FILES:agent}
+
 service-mesh:
   selector: ${SW_SERVICE_MESH:default}
   default:

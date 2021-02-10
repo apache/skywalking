@@ -154,7 +154,7 @@ templates:
                   "chartType": "ChartLine",
                   "aggregation": "/",
                   "aggregationNum": "1024",
-                  "unit": "KB/s"
+                  "unit": "KB/s - OTEL, ops - Zabbix"
                 },
                 {
                   "width": "4",

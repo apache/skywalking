@@ -44,6 +44,7 @@ import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MultiMetricsData;
 import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsData;
+import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsQuery;
 import org.apache.skywalking.e2e.metrics.ReadMetrics;
 import org.apache.skywalking.e2e.metrics.ReadMetricsData;
 import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
@@ -343,7 +344,7 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getReadMetricsValues();
     }
 
-    public List<ReadMetrics> readLabeledMetrics(final ReadMetricsQuery query) throws Exception {
+    public List<ReadMetrics> readLabeledMetrics(final ReadLabeledMetricsQuery query) throws Exception {
         final URL queryFileUrl = Resources.getResource("read-labeled-metrics.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream()
@@ -354,7 +355,10 @@ public class SimpleQueryClient {
                                             .replace("{end}", query.end())
                                             .replace("{metricsName}", query.metricsName())
                                             .replace("{serviceName}", query.serviceName())
-                                            .replace("{instanceName}", query.instanceName());
+                                            .replace("{instanceName}", query.instanceName())
+                                            .replace("{scope}", query.scope())
+                                            .replace("{labels}", query.labels().stream()
+                                                    .map(s -> "\"" + s + "\"").collect(Collectors.joining(",")));
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<ReadLabeledMetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
