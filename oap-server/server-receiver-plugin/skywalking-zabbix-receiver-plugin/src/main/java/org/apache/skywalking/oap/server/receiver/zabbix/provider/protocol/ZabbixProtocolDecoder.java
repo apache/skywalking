@@ -59,23 +59,27 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
         int readable = byteBuf.readableBytes();
         int baseIndex = byteBuf.readerIndex();
         if (readable < HEADER_LEN) {
-            throw new ZabbixErrorProtocolException("header length is not enough");
+            byteBuf.readerIndex(baseIndex);
+            return null;
         }
 
         // Read header
-        byte[] header = new byte[HEADER_LEN];
-        byteBuf.readBytes(header);
-        if (header[0] != PROTOCOL[0] || header[1] != PROTOCOL[1] || header[2] != PROTOCOL[2] || header[3] != PROTOCOL[3]) {
+        ByteBuf headerBuf = byteBuf.readSlice(HEADER_LEN);
+        if (headerBuf.getByte(0) != PROTOCOL[0] || headerBuf.getByte(1) != PROTOCOL[1]
+            || headerBuf.getByte(2) != PROTOCOL[2] || headerBuf.getByte(3) != PROTOCOL[3]) {
             throw new ZabbixErrorProtocolException("header is not right");
         }
 
         // Only support communications protocol
-        if (header[4] != 1) {
+        if (headerBuf.getByte(4) != 1) {
             throw new ZabbixErrorProtocolException("header flags only support communications protocol");
         }
 
         // Check payload
-        int dataLength = header[5] & 0xFF | (header[6] & 0xFF) << 8 | (header[7] & 0xFF) << 16 | (header[8] & 0xFF) << 24;
+        int dataLength = headerBuf.getByte(5) & 0xFF
+            | (headerBuf.getByte(6) & 0xFF) << 8
+            | (headerBuf.getByte(7) & 0xFF) << 16
+            | (headerBuf.getByte(8) & 0xFF) << 24;
         int totalLength = HEADER_LEN + dataLength + 4;
         // If not receive all data, reset buffer and re-decode after content receive finish
         if (readable < totalLength) {
@@ -91,10 +95,9 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
         byteBuf.skipBytes(4);
 
         // Reading content
-        byte[] payload = new byte[dataLength];
-        byteBuf.readBytes(payload);
+        ByteBuf payload = byteBuf.readSlice(dataLength);
 
-        return new String(payload, Charsets.UTF_8);
+        return payload.toString(Charsets.UTF_8);
     }
 
     /**
