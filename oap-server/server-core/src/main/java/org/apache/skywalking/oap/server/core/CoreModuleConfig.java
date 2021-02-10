@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.oap.server.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class CoreModuleConfig extends ModuleConfig {
@@ -134,19 +133,6 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableLogsTags = "";
-
-    /**
-     * TCP Server bind host.
-     */
-    private String tcpHost = "0.0.0.0";
-    /**
-     * The count of TCP boss group thread to building connection channel.
-     */
-    private int tcpBossGroupThreadCount = 1;
-    /**
-     * The count of TCP worker group thread to handle data.
-     */
-    private int tcpWorkerGroupThreadCount = 0;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,11 +68,6 @@ public class ZabbixMetrics {
      * All enabled service and instance group
      */
     private List<InstanceGroup> allServices = new ArrayList<>();
-
-    /**
-     * Cache host name to service group, help to quick find service group when receive agent request
-     */
-    private Map<String, InstanceGroup> hostWithGroupCache = new ConcurrentHashMap<>();
 
     public ZabbixMetrics(List<ZabbixConfig> originalConfigs, MeterSystem meterSystem) {
         this.originalConfigs = originalConfigs;
@@ -109,8 +103,7 @@ public class ZabbixMetrics {
 
     private Optional<InstanceGroup> findInstanceGroup(String hostName) {
         // Find service group, support using cache
-        return Optional.ofNullable(hostWithGroupCache.computeIfAbsent(hostName,
-            host -> allServices.stream().filter(group -> group.matchesWithHostName(host)).findAny().orElse(InstanceGroup.EMPTY)));
+        return allServices.stream().filter(group -> group.matchesWithHostName(hostName)).findAny();
     }
 
     private void initConfigs(MeterSystem meterSystem) {

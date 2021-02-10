@@ -82,8 +82,8 @@ metrics:
   - name: vfs_fs_size
     exp: vfs_fs_size.avg(['1', '2', 'host'])
   - name: disk_read
-    # Adapt the VM UI template
+    # `* 1024` is for adapting to `divide 1024` by the VM UI template configuration, which converts `byte`->`kb` because of OTEL/Prometheus Node exporter.
     exp: vfs_dev_read * 1024
   - name: disk_written
-    # Adapt the VM UI template
+    # `* 1024` is for adapting to `divide 1024` by the VM UI template configuration, which converts `byte`->`kb` because of OTEL/Prometheus Node exporter.
     exp: vfs_dev_write * 1024

@@ -60,7 +60,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * SampleFamily represents a collection of {@link Sample}.
  */
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
 public class SampleFamily {
