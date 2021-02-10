@@ -30,7 +30,7 @@ public class ZabbixModuleConfig extends ModuleConfig {
     /**
      * Export tcp port
      */
-    private int port = 13800;
+    private int port = 10051;
 
     /**
      * Bind to host

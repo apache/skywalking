@@ -58,7 +58,7 @@ import static org.mockito.Mockito.spy;
 
 public abstract class ZabbixBaseTest {
     private static final String TCP_HOST = "0.0.0.0";
-    private static final int TCP_PORT = 13800;
+    private static final int TCP_PORT = 10051;
 
     protected ZabbixServer zabbixServer;
     protected SocketClient socketClient;
