@@ -132,7 +132,7 @@ public abstract class ZabbixBaseTest {
         }
 
         encoder.encode(channelHandlerContext, response, null);
-        String respBody = decoder.decodeToPayload(channelHandlerContext, (ByteBuf) responses.get(inx+1));
+        String respBody = decoder.decodeToPayload(channelHandlerContext, (ByteBuf) responses.get(inx + 1));
         assertZabbixActiveChecksResponseWithEncoded(respBody, itemNames);
     }
 
@@ -180,7 +180,7 @@ public abstract class ZabbixBaseTest {
         Assert.assertTrue(StringUtil.isNotEmpty(response.getAgentData().getInfo()));
 
         encoder.encode(channelHandlerContext, response, null);
-        String respBody = decoder.decodeToPayload(channelHandlerContext, (ByteBuf) responses.get(inx+1));
+        String respBody = decoder.decodeToPayload(channelHandlerContext, (ByteBuf) responses.get(inx + 1));
         assertZabbixAgentDataResponseWithEncoded(respBody);
     }
 
