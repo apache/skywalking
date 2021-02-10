@@ -29,6 +29,7 @@ import io.netty.channel.socket.SocketChannel;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixErrorProtocolException;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixProtocolDecoder;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixProtocolHandler;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.ZabbixServer;
@@ -328,7 +329,7 @@ public abstract class ZabbixBaseTest {
             return outputStream.toByteArray();
         }
 
-        public String waitAndGetResponsePayload() throws InterruptedException, IOException {
+        public String waitAndGetResponsePayload() throws InterruptedException, IOException, ZabbixErrorProtocolException {
             ChannelHandlerContext channelHandlerContext = mock(ChannelHandlerContext.class);
             ByteBuf byteBuf = Unpooled.copiedBuffer(readAllContent(socket.getInputStream()));
             return new ZabbixProtocolDecoder().decodeToPayload(channelHandlerContext, byteBuf);

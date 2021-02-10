@@ -25,7 +25,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixRequest;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixRequestJsonDeserializer;
 
@@ -41,44 +40,38 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        // Decode header and get payload
-        String payload = decodeToPayload(channelHandlerContext, byteBuf);
-        if (StringUtils.isEmpty(payload)) {
-            return;
-        }
-
-        // Parse content and add to list
         try {
+            // Decode header and get payload
+            String payload = decodeToPayload(channelHandlerContext, byteBuf);
+
+            // Parse content and add to list
             ZabbixRequest request = requestParser.fromJson(payload, ZabbixRequest.class);
             list.add(request);
         } catch (Exception e) {
-            errorProtocol(channelHandlerContext, byteBuf, "Parsing zabbix request data error");
+            errorProtocol(channelHandlerContext, byteBuf, "Parsing zabbix request data error", e);
         }
     }
 
     /**
      * Decode protocol to payload string
      */
-    public String decodeToPayload(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) throws InterruptedException {
+    public String decodeToPayload(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) throws InterruptedException, ZabbixErrorProtocolException {
         int readable = byteBuf.readableBytes();
         int baseIndex = byteBuf.readerIndex();
         if (readable < HEADER_LEN) {
-            errorProtocol(channelHandlerContext, byteBuf, "header length is not enough");
-            return null;
+            throw new ZabbixErrorProtocolException("header length is not enough");
         }
 
         // Read header
         byte[] header = new byte[HEADER_LEN];
         byteBuf.readBytes(header);
         if (header[0] != PROTOCOL[0] || header[1] != PROTOCOL[1] || header[2] != PROTOCOL[2] || header[3] != PROTOCOL[3]) {
-            errorProtocol(channelHandlerContext, byteBuf, "header is not right");
-            return null;
+            throw new ZabbixErrorProtocolException("header is not right");
         }
 
         // Only support communications protocol
         if (header[4] != 1) {
-            errorProtocol(channelHandlerContext, byteBuf, "header flags only support communications protocol");
-            return null;
+            throw new ZabbixErrorProtocolException("header flags only support communications protocol");
         }
 
         // Check payload
@@ -91,8 +84,7 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
         }
 
         if (dataLength <= 0) {
-            errorProtocol(channelHandlerContext, byteBuf, "content could not be empty");
-            return null;
+            throw new ZabbixErrorProtocolException("content could not be empty");
         }
 
         // Skip protocol extensions
@@ -108,8 +100,8 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
     /**
      * Close connection if protocol error
      */
-    private void errorProtocol(ChannelHandlerContext context, ByteBuf byteBuf, String reason) throws InterruptedException {
-        log.warn("Receive message is not Zabbix protocol, reason: {}", reason);
+    private void errorProtocol(ChannelHandlerContext context, ByteBuf byteBuf, String reason, Throwable ex) throws InterruptedException {
+        log.warn("Receive message is not Zabbix protocol, reason: {}", reason, ex);
         // Skip all content
         byteBuf.skipBytes(byteBuf.readableBytes());
         // Close connection
