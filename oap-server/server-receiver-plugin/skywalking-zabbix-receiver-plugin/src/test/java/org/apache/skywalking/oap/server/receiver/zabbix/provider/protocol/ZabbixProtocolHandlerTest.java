@@ -69,12 +69,12 @@ public class ZabbixProtocolHandlerTest extends ZabbixBaseTest {
     @Test
     public void testErrorProtocol() throws Throwable {
         // Simple header
-        for (int i = 1; i < 10; i++) {
-            assertWriteErrorProtocol(new byte[i]);
+        for (int i = 1; i < 5; i++) {
+            assertNeedMoreInput(new byte[i]);
         }
 
         // Only header string
-        assertWriteErrorProtocol(new byte[] {'Z', 'B', 'X', 'D'});
+        assertNeedMoreInput(new byte[] {'Z', 'B', 'X', 'D'});
 
         // Header error
         assertWriteErrorProtocol(new byte[] {'Z', 'B', 'X', 'D', 2, 0, 0, 0, 0});

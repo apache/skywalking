@@ -26,6 +26,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.SocketChannel;
+import java.net.SocketTimeoutException;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -103,6 +104,33 @@ public abstract class ZabbixBaseTest {
             }
 
             throw new IllegalStateException("Could not detect protocol error");
+        } finally {
+            stopSocketClient();
+        }
+    }
+
+    /**
+     * Assert need more input to server
+     */
+    public void assertNeedMoreInput(byte[] data) throws Throwable {
+        startupSocketClient();
+        try {
+            socketClient.socket.getOutputStream().write(data);
+
+            try {
+                for (int i = 0; i < 10; i++) {
+                    // No response
+                    if (socketClient.socket.getInputStream().available() == 0 && socketClient.socket.getInputStream().read() == -1) {
+                        return ;
+                    }
+                    TimeUnit.MILLISECONDS.sleep(100);
+                }
+            } catch (SocketTimeoutException e) {
+                // Read timeout mean need more content
+                return;
+            }
+
+            throw new IllegalStateException("Could not detect need more input error");
         } finally {
             stopSocketClient();
         }
@@ -239,7 +267,7 @@ public abstract class ZabbixBaseTest {
                 return;
             }
             socket = new Socket();
-            socket.setSoTimeout(5000);
+            socket.setSoTimeout(2000);
             socket.connect(new InetSocketAddress(TCP_HOST, TCP_PORT));
 
             // Waiting for connection
