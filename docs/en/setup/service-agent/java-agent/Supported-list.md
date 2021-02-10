@@ -28,6 +28,7 @@ metrics based on the tracing data.
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
   * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
+  * JRE HttpURLConnection (Optional²)
 * HTTP Gateway
   * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
 * JDBC
@@ -108,6 +109,7 @@ metrics based on the tracing data.
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
   * [Quasar](https://github.com/puniverse/quasar) 0.7.x
+  * JRE Callable and Runnable (Optional²)
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin
@@ -128,4 +130,4 @@ ___
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 
-²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
+²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins` or `/bootstrap-plugins`, copy to `/plugins` in order to make them work.
