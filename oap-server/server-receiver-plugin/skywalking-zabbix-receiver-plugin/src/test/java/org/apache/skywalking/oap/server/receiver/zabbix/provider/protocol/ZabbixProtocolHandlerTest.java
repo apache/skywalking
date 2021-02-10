@@ -62,28 +62,4 @@ public class ZabbixProtocolHandlerTest extends ZabbixBaseTest {
 
         stopSocketClient();
     }
-
-    /**
-     * Test error protocol
-     */
-    @Test
-    public void testErrorProtocol() throws Throwable {
-        // Simple header
-        for (int i = 1; i < 5; i++) {
-            assertNeedMoreInput(new byte[i]);
-        }
-
-        // Only header string
-        assertNeedMoreInput(new byte[] {'Z', 'B', 'X', 'D'});
-
-        // Header error
-        assertWriteErrorProtocol(new byte[] {'Z', 'B', 'X', 'D', 2, 0, 0, 0, 0});
-        assertWriteErrorProtocol(new byte[] {'Z', 'B', 'X', 'D', 2, 1, 0, 0, 0});
-
-        // Empty data
-        assertWriteErrorProtocol(SocketClient.buildZabbixRequestData(""));
-        assertWriteErrorProtocol(SocketClient.buildZabbixRequestData("{}"));
-        assertWriteErrorProtocol(SocketClient.buildZabbixRequestData("{\"test\": 1}"));
-    }
-
 }
