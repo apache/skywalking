@@ -43,6 +43,9 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
         try {
             // Decode header and get payload
             String payload = decodeToPayload(channelHandlerContext, byteBuf);
+            if (payload == null) {
+                return;
+            }
 
             // Parse content and add to list
             ZabbixRequest request = requestParser.fromJson(payload, ZabbixRequest.class);
