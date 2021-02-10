@@ -106,7 +106,7 @@ public class ZabbixProtocolDecoder extends ByteToMessageDecoder {
     /**
      * Close connection if protocol error
      */
-    private void errorProtocol(ChannelHandlerContext context, ByteBuf byteBuf, String reason, Throwable ex) throws InterruptedException {
+    protected void errorProtocol(ChannelHandlerContext context, ByteBuf byteBuf, String reason, Throwable ex) throws InterruptedException {
         log.warn("Receive message is not Zabbix protocol, reason: {}", reason, ex);
         // Skip all content
         byteBuf.skipBytes(byteBuf.readableBytes());

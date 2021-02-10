@@ -47,20 +47,15 @@ public class ZabbixProtocolHandlerTest extends ZabbixBaseTest {
      */
     @Test
     public void testReceive() throws Throwable {
-        startupSocketClient();
         // Verify Active Checks
-        socketClient.writeZabbixMessage("{\"request\":\"active checks\",\"host\":\"zabbix-test-agent\"}");
-        String activeChecksRespData = socketClient.waitAndGetResponsePayload();
+        writeZabbixMessage("{\"request\":\"active checks\",\"host\":\"zabbix-test-agent\"}");
         assertZabbixActiveChecksRequest(0, "zabbix-test-agent");
-        assertZabbixActiveChecksResponse(activeChecksRespData, "system.cpu.load[all,avg15]");
+        assertZabbixActiveChecksResponse(0, "system.cpu.load[all,avg15]");
 
         // Verify Agent data
-        socketClient.writeZabbixMessage("{\"request\":\"agent data\",\"session\":\"f32425dc61971760bf791f731931a92e\",\"data\":[{\"host\":\"zabbix-test-agent\",\"key\":\"system.cpu.load[all,avg15]\",\"value\":\"1.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}],\"clock\":1609588568,\"ns\":102244476}");
-        String agentDataRespData = socketClient.waitAndGetResponsePayload();
+        writeZabbixMessage("{\"request\":\"agent data\",\"session\":\"f32425dc61971760bf791f731931a92e\",\"data\":[{\"host\":\"zabbix-test-agent\",\"key\":\"system.cpu.load[all,avg15]\",\"value\":\"1.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}],\"clock\":1609588568,\"ns\":102244476}");
         assertZabbixAgentDataRequest(1, "zabbix-test-agent", "system.cpu.load[all,avg15]");
-        assertZabbixAgentDataResponse(agentDataRespData);
-
-        stopSocketClient();
+        assertZabbixAgentDataResponse(2);
     }
 
     /**
@@ -69,7 +64,7 @@ public class ZabbixProtocolHandlerTest extends ZabbixBaseTest {
     @Test
     public void testErrorProtocol() throws Throwable {
         // Simple header
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 4; i++) {
             assertNeedMoreInput(new byte[i]);
         }
 
@@ -80,10 +75,13 @@ public class ZabbixProtocolHandlerTest extends ZabbixBaseTest {
         assertWriteErrorProtocol(new byte[] {'Z', 'B', 'X', 'D', 2, 0, 0, 0, 0});
         assertWriteErrorProtocol(new byte[] {'Z', 'B', 'X', 'D', 2, 1, 0, 0, 0});
 
+        // Need more content
+        assertNeedMoreInput(new byte[] {'Z', 'B', 'X', 'D', 1, 5, 0, 0, 0, 1, 1, 1});
+
         // Empty data
-        assertWriteErrorProtocol(SocketClient.buildZabbixRequestData(""));
-        assertWriteErrorProtocol(SocketClient.buildZabbixRequestData("{}"));
-        assertWriteErrorProtocol(SocketClient.buildZabbixRequestData("{\"test\": 1}"));
+        assertWriteErrorProtocol(buildZabbixRequestData(""));
+        assertWriteErrorProtocol(buildZabbixRequestData("{}"));
+        assertWriteErrorProtocol(buildZabbixRequestData("{\"test\": 1}"));
     }
 
 }
