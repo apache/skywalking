@@ -60,7 +60,7 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
     private List<AcceptableValue> values = new ArrayList<>();
 
     @Override
-    public void setupService() throws Throwable {
+    public void setupMetrics() throws Throwable {
         moduleProvider = Mockito.mock(CoreModuleProvider.class);
         moduleManager = Mockito.mock(ModuleManager.class);
 
@@ -82,7 +82,7 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         map.put("avgHistogram", AvgHistogramFunction.class);
         map.put("avgHistogramPercentile", AvgHistogramPercentileFunction.class);
         Whitebox.setInternalState(meterSystem, "functionRegister", map);
-        super.setupService();
+        super.setupMetrics();
     }
 
     @Override
@@ -100,23 +100,20 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
 
     @Test
     public void testReceiveMetrics() throws Throwable {
-        startupSocketClient();
         // Verify Active Checks
-        socketClient.writeZabbixMessage("{\"request\":\"active checks\",\"host\":\"test-01\"}");
-        String activeChecksRespData = socketClient.waitAndGetResponsePayload();
+        writeZabbixMessage("{\"request\":\"active checks\",\"host\":\"test-01\"}");
         assertZabbixActiveChecksRequest(0, "test-01");
-        assertZabbixActiveChecksResponse(activeChecksRespData, "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]", "agent.hostname");
+        assertZabbixActiveChecksResponse(0, "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]", "agent.hostname");
 
         // Verify Agent data
-        socketClient.writeZabbixMessage("{\"request\":\"agent data\",\"session\":\"f32425dc61971760bf791f731931a92e\",\"data\":[" +
+        writeZabbixMessage("{\"request\":\"agent data\",\"session\":\"f32425dc61971760bf791f731931a92e\",\"data\":[" +
             "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg1]\",\"value\":\"1.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}," +
             "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg5]\",\"value\":\"2.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}," +
             "{\"host\":\"test-01\",\"key\":\"system.cpu.load[all,avg15]\",\"value\":\"3.123\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}," +
             "{\"host\":\"test-01\",\"key\":\"agent.hostname\",\"value\":\"test-01-hostname\",\"id\":2,\"clock\":1609588563,\"ns\":87682907}" +
             "],\"clock\":1609588568,\"ns\":102244476}");
-        String agentDataRespData = socketClient.waitAndGetResponsePayload();
         assertZabbixAgentDataRequest(1, "test-01", "system.cpu.load[all,avg1]", "system.cpu.load[all,avg5]", "system.cpu.load[all,avg15]", "agent.hostname");
-        assertZabbixAgentDataResponse(agentDataRespData);
+        assertZabbixAgentDataResponse(2);
 
         // Verify meter system received data
         Assert.assertEquals(1, values.size());
@@ -130,6 +127,5 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         Assert.assertEquals(1, avgLabeledFunction.getCount().get("avg1"), 0.0);
         Assert.assertEquals(1, avgLabeledFunction.getCount().get("avg5"), 0.0);
         Assert.assertEquals(1, avgLabeledFunction.getCount().get("avg15"), 0.0);
-        stopSocketClient();
     }
 }
