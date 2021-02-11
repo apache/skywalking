@@ -19,6 +19,7 @@ Release Notes.
 * Add some defensive codes for NPE and bump up Kubernetes client version to expose exception stack trace.
 * Update the `timestamp` field type for `LogQuery`.
 * Support Zabbix protocol to receive agent metrics.
+* Update the Apdex metric combine calculator.
 
 #### UI
 * Update selector scroller to show in all pages.
