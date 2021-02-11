@@ -27,6 +27,7 @@ inputs:
     default: >-
       "*.md"
       "skywalking-ui"
+      ".asf.yaml"
 runs:
   using: "composite"
   steps:
