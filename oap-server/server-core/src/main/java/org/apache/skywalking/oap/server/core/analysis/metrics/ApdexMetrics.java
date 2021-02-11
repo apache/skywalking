@@ -68,10 +68,10 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
         int t = DICT.lookup(name).intValue();
         int t4 = t * 4;
         totalNum++;
-        if (!status || value >= t4) {
+        if (!status || value > t4) {
             return;
         }
-        if (value >= t) {
+        if (value > t) {
             tNum++;
         } else {
             sNum++;
