@@ -29,6 +29,9 @@ github:
     - web-performance
     - metrics
     - logging
+    - prometheus
+    - open-telemetry
+    - zabbix
   enabled_merge_buttons:
     squash:  true
     merge:   false
