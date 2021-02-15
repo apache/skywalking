@@ -4,7 +4,7 @@ cluster.
 
 The latest introduction video could be found on the Youtube
 
-[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
+[![RocketBot UI](https://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](https://www.youtube.com/watch?v=mfKaToAKl7k)
 
 SkyWalking dashboard includes the following part.
 
