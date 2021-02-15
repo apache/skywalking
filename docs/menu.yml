@@ -14,21 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "v8.4.0"
-children:
+
+catalog:
   - name: "Welcome"
     path: "/readme"
   - name: "Concepts and Designs"
     path: "/en/concepts-and-designs/readme"
-    children:
+    catalog:
       - name: "What is SkyWalking?"
-        children:
+        catalog:
           - name: "Overview and Core concepts"
             path: "/en/concepts-and-designs/overview"
           - name: "Project Goals"
             path: "/en/concepts-and-designs/project-goals"
       - name: "Probe"
-        children:
+        catalog:
           - name: "Introduction"
             path: "/en/concepts-and-designs/probe-introduction"
           - name: "Service auto instrument agent"
@@ -38,7 +38,7 @@ children:
           - name: "Service Mesh probe"
             path: "/en/concepts-and-designs/service-mesh-probe"
       - name: "Backend"
-        children:
+        catalog:
           - name: "Overview"
             path: "/en/concepts-and-designs/backend-overview"
           - name: "Observability Analysis Language"
@@ -46,20 +46,20 @@ children:
           - name: "Query in OAP"
             path: "/en/protocols/readme#query-protocol"
       - name: "UI"
-        children:
+        catalog:
           - name: "Overview"
             path: "/en/concepts-and-designs/ui-overview"
 
   - name: "Setup"
     path: "/en/setup/readme"
-    children:
+    catalog:
       - name: "Language agents in Service"
-        children:
+        catalog:
           - name: "Agents"
             path: "/en/setup/readme#language-agents-in-service"
           - name: "Java agent"
             path: "/en/setup/service-agent/java-agent/readme"
-            children:
+            catalog:
               - name: "Supported middleware, framework and library"
                 path: "/en/setup/service-agent/java-agent/Supported-list"
               - name: "Agent Configuration Properties"
@@ -79,24 +79,24 @@ children:
           - name: "Other language agents"
             path: "/en/setup/readme#language-agents-in-service"
       - name: "Service Mesh"
-        children:
-          - name: "SkyWalking on Istio"
+        catalog:
+          - name: "Observe Istio Control Plane"
             path: "/en/setup/istio/readme"
-          - name: "ALS (access log service)"
-            path: "https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.protod"
+          - name: "Observe Service Mesh"
+            path: "/en/setup/envoy/als_setting"
       - name: "Proxy"
-        children:
+        catalog:
           - name: "Envoy Proxy"
             path: "https://www.envoyproxy.io/"
-            children:
-              - name: "Sending metrics to Skywalking from Envoy"
+            catalog:
+              - name: "Send Envoy metrics to SkyWalking with / without Istio"
                 path: "/en/setup/envoy/metrics_service_setting"
       - name: "Backend, UI and CLI setup document"
         path: "/en/setup/backend/backend-ui-setup"
-        children:
+        catalog:
           - name: "Backend setup document"
             path: "/en/setup/backend/backend-setup"
-            children:
+            catalog:
               - name: "Configuration Vocabulary"
                 path: "/en/setup/backend/configuration-vocabulary"
               - name: "Overriding settings"
@@ -143,6 +143,8 @@ children:
                 path: "/en/setup/backend/service-auto-grouping"
               - name: "Group Parameterized Endpoints"
                 path: "/en/setup/backend/endpoint-grouping-rules"
+              - name: "OpenTelemetry Metrics Analysis"
+                path: "/backend-receivers.md#opentelemetry-receiver"
               - name: "Meter Analysis"
                 path: "/en/setup/backend/backend-meter"
               - name: "Spring Sleuth Metrics Analysis"
@@ -158,7 +160,7 @@ children:
 
   - name: "Contributing Guides"
     path: "/en/guides/readme"
-    children:
+    catalog:
       - name: "Contact us"
         path: "/en/guides/readme#contact-us"
       - name: "Process to become official Apache SkyWalking Committer"
