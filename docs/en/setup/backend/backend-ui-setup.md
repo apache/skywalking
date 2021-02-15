@@ -37,7 +37,7 @@ In Java, .NetCore, Node.js, Istio agents/probe, you should set the gRPC service 
 
 Before deploying Skywalking in your distributed environment, you should know how agents/probes, backend, UI communicates with each other:
 
-<img src="http://skywalking.apache.org/doc-graph/communication-net.png"/>
+<img src="https://skywalking.apache.org/doc-graph/communication-net.png"/>
 
 - All native agents and probes, either language based or mesh probe, are using gRPC service (`core/default/gRPC*` in `application.yml`) to report data to the backend. Also, jetty service supported in JSON format. 
 - UI uses GraphQL (HTTP) query to access the backend also in Jetty service (`core/default/rest*` in `application.yml`).
