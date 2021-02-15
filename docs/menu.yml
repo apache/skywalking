@@ -1,0 +1,180 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "v8.4.0"
+children:
+  - name: "Welcome"
+    path: "/readme"
+  - name: "Concepts and Designs"
+    path: "/en/concepts-and-designs/readme"
+    children:
+      - name: "What is SkyWalking?"
+        children:
+          - name: "Overview and Core concepts"
+            path: "/en/concepts-and-designs/overview"
+          - name: "Project Goals"
+            path: "/en/concepts-and-designs/project-goals"
+      - name: "Probe"
+        children:
+          - name: "Introduction"
+            path: "/en/concepts-and-designs/probe-introduction"
+          - name: "Service auto instrument agent"
+            path: "/en/concepts-and-designs/service-agent"
+          - name: "Manual instrument SDK"
+            path: "/en/concepts-and-designs/manual-sdk"
+          - name: "Service Mesh probe"
+            path: "/en/concepts-and-designs/service-mesh-probe"
+      - name: "Backend"
+        children:
+          - name: "Overview"
+            path: "/en/concepts-and-designs/backend-overview"
+          - name: "Observability Analysis Language"
+            path: "/en/concepts-and-designs/oal"
+          - name: "Query in OAP"
+            path: "/en/protocols/readme#query-protocol"
+      - name: "UI"
+        children:
+          - name: "Overview"
+            path: "/en/concepts-and-designs/ui-overview"
+
+  - name: "Setup"
+    path: "/en/setup/readme"
+    children:
+      - name: "Language agents in Service"
+        children:
+          - name: "Agents"
+            path: "/en/setup/readme#language-agents-in-service"
+          - name: "Java agent"
+            path: "/en/setup/service-agent/java-agent/readme"
+            children:
+              - name: "Supported middleware, framework and library"
+                path: "/en/setup/service-agent/java-agent/Supported-list"
+              - name: "Agent Configuration Properties"
+                path: "/en/setup/service-agent/java-agent/readme#table-of-agent-configuration-properties"
+              - name: "Optional plugins"
+                path: "/en/setup/service-agent/java-agent/readme#optional-plugins"
+              - name: "Bootstrap/JVM class plugin"
+                path: "/en/setup/service-agent/java-agent/readme#bootstrap-class-plugins"
+              - name: "Advanced reporters"
+                path: "/en/setup/service-agent/java-agent/readme#advanced-reporters"
+
+              - name: "Plugin development guide"
+                path: "/en/setup/service-agent/java-agent/readme#plugin-development-guide"
+              - name: "Agent plugin tests and performance tests"
+                path: "/en/setup/service-agent/java-agent/readme#plugin-development-guide"
+
+          - name: "Other language agents"
+            path: "/en/setup/readme#language-agents-in-service"
+      - name: "Service Mesh"
+        children:
+          - name: "SkyWalking on Istio"
+            path: "/en/setup/istio/readme"
+          - name: "ALS (access log service)"
+            path: "https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.protod"
+      - name: "Proxy"
+        children:
+          - name: "Envoy Proxy"
+            path: "https://www.envoyproxy.io/"
+            children:
+              - name: "Sending metrics to Skywalking from Envoy"
+                path: "/en/setup/envoy/metrics_service_setting"
+      - name: "Backend, UI and CLI setup document"
+        path: "/en/setup/backend/backend-ui-setup"
+        children:
+          - name: "Backend setup document"
+            path: "/en/setup/backend/backend-setup"
+            children:
+              - name: "Configuration Vocabulary"
+                path: "/en/setup/backend/configuration-vocabulary"
+              - name: "Overriding settings"
+                path: "/en/setup/backend/backend-setting-override"
+
+              - name: "IP and port setting"
+                path: "/en/setup/backend/backend-ip-port"
+
+              - name: "Backend init mode startup"
+                path: "/en/setup/backend/backend-init-mode"
+
+              - name: "Cluster management"
+                path: "/en/setup/backend/backend-cluster"
+
+              - name: "Deploy in kubernetes"
+                path: "/en/setup/backend/backend-k8s"
+              - name: "Choose storage"
+                path: "/en/setup/backend/backend-storage"
+              - name: "Set receivers"
+                path: "/en/setup/backend/backend-receivers"
+              - name: "Open fetchers"
+                path: "/en/setup/backend/backend-fetcher"
+              - name: "Trace sampling"
+                path: "/en/setup/backend/trace-sampling"
+              - name: "Slow DB statement threshold"
+                path: "/en/setup/backend/slow-db-statement"
+              - name: "OAL scripts"
+                path: "/en/guides/backend-oal-scripts"
+              - name: "Alarm"
+                path: "/en/setup/backend/backend-alarm"
+              - name: "Advanced deployment options"
+                path: "/en/setup/backend/advanced-deployment"
+              - name: "Metrics exporter"
+                path: "/en/setup/backend/metrics-exporter"
+              - name: "Time To Live (TTL)"
+                path: "/en/setup/backend/ttl"
+              - name: "Dynamic Configuration"
+                path: "/en/setup/backend/dynamic-config"
+              - name: "Uninstrumented Gateways"
+                path: "/en/setup/backend/uninstrumented-gateways"
+              - name: "Apdex threshold"
+                path: "/en/setup/backend/apdex-threshold"
+              - name: "Service Grouping"
+                path: "/en/setup/backend/service-auto-grouping"
+              - name: "Group Parameterized Endpoints"
+                path: "/en/setup/backend/endpoint-grouping-rules"
+              - name: "Meter Analysis"
+                path: "/en/setup/backend/backend-meter"
+              - name: "Spring Sleuth Metrics Analysis"
+                path: "/en/setup/backend/spring-sleuth-setup"
+          - name: "UI setup document"
+            path: "/en/setup/backend/ui-setup"
+
+          - name: "CLI setup document"
+            path: "https://github.com/apache/skywalking-cli"
+
+  - name: "UI Introduction"
+    path: "/en/ui/readme"
+
+  - name: "Contributing Guides"
+    path: "/en/guides/readme"
+    children:
+      - name: "Contact us"
+        path: "/en/guides/readme#contact-us"
+      - name: "Process to become official Apache SkyWalking Committer"
+        path: "/en/guides/asf/committer"
+      - name: "Compiling Guide"
+        path: "/en/guides/How-to-build"
+      - name: "Agent plugin development guide"
+        path: "/en/guides/Java-Plugin-Development-Guide"
+
+  - name: "Protocols"
+    path: "/en/protocols/readme"
+
+  - name: "FAQs"
+    path: "/en/FAQ/readme"
+
+
+
+
+
