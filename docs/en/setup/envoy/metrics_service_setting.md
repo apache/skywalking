@@ -86,4 +86,4 @@ istioctl manifest install -y \
 
 # Metrics data
 
-Some Envoy statistics are listed in this [list](https://www.envoyproxy.io/docs/envoy/latest/configuration/statistics). A sample data that contains identifier can be found [here](identify.json), while the metrics only can be observed [here](metrics.json).
+Some Envoy statistics are listed in this [list](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). A sample data that contains identifier can be found [here](identify.json), while the metrics only can be observed [here](metrics.json).
