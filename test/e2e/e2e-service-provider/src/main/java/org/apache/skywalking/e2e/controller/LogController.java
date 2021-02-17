@@ -17,18 +17,26 @@
 
 package org.apache.skywalking.e2e.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 public class LogController {
 
+    private static final Logger LOG4J_LOGGER = Logger.getLogger(LogController.class);
+    private static final org.apache.logging.log4j.Logger LOG4J2_LOGGER = LogManager.getLogger(
+        LogController.class);
+    private static final org.slf4j.Logger LOGBACK_LOGGER = LoggerFactory.getLogger(LogController.class);
+
     @RequestMapping(value = "/logs/trigger")
     public String trigger() {
-        LOGGER.info("now: {}", System.currentTimeMillis());
+        LOG4J_LOGGER.info("log4j message==> now: " + System.currentTimeMillis());
+        LOG4J2_LOGGER.info("log4j2 message==> now: " + System.currentTimeMillis());
+        LOGBACK_LOGGER.info("logback message==> now: {}", System.currentTimeMillis());
         return TraceContext.traceId();
     }
 }

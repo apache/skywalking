@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.log;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
-
+import org.apache.log4j.spi.LoggingEvent;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -35,7 +35,6 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
-import org.slf4j.event.LoggingEvent;
 
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -76,33 +75,47 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
      */
     private LogData transform(LoggingEvent event) {
         LogData.Builder builder = LogData.newBuilder()
-                .setTimestamp(event.getTimeStamp())
-                .setService(Config.Agent.SERVICE_NAME)
-                .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                .setTraceContext(TraceContext.newBuilder()
-                        .setTraceId(ContextManager.getGlobalTraceId())
-                        .setSpanId(ContextManager.getSpanId())
-                        .setTraceSegmentId(ContextManager.getSegmentId())
-                        .build())
-                .setTags(LogTags.newBuilder()
-                        .addData(KeyStringValuePair.newBuilder()
-                                .setKey("level").setValue(event.getLevel().toString()).build())
-                        .addData(KeyStringValuePair.newBuilder()
-                                .setKey("logger").setValue(event.getLoggerName()).build())
-                        .addData(KeyStringValuePair.newBuilder()
-                                .setKey("thread").setValue(event.getThreadName()).build())
-                        .build())
-                .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
-                                    .setText(TextLog.newBuilder().setText(transformLogText(event)).build()).build());
+                                         .setTimestamp(event.getTimeStamp())
+                                         .setService(Config.Agent.SERVICE_NAME)
+                                         .setServiceInstance(Config.Agent.INSTANCE_NAME)
+                                         .setTraceContext(TraceContext.newBuilder()
+                                                                      .setTraceId(ContextManager.getGlobalTraceId())
+                                                                      .setSpanId(ContextManager.getSpanId())
+                                                                      .setTraceSegmentId(ContextManager.getSegmentId())
+                                                                      .build())
+                                         .setTags(LogTags.newBuilder()
+                                                         .addData(KeyStringValuePair.newBuilder()
+                                                                                    .setKey("level")
+                                                                                    .setValue(
+                                                                                        event.getLevel().toString())
+                                                                                    .build())
+                                                         .addData(KeyStringValuePair.newBuilder()
+                                                                                    .setKey("logger")
+                                                                                    .setValue(event.getLoggerName())
+                                                                                    .build())
+                                                         .addData(KeyStringValuePair.newBuilder()
+                                                                                    .setKey("thread")
+                                                                                    .setValue(event.getThreadName())
+                                                                                    .build())
+                                                         .build())
+                                         .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
+                                                             .setText(TextLog.newBuilder()
+                                                                             .setText(transformLogText(event))
+                                                                             .build()).build());
         return -1 == ContextManager.getSpanId() ? builder.build()
-                : builder.setTraceContext(TraceContext.newBuilder()
-                        .setTraceId(ContextManager.getGlobalTraceId())
-                        .setSpanId(ContextManager.getSpanId())
-                        .setTraceSegmentId(ContextManager.getSegmentId())
-                        .build()).build();
+            : builder.setTraceContext(TraceContext.newBuilder()
+                                                  .setTraceId(ContextManager.getGlobalTraceId())
+                                                  .setSpanId(ContextManager.getSpanId())
+                                                  .setTraceSegmentId(ContextManager.getSegmentId())
+                                                  .build()).build();
     }
 
     private String transformLogText(final LoggingEvent event) {
-        return event.getMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(event.getThrowable(), 2048);
+        String res = event.getMessage() + "\n";
+        if (Objects.nonNull(event.getThrowableInformation())) {
+            res += ThrowableTransformer.INSTANCE.convert2String(event.getThrowableInformation().getThrowable(), 2048);
+        }
+        return res;
+
     }
 }

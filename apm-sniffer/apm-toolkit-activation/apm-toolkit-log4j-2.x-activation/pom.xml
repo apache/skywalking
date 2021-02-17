@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-toolkit-activation</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -26,7 +27,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-toolkit-log4j-2.x-activation</artifactId>
-
     <properties>
         <log4j-core.version>2.7</log4j-core.version>
     </properties>

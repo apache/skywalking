@@ -10,6 +10,7 @@ Release Notes.
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
 * Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur
+* Fix the incorrect package imports of the log4j grpc log appender.
 
 
 #### OAP-Backend
