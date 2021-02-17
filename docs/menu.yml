@@ -87,7 +87,6 @@ catalog:
       - name: "Proxy"
         catalog:
           - name: "Envoy Proxy"
-            path: "https://www.envoyproxy.io/"
             catalog:
               - name: "Send Envoy metrics to SkyWalking with / without Istio"
                 path: "/en/setup/envoy/metrics_service_setting"
