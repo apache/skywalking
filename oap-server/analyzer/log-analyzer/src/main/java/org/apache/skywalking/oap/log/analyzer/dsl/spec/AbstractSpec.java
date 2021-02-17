@@ -16,19 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
+package org.apache.skywalking.oap.log.analyzer.dsl.spec;
 
-import java.util.Map;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.experimental.Accessors;
+import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+@Getter
 @RequiredArgsConstructor
-@EqualsAndHashCode
-@ToString
-class ID {
+@Accessors(fluent = true)
+public abstract class AbstractSpec {
+    private final ModuleManager moduleManager;
 
-    private final String name;
+    private final LogAnalyzerModuleConfig moduleConfig;
 
-    private final Map<String, String> labels;
+    protected static final ThreadLocal<Binding> BINDING = ThreadLocal.withInitial(Binding::new);
+
+    public void bind(final Binding b) {
+        BINDING.set(b);
+    }
+
+    @SuppressWarnings("unused")
+    public Object propertyMissing(final String name) {
+        return BINDING.get().getVariable(name);
+    }
 }

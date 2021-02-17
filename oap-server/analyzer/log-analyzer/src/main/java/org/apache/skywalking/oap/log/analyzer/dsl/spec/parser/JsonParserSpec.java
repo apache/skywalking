@@ -16,19 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
+package org.apache.skywalking.oap.log.analyzer.dsl.spec.parser;
 
-import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-@RequiredArgsConstructor
-@EqualsAndHashCode
-@ToString
-class ID {
+public class JsonParserSpec extends AbstractSpec {
+    private final GsonBuilder gsonBuilder;
 
-    private final String name;
+    public JsonParserSpec(final ModuleManager moduleManager,
+                          final LogAnalyzerModuleConfig moduleConfig) {
+        super(moduleManager, moduleConfig);
 
-    private final Map<String, String> labels;
+        gsonBuilder = new GsonBuilder();
+    }
+
+    public Gson create() {
+        return gsonBuilder.create();
+    }
 }

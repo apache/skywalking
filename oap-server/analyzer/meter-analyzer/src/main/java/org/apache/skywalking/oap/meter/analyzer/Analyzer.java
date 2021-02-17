@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -168,11 +169,11 @@ public class Analyzer {
         return Math.round(sample.getValue());
     }
 
-    private String composeGroup(ImmutableMap<String, String> labels) {
+    private String composeGroup(Map<String, String> labels) {
         return composeGroup(labels, k -> true);
     }
 
-    private String composeGroup(ImmutableMap<String, String> labels, Predicate<String> filter) {
+    private String composeGroup(Map<String, String> labels, Predicate<String> filter) {
         return labels.keySet().stream().filter(filter).sorted().map(labels::get)
             .collect(Collectors.joining("-"));
     }
