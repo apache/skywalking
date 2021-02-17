@@ -82,11 +82,10 @@ catalog:
           - name: "SkyWalking on Istio"
             path: "/en/setup/istio/readme"
           - name: "ALS (access log service)"
-            path: "https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.protod"
+            path: "/en/setup/envoy/als_setting/"
       - name: "Proxy"
         catalog:
           - name: "Envoy Proxy"
-            path: "https://www.envoyproxy.io/"
             catalog:
               - name: "Sending metrics to Skywalking from Envoy"
                 path: "/en/setup/envoy/metrics_service_setting"
