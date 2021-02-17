@@ -50,5 +50,8 @@ github:
         required_approving_review_count: 1
     # Protect these branches for the website    
     website-docs/8.2.0:
+      whatever: Just a placehold to make it take effects
     website-docs/8.3.0:
+      whatever: Just a placehold to make it take effects
     website-docs/8.4.0:
+      whatever: Just a placehold to make it take effects
