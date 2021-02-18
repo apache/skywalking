@@ -15,6 +15,7 @@ Release Notes.
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
 * Metrics combination API supports abandoning results.
+* Storage plugin supports postgrsql.
 
 #### UI
 Update selector scroller to show in all pages.
