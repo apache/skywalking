@@ -20,7 +20,7 @@ Release Notes.
 * Update the `timestamp` field type for `LogQuery`.
 * Support Zabbix protocol to receive agent metrics.
 * Update the Apdex metric combine calculator.
-* Storage plugin supports postgrsql.
+* Storage plugin supports postgresql.
 
 #### UI
 * Update selector scroller to show in all pages.
