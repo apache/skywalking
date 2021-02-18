@@ -136,6 +136,16 @@
             <artifactId>configuration-discovery-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-event-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-zabbix-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
@@ -272,6 +282,7 @@
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
+                        <exclude>zabbix-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT,
@@ -86,10 +86,10 @@ public class EndpointTraffic extends Metrics {
         return hashCode();
     }
 
-    public static class Builder implements StorageBuilder<EndpointTraffic> {
+    public static class Builder implements StorageHashMapBuilder<EndpointTraffic> {
 
         @Override
-        public EndpointTraffic map2Data(Map<String, Object> dbMap) {
+        public EndpointTraffic storage2Entity(Map<String, Object> dbMap) {
             EndpointTraffic inventory = new EndpointTraffic();
             inventory.setServiceId((String) dbMap.get(SERVICE_ID));
             inventory.setName((String) dbMap.get(NAME));
@@ -98,7 +98,7 @@ public class EndpointTraffic extends Metrics {
         }
 
         @Override
-        public Map<String, Object> data2Map(EndpointTraffic storageData) {
+        public Map<String, Object> entity2Storage(EndpointTraffic storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());

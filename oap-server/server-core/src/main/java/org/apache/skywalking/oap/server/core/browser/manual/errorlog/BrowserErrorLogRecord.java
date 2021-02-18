@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -91,9 +91,9 @@ public class BrowserErrorLogRecord extends Record {
     @Column(columnName = DATA_BINARY)
     private byte[] dataBinary;
 
-    public static class Builder implements StorageBuilder<BrowserErrorLogRecord> {
+    public static class Builder implements StorageHashMapBuilder<BrowserErrorLogRecord> {
         @Override
-        public BrowserErrorLogRecord map2Data(final Map<String, Object> dbMap) {
+        public BrowserErrorLogRecord storage2Entity(final Map<String, Object> dbMap) {
             BrowserErrorLogRecord record = new BrowserErrorLogRecord();
             record.setUniqueId((String) dbMap.get(UNIQUE_ID));
             record.setServiceId((String) dbMap.get(SERVICE_ID));
@@ -113,7 +113,7 @@ public class BrowserErrorLogRecord extends Record {
         }
 
         @Override
-        public Map<String, Object> data2Map(final BrowserErrorLogRecord storageData) {
+        public Map<String, Object> entity2Storage(final BrowserErrorLogRecord storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(UNIQUE_ID, storageData.getUniqueId());
             map.put(SERVICE_ID, storageData.getServiceId());

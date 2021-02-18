@@ -47,7 +47,7 @@ public class ApdexMetricsTest {
         apdex = new ApdexMetricsImpl();
         apdex.combine(2000, "foo", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(0));
+        assertThat(apdex.getValue(), is(5000));
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);

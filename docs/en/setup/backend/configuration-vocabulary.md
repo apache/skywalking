@@ -178,6 +178,10 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | receiver-jvm| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-clr| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-profile| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
+| receiver-zabbix| default| Read [receiver doc](backend-zabbix.md) for more details | - | - |
+| - | - | port| Exported tcp port, Zabbix agent could connect and transport data| SW_RECEIVER_ZABBIX_PORT | 10051 |
+| - | - | host| Bind to host| SW_RECEIVER_ZABBIX_HOST | 0.0.0.0 |
+| - | - | activeFiles| Enable config when receive agent request| SW_RECEIVER_ZABBIX_ACTIVE_FILES | agent |
 | service-mesh| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | envoy-metric| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | - | - | acceptMetricsService | Open Envoy Metrics Service analysis | SW_ENVOY_METRIC_SERVICE | true|
@@ -266,6 +270,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
 | health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
 | configuration-discovery | default | disableMessageDigest | If true, agent receives the latest configuration every time even without change. In default, OAP uses SHA512 message digest mechanism to detect changes of configuration. | SW_DISABLE_MESSAGE_DIGEST | false
+| receiver-event|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 
 ## Notice
 ¹ System Environment Variable name could be declared and changed in the application.yml. The names listed here,

@@ -21,6 +21,7 @@ services:
     expose:
       - 11800
       - 12800
+      - 10051
       - 5005
     networks:
       - e2e

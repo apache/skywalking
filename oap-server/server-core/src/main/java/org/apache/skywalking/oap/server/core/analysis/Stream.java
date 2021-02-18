@@ -22,13 +22,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
  * Stream annotation represents a metadata definition. Include the key values of the distributed streaming calculation.
@@ -49,7 +48,9 @@ public @interface Stream {
     int scopeId();
 
     /**
-     * @return the converter type between {@link StorageBuilder} and {@link Map} for persistence.
+     * @return the converter type between entity and storage record persistence. The converter could be override by the
+     * storage implementation if necessary. Default, return {@link org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder}
+     * for general suitable.
      */
     Class<? extends StorageBuilder> builder();
 

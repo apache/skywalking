@@ -32,6 +32,7 @@
         <module>agent-analyzer</module>
         <module>log-analyzer</module>
         <module>meter-analyzer</module>
+        <module>event-analyzer</module>
     </modules>
 
     <dependencies>

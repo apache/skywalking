@@ -24,17 +24,14 @@
     "condition":{
       "name":"{metricsName}",
       "entity":{
-        "scope":"ServiceInstance",
+        "scope":"{scope}",
         "serviceName":"{serviceName}",
         "serviceInstanceName":"{instanceName}",
         "normal":true
       }
     },
     "labels":[
-      "50",
-      "70",
-      "90",
-      "99"
+      {labels}
     ]
   }
 }

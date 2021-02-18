@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
@@ -94,10 +94,10 @@ public class ServiceTraffic extends Metrics {
         return builder;
     }
 
-    public static class Builder implements StorageBuilder<ServiceTraffic> {
+    public static class Builder implements StorageHashMapBuilder<ServiceTraffic> {
 
         @Override
-        public ServiceTraffic map2Data(final Map<String, Object> dbMap) {
+        public ServiceTraffic storage2Entity(final Map<String, Object> dbMap) {
             ServiceTraffic serviceTraffic = new ServiceTraffic();
             serviceTraffic.setName((String) dbMap.get(NAME));
             serviceTraffic.setNodeType(NodeType.valueOf(((Number) dbMap.get(NODE_TYPE)).intValue()));
@@ -106,7 +106,7 @@ public class ServiceTraffic extends Metrics {
         }
 
         @Override
-        public Map<String, Object> data2Map(final ServiceTraffic storageData) {
+        public Map<String, Object> entity2Storage(final ServiceTraffic storageData) {
             final String serviceName = storageData.getName();
             if (NodeType.Normal.equals(storageData.getNodeType())) {
                 int groupIdx = serviceName.indexOf(DOUBLE_COLONS_SPLIT);

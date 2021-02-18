@@ -19,6 +19,7 @@
 package org.apache.skywalking.e2e.storage;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
+import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsQuery;
 import org.apache.skywalking.e2e.metrics.ReadMetrics;
 import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
@@ -262,8 +264,9 @@ public class StorageE2E extends SkyWalkingTestAdapter {
                 for (String metricsName : ALL_SO11Y_LABELED_METRICS) {
                     LOGGER.info("verifying service instance response time: {}", instance);
                     final List<ReadMetrics> instanceMetrics = graphql.readLabeledMetrics(
-                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                        new ReadLabeledMetricsQuery().stepByMinute().metricsName(metricsName)
                             .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                            .labels(Arrays.asList("50", "70", "90", "99"))
                     );
     
                     LOGGER.info("{}: {}", metricsName, instanceMetrics);

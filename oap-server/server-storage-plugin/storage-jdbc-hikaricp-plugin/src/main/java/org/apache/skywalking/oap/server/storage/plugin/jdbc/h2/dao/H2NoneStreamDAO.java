@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -35,9 +35,9 @@ import java.sql.SQLException;
 public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
 
     private JDBCHikariCPClient h2Client;
-    private StorageBuilder<NoneStream> storageBuilder;
+    private StorageHashMapBuilder<NoneStream> storageBuilder;
 
-    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageBuilder<NoneStream> storageBuilder) {
+    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<NoneStream> storageBuilder) {
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }
