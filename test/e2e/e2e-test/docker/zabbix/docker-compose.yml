@@ -20,6 +20,8 @@ services:
     extends:
       file: ../base-compose.yml
       service: oap
+    environment:
+      SW_RECEIVER_ZABBIX: default
     volumes:
       - ./agent.yaml:/skywalking/config/zabbix-rules/agent.yaml
 
