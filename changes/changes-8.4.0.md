@@ -61,7 +61,7 @@ Release Notes.
 * Improve query performance in storage-influxdb-plugin.
 * Fix the uuid field in GRPCConfigWatcherRegister is not updated.
 * Support Envoy {AccessLog,Metrics}Service API V3.
-* Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
+* Adopt the [MAL](../docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
 * Fix the priority setting doesn't work of the ALS analyzers.
 * Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
 * Fix bug that istio version metric type on UI template mismatches the otel rule.

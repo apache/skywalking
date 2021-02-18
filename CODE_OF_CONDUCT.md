@@ -71,7 +71,7 @@ This statement thanks the following, on which it draws for content and inspirati
 
 * [CouchDB Project Code of conduct](http://couchdb.apache.org/conduct.html)
 * [Fedora Project Code of Conduct](http://fedoraproject.org/code-of-conduct)
-* [Speak Up! Code of Conduct](http://speakup.io/coc.html)
+* [Speak Up! Code of Conduct](https://code-of-conduct.roche.com/en/speak-up.html)
 * [Django Code of Conduct](https://www.djangoproject.com/conduct/)
 * [Debian Code of Conduct](http://www.debian.org/vote/2014/vote_002)
 * [Twitter Open Source Code of Conduct](https://github.com/twitter/code-of-conduct/blob/master/code-of-conduct.md)

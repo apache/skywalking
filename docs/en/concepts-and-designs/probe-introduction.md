@@ -33,6 +33,6 @@ like logs, just save them, and build the links between traces and metrics, like 
 
 ## What is next?
 - Learn the SkyWalking supported probes in [Service auto instrument agent](service-agent.md), [Manual instrument SDK](manual-sdk.md),
-[Service Mesh probe](service-mesh-probe.md) and [Zipkin receiver](trace-receiver.md).
+[Service Mesh probe](service-mesh-probe.md) and [Zipkin receiver](../setup/backend/backend-receivers.md#zipkin-receiver).
 - After understand the probe, read [backend overview](backend-overview.md) for understanding analysis and persistence.
 
