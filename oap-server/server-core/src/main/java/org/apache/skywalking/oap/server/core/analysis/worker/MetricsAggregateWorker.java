@@ -46,6 +46,8 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private final DataCarrier<Metrics> dataCarrier;
     private final MergableBufferedData<Metrics> mergeDataCache;
     private CounterMetrics aggregationCounter;
+    public static final long SEND_AFTER_AGGREGATION_INTERVAL = 300;
+    private long lastSendTime = 0;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
                            String modelName) {
@@ -93,14 +95,18 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             mergeDataCache.accept(metrics);
         });
 
-        mergeDataCache.read().forEach(
-            data -> {
-                if (log.isDebugEnabled()) {
-                    log.debug(data.toString());
-                }
-                nextWorker.in(data);
-            }
-        );
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastSendTime > SEND_AFTER_AGGREGATION_INTERVAL) {
+            mergeDataCache.read().forEach(
+                    data -> {
+                        if (log.isDebugEnabled()) {
+                            log.debug(data.toString());
+                        }
+                        nextWorker.in(data);
+                    }
+            );
+            lastSendTime = currentTime;
+        }
     }
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
