@@ -187,6 +187,22 @@ public class MeterSystem implements Service {
             throw new IllegalArgumentException("Function " + functionName + " can't be found by javaassist.");
         }
         final String className = formatName(metricsName);
+
+        /**
+         * Check is already define the metric
+         */
+        try {
+            CtClass alreadyMetric = classPool.get(METER_CLASS_PACKAGE + className);
+            if (alreadyMetric.getSuperclass() != parentClass || type != meterPrototypes.get(metricsName).getScopeType()) {
+                throw new IllegalArgumentException("Already define metric " + metricsName
+                                                       + ", but calculate function or scope type is not same.");
+            }
+            log.debug("Metric {} is already define, so skip the metric creation.", metricsName);
+            return true;
+        } catch (NotFoundException e) {
+            // Ignore not found
+        }
+
         CtClass metricsClass = classPool.makeClass(METER_CLASS_PACKAGE + className, parentClass);
 
         /**
