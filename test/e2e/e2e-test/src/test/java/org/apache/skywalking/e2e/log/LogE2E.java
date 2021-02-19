@@ -89,12 +89,40 @@ public class LogE2E extends SkyWalkingTestAdapter {
     }
 
     @RetryableTest
-    public void verifyLog() throws Exception {
+    public void verifyLog4jLog() throws Exception {
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
                                              .end(Times.now());
         if (graphql.supportQueryLogsByKeywords()) {
-            logsQuery.keywordsOfContent("now");
+            logsQuery.keywordsOfContent("log4j message");
+        }
+        final List<Log> logs = graphql.logs(logsQuery);
+        LOGGER.info("logs: {}", logs);
+
+        load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);
+    }
+
+    @RetryableTest
+    public void verifyLog4j2Log() throws Exception {
+        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
+                                             .start(startTime)
+                                             .end(Times.now());
+        if (graphql.supportQueryLogsByKeywords()) {
+            logsQuery.keywordsOfContent("log4j2 message");
+        }
+        final List<Log> logs = graphql.logs(logsQuery);
+        LOGGER.info("logs: {}", logs);
+
+        load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);
+    }
+
+    @RetryableTest
+    public void verifyLogbackLog() throws Exception {
+        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
+                                             .start(startTime)
+                                             .end(Times.now());
+        if (graphql.supportQueryLogsByKeywords()) {
+            logsQuery.keywordsOfContent("logback message");
         }
         final List<Log> logs = graphql.logs(logsQuery);
         LOGGER.info("logs: {}", logs);
