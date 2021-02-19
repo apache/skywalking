@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.meter.analyzer;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -208,12 +207,12 @@ public class Analyzer {
                 metricType = MetricType.labeled;
             }
         }
-        Preconditions.checkState(createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling()));
+        createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling());
     }
 
-    private boolean createMetric(final ScopeType scopeType, final String dataType, final DownsamplingType downsamplingType) {
+    private void createMetric(final ScopeType scopeType, final String dataType, final DownsamplingType downsamplingType) {
         String functionName = String.format(FUNCTION_NAME_TEMP, downsamplingType.toString().toLowerCase(), Strings.capitalize(dataType));
-        return meterSystem.create(metricName, functionName, scopeType);
+        meterSystem.create(metricName, functionName, scopeType);
     }
 
     private void send(final AcceptableValue<?> v, final long time) {
