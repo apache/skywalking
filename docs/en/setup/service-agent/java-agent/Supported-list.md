@@ -26,7 +26,7 @@ metrics based on the tracing data.
   * [Apache httpcomponent HttpClient](http://hc.apache.org/) 2.0 -> 3.1, 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
-  * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
+  * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-4.1.x/) 4.x
   * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
   * JRE HttpURLConnection (Optional²)
 * HTTP Gateway

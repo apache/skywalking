@@ -1,0 +1,18 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^http://localhost"
+    },
+    {
+      "pattern": "^https://github.com/apache/skywalking/blob/master/changes/changes-x.y.z.md$"
+    }
+  ],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 10,
+  "fallbackRetryDelay": "1000s",
+  "aliveStatusCodes": [
+    200,
+    401
+  ]
+}
