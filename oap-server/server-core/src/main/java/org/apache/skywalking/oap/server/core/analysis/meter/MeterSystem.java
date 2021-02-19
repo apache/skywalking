@@ -194,7 +194,7 @@ public class MeterSystem implements Service {
             if (existingMetric.getSuperclass() != parentClass || type != meterPrototypes.get(metricsName).getScopeType()) {
                 throw new IllegalArgumentException(metricsName + " has been defined, but calculate function or/are scope type is/are different.");
             }
-            log.info("Metric {} is already define, so skip the metric creation.", metricsName);
+            log.info("Metric {} is already defined, so skip the metric creation.", metricsName);
             return ;
         } catch (NotFoundException e) {
         }
