@@ -99,11 +99,10 @@ public class MeterSystem implements Service {
      *
      * @param metricsName  The name used as the storage eneity and in the query stage.
      * @param functionName The function provided through {@link MeterFunction}.
-     * @return true if created, false if it exists.
      * @throws IllegalArgumentException if the parameter can't match the expectation.
      * @throws UnexpectedException      if binary code manipulation fails or stream core failure.
      */
-    public synchronized <T> boolean create(String metricsName,
+    public synchronized <T> void create(String metricsName,
         String functionName,
         ScopeType type) throws IllegalArgumentException {
         final Class<? extends MeterFunction> meterFunction = functionRegister.get(functionName);
@@ -123,7 +122,7 @@ public class MeterSystem implements Service {
             }
         }
         try {
-            return create(metricsName, functionName, type, Class.forName(Objects.requireNonNull(acceptance).getTypeName()));
+            create(metricsName, functionName, type, Class.forName(Objects.requireNonNull(acceptance).getTypeName()));
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
         }
@@ -135,11 +134,10 @@ public class MeterSystem implements Service {
      *
      * @param metricsName  The name used as the storage eneity and in the query stage.
      * @param functionName The function provided through {@link MeterFunction}.
-     * @return true if created, false if it exists.
      * @throws IllegalArgumentException if the parameter can't match the expectation.
      * @throws UnexpectedException      if binary code manipulation fails or stream core failure.
      */
-    public synchronized <T> boolean create(String metricsName,
+    public synchronized <T> void create(String metricsName,
                                            String functionName,
                                            ScopeType type,
                                            Class<T> dataType) throws IllegalArgumentException {
@@ -192,13 +190,12 @@ public class MeterSystem implements Service {
          * Check whether the metrics class is already defined or not
          */
         try {
-            CtClass alreadyMetric = classPool.get(METER_CLASS_PACKAGE + className);
-            if (alreadyMetric.getSuperclass() != parentClass || type != meterPrototypes.get(metricsName).getScopeType()) {
-                throw new IllegalArgumentException("Already defined metrics class " + metricsName
-                                                       + ", but calculate function or scope type is different.");
+            CtClass existingMetric = classPool.get(METER_CLASS_PACKAGE + className);
+            if (existingMetric.getSuperclass() != parentClass || type != meterPrototypes.get(metricsName).getScopeType()) {
+                throw new IllegalArgumentException(metricsName + " has been defined, but calculate function or/are scope type is/are different.");
             }
-            log.debug("Metric {} is already define, so skip the metric creation.", metricsName);
-            return true;
+            log.info("Metric {} is already define, so skip the metric creation.", metricsName);
+            return ;
         } catch (NotFoundException e) {
         }
 
@@ -249,7 +246,6 @@ public class MeterSystem implements Service {
             log.error("Can't compile/load/init " + className + ".", e);
             throw new UnexpectedException(e.getMessage(), e);
         }
-        return true;
     }
 
     /**
