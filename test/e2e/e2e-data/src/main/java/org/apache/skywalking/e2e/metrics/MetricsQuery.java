@@ -160,4 +160,22 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
             .put("meter_agent_vfs_fs_size", Arrays.asList("/-total"))
             .build();
 
+    public static String[] SIMPLE_PROM_VM_METERS = {
+        "meter_vm_memory_used",
+        "meter_vm_memory_total",
+        "meter_vm_memory_available",
+        "meter_vm_disk_written",
+        "meter_vm_network_transmit",
+        "meter_vm_tcp_curr_estab",
+        "meter_vm_tcp_alloc",
+        "meter_vm_sockets_used",
+        "meter_vm_udp_inuse",
+        "meter_vm_filefd_allocated"
+    };
+
+    public static Map<String, List<String>> SIMPLE_PROM_VM_LABELED_METERS = ImmutableMap.<String, List<String>>builder()
+        .put("meter_vm_cpu_average_used", Arrays.asList("idle"))
+        .put("meter_vm_filesystem_percentage", Arrays.asList("/etc/hosts"))
+        .build();
 }
+
