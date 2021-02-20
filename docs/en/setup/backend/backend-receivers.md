@@ -17,6 +17,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-log**. gRPC services accept log data.
 1. **configuration-discovery**. gRPC services handle configurationDiscovery.
 1. **receiver-event**. gRPC services to handle events data.
+1. **receiver-zabbix**. See [details](backend-zabbix.md).
 1. Experimental receivers. All following receivers are in the POC stage, not production ready.
     1. **receiver_zipkin**. See [details](#zipkin-receiver). (Experimental)
     1. **receiver_jaeger**. See [details](#jaeger-receiver). (Experimental)

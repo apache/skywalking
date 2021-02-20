@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
-import org.slf4j.event.LoggingEvent;
+import org.apache.log4j.spi.LoggingEvent;
 
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -103,6 +103,8 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
     }
 
     private String transformLogText(final LoggingEvent event) {
-        return event.getMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(event.getThrowable(), 2048);
+        final String throwableString = Objects.isNull(event.getThrowableInformation()) ? "" : 
+            ThrowableTransformer.INSTANCE.convert2String(event.getThrowableInformation().getThrowable(), 2048);
+        return event.getMessage() + "\n" + throwableString;
     }
 }

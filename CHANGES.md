@@ -6,11 +6,12 @@ Release Notes.
 ------------------
 #### Project
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
+* Add E2E test for VM monitoring that metrics from Promethues node-exporter.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
-* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur
-
+* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur.
+* Fix ClassCastException of log4j gRPC reporter.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -18,9 +19,13 @@ Release Notes.
 * Add a new concept "Event" and its implementations to collect events.
 * Add some defensive codes for NPE and bump up Kubernetes client version to expose exception stack trace.
 * Update the `timestamp` field type for `LogQuery`.
+* Support Zabbix protocol to receive agent metrics.
+* Update the Apdex metric combine calculator.
+* Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
 
 #### UI
-Update selector scroller to show in all pages.
+* Update selector scroller to show in all pages.
+* Implement searching logs with date.
 
 #### Documentation
 

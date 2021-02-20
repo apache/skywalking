@@ -41,7 +41,7 @@ including
 1. LUA agent especially for Nginx, OpenResty.
 1. Browser agent.
 1. Service Mesh Observability. Control panel and data panel. 
-1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer).
+1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
 1. Logs.
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
 
@@ -101,4 +101,4 @@ SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observabili
 </p>
 
 # License
-[Apache 2.0 License.](/LICENSE)
+[Apache 2.0 License.](LICENSE)
