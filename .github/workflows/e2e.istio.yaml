@@ -132,10 +132,12 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
+          export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
+
           ./mvnw -DskipTests -N install
           ./mvnw -f apm-application-toolkit -DskipTests -am install
 
-          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
+          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
 
       - name: Logs
         if: ${{ failure() }}
@@ -249,10 +251,12 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
+          export SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
+
           ./mvnw -DskipTests -N install
           ./mvnw -f apm-application-toolkit -DskipTests -am install
 
-          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
+          ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
 
       - name: Logs
         if: ${{ failure() }}

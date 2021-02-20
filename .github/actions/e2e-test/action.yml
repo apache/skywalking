@@ -59,7 +59,8 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Run E2E Test ${{ inputs.test_class }}"
-        ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=${{ inputs.test_class }}
+        SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
+        ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=${{ inputs.test_class }}
         echo "::endgroup::"
     - name: Report Coverage
       shell: bash
