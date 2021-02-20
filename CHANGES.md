@@ -12,6 +12,7 @@ Release Notes.
 * Remove invalid mysql configuration in agent.config.
 * Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur.
 * Fix ClassCastException of log4j gRPC reporter.
+* Fix NPE when Kafka reporter activated.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
