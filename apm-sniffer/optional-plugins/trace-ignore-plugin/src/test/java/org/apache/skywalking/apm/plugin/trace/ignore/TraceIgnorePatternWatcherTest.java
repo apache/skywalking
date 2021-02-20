@@ -18,18 +18,27 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
+import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 public class TraceIgnorePatternWatcherTest {
-    private TraceIgnoreExtendService traceIgnoreExtendService = new TraceIgnoreExtendService();
+
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
+    private TraceIgnoreExtendService traceIgnoreExtendService;
 
     @Before
     public void setUp() {
-        traceIgnoreExtendService.prepare();
+        traceIgnoreExtendService =
+            (TraceIgnoreExtendService) ServiceManager.INSTANCE.findService(SamplingService.class);
     }
 
     @Test
