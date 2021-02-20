@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.context;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,6 +38,11 @@ public class IgnoreSuffixPatternsWatcherTest {
     @Before
     public void setUp() {
         contextManagerExtendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
