@@ -22,7 +22,6 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,11 +39,6 @@ public class TraceIgnorePatternWatcherTest {
     public void setUp() {
         traceIgnoreExtendService =
             (TraceIgnoreExtendService) ServiceManager.INSTANCE.findService(SamplingService.class);
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
