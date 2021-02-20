@@ -329,7 +329,8 @@ public class SimpleQueryClient {
                                             .replace("{end}", query.end())
                                             .replace("{metricsName}", query.metricsName())
                                             .replace("{serviceName}", query.serviceName())
-                                            .replace("{instanceName}", query.instanceName());
+                                            .replace("{instanceName}", query.instanceName())
+                                            .replace("{scope}", query.scope());
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<ReadMetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
