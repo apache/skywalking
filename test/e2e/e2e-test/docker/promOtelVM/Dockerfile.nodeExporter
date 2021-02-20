@@ -13,22 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-   "query":"query queryData($condition: MetricsCondition!, $duration: Duration!) {\n  readMetricsValues: readMetricsValues(condition: $condition, duration: $duration) {\n    label\n    values {\n      values {value}\n    }\n  }}",
-   "variables":{
-      "duration":{
-         "start":"{start}",
-         "end":"{end}",
-         "step":"{step}"
-      },
-      "condition":{
-         "name":"{metricsName}",
-         "entity":{
-            "scope":"{scope}",
-            "serviceName":"{serviceName}",
-            "serviceInstanceName":"{instanceName}",
-            "normal":true
-         }
-      }
-   }
-}
+FROM ubuntu:latest
+
+ADD https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz ./
+RUN tar xvfz node_exporter-1.0.1.linux-amd64.tar.gz
+WORKDIR /node_exporter-1.0.1.linux-amd64
+CMD ["./node_exporter"]
