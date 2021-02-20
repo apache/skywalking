@@ -18,23 +18,25 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 public class IgnoreSuffixPatternsWatcherTest {
 
-    private ContextManagerExtendService contextManagerExtendService = new ContextManagerExtendService();
+    @Rule
+    public AgentServiceRule agentServiceRule = new AgentServiceRule();
+
+    private ContextManagerExtendService contextManagerExtendService;
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(
-            contextManagerExtendService
-            , "ignoreSuffixPatternsWatcher",
-            new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", contextManagerExtendService)
-        );
+        contextManagerExtendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
     }
 
     @Test
