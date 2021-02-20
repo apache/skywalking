@@ -44,7 +44,7 @@
     </modules>
 
     <properties>
-        <sw.version></sw.version> <!-- Please manually set the SkyWalking version here to build in the IDE, but make sure not to check it into the code base / git -->
+        <sw.version></sw.version> <!-- Please manually set the SkyWalking version here to build in the IDE (if you build from command line, just use ./mvnw -Dsw.version=xxx), but make sure not to check it into the code base / git -->
 
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
