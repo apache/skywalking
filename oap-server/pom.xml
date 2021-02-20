@@ -101,6 +101,7 @@
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
+        <postgresql.version>42.2.18</postgresql.version>
     </properties>
 
     <dependencies>
@@ -560,6 +561,12 @@
                 <groupId>com.google.flatbuffers</groupId>
                 <artifactId>flatbuffers-java</artifactId>
                 <version>${flatbuffers-java.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
