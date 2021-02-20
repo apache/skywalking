@@ -36,6 +36,7 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
         super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
     }
 
+    @Override
     protected String transform(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
         if (Integer.class.equals(type) || int.class.equals(type) || NodeType.class.equals(type)) {
