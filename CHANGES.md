@@ -22,7 +22,8 @@ Release Notes.
 * Support Zabbix protocol to receive agent metrics.
 * Update the Apdex metric combine calculator.
 * Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
-* Fix kubernetes.client.opeanapi.ApiException .
+* Storage plugin supports postgresql.
+* Fix kubernetes.client.opeanapi.ApiException.
 
 #### UI
 * Update selector scroller to show in all pages.

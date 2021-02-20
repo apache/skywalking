@@ -49,15 +49,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
                                             final String valueColumnName,
                                             final Duration duration,
                                             List<KeyValue> additionalConditions) throws IOException {
-        StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
-        sql.append("select * from (select avg(")
-           .append(valueColumnName)
-           .append(") value,")
-           .append(Metrics.ENTITY_ID)
-           .append(" from ")
-           .append(metrics.getName())
-           .append(" where ");
+        StringBuilder sql = buildMetricsValueSql(valueColumnName, metrics.getName());
         sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
         conditions.add(duration.getStartTimeBucket());
         conditions.add(duration.getEndTimeBucket());
@@ -86,5 +79,17 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             throw new IOException(e);
         }
         return topNEntities;
+    }
+
+    protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select * from (select avg(")
+                .append(valueColumnName)
+                .append(") value,")
+                .append(Metrics.ENTITY_ID)
+                .append(" from ")
+                .append(metricsName)
+                .append(" where ");
+        return sql;
     }
 }
