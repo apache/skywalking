@@ -25,11 +25,15 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 public class SamplingRateWatcherTest {
+
     private SamplingService samplingService = new SamplingService();
 
     @Before
     public void setUp() {
-        samplingService.prepare();
+        Whitebox.setInternalState(
+            samplingService, "samplingRateWatcher",
+            new SamplingRateWatcher("agent.sample_n_per_3_secs", samplingService)
+        );
     }
 
     @Test

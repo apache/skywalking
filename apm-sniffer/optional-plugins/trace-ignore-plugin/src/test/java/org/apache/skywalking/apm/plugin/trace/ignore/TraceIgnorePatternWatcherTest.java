@@ -25,11 +25,16 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 public class TraceIgnorePatternWatcherTest {
+
     private TraceIgnoreExtendService traceIgnoreExtendService = new TraceIgnoreExtendService();
 
     @Before
     public void setUp() {
-        traceIgnoreExtendService.prepare();
+        Whitebox.setInternalState(
+            traceIgnoreExtendService
+            , "traceIgnorePatternWatcher",
+            new TraceIgnorePatternWatcher("agent.trace.ignore_path", traceIgnoreExtendService)
+        );
     }
 
     @Test
