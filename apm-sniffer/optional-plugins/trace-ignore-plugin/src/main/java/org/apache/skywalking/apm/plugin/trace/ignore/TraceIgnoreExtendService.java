@@ -41,7 +41,6 @@ public class TraceIgnoreExtendService extends SamplingService {
     @Override
     public void prepare() {
         super.prepare();
-        traceIgnorePatternWatcher = new TraceIgnorePatternWatcher("agent.trace.ignore_path", this);
     }
 
     @Override
@@ -53,6 +52,7 @@ public class TraceIgnoreExtendService extends SamplingService {
             patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
         }
 
+        traceIgnorePatternWatcher = new TraceIgnorePatternWatcher("agent.trace.ignore_path", this);
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                .registerAgentConfigChangeWatcher(traceIgnorePatternWatcher);
 
