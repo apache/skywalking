@@ -132,6 +132,9 @@ jobs:
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
 
+          ./mvnw -DskipTests -N install
+          ./mvnw -f apm-application-toolkit -DskipTests -am install
+
           ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.ALSE2E
 
       - name: Logs
@@ -245,6 +248,9 @@ jobs:
           export GATEWAY_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
           export WEBAPP_HOST=127.0.0.1
           export WEBAPP_PORT=8080
+
+          ./mvnw -DskipTests -N install
+          ./mvnw -f apm-application-toolkit -DskipTests -am install
 
           ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.mesh.MetricsServiceE2E
 

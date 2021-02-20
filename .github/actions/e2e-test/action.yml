@@ -53,6 +53,11 @@ runs:
     - name: Run E2E Test
       shell: bash
       run: |
+        echo "::group::Install SNAPSHOT apm-application-toolkit"
+        ./mvnw -DskipTests -N install
+        ./mvnw -f apm-application-toolkit -DskipTests -am install
+        echo "::endgroup::"
+
         echo "::group::Run E2E Test ${{ inputs.test_class }}"
         ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=${{ inputs.test_class }}
         echo "::endgroup::"
