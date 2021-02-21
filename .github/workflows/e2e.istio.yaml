@@ -73,7 +73,7 @@ jobs:
         if: env.SKIP_CI != 'true'
         run: make docker
 
-      - name: Prepare envrionment
+      - name: Prepare environment
         if: env.SKIP_CI != 'true'
         run: bash ${SCRIPTS_DIR}/pre.sh
 
@@ -203,7 +203,7 @@ jobs:
         if: env.SKIP_CI != 'true'
         run: make docker
 
-      - name: Prepare envrionment
+      - name: Prepare environment
         if: env.SKIP_CI != 'true'
         run: bash ${SCRIPTS_DIR}/pre.sh
 

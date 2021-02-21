@@ -17,13 +17,13 @@
 # limitations under the License.
 
 WORK_DIRECTORY=$1
-RESPOSITORY=$2
+REPOSITORY=$2
 COMMIT_ID=$3
 DIST_DIRECTORY=$4
 
 ROOT_DIR="$(cd "$(dirname $0)"; pwd)"
 
-git clone $RESPOSITORY $WORK_DIRECTORY
+git clone $REPOSITORY $WORK_DIRECTORY
 
 cd $WORK_DIRECTORY
 

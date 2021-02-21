@@ -150,7 +150,7 @@ miss any newly-added dependency:
 
 ## Profile
 The performance profile is an enhancement feature in the APM system. We are using the thread dump to estimate the method execution time, rather than adding many local spans. In this way, the resource cost would be much less than using distributed tracing to locate slow method. This feature is suitable in the production environment. The following documents are important for developers to understand the key parts of this feature
-- [Profile data report procotol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided like other trace, JVM data through gRPC.
+- [Profile data report protocol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided like other trace, JVM data through gRPC.
 - [Thread dump merging mechanism](backend-profile.md) introduces the merging mechanism, which helps the end users to understand the profile report.
 - [Exporter tool of profile raw data](backend-profile-export.md) introduces when the visualization doesn't work well through the official UI, how to package the original profile data, which helps the users report the issue.
 
