@@ -48,6 +48,17 @@ jobs:
         with:
           submodules: true
 
+      - name: Check Unintended Changes
+        run: |
+          echo "::group::Check sw.version"
+          sudo apt install -y -q xmlstarlet
+          SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
+          if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
+            echo "::error Please don't submitt the change of sw.version in test/e2e/pom.xml"
+            exit 1
+          fi
+          echo "::endgroup::"
+
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
 
@@ -166,6 +177,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+
+      - name: Check Unintended Changes
+        run: |
+          echo "::group::Check sw.version"
+          sudo apt install -y -q xmlstarlet
+          SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
+          if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
+            echo "Please don't submitt the change of sw.version in test/e2e/pom.xml"
+            exit 1
+          fi
+          echo "::endgroup::"
 
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
