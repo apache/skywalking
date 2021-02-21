@@ -14,6 +14,7 @@ Release Notes.
 * Fix ClassCastException of log4j gRPC reporter.
 * Fix NPE when Kafka reporter activated.
 * Enhance gRPC log appender to allow layout pattern.
+* Fix agent get hostname is unknown if no DNS resolve hostname.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.

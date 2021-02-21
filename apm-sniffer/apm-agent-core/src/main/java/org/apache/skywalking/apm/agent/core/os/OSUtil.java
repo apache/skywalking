@@ -50,7 +50,7 @@ public class OSUtil {
                 HOST_NAME = host.getHostName();
             } catch (UnknownHostException e) {
                 HOST_NAME = "unknown";
-                String host = uhe.getMessage();
+                String host = e.getMessage();
                 if (host != null) {
                     int colon = host.indexOf(':');
                     if (colon > 0) {
