@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.log;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
+import ch.qos.logback.core.OutputStreamAppender;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -38,14 +39,13 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.apache.skywalking.apm.toolkit.logging.common.log.ToolkitConfig;
 
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
     private LogReportServiceClient client;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
@@ -57,7 +57,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
         }
         ILoggingEvent event = (ILoggingEvent) allArguments[0];
         if (Objects.nonNull(event)) {
-            client.produce(transform(event));
+            client.produce(transform((OutputStreamAppender<ILoggingEvent>) objInst, event));
         }
     }
 
@@ -76,10 +76,11 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
     /**
      * transforms {@link ILoggingEvent}  to {@link LogData}
      *
+     * @param appender the real {@link OutputStreamAppender appender}
      * @param event {@link ILoggingEvent}
      * @return {@link LogData} with filtered trace context in order to reduce the cost on the network
      */
-    private LogData transform(ILoggingEvent event) {
+    private LogData transform(final OutputStreamAppender<ILoggingEvent> appender, ILoggingEvent event) {
         LogTags.Builder logTags = LogTags.newBuilder()
                 .addData(KeyStringValuePair.newBuilder()
                         .setKey("level").setValue(event.getLevel().toString()).build())
@@ -110,7 +111,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                 .setServiceInstance(Config.Agent.INSTANCE_NAME)
                 .setTags(logTags.build())
                 .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
-                                    .setText(TextLog.newBuilder().setText(transformLogText(event)).build()).build());
+                                    .setText(TextLog.newBuilder().setText(transformLogText(appender, event)).build()).build());
         return -1 == ContextManager.getSpanId() ? builder.build()
                 : builder.setTraceContext(TraceContext.newBuilder()
                         .setTraceId(ContextManager.getGlobalTraceId())
@@ -119,18 +120,9 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                         .build()).build();
     }
 
-    private String transformLogText(final ILoggingEvent event) {
-        final IThrowableProxy throwableProxy = event.getThrowableProxy();
-        if (!(throwableProxy instanceof ThrowableProxy)) {
-            if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
-                return event.getFormattedMessage();
-            } else {
-                return event.getMessage();
-            }
-        }
+    private String transformLogText(final OutputStreamAppender<ILoggingEvent> appender, final ILoggingEvent event) {
         if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
-            final Throwable throwable = ((ThrowableProxy) throwableProxy).getThrowable();
-            return event.getFormattedMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(throwable, 2048);
+            return new String(appender.getEncoder().encode(event));
         } else {
             return event.getMessage();
         }

@@ -19,9 +19,18 @@
 package org.apache.skywalking.apm.toolkit.log.log4j.v1.x.log;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class GRPCLogClientAppender extends AppenderSkeleton {
+
+    public GRPCLogClientAppender() {
+    }
+
+    public GRPCLogClientAppender(Layout layout) {
+        this.setLayout(layout);
+    }
+
     @Override
     protected void append(LoggingEvent loggingEvent) {
 
@@ -34,6 +43,6 @@ public class GRPCLogClientAppender extends AppenderSkeleton {
 
     @Override
     public boolean requiresLayout() {
-        return false;
+        return true;
     }
 }
