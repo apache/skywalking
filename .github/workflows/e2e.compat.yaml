@@ -22,8 +22,8 @@ on:
     - cron: '0 18 * * *'
 
 jobs:
-  Compatability:
-    name: Compatability
+  Compatibility:
+    name: Compatibility
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:

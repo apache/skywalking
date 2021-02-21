@@ -64,7 +64,7 @@ jobs:
 
           export TAG=${{ matrix.es }}
           cd ${DOCKER_DIR} && docker-compose up -d
-      - name: Check port avaliable
+      - name: Check port available
         run: |
           source ./test/scripts/env.sh
           echo "Waiting for OAP ready"
