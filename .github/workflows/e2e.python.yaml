@@ -51,8 +51,3 @@ jobs:
         uses: ./.github/actions/e2e-test
         with:
           test_class: org.apache.skywalking.e2e.PythonE2E
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
