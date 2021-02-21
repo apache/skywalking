@@ -29,6 +29,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Check Unintended Changes
+      shell: bash
+      run: |
+        echo "::group::Check sw.version"
+        sudo apt install -y -q xmlstarlet
+        SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
+        if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
+          echo "Please don't submit the change of sw.version in test/e2e/pom.xml"
+          exit 1
+        fi
+        echo "::endgroup::"
     - name: Check License
       shell: bash
       run: |

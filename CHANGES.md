@@ -13,6 +13,7 @@ Release Notes.
 * Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur.
 * Fix ClassCastException of log4j gRPC reporter.
 * Fix NPE when Kafka reporter activated.
+* Enhance gRPC log appender to allow layout pattern.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.

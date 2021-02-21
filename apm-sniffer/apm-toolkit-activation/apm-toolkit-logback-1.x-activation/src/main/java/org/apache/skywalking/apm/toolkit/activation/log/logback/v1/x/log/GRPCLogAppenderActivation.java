@@ -39,7 +39,7 @@ public class GRPCLogAppenderActivation extends ClassInstanceMethodsEnhancePlugin
             "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.log.GRPCLogAppenderInterceptor";
     public static final String ENHANCE_CLASS =
             "org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender";
-    public static final String ENHANCE_METHOD = "append";
+    public static final String ENHANCE_METHOD = "subAppend";
 
     @Override
     protected ClassMatch enhanceClass() {
