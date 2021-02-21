@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// import ClientMonitor from '../node_modules/skywalking-client-js/src/index';
 import ClientMonitor from 'skywalking-client-js';
 import Vue from 'vue';
 
@@ -28,22 +27,7 @@ ClientMonitor.register({
 
 // vue error
 new Vue({
-    data: {
-        name: "chen",
-        age: 18,
-        message: "--------------------------------",
-        src3: "https://pic.xiaohuochai.site/blog/chromePerformance2_error.png",
-        src4: "",
-    },
     methods: {
-        async click() {
-            this.name = 'click'
-            await timeout();
-        },
-        async click1() {
-            this.name = 'click1'
-            throw {msg: 'async function error', status: 1000};
-        },
         test() {
             throw {
                 msg: 'vue error',
@@ -52,7 +36,6 @@ new Vue({
         }
     },
     created() {
-        this.click1();
         this.test();
     }
 })

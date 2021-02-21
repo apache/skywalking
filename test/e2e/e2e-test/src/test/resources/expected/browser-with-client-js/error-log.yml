@@ -18,5 +18,6 @@ logs:
     serviceVersion: "v1.0.0"
     time: not null
     pagePath: "index.html"
+    grade: not null
     category: not null
     message: not null
