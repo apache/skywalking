@@ -12,6 +12,7 @@ Release Notes.
 * Remove invalid mysql configuration in agent.config.
 * Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur.
 * Fix ClassCastException of log4j gRPC reporter.
+* Fix NPE when Kafka reporter activated.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -22,6 +23,9 @@ Release Notes.
 * Support Zabbix protocol to receive agent metrics.
 * Update the Apdex metric combine calculator.
 * Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
+* Storage plugin supports postgresql.
+* Fix kubernetes.client.opeanapi.ApiException.
+* Remove filename suffix in the meter active file config.
 
 #### UI
 * Update selector scroller to show in all pages.

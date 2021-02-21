@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,20 +33,25 @@ public class IgnoreSuffixPatternsWatcherTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private ContextManagerExtendService contextManagerExtendService = new ContextManagerExtendService();
+    private ContextManagerExtendService contextManagerExtendService;
 
     @Before
     public void setUp() {
-        contextManagerExtendService.prepare();
+        contextManagerExtendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
     public void testConfigModifyEvent() {
         IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher = Whitebox.getInternalState(contextManagerExtendService
-                , "ignoreSuffixPatternsWatcher");
+            , "ignoreSuffixPatternsWatcher");
         ignoreSuffixPatternsWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
-                ".txt,.log",
-                AgentConfigChangeWatcher.EventType.MODIFY
+            ".txt,.log",
+            AgentConfigChangeWatcher.EventType.MODIFY
         ));
         Assert.assertEquals(".txt,.log", ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns());
         Assert.assertEquals("agent.ignore_suffix", ignoreSuffixPatternsWatcher.getPropertyKey());
@@ -53,10 +60,10 @@ public class IgnoreSuffixPatternsWatcherTest {
     @Test
     public void testConfigDeleteEvent() {
         IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher = Whitebox.getInternalState(contextManagerExtendService
-                , "ignoreSuffixPatternsWatcher");
+            , "ignoreSuffixPatternsWatcher");
         ignoreSuffixPatternsWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
-                null,
-                AgentConfigChangeWatcher.EventType.DELETE
+            null,
+            AgentConfigChangeWatcher.EventType.DELETE
         ));
         Assert.assertEquals("agent.ignore_suffix", ignoreSuffixPatternsWatcher.getPropertyKey());
     }
