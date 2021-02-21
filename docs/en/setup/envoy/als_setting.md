@@ -86,3 +86,4 @@ The [blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-s
 this analyzer requires Istio to enable the metadata exchange plugin (you can enable it by `--set values.telemetry.v2.enabled=true`,
 or if you're using Istio 1.7+ and installing it with profile `demo`/`preview`, it should be enabled then).
 
+The [blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-als/) illustrates the detail of how it works, and a step-by-step tutorial to apply it into the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo) system.
