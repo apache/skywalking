@@ -58,6 +58,11 @@ The e2e test involves some/all of the OAP server, storage, coordinator, webapp, 
 besides, there is a test controller(JUnit test) running outside of the container that sends traffics to the instrumented service,
 and then verifies the corresponding results after those requests, by GraphQL API of the SkyWalking Web App.
 
+Before all following steps, please set the SkyWalking version `sw.version` in the [pom.xml](../../../test/e2e/pom.xml)
+so that you can build it in your local IDE, but please make sure not to check this change into the codebase. However, if
+you prefer to build it in command line interface with `./mvnw`, you can simply use property `-Dsw.version=x.y.z` without
+modifying the pom.xml.
+
 #### Writing E2E Cases
 
 - Set up environment in IntelliJ IDEA
