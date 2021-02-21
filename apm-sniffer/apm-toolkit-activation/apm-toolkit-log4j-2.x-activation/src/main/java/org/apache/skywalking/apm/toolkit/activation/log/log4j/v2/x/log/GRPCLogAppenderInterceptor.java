@@ -21,8 +21,8 @@ package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.log;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -54,7 +54,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
         }
         LogEvent event = (LogEvent) allArguments[0];
         if (Objects.nonNull(event)) {
-            client.produce(transform(event));
+            client.produce(transform((AbstractAppender) objInst, event));
         }
     }
 
@@ -73,10 +73,12 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
     /**
      * transforms {@link LogEvent}  to {@link LogData}
      *
+     *
+     * @param appender the real {@link AbstractAppender appender}
      * @param event {@link LogEvent}
      * @return {@link LogData} with filtered trace context in order to reduce the cost on the network
      */
-    private LogData transform(LogEvent event) {
+    private LogData transform(final AbstractAppender appender, LogEvent event) {
         LogTags.Builder logTags = LogTags.newBuilder()
                 .addData(KeyStringValuePair.newBuilder()
                         .setKey("level").setValue(event.getLevel().toString()).build())
@@ -105,7 +107,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                 .setServiceInstance(Config.Agent.INSTANCE_NAME)
                 .setTags(logTags.build())
                 .setBody(LogDataBody.newBuilder().setType(LogDataBody.ContentCase.TEXT.name())
-                        .setText(TextLog.newBuilder().setText(transformLogText(event)).build()).build());
+                        .setText(TextLog.newBuilder().setText(transformLogText(appender, event)).build()).build());
         return -1 == ContextManager.getSpanId() ? builder.build()
                 : builder.setTraceContext(TraceContext.newBuilder()
                 .setTraceId(ContextManager.getGlobalTraceId())
@@ -114,8 +116,11 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
                 .build()).build();
     }
 
-    private String transformLogText(final LogEvent event) {
+    private String transformLogText(final AbstractAppender appender, final LogEvent event) {
         if (ToolkitConfig.Plugin.Toolkit.Log.TRANSMIT_FORMATTED) {
+            if (appender.getLayout() != null) {
+                return new String(appender.getLayout().toByteArray(event));
+            }
             return event.getMessage().getFormattedMessage() + "\n" + ThrowableTransformer.INSTANCE.convert2String(event.getThrown(), 2048);
         } else {
             return event.getMessage().getFormat();
