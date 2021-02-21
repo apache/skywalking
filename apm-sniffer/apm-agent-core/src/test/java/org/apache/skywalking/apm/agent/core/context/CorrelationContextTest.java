@@ -18,19 +18,36 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class CorrelationContextTest {
+    private static final String CORRELATION_TAG_KEY = "correlation_tag";
 
-    @Before
-    public void setupConfig() {
+    @BeforeClass
+    public static void setupConfig() {
+        Config.Agent.SAMPLE_N_PER_3_SECS = 1;
+        Config.Agent.KEEP_TRACING = true;
         Config.Correlation.ELEMENT_MAX_NUMBER = 2;
         Config.Correlation.VALUE_MAX_LENGTH = 8;
+        ServiceManager.INSTANCE.boot();
+    }
+
+    @AfterClass
+    public static void closeService() {
+        Config.Agent.KEEP_TRACING = false;
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
@@ -66,6 +83,28 @@ public class CorrelationContextTest {
         previous = context.put(null, "123456789");
         Assert.assertNotNull(previous);
         Assert.assertFalse(previous.isPresent());
+    }
+
+    @Test
+    public void testAutoTagKeys() {
+        Whitebox.setInternalState(CorrelationContext.class, "AUTO_TAG_KEYS", Arrays.asList(CORRELATION_TAG_KEY));
+        AbstractSpan currentSpan = ContextManager.createLocalSpan("test");
+
+        // setting
+        ContextManager.getCorrelationContext().put("test_key", "1");
+        ContextManager.getCorrelationContext().put(CORRELATION_TAG_KEY, "value1");
+        List<TagValuePair> tags = Whitebox.getInternalState(currentSpan, "tags");
+        Assert.assertEquals(1, tags.size());
+        Assert.assertEquals(CORRELATION_TAG_KEY, tags.get(0).getKey().key());
+        Assert.assertEquals("value1", tags.get(0).getValue());
+
+        // update
+        ContextManager.getCorrelationContext().put(CORRELATION_TAG_KEY, "value2");
+        Assert.assertEquals(1, tags.size());
+        Assert.assertEquals(CORRELATION_TAG_KEY, tags.get(0).getKey().key());
+        Assert.assertEquals("value2", tags.get(0).getValue());
+
+        ContextManager.stopSpan();
     }
 
     @Test

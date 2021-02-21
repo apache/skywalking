@@ -78,6 +78,11 @@ public class CorrelationContext {
         // already contain key
         if (data.containsKey(key)) {
             final String previousValue = data.put(key, value);
+
+            // update tag if need
+            if (AUTO_TAG_KEYS.contains(key) && ContextManager.isActive()) {
+                ContextManager.activeSpan().tag(new StringTag(-1, key, true), value);
+            }
             return Optional.of(previousValue);
         }
 
@@ -86,7 +91,7 @@ public class CorrelationContext {
             return Optional.empty();
         }
         if (AUTO_TAG_KEYS.contains(key) && ContextManager.isActive()) {
-            ContextManager.activeSpan().tag(new StringTag(key), value);
+            ContextManager.activeSpan().tag(new StringTag(-1, key, true), value);
         }
         // setting
         data.put(key, value);
