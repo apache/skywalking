@@ -13,6 +13,7 @@ Native supported storage
 - MySQL
 - TiDB
 - InfluxDB
+- PostgreSQL
 
 Redistribution version with supported storage.
 - ElasticSearch 5
@@ -264,6 +265,29 @@ storage:
     fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 ```
 All connection related settings including link url, username and password are in `application.yml`. The Metadata storage provider settings can refer to the configuration of **H2/MySQL** above.
+
+## PostgreSQL
+PostgreSQL jdbc driver uses version 42.2.18, it supports PostgreSQL 8.2 or newer.
+Active PostgreSQL as storage, set storage provider to **postgresql**. 
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:postgresql}
+  postgresql:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:postgres}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:123456}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
+```
+All connection related settings including link url, username and password are in `application.yml`. 
+Here are some of the settings, please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for all the settings.
 
 ## ElasticSearch 5
 ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.

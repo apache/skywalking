@@ -16,27 +16,32 @@
 version: '2.1'
 
 services:
-  oap:
+  postgres:
+    image: postgres:13
+    networks:
+      - e2e
+    expose:
+      - 5432
     environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=skywalking
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5432"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
     extends:
       file: ../base-compose.yml
       service: oap
-
-  ui:
-    extends:
-      file: ../base-compose.yml
-      service: ui
+    environment:
+      SW_STORAGE: postgresql
+      SW_PROMETHEUS_FETCHER: "default"
+      SW_JDBC_URL: "jdbc:postgresql://postgres:5432/skywalking"
+      SW_TELEMETRY: prometheus
     depends_on:
-      oap:
-        condition: service_healthy
-
-  provider:
-    extends:
-      file: ../base-compose.yml
-      service: provider
-    depends_on:
-      oap:
+      postgres:
         condition: service_healthy
 
 networks:

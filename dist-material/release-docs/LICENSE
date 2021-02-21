@@ -392,6 +392,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     proto files from gogo: https://github.com/gogo/protobuf  BSD-2
     proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
     zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
+    postgresql 42.2.18: https://jdbc.postgresql.org/about/license.html, BSD-2-Clause
 
 ========================================================================
 MPL 2.0 licenses

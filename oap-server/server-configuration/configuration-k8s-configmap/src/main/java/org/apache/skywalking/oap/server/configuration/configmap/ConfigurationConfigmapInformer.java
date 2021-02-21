@@ -22,6 +22,7 @@ import io.kubernetes.client.informer.SharedIndexInformer;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.informer.cache.Lister;
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
@@ -67,6 +68,7 @@ public class ConfigurationConfigmapInformer {
     private void doStartConfigMapInformer(final ConfigmapConfigurationSettings settings) throws IOException {
         ApiClient apiClient = Config.defaultClient();
         apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
+        Configuration.setDefaultApiClient(apiClient);
         CoreV1Api coreV1Api = new CoreV1Api(apiClient);
         factory = new SharedInformerFactory(executorService);
 

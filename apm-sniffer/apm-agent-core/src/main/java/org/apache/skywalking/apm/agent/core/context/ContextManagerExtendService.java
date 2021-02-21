@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.Arrays;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -29,13 +30,11 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.Arrays;
-
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
-    
+
     private volatile String[] ignoreSuffixArray = new String[0];
-    
+
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     private IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher;
@@ -43,14 +42,14 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
     @Override
     public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
-        ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
     }
 
     @Override
     public void boot() {
         ignoreSuffixArray = Config.Agent.IGNORE_SUFFIX.split(",");
+        ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
-                .registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
+                               .registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
         handleIgnoreSuffixPatternsChanged();
     }
 
@@ -74,7 +73,8 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         }
 
         int suffixIdx = operationName.lastIndexOf(".");
-        if (suffixIdx > -1 && Arrays.stream(ignoreSuffixArray).anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
+        if (suffixIdx > -1 && Arrays.stream(ignoreSuffixArray)
+                                    .anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
