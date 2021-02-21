@@ -25,6 +25,7 @@ Release Notes.
 * Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
 * Storage plugin supports postgresql.
 * Fix kubernetes.client.opeanapi.ApiException.
+* Remove filename suffix in the meter active file config.
 
 #### UI
 * Update selector scroller to show in all pages.
