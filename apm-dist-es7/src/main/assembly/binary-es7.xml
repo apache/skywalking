@@ -40,7 +40,13 @@
             <includes>
                 <include>log4j2.xml</include>
                 <include>alarm-settings.yml</include>
-                <include>alarm-settings-sample.yml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../dist-material</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>config-examples/*</include>
             </includes>
         </fileSet>
         <fileSet>

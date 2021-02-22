@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ import org.yaml.snakeyaml.Yaml;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.io.Files.getNameWithoutExtension;
 import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
-import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
+import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isEmpty;
 
 @Data
 @Slf4j
@@ -44,8 +45,11 @@ public class LALConfigs {
     private List<LALConfig> rules;
 
     public static List<LALConfigs> load(final String path, final List<String> files) throws Exception {
+        if (isEmpty(files)) {
+            return Collections.emptyList();
+        }
+
         checkArgument(isNotBlank(path), "path cannot be blank");
-        checkArgument(isNotEmpty(files), "files cannot be empty");
 
         try {
             final File[] rules = ResourceUtils.getPathFiles(path);

@@ -29,6 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 
+# Example config file of path: config/log-mal-rules/config.yaml
 expSuffix: instance(['service'], ['instance'])
 metricPrefix: log
 metricsRules:
