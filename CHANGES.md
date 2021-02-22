@@ -27,6 +27,7 @@ Release Notes.
 * Storage plugin supports postgresql.
 * Fix kubernetes.client.opeanapi.ApiException.
 * Remove filename suffix in the meter active file config.
+* Introduce log analysis language (LAL).
 
 #### UI
 * Update selector scroller to show in all pages.
