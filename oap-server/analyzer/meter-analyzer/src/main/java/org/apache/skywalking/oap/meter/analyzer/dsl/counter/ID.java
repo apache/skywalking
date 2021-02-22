@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -30,5 +30,5 @@ class ID {
 
     private final String name;
 
-    private final Map<String, String> labels;
+    private final ImmutableMap<String, String> labels;
 }

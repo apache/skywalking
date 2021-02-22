@@ -405,7 +405,7 @@ public class SampleFamily {
         return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
 
-    private Sample newSample(Map<String, String> labels, long timestamp, double newValue) {
+    private Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
         return Sample.builder()
             .value(newValue)
             .labels(labels)

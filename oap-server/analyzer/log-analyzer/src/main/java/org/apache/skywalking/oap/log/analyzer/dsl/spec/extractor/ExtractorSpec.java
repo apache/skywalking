@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
@@ -140,7 +141,7 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void metrics(final Closure<Void> cl) {
-        final Sample.SampleBuilder builder = Sample.builder();
+        final SampleBuilder builder = new SampleBuilder();
         cl.setDelegate(builder);
         cl.call();
 
@@ -151,5 +152,19 @@ public class ExtractorSpec extends AbstractSpec {
                 .put(sample.getName(), SampleFamilyBuilder.newBuilder(sample).build())
                 .build()
         ));
+    }
+
+    public static class SampleBuilder {
+        @Delegate
+        private final Sample.SampleBuilder sampleBuilder = Sample.builder();
+
+        @SuppressWarnings("unused")
+        public Sample.SampleBuilder labels(final Map<String, String> labels) {
+            final Map<String, String> filtered = labels.entrySet()
+                                                       .stream()
+                                                       .filter(it -> isNotBlank(it.getKey()) && isNotBlank(it.getValue()))
+                                                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return sampleBuilder.labels(ImmutableMap.copyOf(filtered));
+        }
     }
 }

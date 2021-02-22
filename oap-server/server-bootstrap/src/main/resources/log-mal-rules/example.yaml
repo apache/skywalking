@@ -33,4 +33,4 @@ expSuffix: instance(['service'], ['instance'])
 metricPrefix: log
 metricsRules:
   - name: count_debug
-    exp: log_count.tagEqual('level', 'DEBUG').sum(['service', 'instance'])
+    exp: log_count.tagEqual('level', 'INFO').sum(['service', 'instance']).increase('PT1M')

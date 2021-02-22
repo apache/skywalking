@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +28,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 @Accessors(fluent = true)
 @EqualsAndHashCode(of = {"qps"})
@@ -36,18 +39,21 @@ public class RateLimitingSampler implements Sampler {
 
     private final AtomicInteger factor = new AtomicInteger();
 
-    private ScheduledFuture<?> future;
+    private final ResetHandler resetHandler;
+
+    public RateLimitingSampler(final ResetHandler resetHandler) {
+        this.resetHandler = resetHandler;
+    }
 
     @Override
     public RateLimitingSampler start() {
-        future = Executors.newSingleThreadScheduledExecutor()
-                          .scheduleAtFixedRate(this::reset, 1, 1, TimeUnit.SECONDS);
+        resetHandler.start(this);
         return this;
     }
 
     @Override
     public void close() {
-        future.cancel(true);
+        resetHandler.close(this);
     }
 
     @Override
@@ -61,4 +67,41 @@ public class RateLimitingSampler implements Sampler {
         return this;
     }
 
+    @Slf4j
+    public static class ResetHandler {
+        private final Set<Sampler> samplers = new HashSet<>();
+
+        private volatile ScheduledFuture<?> future;
+
+        private volatile boolean started = false;
+
+        private synchronized void start(final Sampler sampler) {
+            samplers.add(sampler);
+
+            if (!started) {
+                future = Executors.newSingleThreadScheduledExecutor()
+                                  .scheduleAtFixedRate(this::reset, 1, 1, TimeUnit.SECONDS);
+                started = true;
+            }
+        }
+
+        private synchronized void close(final Sampler sampler) {
+            samplers.remove(sampler);
+
+            if (samplers.isEmpty() && future != null) {
+                future.cancel(true);
+                started = false;
+            }
+        }
+
+        private synchronized void reset() {
+            samplers.forEach(sampler -> {
+                try {
+                    sampler.reset();
+                } catch (final Exception e) {
+                    log.error("Failed to reset sampler {}.", sampler, e);
+                }
+            });
+        }
+    }
 }

@@ -59,6 +59,8 @@
                 <include>zabbix-rules/*.yaml</include>
                 <include>otel-oc-rules/*</include>
                 <include>ui-initialized-templates/*</include>
+                <include>lal/*</include>
+                <include>log-mal-rules/*</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>

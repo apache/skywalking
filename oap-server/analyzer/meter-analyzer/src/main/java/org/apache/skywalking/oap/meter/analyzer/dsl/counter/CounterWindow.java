@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -43,7 +44,7 @@ public class CounterWindow {
 
     private final Map<ID, Queue<Tuple2<Long, Double>>> windows = Maps.newHashMap();
 
-    public Tuple2<Long, Double> increase(String name, Map<String, String> labels, Double value, long windowSize, long now) {
+    public Tuple2<Long, Double> increase(String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
         ID id = new ID(name, labels);
         if (!windows.containsKey(id)) {
             windows.put(id, new LinkedList<>());

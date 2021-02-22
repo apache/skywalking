@@ -13,7 +13,7 @@ activate specific LAL config files.
 A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Users can use one or more filters
 to organize their processing logics. Every piece of log will be sent to all filters in an LAL rule. The piece of log
 sent into the filter is available as property `log` in the LAL, therefore you can access the log service name
-via `log.service`.
+via `log.service`, for all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
 
 ### Parser
 

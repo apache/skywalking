@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.collect.ImmutableMap;
 import io.vavr.Function2;
 import io.vavr.Tuple2;
 import java.time.Duration;
-import java.util.Map;
 import java.util.function.Function;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow;
 @Getter
 public class Sample {
     final String name;
-    final Map<String, String> labels;
+    final ImmutableMap<String, String> labels;
     final double value;
     final long timestamp;
 

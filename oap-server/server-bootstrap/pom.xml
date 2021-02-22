@@ -283,6 +283,8 @@
                         <exclude>otel-oc-rules/</exclude>
                         <exclude>ui-initialized-templates/</exclude>
                         <exclude>zabbix-rules/</exclude>
+                        <exclude>lal/</exclude>
+                        <exclude>log-mal-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

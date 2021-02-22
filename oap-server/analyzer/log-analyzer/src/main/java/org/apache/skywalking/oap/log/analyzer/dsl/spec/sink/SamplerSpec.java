@@ -34,17 +34,19 @@ public class SamplerSpec extends AbstractSpec {
     private static final Logger LOGGER = LoggerFactory.getLogger(SamplerSpec.class);
 
     private final Map<String, Sampler> samplers;
+    private final RateLimitingSampler.ResetHandler rlsResetHandler;
 
     public SamplerSpec(final ModuleManager moduleManager,
                        final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
 
         samplers = new ConcurrentHashMap<>();
+        rlsResetHandler = new RateLimitingSampler.ResetHandler();
     }
 
     @SuppressWarnings("unused")
     public void rateLimit(final String id, final Closure<Void> cl) {
-        final RateLimitingSampler newSampler = new RateLimitingSampler();
+        final RateLimitingSampler newSampler = new RateLimitingSampler(rlsResetHandler);
         cl.setDelegate(newSampler);
         cl.call();
 

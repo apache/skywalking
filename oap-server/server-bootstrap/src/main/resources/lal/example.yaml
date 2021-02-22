@@ -18,11 +18,12 @@ rules:
     dsl: |
       filter {
         text {
-          regexp $/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)\] \[(?<thread>.+?)\] (?<level>\w{4,5}) +(?<logger>.{1,36}) (?<msg>.+)/$
+          regexp $/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)] \[(?<thread>.+?)] (?<level>\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$
         }
         extractor {
           metrics {
             timestamp log.timestamp
+            labels level: parsed.level, service: log.service, instance: log.serviceInstance
             name "log_count"
             value 1
           }
@@ -31,11 +32,11 @@ rules:
           sampler {
             if (log.service == "ImportantApp") {
               rateLimit("ImportantAppSampler") {
-                qps 30
+                qps 300
               }
             } else {
               rateLimit("OtherSampler") {
-                qps 3
+                qps 30
               }
             }
           }
