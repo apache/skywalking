@@ -35,7 +35,7 @@ filter {
         abort {} // all remaining components won't be executed at all
     }
     text {
-        if (!regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)") {
+        if (!regexp("(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)")) {
             // if the logs don't match this regexp, skip it
             abort {}
         }
@@ -43,6 +43,9 @@ filter {
     // ... extractors, sinks
 }
 ```
+
+Note that when you put `regexp` in an `if` statement, you need to surround the expression with `()`
+like `regexp(<the expression>)`, instead of `regexp <the expression>`.
 
 ### Parser
 
