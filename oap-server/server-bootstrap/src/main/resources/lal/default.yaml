@@ -13,4 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Refer to examples in config-examples/lal.yaml
+# The default LAL script to save all logs, behaving like the versions before 8.5.0.
+rules:
+  - name: default
+    dsl: |
+      filter {
+        sink {
+        }
+      }
