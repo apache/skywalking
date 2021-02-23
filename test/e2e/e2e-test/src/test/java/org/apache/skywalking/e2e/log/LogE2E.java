@@ -25,13 +25,15 @@ import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
+import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
+import org.apache.skywalking.e2e.metrics.ReadMetrics;
+import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
-import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
-import org.apache.skywalking.e2e.service.endpoint.Endpoints;
-import org.apache.skywalking.e2e.service.endpoint.EndpointsMatcher;
+import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
@@ -136,12 +138,26 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
         LOGGER.info("instances: {}", instances);
         load("expected/log/instances.yml").as(InstancesMatcher.class).verify(instances);
+
+        verifyInstanceMetrics(service, instances);
     }
 
-    private void verifyServiceEndpoints(final Service service) throws Exception {
-        final Endpoints endpoints = graphql.endpoints(new EndpointQuery().serviceId(service.getKey()));
-        LOGGER.info("endpoints: {}", endpoints);
+    private void verifyInstanceMetrics(final Service service, final Instances instances) throws Exception {
+        for (Instance instance : instances.getInstances()) {
+            final String metricsName = "log_count_info";
+            LOGGER.info("verifying service instance response time: {}", instance);
+            final ReadMetrics instanceMetrics = graphql.readMetrics(
+                new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                                      .serviceName(service.getLabel()).instanceName(instance.getLabel())
+            );
 
-        load("expected/log/endpoints.yml").as(EndpointsMatcher.class).verify(endpoints);
+            LOGGER.info("{}: {}", metricsName, instanceMetrics);
+            final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+            final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+            greaterThanZero.setValue("gt 0");
+            instanceRespTimeMatcher.setValue(greaterThanZero);
+            instanceRespTimeMatcher.verify(instanceMetrics.getValues());
+        }
     }
+
 }

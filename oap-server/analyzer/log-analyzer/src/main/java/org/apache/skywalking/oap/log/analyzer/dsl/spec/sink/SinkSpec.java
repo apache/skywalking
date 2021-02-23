@@ -36,17 +36,26 @@ public class SinkSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void sampler(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         cl.setDelegate(sampler);
         cl.call();
     }
 
     @SuppressWarnings("unused")
     public void enforcer(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         BINDING.get().save();
     }
 
     @SuppressWarnings("unused")
     public void dropper(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         BINDING.get().drop();
     }
 }

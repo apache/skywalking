@@ -34,6 +34,8 @@ public class Binding extends groovy.lang.Binding {
 
     public static final String KEY_SAVE = "save";
 
+    public static final String KEY_ABORT = "abort";
+
     public Binding() {
         setProperty(KEY_PARSED, new Parsed());
     }
@@ -41,6 +43,7 @@ public class Binding extends groovy.lang.Binding {
     public Binding log(final LogData.Builder log) {
         setProperty(KEY_LOG, log);
         setProperty(KEY_SAVE, true);
+        setProperty(KEY_ABORT, false);
         return this;
     }
 
@@ -80,6 +83,15 @@ public class Binding extends groovy.lang.Binding {
         return (boolean) getProperty(KEY_SAVE);
     }
 
+    public Binding abort() {
+        setProperty(KEY_ABORT, true);
+        return this;
+    }
+
+    public boolean shouldAbort() {
+        return (boolean) getProperty(KEY_ABORT);
+    }
+
     public static class Parsed {
         @Getter
         private Matcher matcher;
@@ -97,6 +109,7 @@ public class Binding extends groovy.lang.Binding {
             return null;
         }
 
+        @SuppressWarnings("unused")
         public Object propertyMissing(final String name) {
             return getAt(name);
         }

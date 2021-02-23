@@ -32,20 +32,26 @@ public class TextParserSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void regexp(final String regexp) {
-        regexp(Pattern.compile(regexp));
+    public boolean regexp(final String regexp) {
+        return regexp(Pattern.compile(regexp));
     }
 
-    public void regexp(final Pattern pattern) {
+    public boolean regexp(final Pattern pattern) {
+        if (BINDING.get().shouldAbort()) {
+            return false;
+        }
         final LogData.Builder log = BINDING.get().log();
         final Matcher matcher = pattern.matcher(log.getBody().getText().getText());
-        if (matcher.find()) {
+        final boolean matched = matcher.find();
+        if (matched) {
             BINDING.get().parsed(matcher);
         }
+        return matched;
     }
 
-    public void grok(final String grok) {
+    public boolean grok(final String grok) {
         // TODO
+        return false;
     }
 
 }

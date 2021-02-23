@@ -13,18 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Example config file of path: config/lal/config.yaml
 rules:
   - name: example
     dsl: |
       filter {
-        if (log.service == "TestService") {
-          abort {}
-        }
         text {
-          if (!regexp($/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)] \[(?<thread>.+?)] (?<level>\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$)) {
-            abort {}
-          }
+          regexp $/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)] \[(?<thread>.+?)] (?<level>\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$
         }
         extractor {
           metrics {
@@ -35,16 +29,5 @@ rules:
           }
         }
         sink {
-          sampler {
-            if (log.service == "ImportantApp") {
-              rateLimit("ImportantAppSampler") {
-                qps 300
-              }
-            } else {
-              rateLimit("OtherSampler") {
-                qps 30
-              }
-            }
-          }
         }
       }

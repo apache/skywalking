@@ -82,12 +82,18 @@ public class FilterSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void text(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         cl.setDelegate(textParser);
         cl.call();
     }
 
     @SuppressWarnings("unused")
     public void json(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         cl.setDelegate(jsonParser);
         cl.call();
 
@@ -101,6 +107,9 @@ public class FilterSpec extends AbstractSpec {
 
     @SuppressWarnings({"unused", "unchecked"})
     public void yaml(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         cl.setDelegate(yamlParser);
         cl.call();
 
@@ -114,12 +123,18 @@ public class FilterSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void extractor(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         cl.setDelegate(extractor);
         cl.call();
     }
 
     @SuppressWarnings("unused")
     public void sink(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         cl.setDelegate(sink);
         cl.call();
 

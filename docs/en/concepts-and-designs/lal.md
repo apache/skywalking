@@ -15,6 +15,35 @@ to organize their processing logics. Every piece of log will be sent to all filt
 sent into the filter is available as property `log` in the LAL, therefore you can access the log service name
 via `log.service`, for all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
 
+All components are executed sequentially in the orders they are declared.
+
+### Global Functions
+
+There are functions globally available that you can use them in all components (i.e. parsers, extractors, and sinks)
+when needed.
+
+- `abort`
+
+By default, all components declared are executed no matter what flags (`dropped`, `saved`, etc.) have been set. There
+are cases where you may want the filter chain to stop earlier when specified conditions are met. `abort` function aborts
+the remaining filter chain from where it's declared, all the remaining components won't be executed at all.
+`abort` function serves as a fast-fail mechanism in LAL.
+
+```groovy
+filter {
+    if (log.service == "TestingService") { // Don't waste resources on TestingServices
+        abort {} // all remaining components won't be executed at all
+    }
+    text {
+        if (!regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)") {
+            // if the logs don't match this regexp, skip it
+            abort {}
+        }
+    }
+    // ... extractors, sinks
+}
+```
+
 ### Parser
 
 Parsers are responsible for parsing the raw logs into structured data in SkyWalking for further processing. There are 3
@@ -41,6 +70,7 @@ For unstructured logs, there are some `text` parsers for use.
 
 `regexp` parser uses a regular expression (`regexp`) to parse the logs. It leverages the captured groups of the regexp,
 all the captured groups can be used later in the extractors or sinks.
+`regexp` returns a `boolean` indicating whether the log matches the pattern or not.
 
 ```groovy
 filter {
@@ -101,6 +131,8 @@ dropped) and is used to associate with traces / metrics.
 
 `timestamp` extracts the timestamp from the `parsed` result, and set it into the `LogData`, which will be persisted (if
 not dropped) and is used to associate with traces / metrics.
+
+The unit of `timestamp` is millisecond.
 
 - `tag`
 

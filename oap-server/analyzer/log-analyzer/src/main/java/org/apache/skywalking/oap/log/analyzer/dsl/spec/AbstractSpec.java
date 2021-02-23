@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec;
 
+import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -37,6 +38,11 @@ public abstract class AbstractSpec {
 
     public void bind(final Binding b) {
         BINDING.set(b);
+    }
+
+    @SuppressWarnings("unused")
+    public void abort(final Closure<Void> cl) {
+        BINDING.get().abort();
     }
 
     @SuppressWarnings("unused")

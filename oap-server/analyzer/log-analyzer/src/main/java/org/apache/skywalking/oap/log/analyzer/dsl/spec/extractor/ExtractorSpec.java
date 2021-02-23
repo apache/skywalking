@@ -62,6 +62,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void service(final String service) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(service)) {
             BINDING.get().log().setService(service);
         }
@@ -69,6 +72,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void instance(final String instance) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(instance)) {
             BINDING.get().log().setServiceInstance(instance);
         }
@@ -76,6 +82,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void endpoint(final String endpoint) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(endpoint)) {
             BINDING.get().log().setEndpoint(endpoint);
         }
@@ -83,6 +92,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void tag(final Map<String, Object> kv) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (CollectionUtils.isEmpty(kv)) {
             return;
         }
@@ -104,6 +116,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void traceId(final String traceId) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(traceId)) {
             final LogData.Builder logData = BINDING.get().log();
             final TraceContext.Builder traceContext = logData.getTraceContext().toBuilder();
@@ -114,6 +129,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void segmentId(final String segmentId) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(segmentId)) {
             final LogData.Builder logData = BINDING.get().log();
             final TraceContext.Builder traceContext = logData.getTraceContext().toBuilder();
@@ -124,6 +142,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void spanId(final String spanId) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(spanId)) {
             final LogData.Builder logData = BINDING.get().log();
             final TraceContext.Builder traceContext = logData.getTraceContext().toBuilder();
@@ -134,6 +155,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void timestamp(final String timestamp) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (nonNull(timestamp) && StringUtils.isNumeric(timestamp)) {
             BINDING.get().log().setTimestamp(Long.parseLong(timestamp));
         }
@@ -141,6 +165,9 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void metrics(final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         final SampleBuilder builder = new SampleBuilder();
         cl.setDelegate(builder);
         cl.call();

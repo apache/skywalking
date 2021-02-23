@@ -46,6 +46,9 @@ public class SamplerSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void rateLimit(final String id, final Closure<Void> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         final RateLimitingSampler newSampler = new RateLimitingSampler(rlsResetHandler);
         cl.setDelegate(newSampler);
         cl.call();
@@ -68,6 +71,9 @@ public class SamplerSpec extends AbstractSpec {
     }
 
     private void sampleWith(final Sampler sampler) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
         if (sampler.sample()) {
             BINDING.get().save();
         } else {
