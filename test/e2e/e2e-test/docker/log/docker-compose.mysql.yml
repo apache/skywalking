@@ -38,6 +38,11 @@ services:
       service: oap
     environment:
       SW_STORAGE: mysql
+      SW_LOG_LAL_FILES: test
+      SW_LOG_MAL_FILES: test
+    volumes:
+      - ./lal.yaml:/skywalking/config/lal/test.yaml
+      - ./log-mal.yaml:/skywalking/config/log-mal-rules/test.yaml
     depends_on:
       mysql:
         condition: service_healthy
