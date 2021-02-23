@@ -163,6 +163,7 @@ public class SampleFamily {
 
     /* Aggregation operators */
     public SampleFamily sum(List<String> by) {
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.SUM);
         return aggregate(by, Double::sum);
     }
 
@@ -175,7 +176,10 @@ public class SampleFamily {
     }
 
     public SampleFamily avg(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.aggregationLabels.addAll(by);
+            ctx.downsampling = DownsamplingType.AVG;
+        });
         if (this == EMPTY) {
             return EMPTY;
         }

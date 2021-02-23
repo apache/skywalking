@@ -177,16 +177,16 @@ MAL should instruct meter-system how to do downsampling for metrics. It doesn't 
 Down sampling operations are as global function in MAL:
 
  - avg
+ - sum
  - latest (TODO)
  - min (TODO)
  - max (TODO)
  - mean (TODO)
- - sum (TODO)
  - count (TODO)
 
 The default one is `avg` if not specific an operation.
 
-If user want get latest time from `last_server_state_sync_time_in_seconds`:
+If user want to get the latest time from `last_server_state_sync_time_in_seconds`:
 
 ```
 latest(last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog'))

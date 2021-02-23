@@ -30,6 +30,7 @@ Release Notes.
 * Remove filename suffix in the meter active file config.
 * Introduce log analysis language (LAL).
 * Fix alarm httpclient connection leak.
+* Add `sum` function in meter system.
 
 #### UI
 * Update selector scroller to show in all pages.
