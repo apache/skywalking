@@ -106,9 +106,9 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <copy file="${project.build.directory}/apache-skywalking-apm-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin.tar.gz" overwrite="true" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

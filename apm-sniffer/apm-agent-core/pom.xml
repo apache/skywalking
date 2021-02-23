@@ -239,9 +239,9 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <delete dir="${project.basedir}/../../packages" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                     <execution>
