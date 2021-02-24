@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.junit.Test;
@@ -57,8 +58,8 @@ public class ExpressionParsingTest {
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
-                                        .scopeLabels(Collections.singletonList("rr"))
-                                        .aggregationLabels(Collections.emptyList())
+                                        .scopeLabels(Sets.newHashSet("rr"))
+                                        .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.LATEST)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
@@ -70,8 +71,8 @@ public class ExpressionParsingTest {
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
-                                        .scopeLabels(Collections.singletonList("rr"))
-                                        .aggregationLabels(Collections.emptyList())
+                                        .scopeLabels(Sets.newHashSet("rr"))
+                                        .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.AVG)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
@@ -83,8 +84,8 @@ public class ExpressionParsingTest {
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
-                                        .scopeLabels(Collections.singletonList("rr"))
-                                        .aggregationLabels(Collections.emptyList())
+                                        .scopeLabels(Sets.newHashSet("rr"))
+                                        .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.SUM)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
@@ -96,8 +97,8 @@ public class ExpressionParsingTest {
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("node_cpu_seconds_total"))
                                         .scopeType(ScopeType.SERVICE)
-                                        .scopeLabels(Collections.singletonList("node_identifier_host_name"))
-                                        .aggregationLabels(Collections.emptyList())
+                                        .scopeLabels(Sets.newHashSet("node_identifier_host_name"))
+                                        .aggregationLabels(Sets.newHashSet("node_identifier_host_name"))
                                         .downsampling(DownsamplingType.SUM)
                                         .isHistogram(false).build(),
                 false,
