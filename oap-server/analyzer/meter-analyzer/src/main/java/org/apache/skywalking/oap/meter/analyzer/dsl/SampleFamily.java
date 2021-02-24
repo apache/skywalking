@@ -55,6 +55,7 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 
 /**
  * SampleFamily represents a collection of {@link Sample}.
@@ -177,7 +178,12 @@ public class SampleFamily {
     }
 
     public SampleFamily avg(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.downsampling = DownsamplingType.AVG;
+            if (isNotEmpty(by)) {
+                ctx.aggregationLabels.addAll(by);
+            }
+        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -185,7 +191,6 @@ public class SampleFamily {
             double result = Arrays.stream(samples).mapToDouble(Sample::getValue).average().orElse(0.0D);
             return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
 
         return SampleFamily.build(
             this.context,
@@ -202,6 +207,11 @@ public class SampleFamily {
     }
 
     protected SampleFamily aggregate(List<String> by, DoubleBinaryOperator aggregator) {
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            if (isNotEmpty(by)) {
+                ctx.aggregationLabels.addAll(by);
+            }
+        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -209,7 +219,6 @@ public class SampleFamily {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D);
             return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
 
         return SampleFamily.build(
             this.context,
