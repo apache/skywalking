@@ -113,16 +113,6 @@ public class Expression {
                 return SampleFamily.EMPTY;
             }
 
-            public SampleFamily avg(SampleFamily sf) {
-                ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
-                return sf;
-            }
-
-            public SampleFamily latest(SampleFamily sf) {
-                ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.LATEST);
-                return sf;
-            }
-
             public Number time() {
                 return Instant.now().getEpochSecond();
             }

@@ -178,7 +178,7 @@ Down sampling operations are as global function in MAL:
 
  - avg
  - sum
- - latest (TODO)
+ - latest
  - min (TODO)
  - max (TODO)
  - mean (TODO)
@@ -189,11 +189,7 @@ The default one is `avg` if not specific an operation.
 If user want to get the latest time from `last_server_state_sync_time_in_seconds`:
 
 ```
-latest(last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog'))
-
-or
-
-latest last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog')
+last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').latest()
 ```
 
 ## Metric level function
