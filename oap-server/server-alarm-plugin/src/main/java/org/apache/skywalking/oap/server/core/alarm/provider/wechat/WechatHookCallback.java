@@ -82,14 +82,13 @@ public class WechatHookCallback implements AlarmCallback {
     }
 
     private void sendAlarmMessage(CloseableHttpClient httpClient, String url, String requestBody) {
-        try {
-            HttpPost post = new HttpPost(url);
-            post.setConfig(requestConfig);
-            post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
-            post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
-            StringEntity entity = new StringEntity(requestBody, ContentType.APPLICATION_JSON);
-            post.setEntity(entity);
-            CloseableHttpResponse httpResponse = httpClient.execute(post);
+        HttpPost post = new HttpPost(url);
+        post.setConfig(requestConfig);
+        post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
+        post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
+        StringEntity entity = new StringEntity(requestBody, ContentType.APPLICATION_JSON);
+        post.setEntity(entity);
+        try (CloseableHttpResponse httpResponse = httpClient.execute(post)) {
             StatusLine statusLine = httpResponse.getStatusLine();
             if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
                 log.error("send wechat alarm to {} failure. Response code: {} ", url, statusLine.getStatusCode());

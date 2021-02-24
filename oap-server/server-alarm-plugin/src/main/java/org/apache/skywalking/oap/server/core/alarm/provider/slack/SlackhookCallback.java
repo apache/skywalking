@@ -76,6 +76,7 @@ public class SlackhookCallback implements AlarmCallback {
                 post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
 
                 StringEntity entity;
+                CloseableHttpResponse httpResponse = null;
                 try {
                     JsonObject jsonObject = new JsonObject();
                     JsonArray jsonElements = new JsonArray();
@@ -88,7 +89,7 @@ public class SlackhookCallback implements AlarmCallback {
                     jsonObject.add("blocks", jsonElements);
                     entity = new StringEntity(GSON.toJson(jsonObject), ContentType.APPLICATION_JSON);
                     post.setEntity(entity);
-                    CloseableHttpResponse httpResponse = httpClient.execute(post);
+                    httpResponse = httpClient.execute(post);
                     StatusLine statusLine = httpResponse.getStatusLine();
                     if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
                         log.error("Send slack alarm to {} failure. Response code: {}", url , statusLine.getStatusCode());
@@ -97,6 +98,15 @@ public class SlackhookCallback implements AlarmCallback {
                     log.error("Alarm to JSON error, {} ", e.getMessage(), e);
                 } catch (IOException e) {
                     log.error("Send slack alarm to {} failure.", url , e);
+                } finally {
+                    if (httpResponse != null) {
+                        try {
+                            httpResponse.close();
+                        } catch (IOException e) {
+                            log.error(e.getMessage(), e);
+                        }
+
+                    }
                 }
             });
         } finally {
