@@ -29,6 +29,7 @@ Release Notes.
 * Fix kubernetes.client.opeanapi.ApiException.
 * Remove filename suffix in the meter active file config.
 * Introduce log analysis language (LAL).
+* Fix alarm httpclient connection leak.
 
 #### UI
 * Update selector scroller to show in all pages.
