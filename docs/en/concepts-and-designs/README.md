@@ -18,6 +18,8 @@ SkyWalking already support.
 - Backend
   - [Overview](backend-overview.md). Provides a high level introduction about the OAP backend.
   - [Observability Analysis Language](oal.md). Introduces the core languages, which is designed for aggregation behaviour definition.
+  - [Meter Analysis Language](mal.md). Introduces the way to let the user analyze and aggregate meter data in OAP streaming system.
+  - [Log Analysis Language](lal.md). Introduces the Domain-Specific Language (DSL) to analyze logs.
   - [Query in OAP](../protocols/README.md#query-protocol). A set of query protocol provided, based on the Observability Analysis Language metrics definition. 
 - UI
   - [Overview](ui-overview.md). A simple brief about SkyWalking UI.
