@@ -14,7 +14,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-otel**. See [details](#opentelemetry-receiver). Receiver for analyzing metrics data from OpenTelemetry
 1. **receiver-meter**. See [details](backend-meter.md). Receiver for analyzing metrics in SkyWalking native meter format.
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
-1. **receiver-log**. gRPC services accept log data.
+1. **receiver-log**. Receiver for native log format. Read [Log Analyzer](log-analyzer.md) for advanced features. 
 1. **configuration-discovery**. gRPC services handle configurationDiscovery.
 1. **receiver-event**. gRPC services to handle events data.
 1. **receiver-zabbix**. See [details](backend-zabbix.md).
@@ -67,9 +67,11 @@ receiver-browser:
   default:
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
 
-receiver-log:
-  selector: ${SW_RECEIVER_LOG:default}
-  default:
+log-analyzer:
+   selector: ${SW_LOG_ANALYZER:default}
+   default:
+      lalFiles: ${SW_LOG_LAL_FILES:default}
+      malFiles: ${SW_LOG_MAL_FILES:""}
   
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}

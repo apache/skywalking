@@ -43,12 +43,18 @@ catalog:
             path: "/en/concepts-and-designs/backend-overview"
           - name: "Observability Analysis Language"
             path: "/en/concepts-and-designs/oal"
+          - name: "Meter Analysis Language"
+            path: "/en/concepts-and-designs/mal"
+          - name: "Log Analysis Language"
+            path: "/en/concepts-and-designs/lal"
           - name: "Query in OAP"
             path: "/en/protocols/readme#query-protocol"
       - name: "UI"
         catalog:
           - name: "Overview"
             path: "/en/concepts-and-designs/ui-overview"
+      - event: "Event"
+        path: "/en/concepts-and-designs/event/"
 
   - name: "Setup"
     path: "/en/setup/readme"
@@ -70,7 +76,6 @@ catalog:
                 path: "/en/setup/service-agent/java-agent/readme#bootstrap-class-plugins"
               - name: "Advanced reporters"
                 path: "/en/setup/service-agent/java-agent/readme#advanced-reporters"
-
               - name: "Plugin development guide"
                 path: "/en/setup/service-agent/java-agent/readme#plugin-development-guide"
               - name: "Agent plugin tests and performance tests"
@@ -91,26 +96,22 @@ catalog:
             catalog:
               - name: "Send Envoy metrics to SkyWalking with / without Istio"
                 path: "/en/setup/envoy/metrics_service_setting"
-      - name: "Backend, UI and CLI setup document"
+      - name: "Backend, UI and CLI"
         path: "/en/setup/backend/backend-ui-setup"
         catalog:
-          - name: "Backend setup document"
+          - name: "Backend setup"
             path: "/en/setup/backend/backend-setup"
             catalog:
               - name: "Configuration Vocabulary"
                 path: "/en/setup/backend/configuration-vocabulary"
               - name: "Overriding settings"
                 path: "/en/setup/backend/backend-setting-override"
-
               - name: "IP and port setting"
                 path: "/en/setup/backend/backend-ip-port"
-
               - name: "Backend init mode startup"
                 path: "/en/setup/backend/backend-init-mode"
-
               - name: "Cluster management"
                 path: "/en/setup/backend/backend-cluster"
-
               - name: "Deploy in kubernetes"
                 path: "/en/setup/backend/backend-k8s"
               - name: "Choose storage"
@@ -149,15 +150,14 @@ catalog:
                 path: "/en/setup/backend/backend-meter"
               - name: "Spring Sleuth Metrics Analysis"
                 path: "/en/setup/backend/spring-sleuth-setup"
+              - name: "Log Analyzer"
+                path: "/en/setup/backend/log-analyzer"
           - name: "UI setup document"
             path: "/en/setup/backend/ui-setup"
-
           - name: "CLI setup document"
             path: "https://github.com/apache/skywalking-cli"
-
   - name: "UI Introduction"
     path: "/en/ui/readme"
-
   - name: "Contributing Guides"
     path: "/en/guides/readme"
     catalog:
@@ -169,10 +169,8 @@ catalog:
         path: "/en/guides/How-to-build"
       - name: "Agent plugin development guide"
         path: "/en/guides/Java-Plugin-Development-Guide"
-
   - name: "Protocols"
     path: "/en/protocols/readme"
-
   - name: "FAQs"
     path: "/en/FAQ/readme"
 
