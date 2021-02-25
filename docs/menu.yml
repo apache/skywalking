@@ -73,7 +73,7 @@ catalog:
               - name: "Plugin development guide"
                 path: "/en/setup/service-agent/java-agent/readme#plugin-development-guide"
               - name: "Agent plugin tests and performance tests"
-                path: "/en/setup/service-agent/java-agent/readme#plugin-development-guide"
+                path: "/en/setup/service-agent/java-agent/readme#test"
 
           - name: "Other language agents"
             path: "/en/setup/readme#language-agents-in-service"
