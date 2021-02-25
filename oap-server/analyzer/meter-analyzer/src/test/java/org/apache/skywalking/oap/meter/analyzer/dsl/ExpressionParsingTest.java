@@ -54,7 +54,7 @@ public class ExpressionParsingTest {
         return Arrays.asList(new Object[][] {
             {
                 "all",
-                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).latest()",
+                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).downsampling(LATEST)",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
@@ -80,7 +80,7 @@ public class ExpressionParsingTest {
             },
             {
                 "avgThenOthersThenSum",
-                "(foo - 1).tagEqual('bar', '1').avg(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).sum(['tt'])",
+                "(foo - 1).tagEqual('bar', '1').avg(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).sum(['tt']).downsampling(SUM)",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
@@ -99,7 +99,7 @@ public class ExpressionParsingTest {
                                         .scopeType(ScopeType.SERVICE)
                                         .scopeLabels(Sets.newHashSet("node_identifier_host_name"))
                                         .aggregationLabels(Sets.newHashSet("node_identifier_host_name"))
-                                        .downsampling(DownsamplingType.SUM)
+                                        .downsampling(DownsamplingType.AVG)
                                         .isHistogram(false).build(),
                 false,
                 },

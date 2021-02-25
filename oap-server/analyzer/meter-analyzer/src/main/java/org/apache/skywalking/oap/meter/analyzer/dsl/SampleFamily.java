@@ -55,7 +55,6 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 
 /**
  * SampleFamily represents a collection of {@link Sample}.
@@ -163,27 +162,19 @@ public class SampleFamily {
 
     /* Aggregation operators */
     public SampleFamily sum(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.SUM);
         return aggregate(by, Double::sum);
     }
 
     public SampleFamily max(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
         return aggregate(by, Double::max);
     }
 
     public SampleFamily min(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
         return aggregate(by, Double::min);
     }
 
     public SampleFamily avg(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.downsampling = DownsamplingType.AVG;
-            if (isNotEmpty(by)) {
-                ctx.aggregationLabels.addAll(by);
-            }
-        });
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -207,11 +198,7 @@ public class SampleFamily {
     }
 
     protected SampleFamily aggregate(List<String> by, DoubleBinaryOperator aggregator) {
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            if (isNotEmpty(by)) {
-                ctx.aggregationLabels.addAll(by);
-            }
-        });
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -245,7 +232,6 @@ public class SampleFamily {
     /* Function */
     public SampleFamily increase(String range) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -259,7 +245,6 @@ public class SampleFamily {
 
     public SampleFamily rate(String range) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(range));
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -279,11 +264,6 @@ public class SampleFamily {
 
     public SampleFamily irate() {
         return rate("PT1S");
-    }
-
-    public SampleFamily latest() {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.LATEST);
-        return this;
     }
 
     @SuppressWarnings(value = "unchecked")
@@ -319,10 +299,7 @@ public class SampleFamily {
     public SampleFamily histogram(String le, TimeUnit unit) {
         long scale = unit.toMillis(1);
         Preconditions.checkArgument(scale > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.isHistogram = true;
-            ctx.downsampling = DownsamplingType.AVG;
-        });
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.isHistogram = true);
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -354,7 +331,6 @@ public class SampleFamily {
         ExpressionParsingContext.get().ifPresent(ctx -> {
             Preconditions.checkState(ctx.isHistogram, "histogram() should be invoked before invoking histogram_percentile()");
             ctx.percentiles = p;
-            ctx.downsampling = DownsamplingType.AVG;
         });
         return this;
     }
@@ -475,6 +451,11 @@ public class SampleFamily {
             return false;
         }
         return a.equals(b);
+    }
+
+    public SampleFamily downsampling(final DownsamplingType type) {
+        ExpressionParsingContext.get().ifPresent(it -> it.downsampling = type);
+        return this;
     }
 
     /**
