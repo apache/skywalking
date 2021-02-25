@@ -153,9 +153,9 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
             LOGGER.info("{}: {}", metricsName, instanceMetrics);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-            final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-            greaterThanZero.setValue("gt 0");
-            instanceRespTimeMatcher.setValue(greaterThanZero);
+            final MetricsValueMatcher greaterThanOne = new MetricsValueMatcher();
+            greaterThanOne.setValue("gt 1");
+            instanceRespTimeMatcher.setValue(greaterThanOne);
             instanceRespTimeMatcher.verify(instanceMetrics.getValues());
         }
     }

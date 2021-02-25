@@ -174,26 +174,22 @@ Examples:
 MAL should instruct meter-system how to do downsampling for metrics. It doesn't only refer to aggregate raw samples to 
 `minute` level, but also hints data from `minute` to higher levels, for instance, `hour` and `day`. 
 
-Down sampling operations are as global function in MAL:
+Down sampling function is called `downsampling` in MAL, it accepts the following types:
 
- - avg
- - latest (TODO)
- - min (TODO)
- - max (TODO)
- - mean (TODO)
- - sum (TODO)
- - count (TODO)
+ - AVG
+ - SUM
+ - LATEST
+ - MIN (TODO)
+ - MAX (TODO)
+ - MEAN (TODO)
+ - COUNT (TODO)
 
-The default one is `avg` if not specific an operation.
+The default type is `AVG`.
 
-If user want get latest time from `last_server_state_sync_time_in_seconds`:
+If users want to get the latest time from `last_server_state_sync_time_in_seconds`:
 
 ```
-latest(last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog'))
-
-or
-
-latest last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog')
+last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsampling(LATEST)
 ```
 
 ## Metric level function

@@ -26,8 +26,6 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -53,6 +51,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -180,18 +179,20 @@ public class SampleFamily {
             return EMPTY;
         }
         if (by == null) {
-            double result = Arrays.stream(samples).mapToDouble(s -> s.value).average().orElse(0.0D);
+            double result = Arrays.stream(samples).mapToDouble(Sample::getValue).average().orElse(0.0D);
             return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
+
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
-                  .map(sample -> Tuple.of(by.stream()
-                                            .collect(toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
-                  .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
+                  .collect(groupingBy(it -> getLabels(by, it), mapping(identity(), toList())))
                   .entrySet().stream()
-                  .map(entry -> newSample(entry.getKey(), entry.getValue().get(0).timestamp, entry.getValue().stream()
-                                                                                                  .mapToDouble(s -> s.value).average().orElse(0.0D)))
+                  .map(entry -> newSample(
+                      entry.getKey(),
+                      entry.getValue().get(0).getTimestamp(),
+                      entry.getValue().stream().mapToDouble(Sample::getValue).average().orElse(0.0D)
+                  ))
                   .toArray(Sample[]::new)
         );
     }
@@ -205,14 +206,27 @@ public class SampleFamily {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D);
             return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
-        return SampleFamily.build(this.context, Arrays.stream(samples)
-            .map(sample -> Tuple.of(by.stream()
-                .collect(toImmutableMap(labelKey -> labelKey, labelKey -> sample.labels.getOrDefault(labelKey, ""))), sample))
-            .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
-            .entrySet().stream()
-            .map(entry -> newSample(entry.getKey(), entry.getValue().get(0).timestamp, entry.getValue().stream()
-                .mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D)))
-            .toArray(Sample[]::new));
+
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .collect(groupingBy(it -> getLabels(by, it), mapping(identity(), toList())))
+                  .entrySet().stream()
+                  .map(entry -> newSample(
+                      entry.getKey(),
+                      entry.getValue().get(0).getTimestamp(),
+                      entry.getValue().stream().mapToDouble(Sample::getValue).reduce(aggregator).orElse(0.0D)
+                  ))
+                  .toArray(Sample[]::new)
+        );
+    }
+
+    private ImmutableMap<String, String> getLabels(final List<String> labelKeys, final Sample sample) {
+        return labelKeys.stream()
+                        .collect(toImmutableMap(
+                            Function.identity(),
+                            labelKey -> sample.labels.getOrDefault(labelKey, "")
+                        ));
     }
 
     /* Function */
@@ -221,10 +235,12 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> sample
-            .increase(range, (lowerBoundValue, lowerBoundTime) ->
-                sample.value - lowerBoundValue))
-            .toArray(Sample[]::new));
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(sample -> sample.increase(range, (lowerBoundValue, unused) -> sample.value - lowerBoundValue))
+                  .toArray(Sample[]::new)
+        );
     }
 
     public SampleFamily rate(String range) {
@@ -232,22 +248,22 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> sample
-            .increase(range, (lowerBoundValue, lowerBoundTime) ->
-                sample.timestamp - lowerBoundTime < 1L ? 0.0D
-                    : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
-            .toArray(Sample[]::new));
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(sample -> sample.increase(
+                      range,
+                      (lowerBoundValue, lowerBoundTime) -> {
+                          final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
+                          return timeDiff < 1L ? 0.0 : (sample.value - lowerBoundValue) / timeDiff;
+                      }
+                  ))
+                  .toArray(Sample[]::new)
+        );
     }
 
     public SampleFamily irate() {
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> sample
-            .increase("PT1S", (lowerBoundValue, lowerBoundTime) ->
-                sample.timestamp - lowerBoundTime < 1L ? 0.0D
-                    : (sample.value - lowerBoundValue) / ((sample.timestamp - lowerBoundTime) / 1000)))
-            .toArray(Sample[]::new));
+        return rate("PT1S");
     }
 
     @SuppressWarnings(value = "unchecked")
@@ -255,14 +271,21 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return SampleFamily.build(this.context, Arrays.stream(samples).map(sample -> {
-            Object delegate = new Object();
-            Closure<?> c = cl.rehydrate(delegate, sample, delegate);
-            Map<String, String> arg = Maps.newHashMap(sample.labels);
-            Object r = c.call(arg);
-            return newSample(ImmutableMap.copyOf(Optional.ofNullable((r instanceof Map) ? (Map<String, String>) r : null)
-                .orElse(arg)), sample.timestamp, sample.value);
-        }).toArray(Sample[]::new));
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(sample -> {
+                      Object delegate = new Object();
+                      Closure<?> c = cl.rehydrate(delegate, sample, delegate);
+                      Map<String, String> arg = Maps.newHashMap(sample.labels);
+                      Object r = c.call(arg);
+                      return sample.toBuilder()
+                                   .labels(
+                                       ImmutableMap.copyOf(Optional.ofNullable((r instanceof Map) ? (Map<String, String>) r : null)
+                                                                   .orElse(arg)))
+                                   .build();
+                  }).toArray(Sample[]::new)
+        );
     }
 
     public SampleFamily histogram() {
@@ -282,20 +305,24 @@ public class SampleFamily {
         }
         AtomicDouble pre = new AtomicDouble();
         AtomicReference<String> preLe = new AtomicReference<>("0");
-        return SampleFamily.build(this.context, Stream.concat(
-            Arrays.stream(samples).filter(s -> !s.labels.containsKey(le)),
-            Arrays.stream(samples)
-                .filter(s -> s.labels.containsKey(le))
-                .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
-                .map(s -> {
-                    double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
-                    pre.set(s.value);
-                    ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                        .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
-                        .put("le", String.valueOf((long) ((Double.parseDouble(this.context.histogramType == HistogramType.ORDINARY ? s.labels.get(le) : preLe.get())) * scale))).build();
-                    preLe.set(s.labels.get(le));
-                    return newSample(ll, s.timestamp, r);
-                })).toArray(Sample[]::new));
+        return SampleFamily.build(
+            this.context,
+            Stream.concat(
+                Arrays.stream(samples).filter(s -> !s.labels.containsKey(le)),
+                Arrays.stream(samples)
+                      .filter(s -> s.labels.containsKey(le))
+                      .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
+                      .map(s -> {
+                          double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
+                          pre.set(s.value);
+                          ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                              .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
+                              .put("le", String.valueOf((long) ((Double.parseDouble(this.context.histogramType == HistogramType.ORDINARY ? s.labels.get(le) : preLe.get())) * scale))).build();
+                          preLe.set(s.labels.get(le));
+                          return newSample(ll, s.timestamp, r);
+                      })
+            ).toArray(Sample[]::new)
+        );
     }
 
     public SampleFamily histogram_percentile(List<Integer> percentiles) {
@@ -359,14 +386,17 @@ public class SampleFamily {
     }
 
     private SampleFamily left(List<String> labelKeys) {
-        return SampleFamily.build(this.context, Arrays.stream(samples)
-            .map(s -> {
-                ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                    .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
-                    .build();
-                return newSample(ll, s.timestamp, s.value);
-            })
-            .toArray(Sample[]::new));
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(s -> {
+                      ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                          .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
+                          .build();
+                      return s.toBuilder().labels(ll).build();
+                  })
+                  .toArray(Sample[]::new)
+        );
     }
 
     private SampleFamily match(String[] labels, Function2<String, String, Boolean> op) {
@@ -375,13 +405,12 @@ public class SampleFamily {
         for (int i = 0; i < labels.length; i += 2) {
             ll.put(labels[i], labels[i + 1]);
         }
-        Stream<Sample> ss = Arrays.stream(samples).filter(sample ->
-            ll.entrySet().stream().allMatch(entry -> op.apply(sample.labels.getOrDefault(entry.getKey(), ""), entry.getValue())));
-        Sample[] sArr = ss.toArray(Sample[]::new);
-        if (sArr.length < 1) {
-            return SampleFamily.EMPTY;
-        }
-        return SampleFamily.build(this.context, sArr);
+        Sample[] ss = Arrays.stream(samples)
+                            .filter(sample -> ll.entrySet()
+                                                .stream()
+                                                .allMatch(entry -> op.apply(sample.labels.getOrDefault(entry.getKey(), ""), entry.getValue())))
+                            .toArray(Sample[]::new);
+        return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
 
     SampleFamily newValue(Function<Double, Double> transform) {
@@ -397,11 +426,12 @@ public class SampleFamily {
 
     private SampleFamily newValue(SampleFamily another, Function2<Double, Double, Double> transform) {
         Sample[] ss = Arrays.stream(samples)
-            .flatMap(cs -> io.vavr.collection.Stream.of(another.samples)
-                .find(as -> cs.labels.equals(as.labels))
-                .map(as -> newSample(cs.labels, cs.timestamp, transform.apply(cs.value, as.value)))
-                .toJavaStream())
-            .toArray(Sample[]::new);
+                            .flatMap(cs -> io.vavr.collection.Stream.of(another.samples)
+                                                                    .find(as -> cs.labels.equals(as.labels))
+                                                                    .map(as -> cs.toBuilder().value(transform.apply(cs.value, as.value)))
+                                                                    .map(Sample.SampleBuilder::build)
+                                                                    .toJavaStream())
+                            .toArray(Sample[]::new);
         return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
 
@@ -421,6 +451,11 @@ public class SampleFamily {
             return false;
         }
         return a.equals(b);
+    }
+
+    public SampleFamily downsampling(final DownsamplingType type) {
+        ExpressionParsingContext.get().ifPresent(it -> it.downsampling = type);
+        return this;
     }
 
     /**
