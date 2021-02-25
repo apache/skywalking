@@ -53,6 +53,8 @@ catalog:
         catalog:
           - name: "Overview"
             path: "/en/concepts-and-designs/ui-overview"
+      - event: "Event"
+        path: "/en/concepts-and-designs/event/"
 
   - name: "Setup"
     path: "/en/setup/readme"
