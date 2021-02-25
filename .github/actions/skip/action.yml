@@ -31,6 +31,7 @@ inputs:
       ".dlc.yaml"
       ".licenserc.yaml"
       "docs/menu.yml"
+      ".github/actions/skip/action.yml"
 runs:
   using: "composite"
   steps:
