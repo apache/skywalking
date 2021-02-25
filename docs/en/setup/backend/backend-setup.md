@@ -115,7 +115,8 @@ to improve the meaning of the metrics.
 And learn how to write your own conversion rules.
 1. [Meter Analysis](backend-meter.md). Set up the backend analysis rules, when use [SkyWalking Meter System Toolkit](../service-agent/java-agent/README.md#advanced-features) 
 or meter plugins. 
-1. [Spring Sleuth Metrics Analysis](spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer. 
+1. [Spring Sleuth Metrics Analysis](spring-sleuth-setup.md). Configure the agent and backend to receiver metrics from micrometer.
+1. [Log Analyzer](log-analyzer.md)
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
