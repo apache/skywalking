@@ -17,7 +17,7 @@ runtime.
 Auto instrument is so cool, also you can create those in compiling time, that you don't depend on VM features, then is there
 any limit?
 
-The answer definitely **YES**. And they are:
+The answer is definitely **YES**. And they are:
 - **In process propagation possible in most cases**. In many high level languages, they are used to build business system, 
 such as Java and .NET. Most codes of business logic are running in the same thread for per request, which make the propagation 
 could be based on thread Id, and stack module to make sure the context is safe.
