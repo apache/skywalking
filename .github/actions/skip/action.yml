@@ -30,6 +30,7 @@ inputs:
       ".asf.yaml"
       ".dlc.yaml"
       ".licenserc.yaml"
+      "docs/menu.yml"
 runs:
   using: "composite"
   steps:
