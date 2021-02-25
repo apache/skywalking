@@ -36,12 +36,12 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardHostValve";
 
     /**
-     * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardWrapperValve"
+     * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardHostValve"
      */
     private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatInvokeInterceptor";
 
     /**
-     * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardWrapperValve"
+     * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardHostValve"
      */
     private static final String EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatExceptionInterceptor";
 
