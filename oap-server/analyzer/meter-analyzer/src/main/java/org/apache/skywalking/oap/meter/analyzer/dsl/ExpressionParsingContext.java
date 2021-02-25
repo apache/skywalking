@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -44,8 +46,8 @@ public class ExpressionParsingContext implements Closeable {
             CACHE.set(ExpressionParsingContext.builder()
                                               .samples(Lists.newArrayList())
                                               .downsampling(DownsamplingType.AVG)
-                                              .scopeLabels(Lists.newArrayList())
-                                              .aggregationLabels(Lists.newArrayList()).build());
+                                              .scopeLabels(Sets.newHashSet())
+                                              .aggregationLabels(Sets.newHashSet()).build());
         }
         return CACHE.get();
     }
@@ -62,9 +64,9 @@ public class ExpressionParsingContext implements Closeable {
 
     int[] percentiles;
 
-    List<String> aggregationLabels;
+    Set<String> aggregationLabels;
 
-    List<String> scopeLabels;
+    Set<String> scopeLabels;
 
     DownsamplingType downsampling;
 
