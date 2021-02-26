@@ -22,6 +22,9 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.util.StringUtil;
+
+import java.util.stream.Collectors;
 
 public class RedisClientConstructorInterceptor implements InstanceConstructorInterceptor {
 
@@ -30,6 +33,13 @@ public class RedisClientConstructorInterceptor implements InstanceConstructorInt
         RedisURI redisURI = (RedisURI) allArguments[1];
         RedisClient redisClient = (RedisClient) objInst;
         EnhancedInstance optionsInst = (EnhancedInstance) redisClient.getOptions();
-        optionsInst.setSkyWalkingDynamicField(redisURI.getHost() + ":" + redisURI.getPort());
+        StringBuilder redisInfoSb = new StringBuilder();
+        if (StringUtil.isNotBlank(redisURI.getSentinelMasterId())) {
+            redisInfoSb.append(redisURI.getSentinelMasterId()).append(
+                    redisURI.getSentinels().stream().map(r -> r.getHost() + ":" + r.getPort()).collect(Collectors.joining(",")));
+        } else {
+            redisInfoSb.append(redisURI.getHost()).append(":").append(redisURI.getPort());
+        }
+        optionsInst.setSkyWalkingDynamicField(redisInfoSb.toString());
     }
 }
