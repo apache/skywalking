@@ -31,13 +31,18 @@ Release Notes.
 * Introduce log analysis language (LAL).
 * Fix alarm httpclient connection leak.
 * Add `sum` function in meter system.
+* Remove Jaeger receiver.
+* Remove the experimental Zipkin span analyzer.
+* Upgrade the Zipkin Elasticsearch storage from 6 to 7.
+* Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
 
 #### UI
 * Update selector scroller to show in all pages.
 * Implement searching logs with date.
 
 #### Documentation
-
+* Polish documentation due to we have covered all tracing, logging, and metrics fields.
+* Adjust documentation about Zipkin receiver.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/76?closed=1)
 
