@@ -35,8 +35,9 @@ public class RedisClientConstructorInterceptor implements InstanceConstructorInt
         EnhancedInstance optionsInst = (EnhancedInstance) redisClient.getOptions();
         StringBuilder redisInfoSb = new StringBuilder();
         if (StringUtil.isNotBlank(redisURI.getSentinelMasterId())) {
-            redisInfoSb.append(redisURI.getSentinelMasterId()).append(
-                    redisURI.getSentinels().stream().map(r -> r.getHost() + ":" + r.getPort()).collect(Collectors.joining(",")));
+            redisInfoSb.append(redisURI.getSentinelMasterId()).append("[").append(
+                    redisURI.getSentinels().stream().map(r -> r.getHost() + ":" + r.getPort())
+                            .collect(Collectors.joining(","))).append("]");
         } else {
             redisInfoSb.append(redisURI.getHost()).append(":").append(redisURI.getPort());
         }
