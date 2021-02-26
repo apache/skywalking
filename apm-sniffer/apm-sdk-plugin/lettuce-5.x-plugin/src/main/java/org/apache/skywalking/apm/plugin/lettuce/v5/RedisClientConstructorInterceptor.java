@@ -33,14 +33,14 @@ public class RedisClientConstructorInterceptor implements InstanceConstructorInt
         RedisURI redisURI = (RedisURI) allArguments[1];
         RedisClient redisClient = (RedisClient) objInst;
         EnhancedInstance optionsInst = (EnhancedInstance) redisClient.getOptions();
-        StringBuilder redisInfoSb = new StringBuilder();
+        StringBuilder redisPeer = new StringBuilder();
         if (StringUtil.isNotBlank(redisURI.getSentinelMasterId())) {
-            redisInfoSb.append(redisURI.getSentinelMasterId()).append("[").append(
+            redisPeer.append(redisURI.getSentinelMasterId()).append("[").append(
                     redisURI.getSentinels().stream().map(r -> r.getHost() + ":" + r.getPort())
                             .collect(Collectors.joining(","))).append("]");
         } else {
-            redisInfoSb.append(redisURI.getHost()).append(":").append(redisURI.getPort());
+            redisPeer.append(redisURI.getHost()).append(":").append(redisURI.getPort());
         }
-        optionsInst.setSkyWalkingDynamicField(redisInfoSb.toString());
+        optionsInst.setSkyWalkingDynamicField(redisPeer.toString());
     }
 }
