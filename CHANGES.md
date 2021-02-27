@@ -16,6 +16,7 @@ Release Notes.
 * Enhance gRPC log appender to allow layout pattern.
 * Fix apm-dubbo-2.7.x-plugin memory leak due to some Dubbo RpcExceptions.
 * Fix lettuce-5.x-plugin get null host in redis sentinel mode.
+* Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
