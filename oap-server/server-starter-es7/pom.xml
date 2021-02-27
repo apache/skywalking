@@ -44,6 +44,11 @@
             <artifactId>storage-elasticsearch7-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- profile exporter -->
         <dependency>

@@ -194,9 +194,6 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restHost| Binding IP of restful service. |SW_RECEIVER_ZIPKIN_HOST|0.0.0.0|
 | - | - | restPort | Binding port of restful service | SW_RECEIVER_ZIPKIN_PORT|9411|
 | - | - | restContextPath| Web context path of restful service| SW_RECEIVER_ZIPKIN_CONTEXT_PATH|/|
-| - | - | needAnalysis|Analysis zipkin span to generate metrics| - | false|
-| - | - | maxCacheSize| Max cache size for span analysis | - | 1_000_000 |
-| - | - | expireTime| The expire time of analysis cache, unit is second. | - | 20|
 | receiver_jaeger | default| Read [receiver doc](backend-receivers.md) | - | - |
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_JAEGER_HOST | - |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_JAEGER_PORT | - |

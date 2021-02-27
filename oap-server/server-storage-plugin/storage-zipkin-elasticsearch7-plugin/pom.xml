@@ -19,21 +19,31 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-storage-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>8.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-storage-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>storage-jdbc-hikaricp-plugin</module>
-        <module>storage-elasticsearch-plugin</module>
-        <module>storage-elasticsearch7-plugin</module>
-        <module>storage-zipkin-elasticsearch7-plugin</module>
-        <module>storage-influxdb-plugin</module>
-        <module>storage-tidb-plugin</module>
-    </modules>
+    <artifactId>storage-zipkin-elasticsearch7-plugin</artifactId>
+    <properties>
+        <elasticsearch.version>7.5.0</elasticsearch.version>
+    </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-elasticsearch7-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.zipkin2</groupId>
+            <artifactId>zipkin</artifactId>
+        </dependency>
+    </dependencies>
 </project>
