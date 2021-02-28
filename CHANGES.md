@@ -37,6 +37,7 @@ Release Notes.
 * Remove the experimental Zipkin span analyzer.
 * Upgrade the Zipkin Elasticsearch storage from 6 to 7.
 * Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
+* Fix `DatabaseSlowStatementBuilder` statement maybe null.
 
 #### UI
 * Update selector scroller to show in all pages.
