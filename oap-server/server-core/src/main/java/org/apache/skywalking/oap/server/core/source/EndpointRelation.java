@@ -44,6 +44,7 @@ public class EndpointRelation extends Source {
 
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_endpoint_name", requireDynamicActive = true)
     private String endpoint;
     @Getter
     private String serviceId;
@@ -58,6 +59,7 @@ public class EndpointRelation extends Source {
     private String serviceInstanceName;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name", requireDynamicActive = true)
     private String childEndpoint;
     @Getter
     private String childServiceId;
