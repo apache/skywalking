@@ -26,6 +26,7 @@ inputs:
     required: false
     default: >-
       "*.md"
+      "*.txt"
       "skywalking-ui"
       ".asf.yaml"
       ".dlc.yaml"
