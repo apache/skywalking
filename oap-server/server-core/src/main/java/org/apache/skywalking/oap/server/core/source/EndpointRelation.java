@@ -44,11 +44,8 @@ public class EndpointRelation extends Source {
 
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "source_endpoint_name")
     private String endpoint;
-
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter
@@ -61,10 +58,8 @@ public class EndpointRelation extends Source {
     private String serviceInstanceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name")
     private String childEndpoint;
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id")
     private String childServiceId;
     @Setter
     @Getter
