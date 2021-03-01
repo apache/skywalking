@@ -97,5 +97,5 @@ SkyWalking's [native log format](https://github.com/apache/skywalking-data-colle
 conditions, such as `sampler`, only persist error logs, etc.
 
 **Attention**: because `persistence` analyzer also needs a mechanism to map the logs into responding services, hence,
-you need to configure at least one analyzer as its antecedent so that `persistence` analyzer knows which service the
+you need to configure at least one of `k8s-mesh` or `mx-mesh` as its antecedent so that `persistence` analyzer knows which service the
 logs belong to.
