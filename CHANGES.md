@@ -38,6 +38,7 @@ Release Notes.
 * Upgrade the Zipkin Elasticsearch storage from 6 to 7.
 * Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
 * Fix `DatabaseSlowStatementBuilder` statement maybe null.
+* Remove fields of parent entity in the relation sources. 
 
 #### UI
 * Update selector scroller to show in all pages.
