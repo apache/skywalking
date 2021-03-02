@@ -43,6 +43,10 @@ Release Notes.
 #### UI
 * Update selector scroller to show in all pages.
 * Implement searching logs with date.
+* Add nodejs 14 compiling.
+* Fix trace id by clear search conditions.
+* Search endpoints with keywords.
+* Fix pageSize on logs page.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
