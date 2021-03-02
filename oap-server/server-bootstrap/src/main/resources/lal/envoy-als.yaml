@@ -14,13 +14,13 @@
 # limitations under the License.
 
 rules:
-  - name: envoy
+  - name: envoy-als
     dsl: |
       filter {
         json {
         }
         // only collect error logs
-        if (parsed?.response?.responseCode < 500 && !parsed?.commonProperties?.responseFlags) {
+        if (parsed?.response?.responseCode < 300 && !parsed?.commonProperties?.responseFlags) {
           abort {}
         }
         extractor {

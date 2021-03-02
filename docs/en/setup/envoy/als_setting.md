@@ -94,8 +94,14 @@ The [blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-al
 `persistence` analyzer adapts the Envoy access log format to
 SkyWalking's [native log format](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto)
 , and forwards the formatted logs to [LAL](../../concepts-and-designs/lal.md), where you can configure persistent
-conditions, such as `sampler`, only persist error logs, etc.
+conditions, such as `sampler`, only persist error logs, etc. SkyWalking provides a default configuration
+file [`envoy-als.yaml`](../../../../oap-server/server-bootstrap/src/main/resources/lal/envoy-als.yaml) that you can
+adjust as per your needs. Please make sure to activate this rule via adding the rule name `envoy-als`
+into config item `log-analyzer/default/lalFiles` (or environment variable `SW_LOG_LAL_FILES`,
+e.g. `SW_LOG_LAL_FILES=envoy-als`).
 
 **Attention**: because `persistence` analyzer also needs a mechanism to map the logs into responding services, hence,
-you need to configure at least one of `k8s-mesh` or `mx-mesh` as its antecedent so that `persistence` analyzer knows which service the
-logs belong to.
+you need to configure at least one of `k8s-mesh` or `mx-mesh` as its antecedent so that `persistence` analyzer knows
+which service the logs belong to. For example, you should set `envoy-metric/default/alsHTTPAnalysis` (or environment
+variable `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS`) to something like `k8s-mesh,persistence`, `mx-mesh,persistence`
+or `k8s-mesh,mx-mesh,persistence`.
