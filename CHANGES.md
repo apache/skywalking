@@ -39,6 +39,7 @@ Release Notes.
 * Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
 * Fix `DatabaseSlowStatementBuilder` statement maybe null.
 * Remove fields of parent entity in the relation sources. 
+* Save Envoy http access logs when error occurs.
 
 #### UI
 * Update selector scroller to show in all pages.

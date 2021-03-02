@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,7 @@ public class RateLimitingSampler implements Sampler {
 
     @Slf4j
     public static class ResetHandler {
-        private final Set<Sampler> samplers = new HashSet<>();
+        private final List<Sampler> samplers = new ArrayList<>();
 
         private volatile ScheduledFuture<?> future;
 
