@@ -104,4 +104,4 @@ e.g. `SW_LOG_LAL_FILES=envoy-als`).
 you need to configure at least one of `k8s-mesh` or `mx-mesh` as its antecedent so that `persistence` analyzer knows
 which service the logs belong to. For example, you should set `envoy-metric/default/alsHTTPAnalysis` (or environment
 variable `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS`) to something like `k8s-mesh,persistence`, `mx-mesh,persistence`
-or `k8s-mesh,mx-mesh,persistence`.
+or `mx-mesh,k8s-mesh,persistence`.

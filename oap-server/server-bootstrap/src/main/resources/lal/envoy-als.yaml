@@ -19,7 +19,7 @@ rules:
       filter {
         json {
         }
-        // only collect error logs
+        // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
         if (parsed?.response?.responseCode < 300 && !parsed?.commonProperties?.responseFlags) {
           abort {}
         }
@@ -29,10 +29,18 @@ rules:
         }
         sink {
           sampler {
-            // use the service name as sampler id so that each service has its own sampler,
-            // i.e. sample by service
-            rateLimit(log.service) {
-              qps 100
+            if (parsed?.commonProperties?.responseFlags) {
+              // use service:errorCode as sampler id so that each service:errorCode has its own sampler,
+              // e.g. checkoutservice:[upstreamConnectionFailure], checkoutservice:[upstreamRetryLimitExceeded]
+              rateLimit("${log.service}:${parsed?.commonProperties?.responseFlags?.keySet()}") {
+                qps 100
+              }
+            } else {
+              // use service:responseCode as sampler id so that each service:responseCode has its own sampler,
+              // e.g. checkoutservice:500, checkoutservice:404.
+              rateLimit("${log.service}:${parsed?.response?.responseCode}") {
+                qps 100
+              }
             }
           }
         }
