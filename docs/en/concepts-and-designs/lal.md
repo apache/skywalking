@@ -34,12 +34,7 @@ filter {
     if (log.service == "TestingService") { // Don't waste resources on TestingServices
         abort {} // all remaining components won't be executed at all
     }
-    text {
-        // if the logs don't match this regexp, skip it
-        abortOnFailure true
-        regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)"
-    }
-    // ... extractors, sinks
+    // ... parsers, extractors, sinks
 }
 ```
 
@@ -60,7 +55,7 @@ All parsers share the following options:
 
 | Option | Type | Description | Default Value |
 | ------ | ---- | ----------- | ------------- |
-| `abortOnFailure` | `boolean` | Whether the filter chain should abort if the parser failed to parse / match the logs | `false` |
+| `abortOnFailure` | `boolean` | Whether the filter chain should abort if the parser failed to parse / match the logs | `true` |
 
 See examples below.
 
@@ -69,7 +64,6 @@ See examples below.
 ```groovy
 filter {
     json {
-        abortOnFailure true
     }
 }
 ```
@@ -79,7 +73,6 @@ filter {
 ```groovy
 filter {
     yaml {
-        abortOnFailure true
     }
 }
 ```
@@ -97,9 +90,8 @@ all the captured groups can be used later in the extractors or sinks.
 ```groovy
 filter {
     text {
-        abortOnFailure true  // if the logs don't match the pattern below, abort the filter chain
-        regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)"
         // this is just a demo pattern
+        regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)"
     }
     extractor {
         tag level: parsed.level

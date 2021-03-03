@@ -34,7 +34,7 @@ public class AbstractParserSpec extends AbstractSpec {
      */
     @Getter
     @Setter
-    private boolean abortOnFailure;
+    private boolean abortOnFailure = true;
 
     public AbstractParserSpec(final ModuleManager moduleManager,
                               final LogAnalyzerModuleConfig moduleConfig) {

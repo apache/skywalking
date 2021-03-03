@@ -18,7 +18,6 @@ rules:
     dsl: |
       filter {
         json {
-          abortOnFailure true
         }
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
         if (parsed?.response?.responseCode < 400 && !parsed?.commonProperties?.responseFlags) {
