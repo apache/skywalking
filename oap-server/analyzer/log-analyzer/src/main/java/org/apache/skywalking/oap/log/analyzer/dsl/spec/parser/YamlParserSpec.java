@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.parser;
 
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.yaml.snakeyaml.DumperOptions;
@@ -27,7 +26,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.representer.Representer;
 
-public class YamlParserSpec extends AbstractSpec {
+public class YamlParserSpec extends AbstractParserSpec {
     private final LoaderOptions loaderOptions;
 
     public YamlParserSpec(final ModuleManager moduleManager,
