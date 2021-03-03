@@ -18,28 +18,26 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.parser;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-public class JsonParserSpec extends AbstractParserSpec {
-    private final GsonBuilder gsonBuilder;
+@Accessors(fluent = true)
+public class AbstractParserSpec extends AbstractSpec {
+    /**
+     * Whether the filter chain should abort when parsing the logs failed.
+     *
+     * Failing to parse the logs means either parsing throws exceptions or the logs not matching the desired patterns.
+     */
+    @Getter
+    @Setter
+    private boolean abortOnFailure = true;
 
-    private final Gson gson;
-
-    public JsonParserSpec(final ModuleManager moduleManager,
-                          final LogAnalyzerModuleConfig moduleConfig) {
+    public AbstractParserSpec(final ModuleManager moduleManager,
+                              final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
-
-        gsonBuilder = new GsonBuilder();
-
-        // We just create a gson instance in advance for now (for the sake of performance),
-        // when we want to provide some extra options, we'll move this into method "create" then.
-        gson = gsonBuilder.create();
-    }
-
-    public Gson create() {
-        return gson;
     }
 }
