@@ -1,0 +1,228 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "K8s"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+          {
+              "name": "K8s",
+              "type": "service",
+              "children": [
+                  {
+                      "name": "Cluster",
+                      "children": [
+                          {
+                              "width": "4",
+                              "title": "CPU Cores",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_cpu_cores,k8s_cluster_cpu_cores_requests,k8s_cluster_cpu_cores_limits,k8s_cluster_cpu_cores_allocatable",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "100"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Memory (GB)",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_memory_total,k8s_cluster_memory_requests,k8s_cluster_memory_limits,k8s_cluster_memory_allocatable",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Ephemeral Storage (GB)",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_disk_total,k8s_cluster_disk_allocatable",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824"
+                          },
+                          {
+                              "width": "2",
+                              "title": "Nodes",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_node_count",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "5",
+                              "title": "Nodes Status",
+                              "height": "350",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_node_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": "5",
+                              "title": "Namespaces",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_namespace_count",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": 4,
+                              "title": "Deployments",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_deployment_count",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Deployments Status",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_deployment_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Deployments Spec Replicas",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar",
+                              "metricName": "k8s_cluster_deployment_spec_replicas"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Services",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_service_count",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Containers",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_container_count",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Container Status Waiting",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_container_status_waiting",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Container Status Terminated",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_container_status_terminated",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": "2",
+                              "title": "Pods",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_pod_count",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "5",
+                              "title": "Pods Status Running",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar",
+                              "metricName": "k8s_cluster_pod_status_running,k8s_cluster_pod_status_not_running"
+                          },
+                          {
+                              "width": "5",
+                              "title": "Pods Status Not Running",
+                              "height": 350,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_pod_status_not_running",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          }
+                      ]
+                  }
+              ]
+          }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

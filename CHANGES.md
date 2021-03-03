@@ -40,6 +40,7 @@ Release Notes.
 * Fix `DatabaseSlowStatementBuilder` statement maybe null.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
+* Support k8s cluster monitoring, the global information.
 
 #### UI
 * Update selector scroller to show in all pages.
