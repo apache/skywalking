@@ -64,6 +64,7 @@ See examples below.
 ```groovy
 filter {
     json {
+        abortOnFailure true // this is optional because it's default behaviour
     }
 }
 ```
@@ -73,6 +74,7 @@ filter {
 ```groovy
 filter {
     yaml {
+        abortOnFailure true // this is optional because it's default behaviour
     }
 }
 ```
@@ -90,6 +92,7 @@ all the captured groups can be used later in the extractors or sinks.
 ```groovy
 filter {
     text {
+        abortOnFailure true // this is optional because it's default behaviour
         // this is just a demo pattern
         regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)"
     }
