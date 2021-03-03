@@ -30,12 +30,7 @@ public class CallbackConstructorInterceptor implements InstanceConstructorInterc
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         Callback callback = (Callback) allArguments[0];
-        CallbackCache cache;
-        if (null != objInst.getSkyWalkingDynamicField()) {
-            cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
-        } else {
-            cache = new CallbackCache();
-        }
+        CallbackCache cache = new CallbackCache();
         cache.setCallback(callback);
         objInst.setSkyWalkingDynamicField(cache);
     }
