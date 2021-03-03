@@ -48,7 +48,7 @@ Release Notes.
 * Fix trace id by clear search conditions.
 * Search endpoints with keywords.
 * Fix pageSize on logs page.
-* update echarts version to 5.0.2.
+* Update echarts version to 5.0.2.
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
 * Adjust documentation about Zipkin receiver.
