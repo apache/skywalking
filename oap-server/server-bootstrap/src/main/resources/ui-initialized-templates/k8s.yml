@@ -30,6 +30,7 @@ templates:
           {
               "name": "K8s",
               "type": "service",
+              "serviceGroup": "k8s-cluster",
               "children": [
                   {
                       "name": "Cluster",
