@@ -53,11 +53,12 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         ignoreSuffixArray = Config.Agent.IGNORE_SUFFIX.split(",");
         ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
         spanLimitWatcher = new SpanLimitWatcher("agent.span_limit_per_segment");
-        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
-                               .registerAgentConfigChangeWatcher(spanLimitWatcher);
 
-        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
-                               .registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
+        ConfigurationDiscoveryService configurationDiscoveryService = ServiceManager.INSTANCE.findService(
+            ConfigurationDiscoveryService.class);
+        configurationDiscoveryService.registerAgentConfigChangeWatcher(spanLimitWatcher);
+        configurationDiscoveryService.registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
+
         handleIgnoreSuffixPatternsChanged();
     }
 
