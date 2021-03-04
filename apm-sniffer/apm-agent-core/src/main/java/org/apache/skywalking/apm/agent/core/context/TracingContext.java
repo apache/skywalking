@@ -26,6 +26,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SpanLimitWatcher;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.apache.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
@@ -134,6 +135,8 @@ public class TracingContext implements AbstractTracerContext {
         this.correlationContext = new CorrelationContext();
         this.extensionContext = new ExtensionContext();
         this.spanLimitWatcher = new SpanLimitWatcher("agent.span_limit_per_segment");
+        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
+                               .registerAgentConfigChangeWatcher(spanLimitWatcher);
     }
 
     /**
