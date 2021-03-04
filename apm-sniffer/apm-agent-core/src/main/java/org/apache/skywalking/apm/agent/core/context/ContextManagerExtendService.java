@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.IgnoreSuffixPatternsWatcher;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
@@ -93,7 +94,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         this.status = status;
     }
 
-    void handleIgnoreSuffixPatternsChanged() {
+    public void handleIgnoreSuffixPatternsChanged() {
         if (StringUtil.isNotBlank(ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns())) {
             ignoreSuffixArray = ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns().split(",");
         }
