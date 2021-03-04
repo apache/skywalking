@@ -33,6 +33,7 @@ inputs:
       ".licenserc.yaml"
       "docs/menu.yml"
       ".github/actions/skip/action.yml"
+      "dist-material/release-docs"
 runs:
   using: "composite"
   steps:
