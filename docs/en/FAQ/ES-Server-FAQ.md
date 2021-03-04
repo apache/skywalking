@@ -15,7 +15,7 @@ Or
 
 You could add the following config to `elasticsearch.yml`, and set the value based on your environment variable.
 ```yml
-# In tracing scenario, consider to set more than this at least.
+# In the case of tracing, consider setting a value higher than this.
 thread_pool.index.queue_size: 1000
 thread_pool.write.queue_size: 1000
 
