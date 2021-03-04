@@ -24,19 +24,18 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.ZipkinSkyWalkingTransfer;
 import org.apache.skywalking.oap.server.receiver.zipkin.trace.SpanForward;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
+@RequiredArgsConstructor
 public class SpanProcessor {
-    private SourceReceiver receiver;
-
-    public SpanProcessor(SourceReceiver receiver) {
-        this.receiver = receiver;
-    }
+    private final NamingControl namingControl;
+    private final SourceReceiver receiver;
 
     void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request) throws IOException {
         try (InputStream inputStream = getInputStream(request)) {
@@ -50,13 +49,8 @@ public class SpanProcessor {
 
             List<Span> spanList = decoder.decodeList(out.toByteArray());
 
-            if (config.isNeedAnalysis()) {
-                ZipkinSkyWalkingTransfer transfer = new ZipkinSkyWalkingTransfer();
-                transfer.doTransfer(config, spanList);
-            } else {
-                SpanForward forward = new SpanForward(config, receiver);
-                forward.send(spanList);
-            }
+            SpanForward forward = new SpanForward(namingControl, receiver);
+            forward.send(spanList);
         }
     }
 
