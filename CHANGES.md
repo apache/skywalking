@@ -41,6 +41,7 @@ Release Notes.
 * Fix `DatabaseSlowStatementBuilder` statement maybe null.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
+* Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
 
 #### UI
 * Update selector scroller to show in all pages.
