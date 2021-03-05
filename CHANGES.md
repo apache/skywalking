@@ -43,7 +43,7 @@ Release Notes.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
 * Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
-* Support metrics grouped by scope labels, no need global labels as before.
+* Support metrics grouped by scope labels in MAL, no need global labels as before.
 
 #### UI
 * Update selector scroller to show in all pages.
