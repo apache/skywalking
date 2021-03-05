@@ -20,6 +20,8 @@ PRG="$0"
 PRGDIR=`dirname "$PRG"`
 [ -z "$OAP_HOME" ] && OAP_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 
+[ ${OAP_DEAMON:- true} = true ] && OAP_DEAMON_MARK='&'
+
 OAP_LOG_DIR=${OAP_LOG_DIR:-"${OAP_HOME}/logs"}
 JAVA_OPTS=" -Xms256M -Xmx512M"
 
@@ -39,7 +41,7 @@ done
 OAP_OPTIONS=" -Doap.logDir=${OAP_LOG_DIR}"
 
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH -Dmode=no-init org.apache.skywalking.oap.server.starter.OAPServerStartUp \
-        2>${OAP_LOG_DIR}/oap.log 1> /dev/null &"
+        2>${OAP_LOG_DIR}/oap.log 1> /dev/null ${OAP_DEAMON_MARK}"
 
 if [ $? -eq 0 ]; then
     sleep 1

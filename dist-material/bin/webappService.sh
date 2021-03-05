@@ -24,6 +24,8 @@ WEBAPP_LOG_DIR="${WEBAPP_LOG_DIR:-${WEBAPP_HOME}/logs}"
 JAVA_OPTS=" -Xms256M -Xmx512M"
 JAR_PATH="${WEBAPP_HOME}/webapp"
 
+[ ${WEBAPP_DEAMON:- true} = true ] && WEBAPP_DEAMON_MARK='&'
+
 if [ ! -d "${WEBAPP_LOG_DIR}" ]; then
     mkdir -p "${WEBAPP_LOG_DIR}"
 fi
@@ -36,7 +38,7 @@ _RUNJAVA=${JAVA_HOME}/bin/java
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -jar ${JAR_PATH}/skywalking-webapp.jar \
          --spring.config.location=${JAR_PATH}/webapp.yml \
          --logging.file=${LOG_FILE_LOCATION} \
-        2>${WEBAPP_LOG_DIR}/webapp-console.log 1> /dev/null &"
+        2>${WEBAPP_LOG_DIR}/webapp-console.log 1> /dev/null ${WEBAPP_DEAMON_MARK}"
 
 if [ $? -eq 0 ]; then
     sleep 1
