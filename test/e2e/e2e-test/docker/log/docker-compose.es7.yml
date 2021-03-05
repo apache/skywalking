@@ -36,6 +36,11 @@ services:
       service: oap-es7
     environment:
       SW_STORAGE: elasticsearch7
+      SW_LOG_LAL_FILES: test
+      SW_LOG_MAL_FILES: test
+    volumes:
+      - ./lal.yaml:/skywalking/config/lal/test.yaml
+      - ./log-mal.yaml:/skywalking/config/log-mal-rules/test.yaml
     depends_on:
       es:
         condition: service_healthy

@@ -41,6 +41,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>log-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-mesh-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

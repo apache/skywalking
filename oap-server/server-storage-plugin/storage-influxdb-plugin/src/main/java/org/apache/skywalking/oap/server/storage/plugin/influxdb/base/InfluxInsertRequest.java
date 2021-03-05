@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -40,8 +40,8 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
     private final Point.Builder builder;
     private final Map<String, Object> fields = Maps.newHashMap();
 
-    public <T extends StorageData> InfluxInsertRequest(Model model, T storageData, StorageBuilder<T> storageBuilder) {
-        final Map<String, Object> objectMap = storageBuilder.data2Map(storageData);
+    public <T extends StorageData> InfluxInsertRequest(Model model, T storageData, StorageHashMapBuilder<T> storageBuilder) {
+        final Map<String, Object> objectMap = storageBuilder.entity2Storage(storageData);
         if (SegmentRecord.INDEX_NAME.equals(model.getName()) || LogRecord.INDEX_NAME.equals(model.getName())) {
             objectMap.remove(SegmentRecord.TAGS);
         }

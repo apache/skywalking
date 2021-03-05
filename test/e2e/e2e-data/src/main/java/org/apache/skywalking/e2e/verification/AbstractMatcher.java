@@ -33,6 +33,18 @@ public abstract class AbstractMatcher<T> {
 
     public abstract void verify(T t);
 
+    protected void doVerify(String expected, int actual) {
+        this.doVerify(expected, String.valueOf(actual));
+    }
+
+    protected void doVerify(String expected, long actual) {
+        this.doVerify(expected, String.valueOf(actual));
+    }
+
+    protected void doVerify(String expected, boolean actual) {
+        this.doVerify(expected, String.valueOf(actual));
+    }
+
     protected void doVerify(String expected, String actual) {
         Matcher matcher = NN_MATCHER.matcher(expected);
         if (matcher.find()) {

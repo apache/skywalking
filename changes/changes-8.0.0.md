@@ -4,7 +4,7 @@
 #### Project
 * v3 protocol is added and implemented. All previous releases are incompatible with 8.x releases.
 * Service, Instance, Endpoint register mechanism and inventory storage entities are removed.
-* New GraphQL query protocol is provided, the legacy procotol is still supported(plan to remove at the end of this year).
+* New GraphQL query protocol is provided, the legacy protocol is still supported(plan to remove at the end of this year).
 * Support Prometheus network protocol. Metrics in Prometheus format could be transferred into SkyWalking.
 * Python agent provided.
 * All inventory caches have been removed.

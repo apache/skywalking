@@ -19,7 +19,7 @@ logs:
     serviceInstanceName: not null
     serviceInstanceId: not null
     traceId: not null
-    timestamp: not null
+    timestamp: gt 0
     contentType: TEXT
     content: not null
     tags:

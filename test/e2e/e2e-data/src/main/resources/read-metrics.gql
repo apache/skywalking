@@ -24,7 +24,7 @@
       "condition":{
          "name":"{metricsName}",
          "entity":{
-            "scope":"ServiceInstance",
+            "scope":"{scope}",
             "serviceName":"{serviceName}",
             "serviceInstanceName":"{instanceName}",
             "normal":true

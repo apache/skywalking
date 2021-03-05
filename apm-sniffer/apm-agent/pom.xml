@@ -116,9 +116,9 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <delete dir="${project.basedir}/../../skywalking-agent" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                     <execution>
@@ -128,13 +128,13 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <mkdir dir="${project.basedir}/../../skywalking-agent" />
                                 <copy file="${project.build.directory}/skywalking-agent.jar" tofile="${project.basedir}/../../skywalking-agent/skywalking-agent.jar" overwrite="true" />
                                 <mkdir dir="${project.basedir}/../../skywalking-agent/config" />
                                 <mkdir dir="${project.basedir}/../../skywalking-agent/logs" />
                                 <copydir src="${project.basedir}/../config" dest="${project.basedir}/../../skywalking-agent/config" forceoverwrite="true" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

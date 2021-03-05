@@ -50,7 +50,7 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public Record map2Data(final Map<String, Object> dbMap) {
+    public Record storage2Entity(final Map<String, Object> dbMap) {
         LogRecord record = new LogRecord();
         record.setUniqueId((String) dbMap.get(UNIQUE_ID));
         record.setServiceId((String) dbMap.get(SERVICE_ID));
@@ -74,7 +74,7 @@ public class H2LogRecordBuilder extends AbstractSearchTagBuilder<Record> {
     }
 
     @Override
-    public Map<String, Object> data2Map(final Record record) {
+    public Map<String, Object> entity2Storage(final Record record) {
         LogRecord storageData = (LogRecord) record;
         Map<String, Object> map = new HashMap<>();
         map.put(UNIQUE_ID, storageData.getUniqueId());

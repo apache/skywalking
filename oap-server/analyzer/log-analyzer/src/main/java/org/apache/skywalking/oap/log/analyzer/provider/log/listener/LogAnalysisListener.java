@@ -31,6 +31,7 @@ public interface LogAnalysisListener {
 
     /**
      * Parse the raw data from the probe.
+     * @return {@code this} for chaining.
      */
-    void parse(LogData.Builder logData);
+    LogAnalysisListener parse(LogData.Builder logData);
 }

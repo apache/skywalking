@@ -70,7 +70,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
                 for (int i = 1; i < columnNames.size(); i++) {
                     data.put(columnNames.get(i), columnValues.get(i));
                 }
-                UITemplate uiTemplate = builder.map2Data(data);
+                UITemplate uiTemplate = builder.storage2Entity(data);
                 configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
             }
         }
@@ -84,7 +84,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
         final Point point = Point.measurement(UITemplate.INDEX_NAME)
                                  .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
-                                 .fields(builder.data2Map(uiTemplate))
+                                 .fields(builder.entity2Storage(uiTemplate))
                                  .time(1L, TimeUnit.NANOSECONDS)
                                  .build();
         client.write(point);
@@ -103,7 +103,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
             final Point point = Point.measurement(UITemplate.INDEX_NAME)
-                                     .fields(builder.data2Map(uiTemplate))
+                                     .fields(builder.entity2Storage(uiTemplate))
                                      .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
                                      .time(1L, TimeUnit.NANOSECONDS)
                                      .build();

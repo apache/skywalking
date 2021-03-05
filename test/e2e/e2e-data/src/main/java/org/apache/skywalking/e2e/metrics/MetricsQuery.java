@@ -18,10 +18,15 @@
 
 package org.apache.skywalking.e2e.metrics;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.skywalking.e2e.AbstractQuery;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(fluent = true)
@@ -149,4 +154,28 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         METER_PROCESS_FILES_MAX
     };
 
+    public static Map<String, List<String>> SIMPLE_ZABBIX_METERS = ImmutableMap.<String, List<String>>builder()
+            .put("meter_agent_system_cpu_util", Arrays.asList("idle"))
+            .put("meter_agent_vm_memory_size", Arrays.asList("total"))
+            .put("meter_agent_vfs_fs_size", Arrays.asList("/-total"))
+            .build();
+
+    public static String[] SIMPLE_PROM_VM_METERS = {
+        "meter_vm_memory_used",
+        "meter_vm_memory_total",
+        "meter_vm_memory_available",
+        "meter_vm_disk_written",
+        "meter_vm_network_transmit",
+        "meter_vm_tcp_curr_estab",
+        "meter_vm_tcp_alloc",
+        "meter_vm_sockets_used",
+        "meter_vm_udp_inuse",
+        "meter_vm_filefd_allocated"
+    };
+
+    public static Map<String, List<String>> SIMPLE_PROM_VM_LABELED_METERS = ImmutableMap.<String, List<String>>builder()
+        .put("meter_vm_cpu_average_used", Arrays.asList("idle"))
+        .put("meter_vm_filesystem_percentage", Arrays.asList("/etc/hosts"))
+        .build();
 }
+

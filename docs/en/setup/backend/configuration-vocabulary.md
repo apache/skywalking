@@ -132,6 +132,11 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | metadataQueryMaxSize | The max size of metadata per query. | SW_STORAGE_MYSQL_QUERY_MAX_SIZE | 5000 |
 | - | - | maxSizeOfArrayColumn | Some entities, such as trace segment, include the logic column with multiple values. In the MySQL, we use multiple physical columns to host the values, such as, Change column_a with values [1,2,3,4,5] to `column_a_0 = 1, column_a_1 = 2, column_a_2 = 3 , column_a_3 = 4, column_a_4 = 5` | SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN | 20 |
 | - | - | numOfSearchableValuesPerTag | In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such as multiple HTTP exit spans all have their own `http.method` tag. This configuration set the limitation of max num of values for the same tag key. | SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG | 2 |
+| - |postgresql| - | PostgreSQL storage. | - | - |
+| - | - | properties | Hikari connection pool configurations | - | Listed in the `application.yaml`. |
+| - | - | metadataQueryMaxSize | The max size of metadata per query. | SW_STORAGE_MYSQL_QUERY_MAX_SIZE | 5000 |
+| - | - | maxSizeOfArrayColumn | Some entities, such as trace segment, include the logic column with multiple values. In the PostgreSQL, we use multiple physical columns to host the values, such as, Change column_a with values [1,2,3,4,5] to `column_a_0 = 1, column_a_1 = 2, column_a_2 = 3 , column_a_3 = 4, column_a_4 = 5` | SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN | 20 |
+| - | - | numOfSearchableValuesPerTag | In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such as multiple HTTP exit spans all have their own `http.method` tag. This configuration set the limitation of max num of values for the same tag key. | SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG | 2 |
 | - |influxdb| - | InfluxDB storage. |- | - |
 | - | - | url| InfluxDB connection URL. | SW_STORAGE_INFLUXDB_URL | http://localhost:8086|
 | - | - | user | User name of InfluxDB. | SW_STORAGE_INFLUXDB_USER | root|
@@ -168,11 +173,19 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | gRPCSslCertChainPath| The file path of gRPC SSL cert chain| SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH | - |
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL | - |
 | - | - | authentication | The token text for the authentication. Work for gRPC connection only. Once this is set, the client is required to use the same token. | SW_AUTHENTICATION | - |
+| log-analyzer | default | Log Analyzer. | SW_LOG_ANALYZER | default |
+| - | - | lalFiles | The LAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_LAL_FILES | default |
+| - | - | malFiles | The MAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_MAL_FILES | "" |
+| event-analyzer | default | Event Analyzer. | SW_EVENT_ANALYZER | default |
 | receiver-register|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-trace|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-jvm| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-clr| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-profile| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
+| receiver-zabbix| default| Read [receiver doc](backend-zabbix.md) for more details | - | - |
+| - | - | port| Exported tcp port, Zabbix agent could connect and transport data| SW_RECEIVER_ZABBIX_PORT | 10051 |
+| - | - | host| Bind to host| SW_RECEIVER_ZABBIX_HOST | 0.0.0.0 |
+| - | - | activeFiles| Enable config when receive agent request| SW_RECEIVER_ZABBIX_ACTIVE_FILES | agent |
 | service-mesh| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | envoy-metric| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | - | - | acceptMetricsService | Open Envoy Metrics Service analysis | SW_ENVOY_METRIC_SERVICE | true|
@@ -185,9 +198,6 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restHost| Binding IP of restful service. |SW_RECEIVER_ZIPKIN_HOST|0.0.0.0|
 | - | - | restPort | Binding port of restful service | SW_RECEIVER_ZIPKIN_PORT|9411|
 | - | - | restContextPath| Web context path of restful service| SW_RECEIVER_ZIPKIN_CONTEXT_PATH|/|
-| - | - | needAnalysis|Analysis zipkin span to generate metrics| - | false|
-| - | - | maxCacheSize| Max cache size for span analysis | - | 1_000_000 |
-| - | - | expireTime| The expire time of analysis cache, unit is second. | - | 20|
 | receiver_jaeger | default| Read [receiver doc](backend-receivers.md) | - | - |
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_JAEGER_HOST | - |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_JAEGER_PORT | - |
@@ -261,6 +271,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
 | health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
 | configuration-discovery | default | disableMessageDigest | If true, agent receives the latest configuration every time even without change. In default, OAP uses SHA512 message digest mechanism to detect changes of configuration. | SW_DISABLE_MESSAGE_DIGEST | false
+| receiver-event|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 
 ## Notice
 ¹ System Environment Variable name could be declared and changed in the application.yml. The names listed here,

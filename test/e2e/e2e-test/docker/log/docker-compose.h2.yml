@@ -25,7 +25,7 @@ services:
     expose:
       - 1521
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 1521"]
+      test: [ "CMD", "sh", "-c", "nc -z 127.0.0.1 1521" ]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -37,6 +37,11 @@ services:
     environment:
       SW_STORAGE: h2
       SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db
+      SW_LOG_LAL_FILES: test
+      SW_LOG_MAL_FILES: test
+    volumes:
+      - ./lal.yaml:/skywalking/config/lal/test.yaml
+      - ./log-mal.yaml:/skywalking/config/log-mal-rules/test.yaml
     depends_on:
       h2db:
         condition: service_healthy

@@ -166,7 +166,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
-            final EndpointTraffic endpointTraffic = new EndpointTraffic.Builder().map2Data(sourceAsMap);
+            final EndpointTraffic endpointTraffic = new EndpointTraffic.Builder().storage2Entity(sourceAsMap);
 
             Endpoint endpoint = new Endpoint();
             endpoint.setId(endpointTraffic.id());
@@ -199,7 +199,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
-            final InstanceTraffic instanceTraffic = new InstanceTraffic.Builder().map2Data(sourceAsMap);
+            final InstanceTraffic instanceTraffic = new InstanceTraffic.Builder().storage2Entity(sourceAsMap);
 
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(instanceTraffic.id());
@@ -231,7 +231,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
             final ServiceTraffic.Builder builder = new ServiceTraffic.Builder();
-            final ServiceTraffic serviceTraffic = builder.map2Data(sourceAsMap);
+            final ServiceTraffic serviceTraffic = builder.storage2Entity(sourceAsMap);
 
             Service service = new Service();
             service.setId(serviceTraffic.id());

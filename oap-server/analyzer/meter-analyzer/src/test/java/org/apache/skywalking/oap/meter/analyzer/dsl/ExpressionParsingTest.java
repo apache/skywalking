@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.junit.Test;
@@ -52,25 +52,41 @@ public class ExpressionParsingTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-//            {
-//                "mini",
-//                "foo.instance(['service'], ['host'])",
-//                ExpressionParsingContext.builder()
-//                                        .downsampling(DownsamplingType.AVG)
-//                                        .scopeLabels(Arrays.asList("service", "host"))
-//                                        .scopeType(ScopeType.SERVICE_INSTANCE)
-//                                        .aggregationLabels(Lists.newArrayList()).build(),
-//                false,
-//            },
             {
                 "all",
-                "latest (foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'])",
+                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).downsampling(LATEST)",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
-                                        .scopeLabels(Collections.singletonList("rr"))
-                                        .aggregationLabels(Collections.singletonList("tt"))
+                                        .scopeLabels(Sets.newHashSet("rr"))
+                                        .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.LATEST)
+                                        .isHistogram(true)
+                                        .percentiles(new int[]{50, 99}).build(),
+                false,
+            },
+            {
+                "sumThenAvg",
+                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).avg(['tt'])",
+                ExpressionParsingContext.builder()
+                                        .samples(Collections.singletonList("foo"))
+                                        .scopeType(ScopeType.SERVICE)
+                                        .scopeLabels(Sets.newHashSet("rr"))
+                                        .aggregationLabels(Sets.newHashSet("tt"))
+                                        .downsampling(DownsamplingType.AVG)
+                                        .isHistogram(true)
+                                        .percentiles(new int[]{50, 99}).build(),
+                false,
+            },
+            {
+                "avgThenOthersThenSum",
+                "(foo - 1).tagEqual('bar', '1').avg(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr']).sum(['tt']).downsampling(SUM)",
+                ExpressionParsingContext.builder()
+                                        .samples(Collections.singletonList("foo"))
+                                        .scopeType(ScopeType.SERVICE)
+                                        .scopeLabels(Sets.newHashSet("rr"))
+                                        .aggregationLabels(Sets.newHashSet("tt"))
+                                        .downsampling(DownsamplingType.SUM)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
                 false,
@@ -81,8 +97,8 @@ public class ExpressionParsingTest {
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("node_cpu_seconds_total"))
                                         .scopeType(ScopeType.SERVICE)
-                                        .scopeLabels(Collections.singletonList("node_identifier_host_name"))
-                                        .aggregationLabels(Lists.newArrayList("node_identifier_host_name" , "node_identifier_host_name"))
+                                        .scopeLabels(Sets.newHashSet("node_identifier_host_name"))
+                                        .aggregationLabels(Sets.newHashSet("node_identifier_host_name"))
                                         .downsampling(DownsamplingType.AVG)
                                         .isHistogram(false).build(),
                 false,

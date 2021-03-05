@@ -115,7 +115,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
@@ -125,7 +125,7 @@
                                     </then>
                                 </if>
 
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

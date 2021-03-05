@@ -25,7 +25,7 @@ services:
     environment:
       - discovery.type=single-node
     healthcheck:
-      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200" ]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -36,6 +36,11 @@ services:
       service: oap
     environment:
       SW_STORAGE: elasticsearch
+      SW_LOG_LAL_FILES: test
+      SW_LOG_MAL_FILES: test
+    volumes:
+      - ./lal.yaml:/skywalking/config/lal/test.yaml
+      - ./log-mal.yaml:/skywalking/config/log-mal-rules/test.yaml
     depends_on:
       es:
         condition: service_healthy

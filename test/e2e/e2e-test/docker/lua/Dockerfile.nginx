@@ -15,7 +15,7 @@
 
 FROM openresty/openresty:1.17.8.2-5-alpine-fat
 
-ENV COMMIT_HASH=cda47ae0a507ab86a378a298325c3c94d9a773c2
+ENV COMMIT_HASH=c19c5cb2aa00b496288dc115a084a68a143f5f11
 
 WORKDIR /usr/share/skywalking-nginx-lua
 

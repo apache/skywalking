@@ -1,5 +1,5 @@
 ### Problem： Maven compilation failure with error like `Error: not found: python2`
-When you compile the project via maven, it failed at module `apm-webapp` and the following error occured.
+When you compile the project via maven, it failed at module `apm-webapp` and the following error occurred.
 
 Pay attention to key words such as `node-sass` and `Error: not found: python2`.
 

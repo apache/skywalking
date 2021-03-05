@@ -53,11 +53,11 @@ public class SamplingService implements BootService {
 
     @Override
     public void prepare() {
-        samplingRateWatcher = new SamplingRateWatcher("agent.sample_n_per_3_secs", this);
     }
 
     @Override
     public void boot() {
+        samplingRateWatcher = new SamplingRateWatcher("agent.sample_n_per_3_secs", this);
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                .registerAgentConfigChangeWatcher(samplingRateWatcher);
 

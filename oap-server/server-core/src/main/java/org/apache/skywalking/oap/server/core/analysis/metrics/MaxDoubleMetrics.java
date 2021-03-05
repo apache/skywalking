@@ -43,9 +43,10 @@ public abstract class MaxDoubleMetrics extends Metrics implements DoubleValueHol
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         MaxDoubleMetrics maxDoubleMetrics = (MaxDoubleMetrics) metrics;
         combine(maxDoubleMetrics.value);
+        return true;
     }
 
     @Override

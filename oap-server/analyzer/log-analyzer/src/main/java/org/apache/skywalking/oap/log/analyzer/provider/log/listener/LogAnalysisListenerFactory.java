@@ -17,14 +17,11 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-
 /**
  * LogAnalysisListenerFactory implementation creates the listener instance when required.
  * Every LogAnalysisListener could have its own creation factory.
  */
 public interface LogAnalysisListenerFactory {
 
-    LogAnalysisListener create(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig);
+    LogAnalysisListener create();
 }

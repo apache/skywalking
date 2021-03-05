@@ -4,7 +4,7 @@ read the data from the target systems. This mode is typically in some metrics SD
 
 ## Prometheus Fetcher
 Suppose you want to enable some `metric-custom.yaml` files stored at `fetcher-prom-rules`, append its name to `enabledRules` of 
- `promethues-fetcher` as below:
+ `prometheus-fetcher` as below:
  
 ```yaml
 prometheus-fetcher:

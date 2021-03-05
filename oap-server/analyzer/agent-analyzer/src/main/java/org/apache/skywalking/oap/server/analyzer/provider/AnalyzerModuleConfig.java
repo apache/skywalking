@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
+import com.google.common.base.Splitter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -145,10 +146,10 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     /**
      * Get all files could be meter analyzed, files split by ","
      */
-    public String[] meterAnalyzerActiveFileNames() {
+    public List<String> meterAnalyzerActiveFileNames() {
         if (StringUtils.isEmpty(this.meterAnalyzerActiveFiles)) {
             return null;
         }
-        return this.meterAnalyzerActiveFiles.split(",");
+        return Splitter.on(",").splitToList(this.meterAnalyzerActiveFiles);
     }
 }

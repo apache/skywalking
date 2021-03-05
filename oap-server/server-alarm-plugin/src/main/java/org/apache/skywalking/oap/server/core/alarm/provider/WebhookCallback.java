@@ -74,10 +74,11 @@ public class WebhookCallback implements AlarmCallback {
                 post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
 
                 StringEntity entity;
+                CloseableHttpResponse httpResponse = null;
                 try {
                     entity = new StringEntity(gson.toJson(alarmMessage), StandardCharsets.UTF_8);
                     post.setEntity(entity);
-                    CloseableHttpResponse httpResponse = httpClient.execute(post);
+                    httpResponse = httpClient.execute(post);
                     StatusLine statusLine = httpResponse.getStatusLine();
                     if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
                         log.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
@@ -86,6 +87,15 @@ public class WebhookCallback implements AlarmCallback {
                     log.error("Alarm to JSON error, " + e.getMessage(), e);
                 } catch (IOException e) {
                     log.error("send alarm to " + url + " failure.", e);
+                } finally {
+                    if (httpResponse != null) {
+                        try {
+                            httpResponse.close();
+                        } catch (IOException e) {
+                            log.error(e.getMessage(), e);
+                        }
+
+                    }
                 }
             });
         } finally {
