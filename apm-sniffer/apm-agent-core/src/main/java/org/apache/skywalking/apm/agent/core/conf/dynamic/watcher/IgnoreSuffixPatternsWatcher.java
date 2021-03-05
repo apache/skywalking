@@ -16,46 +16,42 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.sampling;
+package org.apache.skywalking.apm.agent.core.conf.dynamic.watcher;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
+import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-public class SamplingRateWatcher extends AgentConfigChangeWatcher {
-    private static final ILog LOGGER = LogManager.getLogger(SamplingRateWatcher.class);
+import java.util.concurrent.atomic.AtomicReference;
 
-    private final AtomicInteger samplingRate;
-    private final SamplingService samplingService;
+public class IgnoreSuffixPatternsWatcher extends AgentConfigChangeWatcher {
 
-    public SamplingRateWatcher(final String propertyKey, SamplingService samplingService) {
+    private static final ILog LOGGER = LogManager.getLogger(IgnoreSuffixPatternsWatcher.class);
+
+    private final AtomicReference<String> ignoreSuffixPatterns;
+    private final ContextManagerExtendService contextManagerExtendService;
+
+    public IgnoreSuffixPatternsWatcher(final String propertyKey, ContextManagerExtendService contextManagerExtendService) {
         super(propertyKey);
-        this.samplingRate = new AtomicInteger(getDefaultValue());
-        this.samplingService = samplingService;
+        this.ignoreSuffixPatterns = new AtomicReference(getDefaultValue());
+        this.contextManagerExtendService = contextManagerExtendService;
     }
 
     private void activeSetting(String config) {
         if (LOGGER.isDebugEnable()) {
             LOGGER.debug("Updating using new static config: {}", config);
         }
-        try {
-            this.samplingRate.set(Integer.parseInt(config));
 
-            /*
-             * We need to notify samplingService the samplingRate changed.
-             */
-            samplingService.handleSamplingRateChanged();
-        } catch (NumberFormatException ex) {
-            LOGGER.error(ex, "Cannot load {} from: {}", getPropertyKey(), config);
-        }
+        this.ignoreSuffixPatterns.set(config);
+        contextManagerExtendService.handleIgnoreSuffixPatternsChanged();
     }
 
     @Override
     public void notify(final ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
-            activeSetting(String.valueOf(getDefaultValue()));
+            activeSetting(getDefaultValue());
         } else {
             activeSetting(value.getNewValue());
         }
@@ -63,14 +59,15 @@ public class SamplingRateWatcher extends AgentConfigChangeWatcher {
 
     @Override
     public String value() {
-        return String.valueOf(samplingRate.get());
+        return ignoreSuffixPatterns.get();
     }
 
-    private int getDefaultValue() {
-        return Config.Agent.SAMPLE_N_PER_3_SECS;
+    private String getDefaultValue() {
+        return Config.Agent.IGNORE_SUFFIX;
     }
 
-    public int getSamplingRate() {
-        return samplingRate.get();
+    public String getIgnoreSuffixPatterns() {
+        return ignoreSuffixPatterns.get();
     }
+
 }

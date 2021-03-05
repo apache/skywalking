@@ -16,41 +16,39 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.context;
+package org.apache.skywalking.apm.agent.core.conf.dynamic.watcher;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-import java.util.concurrent.atomic.AtomicReference;
+public class SpanLimitWatcher extends AgentConfigChangeWatcher {
+    private static final ILog LOGGER = LogManager.getLogger(SpanLimitWatcher.class);
 
-public class IgnoreSuffixPatternsWatcher extends AgentConfigChangeWatcher {
+    private final AtomicInteger spanLimit;
 
-    private static final ILog LOGGER = LogManager.getLogger(IgnoreSuffixPatternsWatcher.class);
-
-    private final AtomicReference<String> ignoreSuffixPatterns;
-    private final ContextManagerExtendService contextManagerExtendService;
-
-    public IgnoreSuffixPatternsWatcher(final String propertyKey, ContextManagerExtendService contextManagerExtendService) {
+    public SpanLimitWatcher(final String propertyKey) {
         super(propertyKey);
-        this.ignoreSuffixPatterns = new AtomicReference(getDefaultValue());
-        this.contextManagerExtendService = contextManagerExtendService;
+        this.spanLimit = new AtomicInteger(getDefaultValue());
     }
 
     private void activeSetting(String config) {
         if (LOGGER.isDebugEnable()) {
             LOGGER.debug("Updating using new static config: {}", config);
         }
-
-        this.ignoreSuffixPatterns.set(config);
-        contextManagerExtendService.handleIgnoreSuffixPatternsChanged();
+        try {
+            this.spanLimit.set(Integer.parseInt(config));
+        } catch (NumberFormatException ex) {
+            LOGGER.error(ex, "Cannot load {} from: {}", getPropertyKey(), config);
+        }
     }
 
     @Override
     public void notify(final ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
-            activeSetting(getDefaultValue());
+            activeSetting(String.valueOf(getDefaultValue()));
         } else {
             activeSetting(value.getNewValue());
         }
@@ -58,15 +56,14 @@ public class IgnoreSuffixPatternsWatcher extends AgentConfigChangeWatcher {
 
     @Override
     public String value() {
-        return ignoreSuffixPatterns.get();
+        return String.valueOf(spanLimit.get());
     }
 
-    private String getDefaultValue() {
-        return Config.Agent.IGNORE_SUFFIX;
+    private int getDefaultValue() {
+        return Config.Agent.SPAN_LIMIT_PER_SEGMENT;
     }
 
-    public String getIgnoreSuffixPatterns() {
-        return ignoreSuffixPatterns.get();
+    public int getSpanLimit() {
+        return spanLimit.get();
     }
-
 }

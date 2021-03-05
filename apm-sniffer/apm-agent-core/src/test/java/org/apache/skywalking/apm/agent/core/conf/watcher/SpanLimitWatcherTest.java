@@ -16,28 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.context;
+package org.apache.skywalking.apm.agent.core.conf.watcher;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SpanLimitWatcher;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
-public class IgnoreSuffixPatternsWatcherTest {
+public class SpanLimitWatcherTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private ContextManagerExtendService contextManagerExtendService;
+    private final SpanLimitWatcher spanLimitWatcher = new SpanLimitWatcher("agent.span_limit_per_segment");
 
     @Before
     public void setUp() {
-        contextManagerExtendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
     }
 
     @AfterClass
@@ -47,24 +46,20 @@ public class IgnoreSuffixPatternsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() {
-        IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher = Whitebox.getInternalState(contextManagerExtendService
-            , "ignoreSuffixPatternsWatcher");
-        ignoreSuffixPatternsWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
-            ".txt,.log",
+        spanLimitWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
+            "400",
             AgentConfigChangeWatcher.EventType.MODIFY
         ));
-        Assert.assertEquals(".txt,.log", ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns());
-        Assert.assertEquals("agent.ignore_suffix", ignoreSuffixPatternsWatcher.getPropertyKey());
+        Assert.assertEquals(400, spanLimitWatcher.getSpanLimit());
+        Assert.assertEquals("agent.span_limit_per_segment", spanLimitWatcher.getPropertyKey());
     }
 
     @Test
     public void testConfigDeleteEvent() {
-        IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher = Whitebox.getInternalState(contextManagerExtendService
-            , "ignoreSuffixPatternsWatcher");
-        ignoreSuffixPatternsWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
+        spanLimitWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
             null,
             AgentConfigChangeWatcher.EventType.DELETE
         ));
-        Assert.assertEquals("agent.ignore_suffix", ignoreSuffixPatternsWatcher.getPropertyKey());
+        Assert.assertEquals("agent.span_limit_per_segment", spanLimitWatcher.getPropertyKey());
     }
 }
