@@ -20,6 +20,7 @@ Release Notes.
 * Fix NullPointerException with KafkaProducer.send(record).
 
 #### OAP-Backend
+* Support script environment variable configuration and foreground startup.
 * Allow user-defined `JAVA_OPTS` in the startup script.
 * Metrics combination API supports abandoning results.
 * Add a new concept "Event" and its implementations to collect events.
