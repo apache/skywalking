@@ -52,7 +52,7 @@ Release Notes.
 * Search endpoints with keywords.
 * Fix pageSize on logs page.
 * Update echarts version to 5.0.2.
-* Fix instance dependency.
+* Fix instance dependency on the topology page.
 * Fix resolved url for vue-property-decorator.
 
 #### Documentation
