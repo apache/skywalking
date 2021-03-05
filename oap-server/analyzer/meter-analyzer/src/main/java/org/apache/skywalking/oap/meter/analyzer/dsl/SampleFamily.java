@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
+import java.util.ArrayList;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -206,7 +207,6 @@ public class SampleFamily {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D);
             return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
-
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
@@ -344,8 +344,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        this.context.setMeterEntity(MeterEntity.newService(dim(labelKeys)));
-        return left(labelKeys);
+        return createMeterSamples(labelKeys, new ArrayList<>(), ScopeType.SERVICE);
     }
 
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
@@ -360,8 +359,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        this.context.setMeterEntity(MeterEntity.newServiceInstance(dim(serviceKeys), dim(instanceKeys)));
-        return left(io.vavr.collection.Stream.concat(serviceKeys, instanceKeys).asJava());
+        return createMeterSamples(serviceKeys, instanceKeys, ScopeType.SERVICE_INSTANCE);
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
@@ -376,13 +374,61 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        this.context.setMeterEntity(MeterEntity.newEndpoint(dim(serviceKeys), dim(endpointKeys)));
-        return left(io.vavr.collection.Stream.concat(serviceKeys, endpointKeys).asJava());
+        return createMeterSamples(serviceKeys, endpointKeys, ScopeType.ENDPOINT);
+    }
+
+    private SampleFamily createMeterSamples(List<String> serviceKeys, List<String> level2keys, ScopeType scopeType) {
+        final List<String> labelKeys = io.vavr.collection.Stream.concat(serviceKeys, level2keys).asJava();
+        Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
+        Arrays.stream(samples)
+              .collect(groupingBy(it -> getLabels(labelKeys, it), mapping(identity(), toList())))
+              .forEach((labels, samples) -> {
+                  MeterEntity meterEntity = getMeterEntity(samples, serviceKeys, level2keys, scopeType);
+                  Preconditions.checkNotNull(meterEntity);
+                  meterSamples.put(meterEntity, left(labelKeys, samples));
+              });
+
+        this.context.setMeterSamples(meterSamples);
+        //This samples is original, The grouped samples is in context which mapping with MeterEntity
+        return SampleFamily.build(this.context, samples);
+    }
+
+    private MeterEntity getMeterEntity(List<Sample> samples,
+                                       List<String> serviceKeys,
+                                       List<String> level2keys,
+                                       ScopeType scopeType) {
+        switch (scopeType) {
+            case SERVICE:
+                return MeterEntity.newService(dim(serviceKeys, samples));
+            case SERVICE_INSTANCE:
+                return MeterEntity.newServiceInstance(dim(serviceKeys, samples), dim(level2keys, samples));
+            case ENDPOINT:
+                return MeterEntity.newEndpoint(dim(serviceKeys, samples), dim(level2keys, samples));
+        }
+        return null;
     }
 
     private String dim(List<String> labelKeys) {
-        String name = labelKeys.stream().map(k -> samples[0].labels.getOrDefault(k, "")).collect(Collectors.joining("."));
+        String name = labelKeys.stream()
+                               .map(k -> samples[0].labels.getOrDefault(k, ""))
+                               .collect(Collectors.joining("."));
         return CharMatcher.is('.').trimFrom(name);
+    }
+
+    private String dim(List<String> labelKeys, List<Sample> samples) {
+        String name = labelKeys.stream()
+                               .map(k -> samples.get(0).labels.getOrDefault(k, ""))
+                               .collect(Collectors.joining("."));
+        return CharMatcher.is('.').trimFrom(name);
+    }
+
+    private Sample[] left(List<String> labelKeys, List<Sample> samples) {
+        return samples.stream().map(s -> {
+            ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
+                .build();
+            return s.toBuilder().labels(ll).build();
+        }).toArray(Sample[]::new);
     }
 
     private SampleFamily left(List<String> labelKeys) {
@@ -477,7 +523,7 @@ public class SampleFamily {
                 .build();
         }
 
-        MeterEntity meterEntity;
+        private Map<MeterEntity, Sample[]> meterSamples;
 
         private HistogramType histogramType;
 
