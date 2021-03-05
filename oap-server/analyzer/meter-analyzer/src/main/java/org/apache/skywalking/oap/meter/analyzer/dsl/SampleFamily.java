@@ -378,12 +378,12 @@ public class SampleFamily {
     }
 
     private SampleFamily createMeterSamples(List<String> serviceKeys, List<String> level2keys, ScopeType scopeType) {
-        final List<String> labelKeys = io.vavr.collection.Stream.concat(serviceKeys, level2keys).asJava();
+        final List<String> labelKeys = Stream.concat(serviceKeys.stream(), level2keys.stream()).collect(toList());
         Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
         Arrays.stream(samples)
               .collect(groupingBy(it -> getLabels(labelKeys, it), mapping(identity(), toList())))
               .forEach((labels, samples) -> {
-                  MeterEntity meterEntity = getMeterEntity(samples, serviceKeys, level2keys, scopeType);
+                  MeterEntity meterEntity = buildMeterEntity(samples, serviceKeys, level2keys, scopeType);
                   Preconditions.checkNotNull(meterEntity);
                   meterSamples.put(meterEntity, left(labelKeys, samples));
               });
@@ -393,7 +393,7 @@ public class SampleFamily {
         return SampleFamily.build(this.context, samples);
     }
 
-    private MeterEntity getMeterEntity(List<Sample> samples,
+    private MeterEntity buildMeterEntity(List<Sample> samples,
                                        List<String> serviceKeys,
                                        List<String> level2keys,
                                        ScopeType scopeType) {
@@ -523,7 +523,7 @@ public class SampleFamily {
                 .build();
         }
 
-        private Map<MeterEntity, Sample[]> meterSamples;
+        private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
 
         private HistogramType histogramType;
 

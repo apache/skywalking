@@ -321,8 +321,8 @@ public class ScopeTest {
         }
         assertThat(r.isSuccess(), is(true));
         Map<MeterEntity, Sample[]> meterSamplesR = r.getData().context.getMeterSamples();
-        meterSamplesR.forEach(((meterEntity, samples) -> {
+        meterSamplesR.forEach((meterEntity, samples) -> {
             assertThat(samples, is(want.get(meterEntity)));
-        }));
+        });
     }
 }
