@@ -182,8 +182,6 @@ public class ITElasticSearchClient {
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(indexName + "-2019", "testid", builder);
-        Assert.assertEquals(1, client.getDocNumber(indexName + "-2019"));
-
         JsonObject index = getIndex(indexName + "-2019");
         LOGGER.info(index.toString());
 

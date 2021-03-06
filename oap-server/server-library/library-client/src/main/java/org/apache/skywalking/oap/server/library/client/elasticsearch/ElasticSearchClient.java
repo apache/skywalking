@@ -288,24 +288,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return client.indices().exists(request);
     }
 
-    public long getDocNumber(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
-        try {
-            Response response = client.getLowLevelClient()
-                                      .performRequest(HttpGet.METHOD_NAME, "_cat/indices/" + indexName);
-            return Long.parseLong(EntityUtils.toString(response.getEntity()).split(" +")[6]);
-        } catch (ResponseException e) {
-            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                return 0;
-            }
-            healthChecker.unHealth(e);
-            throw e;
-        } catch (IOException e) {
-            healthChecker.unHealth(e);
-            throw e;
-        }
-    }
-
     public boolean isExistsTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 

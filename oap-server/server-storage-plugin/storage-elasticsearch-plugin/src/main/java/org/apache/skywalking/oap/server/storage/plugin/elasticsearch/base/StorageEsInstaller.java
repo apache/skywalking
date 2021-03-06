@@ -65,11 +65,9 @@ public class StorageEsInstaller extends ModelInstaller {
         PhysicalIndices.registerRelation(model.getName(), tableName);
         try {
             if (model.isTimeSeries()) {
-                return esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG) ||
-                    // avoid to delete the history data before 8.5.0.
-                    (esClient.isExistsTemplate(tableName)
-                        && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model))
-                        && esClient.getDocNumber(tableName) > 0);
+                return esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)
+                    && esClient.isExistsTemplate(tableName)
+                    && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
             } else {
                 return esClient.isExistsIndex(tableName);
             }
@@ -92,7 +90,8 @@ public class StorageEsInstaller extends ModelInstaller {
         String indexName;
         try {
             if (model.isTimeSeries()) {
-                if (!esClient.isExistsTemplate(tableName) || !isTemplateMappingCompatible(tableName, mapping)) {
+                if (!esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)
+                    && (!esClient.isExistsTemplate(tableName) || !isTemplateMappingCompatible(tableName, mapping))) {
                     Map<String, Object> templateMapping = appendTemplateMapping(tableName, mapping);
                     boolean isAcknowledged = esClient.createOrUpdateTemplate(tableName, settings, templateMapping);
                     log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
@@ -105,18 +104,19 @@ public class StorageEsInstaller extends ModelInstaller {
                 indexName = tableName;
             }
 
-            if (esClient.isExistsIndex(indexName)) {
-                boolean isAcknowledged = esClient.deleteByIndexName(indexName);
+            if (!esClient.isExistsIndex(indexName)) {
+                if (!esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)) {
+                    boolean isAcknowledged = esClient.deleteByIndexName(indexName);
+                    if (!isAcknowledged) {
+                        throw new StorageException("delete " + indexName + " time series index failure, ");
+                    }
+                }
+                boolean isAcknowledged = esClient.createIndex(indexName);
+                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
                 if (!isAcknowledged) {
-                    throw new StorageException("delete " + indexName + " time series index failure, ");
+                    throw new StorageException("create " + indexName + " time series index failure, ");
                 }
             }
-            boolean isAcknowledged = esClient.createIndex(indexName);
-            log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
-            if (!isAcknowledged) {
-                throw new StorageException("create " + indexName + " time series index failure, ");
-            }
-
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
