@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -177,7 +176,7 @@ public class ITElasticSearchClient {
 
         String indexName = "template_operate";
 
-        client.createTemplate(indexName, settings, mapping);
+        client.putTemplate(indexName, settings, mapping);
 
         Assert.assertTrue(client.isExistsTemplate(indexName));
 
@@ -198,19 +197,7 @@ public class ITElasticSearchClient {
                                     .getAsJsonObject("index")
                                     .get("number_of_replicas")
                                     .getAsInt());
-        String anotherTemplate = "template_another";
-        client.createTemplate(anotherTemplate, settings, mapping);
-        Map<String, Object> value = client.getTemplates();
-        Assert.assertEquals(2, value.size());
-        Map<String, Object> template = client.getTemplate(anotherTemplate);
-
-        Gson gson = new Gson();
-        Assert.assertEquals(
-            JsonParser.parseString(gson.toJson(template.get("mappings"))).getAsJsonObject(),
-            JsonParser.parseString(gson.toJson(mapping)).getAsJsonObject()
-        );
         client.deleteTemplate(indexName);
-        client.deleteTemplate(anotherTemplate);
         Assert.assertFalse(client.isExistsTemplate(indexName));
     }
 
@@ -248,7 +235,7 @@ public class ITElasticSearchClient {
         column.addProperty("type", "text");
         properties.add("name", column);
 
-        client.createTemplate(indexName, new HashMap<>(), mapping);
+        client.putTemplate(indexName, new HashMap<>(), mapping);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(timeSeriesIndexName, "testid", builder);

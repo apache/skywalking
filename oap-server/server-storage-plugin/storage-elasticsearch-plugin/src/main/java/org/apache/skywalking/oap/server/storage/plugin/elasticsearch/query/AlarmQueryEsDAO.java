@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -65,7 +65,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         sourceBuilder.from(from);
 
         SearchResponse response = getClient()
-            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(AlarmRecord.INDEX_NAME), sourceBuilder);
+            .search(PhysicalIndices.getPhysicalTableName(AlarmRecord.INDEX_NAME), sourceBuilder);
 
         Alarms alarms = new Alarms();
         alarms.setTotal((int) response.getHits().totalHits);

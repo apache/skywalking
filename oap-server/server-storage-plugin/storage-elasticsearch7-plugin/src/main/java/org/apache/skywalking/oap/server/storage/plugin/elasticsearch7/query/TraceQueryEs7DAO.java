@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
@@ -126,7 +126,7 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.from(from);
         SearchResponse response = getClient().search(
             new TimeRangeIndexNameMaker(
-                StoragePartitioner.INSTANCE.getPhysicialTableName(SegmentRecord.INDEX_NAME), startSecondTB, endSecondTB), sourceBuilder);
+                PhysicalIndices.getPhysicalTableName(SegmentRecord.INDEX_NAME), startSecondTB, endSecondTB), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().getTotalHits().value);
 

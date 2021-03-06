@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -71,7 +71,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.sort(ProfileThreadSnapshotRecord.DUMP_TIME, SortOrder.DESC);
 
         SearchResponse response = getClient().search(
-            StoragePartitioner.INSTANCE.getPhysicialTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
+            PhysicalIndices.getPhysicalTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
 
         final LinkedList<String> segments = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -149,7 +149,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.size(maxSequence - minSequence);
 
         SearchResponse response = getClient().search(
-            StoragePartitioner.INSTANCE.getPhysicialTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
+            PhysicalIndices.getPhysicalTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -167,7 +167,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.size(1);
 
         SearchResponse response = getClient().search(
-            StoragePartitioner.INSTANCE.getPhysicialTableName(SegmentRecord.INDEX_NAME), sourceBuilder);
+            PhysicalIndices.getPhysicalTableName(SegmentRecord.INDEX_NAME), sourceBuilder);
 
         if (response.getHits().getHits().length == 0) {
             return null;
@@ -206,7 +206,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
 
         sourceBuilder.aggregation(aggregationBuilder);
         SearchResponse response = getClient().search(
-            StoragePartitioner.INSTANCE.getPhysicialTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
+            PhysicalIndices.getPhysicalTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
         NumericMetricsAggregation.SingleValue agg = response.getAggregations()
                                                             .get(ProfileThreadSnapshotRecord.SEQUENCE);
 

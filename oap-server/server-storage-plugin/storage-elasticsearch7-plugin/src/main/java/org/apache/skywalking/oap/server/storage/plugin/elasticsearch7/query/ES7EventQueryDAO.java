@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.event.Event;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -39,7 +39,7 @@ public class ES7EventQueryDAO extends ESEventQueryDAO {
         final SearchSourceBuilder sourceBuilder = buildQuery(condition);
 
         final SearchResponse response = getClient()
-            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(Event.INDEX_NAME), sourceBuilder);
+            .search(PhysicalIndices.getPhysicalTableName(Event.INDEX_NAME), sourceBuilder);
 
         final Events events = new Events();
         events.setTotal(response.getHits().getTotalHits().value);

@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.BrowserLogQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -82,7 +82,7 @@ public class BrowserLogQueryEs7DAO extends BrowserLogQueryEsDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
         SearchResponse response = getClient()
-            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(BrowserErrorLogRecord.INDEX_NAME), sourceBuilder);
+            .search(PhysicalIndices.getPhysicalTableName(BrowserErrorLogRecord.INDEX_NAME), sourceBuilder);
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
         logs.setTotal((int) response.getHits().getTotalHits().value);

@@ -38,7 +38,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndexManager;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -77,7 +78,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         sourceBuilder.aggregation(entityIdAggregation);
 
         SearchResponse response = getClient()
-            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName()), sourceBuilder);
+            .search(PhysicalIndices.getPhysicalTableName(condition.getName()), sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
@@ -100,7 +101,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
-        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
+        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
@@ -108,7 +109,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = StoragePartitioner.INSTANCE.generateDocId(condition.getName(), id);
+                id = PhysicalIndexManager.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -146,13 +147,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                                         final List<String> labels,
                                                         final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
+        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = StoragePartitioner.INSTANCE.generateDocId(condition.getName(), id);
+                id = PhysicalIndexManager.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -171,13 +172,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                final String valueColumnName,
                                final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
+        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = StoragePartitioner.INSTANCE.generateDocId(condition.getName(), id);
+                id = PhysicalIndexManager.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -228,7 +229,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final String entityId = condition.getEntity().buildId();
 
-        boolean aggregationMode = !StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName()).equals(condition.getName());
+        boolean aggregationMode = !PhysicalIndices.getPhysicalTableName(condition.getName())
+                                                  .equals(condition.getName());
 
         if (entityId == null && !aggregationMode) {
             sourceBuilder.query(rangeQueryBuilder);
@@ -236,16 +238,16 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termQuery(
-                StoragePartitioner.LOGIC_TABLE_NAME,
-                StoragePartitioner.INSTANCE.getLogicTableColumnVal(condition.getName())
+                PhysicalIndexManager.LOGIC_TABLE_NAME,
+                condition.getName()
             ));
         } else if (aggregationMode) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
             boolQuery.must().add(QueryBuilders.termQuery(
-                StoragePartitioner.LOGIC_TABLE_NAME,
-                StoragePartitioner.INSTANCE.getLogicTableColumnVal(condition.getName())
+                PhysicalIndexManager.LOGIC_TABLE_NAME,
+                condition.getName()
             ));
             sourceBuilder.query(boolQuery);
         } else {

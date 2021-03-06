@@ -51,7 +51,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
             }
         }
         deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
-        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
+        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
         List<String> indexes = client.retrievalIndexByAliases(tableName);
 
         List<String> prepareDeleteIndexes = new ArrayList<>();

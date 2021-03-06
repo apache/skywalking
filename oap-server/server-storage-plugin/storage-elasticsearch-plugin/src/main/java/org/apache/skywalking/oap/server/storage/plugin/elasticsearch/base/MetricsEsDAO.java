@@ -42,9 +42,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
+        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
         String[] ids = metrics.stream()
-                              .map(item -> StoragePartitioner.INSTANCE.generateDocId(model, item.id()))
+                              .map(item -> PhysicalIndexManager.INSTANCE.generateDocId(model, item.id()))
                               .toArray(String[]::new);
         SearchResponse response = getClient().ids(tableName, ids);
         List<Metrics> result = new ArrayList<>(response.getHits().getHits().length);
@@ -58,18 +58,18 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(
-            StoragePartitioner.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(metrics)));
+            PhysicalIndexManager.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(metrics)));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
-        String id = StoragePartitioner.INSTANCE.generateDocId(model, metrics.id());
+        String id = PhysicalIndexManager.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareInsert(modelName, id, builder);
     }
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(
-            StoragePartitioner.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(metrics)));
+            PhysicalIndexManager.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(metrics)));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
-        String id = StoragePartitioner.INSTANCE.generateDocId(model, metrics.id());
+        String id = PhysicalIndexManager.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);
     }
 }

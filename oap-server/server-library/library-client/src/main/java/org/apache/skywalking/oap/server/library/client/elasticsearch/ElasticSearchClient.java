@@ -19,13 +19,11 @@
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.common.base.Splitter;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -324,8 +322,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         }
     }
 
-    public boolean createTemplate(String indexName, Map<String, Object> settings,
-                                  Map<String, Object> mapping) throws IOException {
+    public boolean putTemplate(String indexName, Map<String, Object> settings,
+                               Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
 
         String[] patterns = new String[] {indexName + "-*"};
@@ -352,67 +350,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         Response response = client.getLowLevelClient()
                                   .performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
-    }
-
-    public Map<String, Object> getTemplates() throws IOException {
-        String name = formatIndexName("*");
-        try {
-            Response response = client.getLowLevelClient()
-                                      .performRequest(HttpGet.METHOD_NAME, "_template/" + name);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                healthChecker.health();
-                throw new IOException(
-                    "The response status code of template exists request should be 200, but it is " + statusCode);
-            }
-            return new Gson().<HashMap<String, Object>>fromJson(
-                new InputStreamReader(response.getEntity().getContent()),
-                new TypeToken<HashMap<String, Object>>() {
-                }.getType()
-            );
-        } catch (ResponseException e) {
-            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                return new HashMap<>();
-            }
-            healthChecker.unHealth(e);
-            throw e;
-        } catch (IOException t) {
-            healthChecker.unHealth(t);
-            throw t;
-        }
-    }
-
-    public Map<String, Object> getTemplate(String name) throws IOException {
-        name = formatIndexName(name);
-        try {
-            Response response = client.getLowLevelClient()
-                                      .performRequest(HttpGet.METHOD_NAME, "_template/" + name);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                healthChecker.health();
-                throw new IOException(
-                    "The response status code of template exists request should be 200, but it is " + statusCode);
-            }
-            Type type = new TypeToken<HashMap<String, Object>>() {
-            }.getType();
-            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
-                new InputStreamReader(response.getEntity().getContent()),
-                type
-            );
-            if (templates.containsKey(name)) {
-                return (Map<String, Object>) templates.get(name);
-            }
-            return new HashMap<>();
-        } catch (ResponseException e) {
-            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                return new HashMap<>();
-            }
-            healthChecker.unHealth(e);
-            throw e;
-        } catch (IOException t) {
-            healthChecker.unHealth(t);
-            throw t;
-        }
     }
 
     public SearchResponse search(IndexNameMaker indexNameMaker,
