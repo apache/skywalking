@@ -58,7 +58,7 @@ public class ITElasticSearchClient {
     private final String namespace;
 
     public ITElasticSearchClient() {
-        namespace = "";
+        namespace = "default-test-namespace";
     }
 
     protected ITElasticSearchClient(String namespace) {
