@@ -91,7 +91,7 @@ public class StorageEsInstaller extends ModelInstaller {
             if (model.isTimeSeries()) {
                 if (!esClient.isExistsTemplate(tableName) || !isTemplateMappingCompatible(tableName, mapping)) {
                     Map<String, Object> templateMapping = appendTemplateMapping(tableName, mapping);
-                    boolean isAcknowledged = esClient.putTemplate(tableName, settings, templateMapping);
+                    boolean isAcknowledged = esClient.createOrUpdateTemplate(tableName, settings, templateMapping);
                     log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                     if (!isAcknowledged) {
                         throw new StorageException("create " + tableName + " index template failure, ");
@@ -107,12 +107,13 @@ public class StorageEsInstaller extends ModelInstaller {
                 if (!isAcknowledged) {
                     throw new StorageException("delete " + indexName + " time series index failure, ");
                 }
-                isAcknowledged = esClient.createIndex(indexName);
-                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
-                if (!isAcknowledged) {
-                    throw new StorageException("create " + indexName + " time series index failure, ");
-                }
             }
+            boolean isAcknowledged = esClient.createIndex(indexName);
+            log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+            if (!isAcknowledged) {
+                throw new StorageException("create " + indexName + " time series index failure, ");
+            }
+
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }

@@ -322,8 +322,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         }
     }
 
-    public boolean putTemplate(String indexName, Map<String, Object> settings,
-                               Map<String, Object> mapping) throws IOException {
+    public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
+                                          Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
 
         String[] patterns = new String[] {indexName + "-*"};

@@ -176,8 +176,8 @@ public class ElasticSearch7Client extends ElasticSearchClient {
     }
 
     @Override
-    public boolean putTemplate(String indexName, Map<String, Object> settings,
-                               Map<String, Object> mapping) throws IOException {
+    public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
+                                          Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
 
         PutIndexTemplateRequest putIndexTemplateRequest = new PutIndexTemplateRequest(indexName).patterns(
