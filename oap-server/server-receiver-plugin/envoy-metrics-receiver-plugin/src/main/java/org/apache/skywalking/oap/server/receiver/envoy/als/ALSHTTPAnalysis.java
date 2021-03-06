@@ -34,7 +34,23 @@ public interface ALSHTTPAnalysis {
 
     void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException;
 
-    List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role);
+    /**
+     * The method works as a chain of analyzers. Logs are processed sequentially by analyzers one by one, the results of the previous analyzer are passed into the current one.
+     *
+     * To do fast-success, the analyzer could simply check the results of the previous analyzer and return if not empty.
+     *
+     * @param result of the previous analyzer.
+     * @param identifier of the Envoy node where the logs are emitted.
+     * @param entry the log entry.
+     * @param role the role of the Envoy node where the logs are emitted.
+     * @return the analysis results.
+     */
+    List<ServiceMeshMetric.Builder> analysis(
+        final List<ServiceMeshMetric.Builder> result,
+        final StreamAccessLogsMessage.Identifier identifier,
+        final HTTPAccessLogEntry entry,
+        final Role role
+    );
 
     Role identify(StreamAccessLogsMessage.Identifier alsIdentifier, Role prev);
 }

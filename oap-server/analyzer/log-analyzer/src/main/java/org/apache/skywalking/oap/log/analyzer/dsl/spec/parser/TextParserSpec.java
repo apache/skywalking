@@ -21,11 +21,10 @@ package org.apache.skywalking.oap.log.analyzer.dsl.spec.parser;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-public class TextParserSpec extends AbstractSpec {
+public class TextParserSpec extends AbstractParserSpec {
     public TextParserSpec(final ModuleManager moduleManager,
                           final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
@@ -45,6 +44,8 @@ public class TextParserSpec extends AbstractSpec {
         final boolean matched = matcher.find();
         if (matched) {
             BINDING.get().parsed(matcher);
+        } else if (abortOnFailure()) {
+            BINDING.get().abort();
         }
         return matched;
     }
