@@ -42,7 +42,6 @@ import org.elasticsearch.common.unit.TimeValue;
 public class StorageEsInstaller extends ModelInstaller {
     private final Gson gson = new Gson();
     private final StorageModuleElasticsearchConfig config;
-    private final StorageMode storageMode;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
     /**
@@ -56,7 +55,6 @@ public class StorageEsInstaller extends ModelInstaller {
         super(client, moduleManager);
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
         this.config = config;
-        this.storageMode = StorageMode.findByName(config.getStorageMode());
         this.tables = new ConcurrentHashMap<>(loadHistoryTables(client));
     }
 
@@ -78,13 +76,13 @@ public class StorageEsInstaller extends ModelInstaller {
     @Override
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
-        String tableName = storageMode.getTableName(model);
+        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
         StorageMapper.register(model.getName(), tableName);
         try {
             if (model.isTimeSeries()) {
                 return tables.containsKey(tableName)
                     && containsTemplateMapping(tableName, createMapping(model))
-                    && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model, storageMode));
+                    && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
             } else {
                 return esClient.isExistsIndex(tableName);
             }
@@ -98,7 +96,7 @@ public class StorageEsInstaller extends ModelInstaller {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         Map<String, Object> settings = createSetting(model);
         Map<String, Object> mapping = createMapping(model);
-        String tableName = storageMode.getTableName(model);
+        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
         StorageMapper.register(model.getName(), tableName);
         log.info("index {}'s columnTypeEsMapping builder str: {}",
                  esClient.formatIndexName(tableName), mapping.toString()
@@ -119,7 +117,7 @@ public class StorageEsInstaller extends ModelInstaller {
                         throw new StorageException("create " + tableName + " index template failure, ");
                     }
                 }
-                indexName = TimeSeriesUtils.latestWriteIndexName(model, storageMode);
+                indexName = TimeSeriesUtils.latestWriteIndexName(model);
             } else {
                 indexName = tableName;
             }
@@ -249,10 +247,10 @@ public class StorageEsInstaller extends ModelInstaller {
                 properties.put(columnDefine.getColumnName().getName(), column);
             }
         }
-        if (storageMode.isAggregationMode(model)) {
+        if (StoragePartitioner.INSTANCE.isAggregationMode(model)) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
-            properties.put(StorageMode.LOGIC_TABLE_NAME, column);
+            properties.put(StoragePartitioner.LOGIC_TABLE_NAME, column);
         }
 
         log.debug("elasticsearch index template setting: {}", mapping.toString());

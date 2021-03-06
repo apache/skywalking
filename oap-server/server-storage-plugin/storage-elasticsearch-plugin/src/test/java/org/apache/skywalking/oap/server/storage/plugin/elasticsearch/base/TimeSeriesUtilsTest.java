@@ -66,29 +66,29 @@ public class TimeSeriesUtilsTest {
 
         Assert.assertEquals(
             "superDatasetModel-20200809",
-            writeIndexName(superDatasetModel, StorageMode.NO_AGGREGATION, secondTimeBucket)
+            writeIndexName(superDatasetModel, secondTimeBucket)
         );
         Assert.assertEquals(
             "normalRecordModel-20200807",
-            writeIndexName(normalRecordModel, StorageMode.NO_AGGREGATION, secondTimeBucket)
+            writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
             "normalMetricsModel-20200807",
-            writeIndexName(normalMetricsModel, StorageMode.NO_AGGREGATION, minuteTimeBucket)
+            writeIndexName(normalMetricsModel, minuteTimeBucket)
         );
         secondTimeBucket += 1000000;
         minuteTimeBucket += 10000;
         Assert.assertEquals(
             "superDatasetModel-20200810",
-            writeIndexName(superDatasetModel, StorageMode.NO_AGGREGATION, secondTimeBucket)
+            writeIndexName(superDatasetModel, secondTimeBucket)
         );
         Assert.assertEquals(
             "normalRecordModel-20200810",
-            writeIndexName(normalRecordModel, StorageMode.NO_AGGREGATION, secondTimeBucket)
+            writeIndexName(normalRecordModel, secondTimeBucket)
         );
         Assert.assertEquals(
             "normalMetricsModel-20200810",
-            writeIndexName(normalMetricsModel, StorageMode.NO_AGGREGATION, minuteTimeBucket)
+            writeIndexName(normalMetricsModel, minuteTimeBucket)
         );
     }
 

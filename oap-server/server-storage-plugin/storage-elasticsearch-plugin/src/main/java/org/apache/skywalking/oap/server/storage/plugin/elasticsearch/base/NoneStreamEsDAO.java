@@ -31,21 +31,19 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  */
 public class NoneStreamEsDAO extends EsDAO implements INoneStreamDAO {
     private final StorageHashMapBuilder<NoneStream> storageBuilder;
-    private final StorageMode storageMode;
 
     public NoneStreamEsDAO(ElasticSearchClient client,
-                           StorageHashMapBuilder<NoneStream> storageBuilder,
-                           StorageMode storageMode) {
+                           StorageHashMapBuilder<NoneStream> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
-        this.storageMode = storageMode;
     }
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
         XContentBuilder builder = map2builder(
-            storageMode.appendAggregationColumn(model, storageBuilder.entity2Storage(noneStream)));
-        String modelName = TimeSeriesUtils.writeIndexName(model, storageMode, noneStream.getTimeBucket());
-        getClient().forceInsert(modelName, storageMode.generateDocId(model, noneStream.id()), builder);
+            StoragePartitioner.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(noneStream)));
+        String modelName = TimeSeriesUtils.writeIndexName(model, noneStream.getTimeBucket());
+        String id = StoragePartitioner.INSTANCE.generateDocId(model, noneStream.id());
+        getClient().forceInsert(modelName, id, builder);
     }
 }

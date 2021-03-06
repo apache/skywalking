@@ -29,26 +29,23 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class ManagementEsDAO extends EsDAO implements IManagementDAO {
     private final StorageHashMapBuilder<ManagementData> storageBuilder;
-    private final StorageMode storageMode;
 
     public ManagementEsDAO(ElasticSearchClient client,
-                           StorageHashMapBuilder<ManagementData> storageBuilder,
-                           StorageMode storageMode) {
+                           StorageHashMapBuilder<ManagementData> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
-        this.storageMode = storageMode;
     }
 
     @Override
     public void insert(Model model, ManagementData managementData) throws IOException {
-        String tableName = storageMode.getTableName(model);
-        String docId = storageMode.generateDocId(model, managementData.id());
+        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
+        String docId = StoragePartitioner.INSTANCE.generateDocId(model, managementData.id());
         final GetResponse response = getClient().get(tableName, docId);
         if (response.isExists()) {
             return;
         }
         XContentBuilder builder = map2builder(
-            storageMode.appendAggregationColumn(model, storageBuilder.entity2Storage(managementData)));
+            StoragePartitioner.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(managementData)));
         getClient().forceInsert(tableName, docId, builder);
     }
 }

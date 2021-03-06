@@ -31,8 +31,8 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -68,14 +68,22 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         if (CollectionUtils.isEmpty(additionalConditions) && aggregationMode) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            boolQuery.must().add(QueryBuilders.termQuery(StorageMode.LOGIC_TABLE_NAME, StorageMode.getLogicTableName(condition.getName())));
+            boolQuery.must()
+                     .add(QueryBuilders.termQuery(
+                         StoragePartitioner.LOGIC_TABLE_NAME,
+                         StoragePartitioner.INSTANCE.getLogicTableColumnVal(condition.getName())
+                     ));
             boolQuery.must().add(queryBuilder);
             sourceBuilder.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
             sourceBuilder.query(queryBuilder);
         } else if (CollectionUtils.isNotEmpty(additionalConditions) && aggregationMode) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            boolQuery.must().add(QueryBuilders.termQuery(StorageMode.LOGIC_TABLE_NAME, StorageMode.getLogicTableName(condition.getName())));
+            boolQuery.must()
+                     .add(QueryBuilders.termQuery(
+                         StoragePartitioner.LOGIC_TABLE_NAME,
+                         StoragePartitioner.INSTANCE.getLogicTableColumnVal(condition.getName())
+                     ));
             additionalConditions.forEach(additionalCondition -> boolQuery
                 .must()
                 .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue())));

@@ -34,33 +34,30 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ManagementEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.NoneStreamEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RecordEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 
 public class StorageEs7DAO extends EsDAO implements StorageDAO {
-    private final StorageMode storageMode;
 
-    public StorageEs7DAO(ElasticSearchClient client, StorageMode storageMode) {
+    public StorageEs7DAO(ElasticSearchClient client) {
         super(client);
-        this.storageMode = storageMode;
     }
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
-        return new MetricsEs7DAO(getClient(), (StorageHashMapBuilder<Metrics>) storageBuilder, storageMode);
+        return new MetricsEs7DAO(getClient(), (StorageHashMapBuilder<Metrics>) storageBuilder);
     }
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
-        return new RecordEsDAO(getClient(), (StorageHashMapBuilder<Record>) storageBuilder, storageMode);
+        return new RecordEsDAO(getClient(), (StorageHashMapBuilder<Record>) storageBuilder);
     }
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
-        return new NoneStreamEsDAO(getClient(), (StorageHashMapBuilder<NoneStream>) storageBuilder, storageMode);
+        return new NoneStreamEsDAO(getClient(), (StorageHashMapBuilder<NoneStream>) storageBuilder);
     }
 
     @Override
     public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
-        return new ManagementEsDAO(getClient(), (StorageHashMapBuilder<ManagementData>) storageBuilder, storageMode);
+        return new ManagementEsDAO(getClient(), (StorageHashMapBuilder<ManagementData>) storageBuilder);
     }
 }

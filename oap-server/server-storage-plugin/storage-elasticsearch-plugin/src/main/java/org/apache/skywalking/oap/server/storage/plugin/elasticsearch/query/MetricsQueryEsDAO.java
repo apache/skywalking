@@ -38,8 +38,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -109,7 +109,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = StorageMode.forceWarpId(condition.getName(), id);
+                id = StoragePartitioner.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -153,7 +153,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = StorageMode.forceWarpId(condition.getName(), id);
+                id = StoragePartitioner.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -178,7 +178,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = StorageMode.forceWarpId(condition.getName(), id);
+                id = StoragePartitioner.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -237,16 +237,16 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termQuery(
-                StorageMode.LOGIC_TABLE_NAME,
-                StorageMode.getLogicTableName(condition.getName())
+                StoragePartitioner.LOGIC_TABLE_NAME,
+                StoragePartitioner.INSTANCE.getLogicTableColumnVal(condition.getName())
             ));
         } else if (aggregationMode) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
             boolQuery.must().add(QueryBuilders.termQuery(
-                StorageMode.LOGIC_TABLE_NAME,
-                StorageMode.getLogicTableName(condition.getName())
+                StoragePartitioner.LOGIC_TABLE_NAME,
+                StoragePartitioner.INSTANCE.getLogicTableColumnVal(condition.getName())
             ));
             sourceBuilder.query(boolQuery);
         } else {

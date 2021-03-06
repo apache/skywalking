@@ -29,21 +29,19 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class RecordEsDAO extends EsDAO implements IRecordDAO {
     private final StorageHashMapBuilder<Record> storageBuilder;
-    private final StorageMode storageMode;
 
     public RecordEsDAO(ElasticSearchClient client,
-                       StorageHashMapBuilder<Record> storageBuilder,
-                       StorageMode storageMode) {
+                       StorageHashMapBuilder<Record> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
-        this.storageMode = storageMode;
     }
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
         XContentBuilder builder = map2builder(
-            storageMode.appendAggregationColumn(model, storageBuilder.entity2Storage(record)));
-        String modelName = TimeSeriesUtils.writeIndexName(model, storageMode, record.getTimeBucket());
-        return getClient().prepareInsert(modelName, storageMode.generateDocId(model, record.id()), builder);
+            StoragePartitioner.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(record)));
+        String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
+        String id = StoragePartitioner.INSTANCE.generateDocId(model, record.id());
+        return getClient().prepareInsert(modelName, id, builder);
     }
 }

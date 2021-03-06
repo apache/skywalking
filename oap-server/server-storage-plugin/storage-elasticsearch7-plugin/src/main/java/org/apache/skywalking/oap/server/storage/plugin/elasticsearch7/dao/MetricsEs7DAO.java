@@ -22,12 +22,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MetricsEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 
 public class MetricsEs7DAO extends MetricsEsDAO {
 
-    MetricsEs7DAO(ElasticSearchClient client, StorageHashMapBuilder<Metrics> storageBuilder,
-                  StorageMode storageMode) {
-        super(client, storageBuilder, storageMode);
+    MetricsEs7DAO(ElasticSearchClient client, StorageHashMapBuilder<Metrics> storageBuilder) {
+        super(client, storageBuilder);
     }
 }

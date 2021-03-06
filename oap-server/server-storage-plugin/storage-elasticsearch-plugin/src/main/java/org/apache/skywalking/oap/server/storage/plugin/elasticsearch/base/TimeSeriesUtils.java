@@ -48,9 +48,9 @@ public class TimeSeriesUtils {
     /**
      * @return formatted latest index name, based on current timestamp.
      */
-    public static String latestWriteIndexName(Model model, StorageMode mode) {
+    public static String latestWriteIndexName(Model model) {
         long timeBucket;
-        String tableName = mode.getTableName(model);
+        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
         if (model.isRecord() && model.isSuperDataset()) {
             timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
             return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
@@ -89,9 +89,8 @@ public class TimeSeriesUtils {
     /**
      * @return index name based on model definition and given time bucket.
      */
-    static String writeIndexName(Model model, StorageMode mode, long timeBucket) {
-        String tableName = mode.getTableName(model);
-
+    static String writeIndexName(Model model, long timeBucket) {
+        String tableName = StoragePartitioner.INSTANCE.getTableName(model);
         if (model.isRecord() && model.isSuperDataset()) {
             return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
         } else if (model.isRecord()) {
