@@ -69,7 +69,7 @@ public class ITElasticSearchClient {
     public void before() throws Exception {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
-        client = new ElasticSearchClient(esAddress, esProtocol, "", "", "test", "test",
+        client = new ElasticSearchClient("127.0.0.1:9200", "http", "", "", "test", "test",
                                          indexNameConverters(namespace)
         );
         client.connect();
@@ -258,6 +258,7 @@ public class ITElasticSearchClient {
         String index = indexes.get(0);
         Assert.assertTrue(client.deleteByIndexName(index));
         Assert.assertFalse(client.isExistsIndex(timeSeriesIndexName));
+        client.deleteTemplate(indexName);
     }
 
     private JsonObject getIndex(String indexName) throws IOException {
