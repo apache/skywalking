@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -139,7 +139,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         sourceBuilder.from(from);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(LogRecord.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(LogRecord.INDEX_NAME), sourceBuilder);
 
         Logs logs = new Logs();
         logs.setTotal((int) response.getHits().totalHits);

@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -64,7 +64,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
         sourceBuilder.size(condition.getTopN())
                      .sort(valueColumnName, condition.getOrder().equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
         SearchResponse response = getClient().search(
-            StorageMapper.getRealTableName(condition.getName()), sourceBuilder);
+            StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName()), sourceBuilder);
 
         List<SelectedRecord> results = new ArrayList<>(condition.getTopN());
 

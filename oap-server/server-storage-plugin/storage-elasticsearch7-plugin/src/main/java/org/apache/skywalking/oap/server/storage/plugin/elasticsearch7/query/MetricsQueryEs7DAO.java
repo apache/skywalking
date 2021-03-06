@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -66,7 +66,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
         sourceBuilder.aggregation(entityIdAggregation);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(condition.getName()), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName()), sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {

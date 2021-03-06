@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -63,7 +62,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
-        String tableName = StorageMapper.getRealTableName(condition.getName());
+        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
 
         if (CollectionUtils.isEmpty(additionalConditions) && aggregationMode) {

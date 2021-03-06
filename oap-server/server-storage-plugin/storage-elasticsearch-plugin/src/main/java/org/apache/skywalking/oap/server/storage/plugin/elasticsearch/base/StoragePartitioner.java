@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -34,6 +36,11 @@ public enum StoragePartitioner {
     INSTANCE;
     private final Base64.Encoder encoder = Base64.getEncoder();
     public static final String LOGIC_TABLE_NAME = "logic_table";
+
+    /**
+     * The relations of the logic table and the physical table.
+     */
+    private final Map<String, String> tableRelations = new ConcurrentHashMap<>();
 
     public String getTableName(Model model) {
         return StringUtil.isNotBlank(
@@ -85,5 +92,13 @@ public enum StoragePartitioner {
      */
     public String getLogicTableColumnVal(String logicTableName) {
         return encoder.encodeToString(logicTableName.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String getPhysicialTableName(String logicName) {
+        return Optional.of(this.tableRelations.get(logicName)).orElse(logicName);
+    }
+
+    public void registerTableRelation(String logicName, String physicalName) {
+        this.tableRelations.put(logicName, physicalName);
     }
 }

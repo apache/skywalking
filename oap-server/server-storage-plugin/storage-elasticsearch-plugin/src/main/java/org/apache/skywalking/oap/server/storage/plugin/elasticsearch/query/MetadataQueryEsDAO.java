@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -72,7 +72,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         return buildServices(response);
     }
@@ -88,7 +88,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         return buildServices(response);
     }
@@ -104,7 +104,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         final List<Service> serviceList = buildServices(response);
         List<Database> databases = new ArrayList<>();
@@ -133,7 +133,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
         return buildServices(response);
     }
 
@@ -146,7 +146,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(1);
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
         final List<Service> services = buildServices(response);
         return services.size() > 0 ? services.get(0) : null;
     }
@@ -167,7 +167,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(limit);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(EndpointTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(EndpointTraffic.INDEX_NAME), sourceBuilder);
 
         List<Endpoint> endpoints = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
@@ -201,7 +201,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(InstanceTraffic.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(InstanceTraffic.INDEX_NAME), sourceBuilder);
 
         List<ServiceInstance> serviceInstances = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {

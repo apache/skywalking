@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -65,7 +64,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
         if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
-        String tableName = StorageMapper.getRealTableName(condition.getName());
+        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
 
         if (CollectionUtils.isEmpty(additionalConditions) && aggregationMode) {

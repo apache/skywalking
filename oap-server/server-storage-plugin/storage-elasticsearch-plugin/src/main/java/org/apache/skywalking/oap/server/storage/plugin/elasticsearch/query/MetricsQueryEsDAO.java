@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -78,7 +77,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         sourceBuilder.aggregation(entityIdAggregation);
 
         SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(condition.getName()), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName()), sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
@@ -101,7 +100,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
-        String tableName = StorageMapper.getRealTableName(condition.getName());
+        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
@@ -147,7 +146,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                                         final List<String> labels,
                                                         final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName = StorageMapper.getRealTableName(condition.getName());
+        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
@@ -172,7 +171,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                final String valueColumnName,
                                final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName = StorageMapper.getRealTableName(condition.getName());
+        String tableName = StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
@@ -229,7 +228,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final String entityId = condition.getEntity().buildId();
 
-        boolean aggregationMode = !StorageMapper.getRealTableName(condition.getName()).equals(condition.getName());
+        boolean aggregationMode = !StoragePartitioner.INSTANCE.getPhysicialTableName(condition.getName()).equals(condition.getName());
 
         if (entityId == null && !aggregationMode) {
             sourceBuilder.query(rangeQueryBuilder);

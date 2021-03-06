@@ -77,7 +77,7 @@ public class StorageEsInstaller extends ModelInstaller {
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = StoragePartitioner.INSTANCE.getTableName(model);
-        StorageMapper.register(model.getName(), tableName);
+        StoragePartitioner.INSTANCE.registerTableRelation(model.getName(), tableName);
         try {
             if (model.isTimeSeries()) {
                 return tables.containsKey(tableName)
@@ -97,7 +97,7 @@ public class StorageEsInstaller extends ModelInstaller {
         Map<String, Object> settings = createSetting(model);
         Map<String, Object> mapping = createMapping(model);
         String tableName = StoragePartitioner.INSTANCE.getTableName(model);
-        StorageMapper.register(model.getName(), tableName);
+        StoragePartitioner.INSTANCE.registerTableRelation(model.getName(), tableName);
         log.info("index {}'s columnTypeEsMapping builder str: {}",
                  esClient.formatIndexName(tableName), mapping.toString()
         );

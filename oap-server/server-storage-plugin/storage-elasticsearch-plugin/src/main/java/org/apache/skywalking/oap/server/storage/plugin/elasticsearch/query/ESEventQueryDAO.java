@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StoragePartitioner;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -55,7 +55,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         final SearchSourceBuilder sourceBuilder = buildQuery(condition);
 
         final SearchResponse response = getClient()
-            .search(StorageMapper.getRealTableName(Event.INDEX_NAME), sourceBuilder);
+            .search(StoragePartitioner.INSTANCE.getPhysicialTableName(Event.INDEX_NAME), sourceBuilder);
 
         final Events events = new Events();
         events.setTotal((int) response.getHits().totalHits);
