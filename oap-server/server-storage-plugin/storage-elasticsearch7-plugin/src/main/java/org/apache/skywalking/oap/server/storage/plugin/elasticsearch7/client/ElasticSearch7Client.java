@@ -30,8 +30,6 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -54,10 +52,7 @@ import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
-import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -203,25 +198,6 @@ public class ElasticSearch7Client extends ElasticSearchClient {
                                                               deleteIndexTemplateRequest, RequestOptions.DEFAULT);
 
         return acknowledgedResponse.isAcknowledged();
-    }
-
-    @Override
-    public long getDocNumber(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
-        try {
-            Response response = client.getLowLevelClient()
-                                      .performRequest(new Request(HttpGet.METHOD_NAME, "_cat/indices/" + indexName));
-            return Long.parseLong(EntityUtils.toString(response.getEntity()).split(" +")[6]);
-        } catch (ResponseException e) {
-            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                return 0;
-            }
-            healthChecker.unHealth(e);
-            throw e;
-        } catch (IOException e) {
-            healthChecker.unHealth(e);
-            throw e;
-        }
     }
 
     @Override
