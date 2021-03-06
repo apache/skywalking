@@ -1,6 +1,6 @@
-# Fix compiling on MacBook M1 chip
+# Compiling issues on Mac's M1 chip
 ### Problem
-- When compiling according to [How-to-build](../guides/How-to-build.md), The following problems will occur, causing the build to fail.
+- When compiling according to [How-to-build](../guides/How-to-build.md), The following problems may occur, causing the build to fail.
 ```
 [ERROR] Failed to execute goal org.xolstice.maven.plugins:protobuf-maven-plugin:0.6.1:compile (grpc-build) on project apm-network: Unable to resolve artifact: Missing:
 [ERROR] ----------
@@ -24,7 +24,7 @@
 ```
 
 ### Reason
-Because the dependent Protocol Buffers v3.14.0 does not have an osx-aarch_64 version, Protocol Buffers Releases link: https://github.com/protocolbuffers/protobuf/releases, fortunately, mac m1 is compatible with the osx-x86_64 version, before this version is available for download, you need to manually specify the osx-x86_64 version.
+The dependent Protocol Buffers v3.14.0 does not come with an osx-aarch_64 version. You may find the osx-aarch_64 version at the Protocol Buffers Releases link here: https://github.com/protocolbuffers/protobuf/releases. Since Mac's M1 is compatible with the osx-x86_64 version, before this version is available for downloading, you need to manually specify the osx-x86_64 version.
 
-### Resolve
-We can add -Dos.detected.classifier=osx-x86_64 after the original compilation parameters, for example: `./mvnw clean package -DskipTests -Dos.detected.classifier=osx-x86_64`, After specifying, compile and run normally.
+### Resolution
+You may add -Dos.detected.classifier=osx-x86_64 after the original compilation parameters, such as: `./mvnw clean package -DskipTests -Dos.detected.classifier=osx-x86_64`. After specifying the version, compile and run normally.
