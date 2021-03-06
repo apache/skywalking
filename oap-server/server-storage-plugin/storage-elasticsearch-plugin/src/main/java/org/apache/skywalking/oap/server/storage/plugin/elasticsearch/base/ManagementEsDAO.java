@@ -38,14 +38,14 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
 
     @Override
     public void insert(Model model, ManagementData managementData) throws IOException {
-        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
-        String docId = PhysicalIndexManager.INSTANCE.generateDocId(model, managementData.id());
+        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
+        String docId = PhysicalIndexer.INSTANCE.generateDocId(model, managementData.id());
         final GetResponse response = getClient().get(tableName, docId);
         if (response.isExists()) {
             return;
         }
         XContentBuilder builder = map2builder(
-            PhysicalIndexManager.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(managementData)));
+            PhysicalIndexer.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(managementData)));
         getClient().forceInsert(tableName, docId, builder);
     }
 }

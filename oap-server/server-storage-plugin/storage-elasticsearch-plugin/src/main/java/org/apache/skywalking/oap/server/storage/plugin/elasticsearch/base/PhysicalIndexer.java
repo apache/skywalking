@@ -28,9 +28,8 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
  * And, the other record data would be insulated storage by themselves definitions.
  */
 @Slf4j
-public enum PhysicalIndexManager {
+public enum PhysicalIndexer {
     INSTANCE;
-    public static final String LOGIC_TABLE_NAME = "logic_table";
 
     public String getTableName(Model model) {
         return isAggregationMode(model) ? model.getAggregationFunctionName() : model.getName();
@@ -62,14 +61,15 @@ public enum PhysicalIndexManager {
     }
 
     /**
-     * When a model is the aggregation storage mode, a column named {@link #LOGIC_TABLE_NAME} would be append to the
-     * physical index. The value of the column is the original table name in other storages, such as the OAL name.
+     * When a model is the aggregation storage mode, a column named {@link PhysicalIndices#LOGIC_TABLE_NAME} would be
+     * append to the physical index. The value of the column is the original table name in other storages, such as the
+     * OAL name.
      */
     public Map<String, Object> appendLogicTableColumn(Model model, Map<String, Object> columns) {
         if (!isAggregationMode(model)) {
             return columns;
         }
-        columns.put(LOGIC_TABLE_NAME, model.getName());
+        columns.put(PhysicalIndices.LOGIC_TABLE_NAME, model.getName());
         return columns;
     }
 

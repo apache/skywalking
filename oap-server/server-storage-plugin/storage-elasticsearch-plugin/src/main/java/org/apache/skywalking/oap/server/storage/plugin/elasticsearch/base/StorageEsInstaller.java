@@ -42,6 +42,7 @@ public class StorageEsInstaller extends ModelInstaller {
     private final Gson gson = new Gson();
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
+    private static final String INSTALL_TEMPLATE_FINISHED_TAG = "install_sw_template_finished";
 
     /**
      * The mappings of the template .
@@ -60,13 +61,15 @@ public class StorageEsInstaller extends ModelInstaller {
     @Override
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
-        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
+        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
         PhysicalIndices.registerRelation(model.getName(), tableName);
         try {
             if (model.isTimeSeries()) {
-                return esClient.isExistsTemplate(tableName)
-                    && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model))
-                    && esClient.getDocNumber(tableName) > 0;
+                return esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG) ||
+                    // avoid to delete the history data before 8.5.0.
+                    (esClient.isExistsTemplate(tableName)
+                        && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model))
+                        && esClient.getDocNumber(tableName) > 0);
             } else {
                 return esClient.isExistsIndex(tableName);
             }
@@ -80,7 +83,7 @@ public class StorageEsInstaller extends ModelInstaller {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         Map<String, Object> settings = createSetting(model);
         Map<String, Object> mapping = createMapping(model);
-        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
+        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
         PhysicalIndices.registerRelation(model.getName(), tableName);
         log.info("index {}'s columnTypeEsMapping builder str: {}",
                  esClient.formatIndexName(tableName), mapping.toString()
@@ -225,14 +228,32 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        if (PhysicalIndexManager.INSTANCE.isAggregationMode(model)) {
+        if (PhysicalIndexer.INSTANCE.isAggregationMode(model)) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
-            properties.put(PhysicalIndexManager.LOGIC_TABLE_NAME, column);
+            properties.put(PhysicalIndices.LOGIC_TABLE_NAME, column);
         }
 
         log.debug("elasticsearch index template setting: {}", mapping.toString());
 
         return mapping;
+    }
+
+    public void addInstalledTag() throws StorageException {
+        ElasticSearchClient esClient = (ElasticSearchClient) client;
+        try {
+            if (!esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)) {
+                // create a empty template to record the initialization phase is complete.
+                boolean isAcknowledged = esClient.createOrUpdateTemplate(
+                    INSTALL_TEMPLATE_FINISHED_TAG, new HashMap<>(), new HashMap<>());
+                log.info(
+                    "create {} template finished, isAcknowledged: {}", INSTALL_TEMPLATE_FINISHED_TAG, isAcknowledged);
+                if (!isAcknowledged) {
+                    throw new StorageException("create " + INSTALL_TEMPLATE_FINISHED_TAG + " template failure, ");
+                }
+            }
+        } catch (IOException e) {
+            throw new StorageException(e.getMessage());
+        }
     }
 }

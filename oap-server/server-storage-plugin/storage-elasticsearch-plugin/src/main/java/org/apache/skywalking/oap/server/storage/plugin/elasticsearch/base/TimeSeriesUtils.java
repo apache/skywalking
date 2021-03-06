@@ -50,7 +50,7 @@ public class TimeSeriesUtils {
      */
     public static String latestWriteIndexName(Model model) {
         long timeBucket;
-        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
+        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
         if (model.isRecord() && model.isSuperDataset()) {
             timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
             return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
@@ -90,7 +90,7 @@ public class TimeSeriesUtils {
      * @return index name based on model definition and given time bucket.
      */
     static String writeIndexName(Model model, long timeBucket) {
-        String tableName = PhysicalIndexManager.INSTANCE.getTableName(model);
+        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
         if (model.isRecord() && model.isSuperDataset()) {
             return tableName + Const.LINE + compressTimeBucket(timeBucket / 1000000, SUPER_DATASET_DAY_STEP);
         } else if (model.isRecord()) {

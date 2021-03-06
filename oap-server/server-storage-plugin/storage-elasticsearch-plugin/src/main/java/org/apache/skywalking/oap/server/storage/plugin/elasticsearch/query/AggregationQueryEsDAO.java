@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndexManager;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -64,24 +63,24 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             asc = true;
         }
         String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
-        boolean aggregationMode = !tableName.equals(condition.getName());
 
-        if (CollectionUtils.isEmpty(additionalConditions) && aggregationMode) {
+        if (CollectionUtils.isEmpty(additionalConditions) && PhysicalIndices.isLogicTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         PhysicalIndexManager.LOGIC_TABLE_NAME,
+                         PhysicalIndices.LOGIC_TABLE_NAME,
                          condition.getName()
                      ));
             boolQuery.must().add(queryBuilder);
             sourceBuilder.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
             sourceBuilder.query(queryBuilder);
-        } else if (CollectionUtils.isNotEmpty(additionalConditions) && aggregationMode) {
+        } else if (CollectionUtils.isNotEmpty(additionalConditions) && PhysicalIndices.isLogicTable(
+            condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         PhysicalIndexManager.LOGIC_TABLE_NAME,
+                         PhysicalIndices.LOGIC_TABLE_NAME,
                          condition.getName()
                      ));
             additionalConditions.forEach(additionalCondition -> boolQuery

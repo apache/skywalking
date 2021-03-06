@@ -37,13 +37,27 @@ public enum FunctionCategory {
      * The unique function name pattern is {function category}-{function name}.
      */
     public static String uniqueFunctionName(final Class<?> aClass) {
-        if (aClass.isAnnotationPresent(MeterFunction.class)) {
-            return (METER.getName() + Const.LINE + aClass.getAnnotation(MeterFunction.class)
-                                                         .functionName()).toLowerCase();
-        } else if (aClass.isAnnotationPresent(MetricsFunction.class)) {
-            return (METRICS.getName() + Const.LINE + aClass.getAnnotation(MetricsFunction.class)
-                                                           .functionName()).toLowerCase();
+        Annotation annotation = doGetAnnotation(aClass, MeterFunction.class);
+        if (annotation != null) {
+            return (METER.getName() + Const.LINE + ((MeterFunction) annotation).functionName()).toLowerCase();
+        }
+        annotation = doGetAnnotation(aClass, MetricsFunction.class);
+        if (annotation != null) {
+            return (METRICS.getName() + Const.LINE + ((MetricsFunction) annotation).functionName()).toLowerCase();
         }
         return "";
+    }
+
+    public static Annotation doGetAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        if (clazz.equals(Object.class)) {
+            return null;
+        }
+        Annotation[] annotations = clazz.getAnnotations();
+        for (final Annotation annotation : annotations) {
+            if (annotation.annotationType().equals(annotationClass)) {
+                return annotation;
+            }
+        }
+        return doGetAnnotation(clazz.getSuperclass(), annotationClass);
     }
 }

@@ -25,6 +25,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -86,10 +87,12 @@ import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.Stor
 /**
  * The storage provider for ElasticSearch 7.
  */
+@Slf4j
 public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
     protected ElasticSearch7Client elasticSearch7Client;
+    private StorageEs7Installer storageEs7Installer;
 
     public StorageModuleElasticsearch7Provider() {
         super();
@@ -219,6 +222,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
             elasticSearch7Client.connect();
 
             StorageEs7Installer installer = new StorageEs7Installer(elasticSearch7Client, getManager(), config);
+            storageEs7Installer = installer;
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
@@ -227,6 +231,12 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
+        try {
+            storageEs7Installer.addInstalledTag();
+        } catch (StorageException e) {
+            log.error("cannot tag installed successful label in elasticsearch7 storage", e);
+            System.exit(1);
+        }
     }
 
     @Override

@@ -27,13 +27,23 @@ public class PhysicalIndices {
     /**
      * The relations of the logic table and the physical table.
      */
-    private static final Map<String, String> RELATIONS = new ConcurrentHashMap<>();
+    private static final Map<String, String> LOGIC_INDECES_CATALOG = new ConcurrentHashMap<>();
+
+    public static final String LOGIC_TABLE_NAME = "logic_table";
 
     public static String getPhysicalTableName(String logicName) {
-        return Optional.of(RELATIONS.get(logicName)).orElse(logicName);
+        return Optional.of(LOGIC_INDECES_CATALOG.get(logicName)).orElse(logicName);
     }
 
     public static void registerRelation(String logicName, String physicalName) {
-        RELATIONS.put(logicName, physicalName);
+        LOGIC_INDECES_CATALOG.put(logicName, physicalName);
+    }
+
+    public static boolean isLogicTable(String logicName) {
+        return !isPhysicalTable(logicName);
+    }
+
+    public static boolean isPhysicalTable(String logicName) {
+        return getPhysicalTableName(logicName).equals(logicName);
     }
 }

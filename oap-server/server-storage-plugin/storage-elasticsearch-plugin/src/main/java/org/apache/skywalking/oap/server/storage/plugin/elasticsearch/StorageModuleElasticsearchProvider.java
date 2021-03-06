@@ -27,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -87,10 +88,12 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 /**
  * The storage provider for ElasticSearch 6.
  */
+@Slf4j
 public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     protected final StorageModuleElasticsearchConfig config;
     protected ElasticSearchClient elasticSearchClient;
+    private StorageEsInstaller storageEsInstaller;
 
     public StorageModuleElasticsearchProvider() {
         super();
@@ -209,6 +212,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         try {
             elasticSearchClient.connect();
             StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+            storageEsInstaller = installer;
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
@@ -218,6 +222,12 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
+        try {
+            storageEsInstaller.addInstalledTag();
+        } catch (StorageException e) {
+            log.error("cannot tag installed successful label in elasticsearch storage", e);
+            System.exit(1);
+        }
     }
 
     @Override
