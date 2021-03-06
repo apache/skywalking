@@ -57,6 +57,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskLogEsDAO;
@@ -159,14 +160,16 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
             .getTrustStorePass(), config.getUser(), config.getPassword(),
             indexNameConverters(config.getNameSpace())
         );
-
+        StorageMode storageMode = StorageMode.findByName(config.getStorageMode());
         this.registerServiceImplementation(
-            IBatchDAO.class, new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(), config.getSyncBulkActions(),
-                                                   config.getFlushInterval(), config.getConcurrentRequests()
-            ));
-        this.registerServiceImplementation(StorageDAO.class, new StorageEs7DAO(elasticSearch7Client));
+            IBatchDAO.class,
+            new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(), config.getSyncBulkActions(),
+                                  config.getFlushInterval(), config.getConcurrentRequests()
+            )
+        );
+        this.registerServiceImplementation(StorageDAO.class, new StorageEs7DAO(elasticSearch7Client, storageMode));
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearch7Client));
+            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearch7Client, storageMode));
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(
                 elasticSearch7Client,

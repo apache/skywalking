@@ -17,8 +17,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -30,7 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.StorageMod
 public class StorageEs7Installer extends StorageEsInstaller {
     public StorageEs7Installer(final Client client,
                                final ModuleManager moduleManager,
-                               final StorageModuleElasticsearch7Config config) {
+                               final StorageModuleElasticsearch7Config config) throws StorageException {
         super(client, moduleManager, config);
     }
 
@@ -44,5 +47,13 @@ public class StorageEs7Installer extends StorageEsInstaller {
         log.debug("elasticsearch index template setting: {}", mapping.toString());
 
         return mapping;
+    }
+
+    @Override
+    protected Map<String, Object> getColumnProperties(final Map<String, Object> mapping) {
+        if (Objects.isNull(mapping) || mapping.size() == 0) {
+            return new HashMap<>();
+        }
+        return (Map<String, Object>) mapping.get("properties");
     }
 }

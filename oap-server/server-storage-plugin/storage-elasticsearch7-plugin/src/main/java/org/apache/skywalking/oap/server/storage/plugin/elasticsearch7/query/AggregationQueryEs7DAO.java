@@ -28,6 +28,9 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -54,7 +57,6 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
                                             final Duration duration,
                                             final List<KeyValue> additionalConditions) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
         final RangeQueryBuilder queryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET)
                                                             .lte(duration.getEndTimeBucket())
                                                             .gte(duration.getStartTimeBucket());
@@ -63,17 +65,31 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
         if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
+        String tableName = StorageMapper.getRealTableName(condition.getName());
+        boolean aggregationMode = !tableName.equals(condition.getName());
 
-        if (additionalConditions != null && additionalConditions.size() > 0) {
+        if (CollectionUtils.isEmpty(additionalConditions) && aggregationMode) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            additionalConditions.forEach(additionalCondition -> {
-                boolQuery.must()
-                         .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue()));
-            });
+            boolQuery.must().add(QueryBuilders.termQuery(StorageMode.LOGIC_TABLE_NAME, StorageMode.getLogicTableName(condition.getName())));
+            boolQuery.must().add(queryBuilder);
+            sourceBuilder.query(boolQuery);
+        } else if (CollectionUtils.isEmpty(additionalConditions)) {
+            sourceBuilder.query(queryBuilder);
+        } else if (CollectionUtils.isNotEmpty(additionalConditions) && aggregationMode) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must().add(QueryBuilders.termQuery(StorageMode.LOGIC_TABLE_NAME, StorageMode.getLogicTableName(condition.getName())));
+            additionalConditions.forEach(additionalCondition -> boolQuery
+                .must()
+                .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue())));
             boolQuery.must().add(queryBuilder);
             sourceBuilder.query(boolQuery);
         } else {
-            sourceBuilder.query(queryBuilder);
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            additionalConditions.forEach(additionalCondition -> boolQuery
+                .must()
+                .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue())));
+            boolQuery.must().add(queryBuilder);
+            sourceBuilder.query(boolQuery);
         }
 
         sourceBuilder.aggregation(
@@ -84,7 +100,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
                                .subAggregation(AggregationBuilders.avg(valueColumnName).field(valueColumnName))
         );
 
-        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
+        SearchResponse response = getClient().search(tableName, sourceBuilder);
 
         List<SelectedRecord> topNList = new ArrayList<>();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);

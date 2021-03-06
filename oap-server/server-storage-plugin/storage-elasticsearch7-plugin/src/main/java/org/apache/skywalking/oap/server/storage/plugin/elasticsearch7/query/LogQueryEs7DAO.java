@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -79,7 +80,6 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         if (startSecondTB != 0 && endSecondTB != 0) {
             mustQueryList.add(QueryBuilders.rangeQuery(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
-
         if (isNotEmpty(serviceId)) {
             mustQueryList.add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_ID, serviceId));
         }
@@ -138,7 +138,8 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(LogRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(StorageMapper.getRealTableName(LogRecord.INDEX_NAME), sourceBuilder);
 
         Logs logs = new Logs();
         logs.setTotal((int) response.getHits().getTotalHits().value);
@@ -146,7 +147,8 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         for (SearchHit searchHit : response.getHits().getHits()) {
             Log log = new Log();
             log.setServiceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID));
-            log.setServiceInstanceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_INSTANCE_ID));
+            log.setServiceInstanceId((String) searchHit.getSourceAsMap()
+                                                       .get(AbstractLogRecord.SERVICE_INSTANCE_ID));
             log.setEndpointId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID));
             log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
             log.setTraceId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.TRACE_ID));

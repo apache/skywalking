@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -182,6 +183,7 @@ public class ITElasticSearchClient {
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(indexName + "-2019", "testid", builder);
+        Assert.assertEquals(1, client.getDocNumber(indexName + "-2019"));
 
         JsonObject index = getIndex(indexName + "-2019");
         LOGGER.info(index.toString());
@@ -196,8 +198,19 @@ public class ITElasticSearchClient {
                                     .getAsJsonObject("index")
                                     .get("number_of_replicas")
                                     .getAsInt());
+        String anotherTemplate = "template_another";
+        client.createTemplate(anotherTemplate, settings, mapping);
+        Map<String, Object> value = client.getTemplates();
+        Assert.assertEquals(2, value.size());
+        Map<String, Object> template = client.getTemplate(anotherTemplate);
 
+        Gson gson = new Gson();
+        Assert.assertEquals(
+            JsonParser.parseString(gson.toJson(template.get("mappings"))).getAsJsonObject(),
+            JsonParser.parseString(gson.toJson(mapping)).getAsJsonObject()
+        );
         client.deleteTemplate(indexName);
+        client.deleteTemplate(anotherTemplate);
         Assert.assertFalse(client.isExistsTemplate(indexName));
     }
 

@@ -28,18 +28,22 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class RecordEsDAO extends EsDAO implements IRecordDAO {
-
     private final StorageHashMapBuilder<Record> storageBuilder;
+    private final StorageMode storageMode;
 
-    public RecordEsDAO(ElasticSearchClient client, StorageHashMapBuilder<Record> storageBuilder) {
+    public RecordEsDAO(ElasticSearchClient client,
+                       StorageHashMapBuilder<Record> storageBuilder,
+                       StorageMode storageMode) {
         super(client);
         this.storageBuilder = storageBuilder;
+        this.storageMode = storageMode;
     }
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.entity2Storage(record));
-        String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
-        return getClient().prepareInsert(modelName, record.id(), builder);
+        XContentBuilder builder = map2builder(
+            storageMode.appendAggregationColumn(model, storageBuilder.entity2Storage(record)));
+        String modelName = TimeSeriesUtils.writeIndexName(model, storageMode, record.getTimeBucket());
+        return getClient().prepareInsert(modelName, storageMode.generateDocId(model, record.id()), builder);
     }
 }

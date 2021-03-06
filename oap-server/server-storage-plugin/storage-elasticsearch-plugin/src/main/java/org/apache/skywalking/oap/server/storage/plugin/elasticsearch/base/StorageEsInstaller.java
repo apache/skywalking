@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -38,27 +41,52 @@ import org.elasticsearch.common.unit.TimeValue;
 @Slf4j
 public class StorageEsInstaller extends ModelInstaller {
     private final Gson gson = new Gson();
-
     private final StorageModuleElasticsearchConfig config;
+    private final StorageMode storageMode;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
+
+    /**
+     * The relation is between physical table and the specific structure definition.
+     */
+    private final ConcurrentHashMap<String, Map<String, Object>> tables;
 
     public StorageEsInstaller(Client client,
                               ModuleManager moduleManager,
-                              final StorageModuleElasticsearchConfig config) {
+                              StorageModuleElasticsearchConfig config) throws StorageException {
         super(client, moduleManager);
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
         this.config = config;
+        this.storageMode = StorageMode.findByName(config.getStorageMode());
+        this.tables = new ConcurrentHashMap<>(loadHistoryTables(client));
+    }
+
+    private Map<String, Map<String, Object>> loadHistoryTables(final Client client) throws StorageException {
+        ElasticSearchClient esClient = (ElasticSearchClient) client;
+        Map<String, Object> templates;
+        try {
+            templates = esClient.getTemplates();
+        } catch (IOException e) {
+            throw new StorageException("cannot load history ES templates", e);
+        }
+        return templates.entrySet().stream().collect(Collectors.toMap(
+            Map.Entry::getKey,
+            item -> (Map<String, Object>) ((Map<String, Object>) item.getValue()).get("mappings")
+        ));
+
     }
 
     @Override
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
+        String tableName = storageMode.getTableName(model);
+        StorageMapper.register(model.getName(), tableName);
         try {
             if (model.isTimeSeries()) {
-                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(
-                    TimeSeriesUtils.latestWriteIndexName(model));
+                return tables.containsKey(tableName)
+                    && containsTemplateMapping(tableName, createMapping(model))
+                    && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model, storageMode));
             } else {
-                return esClient.isExistsIndex(model.getName());
+                return esClient.isExistsIndex(tableName);
             }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
@@ -68,26 +96,39 @@ public class StorageEsInstaller extends ModelInstaller {
     @Override
     protected void createTable(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
-
         Map<String, Object> settings = createSetting(model);
         Map<String, Object> mapping = createMapping(model);
-        log.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping
-            .toString());
+        String tableName = storageMode.getTableName(model);
+        StorageMapper.register(model.getName(), tableName);
+        log.info("index {}'s columnTypeEsMapping builder str: {}",
+                 esClient.formatIndexName(tableName), mapping.toString()
+        );
 
+        String indexName;
         try {
-            String indexName;
-            if (!model.isTimeSeries()) {
-                indexName = model.getName();
-            } else {
-                if (!esClient.isExistsTemplate(model.getName())) {
-                    boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
-                    log.info(
-                        "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+            if (model.isTimeSeries()) {
+                Map<String, Object> template = esClient.getTemplate(tableName);
+                if (!template.isEmpty()) {
+                    appendTemplateMapping(tableName, (Map<String, Object>) template.get("mappings"));
+                }
+                if (!containsTemplateMapping(tableName, mapping)) {
+                    Map<String, Object> templateMapping = appendTemplateMapping(tableName, mapping);
+                    boolean isAcknowledged = esClient.createTemplate(tableName, settings, templateMapping);
+                    log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                     if (!isAcknowledged) {
-                        throw new StorageException("create " + model.getName() + " index template failure, ");
+                        throw new StorageException("create " + tableName + " index template failure, ");
                     }
                 }
-                indexName = TimeSeriesUtils.latestWriteIndexName(model);
+                indexName = TimeSeriesUtils.latestWriteIndexName(model, storageMode);
+            } else {
+                indexName = tableName;
+            }
+
+            if (esClient.isExistsIndex(indexName) && esClient.getDocNumber(indexName) == 0) {
+                boolean isAcknowledged = esClient.deleteByIndexName(indexName);
+                if (!isAcknowledged) {
+                    throw new StorageException("delete " + indexName + " time series index failure, ");
+                }
             }
             if (!esClient.isExistsIndex(indexName)) {
                 boolean isAcknowledged = esClient.createIndex(indexName);
@@ -100,6 +141,48 @@ public class StorageEsInstaller extends ModelInstaller {
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
+
+    }
+
+    /**
+     * Append the mapping to the tables with the same table name key.
+     */
+    private Map<String, Object> appendTemplateMapping(String tableName, Map<String, Object> mapping) {
+        if (!tables.containsKey(tableName)) {
+            tables.put(tableName, mapping);
+            return mapping;
+        }
+        Map<String, Object> existMapping = tables.get(tableName);
+        Map<String, Object> existFields = getColumnProperties(existMapping);
+        Map<String, Object> checkingFields = getColumnProperties(mapping);
+        Map<String, Object> newFields = checkingFields.entrySet()
+                                                      .stream()
+                                                      .filter(item -> !existFields.containsKey(item.getKey()))
+                                                      .collect(Collectors.toMap(
+                                                          Map.Entry::getKey, Map.Entry::getValue));
+        newFields.forEach(existFields::put);
+        return existMapping;
+    }
+
+    protected Map<String, Object> getColumnProperties(Map<String, Object> mapping) {
+        if (Objects.isNull(mapping) || mapping.size() == 0) {
+            return new HashMap<>();
+        }
+        return (Map<String, Object>) ((Map<String, Object>) mapping.get(ElasticSearchClient.TYPE)).get("properties");
+    }
+
+    /**
+     * Whether the tables contains the input mapping with the same table name key.
+     */
+    private boolean containsTemplateMapping(String tableName, Map<String, Object> mapping) {
+        if (!tables.containsKey(tableName)) {
+            return false;
+        }
+        Map<String, Object> existMapping = tables.get(tableName);
+        Map<String, Object> existFields = getColumnProperties(existMapping);
+        Map<String, Object> checkingFields = getColumnProperties(mapping);
+        return checkingFields.entrySet()
+                             .stream().allMatch(item -> existFields.containsKey(item.getKey()));
     }
 
     protected Map<String, Object> createSetting(Model model) throws StorageException {
@@ -165,6 +248,11 @@ public class StorageEsInstaller extends ModelInstaller {
                 }
                 properties.put(columnDefine.getColumnName().getName(), column);
             }
+        }
+        if (storageMode.isAggregationMode(model)) {
+            Map<String, Object> column = new HashMap<>();
+            column.put("type", "keyword");
+            properties.put(StorageMode.LOGIC_TABLE_NAME, column);
         }
 
         log.debug("elasticsearch index template setting: {}", mapping.toString());

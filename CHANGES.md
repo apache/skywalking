@@ -43,6 +43,7 @@ Release Notes.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
 * Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
+* Merge indices by Metrics Function and Meter Function. 
 
 #### UI
 * Update selector scroller to show in all pages.

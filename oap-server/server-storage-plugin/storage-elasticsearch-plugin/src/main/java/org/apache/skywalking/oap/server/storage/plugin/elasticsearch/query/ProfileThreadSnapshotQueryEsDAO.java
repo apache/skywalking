@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -70,7 +71,8 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.size(querySegmentMaxSize);
         sourceBuilder.sort(ProfileThreadSnapshotRecord.DUMP_TIME, SortOrder.DESC);
 
-        SearchResponse response = getClient().search(ProfileThreadSnapshotRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(
+            StorageMapper.getRealTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
 
         final LinkedList<String> segments = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -105,7 +107,8 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
             basicTrace.getEndpointNames().add((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
-                                                                               .get(SegmentRecord.IS_ERROR)).intValue()));
+                                                                               .get(
+                                                                                   SegmentRecord.IS_ERROR)).intValue()));
             basicTrace.getTraceIds().add((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
 
             result.add(basicTrace);
@@ -116,16 +119,24 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
 
     @Override
     public int queryMinSequence(String segmentId, long start, long end) throws IOException {
-        return querySequenceWithAgg(AggregationBuilders.min(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE), segmentId, start, end);
+        return querySequenceWithAgg(
+            AggregationBuilders.min(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE),
+            segmentId, start, end
+        );
     }
 
     @Override
     public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
-        return querySequenceWithAgg(AggregationBuilders.max(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE), segmentId, start, end);
+        return querySequenceWithAgg(
+            AggregationBuilders.max(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE),
+            segmentId, start, end
+        );
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId,
+                                                          int minSequence,
+                                                          int maxSequence) throws IOException {
         // search traces
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -134,10 +145,12 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         mustQueryList.add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
-        mustQueryList.add(QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.SEQUENCE).gte(minSequence).lt(maxSequence));
+        mustQueryList.add(
+            QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.SEQUENCE).gte(minSequence).lt(maxSequence));
         sourceBuilder.size(maxSequence - minSequence);
 
-        SearchResponse response = getClient().search(ProfileThreadSnapshotRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(
+            StorageMapper.getRealTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -154,7 +167,8 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.SEGMENT_ID, segmentId));
         sourceBuilder.size(1);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(
+            StorageMapper.getRealTableName(SegmentRecord.INDEX_NAME), sourceBuilder);
 
         if (response.getHits().getHits().length == 0) {
             return null;
@@ -177,7 +191,10 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         return segmentRecord;
     }
 
-    protected int querySequenceWithAgg(AbstractAggregationBuilder aggregationBuilder, String segmentId, long start, long end) throws IOException {
+    protected int querySequenceWithAgg(AbstractAggregationBuilder aggregationBuilder,
+                                       String segmentId,
+                                       long start,
+                                       long end) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -189,8 +206,10 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.size(0);
 
         sourceBuilder.aggregation(aggregationBuilder);
-        SearchResponse response = getClient().search(ProfileThreadSnapshotRecord.INDEX_NAME, sourceBuilder);
-        NumericMetricsAggregation.SingleValue agg = response.getAggregations().get(ProfileThreadSnapshotRecord.SEQUENCE);
+        SearchResponse response = getClient().search(
+            StorageMapper.getRealTableName(ProfileThreadSnapshotRecord.INDEX_NAME), sourceBuilder);
+        NumericMetricsAggregation.SingleValue agg = response.getAggregations()
+                                                            .get(ProfileThreadSnapshotRecord.SEQUENCE);
 
         return (int) agg.value();
     }

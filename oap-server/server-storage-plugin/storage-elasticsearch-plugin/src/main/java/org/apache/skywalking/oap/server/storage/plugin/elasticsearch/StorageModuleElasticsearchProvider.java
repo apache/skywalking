@@ -63,6 +63,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchP
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
@@ -161,13 +162,15 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             .getTrustStorePass(), config.getUser(), config.getPassword(),
             indexNameConverters(config.getNameSpace())
         );
-
+        StorageMode storageMode = StorageMode.findByName(config.getStorageMode());
         this.registerServiceImplementation(
-            IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getSyncBulkActions(), config
-                .getFlushInterval(), config.getConcurrentRequests()));
-        this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
+            IBatchDAO.class,
+            new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getSyncBulkActions(), config
+                .getFlushInterval(), config.getConcurrentRequests())
+        );
+        this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient, storageMode));
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
+            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient, storageMode));
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config
                 .getResultWindowMaxSize()));

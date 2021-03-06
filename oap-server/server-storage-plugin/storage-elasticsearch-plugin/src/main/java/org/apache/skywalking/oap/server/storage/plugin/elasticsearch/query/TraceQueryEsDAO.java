@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMapper;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -131,7 +132,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
-        SearchResponse response = getClient().search(new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB), sourceBuilder);
+        SearchResponse response = getClient().search(
+            new TimeRangeIndexNameMaker(
+                StorageMapper.getRealTableName(SegmentRecord.INDEX_NAME), startSecondTB, endSecondTB), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().totalHits);
 
@@ -160,7 +163,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(
+            StorageMapper.getRealTableName(SegmentRecord.INDEX_NAME), sourceBuilder);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {

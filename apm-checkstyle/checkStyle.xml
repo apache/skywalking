@@ -122,7 +122,8 @@
 
         <module name="ImportControl">
             <property name="file" value="${import.control}"/>
-            <property name="path" value="apm-sniffer/(apm-sdk-plugin|bootstrap-plugins|optional-plugins)/.+/src/main/.+Instrumentation.java$"/>
+            <property name="path"
+                      value="apm-sniffer/(apm-sdk-plugin|bootstrap-plugins|optional-plugins)/.+/src/main/.+Instrumentation.java$"/>
         </module>
 
         <module name="ImportControl">

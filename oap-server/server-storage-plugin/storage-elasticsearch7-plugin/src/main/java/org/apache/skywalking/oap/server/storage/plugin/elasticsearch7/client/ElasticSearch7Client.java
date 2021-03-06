@@ -18,18 +18,25 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -52,7 +59,10 @@ import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -198,6 +208,89 @@ public class ElasticSearch7Client extends ElasticSearchClient {
                                                               deleteIndexTemplateRequest, RequestOptions.DEFAULT);
 
         return acknowledgedResponse.isAcknowledged();
+    }
+
+    @Override
+    public Map<String, Object> getTemplates() throws IOException {
+        String name = formatIndexName("*");
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "_template/" + name));
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            return new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                new TypeToken<HashMap<String, Object>>() {
+                }.getType()
+            );
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+
+    }
+
+    @Override
+    public Map<String, Object> getTemplate(String name) throws IOException {
+        name = formatIndexName(name);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "_template/" + name));
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            if (templates.containsKey(name)) {
+                return (Map<String, Object>) templates.get(name);
+            }
+            return new HashMap<>();
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public long getDocNumber(String indexName) throws IOException {
+        indexName = formatIndexName(indexName);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "_cat/indices/" + indexName));
+            return Long.parseLong(EntityUtils.toString(response.getEntity()).split(" +")[6]);
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return 0;
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException e) {
+            healthChecker.unHealth(e);
+            throw e;
+        }
     }
 
     @Override

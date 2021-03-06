@@ -16,18 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MetricsEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageMode;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class MetricsEs7DAO extends MetricsEsDAO {
+public class StorageMapper {
+    /**
+     * The relation is between logic table and physical table.
+     */
+    private static final Map<String, String> TABLE_NAME_MAPPING = new ConcurrentHashMap<>();
 
-    MetricsEs7DAO(ElasticSearchClient client, StorageHashMapBuilder<Metrics> storageBuilder,
-                  StorageMode storageMode) {
-        super(client, storageBuilder, storageMode);
+    public static String getRealTableName(String logicName) {
+        return Optional.of(TABLE_NAME_MAPPING.get(logicName)).orElse(logicName);
+    }
+
+    public static void register(String logicName, String physicalName) {
+        TABLE_NAME_MAPPING.put(logicName, physicalName);
     }
 }
