@@ -22,3 +22,5 @@ traces:
     isError: false
     traceIds:
       - not null
+    tags:
+      - {key: http.method, value: GET}

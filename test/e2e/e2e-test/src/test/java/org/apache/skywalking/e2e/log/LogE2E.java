@@ -17,7 +17,10 @@
 
 package org.apache.skywalking.e2e.log;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
@@ -92,9 +95,12 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     public void verifyLog4jLog() throws Exception {
+        List<Map<String, String>> tags = new ArrayList<>();
+        tags.add(Collections.singletonMap("level", "INFO"));
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
-                                             .end(Times.now());
+                                             .end(Times.now())
+                                             .tags(tags);
         if (graphql.supportQueryLogsByKeywords()) {
             logsQuery.keywordsOfContent("log4j message");
         }
@@ -106,9 +112,12 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     public void verifyLog4j2Log() throws Exception {
+        List<Map<String, String>> tags = new ArrayList<>();
+        tags.add(Collections.singletonMap("level", "INFO"));
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
-                                             .end(Times.now());
+                                             .end(Times.now())
+                                             .tags(tags);
         if (graphql.supportQueryLogsByKeywords()) {
             logsQuery.keywordsOfContent("log4j2 message");
         }
@@ -120,9 +129,12 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     public void verifyLogbackLog() throws Exception {
+        List<Map<String, String>> tags = new ArrayList<>();
+        tags.add(Collections.singletonMap("level", "INFO"));
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
-                                             .end(Times.now());
+                                             .end(Times.now())
+                                             .tags(tags);
         if (graphql.supportQueryLogsByKeywords()) {
             logsQuery.keywordsOfContent("logback message");
         }
