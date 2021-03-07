@@ -7,7 +7,7 @@ Release Notes.
 #### Project
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
-* Fix tags store of log and trace on h2/mysql/pg storage
+* Upgrade lombok to 1.18.16.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
@@ -44,6 +44,7 @@ Release Notes.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
 * Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
+* Fix tags store of log and trace on h2/mysql/pg storage
 
 #### UI
 * Update selector scroller to show in all pages.
