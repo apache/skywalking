@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -194,7 +194,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .size(1000));
 
         SearchResponse response = getClient().search(
-            PhysicalIndices.getPhysicalTableName(indexName), sourceBuilder);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(indexName), sourceBuilder);
 
         List<Call.CallDetail> calls = new ArrayList<>();
         Terms entityTerms = response.getAggregations().get(Metrics.ENTITY_ID);
@@ -221,7 +221,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .size(1000));
 
         SearchResponse response = getClient().search(
-            PhysicalIndices.getPhysicalTableName(indexName), sourceBuilder);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(indexName), sourceBuilder);
 
         List<Call.CallDetail> calls = new ArrayList<>();
         Terms entityTerms = response.getAggregations().get(Metrics.ENTITY_ID);
@@ -243,7 +243,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.aggregation(AggregationBuilders.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000));
 
         SearchResponse response = getClient().search(
-            PhysicalIndices.getPhysicalTableName(indexName), sourceBuilder);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(indexName), sourceBuilder);
 
         List<Call.CallDetail> calls = new ArrayList<>();
         Terms entityTerms = response.getAggregations().get(Metrics.ENTITY_ID);

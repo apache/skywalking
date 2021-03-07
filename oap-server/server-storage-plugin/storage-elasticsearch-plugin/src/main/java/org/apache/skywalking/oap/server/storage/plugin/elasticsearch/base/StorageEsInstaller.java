@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -42,7 +44,6 @@ public class StorageEsInstaller extends ModelInstaller {
     private final Gson gson = new Gson();
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
-    private static final String INSTALL_TEMPLATE_FINISHED_TAG = "install_sw_template_finished";
 
     /**
      * The mappings of the template .
@@ -61,16 +62,19 @@ public class StorageEsInstaller extends ModelInstaller {
     @Override
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
-        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
-        PhysicalIndices.registerRelation(model.getName(), tableName);
+        String tableName = IndexController.INSTANCE.getTableName(model);
+        IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
         try {
-            if (model.isTimeSeries()) {
-                return esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)
-                    && esClient.isExistsTemplate(tableName)
-                    && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
-            } else {
+            if (!model.isTimeSeries()) {
                 return esClient.isExistsIndex(tableName);
             }
+            boolean exist = esClient.isExistsTemplate(tableName)
+                && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
+            if (RunningMode.isInitMode() && IndexController.INSTANCE.isAggregationMode(model)) {
+                appendTemplateMapping(tableName, (Map<String, Object>) esClient.getTemplate(tableName).get("mappings"));
+                exist = exist && isTemplateMappingCompatible(tableName, createMapping(model));
+            }
+            return exist;
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
@@ -78,67 +82,103 @@ public class StorageEsInstaller extends ModelInstaller {
 
     @Override
     protected void createTable(Model model) throws StorageException {
+        if (model.isTimeSeries()) {
+            createTimeSeriesTable(model);
+        } else {
+            createNormalTable(model);
+        }
+    }
+
+    private void createNormalTable(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
-        Map<String, Object> settings = createSetting(model);
-        Map<String, Object> mapping = createMapping(model);
-        String tableName = PhysicalIndexer.INSTANCE.getTableName(model);
-        PhysicalIndices.registerRelation(model.getName(), tableName);
-        log.info("index {}'s columnTypeEsMapping builder str: {}",
-                 esClient.formatIndexName(tableName), mapping.toString()
-        );
-
-        String indexName;
+        String tableName = IndexController.INSTANCE.getTableName(model);
+        IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
         try {
-            if (model.isTimeSeries()) {
-                if (!esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)
-                    && (!esClient.isExistsTemplate(tableName) || !isTemplateMappingCompatible(tableName, mapping))) {
-                    Map<String, Object> templateMapping = appendTemplateMapping(tableName, mapping);
-                    boolean isAcknowledged = esClient.createOrUpdateTemplate(tableName, settings, templateMapping);
-                    log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
-                    if (!isAcknowledged) {
-                        throw new StorageException("create " + tableName + " index template failure, ");
-                    }
-                }
-                indexName = TimeSeriesUtils.latestWriteIndexName(model);
-            } else {
-                indexName = tableName;
-            }
-
-            if (!esClient.isExistsIndex(indexName)) {
-                if (!esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)) {
-                    boolean isAcknowledged = esClient.deleteByIndexName(indexName);
-                    if (!isAcknowledged) {
-                        throw new StorageException("delete " + indexName + " time series index failure, ");
-                    }
-                }
-                boolean isAcknowledged = esClient.createIndex(indexName);
-                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+            if (!esClient.isExistsIndex(tableName)) {
+                boolean isAcknowledged = esClient.createIndex(tableName);
+                log.info("create {} index finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
-                    throw new StorageException("create " + indexName + " time series index failure, ");
+                    throw new StorageException("create " + tableName + " time series index failure, ");
                 }
             }
         } catch (IOException e) {
-            throw new StorageException(e.getMessage());
+            throw new StorageException("cannot create the normal index", e);
         }
+    }
+
+    private void createTimeSeriesTable(Model model) throws StorageException {
+        ElasticSearchClient esClient = (ElasticSearchClient) client;
+        String tableName = IndexController.INSTANCE.getTableName(model);
+        IndexController.LogicIndicesRegister.registerRelation(model.getName(), tableName);
+        Map<String, Object> settings = createSetting(model);
+        Map<String, Object> mapping = createMapping(model);
+        String indexName = TimeSeriesUtils.latestWriteIndexName(model);
+        try {
+            boolean updateTemplate = !esClient.isExistsTemplate(tableName);
+            if (!updateTemplate) {
+                appendTemplateMapping(tableName, (Map<String, Object>) esClient.getTemplate(tableName)
+                                                                               .get("mappings"));
+                updateTemplate = !isTemplateMappingCompatible(tableName, mapping);
+            }
+            if (updateTemplate) {
+                Map<String, Object> templateMapping = appendTemplateMapping(tableName, mapping);
+                boolean isAcknowledged = esClient.createOrUpdateTemplate(tableName, settings, templateMapping);
+                log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
+                if (!isAcknowledged) {
+                    throw new IOException("create " + tableName + " index template failure, ");
+                }
+
+                if (esClient.isExistsIndex(indexName)) {
+                    Map<String, Object> historyMapping = (Map<String, Object>) esClient.getIndex(indexName)
+                                                                                       .get("mappings");
+                    Map<String, Object> appendMapping = extractAppendMapping(templateMapping, historyMapping);
+                    if (appendMapping.size() > 0) {
+                        esClient.updateIndexMapping(indexName, appendMapping);
+                    }
+                } else {
+                    isAcknowledged = esClient.createIndex(indexName);
+                    log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+                    if (!isAcknowledged) {
+                        throw new StorageException("create " + indexName + " time series index failure, ");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new StorageException("cannot create " + tableName + " index template", e);
+        }
+    }
+
+    private Map<String, Object> extractAppendMapping(final Map<String, Object> latestMapping,
+                                                     final Map<String, Object> historyMapping) {
+        Map<String, Object> checkingFields = getColumnProperties(latestMapping);
+        Map<String, Object> existFields = getColumnProperties(historyMapping);
+        Map<String, Object> newFields = checkingFields.entrySet()
+                                                      .stream()
+                                                      .filter(item -> !existFields.containsKey(item.getKey()))
+                                                      .collect(Collectors.toMap(
+                                                          Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, Object> mapping = createEmptyMapping();
+        Map<String, Object> properties = getColumnProperties(mapping);
+        newFields.forEach(properties::put);
+        return mapping;
     }
 
     /**
      * Append the mapping to the tables with the same table name key.
      */
     private Map<String, Object> appendTemplateMapping(String tableName, Map<String, Object> mapping) {
+        if (Objects.isNull(mapping) || mapping.size() == 0) {
+            return Optional.ofNullable(tables.get(tableName)).orElse(new HashMap<>());
+        }
         if (!tables.containsKey(tableName)) {
             tables.put(tableName, mapping);
             return mapping;
         }
         Map<String, Object> existMapping = tables.get(tableName);
+        Map<String, Object> appendMapping = extractAppendMapping(mapping, existMapping);
+        Map<String, Object> newColumns = getColumnProperties(appendMapping);
         Map<String, Object> existFields = getColumnProperties(existMapping);
-        Map<String, Object> checkingFields = getColumnProperties(mapping);
-        Map<String, Object> newFields = checkingFields.entrySet()
-                                                      .stream()
-                                                      .filter(item -> !existFields.containsKey(item.getKey()))
-                                                      .collect(Collectors.toMap(
-                                                          Map.Entry::getKey, Map.Entry::getValue));
-        newFields.forEach(existFields::put);
+        newColumns.forEach(existFields::put);
         return existMapping;
     }
 
@@ -194,14 +234,18 @@ public class StorageEsInstaller extends ModelInstaller {
         return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
     }
 
-    protected Map<String, Object> createMapping(Model model) {
+    protected Map<String, Object> createEmptyMapping() {
         Map<String, Object> mapping = new HashMap<>();
         Map<String, Object> type = new HashMap<>();
-
         mapping.put(ElasticSearchClient.TYPE, type);
-
         Map<String, Object> properties = new HashMap<>();
         type.put("properties", properties);
+        return mapping;
+    }
+
+    protected Map<String, Object> createMapping(Model model) {
+        Map<String, Object> mapping = createEmptyMapping();
+        Map<String, Object> properties = getColumnProperties(mapping);
 
         for (ModelColumn columnDefine : model.getColumns()) {
             if (columnDefine.isMatchQuery()) {
@@ -228,32 +272,14 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        if (PhysicalIndexer.INSTANCE.isAggregationMode(model)) {
+        if (IndexController.INSTANCE.isAggregationMode(model)) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
-            properties.put(PhysicalIndices.LOGIC_TABLE_NAME, column);
+            properties.put(IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME, column);
         }
 
         log.debug("elasticsearch index template setting: {}", mapping.toString());
 
         return mapping;
-    }
-
-    public void addInstalledTag() throws StorageException {
-        ElasticSearchClient esClient = (ElasticSearchClient) client;
-        try {
-            if (!esClient.isExistsTemplate(INSTALL_TEMPLATE_FINISHED_TAG)) {
-                // create a empty template to record the initialization phase is complete.
-                boolean isAcknowledged = esClient.createOrUpdateTemplate(
-                    INSTALL_TEMPLATE_FINISHED_TAG, new HashMap<>(), new HashMap<>());
-                log.info(
-                    "create {} template finished, isAcknowledged: {}", INSTALL_TEMPLATE_FINISHED_TAG, isAcknowledged);
-                if (!isAcknowledged) {
-                    throw new StorageException("create " + INSTALL_TEMPLATE_FINISHED_TAG + " template failure, ");
-                }
-            }
-        } catch (IOException e) {
-            throw new StorageException(e.getMessage());
-        }
     }
 }

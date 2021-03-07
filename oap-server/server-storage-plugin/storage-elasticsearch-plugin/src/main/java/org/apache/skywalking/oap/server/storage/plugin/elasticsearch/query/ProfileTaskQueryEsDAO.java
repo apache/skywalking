@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -78,7 +78,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         sourceBuilder.sort(ProfileTaskRecord.START_TIME, SortOrder.DESC);
 
         final SearchResponse response = getClient().search(
-            PhysicalIndices.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME), sourceBuilder);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME), sourceBuilder);
 
         final LinkedList<ProfileTask> tasks = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -99,7 +99,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         sourceBuilder.size(1);
 
         final SearchResponse response = getClient().search(
-            PhysicalIndices.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME), sourceBuilder);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME), sourceBuilder);
 
         if (response.getHits().getHits().length > 0) {
             return parseTask(response.getHits().getHits()[0]);

@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.management.UITemplateManage
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -64,7 +64,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         sourceBuilder.size(10000);
 
         SearchResponse response = getClient().search(
-            PhysicalIndices.getPhysicalTableName(UITemplate.INDEX_NAME), sourceBuilder);
+            IndexController.LogicIndicesRegister.getPhysicalTableName(UITemplate.INDEX_NAME), sourceBuilder);
 
         List<DashboardConfiguration> configs = new ArrayList<>();
         final UITemplate.Builder builder = new UITemplate.Builder();

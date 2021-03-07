@@ -38,8 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndexer;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -78,7 +77,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         sourceBuilder.aggregation(entityIdAggregation);
 
         SearchResponse response = getClient()
-            .search(PhysicalIndices.getPhysicalTableName(condition.getName()), sourceBuilder);
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()), sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
@@ -101,7 +100,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
-        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
@@ -109,7 +108,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = PhysicalIndexer.INSTANCE.generateDocId(condition.getName(), id);
+                id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -147,13 +146,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                                         final List<String> labels,
                                                         final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = PhysicalIndexer.INSTANCE.generateDocId(condition.getName(), id);
+                id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -172,13 +171,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                final String valueColumnName,
                                final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
             if (aggregationMode) {
-                id = PhysicalIndexer.INSTANCE.generateDocId(condition.getName(), id);
+                id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
         });
@@ -229,21 +228,21 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final String entityId = condition.getEntity().buildId();
 
-        if (entityId == null && PhysicalIndices.isPhysicalTable(condition.getName())) {
+        if (entityId == null && IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
             sourceBuilder.query(rangeQueryBuilder);
         } else if (entityId == null) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termQuery(
-                PhysicalIndices.LOGIC_TABLE_NAME,
+                IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
                 condition.getName()
             ));
-        } else if (PhysicalIndices.isLogicTable(condition.getName())) {
+        } else if (IndexController.LogicIndicesRegister.isLogicTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
             boolQuery.must().add(QueryBuilders.termQuery(
-                PhysicalIndices.LOGIC_TABLE_NAME,
+                IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
                 condition.getName()
             ));
             sourceBuilder.query(boolQuery);

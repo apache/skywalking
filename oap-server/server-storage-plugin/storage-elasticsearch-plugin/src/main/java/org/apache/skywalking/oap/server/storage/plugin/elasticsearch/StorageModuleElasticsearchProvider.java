@@ -222,12 +222,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
-        try {
-            storageEsInstaller.addInstalledTag();
-        } catch (StorageException e) {
-            log.error("cannot tag installed successful label in elasticsearch storage", e);
-            System.exit(1);
-        }
     }
 
     @Override

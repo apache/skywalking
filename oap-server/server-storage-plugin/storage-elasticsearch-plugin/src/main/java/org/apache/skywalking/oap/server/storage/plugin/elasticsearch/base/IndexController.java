@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -28,7 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
  * And, the other record data would be insulated storage by themselves definitions.
  */
 @Slf4j
-public enum PhysicalIndexer {
+public enum IndexController {
     INSTANCE;
 
     public String getTableName(Model model) {
@@ -61,16 +63,41 @@ public enum PhysicalIndexer {
     }
 
     /**
-     * When a model is the aggregation storage mode, a column named {@link PhysicalIndices#LOGIC_TABLE_NAME} would be
-     * append to the physical index. The value of the column is the original table name in other storages, such as the
-     * OAL name.
+     * When a model is the aggregation storage mode, a column named {@link LogicIndicesRegister#LOGIC_TABLE_NAME} would
+     * be append to the physical index. The value of the column is the original table name in other storages, such as
+     * the OAL name.
      */
     public Map<String, Object> appendLogicTableColumn(Model model, Map<String, Object> columns) {
         if (!isAggregationMode(model)) {
             return columns;
         }
-        columns.put(PhysicalIndices.LOGIC_TABLE_NAME, model.getName());
+        columns.put(LogicIndicesRegister.LOGIC_TABLE_NAME, model.getName());
         return columns;
     }
 
+    public static class LogicIndicesRegister {
+
+        /**
+         * The relations of the logic table and the physical table.
+         */
+        private static final Map<String, String> LOGIC_INDICES_CATALOG = new ConcurrentHashMap<>();
+
+        public static final String LOGIC_TABLE_NAME = "logic_table";
+
+        public static String getPhysicalTableName(String logicName) {
+            return Optional.of(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);
+        }
+
+        public static void registerRelation(String logicName, String physicalName) {
+            LOGIC_INDICES_CATALOG.put(logicName, physicalName);
+        }
+
+        public static boolean isLogicTable(String logicName) {
+            return !isPhysicalTable(logicName);
+        }
+
+        public static boolean isPhysicalTable(String logicName) {
+            return getPhysicalTableName(logicName).equals(logicName);
+        }
+    }
 }

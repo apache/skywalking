@@ -18,18 +18,26 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -37,6 +45,7 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.template.delete.DeleteIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -52,7 +61,10 @@ import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -60,6 +72,7 @@ import org.elasticsearch.client.indices.IndexTemplatesExistRequest;
 import org.elasticsearch.client.indices.PutIndexTemplateRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -152,6 +165,86 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         AcknowledgedResponse response = client.indices().delete(request, RequestOptions.DEFAULT);
         log.debug("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
+    }
+
+    @Override
+    public Map<String, Object> getIndex(String indexName) throws IOException {
+        if (StringUtil.isBlank(indexName)) {
+            return new HashMap<>();
+        }
+        indexName = formatIndexName(indexName);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, indexName));
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            return (Map<String, Object>) Optional.ofNullable(templates.get(indexName)).orElse(new HashMap<>());
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public boolean updateIndexMapping(String indexName, final Map<String, Object> mapping) throws IOException {
+        indexName = formatIndexName(indexName);
+        PutMappingRequest putMappingRequest = new PutMappingRequest(indexName);
+        Gson gson = new Gson();
+        putMappingRequest.source(gson.toJson(mapping), XContentType.JSON);
+        putMappingRequest.type("_doc");
+        AcknowledgedResponse response = client.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT);
+        log.debug("put {} index mapping finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        return response.isAcknowledged();
+    }
+
+    @Override
+    public Map<String, Object> getTemplate(String name) throws IOException {
+        name = formatIndexName(name);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "_template/" + name));
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            if (templates.containsKey(name)) {
+                return (Map<String, Object>) templates.get(name);
+            }
+            return new HashMap<>();
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     @Override

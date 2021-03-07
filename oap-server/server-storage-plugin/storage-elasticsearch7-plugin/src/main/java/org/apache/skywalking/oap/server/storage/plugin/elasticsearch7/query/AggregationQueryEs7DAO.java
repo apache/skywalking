@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.PhysicalIndices;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -64,13 +64,13 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
         if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
-        String tableName = PhysicalIndices.getPhysicalTableName(condition.getName());
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         boolean aggregationMode = !tableName.equals(condition.getName());
 
         if (CollectionUtils.isEmpty(additionalConditions) && aggregationMode) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(QueryBuilders.termQuery(
-                PhysicalIndices.LOGIC_TABLE_NAME, condition.getName()));
+                IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME, condition.getName()));
             boolQuery.must().add(queryBuilder);
             sourceBuilder.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
@@ -79,7 +79,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         PhysicalIndices.LOGIC_TABLE_NAME, condition.getName()));
+                         IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME, condition.getName()));
             additionalConditions.forEach(additionalCondition -> boolQuery
                 .must()
                 .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue())));

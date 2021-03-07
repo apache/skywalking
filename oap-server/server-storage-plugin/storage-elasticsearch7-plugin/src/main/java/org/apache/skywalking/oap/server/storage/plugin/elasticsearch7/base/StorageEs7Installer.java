@@ -38,15 +38,8 @@ public class StorageEs7Installer extends StorageEsInstaller {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected Map<String, Object> createMapping(Model model) {
-        Map<String, Object> mapping = super.createMapping(model);
-        Map<String, Object> type = (Map<String, Object>) mapping.remove(ElasticSearchClient.TYPE);
-        mapping.put("properties", type.get("properties"));
-
-        log.debug("elasticsearch index template setting: {}", mapping.toString());
-
-        return mapping;
+        return removeTypeOfMapping(super.createMapping(model));
     }
 
     @Override
@@ -55,5 +48,19 @@ public class StorageEs7Installer extends StorageEsInstaller {
             return new HashMap<>();
         }
         return (Map<String, Object>) mapping.get("properties");
+    }
+
+    @Override
+    protected Map<String, Object> createEmptyMapping() {
+        return removeTypeOfMapping(super.createEmptyMapping());
+    }
+
+    private Map<String, Object> removeTypeOfMapping(Map<String, Object> mapping) {
+        if (!mapping.containsKey(ElasticSearchClient.TYPE)) {
+            return mapping;
+        }
+        Map<String, Object> type = (Map<String, Object>) mapping.remove(ElasticSearchClient.TYPE);
+        mapping.put("properties", type.get("properties"));
+        return mapping;
     }
 }
