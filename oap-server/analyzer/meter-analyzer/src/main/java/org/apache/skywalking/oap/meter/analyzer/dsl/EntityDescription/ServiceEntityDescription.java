@@ -19,21 +19,17 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class ServiceEntityDescription implements EntityDescription {
-    private ScopeType scopeType = ScopeType.SERVICE;
-
-    private List<String> serviceKeys;
-
-    public ServiceEntityDescription(List<String> serviceKeys) {
-        this.serviceKeys = serviceKeys;
-    }
-
-    @Override
-    public ScopeType getScopeType() {
-        return this.scopeType;
-    }
+    private final ScopeType scopeType = ScopeType.SERVICE;
+    private final List<String> serviceKeys;
 
     @Override
     public List<String> getLabelKeys() {
@@ -41,17 +37,12 @@ public class ServiceEntityDescription implements EntityDescription {
     }
 
     @Override
-    public List<String> getServiceKeys() {
-        return this.serviceKeys;
-    }
-
-    @Override
     public List<String> getInstanceKeys() {
-        return null;
+        throw new UnsupportedOperationException("Unsupported Operation of getInstanceKeys() " + this.toString());
     }
 
     @Override
     public List<String> getEndpointKeys() {
-        return null;
+        throw new UnsupportedOperationException("Unsupported Operation of getEndpointKeys() " + this.toString());
     }
 }

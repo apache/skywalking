@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEn
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
@@ -378,7 +379,6 @@ public class SampleFamily {
               .collect(groupingBy(it -> InternalOps.getLabels(entityDescription.getLabelKeys(), it), mapping(identity(), toList())))
               .forEach((labels, samples) -> {
                   MeterEntity meterEntity = InternalOps.buildMeterEntity(samples, entityDescription);
-                  Preconditions.checkNotNull(meterEntity);
                   meterSamples.put(meterEntity, InternalOps.left(samples, entityDescription.getLabelKeys()));
               });
 
@@ -487,8 +487,8 @@ public class SampleFamily {
                         InternalOps.dim(samples, entityDescription.getServiceKeys()),
                         InternalOps.dim(samples, entityDescription.getEndpointKeys())
                     );
+                default: throw new UnexpectedException("Unexpected scope type of entityDescription " + entityDescription.toString());
             }
-            return null;
         }
 
         private static Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
