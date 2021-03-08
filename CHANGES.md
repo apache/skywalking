@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
+* Upgrade lombok to 1.18.16.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
@@ -53,6 +54,8 @@ Release Notes.
 * Search endpoints with keywords.
 * Fix pageSize on logs page.
 * Update echarts version to 5.0.2.
+* Fix instance dependency on the topology page.
+* Fix resolved url for vue-property-decorator.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
