@@ -452,11 +452,12 @@ vue-datepicker-local	1.0.19:	https://github.com/weifeiyue/vue-datepicker-local	M
 vue-js-modal	1.3.31:	https://github.com/euvl/vue-js-modal	MIT
 lodash	4.17.15:	https://github.com/lodash/lodash	MIT
 gson-fire	1.8.4:	https://mvnrepository.com/artifact/io.gsonfire/gson-fire	MIT
+vue-i18n 8.10.0:  https://github.com/kazupon/vue-i18n   MIT
 
 ========================================
 Apache 2.0 licenses
 ========================================
-echarts	4.1.0:	https://github.com/apache/incubator-echarts	Apache-2.0
+echarts	5.0.2:	https://github.com/apache/echarts	Apache-2.0
 Material Icons 3.0.1 https://github.com/google/material-design-icons Apache-2.0
 groovy             3.0.3 https://github.com/apache/groovy Apache-2.0
 
@@ -498,8 +499,8 @@ d3-tip          0.9.1:  https://github.com/Caged/d3-tip BSD-3-Clause
 d3-transition   1.1.3:  https://github.com/d3/d3-transition     BSD-3-Clause
 d3-voronoi      1.1.4:  https://github.com/d3/d3-voronoi        BSD-3-Clause
 d3-zoom 1.7.3:  https://github.com/d3/d3-zoom   BSD-3-Clause
-zrender 4.0.4:  https://github.com/ecomfe/zrender   BSD-3-Clause
-vue-i18n 8.10.0:  https://github.com/kazupon/vue-i18n   MIT
+zrender 5.0.4:  https://github.com/ecomfe/zrender   BSD-3-Clause
+tslib 2.0.3 https://www.npmjs.com/package/tslib BSD Zero Clause
 
 ========================================
 Public Domain licenses

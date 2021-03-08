@@ -34,13 +34,7 @@ filter {
     if (log.service == "TestingService") { // Don't waste resources on TestingServices
         abort {} // all remaining components won't be executed at all
     }
-    text {
-        if (!regexp("(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)")) {
-            // if the logs don't match this regexp, skip it
-            abort {}
-        }
-    }
-    // ... extractors, sinks
+    // ... parsers, extractors, sinks
 }
 ```
 
@@ -55,15 +49,35 @@ types of parsers at the moment, namely `json`, `yaml`, and `text`.
 When a piece of log is parsed, there is a corresponding property available, called `parsed`, injected by LAL.
 Property `parsed` is typically a map, containing all the fields parsed from the raw logs, for example, if the parser
 is `json` / `yaml`, `parsed` is a map containing all the key-values in the `json` / `yaml`, if the parser is `text`
-, `parsed` is a map containing all the captured groups and their values (for `regexp` and `grok`). See examples below.
+, `parsed` is a map containing all the captured groups and their values (for `regexp` and `grok`).
+
+All parsers share the following options:
+
+| Option | Type | Description | Default Value |
+| ------ | ---- | ----------- | ------------- |
+| `abortOnFailure` | `boolean` | Whether the filter chain should abort if the parser failed to parse / match the logs | `true` |
+
+See examples below.
 
 #### `json`
 
-<!-- TODO: is structured in the reported (gRPC) `LogData`, not much to do -->
+```groovy
+filter {
+    json {
+        abortOnFailure true // this is optional because it's default behaviour
+    }
+}
+```
 
 #### `yaml`
 
-<!-- TODO: is structured in the reported (gRPC) `LogData`, not much to do -->
+```groovy
+filter {
+    yaml {
+        abortOnFailure true // this is optional because it's default behaviour
+    }
+}
+```
 
 #### `text`
 
@@ -78,8 +92,9 @@ all the captured groups can be used later in the extractors or sinks.
 ```groovy
 filter {
     text {
-        regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)"
+        abortOnFailure true // this is optional because it's default behaviour
         // this is just a demo pattern
+        regexp "(?<timestamp>\\d{8}) (?<thread>\\w+) (?<level>\\w+) (?<traceId>\\w+) (?<msg>.+)"
     }
     extractor {
         tag level: parsed.level
@@ -91,9 +106,10 @@ filter {
 }
 ```
 
-- `grok`
+- `grok` (TODO)
 
-<!-- TODO: grok Java library has poor performance, need to benchmark it, the idea is basically the same with `regexp` above -->
+Because grok Java library has performance issue, we need some investigations and benchmark on it. Contributions are
+welcome.
 
 ### Extractor
 

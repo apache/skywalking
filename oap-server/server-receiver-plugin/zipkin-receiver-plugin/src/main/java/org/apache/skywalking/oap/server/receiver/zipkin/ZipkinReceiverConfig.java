@@ -33,7 +33,4 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private long jettyIdleTimeOut = 30000;
     private int jettyAcceptorPriorityDelta = 0;
     private int jettyAcceptQueueSize = 0;
-    private int expireTime = 20;
-    private int maxCacheSize = 1_000_000;
-    private boolean needAnalysis = false;
 }

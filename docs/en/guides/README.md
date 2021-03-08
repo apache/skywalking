@@ -93,7 +93,7 @@ As for the last step, we have a friendly framework to help you get started more 
 To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
 They send **designed** requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
 
-In the test framework, we provide a `TrafficController` to periodically send traffic data to the instrumented services, you can simply enable it by giving a url and traffic data, refer to [../../../test/e2e/e2e-test/src/test/java/org/apache/skywalking/e2e/base/TrafficController.java].
+In the test framework, we provide a `TrafficController` to periodically send traffic data to the instrumented services, you can simply enable it by giving a url and traffic data, refer to [this](../../../test/e2e/e2e-test/src/test/java/org/apache/skywalking/e2e/base/TrafficController.java).
 
 - Troubleshooting
 

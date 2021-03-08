@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -107,7 +109,17 @@ public class ExtractorSpec extends AbstractSpec {
                          .stream()
                          .filter(it -> isNotBlank(it.getKey()))
                          .filter(it -> nonNull(it.getValue()) && isNotBlank(Objects.toString(it.getValue())))
-                         .map(it -> KeyStringValuePair.newBuilder().setKey(it.getKey()).setValue(Objects.toString(it.getValue())).build())
+                         .map(it -> {
+                             final Object val = it.getValue();
+                             String valStr = Objects.toString(val);
+                             if (Collection.class.isAssignableFrom(val.getClass())) {
+                                 valStr = Joiner.on(",").skipNulls().join((Collection<?>) val);
+                             }
+                             return KeyStringValuePair.newBuilder()
+                                                      .setKey(it.getKey())
+                                                      .setValue(valStr)
+                                                      .build();
+                         })
                          .collect(Collectors.toList())
                    )
         );

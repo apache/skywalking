@@ -43,7 +43,7 @@ including
 1. Service Mesh Observability. Control panel and data panel. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
 1. Logs.
-1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
+1. Zipkin v1/v2 trace.(No Analysis)
 
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.

@@ -20,21 +20,26 @@ package org.apache.skywalking.oap.log.analyzer.dsl.spec.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-public class JsonParserSpec extends AbstractSpec {
+public class JsonParserSpec extends AbstractParserSpec {
     private final GsonBuilder gsonBuilder;
+
+    private final Gson gson;
 
     public JsonParserSpec(final ModuleManager moduleManager,
                           final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
 
         gsonBuilder = new GsonBuilder();
+
+        // We just create a gson instance in advance for now (for the sake of performance),
+        // when we want to provide some extra options, we'll move this into method "create" then.
+        gson = gsonBuilder.create();
     }
 
     public Gson create() {
-        return gsonBuilder.create();
+        return gson;
     }
 }
