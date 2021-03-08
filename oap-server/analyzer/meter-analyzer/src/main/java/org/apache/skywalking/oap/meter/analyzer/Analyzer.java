@@ -150,6 +150,7 @@ public class Analyzer {
                                   vv[i] = getValue(s);
                               }
                               BucketedValues bv = new BucketedValues(bb, vv);
+                              bv.setGroup(group);
                               long time = subSs.get(0).getTimestamp();
                               if (metricType == MetricType.histogram) {
                                   AcceptableValue<BucketedValues> v = meterSystem.buildMetrics(
