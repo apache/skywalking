@@ -69,8 +69,7 @@ public class SpanV2JettyHandler extends JettyHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
 
-        HistogramMetrics.Timer timer = histogram.createTimer();
-        try {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             String type = request.getHeader("Content-Type");
 
             int encode = type != null && type.contains("/x-protobuf") ? SpanEncode.PROTO3 : SpanEncode.JSON_V2;
@@ -85,8 +84,6 @@ public class SpanV2JettyHandler extends JettyHandler {
             response.setStatus(500);
             errorCounter.inc();
             log.error(e.getMessage(), e);
-        } finally {
-            timer.finish();
         }
     }
 }

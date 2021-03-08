@@ -64,14 +64,11 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
         return new StreamObserver<MeterData>() {
             @Override
             public void onNext(MeterData meterData) {
-                HistogramMetrics.Timer timer = histogram.createTimer();
-                try {
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
                     processor.read(meterData);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
-                } finally {
-                    timer.finish();
                 }
             }
 

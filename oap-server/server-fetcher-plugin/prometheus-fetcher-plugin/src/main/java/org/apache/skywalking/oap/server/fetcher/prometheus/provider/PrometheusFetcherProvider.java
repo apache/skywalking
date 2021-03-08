@@ -77,10 +77,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                 .provider()
                 .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-                "metrics_scratch_latency", "The process latency of metrics scratching",
+                "metrics_fetcher_latency", "The process latency of metrics scratching",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
-        errorCounter = metricsCreator.createCounter("metrics_scratch_error_count", "The error number of metrics scratching",
+        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scratching",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
     }
@@ -122,8 +122,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                 private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r, service);
 
                 @Override public void run() {
-                    HistogramMetrics.Timer timer = histogram.createTimer();
-                    try {
+                    try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
                         if (Objects.isNull(r.getStaticConfig())) {
                             return;
                         }
@@ -165,8 +164,6 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                     } catch (Exception e) {
                         errorCounter.inc();
                         log.error(e.getMessage(), e);
-                    } finally {
-                        timer.finish();
                     }
                 }
             }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
@@ -175,6 +172,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {
+            TelemetryModule.NAME,
+            CoreModule.NAME
+        };
     }
 }

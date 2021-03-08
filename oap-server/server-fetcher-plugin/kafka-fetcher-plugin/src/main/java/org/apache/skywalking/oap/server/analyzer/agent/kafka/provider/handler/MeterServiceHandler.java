@@ -65,14 +65,11 @@ public class MeterServiceHandler implements KafkaHandler {
             MeterDataCollection meterDataCollection = MeterDataCollection.parseFrom(record.value().get());
             MeterProcessor processor = processService.createProcessor();
             meterDataCollection.getMeterDataList().forEach(meterData -> {
-                HistogramMetrics.Timer timer = histogram.createTimer();
-                try {
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
                     processor.read(meterData);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
-                } finally {
-                    timer.finish();
                 }
             });
             processor.process();

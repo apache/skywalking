@@ -68,8 +68,7 @@ public class SpanV1JettyHandler extends JettyHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
 
-        HistogramMetrics.Timer timer = histogram.createTimer();
-        try {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             String type = request.getHeader("Content-Type");
 
             int encode = type != null && type.contains("/x-thrift") ? SpanEncode.THRIFT : SpanEncode.JSON_V1;
@@ -84,8 +83,6 @@ public class SpanV1JettyHandler extends JettyHandler {
             response.setStatus(500);
             errorCounter.inc();
             log.error(e.getMessage(), e);
-        } finally {
-            timer.finish();
         }
     }
 
