@@ -62,7 +62,7 @@ public class MeterReceiverProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        MeterServiceHandler meterServiceHandlerCompat = new MeterServiceHandler(processService);
+        MeterServiceHandler meterServiceHandlerCompat = new MeterServiceHandler(getManager(), processService);
         grpcHandlerRegister.addHandler(meterServiceHandlerCompat);
         grpcHandlerRegister.addHandler(new MeterServiceHandlerCompat(meterServiceHandlerCompat));
     }
