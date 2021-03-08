@@ -26,7 +26,6 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
-import java.util.ArrayList;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -34,6 +33,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
@@ -82,11 +85,11 @@ public class SampleFamily {
 
     /* tag filter operations*/
     public SampleFamily tagEqual(String... labels) {
-        return match(labels, this::stringComp);
+        return match(labels, InternalOps::stringComp);
     }
 
     public SampleFamily tagNotEqual(String[] labels) {
-        return match(labels, (sv, lv) -> !stringComp(sv, lv));
+        return match(labels, (sv, lv) -> !InternalOps.stringComp(sv, lv));
     }
 
     public SampleFamily tagMatch(String[] labels) {
@@ -181,15 +184,15 @@ public class SampleFamily {
         }
         if (by == null) {
             double result = Arrays.stream(samples).mapToDouble(Sample::getValue).average().orElse(0.0D);
-            return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
+            return SampleFamily.build(this.context, InternalOps.newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
 
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
-                  .collect(groupingBy(it -> getLabels(by, it), mapping(identity(), toList())))
+                  .collect(groupingBy(it -> InternalOps.getLabels(by, it), mapping(identity(), toList())))
                   .entrySet().stream()
-                  .map(entry -> newSample(
+                  .map(entry -> InternalOps.newSample(
                       entry.getKey(),
                       entry.getValue().get(0).getTimestamp(),
                       entry.getValue().stream().mapToDouble(Sample::getValue).average().orElse(0.0D)
@@ -205,28 +208,20 @@ public class SampleFamily {
         }
         if (by == null) {
             double result = Arrays.stream(samples).mapToDouble(s -> s.value).reduce(aggregator).orElse(0.0D);
-            return SampleFamily.build(this.context, newSample(ImmutableMap.of(), samples[0].timestamp, result));
+            return SampleFamily.build(this.context, InternalOps.newSample(ImmutableMap.of(), samples[0].timestamp, result));
         }
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
-                  .collect(groupingBy(it -> getLabels(by, it), mapping(identity(), toList())))
+                  .collect(groupingBy(it -> InternalOps.getLabels(by, it), mapping(identity(), toList())))
                   .entrySet().stream()
-                  .map(entry -> newSample(
+                  .map(entry -> InternalOps.newSample(
                       entry.getKey(),
                       entry.getValue().get(0).getTimestamp(),
                       entry.getValue().stream().mapToDouble(Sample::getValue).reduce(aggregator).orElse(0.0D)
                   ))
                   .toArray(Sample[]::new)
         );
-    }
-
-    private ImmutableMap<String, String> getLabels(final List<String> labelKeys, final Sample sample) {
-        return labelKeys.stream()
-                        .collect(toImmutableMap(
-                            Function.identity(),
-                            labelKey -> sample.labels.getOrDefault(labelKey, "")
-                        ));
     }
 
     /* Function */
@@ -319,7 +314,7 @@ public class SampleFamily {
                               .putAll(Maps.filterKeys(s.labels, key -> !Objects.equals(key, le)))
                               .put("le", String.valueOf((long) ((Double.parseDouble(this.context.histogramType == HistogramType.ORDINARY ? s.labels.get(le) : preLe.get())) * scale))).build();
                           preLe.set(s.labels.get(le));
-                          return newSample(ll, s.timestamp, r);
+                          return InternalOps.newSample(ll, s.timestamp, r);
                       })
             ).toArray(Sample[]::new)
         );
@@ -344,7 +339,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(labelKeys, new ArrayList<>(), ScopeType.SERVICE);
+        return createMeterSamples(new ServiceEntityDescription(labelKeys));
     }
 
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys) {
@@ -359,7 +354,7 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(serviceKeys, instanceKeys, ScopeType.SERVICE_INSTANCE);
+        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys));
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys) {
@@ -374,75 +369,22 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(serviceKeys, endpointKeys, ScopeType.ENDPOINT);
+        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys));
     }
 
-    private SampleFamily createMeterSamples(List<String> serviceKeys, List<String> level2keys, ScopeType scopeType) {
-        final List<String> labelKeys = Stream.concat(serviceKeys.stream(), level2keys.stream()).collect(toList());
+    private SampleFamily createMeterSamples(EntityDescription entityDescription) {
         Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
         Arrays.stream(samples)
-              .collect(groupingBy(it -> getLabels(labelKeys, it), mapping(identity(), toList())))
+              .collect(groupingBy(it -> InternalOps.getLabels(entityDescription.getLabelKeys(), it), mapping(identity(), toList())))
               .forEach((labels, samples) -> {
-                  MeterEntity meterEntity = buildMeterEntity(samples, serviceKeys, level2keys, scopeType);
+                  MeterEntity meterEntity = InternalOps.buildMeterEntity(samples, entityDescription);
                   Preconditions.checkNotNull(meterEntity);
-                  meterSamples.put(meterEntity, left(labelKeys, samples));
+                  meterSamples.put(meterEntity, InternalOps.left(samples, entityDescription.getLabelKeys()));
               });
 
         this.context.setMeterSamples(meterSamples);
         //This samples is original, The grouped samples is in context which mapping with MeterEntity
         return SampleFamily.build(this.context, samples);
-    }
-
-    private MeterEntity buildMeterEntity(List<Sample> samples,
-                                       List<String> serviceKeys,
-                                       List<String> level2keys,
-                                       ScopeType scopeType) {
-        switch (scopeType) {
-            case SERVICE:
-                return MeterEntity.newService(dim(serviceKeys, samples));
-            case SERVICE_INSTANCE:
-                return MeterEntity.newServiceInstance(dim(serviceKeys, samples), dim(level2keys, samples));
-            case ENDPOINT:
-                return MeterEntity.newEndpoint(dim(serviceKeys, samples), dim(level2keys, samples));
-        }
-        return null;
-    }
-
-    private String dim(List<String> labelKeys) {
-        String name = labelKeys.stream()
-                               .map(k -> samples[0].labels.getOrDefault(k, ""))
-                               .collect(Collectors.joining("."));
-        return CharMatcher.is('.').trimFrom(name);
-    }
-
-    private String dim(List<String> labelKeys, List<Sample> samples) {
-        String name = labelKeys.stream()
-                               .map(k -> samples.get(0).labels.getOrDefault(k, ""))
-                               .collect(Collectors.joining("."));
-        return CharMatcher.is('.').trimFrom(name);
-    }
-
-    private Sample[] left(List<String> labelKeys, List<Sample> samples) {
-        return samples.stream().map(s -> {
-            ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
-                .build();
-            return s.toBuilder().labels(ll).build();
-        }).toArray(Sample[]::new);
-    }
-
-    private SampleFamily left(List<String> labelKeys) {
-        return SampleFamily.build(
-            this.context,
-            Arrays.stream(samples)
-                  .map(s -> {
-                      ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
-                          .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
-                          .build();
-                      return s.toBuilder().labels(ll).build();
-                  })
-                  .toArray(Sample[]::new)
-        );
     }
 
     private SampleFamily match(String[] labels, Function2<String, String, Boolean> op) {
@@ -481,24 +423,6 @@ public class SampleFamily {
         return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
 
-    private Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
-        return Sample.builder()
-            .value(newValue)
-            .labels(labels)
-            .timestamp(timestamp)
-            .build();
-    }
-
-    private boolean stringComp(String a, String b) {
-        if (Strings.isNullOrEmpty(a) && Strings.isNullOrEmpty(b)) {
-            return true;
-        }
-        if (Strings.isNullOrEmpty(a)) {
-            return false;
-        }
-        return a.equals(b);
-    }
-
     public SampleFamily downsampling(final DownsamplingType type) {
         ExpressionParsingContext.get().ifPresent(it -> it.downsampling = type);
         return this;
@@ -528,5 +452,69 @@ public class SampleFamily {
         private HistogramType histogramType;
 
         private TimeUnit defaultHistogramBucketUnit;
+    }
+
+    private static class InternalOps {
+
+        private static Sample[] left(List<Sample> samples, List<String> labelKeys) {
+            return samples.stream().map(s -> {
+                ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
+                    .putAll(Maps.filterKeys(s.labels, key -> !labelKeys.contains(key)))
+                    .build();
+                return s.toBuilder().labels(ll).build();
+            }).toArray(Sample[]::new);
+        }
+
+        private static String dim(List<Sample> samples, List<String> labelKeys) {
+            String name = labelKeys.stream()
+                                   .map(k -> samples.get(0).labels.getOrDefault(k, ""))
+                                   .collect(Collectors.joining("."));
+            return CharMatcher.is('.').trimFrom(name);
+        }
+
+        private static MeterEntity buildMeterEntity(List<Sample> samples,
+                                                    EntityDescription entityDescription) {
+            switch (entityDescription.getScopeType()) {
+                case SERVICE:
+                    return MeterEntity.newService(InternalOps.dim(samples, entityDescription.getServiceKeys()));
+                case SERVICE_INSTANCE:
+                    return MeterEntity.newServiceInstance(
+                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, entityDescription.getInstanceKeys())
+                    );
+                case ENDPOINT:
+                    return MeterEntity.newEndpoint(
+                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, entityDescription.getEndpointKeys())
+                    );
+            }
+            return null;
+        }
+
+        private static Sample newSample(ImmutableMap<String, String> labels, long timestamp, double newValue) {
+            return Sample.builder()
+                         .value(newValue)
+                         .labels(labels)
+                         .timestamp(timestamp)
+                         .build();
+        }
+
+        private static boolean stringComp(String a, String b) {
+            if (Strings.isNullOrEmpty(a) && Strings.isNullOrEmpty(b)) {
+                return true;
+            }
+            if (Strings.isNullOrEmpty(a)) {
+                return false;
+            }
+            return a.equals(b);
+        }
+
+        private static ImmutableMap<String, String> getLabels(final List<String> labelKeys, final Sample sample) {
+            return labelKeys.stream()
+                            .collect(toImmutableMap(
+                                Function.identity(),
+                                labelKey -> sample.labels.getOrDefault(labelKey, "")
+                            ));
+        }
     }
 }
