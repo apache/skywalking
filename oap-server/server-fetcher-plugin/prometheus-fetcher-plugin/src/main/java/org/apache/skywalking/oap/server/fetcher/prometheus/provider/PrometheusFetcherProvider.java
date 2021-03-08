@@ -67,22 +67,12 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     private ScheduledExecutorService ses;
 
-    private final HistogramMetrics histogram;
+    private HistogramMetrics histogram;
 
-    private final CounterMetrics errorCounter;
+    private CounterMetrics errorCounter;
 
     public PrometheusFetcherProvider() {
         config = new PrometheusFetcherConfig();
-        MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
-        histogram = metricsCreator.createHistogramMetric(
-                "metrics_fetcher_latency", "The process latency of metrics scratching",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
-        );
-        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scratching",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
-        );
     }
 
     @Override
@@ -104,6 +94,16 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
         ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
+        MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "metrics_fetcher_latency", "The process latency of metrics scratching",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scratching",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
     }
 
     @Override
