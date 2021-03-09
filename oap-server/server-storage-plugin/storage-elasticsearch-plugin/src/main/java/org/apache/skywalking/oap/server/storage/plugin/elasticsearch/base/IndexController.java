@@ -34,7 +34,7 @@ public enum IndexController {
     INSTANCE;
 
     public String getTableName(Model model) {
-        return isAggregationMode(model) ? model.getAggregationFunctionName() : model.getName();
+        return isAggregationModel(model) ? model.getAggregationFunctionName() : model.getName();
     }
 
     /**
@@ -42,7 +42,7 @@ public enum IndexController {
      * to avoid conflicts.
      */
     public String generateDocId(Model model, String originalID) {
-        if (!isAggregationMode(model)) {
+        if (!isAggregationModel(model)) {
             return originalID;
         }
         return this.generateDocId(model.getName(), originalID);
@@ -58,7 +58,7 @@ public enum IndexController {
     /**
      * Check the mode of the Model definition.
      */
-    public boolean isAggregationMode(Model model) {
+    public boolean isAggregationModel(Model model) {
         return StringUtil.isNotBlank(model.getAggregationFunctionName());
     }
 
@@ -68,7 +68,7 @@ public enum IndexController {
      * the OAL name.
      */
     public Map<String, Object> appendLogicTableColumn(Model model, Map<String, Object> columns) {
-        if (!isAggregationMode(model)) {
+        if (!isAggregationModel(model)) {
             return columns;
         }
         columns.put(LogicIndicesRegister.LOGIC_TABLE_NAME, model.getName());
@@ -90,10 +90,6 @@ public enum IndexController {
 
         public static void registerRelation(String logicName, String physicalName) {
             LOGIC_INDICES_CATALOG.put(logicName, physicalName);
-        }
-
-        public static boolean isLogicTable(String logicName) {
-            return !isPhysicalTable(logicName);
         }
 
         public static boolean isPhysicalTable(String logicName) {

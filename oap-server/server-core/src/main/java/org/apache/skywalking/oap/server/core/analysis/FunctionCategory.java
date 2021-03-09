@@ -48,7 +48,7 @@ public enum FunctionCategory {
         return "";
     }
 
-    public static Annotation doGetAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+    private static Annotation doGetAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         if (clazz.equals(Object.class)) {
             return null;
         }

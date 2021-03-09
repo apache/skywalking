@@ -101,13 +101,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
         String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
-        boolean aggregationMode = !tableName.equals(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
 
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
-            if (aggregationMode) {
+            if (!IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
                 id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
@@ -237,7 +236,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
                 condition.getName()
             ));
-        } else if (IndexController.LogicIndicesRegister.isLogicTable(condition.getName())) {
+        } else if (!IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));

@@ -64,7 +64,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         }
         String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
 
-        if (CollectionUtils.isEmpty(additionalConditions) && IndexController.LogicIndicesRegister.isLogicTable(condition.getName())) {
+        if (CollectionUtils.isEmpty(additionalConditions) && !IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
@@ -75,7 +75,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             sourceBuilder.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
             sourceBuilder.query(queryBuilder);
-        } else if (CollectionUtils.isNotEmpty(additionalConditions) && IndexController.LogicIndicesRegister.isLogicTable(
+        } else if (CollectionUtils.isNotEmpty(additionalConditions) && !IndexController.LogicIndicesRegister.isPhysicalTable(
             condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
