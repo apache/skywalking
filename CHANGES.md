@@ -44,7 +44,8 @@ Release Notes.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
 * Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
-* Fix tags store of log and trace on h2/mysql/pg storage
+* Fix wrong metrics name setting in the `self-observability.yml`.
+* Fix tags store of log and trace on h2/mysql/pg storage.
 
 #### UI
 * Update selector scroller to show in all pages.
