@@ -94,6 +94,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
         ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
+    }
+
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
                 .provider()
                 .getService(MetricsCreator.class);
@@ -104,10 +108,6 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scratching",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
-    }
-
-    @Override
-    public void start() throws ServiceNotProvidedException, ModuleStartException {
     }
 
     @Override
