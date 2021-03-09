@@ -31,11 +31,11 @@ public class IndexStructuresTest {
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("a", "b");
         properties.put("c", "d");
-        structures.resolveStructure("test", structures.getWrapper().wrapper(properties));
+        structures.putStructure("test", structures.getWrapper().wrapper(properties));
         Map<String, Object> mapping = structures.getMapping("test");
         Assert.assertEquals(structures.getExtractor().extract(mapping), properties);
 
-        structures.resolveStructure("test2", structures.getWrapper().wrapper(new HashMap<>()));
+        structures.putStructure("test2", structures.getWrapper().wrapper(new HashMap<>()));
         mapping = structures.getMapping("test2");
 
         Assert.assertTrue(structures.getExtractor().extract(mapping).isEmpty());
@@ -47,13 +47,13 @@ public class IndexStructuresTest {
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("a", "b");
         properties.put("c", "d");
-        structures.resolveStructure("test", structures.getWrapper().wrapper(properties));
+        structures.putStructure("test", structures.getWrapper().wrapper(properties));
         Map<String, Object> mapping = structures.getMapping("test");
         Assert.assertEquals(properties, structures.getExtractor().extract(mapping));
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
         properties2.put("f", "g");
-        structures.resolveStructure("test", structures.getWrapper().wrapper(properties2));
+        structures.putStructure("test", structures.getWrapper().wrapper(properties2));
         mapping = structures.getMapping("test");
         HashMap<String, Object> res = new HashMap<>();
         res.put("a", "b");
@@ -69,7 +69,7 @@ public class IndexStructuresTest {
         properties.put("a", "b");
         properties.put("c", "d");
         properties.put("f", "g");
-        structures.resolveStructure("test", structures.getWrapper().wrapper(properties));
+        structures.putStructure("test", structures.getWrapper().wrapper(properties));
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
         Map<String, Object> diffMappings = structures.diffStructure(
@@ -89,7 +89,7 @@ public class IndexStructuresTest {
         properties.put("a", "b");
         properties.put("c", "d");
         properties.put("f", "g");
-        structures.resolveStructure("test", structures.getWrapper().wrapper(properties));
+        structures.putStructure("test", structures.getWrapper().wrapper(properties));
 
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");

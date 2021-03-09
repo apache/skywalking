@@ -61,7 +61,7 @@ public class IndexStructures {
     /**
      * Add or append field when the current structures don't contain the input structure or having new fields in it.
      */
-    public void resolveStructure(String tableName, Map<String, Object> mapping) {
+    public void putStructure(String tableName, Map<String, Object> mapping) {
         if (Objects.isNull(mapping) || mapping.isEmpty()) {
             return;
         }

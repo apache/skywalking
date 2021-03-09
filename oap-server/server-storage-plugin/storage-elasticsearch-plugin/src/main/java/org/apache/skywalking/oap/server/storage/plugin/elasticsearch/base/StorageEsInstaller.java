@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -71,8 +70,8 @@ public class StorageEsInstaller extends ModelInstaller {
             }
             boolean exist = esClient.isExistsTemplate(tableName)
                 && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
-            if (RunningMode.isInitMode() && exist && IndexController.INSTANCE.isAggregationModel(model)) {
-                structures.resolveStructure(
+            if (exist && IndexController.INSTANCE.isAggregationModel(model)) {
+                structures.putStructure(
                     tableName, (Map<String, Object>) esClient.getTemplate(tableName).get("mappings")
                 );
                 exist = structures.containsStructure(tableName, createMapping(model));
@@ -120,7 +119,7 @@ public class StorageEsInstaller extends ModelInstaller {
                 shouldUpdateTemplate = shouldUpdateTemplate || !structures.containsStructure(tableName, mapping);
             }
             if (shouldUpdateTemplate) {
-                structures.resolveStructure(tableName, mapping);
+                structures.putStructure(tableName, mapping);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(
                     tableName, settings, structures.getMapping(tableName));
                 log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
