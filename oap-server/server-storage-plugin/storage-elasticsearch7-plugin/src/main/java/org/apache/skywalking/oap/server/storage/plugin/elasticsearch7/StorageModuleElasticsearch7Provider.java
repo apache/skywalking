@@ -92,7 +92,6 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
     protected ElasticSearch7Client elasticSearch7Client;
-    private StorageEs7Installer storageEs7Installer;
 
     public StorageModuleElasticsearch7Provider() {
         super();
@@ -222,7 +221,6 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
             elasticSearch7Client.connect();
 
             StorageEs7Installer installer = new StorageEs7Installer(elasticSearch7Client, getManager(), config);
-            storageEs7Installer = installer;
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
