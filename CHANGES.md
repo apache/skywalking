@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
+* Upgrade lombok to 1.18.16.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
