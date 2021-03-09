@@ -102,10 +102,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                 .provider()
                 .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-                "metrics_fetcher_latency", "The process latency of metrics scratching",
+                "metrics_fetcher_latency", "The process latency of metrics scraping",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
-        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scratching",
+        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scraping",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
     }
