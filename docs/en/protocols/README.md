@@ -7,7 +7,7 @@ There are two types of protocols list here.
 
 
 ## Probe Protocols
-They also related to the probe group, for understand that, look [Concepts and Designs](../concepts-and-designs/README.md) document.
+They also related to the probe group, for understand that, look [Concepts and Designs](../concepts-and-designs/overview.md) document.
 These groups are **Language based native agent protocol**, **Service Mesh protocol** and **3rd-party instrument protocol**.
 
 ### Language based native agent protocol
