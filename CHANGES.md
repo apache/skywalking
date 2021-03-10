@@ -44,6 +44,7 @@ Release Notes.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
 * Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
+* Fix wrong metrics name setting in the `self-observability.yml`.
 * Add telemetry data about metrics in, metrics scraping and trace in metrics to zipkin receiver.
 
 #### UI
