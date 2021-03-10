@@ -69,7 +69,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
+                         IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                          condition.getName()
                      ));
             boolQuery.must().add(queryBuilder);
@@ -81,7 +81,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
+                         IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                          condition.getName()
                      ));
             additionalConditions.forEach(additionalCondition -> boolQuery

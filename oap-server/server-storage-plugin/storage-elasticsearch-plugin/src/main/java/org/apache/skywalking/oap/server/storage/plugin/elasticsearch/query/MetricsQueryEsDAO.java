@@ -231,7 +231,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termQuery(
-                IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                 condition.getName()
             ));
         } else if (entityId == null) {
@@ -241,7 +241,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
             boolQuery.must().add(QueryBuilders.termQuery(
-                IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                 condition.getName()
             ));
             sourceBuilder.query(boolQuery);

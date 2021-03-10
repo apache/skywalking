@@ -64,7 +64,7 @@ public enum IndexController {
     }
 
     /**
-     * When a model is the metric storage mode, a column named {@link LogicIndicesRegister#Metric_TABLE_NAME} would be
+     * When a model is the metric storage mode, a column named {@link LogicIndicesRegister#METRIC_TABLE_NAME} would be
      * append to the physical index. The value of the column is the original table name in other storages, such as the
      * OAL name.
      */
@@ -72,7 +72,7 @@ public enum IndexController {
         if (!isMetricModel(model)) {
             return columns;
         }
-        columns.put(LogicIndicesRegister.Metric_TABLE_NAME, model.getName());
+        columns.put(LogicIndicesRegister.METRIC_TABLE_NAME, model.getName());
         return columns;
     }
 
@@ -85,7 +85,7 @@ public enum IndexController {
         /**
          * The metric table name in aggregation physical storage.
          */
-        public static final String Metric_TABLE_NAME = "metric_table";
+        public static final String METRIC_TABLE_NAME = "metric_table";
 
         public static String getPhysicalTableName(String logicName) {
             return Optional.of(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);

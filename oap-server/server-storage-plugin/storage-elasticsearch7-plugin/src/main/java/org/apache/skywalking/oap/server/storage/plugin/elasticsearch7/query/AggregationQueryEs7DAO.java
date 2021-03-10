@@ -70,7 +70,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
             && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(QueryBuilders.termQuery(
-                IndexController.LogicIndicesRegister.Metric_TABLE_NAME, condition.getName()));
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, condition.getName()));
             boolQuery.must().add(queryBuilder);
             sourceBuilder.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
@@ -80,7 +80,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         IndexController.LogicIndicesRegister.Metric_TABLE_NAME, condition.getName()));
+                         IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, condition.getName()));
             additionalConditions.forEach(additionalCondition -> boolQuery
                 .must()
                 .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue())));

@@ -214,7 +214,7 @@ public class StorageEsInstaller extends ModelInstaller {
         if (IndexController.INSTANCE.isMetricModel(model)) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
-            properties.put(IndexController.LogicIndicesRegister.Metric_TABLE_NAME, column);
+            properties.put(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, column);
         }
         Map<String, Object> mappings = this.structures.getWrapper().wrapper(properties);
         log.debug("elasticsearch index template setting: {}", mappings.toString());
