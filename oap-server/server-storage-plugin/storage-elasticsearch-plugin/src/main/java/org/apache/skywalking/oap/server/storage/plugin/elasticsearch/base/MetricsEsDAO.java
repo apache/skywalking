@@ -58,7 +58,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(metrics)));
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics)));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareInsert(modelName, id, builder);
@@ -67,7 +67,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(metrics)));
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics)));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
         return getClient().prepareUpdate(modelName, id, builder);

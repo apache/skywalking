@@ -70,7 +70,7 @@ public class StorageEsInstaller extends ModelInstaller {
             }
             boolean exist = esClient.isExistsTemplate(tableName)
                 && esClient.isExistsIndex(TimeSeriesUtils.latestWriteIndexName(model));
-            if (exist && IndexController.INSTANCE.isAggregationModel(model)) {
+            if (exist && IndexController.INSTANCE.isMetricModel(model)) {
                 structures.putStructure(
                     tableName, (Map<String, Object>) esClient.getTemplate(tableName).get("mappings")
                 );
@@ -115,7 +115,7 @@ public class StorageEsInstaller extends ModelInstaller {
         String indexName = TimeSeriesUtils.latestWriteIndexName(model);
         try {
             boolean shouldUpdateTemplate = !esClient.isExistsTemplate(tableName);
-            if (IndexController.INSTANCE.isAggregationModel(model)) {
+            if (IndexController.INSTANCE.isMetricModel(model)) {
                 shouldUpdateTemplate = shouldUpdateTemplate || !structures.containsStructure(tableName, mapping);
             }
             if (shouldUpdateTemplate) {
@@ -211,10 +211,10 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        if (IndexController.INSTANCE.isAggregationModel(model)) {
+        if (IndexController.INSTANCE.isMetricModel(model)) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
-            properties.put(IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME, column);
+            properties.put(IndexController.LogicIndicesRegister.Metric_TABLE_NAME, column);
         }
         Map<String, Object> mappings = this.structures.getWrapper().wrapper(properties);
         log.debug("elasticsearch index template setting: {}", mappings.toString());

@@ -64,23 +64,24 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         }
         String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
 
-        if (CollectionUtils.isEmpty(additionalConditions) && !IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+        if (CollectionUtils.isEmpty(additionalConditions)
+            && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
+                         IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
                          condition.getName()
                      ));
             boolQuery.must().add(queryBuilder);
             sourceBuilder.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
             sourceBuilder.query(queryBuilder);
-        } else if (CollectionUtils.isNotEmpty(additionalConditions) && !IndexController.LogicIndicesRegister.isPhysicalTable(
-            condition.getName())) {
+        } else if (CollectionUtils.isNotEmpty(additionalConditions)
+            && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must()
                      .add(QueryBuilders.termQuery(
-                         IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
+                         IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
                          condition.getName()
                      ));
             additionalConditions.forEach(additionalCondition -> boolQuery

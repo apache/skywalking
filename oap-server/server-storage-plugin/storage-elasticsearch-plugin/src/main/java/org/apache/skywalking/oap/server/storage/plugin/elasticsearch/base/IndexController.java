@@ -35,7 +35,7 @@ public enum IndexController {
     INSTANCE;
 
     public String getTableName(Model model) {
-        return isAggregationModel(model) ? model.getAggregationFunctionName() : model.getName();
+        return isMetricModel(model) ? model.getAggregationFunctionName() : model.getName();
     }
 
     /**
@@ -43,7 +43,7 @@ public enum IndexController {
      * to avoid conflicts.
      */
     public String generateDocId(Model model, String originalID) {
-        if (!isAggregationModel(model)) {
+        if (!isMetricModel(model)) {
             return originalID;
         }
         return this.generateDocId(model.getName(), originalID);
@@ -59,20 +59,20 @@ public enum IndexController {
     /**
      * Check the mode of the Model definition.
      */
-    public boolean isAggregationModel(Model model) {
+    public boolean isMetricModel(Model model) {
         return StringUtil.isNotBlank(model.getAggregationFunctionName());
     }
 
     /**
-     * When a model is the aggregation storage mode, a column named {@link LogicIndicesRegister#LOGIC_TABLE_NAME} would
-     * be append to the physical index. The value of the column is the original table name in other storages, such as
-     * the OAL name.
+     * When a model is the metric storage mode, a column named {@link LogicIndicesRegister#Metric_TABLE_NAME} would be
+     * append to the physical index. The value of the column is the original table name in other storages, such as the
+     * OAL name.
      */
-    public Map<String, Object> appendLogicTableColumn(Model model, Map<String, Object> columns) {
-        if (!isAggregationModel(model)) {
+    public Map<String, Object> appendMetricTableColumn(Model model, Map<String, Object> columns) {
+        if (!isMetricModel(model)) {
             return columns;
         }
-        columns.put(LogicIndicesRegister.LOGIC_TABLE_NAME, model.getName());
+        columns.put(LogicIndicesRegister.Metric_TABLE_NAME, model.getName());
         return columns;
     }
 
@@ -82,8 +82,10 @@ public enum IndexController {
          * The relations of the logic table and the physical table.
          */
         private static final Map<String, String> LOGIC_INDICES_CATALOG = new ConcurrentHashMap<>();
-
-        public static final String LOGIC_TABLE_NAME = "metric_table";
+        /**
+         * The metric table name in aggregation physical storage.
+         */
+        public static final String Metric_TABLE_NAME = "metric_table";
 
         public static String getPhysicalTableName(String logicName) {
             return Optional.of(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);
@@ -93,8 +95,8 @@ public enum IndexController {
             LOGIC_INDICES_CATALOG.put(logicName, physicalName);
         }
 
-        public static boolean isPhysicalTable(String logicName) {
-            return getPhysicalTableName(logicName).equals(logicName);
+        public static boolean isMetricTable(String logicName) {
+            return !getPhysicalTableName(logicName).equals(logicName);
         }
     }
 }

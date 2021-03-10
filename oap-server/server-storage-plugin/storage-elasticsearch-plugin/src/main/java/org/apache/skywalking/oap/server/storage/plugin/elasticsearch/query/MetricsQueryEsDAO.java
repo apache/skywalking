@@ -106,7 +106,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         pointOfTimes.forEach(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
-            if (!IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+            if (IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
                 id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             ids.add(id);
@@ -227,21 +227,21 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final String entityId = condition.getEntity().buildId();
 
-        if (entityId == null && IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
-            sourceBuilder.query(rangeQueryBuilder);
-        } else if (entityId == null) {
+        if (entityId == null && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termQuery(
-                IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
+                IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
                 condition.getName()
             ));
-        } else if (!IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+        } else if (entityId == null) {
+            sourceBuilder.query(rangeQueryBuilder);
+        } else if (IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
             boolQuery.must().add(QueryBuilders.termQuery(
-                IndexController.LogicIndicesRegister.LOGIC_TABLE_NAME,
+                IndexController.LogicIndicesRegister.Metric_TABLE_NAME,
                 condition.getName()
             ));
             sourceBuilder.query(boolQuery);

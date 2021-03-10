@@ -41,7 +41,7 @@ public class NoneStreamEsDAO extends EsDAO implements INoneStreamDAO {
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
         XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(noneStream)));
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(noneStream)));
         String modelName = TimeSeriesUtils.writeIndexName(model, noneStream.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, noneStream.id());
         getClient().forceInsert(modelName, id, builder);

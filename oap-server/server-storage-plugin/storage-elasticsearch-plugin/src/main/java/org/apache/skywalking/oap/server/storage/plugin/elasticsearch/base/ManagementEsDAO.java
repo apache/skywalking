@@ -45,7 +45,7 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
             return;
         }
         XContentBuilder builder = map2builder(
-            IndexController.INSTANCE.appendLogicTableColumn(model, storageBuilder.entity2Storage(managementData)));
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(managementData)));
         getClient().forceInsert(tableName, docId, builder);
     }
 }

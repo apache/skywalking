@@ -229,6 +229,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     public static List<IndexNameConverter> indexNameConverters(String namespace) {
         List<IndexNameConverter> converters = new ArrayList<>();
+        converters.add(new SkyWalkingTagConverter());
         converters.add(new NamespaceConverter(namespace));
         return converters;
     }
@@ -247,6 +248,13 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             }
 
             return indexName;
+        }
+    }
+
+    private static class SkyWalkingTagConverter implements IndexNameConverter {
+        @Override
+        public String convert(final String indexName) {
+            return "sw" + "_" + indexName;
         }
     }
 }
