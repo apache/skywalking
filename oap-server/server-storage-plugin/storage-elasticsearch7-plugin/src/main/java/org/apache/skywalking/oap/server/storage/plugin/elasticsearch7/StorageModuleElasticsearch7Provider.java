@@ -117,7 +117,9 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        if (!StringUtil.isEmpty(config.getNameSpace())) {
+        if (StringUtil.isEmpty(config.getNameSpace())) {
+            config.setNameSpace("sw");
+        } else {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
         if (config.getDayStep() > 1) {
