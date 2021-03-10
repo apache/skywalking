@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
 /**
@@ -52,7 +53,7 @@ public enum IndexController {
      * Generate the index doc ID.
      */
     public String generateDocId(String logicTableName, String originalID) {
-        return logicTableName + originalID;
+        return logicTableName + Const.ID_CONNECTOR + originalID;
     }
 
     /**
@@ -82,7 +83,7 @@ public enum IndexController {
          */
         private static final Map<String, String> LOGIC_INDICES_CATALOG = new ConcurrentHashMap<>();
 
-        public static final String LOGIC_TABLE_NAME = "logic_table";
+        public static final String LOGIC_TABLE_NAME = "metric_table";
 
         public static String getPhysicalTableName(String logicName) {
             return Optional.of(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);
