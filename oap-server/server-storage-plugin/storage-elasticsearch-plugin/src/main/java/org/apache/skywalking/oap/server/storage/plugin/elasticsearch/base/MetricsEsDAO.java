@@ -32,19 +32,21 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
-
     protected final StorageHashMapBuilder<Metrics> storageBuilder;
 
-    protected MetricsEsDAO(ElasticSearchClient client, StorageHashMapBuilder<Metrics> storageBuilder) {
+    protected MetricsEsDAO(ElasticSearchClient client,
+                           StorageHashMapBuilder<Metrics> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String[] ids = metrics.stream().map(Metrics::id).toArray(String[]::new);
-        SearchResponse response = getClient().ids(model.getName(), ids);
-
+        String tableName = IndexController.INSTANCE.getTableName(model);
+        String[] ids = metrics.stream()
+                              .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                              .toArray(String[]::new);
+        SearchResponse response = getClient().ids(tableName, ids);
         List<Metrics> result = new ArrayList<>(response.getHits().getHits().length);
         for (int i = 0; i < response.getHits().getHits().length; i++) {
             Metrics source = storageBuilder.storage2Entity(response.getHits().getAt(i).getSourceAsMap());
@@ -55,15 +57,19 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.entity2Storage(metrics));
+        XContentBuilder builder = map2builder(
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics)));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
-        return getClient().prepareInsert(modelName, metrics.id(), builder);
+        String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
+        return getClient().prepareInsert(modelName, id, builder);
     }
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.entity2Storage(metrics));
+        XContentBuilder builder = map2builder(
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(metrics)));
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
-        return getClient().prepareUpdate(modelName, metrics.id(), builder);
+        String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
+        return getClient().prepareUpdate(modelName, id, builder);
     }
 }

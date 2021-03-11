@@ -13,28 +13,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexStructures;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.StorageModuleElasticsearch7Config;
 
-@Slf4j
-public class StorageEs7Installer extends StorageEsInstaller {
-    public StorageEs7Installer(final Client client,
-                               final ModuleManager moduleManager,
-                               final StorageModuleElasticsearch7Config config) throws StorageException {
-        super(client, moduleManager, config);
+public class IndexEs7Structures extends IndexStructures {
+
+    @Override
+    protected PropertiesExtractor doGetPropertiesExtractor() {
+        return mapping -> (Map<String, Object>) mapping.get("properties");
     }
 
     @Override
-    protected IndexStructures getStructures() {
-        return new IndexEs7Structures();
+    protected PropertiesWrapper doGetPropertiesWrapper() {
+        return properties -> {
+            HashMap<String, Object> mappings = new HashMap<>();
+            mappings.put("properties", properties);
+            return mappings;
+        };
     }
 }
