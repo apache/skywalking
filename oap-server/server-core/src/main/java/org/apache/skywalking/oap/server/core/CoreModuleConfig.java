@@ -161,8 +161,12 @@ public class CoreModuleConfig extends ModuleConfig {
         Aggregator;
 
         public static Role fromName(String name) {
-            List<Role> list = Arrays.asList(Role.values());
-            return list.stream().filter(m -> m.name().equalsIgnoreCase(name)).findAny().orElse(Mixed);
+            for (Role role : Role.values()) {
+                if(role.name().equalsIgnoreCase(name)){
+                    return role;
+                }
+            }
+            return Mixed;
         }
     }
 
