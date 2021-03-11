@@ -30,18 +30,20 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  * Synchronize storage Elasticsearch implements
  */
 public class NoneStreamEsDAO extends EsDAO implements INoneStreamDAO {
-
     private final StorageHashMapBuilder<NoneStream> storageBuilder;
 
-    public NoneStreamEsDAO(ElasticSearchClient client, StorageHashMapBuilder<NoneStream> storageBuilder) {
+    public NoneStreamEsDAO(ElasticSearchClient client,
+                           StorageHashMapBuilder<NoneStream> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.entity2Storage(noneStream));
+        XContentBuilder builder = map2builder(
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(noneStream)));
         String modelName = TimeSeriesUtils.writeIndexName(model, noneStream.getTimeBucket());
-        getClient().forceInsert(modelName, noneStream.id(), builder);
+        String id = IndexController.INSTANCE.generateDocId(model, noneStream.id());
+        getClient().forceInsert(modelName, id, builder);
     }
 }
