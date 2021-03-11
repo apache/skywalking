@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
@@ -314,6 +315,8 @@ public class CoreModuleProvider extends ModuleProvider {
                 .getService(ClusterRegister.class)
                 .registerRemote(gRPCServerInstance);
         }
+
+        OAPNodeChecker.setROLE(moduleConfig.getRole());
 
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()
