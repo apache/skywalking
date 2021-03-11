@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV1JettyHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV2JettyHandler;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class ZipkinReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
@@ -91,6 +92,9 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {
+            TelemetryModule.NAME,
+            CoreModule.NAME
+        };
     }
 }
