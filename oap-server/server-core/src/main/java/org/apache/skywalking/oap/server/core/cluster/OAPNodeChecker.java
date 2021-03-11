@@ -31,7 +31,7 @@ public class OAPNodeChecker {
     private static final Set<String> ILLEGAL_NODE_ADDRESS_IN_CLUSTER_MODE = Sets.newHashSet("127.0.0.1", "localhost");
 
     @Setter
-    private static String ROLE;
+    private static CoreModuleConfig.Role ROLE = CoreModuleConfig.Role.Mixed;
 
     public static boolean hasIllegalNodeAddress(List<RemoteInstance> remoteInstances) {
         if (CollectionUtils.isEmpty(remoteInstances)) {
@@ -55,8 +55,7 @@ public class OAPNodeChecker {
         if (CollectionUtils.isEmpty(remoteInstances)) {
             return ClusterHealthStatus.unHealth("can't get the instance list");
         }
-        if(!CoreModuleConfig.Role.Receiver.name()
-                .equalsIgnoreCase(ROLE)){
+        if(!CoreModuleConfig.Role.Receiver.equals(ROLE)){
             List<RemoteInstance> selfInstances = remoteInstances.stream().
                     filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(selfInstances)) {

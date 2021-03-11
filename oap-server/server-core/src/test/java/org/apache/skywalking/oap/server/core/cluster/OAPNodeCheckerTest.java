@@ -108,7 +108,7 @@ public class OAPNodeCheckerTest {
     public void healthWhenReceiverRoleWithEmptySelfInstance() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         remoteInstances.add(new RemoteInstance(new Address("192.168.0.1", 8892, false)));
-        OAPNodeChecker.setROLE(CoreModuleConfig.Role.Receiver.name());
+        OAPNodeChecker.setROLE(CoreModuleConfig.Role.Receiver);
         ClusterHealthStatus clusterHealthStatus = OAPNodeChecker.isHealth(remoteInstances);
         Assert.assertTrue(clusterHealthStatus.isHealth());
     }
