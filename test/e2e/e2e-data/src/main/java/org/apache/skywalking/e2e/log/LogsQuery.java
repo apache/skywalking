@@ -19,6 +19,12 @@ package org.apache.skywalking.e2e.log;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     private String serviceId;
@@ -29,6 +35,7 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
     private String needTotal = "true";
     private String keywordsOfContent = "";
     private String excludingKeywordsOfContent = "";
+    private List<Map<String, String>> tags = Collections.emptyList();
 
     public String serviceId() {
         return serviceId;
@@ -108,5 +115,25 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
             keywords[i] = "\"" + keyword + "\"";
         }
         return String.join(",", keywords);
+    }
+
+    public List<Map<String, String>> tags() {
+        return tags;
+    }
+
+    public LogsQuery tags(List<Map<String, String>> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public LogsQuery addTag(String key, String value) {
+        if (Collections.EMPTY_LIST.equals(tags)) {
+            tags = new ArrayList<>();
+        }
+        Map<String, String> tag = new HashMap<>();
+        tag.put("key", key);
+        tag.put("value", value);
+        tags.add(tag);
+        return this;
     }
 }
