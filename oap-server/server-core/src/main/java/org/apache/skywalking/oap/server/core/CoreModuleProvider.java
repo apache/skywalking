@@ -316,7 +316,7 @@ public class CoreModuleProvider extends ModuleProvider {
                 .registerRemote(gRPCServerInstance);
         }
 
-        OAPNodeChecker.setROLE(CoreModuleConfig.Role.valueOf(moduleConfig.getRole()));
+        OAPNodeChecker.setROLE(CoreModuleConfig.Role.fromName(moduleConfig.getRole()));
 
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()

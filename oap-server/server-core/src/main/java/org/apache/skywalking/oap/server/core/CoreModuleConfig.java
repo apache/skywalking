@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -157,7 +158,12 @@ public class CoreModuleConfig extends ModuleConfig {
          * Aggregator mode OAP receives data from {@link #Mixed} and {@link #Aggregator} OAP nodes, and do 2nd round
          * aggregation. Then save the final result to the storage.
          */
-        Aggregator
+        Aggregator;
+
+        public static Role fromName(String name) {
+            List<Role> list = Arrays.asList(Role.values());
+            return list.stream().filter(m -> m.name().equalsIgnoreCase(name)).findAny().orElse(Mixed);
+        }
     }
 
     /**
