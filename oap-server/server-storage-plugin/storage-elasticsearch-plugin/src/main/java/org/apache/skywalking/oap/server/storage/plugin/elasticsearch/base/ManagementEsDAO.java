@@ -30,21 +30,22 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 public class ManagementEsDAO extends EsDAO implements IManagementDAO {
     private final StorageHashMapBuilder<ManagementData> storageBuilder;
 
-    public ManagementEsDAO(ElasticSearchClient client, StorageHashMapBuilder<ManagementData> storageBuilder) {
+    public ManagementEsDAO(ElasticSearchClient client,
+                           StorageHashMapBuilder<ManagementData> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
     @Override
     public void insert(Model model, ManagementData managementData) throws IOException {
-        String modelName = model.getName();
-        final String id = managementData.id();
-        final GetResponse response = getClient().get(modelName, id);
+        String tableName = IndexController.INSTANCE.getTableName(model);
+        String docId = IndexController.INSTANCE.generateDocId(model, managementData.id());
+        final GetResponse response = getClient().get(tableName, docId);
         if (response.isExists()) {
             return;
         }
-
-        XContentBuilder builder = map2builder(storageBuilder.entity2Storage(managementData));
-        getClient().forceInsert(modelName, id, builder);
+        XContentBuilder builder = map2builder(
+            IndexController.INSTANCE.appendMetricTableColumn(model, storageBuilder.entity2Storage(managementData)));
+        getClient().forceInsert(tableName, docId, builder);
     }
 }
