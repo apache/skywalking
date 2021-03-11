@@ -54,10 +54,6 @@ public enum FieldsHelper {
      */
     private Map<String, Method> fieldSetterMapping;
 
-    public void init(final String file) throws Exception {
-        init(ResourceUtils.readToStream(file), ServiceMetaInfo.class);
-    }
-
     public void init(final String file,
                      final Class<? extends ServiceMetaInfo> serviceInfoClass) throws Exception {
         init(ResourceUtils.readToStream(file), serviceInfoClass);
@@ -127,7 +123,10 @@ public enum FieldsHelper {
                 }
                 values[i] = value.getStringValue();
             }
-            fieldSetterMapping.get(entry.getKey()).invoke(serviceMetaInfo, Strings.lenientFormat(serviceNameFormat.format, values));
+            final String value = Strings.lenientFormat(serviceNameFormat.format, values);
+            if (!Strings.isNullOrEmpty(value)) {
+                fieldSetterMapping.get(entry.getKey()).invoke(serviceMetaInfo, value);
+            }
         }
     }
 

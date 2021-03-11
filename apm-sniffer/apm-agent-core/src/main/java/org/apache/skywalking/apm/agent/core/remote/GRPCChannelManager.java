@@ -170,7 +170,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     }
 
     /**
-     * If the given expcetion is triggered by network problem, connect in background.
+     * If the given exception is triggered by network problem, connect in background.
      */
     public void reportError(Throwable throwable) {
         if (isNetworkError(throwable)) {

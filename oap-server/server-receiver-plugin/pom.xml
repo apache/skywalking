@@ -36,7 +36,6 @@
         <module>envoy-metrics-receiver-plugin</module>
         <module>skywalking-sharing-server-plugin</module>
         <module>skywalking-clr-receiver-plugin</module>
-        <module>jaeger-receiver-plugin</module>
         <module>receiver-proto</module>
         <module>skywalking-profile-receiver-plugin</module>
         <module>otel-receiver-plugin</module>

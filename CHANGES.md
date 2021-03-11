@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
+* Upgrade lombok to 1.18.16.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
@@ -16,6 +17,9 @@ Release Notes.
 * Enhance gRPC log appender to allow layout pattern.
 * Fix apm-dubbo-2.7.x-plugin memory leak due to some Dubbo RpcExceptions.
 * Fix lettuce-5.x-plugin get null host in redis sentinel mode.
+* Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
+* Fix NullPointerException with KafkaProducer.send(record).
+* Support config `agent.span_limit_per_segment` can be changed in the runtime.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -32,13 +36,32 @@ Release Notes.
 * Introduce log analysis language (LAL).
 * Fix alarm httpclient connection leak.
 * Add `sum` function in meter system.
+* Remove Jaeger receiver.
+* Remove the experimental Zipkin span analyzer.
+* Upgrade the Zipkin Elasticsearch storage from 6 to 7.
+* Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
+* Fix `DatabaseSlowStatementBuilder` statement maybe null.
+* Remove fields of parent entity in the relation sources. 
+* Save Envoy http access logs when error occurs.
+* Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
+* Fix wrong metrics name setting in the `self-observability.yml`.
+* Add telemetry data about metrics in, metrics scraping and trace in metrics to zipkin receiver.
+* Fix tags store of log and trace on h2/mysql/pg storage.
 
 #### UI
 * Update selector scroller to show in all pages.
 * Implement searching logs with date.
+* Add nodejs 14 compiling.
+* Fix trace id by clear search conditions.
+* Search endpoints with keywords.
+* Fix pageSize on logs page.
+* Update echarts version to 5.0.2.
+* Fix instance dependency on the topology page.
+* Fix resolved url for vue-property-decorator.
 
 #### Documentation
-
+* Polish documentation due to we have covered all tracing, logging, and metrics fields.
+* Adjust documentation about Zipkin receiver.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/76?closed=1)
 
