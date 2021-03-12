@@ -49,6 +49,7 @@ Release Notes.
 * Add telemetry data about metrics in, metrics scraping and trace in metrics to zipkin receiver.
 * Fix tags store of log and trace on h2/mysql/pg storage.
 * Merge indices by Metrics Function and Meter Function in Elasticsearch Storage. 
+* Fix receiver don't need to get itself when healthCheck
 
 #### UI
 * Update selector scroller to show in all pages.
