@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.core;
 
 import org.apache.commons.lang3.StringUtils;
