@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -162,7 +161,7 @@ public class CoreModuleConfig extends ModuleConfig {
 
         public static Role fromName(String name) {
             for (Role role : Role.values()) {
-                if(role.name().equalsIgnoreCase(name)){
+                if (role.name().equalsIgnoreCase(name)) {
                     return role;
                 }
             }

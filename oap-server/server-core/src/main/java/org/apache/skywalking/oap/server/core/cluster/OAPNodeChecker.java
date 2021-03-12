@@ -55,7 +55,7 @@ public class OAPNodeChecker {
         if (CollectionUtils.isEmpty(remoteInstances)) {
             return ClusterHealthStatus.unHealth("can't get the instance list");
         }
-        if(!CoreModuleConfig.Role.Receiver.equals(ROLE)){
+        if (!CoreModuleConfig.Role.Receiver.equals(ROLE)) {
             List<RemoteInstance> selfInstances = remoteInstances.stream().
                     filter(remoteInstance -> remoteInstance.getAddress().isSelf()).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(selfInstances)) {
