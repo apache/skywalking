@@ -50,6 +50,7 @@ Release Notes.
 * Fix tags store of log and trace on h2/mysql/pg storage.
 * Merge indices by Metrics Function and Meter Function in Elasticsearch Storage. 
 * Fix receiver don't need to get itself when healthCheck
+* Optimize the self monitoring grafana dashboard.
 
 #### UI
 * Update selector scroller to show in all pages.
