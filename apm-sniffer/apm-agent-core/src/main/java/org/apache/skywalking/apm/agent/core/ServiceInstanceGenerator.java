@@ -16,27 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.boot;
+package org.apache.skywalking.apm.agent.core;
 
-import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.os.OSUtil;
 
-/**
- * The <code>BootService</code> is an interface to all remote, which need to boot when plugin mechanism begins to work.
- * {@link #boot()} will be called when <code>BootService</code> start up.
- */
-public interface BootService {
-    void prepare() throws Throwable;
+import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
-    void boot() throws Throwable;
+@Getter
+@Accessors(fluent = true)
+public enum ServiceInstanceGenerator {
+    SINGLETON;
 
-    void onComplete() throws Throwable;
+    private volatile boolean isGenerated = false;
 
-    void shutdown() throws Throwable;
+    public synchronized void generateIfNotSpecified() {
+        if (!isEmpty(Config.Agent.INSTANCE_NAME)) {
+            return;
+        }
 
-    /**
-     * @return the shutdown order that {@link ServiceManager} should respect to when shutting down the services, e.g. services depending on {@link GRPCChannelManager} should be shut down after it.
-     */
-    default int shutdownOrder() {
-        return 0;
+        Config.Agent.INSTANCE_NAME = UUID.randomUUID().toString().replaceAll("-", "") + "@" + OSUtil.getIPV4();
+        isGenerated = true;
     }
 }

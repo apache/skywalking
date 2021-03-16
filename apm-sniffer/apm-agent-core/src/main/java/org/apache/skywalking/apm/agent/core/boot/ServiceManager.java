@@ -19,11 +19,13 @@
 package org.apache.skywalking.apm.agent.core.boot;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
@@ -46,7 +48,7 @@ public enum ServiceManager {
     }
 
     public void shutdown() {
-        for (BootService service : bootedServices.values()) {
+        for (BootService service : bootedServices.values().stream().sorted(Comparator.comparing(BootService::shutdownOrder)).collect(Collectors.toList())) {
             try {
                 service.shutdown();
             } catch (Throwable e) {

@@ -58,7 +58,7 @@ public class ServiceManagerTest {
     public void testServiceDependencies() throws Exception {
         HashMap<Class, BootService> registryService = getFieldValue(ServiceManager.INSTANCE, "bootedServices");
 
-        assertThat(registryService.size(), is(18));
+        assertThat(registryService.size(), is(19));
 
         assertTraceSegmentServiceClient(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class));
         assertContextManager(ServiceManager.INSTANCE.findService(ContextManager.class));
@@ -107,7 +107,7 @@ public class ServiceManagerTest {
         assertNotNull(service);
 
         List<GRPCChannelListener> listeners = getFieldValue(service, "listeners");
-        assertEquals(listeners.size(), 8);
+        assertEquals(listeners.size(), 9);
     }
 
     private void assertSamplingService(SamplingService service) {
