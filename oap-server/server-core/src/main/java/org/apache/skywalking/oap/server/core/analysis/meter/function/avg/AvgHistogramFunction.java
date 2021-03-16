@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -86,17 +85,12 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
         this.entityId = entity.id();
 
-        String template = "%s";
-        if (!Strings.isNullOrEmpty(value.getGroup())) {
-            template   = value.getGroup() + ":%s";
-        }
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
             long bucket = value.getBuckets()[i];
             String bucketName = bucket == Long.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
-            String key = String.format(template, bucketName);
-            summation.valueAccumulation(key, values[i]);
-            count.valueAccumulation(key, 1L);
+            summation.valueAccumulation(bucketName, values[i]);
+            count.valueAccumulation(bucketName, 1L);
         }
     }
 
