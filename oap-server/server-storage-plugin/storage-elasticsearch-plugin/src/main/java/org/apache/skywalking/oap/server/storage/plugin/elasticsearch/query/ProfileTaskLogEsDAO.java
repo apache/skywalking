@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationT
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -53,7 +54,8 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
         sourceBuilder.sort(ProfileTaskLogRecord.OPERATION_TIME, SortOrder.DESC);
         sourceBuilder.size(queryMaxSize);
 
-        final SearchResponse response = getClient().search(ProfileTaskLogRecord.INDEX_NAME, sourceBuilder);
+        final SearchResponse response = getClient().search(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskLogRecord.INDEX_NAME), sourceBuilder);
 
         final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {

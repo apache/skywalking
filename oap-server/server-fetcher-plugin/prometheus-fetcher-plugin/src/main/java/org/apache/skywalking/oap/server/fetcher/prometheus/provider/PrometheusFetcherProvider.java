@@ -52,6 +52,11 @@ import org.apache.skywalking.oap.server.library.util.prometheus.Parser;
 import org.apache.skywalking.oap.server.library.util.prometheus.Parsers;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class PrometheusFetcherProvider extends ModuleProvider {
@@ -61,6 +66,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     private List<Rule> rules;
 
     private ScheduledExecutorService ses;
+
+    private HistogramMetrics histogram;
+
+    private CounterMetrics errorCounter;
 
     public PrometheusFetcherProvider() {
         config = new PrometheusFetcherConfig();
@@ -89,6 +98,16 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "metrics_fetcher_latency", "The process latency of metrics scraping",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scraping",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
     }
 
     @Override
@@ -103,44 +122,49 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                 private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r, service);
 
                 @Override public void run() {
-                    if (Objects.isNull(r.getStaticConfig())) {
-                        return;
-                    }
-                    StaticConfig sc = r.getStaticConfig();
-                    long now = System.currentTimeMillis();
-                    converter.toMeter(sc.getTargets().stream()
-                        .map(CheckedFunction1.liftTry(target -> {
-                            URI url = new URI(target.getUrl());
-                            URI targetURL = url.resolve(r.getMetricsPath());
-                            String content = HttpClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
-                            List<Metric> result = new ArrayList<>();
-                            try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
-                                Parser p = Parsers.text(targetStream);
-                                MetricFamily mf;
-                                while ((mf = p.parse(now)) != null) {
-                                    mf.getMetrics().forEach(metric -> {
-                                        if (Objects.isNull(sc.getLabels())) {
-                                            return;
+                    try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                        if (Objects.isNull(r.getStaticConfig())) {
+                            return;
+                        }
+                        StaticConfig sc = r.getStaticConfig();
+                        long now = System.currentTimeMillis();
+                        converter.toMeter(sc.getTargets().stream()
+                                .map(CheckedFunction1.liftTry(target -> {
+                                    URI url = new URI(target.getUrl());
+                                    URI targetURL = url.resolve(r.getMetricsPath());
+                                    String content = HttpClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
+                                    List<Metric> result = new ArrayList<>();
+                                    try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
+                                        Parser p = Parsers.text(targetStream);
+                                        MetricFamily mf;
+                                        while ((mf = p.parse(now)) != null) {
+                                            mf.getMetrics().forEach(metric -> {
+                                                if (Objects.isNull(sc.getLabels())) {
+                                                    return;
+                                                }
+                                                Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
+                                                extraLabels.put("instance", target.getUrl());
+                                                extraLabels.forEach((key, value) -> {
+                                                    if (metric.getLabels().containsKey(key)) {
+                                                        metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
+                                                    }
+                                                    metric.getLabels().put(key, value);
+                                                });
+                                            });
+                                            result.addAll(mf.getMetrics());
                                         }
-                                        Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
-                                        extraLabels.put("instance", target.getUrl());
-                                        extraLabels.forEach((key, value) -> {
-                                            if (metric.getLabels().containsKey(key)) {
-                                                metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
-                                            }
-                                            metric.getLabels().put(key, value);
-                                        });
-                                    });
-                                    result.addAll(mf.getMetrics());
-                                }
-                            }
-                            if (log.isDebugEnabled()) {
-                                log.debug("Fetch metrics from prometheus: {}", result);
-                            }
-                            return result;
-                        }))
-                        .flatMap(tryIt -> MetricConvert.log(tryIt, "Load metric"))
-                        .flatMap(Collection::stream));
+                                    }
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Fetch metrics from prometheus: {}", result);
+                                    }
+                                    return result;
+                                }))
+                                .flatMap(tryIt -> MetricConvert.log(tryIt, "Load metric"))
+                                .flatMap(Collection::stream));
+                    } catch (Exception e) {
+                        errorCounter.inc();
+                        log.error(e.getMessage(), e);
+                    }
                 }
             }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
         });
@@ -148,6 +172,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {
+            TelemetryModule.NAME,
+            CoreModule.NAME
+        };
     }
 }
