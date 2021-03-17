@@ -28,8 +28,6 @@ import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
 @Getter
 public class ServiceInstanceGenerator implements BootService {
-    private volatile boolean isGenerated = false;
-
     @Override
     public void prepare() throws Throwable {
         if (!isEmpty(Config.Agent.INSTANCE_NAME)) {
@@ -37,7 +35,6 @@ public class ServiceInstanceGenerator implements BootService {
         }
 
         Config.Agent.INSTANCE_NAME = UUID.randomUUID().toString().replaceAll("-", "") + "@" + OSUtil.getIPV4();
-        isGenerated = true;
     }
 
     @Override

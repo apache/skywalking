@@ -25,7 +25,6 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.agent.core.ServiceInstanceGenerator;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -53,18 +52,9 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
 
     private GRPCChannelStatus status;
 
-    private ServiceInstanceGenerator serviceInstanceGenerator;
-
     @Override
     public void prepare() throws Throwable {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
-
-        serviceInstanceGenerator = ServiceManager.INSTANCE.findService(ServiceInstanceGenerator.class);
-
-        if (serviceInstanceGenerator.isGenerated()) {
-            LOGGER.debug("The service instance is generated, no starting event will be reported");
-            return;
-        }
 
         final RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         startingEvent = Event.newBuilder()
@@ -100,11 +90,6 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
 
     @Override
     public void shutdown() throws Throwable {
-        if (serviceInstanceGenerator.isGenerated()) {
-            // If the agent service instance name is randomly generated, ignore the shutdown signal.
-            return;
-        }
-
         if (!CONNECTED.equals(status)) {
             return;
         }
@@ -162,7 +147,7 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
     }
 
     private void reportStartingEvent() {
-        if (serviceInstanceGenerator.isGenerated() || reported.compareAndSet(false, true)) {
+        if (reported.compareAndSet(false, true)) {
             return;
         }
 
