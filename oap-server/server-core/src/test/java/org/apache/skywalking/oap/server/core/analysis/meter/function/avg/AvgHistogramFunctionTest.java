@@ -240,11 +240,7 @@ public class AvgHistogramFunctionTest {
             1,
             3,
             6,
-            7,
-            2,
-            4,
-            6,
-            8
+            7
         }, results);
     }
 

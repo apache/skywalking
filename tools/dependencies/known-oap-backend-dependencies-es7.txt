@@ -166,6 +166,7 @@ swagger-annotations-1.6.2.jar
 t-digest-3.2.jar
 vavr-0.10.3.jar
 vavr-match-0.10.3.jar
+zipkin-2.9.1.jar
 zookeeper-3.4.10.jar
 kafka-clients-2.4.1.jar
 lz4-java-1.6.0.jar

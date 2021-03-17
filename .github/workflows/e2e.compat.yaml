@@ -25,7 +25,7 @@ jobs:
   Compatibility:
     name: Compatibility
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       SW_SIMPLE_CASE: compat
       SW_AGENT_JDK_VERSION: 11

@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
+import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
 
 /**
@@ -57,7 +58,15 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role) {
+    public List<ServiceMeshMetric.Builder> analysis(
+        final List<ServiceMeshMetric.Builder> result,
+        final StreamAccessLogsMessage.Identifier identifier,
+        final HTTPAccessLogEntry entry,
+        final Role role
+    ) {
+        if (isNotEmpty(result)) {
+            return result;
+        }
         if (serviceRegistry.isEmpty()) {
             return Collections.emptyList();
         }

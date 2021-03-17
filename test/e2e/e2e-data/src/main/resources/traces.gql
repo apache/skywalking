@@ -35,7 +35,8 @@
                 "pageSize": {pageSize},
                 "needTotal": {needTotal}
             },
-            "queryOrder": "{queryOrder}"
+            "queryOrder": "{queryOrder}",
+            "tags": {tags}
         }
     }
 }
