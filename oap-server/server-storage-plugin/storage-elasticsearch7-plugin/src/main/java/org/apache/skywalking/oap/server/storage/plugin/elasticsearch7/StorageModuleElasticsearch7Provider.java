@@ -25,6 +25,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -86,6 +87,7 @@ import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.Stor
 /**
  * The storage provider for ElasticSearch 7.
  */
+@Slf4j
 public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
@@ -115,7 +117,9 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        if (!StringUtil.isEmpty(config.getNameSpace())) {
+        if (StringUtil.isEmpty(config.getNameSpace())) {
+            config.setNameSpace("sw");
+        } else {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
         if (config.getDayStep() > 1) {
@@ -159,11 +163,12 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
             .getTrustStorePass(), config.getUser(), config.getPassword(),
             indexNameConverters(config.getNameSpace())
         );
-
         this.registerServiceImplementation(
-            IBatchDAO.class, new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(), config.getSyncBulkActions(),
-                                                   config.getFlushInterval(), config.getConcurrentRequests()
-            ));
+            IBatchDAO.class,
+            new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(), config.getSyncBulkActions(),
+                                  config.getFlushInterval(), config.getConcurrentRequests()
+            )
+        );
         this.registerServiceImplementation(StorageDAO.class, new StorageEs7DAO(elasticSearch7Client));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearch7Client));

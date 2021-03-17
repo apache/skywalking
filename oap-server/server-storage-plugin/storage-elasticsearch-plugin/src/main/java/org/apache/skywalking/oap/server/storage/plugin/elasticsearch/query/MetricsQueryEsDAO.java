@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -58,8 +59,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
     @Override
     public long readMetricsValue(final MetricsCondition condition,
-                                final String valueColumnName,
-                                final Duration duration) throws IOException {
+                                 final String valueColumnName,
+                                 final Duration duration) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         buildQuery(sourceBuilder, condition, duration);
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
@@ -75,7 +76,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()), sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
@@ -98,13 +100,20 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         List<String> ids = new ArrayList<>(pointOfTimes.size());
+
         pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+            String id = pointOfTime.id(condition.getEntity().buildId());
+            if (IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
+                id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
+            }
+            ids.add(id);
         });
 
-        SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
+        SearchResponse response = getClient()
+            .ids(tableName, ids.toArray(new String[0]));
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         MetricsValues metricsValues = new MetricsValues();
@@ -136,12 +145,18 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                                         final List<String> labels,
                                                         final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
+        boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+            String id = pointOfTime.id(condition.getEntity().buildId());
+            if (aggregationMode) {
+                id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
+            }
+            ids.add(id);
         });
 
-        SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
+        SearchResponse response = getClient().ids(tableName, ids.toArray(new String[0]));
         Map<String, DataTable> idMap = new HashMap<>();
         SearchHit[] hits = response.getHits().getHits();
         for (SearchHit hit : hits) {
@@ -155,12 +170,18 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                                final String valueColumnName,
                                final Duration duration) throws IOException {
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
+        boolean aggregationMode = !tableName.equals(condition.getName());
         List<String> ids = new ArrayList<>(pointOfTimes.size());
         pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+            String id = pointOfTime.id(condition.getEntity().buildId());
+            if (aggregationMode) {
+                id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
+            }
+            ids.add(id);
         });
 
-        SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
+        SearchResponse response = getClient().ids(tableName, ids.toArray(new String[0]));
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         HeatMap heatMap = new HeatMap();
@@ -206,13 +227,28 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final String entityId = condition.getEntity().buildId();
 
-        if (entityId == null) {
+        if (entityId == null && IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must().add(rangeQueryBuilder);
+            boolQuery.must().add(QueryBuilders.termQuery(
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                condition.getName()
+            ));
+        } else if (entityId == null) {
             sourceBuilder.query(rangeQueryBuilder);
+        } else if (IndexController.LogicIndicesRegister.isMetricTable(condition.getName())) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must().add(rangeQueryBuilder);
+            boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
+            boolQuery.must().add(QueryBuilders.termQuery(
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                condition.getName()
+            ));
+            sourceBuilder.query(boolQuery);
         } else {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(rangeQueryBuilder);
             boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
-
             sourceBuilder.query(boolQuery);
         }
         sourceBuilder.size(0);

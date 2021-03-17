@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -70,7 +71,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         return buildServices(response);
     }
@@ -85,7 +87,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         return buildServices(response);
     }
@@ -100,7 +103,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         final List<Service> serviceList = buildServices(response);
         List<Database> databases = new ArrayList<>();
@@ -128,7 +132,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
         return buildServices(response);
     }
 
@@ -140,7 +145,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NAME, serviceCode));
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(1);
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
         final List<Service> services = buildServices(response);
         return services.size() > 0 ? services.get(0) : null;
     }
@@ -160,7 +166,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
 
-        SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(EndpointTraffic.INDEX_NAME), sourceBuilder);
 
         List<Endpoint> endpoints = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
@@ -193,7 +200,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(InstanceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME), sourceBuilder);
 
         List<ServiceInstance> serviceInstances = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
