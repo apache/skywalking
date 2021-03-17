@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
 
@@ -28,17 +29,36 @@ import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
 @Getter
 @Accessors(fluent = true)
-public enum ServiceInstanceGenerator {
-    SINGLETON;
-
+public class ServiceInstanceGenerator implements BootService {
     private volatile boolean isGenerated = false;
 
-    public synchronized void generateIfNotSpecified() {
+    @Override
+    public void prepare() throws Throwable {
         if (!isEmpty(Config.Agent.INSTANCE_NAME)) {
             return;
         }
 
         Config.Agent.INSTANCE_NAME = UUID.randomUUID().toString().replaceAll("-", "") + "@" + OSUtil.getIPV4();
         isGenerated = true;
+    }
+
+    @Override
+    public void boot() throws Throwable {
+
+    }
+
+    @Override
+    public void onComplete() throws Throwable {
+
+    }
+
+    @Override
+    public void shutdown() throws Throwable {
+
+    }
+
+    @Override
+    public int bootOrder() {
+        return Integer.MIN_VALUE;
     }
 }

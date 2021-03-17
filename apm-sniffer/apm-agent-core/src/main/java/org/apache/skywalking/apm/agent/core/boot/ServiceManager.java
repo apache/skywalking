@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
@@ -48,13 +47,13 @@ public enum ServiceManager {
     }
 
     public void shutdown() {
-        for (BootService service : bootedServices.values().stream().sorted(Comparator.comparing(BootService::shutdownOrder)).collect(Collectors.toList())) {
+        bootedServices.values().stream().sorted(Comparator.comparing(BootService::shutdownOrder)).forEach(service -> {
             try {
                 service.shutdown();
             } catch (Throwable e) {
                 LOGGER.error(e, "ServiceManager try to shutdown [{}] fail.", service.getClass().getName());
             }
-        }
+        });
     }
 
     private Map<Class, BootService> loadAllServices() {
@@ -101,23 +100,23 @@ public enum ServiceManager {
     }
 
     private void prepare() {
-        for (BootService service : bootedServices.values()) {
+        bootedServices.values().stream().sorted(Comparator.comparing(BootService::bootOrder)).forEach(service -> {
             try {
                 service.prepare();
             } catch (Throwable e) {
                 LOGGER.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
             }
-        }
+        });
     }
 
     private void startup() {
-        for (BootService service : bootedServices.values()) {
+        bootedServices.values().stream().sorted(Comparator.comparing(BootService::bootOrder)).forEach(service -> {
             try {
                 service.boot();
             } catch (Throwable e) {
                 LOGGER.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
             }
-        }
+        });
     }
 
     private void onComplete() {

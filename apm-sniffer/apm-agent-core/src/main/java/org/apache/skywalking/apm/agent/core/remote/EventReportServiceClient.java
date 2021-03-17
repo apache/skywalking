@@ -53,12 +53,15 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
 
     private GRPCChannelStatus status;
 
+    private ServiceInstanceGenerator serviceInstanceGenerator;
+
     @Override
     public void prepare() throws Throwable {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
-        ServiceInstanceGenerator.SINGLETON.generateIfNotSpecified();
 
-        if (ServiceInstanceGenerator.SINGLETON.isGenerated()) {
+        serviceInstanceGenerator = ServiceManager.INSTANCE.findService(ServiceInstanceGenerator.class);
+
+        if (serviceInstanceGenerator.isGenerated()) {
             LOGGER.debug("The service instance is generated, no starting event will be reported");
             return;
         }
@@ -97,7 +100,7 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
 
     @Override
     public void shutdown() throws Throwable {
-        if (ServiceInstanceGenerator.SINGLETON.isGenerated()) {
+        if (serviceInstanceGenerator.isGenerated()) {
             // If the agent service instance name is randomly generated, ignore the shutdown signal.
             return;
         }
@@ -159,7 +162,7 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
     }
 
     private void reportStartingEvent() {
-        if (ServiceInstanceGenerator.SINGLETON.isGenerated() || reported.compareAndSet(false, true)) {
+        if (serviceInstanceGenerator.isGenerated() || reported.compareAndSet(false, true)) {
             return;
         }
 

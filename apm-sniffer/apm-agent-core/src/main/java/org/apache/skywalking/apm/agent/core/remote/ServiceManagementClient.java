@@ -25,7 +25,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.skywalking.apm.agent.core.ServiceInstanceGenerator;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -68,7 +67,6 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
     @Override
     public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
-        ServiceInstanceGenerator.SINGLETON.generateIfNotSpecified();
 
         SERVICE_INSTANCE_PROPERTIES = new ArrayList<>();
 

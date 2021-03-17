@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 
 /**
@@ -37,6 +38,13 @@ public interface BootService {
      * @return the shutdown order that {@link ServiceManager} should respect to when shutting down the services, e.g. services depending on {@link GRPCChannelManager} should be shut down after it.
      */
     default int shutdownOrder() {
+        return 0;
+    }
+
+    /**
+     * @return the boot order that {@link ServiceManager} should respect to when starting the services, e.g. services depending on {@link Config.Agent#INSTANCE_NAME} should be started after it.
+     */
+    default int bootOrder() {
         return 0;
     }
 }
