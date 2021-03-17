@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
-
 /**
  * The <code>BootService</code> is an interface to all remote, which need to boot when plugin mechanism begins to work.
  * {@link #boot()} will be called when <code>BootService</code> start up.
@@ -35,16 +32,11 @@ public interface BootService {
     void shutdown() throws Throwable;
 
     /**
-     * @return the shutdown order that {@link ServiceManager} should respect to when shutting down the services, e.g. services depending on {@link GRPCChannelManager} should be shut down after it.
+     * {@code BootService}s with higher priorities will be started earlier, and shut down later than those {@code BootService}s with lower priorities.
+     *
+     * @return the priority of this {@code BootService}.
      */
-    default int shutdownOrder() {
-        return 0;
-    }
-
-    /**
-     * @return the boot order that {@link ServiceManager} should respect to when starting the services, e.g. services depending on {@link Config.Agent#INSTANCE_NAME} should be started after it.
-     */
-    default int bootOrder() {
+    default int priority() {
         return 0;
     }
 }

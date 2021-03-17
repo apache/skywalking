@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core;
 
 import java.util.UUID;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
@@ -28,7 +27,6 @@ import org.apache.skywalking.apm.agent.core.os.OSUtil;
 import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
 @Getter
-@Accessors(fluent = true)
 public class ServiceInstanceGenerator implements BootService {
     private volatile boolean isGenerated = false;
 
@@ -58,7 +56,7 @@ public class ServiceInstanceGenerator implements BootService {
     }
 
     @Override
-    public int bootOrder() {
-        return Integer.MIN_VALUE;
+    public int priority() {
+        return Integer.MAX_VALUE;
     }
 }

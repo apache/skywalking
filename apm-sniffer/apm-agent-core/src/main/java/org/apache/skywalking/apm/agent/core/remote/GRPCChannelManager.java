@@ -210,7 +210,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     }
 
     @Override
-    public int shutdownOrder() {
+    public int priority() {
         return Integer.MAX_VALUE;
     }
 }
