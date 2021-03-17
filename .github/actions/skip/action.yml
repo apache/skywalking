@@ -33,6 +33,10 @@ inputs:
       ".licenserc.yaml"
       "docs/menu.yml"
       ".github/actions/skip/action.yml"
+      ".github/workflows/codeql.yaml"
+      "dist-material/release-docs"
+      "test/plugin/*"
+
 runs:
   using: "composite"
   steps:

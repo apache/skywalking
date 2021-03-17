@@ -5,8 +5,10 @@ Release Notes.
 8.5.0
 ------------------
 #### Project
+* **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option have been changed. 
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
+* Upgrade lombok to 1.18.16.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
@@ -17,6 +19,8 @@ Release Notes.
 * Fix apm-dubbo-2.7.x-plugin memory leak due to some Dubbo RpcExceptions.
 * Fix lettuce-5.x-plugin get null host in redis sentinel mode.
 * Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
+* Fix NullPointerException with KafkaProducer.send(record).
+* Support config `agent.span_limit_per_segment` can be changed in the runtime.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -40,7 +44,14 @@ Release Notes.
 * Fix `DatabaseSlowStatementBuilder` statement maybe null.
 * Remove fields of parent entity in the relation sources. 
 * Save Envoy http access logs when error occurs.
-* Support k8s cluster monitoring, the global information.
+* Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
+* Fix wrong metrics name setting in the `self-observability.yml`.
+* Add telemetry data about metrics in, metrics scraping, mesh error and trace in metrics to zipkin receiver.
+* Fix tags store of log and trace on h2/mysql/pg storage.
+* Merge indices by Metrics Function and Meter Function in Elasticsearch Storage. 
+* Fix receiver don't need to get itself when healthCheck
+* Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
+* Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -49,6 +60,9 @@ Release Notes.
 * Fix trace id by clear search conditions.
 * Search endpoints with keywords.
 * Fix pageSize on logs page.
+* Update echarts version to 5.0.2.
+* Fix instance dependency on the topology page.
+* Fix resolved url for vue-property-decorator.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.

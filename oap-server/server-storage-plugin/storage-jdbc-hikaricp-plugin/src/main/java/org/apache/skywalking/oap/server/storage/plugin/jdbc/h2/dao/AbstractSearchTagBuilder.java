@@ -50,8 +50,8 @@ public abstract class AbstractSearchTagBuilder<T extends Record> implements Stor
             int tagInx = 0;
             final String tagExpression = tag.toString();
             for (int i = 0; i < numOfSearchableValuesPerTag; i++) {
-                tagInx = index + numOfSearchableValuesPerTag + i;
-                final String previousValue = (String) dbMap.get(tagColumn);
+                tagInx = index * numOfSearchableValuesPerTag + i;
+                final String previousValue = (String) dbMap.get(tagColumn + "_" + tagInx);
                 if (previousValue == null) {
                     // Still have at least one available slot, add directly.
                     shouldAdd = true;
