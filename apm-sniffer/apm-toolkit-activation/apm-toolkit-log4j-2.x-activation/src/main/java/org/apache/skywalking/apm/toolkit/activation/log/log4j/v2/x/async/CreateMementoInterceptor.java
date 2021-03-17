@@ -18,34 +18,38 @@
 
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
 
-public class AsyncAppenderMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class CreateMementoInterceptor implements StaticMethodsAroundInterceptor {
+
+    private String tag;
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                             MethodInterceptResult result) {
         if (allArguments[0] instanceof EnhancedInstance) {
             EnhancedInstance instances = (EnhancedInstance) allArguments[0];
-            if (instances.getSkyWalkingDynamicField() == null){
-                instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
-            }
+            tag = (String) instances.getSkyWalkingDynamicField();
         }
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                              Object ret) {
+        if (allArguments[0] instanceof EnhancedInstance) {
+            EnhancedInstance instances = (EnhancedInstance) ret;
+            instances.setSkyWalkingDynamicField(tag);
+        }
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                                      Throwable t) {
+
     }
 }
