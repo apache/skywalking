@@ -21,6 +21,7 @@ Release Notes.
 * Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
 * Fix NullPointerException with KafkaProducer.send(record).
 * Support config `agent.span_limit_per_segment` can be changed in the runtime.
+* Collect and report agent starting / shutdown events.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
