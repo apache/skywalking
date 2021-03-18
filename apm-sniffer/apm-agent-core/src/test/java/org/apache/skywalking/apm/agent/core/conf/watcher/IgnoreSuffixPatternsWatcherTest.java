@@ -16,10 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.sampling;
+package org.apache.skywalking.apm.agent.core.conf.watcher;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatcher;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.IgnoreSuffixPatternsWatcher;
+import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -28,16 +30,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-public class SamplingRateWatcherTest {
+public class IgnoreSuffixPatternsWatcherTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private SamplingService samplingService;
+    private ContextManagerExtendService contextManagerExtendService;
 
     @Before
     public void setUp() {
-        samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        contextManagerExtendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
     }
 
     @AfterClass
@@ -47,24 +49,24 @@ public class SamplingRateWatcherTest {
 
     @Test
     public void testConfigModifyEvent() {
-        SamplingRateWatcher samplingRateWatcher = Whitebox.getInternalState(
-            samplingService, "samplingRateWatcher");
-        samplingRateWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
-            "10",
+        IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher = Whitebox.getInternalState(contextManagerExtendService
+            , "ignoreSuffixPatternsWatcher");
+        ignoreSuffixPatternsWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
+            ".txt,.log",
             AgentConfigChangeWatcher.EventType.MODIFY
         ));
-        Assert.assertEquals(10, samplingRateWatcher.getSamplingRate());
-        Assert.assertEquals("agent.sample_n_per_3_secs", samplingRateWatcher.getPropertyKey());
+        Assert.assertEquals(".txt,.log", ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns());
+        Assert.assertEquals("agent.ignore_suffix", ignoreSuffixPatternsWatcher.getPropertyKey());
     }
 
     @Test
     public void testConfigDeleteEvent() {
-        SamplingRateWatcher samplingRateWatcher = Whitebox.getInternalState(
-            samplingService, "samplingRateWatcher");
-        samplingRateWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
+        IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher = Whitebox.getInternalState(contextManagerExtendService
+            , "ignoreSuffixPatternsWatcher");
+        ignoreSuffixPatternsWatcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
             null,
             AgentConfigChangeWatcher.EventType.DELETE
         ));
-        Assert.assertEquals("agent.sample_n_per_3_secs", samplingRateWatcher.getPropertyKey());
+        Assert.assertEquals("agent.ignore_suffix", ignoreSuffixPatternsWatcher.getPropertyKey());
     }
 }

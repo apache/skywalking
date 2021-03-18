@@ -25,7 +25,13 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Meter protocol receiver, collect and process the meters.
@@ -34,9 +40,22 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServiceImplBase implements GRPCHandler {
 
     private final IMeterProcessService processService;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
 
-    public MeterServiceHandler(IMeterProcessService processService) {
+    public MeterServiceHandler(ModuleManager manager, IMeterProcessService processService) {
         this.processService = processService;
+        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "meter_in_latency", "The process latency of meter",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
+        );
+        errorCounter = metricsCreator.createCounter("meter_analysis_error_count", "The error number of meter analysis",
+                new MetricsTag.Keys("protocol"),
+                new MetricsTag.Values("grpc")
+        );
     }
 
     @Override
@@ -45,7 +64,12 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
         return new StreamObserver<MeterData>() {
             @Override
             public void onNext(MeterData meterData) {
-                processor.read(meterData);
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    processor.read(meterData);
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
+                }
             }
 
             @Override

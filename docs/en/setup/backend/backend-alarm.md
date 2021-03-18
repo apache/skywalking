@@ -25,7 +25,7 @@ Alarm rule is constituted by following keys
 - **Include names**. The following entity names are included in this rule. Please follow [Entity name define](#entity-name).
 - **Exclude names**. The following entity names are excluded in this rule. Please follow [Entity name define](#entity-name).
 - **Include names regex**. Provide a regex to include the entity names. If both setting the include name list and include name regex, both rules will take effect.
-- **Exclude names regex**. Provide a regex to exclude the exclude names. If both setting the exclude name list and exclude name regex, both rules will take effect.
+- **Exclude names regex**. Provide a regex to exclude the entity names. If both setting the exclude name list and exclude name regex, both rules will take effect.
 - **Include labels**. The following labels of the metric are included in this rule.
 - **Exclude labels**. The following labels of the metric are excluded in this rule.
 - **Include labels regex**. Provide a regex to include labels. If both setting the include label list and include label regex, both rules will take effect.

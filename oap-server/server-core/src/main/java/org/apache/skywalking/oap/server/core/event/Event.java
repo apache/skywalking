@@ -95,7 +95,7 @@ public class Event extends Metrics {
     @Column(columnName = MESSAGE)
     private String message;
 
-    @Column(columnName = PARAMETERS, storageOnly = true)
+    @Column(columnName = PARAMETERS, storageOnly = true, length = 1024)
     private String parameters;
 
     @Column(columnName = START_TIME)

@@ -152,6 +152,15 @@ public class CallbackInterceptorTest {
         cache.setCallback(callbackAdapterInterceptor);
         EnhancedInstance instance = new CallbackInstance(cache);
         callbackInterceptor.beforeMethod(instance, null, arguments, argumentTypes, null);
+        callbackInterceptor.afterMethod(instance, null, arguments, argumentTypes, null);
+    }
+
+    @Test
+    public void testCallbackWithNullCallbackCache() throws Throwable {
+        EnhancedInstance instance = new CallbackInstance(null);
+        callbackInterceptor.beforeMethod(instance, null, arguments, argumentTypes, null);
+        callbackInterceptor.afterMethod(instance, null, arguments, argumentTypes, null);
+        callbackInterceptor.handleMethodException(instance, null, arguments, argumentTypes, null);
     }
 
     private void assertCallbackSpanWithException(AbstractTracingSpan span) {

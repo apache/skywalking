@@ -27,6 +27,11 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import zipkin2.codec.SpanBytesDecoder;
 
 @Slf4j
@@ -34,11 +39,23 @@ public class SpanV1JettyHandler extends JettyHandler {
     private final ZipkinReceiverConfig config;
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
 
     public SpanV1JettyHandler(ZipkinReceiverConfig config, ModuleManager manager) {
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         namingControl = manager.find(CoreModule.NAME).provider().getService(NamingControl.class);
         this.config = config;
+        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "trace_in_latency", "The process latency of trace data",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-v1")
+        );
+        errorCounter = metricsCreator.createCounter("trace_analysis_error_count", "The error number of trace analysis",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-v1")
+        );
     }
 
     @Override
@@ -51,7 +68,7 @@ public class SpanV1JettyHandler extends JettyHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
 
-        try {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             String type = request.getHeader("Content-Type");
 
             int encode = type != null && type.contains("/x-thrift") ? SpanEncode.THRIFT : SpanEncode.JSON_V1;
@@ -64,7 +81,7 @@ public class SpanV1JettyHandler extends JettyHandler {
             response.setStatus(202);
         } catch (Exception e) {
             response.setStatus(500);
-
+            errorCounter.inc();
             log.error(e.getMessage(), e);
         }
     }

@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameMaker;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
@@ -118,16 +119,14 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             BoolQueryBuilder tagMatchQuery = QueryBuilders.boolQuery();
-            tags.forEach(tag -> {
-                tagMatchQuery.must(QueryBuilders.termQuery(SegmentRecord.TAGS, tag.toString()));
-            });
+            tags.forEach(tag -> tagMatchQuery.must(QueryBuilders.termQuery(SegmentRecord.TAGS, tag.toString())));
             mustQueryList.add(tagMatchQuery);
         }
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
         SearchResponse response = getClient().search(
-            new TimeRangeIndexNameMaker(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB), sourceBuilder);
-
+            new TimeRangeIndexNameMaker(
+                IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME), startSecondTB, endSecondTB), sourceBuilder);
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().getTotalHits().value);
 
@@ -140,7 +139,8 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
             basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(
                 BooleanUtils.valueToBoolean(
-                    ((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue())
+                    ((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()
+                )
             );
             basicTrace.getTraceIds().add((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
             traceBrief.getTraces().add(basicTrace);
