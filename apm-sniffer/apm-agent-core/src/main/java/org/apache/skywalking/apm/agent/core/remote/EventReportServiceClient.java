@@ -88,6 +88,8 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
 
     @Override
     public void onComplete() throws Throwable {
+        startingEvent.setEndTime(System.currentTimeMillis());
+
         reportStartingEvent();
     }
 
@@ -156,8 +158,6 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
             return;
         }
 
-        startingEvent.setEndTime(System.currentTimeMillis());
-
         final StreamObserver<Event> collector = eventServiceStub.collect(new StreamObserver<Commands>() {
             @Override
             public void onNext(final Commands commands) {
@@ -169,7 +169,6 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
                 LOGGER.error("Failed to report starting event.", t);
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
                 reported.set(false);
-
             }
 
             @Override
