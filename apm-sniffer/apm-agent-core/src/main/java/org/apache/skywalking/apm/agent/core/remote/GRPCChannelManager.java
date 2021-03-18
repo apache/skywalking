@@ -208,4 +208,9 @@ public class GRPCChannelManager implements BootService, Runnable {
         }
         return false;
     }
+
+    @Override
+    public int priority() {
+        return Integer.MAX_VALUE;
+    }
 }
