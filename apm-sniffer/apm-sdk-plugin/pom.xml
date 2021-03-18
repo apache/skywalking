@@ -107,6 +107,7 @@
         <module>mssql-commons</module>
         <module>mssql-jtds-1.x-plugin</module>
         <module>mssql-jdbc-plugin</module>
+        <module>seata-plugin</module>
         <module>cxf-3.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
