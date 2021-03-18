@@ -47,11 +47,15 @@ import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.HTable";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.hbase.HTableInterceptor";
+    private static final String INTERCEPT_CLASS_100 = "org.apache.skywalking.apm.plugin.hbase.HTable100Interceptor";
+    private static final String INTERCEPT_CLASS_200 = "org.apache.skywalking.apm.plugin.hbase.HTable200Interceptor";
+    private static final String INTERCEPT_CLASS_220 = "org.apache.skywalking.apm.plugin.hbase.HTable220Interceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -60,16 +64,44 @@ public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
+            // for hbase-client [1.0.0,)
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArguments(6);
+                    return takesArguments(6)
+                        .and(takesArgumentWithType(0, "org.apache.hadoop.hbase.TableName"));
                 }
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return INTERCEPT_CLASS_100;
+                }
+            },
+            // for hbase-client [2.0.0, 2.2.0)
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArguments(5)
+                        .and(takesArgumentWithType(0, "org.apache.hadoop.hbase.client.ClusterConnection"));
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPT_CLASS_200;
+                }
+            },
+            // for hbase-client [2.2.0,)
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArguments(5)
+                        .and(takesArgumentWithType(0, "org.apache.hadoop.hbase.client.ConnectionImplementation"));
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPT_CLASS_220;
                 }
             }
         };
@@ -77,13 +109,16 @@ public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("delete").or(named("put")).or(isPublic().and(named("get")))
-                            .or(named("getScanner").and(takesArguments(1))
-                                    .and(takesArgument(0, named("org.apache.hadoop.hbase.client.Scan"))));
+                    return named("delete")
+                        .or(named("put"))
+                        .or(isPublic().and(named("get")))
+                        .or(named("getScanner")
+                                .and(takesArguments(1))
+                                .and(takesArgument(0, named("org.apache.hadoop.hbase.client.Scan"))));
                 }
 
                 @Override()
