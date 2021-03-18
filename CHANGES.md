@@ -50,6 +50,8 @@ Release Notes.
 * Fix tags store of log and trace on h2/mysql/pg storage.
 * Merge indices by Metrics Function and Meter Function in Elasticsearch Storage. 
 * Fix receiver don't need to get itself when healthCheck
+* Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
+* Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
 * Optimize the self monitoring grafana dashboard.
 
 #### UI
