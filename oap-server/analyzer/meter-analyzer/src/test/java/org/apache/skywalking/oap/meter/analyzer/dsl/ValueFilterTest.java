@@ -110,7 +110,7 @@ public class ValueFilterTest {
                 false,
                 },
             {
-                "valueLessEqual",
+                "valueLess",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(2).build(),
                     Sample.builder().labels(of("idc", "t2")).value(2).build(),
