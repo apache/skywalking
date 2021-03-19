@@ -2068,7 +2068,7 @@
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
-          "legendFormat": "{{protocol}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
@@ -2162,7 +2162,7 @@
           "instant": false,
           "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "{{protocol}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
@@ -2254,7 +2254,7 @@
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "{{protocol}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
@@ -3730,7 +3730,7 @@
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
-          "legendFormat": "{{protocol}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
@@ -3824,7 +3824,7 @@
           "instant": false,
           "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "{{protocol}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
@@ -3916,7 +3916,7 @@
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
-          "legendFormat": "{{protocol}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
