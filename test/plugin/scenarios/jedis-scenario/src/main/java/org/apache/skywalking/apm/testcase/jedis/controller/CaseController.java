@@ -44,7 +44,7 @@ public class CaseController {
             command.del("a");
         }
 
-        try (RedisPipelineCommandExecutor command = new RedisPipelineCommandExecutor(redisHost, redisPort)){
+        try (RedisPipelineCommandExecutor command = new RedisPipelineCommandExecutor(redisHost, redisPort)) {
             command.pipelineExecute();
         }
         return SUCCESS;
