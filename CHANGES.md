@@ -53,7 +53,7 @@ Release Notes.
 * Fix receiver don't need to get itself when healthCheck
 * Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
-
+* Add functions in MAL to filter metrics according to the metric value.
 #### UI
 * Update selector scroller to show in all pages.
 * Implement searching logs with date.
