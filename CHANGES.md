@@ -64,6 +64,12 @@ Release Notes.
 * Update echarts version to 5.0.2.
 * Fix instance dependency on the topology page.
 * Fix resolved url for vue-property-decorator.
+* Fixes instance dependency on the topo page.
+* Show instance attributes.
+* Copywriting grammar fix.
+* Fix log pages tags column not updated.
+* Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
+* When the topology radiation chart is displayed, the corresponding button is highlighted.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
