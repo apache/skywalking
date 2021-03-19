@@ -64,7 +64,6 @@ Release Notes.
 * Update echarts version to 5.0.2.
 * Fix instance dependency on the topology page.
 * Fix resolved url for vue-property-decorator.
-* Fixes instance dependency on the topo page.
 * Show instance attributes.
 * Copywriting grammar fix.
 * Fix log pages tags column not updated.
