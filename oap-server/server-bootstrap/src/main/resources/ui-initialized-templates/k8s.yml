@@ -231,7 +231,7 @@ templates:
                               "entityType": "ServiceInstance",
                               "independentSelector": false,
                               "metricType": "REGULAR_VALUE",
-                              "metricName": "k8s_node_cpu_cores,k8s_node_cpu_cores_allocatable,k8s_node_cpu_cores_requests,k8s_node_cpu_cores_limits",
+                              "metricName": "k8s_node_cpu_cores_allocatable,k8s_node_cpu_cores_requests,k8s_node_cpu_cores_limits",
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
                               "aggregation": "/",
