@@ -104,27 +104,27 @@ public class SampleFamily {
 
     /* value filter operations*/
     public SampleFamily valueEqual(double compValue) {
-        return valueMatch(CompType.EQUAL, compValue, InternalOps::valueComp);
+        return valueMatch(CompType.EQUAL, compValue, InternalOps::doubleComp);
     }
 
     public SampleFamily valueNotEqual(double compValue) {
-        return valueMatch(CompType.NOT_EQUAL, compValue, InternalOps::valueComp);
+        return valueMatch(CompType.NOT_EQUAL, compValue, InternalOps::doubleComp);
     }
 
     public SampleFamily valueGreater(double compValue) {
-        return valueMatch(CompType.GREATER, compValue, InternalOps::valueComp);
+        return valueMatch(CompType.GREATER, compValue, InternalOps::doubleComp);
     }
 
     public SampleFamily valueGreaterEqual(double compValue) {
-        return valueMatch(CompType.GREATER_EQUAL, compValue, InternalOps::valueComp);
+        return valueMatch(CompType.GREATER_EQUAL, compValue, InternalOps::doubleComp);
     }
 
     public SampleFamily valueLess(double compValue) {
-        return valueMatch(CompType.LESS, compValue, InternalOps::valueComp);
+        return valueMatch(CompType.LESS, compValue, InternalOps::doubleComp);
     }
 
     public SampleFamily valueLessEqual(double compValue) {
-        return valueMatch(CompType.LESS_EQUAL, compValue, InternalOps::valueComp);
+        return valueMatch(CompType.LESS_EQUAL, compValue, InternalOps::doubleComp);
     }
 
     /* Binary operator overloading*/
@@ -543,21 +543,21 @@ public class SampleFamily {
             return a.equals(b);
         }
 
-        private static boolean valueComp(CompType compType, double a, double b) {
+        private static boolean doubleComp(CompType compType, double a, double b) {
             int result = Double.compare(a, b);
             switch (compType) {
                 case EQUAL:
-                    return result == 0 ? true : false;
+                    return result == 0;
                 case NOT_EQUAL:
-                    return result != 0 ? true : false;
+                    return result != 0;
                 case GREATER:
-                    return result == 1 ? true : false;
+                    return result == 1;
                 case GREATER_EQUAL:
-                    return (result == 0 || result == 1) ? true : false;
+                    return result == 0 || result == 1;
                 case LESS:
-                    return result == -1 ? true : false;
+                    return result == -1;
                 case LESS_EQUAL:
-                    return (result == 0 || result == -1) ? true : false;
+                    return result == 0 || result == -1;
             }
 
             return false;
