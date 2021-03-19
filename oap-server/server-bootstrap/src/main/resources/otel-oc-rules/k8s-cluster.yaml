@@ -51,40 +51,37 @@ metricsRules:
   - name: memory_limits
     exp: kube_pod_container_resource_limits.tagEqual('resource' , 'memory').sum(['cluster'])
 
-  - name: disk_total
+  - name: storage_total
     exp: kube_node_status_capacity.tagEqual('resource' , 'ephemeral_storage').sum(['cluster'])
-  - name: disk_allocatable
+  - name: storage_allocatable
     exp: kube_node_status_allocatable.tagEqual('resource' , 'ephemeral_storage').sum(['cluster'])
 
-  - name: node_count
+  - name: node_total
     exp: kube_node_info.sum(['cluster'])
   - name: node_status
     exp: kube_node_status_condition.tagMatch('status' , 'true|unknown').sum(['cluster' , 'node' ,'condition'])
 
-  - name: namespace_count
-    exp: kube_namespace_labels.sum(['cluster' , 'namespace'])
+  - name: namespace_total
+    exp: kube_namespace_labels.sum(['cluster'])
 
-  - name: deployment_count
-    exp: kube_deployment_labels.sum(['cluster' , 'deployment'])
+  - name: deployment_total
+    exp: kube_deployment_labels.sum(['cluster'])
   - name: deployment_status
     exp: kube_deployment_status_condition.tagMatch('status' , 'true').sum(['cluster' , 'deployment' ,'condition'])
   - name: deployment_spec_replicas
     exp: kube_deployment_spec_replicas.sum(['cluster' , 'deployment'])
 
+  - name: service_total
+    exp: kube_service_info.sum(['cluster'])
 
-  - name: service_count
-    exp: kube_service_info.sum(['cluster' , 'service'])
-  - name: container_count
-    exp: kube_pod_container_info.sum(['cluster' , 'container'])
+  - name: pod_total
+    exp: kube_pod_info.sum(['cluster'])
+  - name: pod_status_not_running
+    exp: kube_pod_status_phase.tagNotMatch('phase' , 'Running').sum(['cluster' , 'pod'])
+
+  - name: container_total
+    exp: kube_pod_container_info.sum(['cluster'])
   - name: container_status_waiting
     exp: kube_pod_container_status_waiting.sum(['cluster' , 'container'])
   - name: container_status_terminated
     exp: kube_pod_container_status_terminated.sum(['cluster' , 'container'])
-
-
-  - name: pod_count
-    exp: kube_pod_info.sum(['cluster'])
-  - name: pod_status_running
-    exp: kube_pod_status_phase.tagMatch('phase' , 'Running').sum(['cluster' , 'pod'])
-  - name: pod_status_not_running
-    exp: kube_pod_status_phase.tagNotMatch('phase' , 'Running').sum(['cluster' , 'pod'])
