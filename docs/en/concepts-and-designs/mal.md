@@ -41,6 +41,22 @@ For example, this filters all instance_trace_count samples for us-west and asia-
 ```
 instance_trace_count.tagMatch("region", "us-west|asia-north").tagEqual("az", "az-1")
 ```
+### Value filter
+
+MAL support six type operations to filter samples in a sample family by value:
+
+- valueEqual: Filter values that are exactly equal to the provided value.
+- valueNotEqual: Filter values that are not equal to the provided value.
+- valueGreater: Filter values that greater than the provided value.
+- valueGreaterEqual: Filter values that greater or equal the provided value.
+- valueLess: Filter values that less than the provided value.
+- valueLessEqual: Filter values that less or equal the provided value.
+
+For example, this filters all instance_trace_count samples for values >= 33:
+
+```
+instance_trace_count.valueGreaterEqual(33)
+```
 
 ### Binary operators
 
