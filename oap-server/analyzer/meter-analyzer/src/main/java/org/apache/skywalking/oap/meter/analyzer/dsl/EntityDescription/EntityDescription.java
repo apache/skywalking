@@ -16,27 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.boot;
+package org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription;
 
-/**
- * The <code>BootService</code> is an interface to all remote, which need to boot when plugin mechanism begins to work.
- * {@link #boot()} will be called when <code>BootService</code> start up.
- */
-public interface BootService {
-    void prepare() throws Throwable;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
-    void boot() throws Throwable;
+public interface EntityDescription {
+    ScopeType getScopeType();
 
-    void onComplete() throws Throwable;
+    List<String> getLabelKeys();
 
-    void shutdown() throws Throwable;
+    List<String> getServiceKeys();
 
-    /**
-     * {@code BootService}s with higher priorities will be started earlier, and shut down later than those {@code BootService}s with lower priorities.
-     *
-     * @return the priority of this {@code BootService}.
-     */
-    default int priority() {
-        return 0;
-    }
+    List<String> getInstanceKeys();
+
+    List<String> getEndpointKeys();
 }
