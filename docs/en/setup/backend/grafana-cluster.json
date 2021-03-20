@@ -4332,7 +4332,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Persistence Bulk Error Count (Increment) / Minute",
+      "title": "Persistence Error Count (Increment) / Minute",
       "tooltip": {
         "shared": true,
         "sort": 0,
