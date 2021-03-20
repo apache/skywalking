@@ -54,6 +54,8 @@ Release Notes.
 * Fix receiver don't need to get itself when healthCheck
 * Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
+* Add functions in MAL to filter metrics according to the metric value.
+* Optimize the self monitoring grafana dashboard.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -65,6 +67,11 @@ Release Notes.
 * Update echarts version to 5.0.2.
 * Fix instance dependency on the topology page.
 * Fix resolved url for vue-property-decorator.
+* Show instance attributes.
+* Copywriting grammar fix.
+* Fix log pages tags column not updated.
+* Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
+* When the topology radiation chart is displayed, the corresponding button should be highlighted.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
