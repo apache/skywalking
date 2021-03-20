@@ -24,14 +24,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jedis.v2.RedisMethodMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class PipelineInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MultiKeyPipelineBaseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "redis.clients.jedis.Pipeline";
-    private static final String PIPELINE_SET_CLIENT_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.PipelineSetClientMethodInterceptor";
+    private static final String ENHANCE_CLASS = "redis.clients.jedis.MultiKeyPipelineBase";
+    private static final String JEDIS_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor";
 
     @Override
     public ClassMatch enhanceClass() {
@@ -46,23 +46,22 @@ public class PipelineInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-                new InstanceMethodsInterceptPoint() {
-
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("setClient");
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return PIPELINE_SET_CLIENT_METHOD_INTERCEPT_CLASS;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return RedisMethodMatch.INSTANCE.getJedisMethodMatcher();
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return JEDIS_METHOD_INTERCEPT_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 }
