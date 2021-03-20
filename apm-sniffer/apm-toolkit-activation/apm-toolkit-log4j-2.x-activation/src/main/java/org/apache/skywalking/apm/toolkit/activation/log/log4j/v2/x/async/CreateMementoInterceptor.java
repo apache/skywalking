@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
@@ -26,23 +27,24 @@ import java.lang.reflect.Method;
 
 public class CreateMementoInterceptor implements StaticMethodsAroundInterceptor {
 
-    private String tag;
+    private static final String TRACE_ID = "TRACE_ID";
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
                              MethodInterceptResult result) {
         if (allArguments[0] instanceof EnhancedInstance) {
             EnhancedInstance instances = (EnhancedInstance) allArguments[0];
-            tag = (String) instances.getSkyWalkingDynamicField();
+            ContextManager.getRuntimeContext().put(TRACE_ID, instances.getSkyWalkingDynamicField());
         }
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
                               Object ret) {
-        if (allArguments[0] instanceof EnhancedInstance) {
+        if (ret instanceof EnhancedInstance) {
             EnhancedInstance instances = (EnhancedInstance) ret;
-            instances.setSkyWalkingDynamicField(tag);
+            instances.setSkyWalkingDynamicField(ContextManager.getRuntimeContext().get(TRACE_ID));
+            ContextManager.getRuntimeContext().remove(TRACE_ID);
         }
         return ret;
     }
