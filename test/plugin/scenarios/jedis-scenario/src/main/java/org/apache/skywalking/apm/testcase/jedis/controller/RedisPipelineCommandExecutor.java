@@ -16,27 +16,27 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.boot;
+package org.apache.skywalking.apm.testcase.jedis.controller;
 
-/**
- * The <code>BootService</code> is an interface to all remote, which need to boot when plugin mechanism begins to work.
- * {@link #boot()} will be called when <code>BootService</code> start up.
- */
-public interface BootService {
-    void prepare() throws Throwable;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
-    void boot() throws Throwable;
+public class RedisPipelineCommandExecutor implements AutoCloseable {
+    private Jedis jedis;
 
-    void onComplete() throws Throwable;
+    public RedisPipelineCommandExecutor(String host, Integer port) {
+        jedis = new Jedis(host, port);
+    }
 
-    void shutdown() throws Throwable;
+    public void pipelineExecute() {
+        Pipeline pipeline = jedis.pipelined();
+        pipeline.hset("a", "a", "a");
+        pipeline.hget("a", "a");
+        pipeline.hdel("a", "a");
+        pipeline.syncAndReturnAll();
+    }
 
-    /**
-     * {@code BootService}s with higher priorities will be started earlier, and shut down later than those {@code BootService}s with lower priorities.
-     *
-     * @return the priority of this {@code BootService}.
-     */
-    default int priority() {
-        return 0;
+    public void close() throws Exception {
+        jedis.close();
     }
 }

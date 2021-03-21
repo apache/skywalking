@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
+import io.vavr.Function3;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -99,6 +100,31 @@ public class SampleFamily {
 
     public SampleFamily tagNotMatch(String[] labels) {
         return match(labels, (sv, lv) -> !sv.matches(lv));
+    }
+
+    /* value filter operations*/
+    public SampleFamily valueEqual(double compValue) {
+        return valueMatch(CompType.EQUAL, compValue, InternalOps::doubleComp);
+    }
+
+    public SampleFamily valueNotEqual(double compValue) {
+        return valueMatch(CompType.NOT_EQUAL, compValue, InternalOps::doubleComp);
+    }
+
+    public SampleFamily valueGreater(double compValue) {
+        return valueMatch(CompType.GREATER, compValue, InternalOps::doubleComp);
+    }
+
+    public SampleFamily valueGreaterEqual(double compValue) {
+        return valueMatch(CompType.GREATER_EQUAL, compValue, InternalOps::doubleComp);
+    }
+
+    public SampleFamily valueLess(double compValue) {
+        return valueMatch(CompType.LESS, compValue, InternalOps::doubleComp);
+    }
+
+    public SampleFamily valueLessEqual(double compValue) {
+        return valueMatch(CompType.LESS_EQUAL, compValue, InternalOps::doubleComp);
     }
 
     /* Binary operator overloading*/
@@ -401,6 +427,14 @@ public class SampleFamily {
         return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
     }
 
+    private SampleFamily valueMatch(CompType compType,
+                                    double compValue,
+                                    Function3<CompType, Double, Double, Boolean> op) {
+        Sample[] ss = Arrays.stream(samples)
+                            .filter(sample -> op.apply(compType, sample.value, compValue)).toArray(Sample[]::new);
+        return ss.length > 0 ? SampleFamily.build(this.context, ss) : EMPTY;
+    }
+
     SampleFamily newValue(Function<Double, Double> transform) {
         if (this == EMPTY) {
             return EMPTY;
@@ -509,6 +543,26 @@ public class SampleFamily {
             return a.equals(b);
         }
 
+        private static boolean doubleComp(CompType compType, double a, double b) {
+            int result = Double.compare(a, b);
+            switch (compType) {
+                case EQUAL:
+                    return result == 0;
+                case NOT_EQUAL:
+                    return result != 0;
+                case GREATER:
+                    return result == 1;
+                case GREATER_EQUAL:
+                    return result == 0 || result == 1;
+                case LESS:
+                    return result == -1;
+                case LESS_EQUAL:
+                    return result == 0 || result == -1;
+            }
+
+            return false;
+        }
+
         private static ImmutableMap<String, String> getLabels(final List<String> labelKeys, final Sample sample) {
             return labelKeys.stream()
                             .collect(toImmutableMap(
@@ -516,5 +570,9 @@ public class SampleFamily {
                                 labelKey -> sample.labels.getOrDefault(labelKey, "")
                             ));
         }
+    }
+
+    private enum CompType {
+        EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL
     }
 }
