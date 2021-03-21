@@ -21,7 +21,9 @@ Release Notes.
 * Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
 * Fix NullPointerException with KafkaProducer.send(record).
 * Support config `agent.span_limit_per_segment` can be changed in the runtime.
-* Fix apm-toolkit-log4j-2.x-activation no trace Id in async log
+* Collect and report agent starting / shutdown events.
+* Support jedis pipeline in jedis-2.x-plugin.
+* Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -53,6 +55,8 @@ Release Notes.
 * Fix receiver don't need to get itself when healthCheck
 * Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
+* Add functions in MAL to filter metrics according to the metric value.
+* Optimize the self monitoring grafana dashboard.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -64,6 +68,11 @@ Release Notes.
 * Update echarts version to 5.0.2.
 * Fix instance dependency on the topology page.
 * Fix resolved url for vue-property-decorator.
+* Show instance attributes.
+* Copywriting grammar fix.
+* Fix log pages tags column not updated.
+* Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
+* When the topology radiation chart is displayed, the corresponding button should be highlighted.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
