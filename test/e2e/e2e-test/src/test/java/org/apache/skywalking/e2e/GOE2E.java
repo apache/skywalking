@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.e2e;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -50,9 +49,14 @@ import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.DockerComposeContainer;
+
+import java.net.URL;
+import java.util.List;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
@@ -121,6 +125,16 @@ public class GOE2E extends SkyWalkingTestAdapter {
             final Endpoints endpoints = verifyServiceEndpoints(service);
             verifyEndpointsMetrics(endpoints);
         }
+    }
+
+    @RetryableTest
+    void correlation() throws Exception {
+        final URL url = new URL("http", javaConsumerHostPort.host(), javaConsumerHostPort.port(), "/correlation");
+
+        ResponseEntity<String> resp = restTemplate.postForEntity(url.toURI(), trafficData, String.class);
+        LOGGER.info("verifying correlation: {}", resp);
+
+        Assert.assertEquals("consumer_go2sky_provider", resp.getBody());
     }
 
     @RetryableTest
