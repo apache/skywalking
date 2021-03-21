@@ -36,9 +36,7 @@ public class AsyncLoggerConfigMethodInterceptor implements InstanceMethodsAround
         MethodInterceptResult result) throws Throwable {
         if (allArguments[0] instanceof EnhancedInstance) {
             EnhancedInstance instances = (EnhancedInstance) allArguments[0];
-            if (instances.getSkyWalkingDynamicField() == null){
-                instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
-            }
+            instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
         }
     }
 

@@ -32,19 +32,16 @@ public class CreateMementoInterceptor implements StaticMethodsAroundInterceptor 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
                              MethodInterceptResult result) {
-        if (allArguments[0] instanceof EnhancedInstance) {
-            EnhancedInstance instances = (EnhancedInstance) allArguments[0];
-            ContextManager.getRuntimeContext().put(TRACE_ID, instances.getSkyWalkingDynamicField());
-        }
+
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
                               Object ret) {
-        if (ret instanceof EnhancedInstance) {
-            EnhancedInstance instances = (EnhancedInstance) ret;
-            instances.setSkyWalkingDynamicField(ContextManager.getRuntimeContext().get(TRACE_ID));
-            ContextManager.getRuntimeContext().remove(TRACE_ID);
+        if (ret instanceof EnhancedInstance && allArguments[0] instanceof EnhancedInstance) {
+            EnhancedInstance instance = (EnhancedInstance) ret;
+            EnhancedInstance oldInstance = (EnhancedInstance) allArguments[0];
+            instance.setSkyWalkingDynamicField(oldInstance.getSkyWalkingDynamicField());
         }
         return ret;
     }
