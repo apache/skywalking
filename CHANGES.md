@@ -22,6 +22,7 @@ Release Notes.
 * Fix NullPointerException with KafkaProducer.send(record).
 * Support config `agent.span_limit_per_segment` can be changed in the runtime.
 * Collect and report agent starting / shutdown events.
+* Support jedis pipeline in jedis-2.x-plugin.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -53,6 +54,8 @@ Release Notes.
 * Fix receiver don't need to get itself when healthCheck
 * Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
+* Add functions in MAL to filter metrics according to the metric value.
+* Optimize the self monitoring grafana dashboard.
 
 #### UI
 * Update selector scroller to show in all pages.
