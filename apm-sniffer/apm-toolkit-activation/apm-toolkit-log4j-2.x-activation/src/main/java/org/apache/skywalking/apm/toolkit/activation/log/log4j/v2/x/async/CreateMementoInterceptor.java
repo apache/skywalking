@@ -26,8 +26,6 @@ import java.lang.reflect.Method;
 
 public class CreateMementoInterceptor implements StaticMethodsAroundInterceptor {
 
-    private static final String TRACE_ID = "TRACE_ID";
-
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
                              MethodInterceptResult result) {
