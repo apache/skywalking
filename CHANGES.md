@@ -23,6 +23,7 @@ Release Notes.
 * Support config `agent.span_limit_per_segment` can be changed in the runtime.
 * Collect and report agent starting / shutdown events.
 * Support jedis pipeline in jedis-2.x-plugin.
+* Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
