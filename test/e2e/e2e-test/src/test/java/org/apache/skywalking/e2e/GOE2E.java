@@ -97,7 +97,7 @@ public class GOE2E extends SkyWalkingTestAdapter {
     @BeforeAll
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
-        trafficController(javaConsumerHostPort, "/info");
+        trafficController(javaConsumerHostPort, "/correlation");
     }
 
     @AfterAll
@@ -125,16 +125,6 @@ public class GOE2E extends SkyWalkingTestAdapter {
             final Endpoints endpoints = verifyServiceEndpoints(service);
             verifyEndpointsMetrics(endpoints);
         }
-    }
-
-    @RetryableTest
-    void correlation() throws Exception {
-        final URL url = new URL("http", javaConsumerHostPort.host(), javaConsumerHostPort.port(), "/correlation");
-
-        ResponseEntity<String> resp = restTemplate.postForEntity(url.toURI(), trafficData, String.class);
-        LOGGER.info("verifying correlation: {}", resp);
-
-        Assert.assertEquals("consumer_go2sky_provider", resp.getBody());
     }
 
     @RetryableTest
@@ -171,6 +161,16 @@ public class GOE2E extends SkyWalkingTestAdapter {
         load("expected/go/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
 
         verifyServiceInstanceRelationMetrics(topology.getCalls());
+    }
+
+    @RetryableTest
+    void correlation() throws Exception {
+        final URL url = new URL("http", javaConsumerHostPort.host(), javaConsumerHostPort.port(), "/correlation");
+
+        ResponseEntity<String> resp = restTemplate.postForEntity(url.toURI(), trafficData, String.class);
+        LOGGER.info("verifying correlation: {}", resp);
+
+        Assert.assertEquals("consumer_go2sky_provider", resp.getBody());
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
