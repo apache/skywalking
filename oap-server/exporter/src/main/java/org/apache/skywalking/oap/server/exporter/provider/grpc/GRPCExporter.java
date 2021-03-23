@@ -109,8 +109,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
                     lastFetchTimestamp = currentTimeMillis;
                     SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
                                                                  .subscription(SubscriptionReq.newBuilder().build());
-                    subscriptionList = new ArrayList<>();
-                    subscriptionList.addAll(subscription.getMetricsList());
+                    subscriptionList = subscription.getMetricsList();
                     log.debug("Get exporter subscription list, {}", subscriptionList);
                 }
             } catch (Throwable e) {
