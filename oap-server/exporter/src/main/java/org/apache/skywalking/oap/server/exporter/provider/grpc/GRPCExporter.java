@@ -96,12 +96,16 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     public void fetchSubscriptionList() {
         final long currentTimeMillis = System.currentTimeMillis();
         if (currentTimeMillis - lastFetchTimestamp > 30_000) {
-            lastFetchTimestamp = currentTimeMillis;
-            SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
-                                                         .subscription(SubscriptionReq.newBuilder().build());
-            subscriptionList.clear();
-            subscriptionList.addAll(subscription.getMetricsList());
-            log.debug("Get exporter subscription list, {}", subscriptionList);
+            try {
+                lastFetchTimestamp = currentTimeMillis;
+                SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
+                                                             .subscription(SubscriptionReq.newBuilder().build());
+                subscriptionList.clear();
+                subscriptionList.addAll(subscription.getMetricsList());
+                log.debug("Get exporter subscription list, {}", subscriptionList);
+            } catch (Throwable e){
+                log.error("Getting exporter subscription list fails.", e);
+            }
         }
     }
 
