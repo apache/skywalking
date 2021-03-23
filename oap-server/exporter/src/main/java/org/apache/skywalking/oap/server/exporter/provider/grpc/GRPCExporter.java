@@ -103,7 +103,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
                 subscriptionList.clear();
                 subscriptionList.addAll(subscription.getMetricsList());
                 log.debug("Get exporter subscription list, {}", subscriptionList);
-            } catch (Throwable e){
+            } catch (Throwable e) {
                 log.error("Getting exporter subscription list fails.", e);
             }
         }
