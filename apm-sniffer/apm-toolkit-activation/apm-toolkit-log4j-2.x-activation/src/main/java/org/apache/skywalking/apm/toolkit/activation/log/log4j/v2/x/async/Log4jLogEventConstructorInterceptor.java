@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
@@ -31,5 +32,6 @@ public class Log4jLogEventConstructorInterceptor implements InstanceConstructorI
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        objInst.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
     }
 }
