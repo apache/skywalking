@@ -14,5 +14,5 @@
 # limitations under the License.
 
 endpoints:
-  - key: Z28yc2t5.1_L1BPU1QvaW5mbw==
-    label: /POST/info
+  - key: Z28yc2t5.1_L1BPU1QvY29ycmVsYXRpb24=
+    label: /POST/correlation
