@@ -60,8 +60,8 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     private final MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
     private final MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
     private final DataCarrier exportBuffer;
-    private final List<SubscriptionMetric> subscriptionList;
     private final ReentrantLock fetchListLock;
+    private volatile List<SubscriptionMetric> subscriptionList;
     private volatile long lastFetchTimestamp = 0;
 
     public GRPCExporter(GRPCExporterSetting setting) {
@@ -109,7 +109,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
                     lastFetchTimestamp = currentTimeMillis;
                     SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
                                                                  .subscription(SubscriptionReq.newBuilder().build());
-                    subscriptionList.clear();
+                    subscriptionList = new ArrayList<>();
                     subscriptionList.addAll(subscription.getMetricsList());
                     log.debug("Get exporter subscription list, {}", subscriptionList);
                 }
