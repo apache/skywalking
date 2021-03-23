@@ -73,6 +73,7 @@ Release Notes.
 * Fix log pages tags column not updated.
 * Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
 * When the topology radiation chart is displayed, the corresponding button should be highlighted.
+* Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
