@@ -73,7 +73,7 @@ exporter:
 
 ## For target exporter service 
 ### subscription implementation
-Return the expected metrics name list with event type(increment or total), all the names must match the OAL script definition. 
+Return the expected metrics name list with event type(increment or total), all the names must match the OAL/MAL script definition. 
 Return empty list, if you want to export all metrics in increment event type.
 
 ### export implementation

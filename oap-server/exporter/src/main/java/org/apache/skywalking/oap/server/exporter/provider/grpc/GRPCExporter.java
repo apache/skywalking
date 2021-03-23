@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -51,11 +52,16 @@ import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 @Slf4j
 public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
-    private GRPCExporterSetting setting;
+    /**
+     * The period of subscription list fetching is hardcoded as 30s.
+     */
+    private static final long FETCH_SUBSCRIPTION_PERIOD = 30_000;
+    private final GRPCExporterSetting setting;
     private final MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
     private final MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
     private final DataCarrier exportBuffer;
     private final List<SubscriptionMetric> subscriptionList;
+    private final ReentrantLock fetchListLock;
     private volatile long lastFetchTimestamp = 0;
 
     public GRPCExporter(GRPCExporterSetting setting) {
@@ -68,6 +74,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         exportBuffer = new DataCarrier<ExportData>(setting.getBufferChannelNum(), setting.getBufferChannelSize());
         exportBuffer.consume(this, 1, 200);
         subscriptionList = new ArrayList<>();
+        fetchListLock = new ReentrantLock();
     }
 
     @Override
@@ -95,16 +102,21 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
      */
     public void fetchSubscriptionList() {
         final long currentTimeMillis = System.currentTimeMillis();
-        if (currentTimeMillis - lastFetchTimestamp > 30_000) {
+        if (currentTimeMillis - lastFetchTimestamp > FETCH_SUBSCRIPTION_PERIOD) {
             try {
-                lastFetchTimestamp = currentTimeMillis;
-                SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
-                                                             .subscription(SubscriptionReq.newBuilder().build());
-                subscriptionList.clear();
-                subscriptionList.addAll(subscription.getMetricsList());
-                log.debug("Get exporter subscription list, {}", subscriptionList);
+                fetchListLock.lock();
+                if (currentTimeMillis - lastFetchTimestamp > FETCH_SUBSCRIPTION_PERIOD) {
+                    lastFetchTimestamp = currentTimeMillis;
+                    SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
+                                                                 .subscription(SubscriptionReq.newBuilder().build());
+                    subscriptionList.clear();
+                    subscriptionList.addAll(subscription.getMetricsList());
+                    log.debug("Get exporter subscription list, {}", subscriptionList);
+                }
             } catch (Throwable e) {
                 log.error("Getting exporter subscription list fails.", e);
+            } finally {
+                fetchListLock.unlock();
             }
         }
     }
