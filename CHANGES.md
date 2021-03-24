@@ -57,6 +57,7 @@ Release Notes.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
 * Add functions in MAL to filter metrics according to the metric value.
 * Optimize the self monitoring grafana dashboard.
+* Enhance the export service.
 
 #### UI
 * Update selector scroller to show in all pages.
