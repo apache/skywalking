@@ -57,6 +57,25 @@ For example, this filters all instance_trace_count samples for values >= 33:
 ```
 instance_trace_count.valueGreaterEqual(33)
 ```
+### K8s
+MAL support add specific Labels to the samples that collect from K8s metrics collectors.
+This feature need OAP Server has the authority to access the K8s's `API Server`.
+
+#### k8sTagServiceByPodName
+`k8sTagServiceByPodName(podName,serviceName)`. Add a sevice Label to the sample that already has a pod name.
+
+For example:
+```
+container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh} 2
+```
+Expression:
+```
+container_cpu_usage_seconds_total.k8sTagServiceByPodName('pod' , 'service')
+```
+Output:
+```
+container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh, service='default:nginx-service'} 2
+```
 
 ### Binary operators
 
@@ -185,6 +204,7 @@ Examples:
 
 #### time
 `time()`. returns the number of seconds since January 1, 1970 UTC.
+
 
 ## Down Sampling Operation
 MAL should instruct meter-system how to do downsampling for metrics. It doesn't only refer to aggregate raw samples to 
