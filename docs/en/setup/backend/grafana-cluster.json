@@ -1643,7 +1643,7 @@
       "targets": [
         {
           "expr": "increase(mesh_analysis_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -1924,7 +1924,7 @@
       "targets": [
         {
           "expr": "increase(meter_analysis_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2205,7 +2205,7 @@
       "targets": [
         {
           "expr": "increase(log_analysis_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2486,7 +2486,7 @@
       "targets": [
         {
           "expr": "increase(event_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2767,7 +2767,7 @@
       "targets": [
         {
           "expr": "increase(browser_perf_data_analysis_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -3048,7 +3048,7 @@
       "targets": [
         {
           "expr": "increase(browser_error_log_analysis_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -3329,7 +3329,7 @@
       "targets": [
         {
           "expr": "increase(metrics_fetcher_error_count{job=\"$job\"}[1m]) ",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",

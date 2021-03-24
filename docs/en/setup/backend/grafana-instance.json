@@ -1880,7 +1880,7 @@
       "targets": [
         {
           "expr": "increase(trace_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2157,7 +2157,7 @@
       "targets": [
         {
           "expr": "increase(mesh_analysis_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2434,7 +2434,7 @@
       "targets": [
         {
           "expr": "increase(meter_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2711,7 +2711,7 @@
       "targets": [
         {
           "expr": "increase(log_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -2988,7 +2988,7 @@
       "targets": [
         {
           "expr": "increase(event_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -3265,7 +3265,7 @@
       "targets": [
         {
           "expr": "increase(browser_perf_data_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -3542,7 +3542,7 @@
       "targets": [
         {
           "expr": "increase(browser_error_log_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
@@ -3819,7 +3819,7 @@
       "targets": [
         {
           "expr": "increase(metrics_fetcher_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
-          "format": "heatmap",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "1m",
