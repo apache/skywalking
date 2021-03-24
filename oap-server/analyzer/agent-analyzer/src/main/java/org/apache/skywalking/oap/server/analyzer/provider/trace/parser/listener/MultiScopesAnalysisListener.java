@@ -206,12 +206,12 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             for (KeyStringValuePair tag : span.getTagsList()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
-                    if (StringUtil.isEmpty(sqlStatement)) {
-                        slowStatementBuilder.setStatement("[No statement]/" + span.getOperationName());
-                    } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                        slowStatementBuilder.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
-                    } else {
-                        slowStatementBuilder.setStatement(sqlStatement);
+                    if (StringUtil.isNotEmpty(sqlStatement)) {
+                        if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
+                            slowStatementBuilder.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
+                        } else {
+                            slowStatementBuilder.setStatement(sqlStatement);
+                        }
                     }
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
@@ -223,6 +223,11 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 }
             }
 
+            if (StringUtil.isEmpty(slowStatementBuilder.getStatement())) {
+                String statement = StringUtil.isEmpty(
+                    span.getOperationName()) ? "[No statement]" : "[No statement]/" + span.getOperationName();
+                slowStatementBuilder.setStatement(statement);
+            }
             if (isSlowDBAccess) {
                 dbSlowStatementBuilders.add(slowStatementBuilder);
             }

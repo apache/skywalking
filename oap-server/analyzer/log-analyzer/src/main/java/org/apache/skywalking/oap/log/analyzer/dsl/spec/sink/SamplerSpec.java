@@ -20,19 +20,14 @@ package org.apache.skywalking.oap.log.analyzer.dsl.spec.sink;
 
 import groovy.lang.Closure;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.RateLimitingSampler;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.Sampler;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SamplerSpec extends AbstractSpec {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SamplerSpec.class);
-
     private final Map<String, Sampler> samplers;
     private final RateLimitingSampler.ResetHandler rlsResetHandler;
 
@@ -49,25 +44,13 @@ public class SamplerSpec extends AbstractSpec {
         if (BINDING.get().shouldAbort()) {
             return;
         }
-        final RateLimitingSampler newSampler = new RateLimitingSampler(rlsResetHandler);
-        cl.setDelegate(newSampler);
+
+        final Sampler sampler = samplers.computeIfAbsent(id, $ -> new RateLimitingSampler(rlsResetHandler).start());
+
+        cl.setDelegate(sampler);
         cl.call();
 
-        final Sampler sampler = samplers.computeIfAbsent(id, $ -> Sampler.NOOP);
-        if (Objects.equals(sampler, newSampler)) { // Unchanged
-            sampleWith(sampler);
-            return;
-        }
-
-        try {
-            sampler.close();
-        } catch (final Exception e) {
-            LOGGER.error("Failed to cancel old sampler: {}", sampler, e);
-        }
-
-        samplers.put(id, newSampler.start());
-
-        sampleWith(newSampler);
+        sampleWith(sampler);
     }
 
     private void sampleWith(final Sampler sampler) {

@@ -21,6 +21,8 @@ package test.apache.skywalking.apm.testcase.kafka.controller;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
@@ -93,6 +95,21 @@ public class CaseController {
                 LOGGER.info("send success metadata={}", metadata);
             };
             producer.send(record2, callback2);
+
+            ProducerRecord<String, String> record3 = new ProducerRecord<String, String>(topicName2, "testKey", Integer.toString(1));
+            final Future<RecordMetadata> result = producer.send(record3);
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        // Since linger.ms is 5ms, 10ms should be enough for Kakfa producer to send the message.
+                        RecordMetadata metadata = result.get(10, TimeUnit.MILLISECONDS);
+                        LOGGER.info("send success metadata={}", metadata);
+                    } catch (Throwable t) {
+                        LOGGER.error("failed to send the message to Kafka", t);
+                    }
+                }
+            }.start();
         }, bootstrapServers);
 
         Thread thread = new ConsumerThread();

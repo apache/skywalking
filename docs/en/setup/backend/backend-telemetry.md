@@ -49,7 +49,8 @@ telemetry:
 ```
 
 ### Grafana Visualization
-Provide the grafana dashboard settings. Check [SkyWalking Telemetry dashboard](grafana.json) config.
+Provide the grafana dashboard settings. 
+Check [SkyWalking OAP Cluster Monitor Dashboard](grafana-cluster.json) config and [SkyWalking OAP Instance Monitor Dashboard](grafana-instance.json) config.
 
 
 ## Self Observability

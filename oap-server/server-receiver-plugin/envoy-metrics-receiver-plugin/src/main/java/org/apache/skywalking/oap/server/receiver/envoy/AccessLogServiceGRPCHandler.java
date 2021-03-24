@@ -30,7 +30,6 @@ import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -117,15 +116,11 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
                             List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
                             for (final HTTPAccessLogEntry log : logs.getLogEntryList()) {
+                                List<ServiceMeshMetric.Builder> result = new ArrayList<>();
                                 for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
-                                    final List<ServiceMeshMetric.Builder> result =
-                                        analysis.analysis(identifier, log, role);
-                                    if (CollectionUtils.isNotEmpty(result)) {
-                                        // Once the analysis has results, don't need to continue analysis in lower priority analyzers.
-                                        sourceResult.addAll(result);
-                                        break;
-                                    }
+                                    result = analysis.analysis(result, identifier, log, role);
                                 }
+                                sourceResult.addAll(result);
                             }
 
                             sourceDispatcherCounter.inc(sourceResult.size());
