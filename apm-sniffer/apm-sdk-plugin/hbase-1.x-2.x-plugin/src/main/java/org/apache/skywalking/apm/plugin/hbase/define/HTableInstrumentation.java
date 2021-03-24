@@ -49,6 +49,13 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
+/**
+ * There have several interceptors to adapt different version hbase client. We use the minimal compatible version to
+ * name the Interceptor. eg.
+ * <p>HTable100Interceptor, 100 means version 1.0.0, compatible with version [1.0.0, 2.0.0)</p>
+ * <p>HTable200Interceptor, 200 means version 2.0.0, compatible with version [2.0.0, 2.2.0)</p>
+ * <p>HTable220Interceptor, 220 means version 2.2.0, compatible with version [2.2.0, )</p>
+ */
 public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.HTable";
@@ -65,7 +72,7 @@ public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
-            // for hbase-client [1.0.0,)
+            // compatible with version [1.0.0, 2.0.0)
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -78,7 +85,7 @@ public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
                     return INTERCEPT_CLASS_100;
                 }
             },
-            // for hbase-client [2.0.0, 2.2.0)
+            // compatible with version [2.0.0, 2.2.0)
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -91,7 +98,7 @@ public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
                     return INTERCEPT_CLASS_200;
                 }
             },
-            // for hbase-client [2.2.0,)
+            // compatible with version [2.2.0, )
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
