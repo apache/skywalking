@@ -16,7 +16,7 @@
 traces:
   - key: not null
     endpointNames:
-      - /info
+      - /correlation
     duration: ge 0
     start: gt 0
     isError: false

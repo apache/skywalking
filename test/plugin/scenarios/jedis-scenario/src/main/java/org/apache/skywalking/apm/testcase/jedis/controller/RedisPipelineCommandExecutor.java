@@ -16,17 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.exporter;
+package org.apache.skywalking.apm.testcase.jedis.controller;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
-@Getter
-@RequiredArgsConstructor
-public class ExportData {
-    private final MetricsMetaInfo meta;
-    private final Metrics metrics;
-    private final ExportEvent.EventType eventType;
+public class RedisPipelineCommandExecutor implements AutoCloseable {
+    private Jedis jedis;
+
+    public RedisPipelineCommandExecutor(String host, Integer port) {
+        jedis = new Jedis(host, port);
+    }
+
+    public void pipelineExecute() {
+        Pipeline pipeline = jedis.pipelined();
+        pipeline.hset("a", "a", "a");
+        pipeline.hget("a", "a");
+        pipeline.hdel("a", "a");
+        pipeline.syncAndReturnAll();
+    }
+
+    public void close() throws Exception {
+        jedis.close();
+    }
 }
