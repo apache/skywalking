@@ -58,6 +58,7 @@ Release Notes.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
 * Add functions in MAL to filter metrics according to the metric value.
 * Optimize the self monitoring grafana dashboard.
+* Enhance the export service.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -74,6 +75,7 @@ Release Notes.
 * Fix log pages tags column not updated.
 * Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
 * When the topology radiation chart is displayed, the corresponding button should be highlighted.
+* Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
