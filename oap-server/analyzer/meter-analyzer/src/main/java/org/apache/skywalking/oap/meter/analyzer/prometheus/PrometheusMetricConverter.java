@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
@@ -56,6 +57,7 @@ public class PrometheusMetricConverter {
 
     public PrometheusMetricConverter(Rule rule, MeterSystem service) {
         this.convert = new MetricConvert(rule, service);
+        K8sInfoRegistry.getInstance().start(rule);
     }
 
     /**

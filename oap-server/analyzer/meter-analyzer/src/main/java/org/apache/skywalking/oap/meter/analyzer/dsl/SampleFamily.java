@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEn
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
@@ -308,6 +309,28 @@ public class SampleFamily {
                                    .build();
                   }).toArray(Sample[]::new)
         );
+    }
+
+    /* k8s add Tags*/
+    public SampleFamily k8sTagServiceByPodName(String podNameLabel, String serviceNameLabel) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(podNameLabel));
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        Sample[] ss = Arrays.stream(samples).map(sample -> {
+            String podName = sample.labels.get(podNameLabel);
+
+            if (!Strings.isNullOrEmpty(podName)) {
+                String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
+                if (!Strings.isNullOrEmpty(serviceName)) {
+                    Map<String, String> labels = Maps.newHashMap(sample.labels);
+                    labels.put(serviceNameLabel, serviceName);
+                    return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+                }
+            }
+            return sample;
+        }).toArray(Sample[]::new);
+        return SampleFamily.build(this.context, ss);
     }
 
     public SampleFamily histogram() {

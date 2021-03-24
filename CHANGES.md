@@ -58,6 +58,7 @@ Release Notes.
 * Add functions in MAL to filter metrics according to the metric value.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
+* Add function 'k8sTagServiceByPodName' in MAL for k8s to relate pods and services.
 
 #### UI
 * Update selector scroller to show in all pages.
