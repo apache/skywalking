@@ -24,6 +24,7 @@ Release Notes.
 * Collect and report agent starting / shutdown events.
 * Support jedis pipeline in jedis-2.x-plugin.
 * Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
+* Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
