@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import org.apache.skywalking.oap.server.receiver.envoy.als.mx.ServiceMetaInfoAdapter;
 import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ProtoMetricFamily2MetricsAdapter;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -50,7 +49,11 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
     private final HistogramMetrics histogram;
     private final List<PrometheusMetricConverter> converters;
 
+    private final EnvoyMetricReceiverConfig config;
+
     public MetricServiceGRPCHandler(final ModuleManager moduleManager, final EnvoyMetricReceiverConfig config) throws ModuleStartException {
+        this.config = config;
+
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
@@ -86,7 +89,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
 
                 if (isFirst) {
                     isFirst = false;
-                    service = new ServiceMetaInfoAdapter(message.getIdentifier().getNode().getMetadata());
+                    service = config.serviceMetaInfoFactory().fromStruct(message.getIdentifier().getNode().getMetadata());
                 }
 
                 if (log.isDebugEnabled()) {

@@ -23,7 +23,6 @@ import com.google.protobuf.TextFormat;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
+import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.UNKNOWN;
 
@@ -50,6 +50,8 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
 
     protected String fieldMappingFile = "metadata-service-mapping.yaml";
 
+    protected EnvoyMetricReceiverConfig config;
+
     @Override
     public String name() {
         return "mx-mesh";
@@ -57,21 +59,30 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
 
     @Override
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
+        this.config = config;
         try {
-            FieldsHelper.SINGLETON.init(fieldMappingFile);
+            FieldsHelper.SINGLETON.init(fieldMappingFile, config.serviceMetaInfoFactory().clazz());
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load metadata-service-mapping.yaml", e);
         }
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
+    public List<ServiceMeshMetric.Builder> analysis(
+        final List<ServiceMeshMetric.Builder> result,
+        final StreamAccessLogsMessage.Identifier identifier,
+        final HTTPAccessLogEntry entry,
+        final Role role
+    ) {
+        if (isNotEmpty(result)) {
+            return result;
+        }
+        if (!entry.hasCommonProperties()) {
             return Collections.emptyList();
         }
+        final AccessLogCommon properties = entry.getCommonProperties();
         final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
-        if (stateMap == null) {
+        if (stateMap.isEmpty()) {
             return Collections.emptyList();
         }
         final ServiceMetaInfo currSvc;
@@ -82,7 +93,6 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             return Collections.emptyList();
         }
 
-        final List<ServiceMeshMetric.Builder> result = new ArrayList<>();
         final AtomicBoolean downstreamExists = new AtomicBoolean();
         stateMap.forEach((key, value) -> {
             if (!key.equals(UPSTREAM_KEY) && !key.equals(DOWNSTREAM_KEY)) {
@@ -129,7 +139,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
     }
 
     protected ServiceMetaInfo adaptToServiceMetaInfo(final StreamAccessLogsMessage.Identifier identifier) throws Exception {
-        return new ServiceMetaInfoAdapter(identifier.getNode().getMetadata());
+        return config.serviceMetaInfoFactory().fromStruct(identifier.getNode().getMetadata());
     }
 
 }

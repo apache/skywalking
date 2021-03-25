@@ -15,9 +15,6 @@ Native supported storage
 - InfluxDB
 - PostgreSQL
 
-Redistribution version with supported storage.
-- ElasticSearch 5
-
 
 ## H2
 Active H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
@@ -155,13 +152,13 @@ We strongly advice you to read more about these configurations from ElasticSearc
 This effects the performance of ElasticSearch very much.
 
 
-### ElasticSearch 6 with Zipkin trace extension
-This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
+### ElasticSearch 7 with Zipkin trace extension
+This implementation shares most of `elasticsearch7`, just extends to support zipkin span storage.
 It has all same configs.
 ```yaml
 storage:
-  selector: ${SW_STORAGE:zipkin-elasticsearch}
-  zipkin-elasticsearch:
+  selector: ${SW_STORAGE:zipkin-elasticsearch7}
+  zipkin-elasticsearch7:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
@@ -175,32 +172,9 @@ storage:
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
-
-### ElasticSearch 6 with Jaeger trace extension
-This implementation shares most of `elasticsearch`, just extend to support jaeger span storage.
-It has all same configs.
-```yaml
-storage:
-  selector: ${SW_STORAGE:jaeger-elasticsearch}
-  jaeger-elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-```
-
 
 ### About Namespace
 When namespace is set, names of all indexes in ElasticSearch will use it as prefix.
-
 
 ## MySQL
 Active MySQL as storage, set storage provider to **mysql**. 
@@ -288,10 +262,6 @@ storage:
 ```
 All connection related settings including link url, username and password are in `application.yml`. 
 Here are some of the settings, please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for all the settings.
-
-## ElasticSearch 5
-ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
-[OpenSkyWalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 

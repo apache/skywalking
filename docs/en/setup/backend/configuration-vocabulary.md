@@ -173,6 +173,10 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | gRPCSslCertChainPath| The file path of gRPC SSL cert chain| SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH | - |
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL | - |
 | - | - | authentication | The token text for the authentication. Work for gRPC connection only. Once this is set, the client is required to use the same token. | SW_AUTHENTICATION | - |
+| log-analyzer | default | Log Analyzer. | SW_LOG_ANALYZER | default |
+| - | - | lalFiles | The LAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_LAL_FILES | default |
+| - | - | malFiles | The MAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_MAL_FILES | "" |
+| event-analyzer | default | Event Analyzer. | SW_EVENT_ANALYZER | default |
 | receiver-register|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-trace|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-jvm| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
@@ -194,9 +198,6 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | restHost| Binding IP of restful service. |SW_RECEIVER_ZIPKIN_HOST|0.0.0.0|
 | - | - | restPort | Binding port of restful service | SW_RECEIVER_ZIPKIN_PORT|9411|
 | - | - | restContextPath| Web context path of restful service| SW_RECEIVER_ZIPKIN_CONTEXT_PATH|/|
-| - | - | needAnalysis|Analysis zipkin span to generate metrics| - | false|
-| - | - | maxCacheSize| Max cache size for span analysis | - | 1_000_000 |
-| - | - | expireTime| The expire time of analysis cache, unit is second. | - | 20|
 | receiver_jaeger | default| Read [receiver doc](backend-receivers.md) | - | - |
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_JAEGER_HOST | - |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_JAEGER_PORT | - |

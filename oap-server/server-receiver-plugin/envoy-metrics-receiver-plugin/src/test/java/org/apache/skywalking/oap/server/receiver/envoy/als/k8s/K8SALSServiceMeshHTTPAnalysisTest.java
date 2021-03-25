@@ -23,6 +23,7 @@ import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
@@ -77,7 +78,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new ArrayList<>(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
 
             Assert.assertEquals(2, result.size());
 
@@ -99,7 +100,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new ArrayList<>(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, result.size());
 
@@ -116,7 +117,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new ArrayList<>(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, result.size());
 
@@ -133,7 +134,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            List<ServiceMeshMetric.Builder> result = this.analysis.analysis(new ArrayList<>(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, result.size());
 

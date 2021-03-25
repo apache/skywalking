@@ -37,13 +37,13 @@ public class TimeSeriesUtilsTest {
     @Before
     public void prepare() {
         superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(), Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, true
+                                      0, DownSampling.Minute, true, true, ""
         );
         normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(), Lists.newArrayList(),
-                                      0, DownSampling.Minute, true, false
+                                      0, DownSampling.Minute, true, false, ""
         );
         normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(), Lists.newArrayList(),
-                                       0, DownSampling.Minute, false, false
+                                       0, DownSampling.Minute, false, false, ""
         );
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
         TimeSeriesUtils.setDAY_STEP(3);
@@ -63,14 +63,33 @@ public class TimeSeriesUtilsTest {
     public void testIndexRolling() {
         long secondTimeBucket = 2020_0809_1010_59L;
         long minuteTimeBucket = 2020_0809_1010L;
-        Assert.assertEquals("superDatasetModel-20200809", writeIndexName(superDatasetModel, secondTimeBucket));
-        Assert.assertEquals("normalRecordModel-20200807", writeIndexName(normalRecordModel, secondTimeBucket));
-        Assert.assertEquals("normalMetricsModel-20200807", writeIndexName(normalMetricsModel, minuteTimeBucket));
+
+        Assert.assertEquals(
+            "superDatasetModel-20200809",
+            writeIndexName(superDatasetModel, secondTimeBucket)
+        );
+        Assert.assertEquals(
+            "normalRecordModel-20200807",
+            writeIndexName(normalRecordModel, secondTimeBucket)
+        );
+        Assert.assertEquals(
+            "normalMetricsModel-20200807",
+            writeIndexName(normalMetricsModel, minuteTimeBucket)
+        );
         secondTimeBucket += 1000000;
         minuteTimeBucket += 10000;
-        Assert.assertEquals("superDatasetModel-20200810", writeIndexName(superDatasetModel, secondTimeBucket));
-        Assert.assertEquals("normalRecordModel-20200810", writeIndexName(normalRecordModel, secondTimeBucket));
-        Assert.assertEquals("normalMetricsModel-20200810", writeIndexName(normalMetricsModel, minuteTimeBucket));
+        Assert.assertEquals(
+            "superDatasetModel-20200810",
+            writeIndexName(superDatasetModel, secondTimeBucket)
+        );
+        Assert.assertEquals(
+            "normalRecordModel-20200810",
+            writeIndexName(normalRecordModel, secondTimeBucket)
+        );
+        Assert.assertEquals(
+            "normalMetricsModel-20200810",
+            writeIndexName(normalMetricsModel, minuteTimeBucket)
+        );
     }
 
 }

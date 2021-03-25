@@ -28,9 +28,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
- * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and com.mysql.cj.jdbc.PreparedStatement
- * class: 1. execute 2. executeQuery 3. executeUpdate 4. executeLargeUpdate 5. addBatch
+ * {@link PreparedStatementInstrumentation} define that the mysql-6.x plugin intercepts the following methods in the
+ * com.mysql.cj.jdbc.PreparedStatement class:
+ * 1. execute 2. executeQuery 3. executeUpdate 4. executeLargeUpdate
  */
 public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentation {
 
