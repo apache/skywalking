@@ -68,7 +68,6 @@ This feature requires OAP Server to have the authority to access the K8s's `API 
 - K8sRetagType.Pod2Service  
 
 Add a tag to the sample by using `service` as the key, `$serviceName.$namespace` as the value, by the given value of the tag key, which represents the name of a pod.
-The newLabelValue is `serviceName.namespace`.
 
 For example:
 ```
