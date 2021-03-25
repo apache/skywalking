@@ -61,7 +61,6 @@ public class ExpressionParsingContext implements Closeable {
     List<String> samples;
 
     boolean isHistogram;
-
     int[] percentiles;
 
     Set<String> aggregationLabels;
@@ -72,6 +71,9 @@ public class ExpressionParsingContext implements Closeable {
 
     ScopeType scopeType;
 
+    /**
+     * Mark whether the retagByK8sMeta func in expressions is active
+     */
     boolean isRetagByK8sMeta;
 
     /**

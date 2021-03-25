@@ -39,7 +39,7 @@ public final class DSL {
         CompilerConfiguration cc = new CompilerConfiguration();
         cc.setScriptBaseClass(DelegatingScript.class.getName());
         ImportCustomizer icz = new ImportCustomizer();
-        icz.addImport("K8sRetagType", "org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily.K8sRetagType");
+        icz.addImport("K8sRetagType", SampleFamily.K8sRetagType.class.getName());
         cc.addCompilationCustomizers(icz);
         GroovyShell sh = new GroovyShell(new Binding(), cc);
         DelegatingScript script = (DelegatingScript) sh.parse(expression);

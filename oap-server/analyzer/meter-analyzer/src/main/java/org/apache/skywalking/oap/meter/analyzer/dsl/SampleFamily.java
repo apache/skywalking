@@ -311,7 +311,7 @@ public class SampleFamily {
         );
     }
 
-    /* k8s add Tags*/
+    /* k8s retags*/
     public SampleFamily retagByK8sMeta(String newLabelName, K8sRetagType type, String existingLabelName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(newLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(existingLabelName));
@@ -319,14 +319,8 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        switch (type) {
-            case Pod2Service:
-                return SampleFamily.build(this.context, K8sRetagOps.pod2Service(samples, newLabelName, existingLabelName));
 
-            default:
-                throw new UnsupportedOperationException(
-                    "Unsupported type: " + type + " in retagByK8sMeta() " + this.toString());
-        }
+        return SampleFamily.build(this.context, type.execute(samples, newLabelName, existingLabelName));
     }
 
     public SampleFamily histogram() {
@@ -591,31 +585,34 @@ public class SampleFamily {
         }
     }
 
-    private static class K8sRetagOps {
-
-        private static Sample[] pod2Service(Sample[] ss, String serviceNameLabel, String podNameLabel) {
-            Sample[] samples = Arrays.stream(ss).map(sample -> {
-                String podName = sample.labels.get(podNameLabel);
-
-                if (!Strings.isNullOrEmpty(podName)) {
-                    String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
-                    if (!Strings.isNullOrEmpty(serviceName)) {
-                        Map<String, String> labels = Maps.newHashMap(sample.labels);
-                        labels.put(serviceNameLabel, serviceName);
-                        return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
-                    }
-                }
-                return sample;
-            }).toArray(Sample[]::new);
-            return samples;
-        }
-    }
-
     private enum CompType {
         EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL
     }
 
-    private enum K8sRetagType {
-        Pod2Service
+    private interface Retag {
+        Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName);
+    }
+
+    protected enum K8sRetagType implements Retag {
+
+        Pod2Service {
+            @Override
+            public Sample[] execute(final Sample[] ss, final String newLabelName, final String existingLabelName) {
+                Sample[] samples = Arrays.stream(ss).map(sample -> {
+                    String podName = sample.labels.get(existingLabelName);
+
+                    if (!Strings.isNullOrEmpty(podName)) {
+                        String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
+                        if (!Strings.isNullOrEmpty(serviceName)) {
+                            Map<String, String> labels = Maps.newHashMap(sample.labels);
+                            labels.put(newLabelName, serviceName);
+                            return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+                        }
+                    }
+                    return sample;
+                }).toArray(Sample[]::new);
+                return samples;
+            }
+        }
     }
 }
