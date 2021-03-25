@@ -64,7 +64,7 @@ This feature need OAP Server has the authority to access the K8s's `API Server`.
 `retagByK8sMeta(newLabelName, K8sRetagType, existingLabelName)`. Add a new label to the sample family based on an existing label's value. Provide several internal converting types, including
 - K8sRetagType.Pod2Service  
 
-Add a sevice Label to the sample that already has a pod name.
+Add a tag to the sample by using `service` as the key, `$serviceName.$namespace` as the value, by the given value of the tag key, which represents the name of a pod.
 The newLabelValue is `serviceName.namespace`.
 
 For example:
