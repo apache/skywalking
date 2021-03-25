@@ -83,7 +83,7 @@ metrics based on the tracing data.
   * [Cassandra](https://github.com/apache/cassandra) 3.x
     * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
   * HBase
-    * [hbase-client](https://github.com/apache/hbase) HTable 1.x
+    * [hbase-client](https://github.com/apache/hbase) HTable 1.0.0-2.4.2
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination

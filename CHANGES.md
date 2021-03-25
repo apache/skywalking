@@ -24,6 +24,7 @@ Release Notes.
 * Collect and report agent starting / shutdown events.
 * Support jedis pipeline in jedis-2.x-plugin.
 * Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
+* Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
