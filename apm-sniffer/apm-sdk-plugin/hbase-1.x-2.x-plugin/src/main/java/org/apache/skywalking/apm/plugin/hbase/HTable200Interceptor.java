@@ -16,22 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
+package org.apache.skywalking.apm.plugin.hbase;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import java.lang.reflect.Field;
+import java.util.Properties;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * Log4jLogEvent implements LogEvent, which is a message in the Disruptor Array of the AsyncLoggerConfigDisruptor.class,
- * appended by AsyncLoggerConfig.class. The Log4jLogEvent is enhanced to carry the tid in the synchronization thread
- * using `dynamicField`.
- */
-
-public class Log4jLogEventConstructorInterceptor implements InstanceConstructorInterceptor {
+public class HTable200Interceptor extends HTableInterceptor {
 
     @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        objInst.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
+        Configuration configuration = ((ClusterConnection) allArguments[0]).getConfiguration();
+        Field field = configuration.getClass().getDeclaredField("overlay");
+        field.setAccessible(true);
+        Properties properties = (Properties) field.get(configuration);
+        String value = properties.getProperty("hbase.zookeeper.quorum");
+        if (StringUtil.isNotBlank(value)) {
+            objInst.setSkyWalkingDynamicField(value);
+        }
     }
 }
