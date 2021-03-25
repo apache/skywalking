@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEn
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
-import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
@@ -587,32 +587,5 @@ public class SampleFamily {
 
     private enum CompType {
         EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL
-    }
-
-    private interface Retag {
-        Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName);
-    }
-
-    protected enum K8sRetagType implements Retag {
-
-        Pod2Service {
-            @Override
-            public Sample[] execute(final Sample[] ss, final String newLabelName, final String existingLabelName) {
-                Sample[] samples = Arrays.stream(ss).map(sample -> {
-                    String podName = sample.labels.get(existingLabelName);
-
-                    if (!Strings.isNullOrEmpty(podName)) {
-                        String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
-                        if (!Strings.isNullOrEmpty(serviceName)) {
-                            Map<String, String> labels = Maps.newHashMap(sample.labels);
-                            labels.put(newLabelName, serviceName);
-                            return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
-                        }
-                    }
-                    return sample;
-                }).toArray(Sample[]::new);
-                return samples;
-            }
-        }
     }
 }
