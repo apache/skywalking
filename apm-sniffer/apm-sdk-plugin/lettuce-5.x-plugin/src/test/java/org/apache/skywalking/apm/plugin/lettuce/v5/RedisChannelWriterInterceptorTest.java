@@ -33,8 +33,8 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.lettuce.v5.mock.MockClientOptions;
 import org.apache.skywalking.apm.plugin.lettuce.v5.mock.MockRedisClusterClient;
-import org.apache.skywalking.apm.plugin.lettuce.v5.mock.MockRedisClusterClientConstructorInterceptor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
@@ -120,11 +120,13 @@ public class RedisChannelWriterInterceptorTest {
             redisURIs.add(RedisURI.create("localhost", i));
         }
         MockRedisClusterClient mockRedisClusterClient = new MockRedisClusterClient();
-        MockRedisClusterClientConstructorInterceptor constructorInterceptor = new MockRedisClusterClientConstructorInterceptor();
+        MockClientOptions options = new MockClientOptions();
+        mockRedisClusterClient.setOptions(options);
+        RedisClusterClientConstructorInterceptor constructorInterceptor = new RedisClusterClientConstructorInterceptor();
         constructorInterceptor.onConstruct(mockRedisClusterClient, new Object[] {
             null,
             redisURIs
         });
-        assertThat(mockRedisClusterClient.getOptions().getSkyWalkingDynamicField().toString().length(), Is.is(200));
+        assertThat(options.getSkyWalkingDynamicField().toString().length(), Is.is(200));
     }
 }
