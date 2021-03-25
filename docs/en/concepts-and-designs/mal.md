@@ -57,7 +57,10 @@ For example, this filters all instance_trace_count samples for values >= 33:
 ```
 instance_trace_count.valueGreaterEqual(33)
 ```
-### K8s
+### Tag manipulator
+MAL provides tag manipulators to change(add/delete/update) tags and their values.
+
+#### K8s
 MAL support add specific Labels to the samples that collect from K8s metrics collectors.
 This feature need OAP Server has the authority to access the K8s's `API Server`.
 #### retagByK8sMeta
