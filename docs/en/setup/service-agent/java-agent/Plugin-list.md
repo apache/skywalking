@@ -23,7 +23,7 @@
 - grpc-1.x
 - gson-2.8.x
 - h2-1.x
-- hbase-1.x
+- hbase-1.x/2.x
 - httpasyncclient-4.x
 - httpclient-3.x
 - httpclient-4.x
