@@ -60,9 +60,10 @@ instance_trace_count.valueGreaterEqual(33)
 ### K8s
 MAL support add specific Labels to the samples that collect from K8s metrics collectors.
 This feature need OAP Server has the authority to access the K8s's `API Server`.
-
-#### k8sTagServiceByPodName
-`k8sTagServiceByPodName(podName,serviceName)`. Add a sevice Label to the sample that already has a pod name.
+`retagByK8sMeta(newLabelName, K8sRetagType, existingLabelName)`. Add a new label to the sample family based on an existing label's value. Provide several internal converting types, including
+### K8sRetagType.Pod2Service
+Add a sevice Label to the sample that already has a pod name.
+The newLabelValue is `serviceName.namespace`.
 
 For example:
 ```
@@ -70,11 +71,11 @@ container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5d
 ```
 Expression:
 ```
-container_cpu_usage_seconds_total.k8sTagServiceByPodName('pod' , 'service')
+container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod')
 ```
 Output:
 ```
-container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh, service='default:nginx-service'} 2
+container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh, service='nginx-service.default'} 2
 ```
 
 ### Binary operators

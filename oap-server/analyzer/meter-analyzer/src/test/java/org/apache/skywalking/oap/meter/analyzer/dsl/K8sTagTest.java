@@ -59,7 +59,7 @@ public class K8sTagTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
-                "k8sTagServiceByPodName",
+                "Pod2Service",
                 of("container_cpu_usage_seconds_total", SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(
@@ -68,25 +68,105 @@ public class K8sTagTest {
                           .build(),
                     Sample.builder()
                           .labels(
-                              of("container", "my-nginx", "cpu", "total", "pod", "kube-state-metrics-6f979fd498-z7xwx"))
+                              of(
+                                  "container", "kube-state-metrics", "cpu", "total", "pod",
+                                  "kube-state-metrics-6f979fd498-z7xwx"
+                              ))
                           .value(1)
                           .build()
                 ).build()),
-                "container_cpu_usage_seconds_total.k8sTagServiceByPodName('pod' , 'service')",
+                "container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod')",
                 Result.success(SampleFamilyBuilder.newBuilder(
                     Sample.builder()
                           .labels(
                               of(
                                   "container", "my-nginx", "cpu", "total", "pod", "my-nginx-5dc4865748-mbczh",
-                                  "service", "default:nginx-service"
+                                  "service", "nginx-service.default"
                               ))
                           .value(2)
                           .build(),
                     Sample.builder()
                           .labels(
                               of(
-                                  "container", "my-nginx", "cpu", "total", "pod", "kube-state-metrics-6f979fd498-z7xwx",
-                                  "service", "kube-system:kube-state-metrics"
+                                  "container", "kube-state-metrics", "cpu", "total", "pod",
+                                  "kube-state-metrics-6f979fd498-z7xwx",
+                                  "service", "kube-state-metrics.kube-system"
+                              ))
+                          .value(1)
+                          .build()
+                ).build()),
+                false,
+                },
+            {
+                "Pod2Service_no_pod",
+                of("container_cpu_usage_seconds_total", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(
+                              of("container", "my-nginx", "cpu", "total", "pod", "my-nginx-5dc4865748-no-pod"))
+                          .value(2)
+                          .build(),
+                    Sample.builder()
+                          .labels(
+                              of(
+                                  "container", "kube-state-metrics", "cpu", "total", "pod",
+                                  "kube-state-metrics-6f979fd498-z7xwx"
+                              ))
+                          .value(1)
+                          .build()
+                ).build()),
+                "container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod')",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(
+                              of(
+                                  "container", "my-nginx", "cpu", "total", "pod", "my-nginx-5dc4865748-no-pod"
+                              ))
+                          .value(2)
+                          .build(),
+                    Sample.builder()
+                          .labels(
+                              of(
+                                  "container", "kube-state-metrics", "cpu", "total", "pod",
+                                  "kube-state-metrics-6f979fd498-z7xwx",
+                                  "service", "kube-state-metrics.kube-system"
+                              ))
+                          .value(1)
+                          .build()
+                ).build()),
+                false,
+                },
+            {
+                "Pod2Service_no_service",
+                of("container_cpu_usage_seconds_total", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(
+                              of("container", "my-nginx", "cpu", "total", "pod", "my-nginx-5dc4865748-no-service"))
+                          .value(2)
+                          .build(),
+                    Sample.builder()
+                          .labels(
+                              of(
+                                  "container", "kube-state-metrics", "cpu", "total", "pod",
+                                  "kube-state-metrics-6f979fd498-z7xwx"
+                              ))
+                          .value(1)
+                          .build()
+                ).build()),
+                "container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod')",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(
+                              of(
+                                  "container", "my-nginx", "cpu", "total", "pod", "my-nginx-5dc4865748-no-service"
+                              ))
+                          .value(2)
+                          .build(),
+                    Sample.builder()
+                          .labels(
+                              of(
+                                  "container", "kube-state-metrics", "cpu", "total", "pod",
+                                  "kube-state-metrics-6f979fd498-z7xwx",
+                                  "service", "kube-state-metrics.kube-system"
                               ))
                           .value(1)
                           .build()
@@ -102,9 +182,13 @@ public class K8sTagTest {
                                   Mockito.spy(K8sInfoRegistry.getInstance())
         );
         when(K8sInfoRegistry.getInstance().findServiceName("my-nginx-5dc4865748-mbczh")).thenReturn(
-            "default:nginx-service");
+            "nginx-service.default");
         when(K8sInfoRegistry.getInstance().findServiceName("kube-state-metrics-6f979fd498-z7xwx")).thenReturn(
-            "kube-system:kube-state-metrics");
+            "kube-state-metrics.kube-system");
+        when(K8sInfoRegistry.getInstance().findServiceName("my-nginx-5dc4865748-no-pod")).thenReturn(
+            null);
+        when(K8sInfoRegistry.getInstance().findServiceName("my-nginx-5dc4865748-no-service")).thenReturn(
+            null);
     }
 
     @Test

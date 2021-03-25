@@ -312,25 +312,21 @@ public class SampleFamily {
     }
 
     /* k8s add Tags*/
-    public SampleFamily k8sTagServiceByPodName(String podNameLabel, String serviceNameLabel) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(podNameLabel));
+    public SampleFamily retagByK8sMeta(String newLabelName, K8sRetagType type, String existingLabelName) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(newLabelName));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(existingLabelName));
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.isRetagByK8sMeta = true);
         if (this == EMPTY) {
             return EMPTY;
         }
-        Sample[] ss = Arrays.stream(samples).map(sample -> {
-            String podName = sample.labels.get(podNameLabel);
+        switch (type) {
+            case Pod2Service:
+                return SampleFamily.build(this.context, K8sRetagOps.pod2Service(samples, newLabelName, existingLabelName));
 
-            if (!Strings.isNullOrEmpty(podName)) {
-                String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
-                if (!Strings.isNullOrEmpty(serviceName)) {
-                    Map<String, String> labels = Maps.newHashMap(sample.labels);
-                    labels.put(serviceNameLabel, serviceName);
-                    return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
-                }
-            }
-            return sample;
-        }).toArray(Sample[]::new);
-        return SampleFamily.build(this.context, ss);
+            default:
+                throw new UnsupportedOperationException(
+                    "Unsupported type: " + type + " in retagByK8sMeta() " + this.toString());
+        }
     }
 
     public SampleFamily histogram() {
@@ -595,7 +591,31 @@ public class SampleFamily {
         }
     }
 
+    private static class K8sRetagOps {
+
+        private static Sample[] pod2Service(Sample[] ss, String serviceNameLabel, String podNameLabel) {
+            Sample[] samples = Arrays.stream(ss).map(sample -> {
+                String podName = sample.labels.get(podNameLabel);
+
+                if (!Strings.isNullOrEmpty(podName)) {
+                    String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
+                    if (!Strings.isNullOrEmpty(serviceName)) {
+                        Map<String, String> labels = Maps.newHashMap(sample.labels);
+                        labels.put(serviceNameLabel, serviceName);
+                        return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+                    }
+                }
+                return sample;
+            }).toArray(Sample[]::new);
+            return samples;
+        }
+    }
+
     private enum CompType {
         EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL
+    }
+
+    private enum K8sRetagType {
+        Pod2Service
     }
 }

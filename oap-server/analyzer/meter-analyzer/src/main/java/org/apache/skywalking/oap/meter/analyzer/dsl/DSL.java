@@ -22,6 +22,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.util.DelegatingScript;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 /**
  * DSL combines methods to parse groovy based DSL expression.
@@ -37,6 +38,9 @@ public final class DSL {
     public static Expression parse(final String expression) {
         CompilerConfiguration cc = new CompilerConfiguration();
         cc.setScriptBaseClass(DelegatingScript.class.getName());
+        ImportCustomizer icz = new ImportCustomizer();
+        icz.addImport("K8sRetagType", "org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily.K8sRetagType");
+        cc.addCompilationCustomizers(icz);
         GroovyShell sh = new GroovyShell(new Binding(), cc);
         DelegatingScript script = (DelegatingScript) sh.parse(expression);
         return new Expression(expression, script);

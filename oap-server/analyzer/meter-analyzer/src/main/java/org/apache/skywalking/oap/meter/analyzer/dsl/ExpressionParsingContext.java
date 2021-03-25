@@ -72,6 +72,8 @@ public class ExpressionParsingContext implements Closeable {
 
     ScopeType scopeType;
 
+    boolean isRetagByK8sMeta;
+
     /**
      * Get labels no scope related.
      *

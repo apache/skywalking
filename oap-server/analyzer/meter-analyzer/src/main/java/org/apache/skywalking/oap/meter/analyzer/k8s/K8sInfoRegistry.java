@@ -30,8 +30,6 @@ import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.models.V1Pod;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
@@ -51,10 +48,9 @@ public class K8sInfoRegistry {
 
     private final static K8sInfoRegistry INSTANCE = new K8sInfoRegistry();
     private final AtomicBoolean isStarted = new AtomicBoolean(false);
-    private final List<String> matchedFunc = Arrays.asList(".k8sTagServiceByPodName");
     private final Map<String/* ip */, V1Pod> ipPodMap = new ConcurrentHashMap<>();
-    private final Map<String/* ip */, String/* namespace:serviceName */> ipServiceMap = new ConcurrentHashMap<>();
-    private final Map<String/* podName */, String /* namespace:serviceName*/> podServiceMap = new ConcurrentHashMap<>();
+    private final Map<String/* ip */, String/* serviceName.namespace */> ipServiceMap = new ConcurrentHashMap<>();
+    private final Map<String/* podName */, String /* serviceName.namespace */> podServiceMap = new ConcurrentHashMap<>();
     private ExecutorService executor;
 
     public static K8sInfoRegistry getInstance() {
@@ -71,11 +67,8 @@ public class K8sInfoRegistry {
     }
 
     @SneakyThrows
-    public void start(Rule rule) {
+    public void start() {
         if (isStarted.compareAndSet(false, true)) {
-            if (!matchFunc2Start(rule)) {
-                return;
-            }
             init();
             final ApiClient apiClient = Config.defaultClient();
             apiClient.setHttpClient(apiClient.getHttpClient()
@@ -91,14 +84,6 @@ public class K8sInfoRegistry {
             listenPodEvents(coreV1Api, factory);
             factory.startAllRegisteredInformers();
         }
-    }
-
-    private boolean matchFunc2Start(Rule rule) {
-        for (String mf : matchedFunc) {
-            return rule.getMetricsRules().stream().anyMatch(r -> r.getExp().split(mf).length > 1);
-
-        }
-        return false;
     }
 
     private void listenEndpointsEvents(final CoreV1Api coreV1Api, final SharedInformerFactory factory) {
@@ -171,7 +156,8 @@ public class K8sInfoRegistry {
 
     private void addPod(final V1Pod pod) {
         ofNullable(pod.getStatus()).ifPresent(
-            status -> ipPodMap.put(status.getPodIP(), pod)
+            status -> ofNullable(status.getPodIP()).ifPresent(
+                ip -> ipPodMap.put(ip, pod))
         );
 
         recompose();
@@ -180,6 +166,9 @@ public class K8sInfoRegistry {
     private void removePod(final V1Pod pod) {
         ofNullable(pod.getStatus()).ifPresent(
             status -> ipPodMap.remove(status.getPodIP())
+        );
+        ofNullable(pod.getMetadata()).ifPresent(
+            metadata -> podServiceMap.remove(pod.getMetadata().getName())
         );
     }
 
@@ -195,7 +184,7 @@ public class K8sInfoRegistry {
 
         ofNullable(endpoints.getSubsets()).ifPresent(subsets -> subsets.forEach(
             subset -> ofNullable(subset.getAddresses()).ifPresent(addresses -> addresses.forEach(
-                address -> ipServiceMap.put(address.getIp(), namespace + ":" + name)
+                address -> ipServiceMap.put(address.getIp(), name + "." + namespace)
             ))
         ));
 
@@ -208,12 +197,14 @@ public class K8sInfoRegistry {
                 address -> ipServiceMap.remove(address.getIp())
             ))
         ));
+        recompose();
     }
 
     private void recompose() {
         ipPodMap.forEach((ip, pod) -> {
             final String namespaceService = ipServiceMap.get(ip);
             if (isNullOrEmpty(namespaceService)) {
+                podServiceMap.remove(ip);
                 return;
             }
 
