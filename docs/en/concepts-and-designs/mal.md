@@ -60,8 +60,9 @@ instance_trace_count.valueGreaterEqual(33)
 ### K8s
 MAL support add specific Labels to the samples that collect from K8s metrics collectors.
 This feature need OAP Server has the authority to access the K8s's `API Server`.
+#### retagByK8sMeta
 `retagByK8sMeta(newLabelName, K8sRetagType, existingLabelName)`. Add a new label to the sample family based on an existing label's value. Provide several internal converting types, including
-### K8sRetagType.Pod2Service
+- K8sRetagType.Pod2Service  
 Add a sevice Label to the sample that already has a pod name.
 The newLabelValue is `serviceName.namespace`.
 
