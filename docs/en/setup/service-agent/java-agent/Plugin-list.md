@@ -113,4 +113,4 @@
 - mssql-jtds-1.x
 - mssql-jdbc
 - apache-cxf-3.x
-- seata
+- seata-1.4.x
