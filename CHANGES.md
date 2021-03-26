@@ -23,6 +23,9 @@ Release Notes.
 * Support config `agent.span_limit_per_segment` can be changed in the runtime.
 * Support Seata plugin.
 * Collect and report agent starting / shutdown events.
+* Support jedis pipeline in jedis-2.x-plugin.
+* Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
+* Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -54,6 +57,10 @@ Release Notes.
 * Fix receiver don't need to get itself when healthCheck
 * Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
+* Add functions in MAL to filter metrics according to the metric value.
+* Optimize the self monitoring grafana dashboard.
+* Enhance the export service.
+* Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -65,6 +72,12 @@ Release Notes.
 * Update echarts version to 5.0.2.
 * Fix instance dependency on the topology page.
 * Fix resolved url for vue-property-decorator.
+* Show instance attributes.
+* Copywriting grammar fix.
+* Fix log pages tags column not updated.
+* Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
+* When the topology radiation chart is displayed, the corresponding button should be highlighted.
+* Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.

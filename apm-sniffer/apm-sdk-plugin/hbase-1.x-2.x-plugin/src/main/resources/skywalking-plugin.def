@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-hbase-1.x=org.apache.skywalking.apm.plugin.hbase.define.HTableInstrumentation
+hbase-1.x/2.x=org.apache.skywalking.apm.plugin.hbase.define.HTableInstrumentation

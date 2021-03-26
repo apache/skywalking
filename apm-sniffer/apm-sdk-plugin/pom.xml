@@ -97,7 +97,7 @@
         <module>mariadb-2.x-plugin</module>
         <module>influxdb-2.x-plugin</module>
         <module>baidu-brpc-plugin</module>
-        <module>hbase-1.x-plugin</module>
+        <module>hbase-1.x-2.x-plugin</module>
         <module>graphql-plugin</module>
         <module>xxl-job-2.x-plugin</module>
         <module>thrift-plugin</module>
