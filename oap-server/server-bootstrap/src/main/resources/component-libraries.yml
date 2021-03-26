@@ -419,6 +419,9 @@ Koa:
 Axios:
   id: 4005
   languages: Node.js
+Mongoose:
+  id: 4006
+  languages: Node.js
 
 # Golang components
 # [5000, 6000) for Golang agent
