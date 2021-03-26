@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -219,6 +220,10 @@ public class Analyzer {
             }
         }
         createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling());
+
+        if (ctx.isRetagByK8sMeta()) {
+            K8sInfoRegistry.getInstance().start();
+        }
     }
 
     private void createMetric(final ScopeType scopeType,
