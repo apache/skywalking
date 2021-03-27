@@ -33,6 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
+import static org.apache.skywalking.oap.server.core.exporter.ExportEvent.EventType.INCREMENT;
+
 public class GRPCExporterTest {
 
     private GRPCExporter exporter;
@@ -40,7 +42,7 @@ public class GRPCExporterTest {
     @Rule
     public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
-    private MetricExportServiceGrpc.MetricExportServiceImplBase server = new MockMetricExportServiceImpl();
+    private MetricExportServiceGrpc.MetricExportServiceImplBase service = new MockMetricExportServiceImpl();
     private MetricsMetaInfo metaInfo = new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
 
     private MetricExportServiceGrpc.MetricExportServiceBlockingStub stub;
@@ -51,8 +53,9 @@ public class GRPCExporterTest {
         setting.setTargetHost("localhost");
         setting.setTargetPort(9870);
         exporter = new GRPCExporter(setting);
-        grpcServerRule.getServiceRegistry().addService(server);
+        grpcServerRule.getServiceRegistry().addService(service);
         stub = MetricExportServiceGrpc.newBlockingStub(grpcServerRule.getChannel());
+        Whitebox.setInternalState(exporter, "blockingStub", stub);
     }
 
     @Test
@@ -70,8 +73,7 @@ public class GRPCExporterTest {
 
     @Test
     public void initSubscriptionList() {
-        Whitebox.setInternalState(exporter, "blockingStub", stub);
-        exporter.initSubscriptionList();
+        exporter.fetchSubscriptionList();
     }
 
     @Test
@@ -100,10 +102,10 @@ public class GRPCExporterTest {
 
     private List<ExportData> dataList() {
         List<ExportData> dataList = new LinkedList<>();
-        dataList.add(new ExportData(metaInfo, new MockMetrics()));
-        dataList.add(new ExportData(metaInfo, new MockIntValueMetrics()));
-        dataList.add(new ExportData(metaInfo, new MockLongValueMetrics()));
-        dataList.add(new ExportData(metaInfo, new MockDoubleValueMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockMetrics(), INCREMENT));
+        dataList.add(new ExportData(metaInfo, new MockIntValueMetrics(), INCREMENT));
+        dataList.add(new ExportData(metaInfo, new MockLongValueMetrics(), INCREMENT));
+        dataList.add(new ExportData(metaInfo, new MockDoubleValueMetrics(), INCREMENT));
         return dataList;
     }
 }
