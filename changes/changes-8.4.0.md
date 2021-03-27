@@ -41,6 +41,7 @@ Release Notes.
 * Support DNS periodic resolving mechanism to update backend service.
 * Support config `agent.trace.ignore_path` can be changed in the runtime.
 * Added support for transmitting logback 1.x and log4j 2.x formatted & un-formatted messages via gPRC
+* Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions
 
 #### OAP-Backend
 * Make meter receiver support MAL.
