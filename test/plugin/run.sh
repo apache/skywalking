@@ -145,7 +145,7 @@ if [[ ! -d ${agent_home} ]]; then
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
 # if it fails last time, relevant information will be deleted
-sed -i"${SP}"'' "#<sourceDirectory>scenarios/#$scenario_name</sourceDirectory>#d" ./pom.xml
+sed -i"${SP}"'' "#<sourceDirectory>scenarios/$scenario_name</sourceDirectory>#d" ./pom.xml
 # add scenario_name into plugin/pom.xml
 echo check code with the checkstyle-plugin
 sed -i"${SP}"'' "#</sourceDirectories>#i <sourceDirectory>scenarios/$scenario_name</sourceDirectory>" ./pom.xml
