@@ -187,7 +187,7 @@ fi
 
 mkdir -p "${jacoco_home}"
 ls "${jacoco_home}"/jacocoagent.jar || curl -Lso "${jacoco_home}"/jacocoagent.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.6/org.jacoco.agent-0.8.6-runtime.jar
-ls "${jacoco_home}"/jacocoacli.jar || curl -Lso "${jacoco_home}"/jacocoacli.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.6/org.jacoco.cli-0.8.6.jar
+ls "${jacoco_home}"/jacocoacli.jar || curl -Lso "${jacoco_home}"/jacococli.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.6/org.jacoco.cli-0.8.6-nodeps.jar
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
 for version in ${supported_versions}
