@@ -32,6 +32,10 @@ num_of_testcases=
 
 image_version="jdk8-1.0.0"
 
+if [[ $(uname) == "Darwin" ]]; then
+    SP=" "
+fi
+
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
@@ -141,10 +145,10 @@ if [[ ! -d ${agent_home} ]]; then
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
 # if it fails last time, relevant information will be deleted
-sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+sed -i"${SP}"'' "#<sourceDirectory>scenarios#$scenario_name</sourceDirectory>#d" ./pom.xml
 # add scenario_name into plugin/pom.xml
 echo check code with the checkstyle-plugin
-sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
+sed -i"${SP}"'' "#</sourceDirectories>#i <sourceDirectory>scenarios#$scenario_name</sourceDirectory>" ./pom.xml
 
 if [[ "$force_build" == "on" ]]; then
     profile=
@@ -152,7 +156,7 @@ if [[ "$force_build" == "on" ]]; then
     ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests ${profile}
 fi
 # remove scenario_name into plugin/pom.xml
-sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+sed -i"${SP}"'' "#<sourceDirectory>scenarios/$scenario_name</sourceDirectory>#d" ./pom.xml
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace
@@ -180,6 +184,10 @@ if [[ -n "${running_mode}" ]]; then
        "'withPlugins' is required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
     agent_home_selector ${running_mode} ${with_plugins}
 fi
+
+mkdir -p "${jacoco_home}"
+ls "${jacoco_home}"/jacocoagent.jar || curl -Lso "${jacoco_home}"/jacocoagent.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.6/org.jacoco.agent-0.8.6-runtime.jar
+ls "${jacoco_home}"/jacocoacli.jar || curl -Lso "${jacoco_home}"/jacocoacli.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.6/org.jacoco.cli-0.8.6.jar
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
 for version in ${supported_versions}
