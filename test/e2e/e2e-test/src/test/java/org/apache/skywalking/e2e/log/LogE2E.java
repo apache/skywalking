@@ -94,7 +94,8 @@ public class LogE2E extends SkyWalkingTestAdapter {
     public void verifyLog4jLog() throws Exception {
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
-                                             .end(Times.now());
+                                             .end(Times.now())
+                                             .addTag("level", "INFO");
         if (graphql.supportQueryLogsByKeywords()) {
             logsQuery.keywordsOfContent("log4j message");
         }
@@ -108,7 +109,8 @@ public class LogE2E extends SkyWalkingTestAdapter {
     public void verifyLog4j2Log() throws Exception {
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
-                                             .end(Times.now());
+                                             .end(Times.now())
+                                             .addTag("level", "INFO");
         if (graphql.supportQueryLogsByKeywords()) {
             logsQuery.keywordsOfContent("log4j2 message");
         }
@@ -122,7 +124,8 @@ public class LogE2E extends SkyWalkingTestAdapter {
     public void verifyLogbackLog() throws Exception {
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
-                                             .end(Times.now());
+                                             .end(Times.now())
+                                             .addTag("level", "INFO");
         if (graphql.supportQueryLogsByKeywords()) {
             logsQuery.keywordsOfContent("logback message");
         }
@@ -153,9 +156,9 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
             LOGGER.info("{}: {}", metricsName, instanceMetrics);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-            final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-            greaterThanZero.setValue("gt 0");
-            instanceRespTimeMatcher.setValue(greaterThanZero);
+            final MetricsValueMatcher greaterThanOne = new MetricsValueMatcher();
+            greaterThanOne.setValue("gt 1");
+            instanceRespTimeMatcher.setValue(greaterThanOne);
             instanceRespTimeMatcher.verify(instanceMetrics.getValues());
         }
     }

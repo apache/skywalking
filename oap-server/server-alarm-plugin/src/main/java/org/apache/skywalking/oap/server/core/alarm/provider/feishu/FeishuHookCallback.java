@@ -153,6 +153,7 @@ public class FeishuHookCallback implements AlarmCallback {
      * Send alarm message to remote endpoint
      */
     private void sendAlarmMessage(CloseableHttpClient httpClient, String url, String requestBody) {
+        CloseableHttpResponse httpResponse = null;
         try {
             HttpPost post = new HttpPost(url);
             post.setConfig(requestConfig);
@@ -160,7 +161,7 @@ public class FeishuHookCallback implements AlarmCallback {
             post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
             StringEntity entity = new StringEntity(requestBody, ContentType.APPLICATION_JSON);
             post.setEntity(entity);
-            CloseableHttpResponse httpResponse = httpClient.execute(post);
+            httpResponse = httpClient.execute(post);
             StatusLine statusLine = httpResponse.getStatusLine();
             if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
                 log.error("send feishu alarm to {} failure. Response code: {}, Response content: {}", url, statusLine.getStatusCode(),
@@ -168,6 +169,15 @@ public class FeishuHookCallback implements AlarmCallback {
             }
         } catch (Throwable e) {
             log.error("send feishu alarm to {} failure.", url, e);
+        } finally {
+            if (httpResponse != null) {
+                try {
+                    httpResponse.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+
+            }
         }
     }
 }

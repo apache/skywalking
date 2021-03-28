@@ -1,5 +1,5 @@
 ### Problem 
-When using a thread pool, `TraceSegment` data in a thread cannot be reported and there are memory data that cannot be recycled (memory leaks)
+When using a thread pool, `TraceSegment` data in a thread cannot be reported and there are memory data that cannot be recycled (memory leaks).
 
 ### Example
 ``` java
@@ -9,16 +9,16 @@ When using a thread pool, `TraceSegment` data in a thread cannot be reported and
 
 ### Reason
 
-* Worker threads are enhanced, when using thread pool. 
-* According to the SkyWalking Java Agent design, when you want to trace cross thread, you need to enhance the task thread.
+* Worker threads are enhanced when using the thread pool. 
+* Based on the design of the SkyWalking Java Agent, when tracing a cross thread, you must enhance the task thread.
 
-### Resolve
+### Resolution
 
-* When using `Thread Schedule Framework`
-Checked SkyWalking Thread Schedule Framework at [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md), such as Spring FrameWork @Async, which can implement tracing without any modification. 
+* When using `Thread Schedule Framework`:
+See SkyWalking Thread Schedule Framework at [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md), such as Spring FrameWork @Async, which can implement tracing without any modification. 
 
-* When using `Custom Thread Pool`
-Enhance the task thread with the following usage.
+* When using `Custom Thread Pool`:
+Enhance the task thread with the following code.
 
 ```java
     ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -28,5 +28,5 @@ Enhance the task thread with the following usage.
         }
     }));
 ```
-See [across thread solution APIs](../setup/service-agent/java-agent/Application-toolkit-trace-cross-thread.md) for more usage
+See [across thread solution APIs](../setup/service-agent/java-agent/Application-toolkit-trace-cross-thread.md) for more use cases.
 

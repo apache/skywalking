@@ -22,6 +22,7 @@ import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionMetric;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.library.server.ServerException;
@@ -63,9 +64,18 @@ public class ExporterMockReceiver {
         @Override
         public void subscription(SubscriptionReq request, StreamObserver<SubscriptionsResp> responseObserver) {
             responseObserver.onNext(SubscriptionsResp.newBuilder()
-                                                     .addMetricNames("all_p99")
-                                                     .addMetricNames("service_cpm")
-                                                     .addMetricNames("endpoint_sla")
+                                                     .addMetrics(
+                                                         SubscriptionMetric
+                                                             .newBuilder()
+                                                             .setMetricName("all_p99"))
+                                                     .addMetrics(
+                                                         SubscriptionMetric
+                                                             .newBuilder()
+                                                             .setMetricName("service_cpm"))
+                                                     .addMetrics(
+                                                         SubscriptionMetric
+                                                             .newBuilder()
+                                                             .setMetricName("endpoint_sla"))
                                                      .build());
             responseObserver.onCompleted();
         }

@@ -14,13 +14,12 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-otel**. See [details](#opentelemetry-receiver). Receiver for analyzing metrics data from OpenTelemetry
 1. **receiver-meter**. See [details](backend-meter.md). Receiver for analyzing metrics in SkyWalking native meter format.
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
-1. **receiver-log**. gRPC services accept log data.
+1. **receiver-log**. Receiver for native log format. Read [Log Analyzer](log-analyzer.md) for advanced features. 
 1. **configuration-discovery**. gRPC services handle configurationDiscovery.
 1. **receiver-event**. gRPC services to handle events data.
 1. **receiver-zabbix**. See [details](backend-zabbix.md).
-1. Experimental receivers. All following receivers are in the POC stage, not production ready.
-    1. **receiver_zipkin**. See [details](#zipkin-receiver). (Experimental)
-    1. **receiver_jaeger**. See [details](#jaeger-receiver). (Experimental)
+1. Experimental receivers. 
+    1. **receiver_zipkin**. See [details](#zipkin-receiver).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -67,9 +66,11 @@ receiver-browser:
   default:
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
 
-receiver-log:
-  selector: ${SW_RECEIVER_LOG:default}
-  default:
+log-analyzer:
+   selector: ${SW_LOG_ANALYZER:default}
+   default:
+      lalFiles: ${SW_LOG_LAL_FILES:default}
+      malFiles: ${SW_LOG_MAL_FILES:""}
   
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
@@ -145,18 +146,11 @@ receiver-meter:
   default:
 ```
 
-## Experimental receivers
-All following receivers are in the POC stage, not production ready.
-
-### Zipkin receiver
-Zipkin receiver could work in two different mode.
-1. Tracing mode(default). Tracing mode is that, skywalking OAP acts like zipkin collector,
-   fully supports Zipkin v1/v2 formats through HTTP service,
-   also provide persistence and query in skywalking UI.
-   But it wouldn't analysis metrics from them. In most case, I suggest you could use this feature, when metrics come from service mesh.
-   Notice, in this mode, Zipkin receiver requires `zipkin-elasticsearch` storage implementation active.
-   Read [this](backend-storage.md#elasticsearch-6-with-zipkin-trace-extension) to know
-   how to active.
+## Zipkin receiver
+Zipkin receiver makes the OAP server as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through HTTP service.
+Make sure you use this with `SW_STORAGE=zipkin-elasticsearch7` option to activate Zipkin storage implementation.
+Once this receiver and storage activated, SkyWalking native traces would be ignored, and SkyWalking wouldn't analysis topology, metrics, endpoint
+dependency from Zipkin's trace. 
 
 Use following config to active.
 ```yaml
@@ -173,45 +167,6 @@ receiver_zipkin:
     jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 ```
 
-2. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
-   native format, and analysis like skywalking trace. This feature can't work in production env right now,
-   because of Zipkin tag/endpoint value unpredictable, we can't make sure it fits production env requirements.
-
-Active `analysis mode`, you should set `needAnalysis` config.
-```yaml
-receiver_zipkin:
-  selector: ${SW_RECEIVER_ZIPKIN:-}
-  default:
-    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
-    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
-    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
-    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
-    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
-    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
-    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
-    needAnalysis: true    
-```
-
-NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
-
-### Jaeger receiver
-Jaeger receiver right now only works in `Tracing Mode`, and no analysis.
-Jaeger receiver provides extra gRPC host/port, if absent, sharing-server host/port will be used, then core gRPC host/port.
-Receiver requires `jaeger-elasticsearch` storage implementation active.
-Read [this](backend-storage.md#elasticsearch-6-with-jaeger-trace-extension) to know how to active.
-
-Right now, you need [jaeger agent](https://www.jaegertracing.io/docs/1.11/architecture/#agent) to batch
-send spans to SkyWalking oap server. Read [Jaeger Architecture](https://www.jaegertracing.io/docs/1.11/architecture/)
-to get more details.
-
-Active the receiver.
-```yaml
-receiver_jaeger:
-  selector: ${SW_RECEIVER_JAEGER:-}
-  default:
-    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
-    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
-```
-
-NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
+NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-es7-x.y.z.tar.gz` tar.
+And this requires `zipkin-elasticsearch7` storage implementation active.
+Read [this](backend-storage.md#elasticsearch-7-with-zipkin-trace-extension) doc to know Zipkin as storage option.

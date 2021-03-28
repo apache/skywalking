@@ -43,7 +43,7 @@ including
 1. Service Mesh Observability. Control panel and data panel. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
 1. Logs.
-1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
+1. Zipkin v1/v2 trace.(No Analysis)
 
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
@@ -92,7 +92,7 @@ Visit our [website](http://skywalking.apache.org/#users) to find the user page.
 <br/><br/>
 <img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>
 <br/><br/>
-SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
+SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.</a>
 
 </p>
 

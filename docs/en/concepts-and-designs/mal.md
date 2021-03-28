@@ -41,6 +41,47 @@ For example, this filters all instance_trace_count samples for us-west and asia-
 ```
 instance_trace_count.tagMatch("region", "us-west|asia-north").tagEqual("az", "az-1")
 ```
+### Value filter
+
+MAL support six type operations to filter samples in a sample family by value:
+
+- valueEqual: Filter values that are exactly equal to the provided value.
+- valueNotEqual: Filter values that are not equal to the provided value.
+- valueGreater: Filter values that greater than the provided value.
+- valueGreaterEqual: Filter values that greater or equal the provided value.
+- valueLess: Filter values that less than the provided value.
+- valueLessEqual: Filter values that less or equal the provided value.
+
+For example, this filters all instance_trace_count samples for values >= 33:
+
+```
+instance_trace_count.valueGreaterEqual(33)
+```
+### Tag manipulator
+MAL provides tag manipulators to change(add/delete/update) tags and their values.
+
+#### K8s
+MAL supports using the metadata of k8s to manipulate the tags and their values.
+This feature requires OAP Server to have the authority to access the K8s's `API Server`.
+
+##### retagByK8sMeta
+`retagByK8sMeta(newLabelName, K8sRetagType, existingLabelName)`. Add a new tag to the sample family based on an existing label's value. Provide several internal converting types, including
+- K8sRetagType.Pod2Service  
+
+Add a tag to the sample by using `service` as the key, `$serviceName.$namespace` as the value, by the given value of the tag key, which represents the name of a pod.
+
+For example:
+```
+container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh} 2
+```
+Expression:
+```
+container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod')
+```
+Output:
+```
+container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh, service='nginx-service.default'} 2
+```
 
 ### Binary operators
 
@@ -170,30 +211,27 @@ Examples:
 #### time
 `time()`. returns the number of seconds since January 1, 1970 UTC.
 
+
 ## Down Sampling Operation
 MAL should instruct meter-system how to do downsampling for metrics. It doesn't only refer to aggregate raw samples to 
 `minute` level, but also hints data from `minute` to higher levels, for instance, `hour` and `day`. 
 
-Down sampling operations are as global function in MAL:
+Down sampling function is called `downsampling` in MAL, it accepts the following types:
 
- - avg
- - latest (TODO)
- - min (TODO)
- - max (TODO)
- - mean (TODO)
- - sum (TODO)
- - count (TODO)
+ - AVG
+ - SUM
+ - LATEST
+ - MIN (TODO)
+ - MAX (TODO)
+ - MEAN (TODO)
+ - COUNT (TODO)
 
-The default one is `avg` if not specific an operation.
+The default type is `AVG`.
 
-If user want get latest time from `last_server_state_sync_time_in_seconds`:
+If users want to get the latest time from `last_server_state_sync_time_in_seconds`:
 
 ```
-latest(last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog'))
-
-or
-
-latest last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog')
+last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsampling(LATEST)
 ```
 
 ## Metric level function

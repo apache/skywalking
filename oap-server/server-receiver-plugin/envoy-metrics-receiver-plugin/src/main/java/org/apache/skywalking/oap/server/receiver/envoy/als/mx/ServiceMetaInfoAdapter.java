@@ -83,7 +83,7 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
      * @param node the flat buffer node where to extract the metadata
      * @return the metadata {@link Struct}
      */
-    protected Struct extractStructFromNodeFlatBuffer(final FlatNode node) {
+    public static Struct extractStructFromNodeFlatBuffer(final FlatNode node) {
         final Struct.Builder builder = Struct.newBuilder();
 
         builder.putFields("NAME", Value.newBuilder().setStringValue(nullToEmpty(node.name())).build());

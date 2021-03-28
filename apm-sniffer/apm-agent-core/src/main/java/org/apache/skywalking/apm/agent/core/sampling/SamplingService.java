@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SamplingRateWatcher;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -109,7 +110,7 @@ public class SamplingService implements BootService {
     /**
      * Handle the samplingRate changed.
      */
-    void handleSamplingRateChanged() {
+    public void handleSamplingRateChanged() {
         if (samplingRateWatcher.getSamplingRate() > 0) {
             if (!on) {
                 on = true;
