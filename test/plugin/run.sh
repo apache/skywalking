@@ -31,7 +31,7 @@ scenarios_home="${home}/scenarios"
 num_of_testcases=
 
 image_version="jdk8-1.0.0"
-jacoco_version="${JACOCO_VERSION:-'0.8.6'}"
+jacoco_version="${JACOCO_VERSION:-0.8.6}"
 
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
