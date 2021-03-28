@@ -15,6 +15,7 @@ Release Notes.
 * Fix NPE when Kafka reporter activated.
 * Enhance gRPC log appender to allow layout pattern.
 * Fix apm-dubbo-2.7.x-plugin memory leak due to some Dubbo RpcExceptions.
+* Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
