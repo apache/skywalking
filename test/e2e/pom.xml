@@ -67,6 +67,7 @@
         <mysql.version>8.0.13</mysql.version>
         <lombok.version>1.18.16</lombok.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
+        <jacoco.version>0.8.6</jacoco.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
