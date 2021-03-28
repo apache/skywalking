@@ -19,11 +19,8 @@
 package org.apache.skywalking.e2e.controller;
 
 import com.google.common.base.Strings;
-import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.apache.skywalking.e2e.E2EConfiguration;
 import org.apache.skywalking.e2e.User;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +28,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,6 +67,16 @@ public class UserController {
         return Stream.of(Strings.nullToEmpty(configuration.getProviderBaseUrl()).split(","))
                      .map(baseUrl -> restTemplate.postForEntity(baseUrl + "/users", user, User.class))
                      .collect(Collectors.toList());
+    }
+
+    @PostMapping("/correlation")
+    public String correlation() throws InterruptedException {
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
+        TraceContext.putCorrelation("CONSUMER_KEY", "consumer");
+
+        String baseUrl = configuration.getProviderBaseUrl();
+        ResponseEntity<String> resp = restTemplate.postForEntity(baseUrl + "/correlation", null, String.class);
+        return resp.getBody();
     }
 
     private long randomSleepLong(int min, int max) {

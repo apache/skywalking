@@ -98,11 +98,17 @@ public class FilterSpec extends AbstractSpec {
         cl.call();
 
         final LogData.Builder logData = BINDING.get().log();
-        final Map<String, Object> parsed = jsonParser.create().fromJson(
-            logData.getBody().getJson().getJson(), parsedType
-        );
+        try {
+            final Map<String, Object> parsed = jsonParser.create().fromJson(
+                logData.getBody().getJson().getJson(), parsedType
+            );
 
-        BINDING.get().parsed(parsed);
+            BINDING.get().parsed(parsed);
+        } catch (final Exception e) {
+            if (jsonParser.abortOnFailure()) {
+                BINDING.get().abort();
+            }
+        }
     }
 
     @SuppressWarnings({"unused", "unchecked"})
@@ -114,11 +120,17 @@ public class FilterSpec extends AbstractSpec {
         cl.call();
 
         final LogData.Builder logData = BINDING.get().log();
-        final Map<String, Object> parsed = (Map<String, Object>) yamlParser.create().load(
-            logData.getBody().getYaml().getYaml()
-        );
+        try {
+            final Map<String, Object> parsed = (Map<String, Object>) yamlParser.create().load(
+                logData.getBody().getYaml().getYaml()
+            );
 
-        BINDING.get().parsed(parsed);
+            BINDING.get().parsed(parsed);
+        } catch (final Exception e) {
+            if (yamlParser.abortOnFailure()) {
+                BINDING.get().abort();
+            }
+        }
     }
 
     @SuppressWarnings("unused")

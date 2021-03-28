@@ -18,41 +18,20 @@
 
 package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
 
+import io.lettuce.core.cluster.RedisClusterClient;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
-public class MockRedisClusterClient implements EnhancedInstance {
+public class MockRedisClusterClient extends RedisClusterClient implements EnhancedInstance {
 
-    private Object ms;
-
-    private EnhancedInstance options = new EnhancedInstance() {
-        private Object os;
-
-        @Override
-        public Object getSkyWalkingDynamicField() {
-            return os;
-        }
-
-        @Override
-        public void setSkyWalkingDynamicField(Object value) {
-            this.os = value;
-        }
-    };
-
-    public EnhancedInstance getOptions() {
-        return options;
-    }
-
-    public void setOptions(EnhancedInstance options) {
-        this.options = options;
-    }
+    private Object object;
 
     @Override
     public Object getSkyWalkingDynamicField() {
-        return ms;
+        return object;
     }
 
     @Override
     public void setSkyWalkingDynamicField(Object value) {
-        this.ms = value;
+        this.object = value;
     }
 }

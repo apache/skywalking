@@ -36,6 +36,8 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
     private String k8sServiceNameRule;
 
+    private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
+
     public List<String> getAlsHTTPAnalysis() {
         if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
             return Collections.emptyList();
@@ -45,5 +47,9 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
 
     public List<Rule> rules() throws ModuleStartException {
         return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy"));
+    }
+
+    public ServiceMetaInfoFactory serviceMetaInfoFactory() {
+        return serviceMetaInfoFactory;
     }
 }

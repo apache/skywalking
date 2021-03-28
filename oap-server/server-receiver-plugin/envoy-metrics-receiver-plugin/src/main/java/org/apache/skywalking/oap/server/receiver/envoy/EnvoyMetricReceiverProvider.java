@@ -57,7 +57,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            FieldsHelper.SINGLETON.init(fieldMappingFile);
+            FieldsHelper.SINGLETON.init(fieldMappingFile, config.serviceMetaInfoFactory().clazz());
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load metadata-service-mapping.yaml", e);
         }

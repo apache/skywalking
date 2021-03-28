@@ -147,7 +147,11 @@ public class StorageE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     void traces() throws Exception {
-        final List<Trace> traces = graphql.traces(new TracesQuery().start(startTime).end(now()).orderByDuration());
+        final TracesQuery query = new TracesQuery().start(startTime)
+                                                   .end(now())
+                                                   .orderByDuration()
+                                                   .addTag("http.method", "POST");
+        final List<Trace> traces = graphql.traces(query);
 
         LOGGER.info("traces: {}", traces);
 

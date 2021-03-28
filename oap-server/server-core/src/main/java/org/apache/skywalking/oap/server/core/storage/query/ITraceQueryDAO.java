@@ -48,7 +48,7 @@ public interface ITraceQueryDAO extends Service {
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
 
     /**
-     * This method gives more flexible for unnative
+     * This method gives more flexible for 3rd trace without segment concept, which can't search data through {@link #queryByTraceId(String)}
      */
     List<Span> doFlexibleTraceQuery(String traceId) throws IOException;
 }
