@@ -25,6 +25,7 @@ Release Notes.
 * Support jedis pipeline in jedis-2.x-plugin.
 * Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
 * Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
+* Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
 * Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
 
 #### OAP-Backend
