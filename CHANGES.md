@@ -4,27 +4,21 @@ Release Notes.
 
 8.5.0
 ------------------
-
 #### Project
-
-* **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option
-  have been changed.
+* **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option have been changed.
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
 * Upgrade lombok to 1.18.16.
 
 #### Java Agent
-
 * Remove invalid mysql configuration in agent.config.
-* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors
-  occur.
+* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur.
 * Fix ClassCastException of log4j gRPC reporter.
 * Fix NPE when Kafka reporter activated.
 * Enhance gRPC log appender to allow layout pattern.
 * Fix apm-dubbo-2.7.x-plugin memory leak due to some Dubbo RpcExceptions.
 * Fix lettuce-5.x-plugin get null host in redis sentinel mode.
-* Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the
-  spring-kafka plugin.
+* Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
 * Fix NullPointerException with KafkaProducer.send(record).
 * Support config `agent.span_limit_per_segment` can be changed in the runtime.
 * Collect and report agent starting / shutdown events.
@@ -35,7 +29,6 @@ Release Notes.
 * Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
 
 #### OAP-Backend
-
 * Allow user-defined `JAVA_OPTS` in the startup script.
 * Metrics combination API supports abandoning results.
 * Add a new concept "Event" and its implementations to collect events.
@@ -72,7 +65,6 @@ Release Notes.
 * Make the flushing metrics operation concurrency.
 
 #### UI
-
 * Update selector scroller to show in all pages.
 * Implement searching logs with date.
 * Add nodejs 14 compiling.
@@ -90,7 +82,6 @@ Release Notes.
 * Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
 
 #### Documentation
-
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
 * Adjust documentation about Zipkin receiver.
 
