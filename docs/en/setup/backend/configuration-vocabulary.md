@@ -39,7 +39,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxSizeOfNetworkAddressAlias|Max size of network address detected in the be monitored system.| - | 1_000_000|
 | - | - | maxPageSizeOfQueryProfileSnapshot|The max size in every OAP query for snapshot analysis| - | 500 |
 | - | - | maxSizeOfAnalyzeProfileSnapshot|The max number of snapshots analyzed by OAP| - | 12000 |
-| - | - | syncThreads|The number of threads used to synchronously refresh the metrics data to the storage. When the value is negative, the number of processors will used as the default value.| SW_CORE_SYNC_THREADS | -1 |
+| - | - | syncThreads|The number of threads used to synchronously refresh the metrics data to the storage. When the value is zero or negative, the number of processors will used as the default value.| SW_CORE_SYNC_THREADS | -1 |
 | - | - | maxSyncOperationNum|The maximum number of processes supported for each synchronous storage operation. When the number of the flush data is greater than this value, it will be assigned to multiple cores for execution.| SW_CORE_MAX_SYNC_OPERATION_NUM | 50000 |
 |cluster|standalone| - | standalone is not suitable for one node running, no available configuration.| - | - |
 | - | zookeeper|nameSpace|The namespace, represented by root path, isolates the configurations in the zookeeper.|SW_NAMESPACE| `/`, root path|

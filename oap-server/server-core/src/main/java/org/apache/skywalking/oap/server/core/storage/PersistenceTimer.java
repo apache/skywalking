@@ -77,9 +77,7 @@ public enum PersistenceTimer {
             "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
-        syncOperationThreadsNum = moduleConfig.getSyncThreads() > 0
-            ? moduleConfig.getSyncThreads()
-            : Runtime.getRuntime().availableProcessors();
+        syncOperationThreadsNum = moduleConfig.getSyncThreads();
         maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         if (!isStarted) {
@@ -132,10 +130,15 @@ public enum PersistenceTimer {
                 CountDownLatch countDownLatch = new CountDownLatch(partitions.size());
                 for (final List<PrepareRequest> partition : partitions) {
                     executorService.submit(() -> {
-                        if (CollectionUtils.isNotEmpty(partition)) {
-                            batchDAO.synchronous(partition);
+                        try {
+                            if (CollectionUtils.isNotEmpty(partition)) {
+                                batchDAO.synchronous(partition);
+                            }
+                        } catch (Throwable e) {
+                            log.error(e.getMessage(), e);
+                        } finally {
+                            countDownLatch.countDown();
                         }
-                        countDownLatch.countDown();
                     });
                 }
                 countDownLatch.await();

@@ -62,7 +62,7 @@ Release Notes.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
 * Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
-* Make the flushing metrics operation concurrency.
+* Make the flushing metrics operation concurrent.
 
 #### UI
 * Update selector scroller to show in all pages.
