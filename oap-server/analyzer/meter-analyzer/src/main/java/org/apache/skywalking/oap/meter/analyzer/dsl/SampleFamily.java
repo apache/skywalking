@@ -312,7 +312,7 @@ public class SampleFamily {
     }
 
     /* k8s retags*/
-    public SampleFamily retagByK8sMeta(String newLabelName, K8sRetagType type, String existingLabelName) {
+    public SampleFamily retagByK8sMeta(String newLabelName, K8sRetagType type, String existingLabelName, String namespaceLabelName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(newLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(existingLabelName));
         ExpressionParsingContext.get().ifPresent(ctx -> ctx.isRetagByK8sMeta = true);
@@ -320,7 +320,7 @@ public class SampleFamily {
             return EMPTY;
         }
 
-        return SampleFamily.build(this.context, type.execute(samples, newLabelName, existingLabelName));
+        return SampleFamily.build(this.context, type.execute(samples, newLabelName, existingLabelName, namespaceLabelName));
     }
 
     public SampleFamily histogram() {

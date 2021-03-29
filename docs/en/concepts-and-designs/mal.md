@@ -65,22 +65,22 @@ MAL supports using the metadata of k8s to manipulate the tags and their values.
 This feature requires OAP Server to have the authority to access the K8s's `API Server`.
 
 ##### retagByK8sMeta
-`retagByK8sMeta(newLabelName, K8sRetagType, existingLabelName)`. Add a new tag to the sample family based on an existing label's value. Provide several internal converting types, including
+`retagByK8sMeta(newLabelName, K8sRetagType, existingLabelName, namespaceLabelName)`. Add a new tag to the sample family based on an existing label's value. Provide several internal converting types, including
 - K8sRetagType.Pod2Service  
 
 Add a tag to the sample by using `service` as the key, `$serviceName.$namespace` as the value, by the given value of the tag key, which represents the name of a pod.
 
 For example:
 ```
-container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh} 2
+container_cpu_usage_seconds_total{namespace=default, container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh} 2
 ```
 Expression:
 ```
-container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod')
+container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace')
 ```
 Output:
 ```
-container_cpu_usage_seconds_total{container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh, service='nginx-service.default'} 2
+container_cpu_usage_seconds_total{namespace=default, container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh, service='nginx-service.default'} 2
 ```
 
 ### Binary operators
