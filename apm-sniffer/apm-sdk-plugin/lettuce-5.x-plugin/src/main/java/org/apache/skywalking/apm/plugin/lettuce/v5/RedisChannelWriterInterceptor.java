@@ -38,7 +38,6 @@ import io.lettuce.core.protocol.RedisCommand;
 
 public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final int PARAMETERS_MAX_LENGTH = 128;
     private static final String PASSWORD_MASK = "******";
     private static final String ABBR = "...";
     private static final String DELIMITER_SPACE = " ";
@@ -56,7 +55,10 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
             RedisCommand redisCommand = (RedisCommand) allArguments[0];
             String command = redisCommand.getType().name();
             operationName = operationName + command;
-            dbStatement.append(command).append(DELIMITER_SPACE).append(getArgsStatement(redisCommand));
+            dbStatement.append(command);
+            if (LettucePluginConfig.Plugin.Lettuce.TRACE_REDIS_PARAMETERS) {
+                dbStatement.append(DELIMITER_SPACE).append(getArgsStatement(redisCommand));
+            }
         } else if (allArguments[0] instanceof Collection) {
             @SuppressWarnings("unchecked") Collection<RedisCommand> redisCommands = (Collection<RedisCommand>) allArguments[0];
             operationName = operationName + "BATCH_WRITE";
@@ -80,8 +82,8 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
             CommandArgs args = redisCommand.getArgs();
             statement = (args != null) ? args.toCommandString() : Constants.EMPTY_STRING;
         }
-        if (StringUtil.isNotEmpty(statement) && statement.length() > PARAMETERS_MAX_LENGTH) {
-            statement = statement.substring(0, PARAMETERS_MAX_LENGTH) + ABBR;
+        if (StringUtil.isNotEmpty(statement) && statement.length() > LettucePluginConfig.Plugin.Lettuce.REDIS_COMMAND_MAX_LENGTH) {
+            statement = statement.substring(0, LettucePluginConfig.Plugin.Lettuce.REDIS_COMMAND_MAX_LENGTH) + ABBR;
         }
         return statement;
     }

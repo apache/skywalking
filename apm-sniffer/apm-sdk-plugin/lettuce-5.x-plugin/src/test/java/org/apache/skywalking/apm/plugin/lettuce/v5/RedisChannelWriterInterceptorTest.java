@@ -92,6 +92,7 @@ public class RedisChannelWriterInterceptorTest {
     })
     @Before
     public void setUp() throws Exception {
+        LettucePluginConfig.Plugin.Lettuce.TRACE_REDIS_PARAMETERS = true;
         mockRedisChannelWriterInstance = new MockInstance();
         mockClientOptionsInstance = new MockInstance();
         mockClientOptionsInstance.setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:6378;");
