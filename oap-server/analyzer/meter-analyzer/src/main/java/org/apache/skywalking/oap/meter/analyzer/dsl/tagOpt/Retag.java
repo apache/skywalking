@@ -21,5 +21,5 @@ package org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 
 public interface Retag {
-    Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName);
+    Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName, String namespaceLabelName);
 }
