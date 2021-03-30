@@ -40,7 +40,7 @@ public class ReactiveRequestHolder implements RequestHolder {
     public Enumeration<String> getHeaders(final String headerName) {
         List<String> values = this.serverHttpRequest.getHeaders().get(headerName);
         if (values == null) {
-            return null;
+            return Collections.enumeration(Collections.EMPTY_LIST);
         }
         return Collections.enumeration(values);
     }
