@@ -59,7 +59,7 @@ metricsRules:
   - name: node_total
     exp: kube_node_info.sum(['cluster'])
   - name: node_status
-    exp: kube_node_status_condition.tagMatch('status' , 'true|unknown').sum(['cluster' , 'node' ,'condition'])
+    exp: kube_node_status_condition.valueEqual(1).tagMatch('status' , 'true|unknown').sum(['cluster' , 'node' ,'condition'])
 
   - name: namespace_total
     exp: kube_namespace_labels.sum(['cluster'])
@@ -67,21 +67,23 @@ metricsRules:
   - name: deployment_total
     exp: kube_deployment_labels.sum(['cluster'])
   - name: deployment_status
-    exp: kube_deployment_status_condition.tagMatch('status' , 'true').sum(['cluster' , 'deployment' ,'condition'])
+    exp: kube_deployment_status_condition.valueEqual(1).tagMatch('condition' , 'Available').sum(['cluster' , 'deployment' ,'condition' , 'status'])
   - name: deployment_spec_replicas
     exp: kube_deployment_spec_replicas.sum(['cluster' , 'deployment'])
 
   - name: service_total
     exp: kube_service_info.sum(['cluster'])
+  - name: service_pod_status
+    exp: kube_pod_status_phase.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').valueEqual(1).sum(['cluster' , 'service' , 'phase'])
 
   - name: pod_total
     exp: kube_pod_info.sum(['cluster'])
   - name: pod_status_not_running
-    exp: kube_pod_status_phase.tagNotMatch('phase' , 'Running').sum(['cluster' , 'pod'])
+    exp: kube_pod_status_phase.valueEqual(1).tagNotMatch('phase' , 'Running').sum(['cluster' , 'pod' , 'phase'])
 
   - name: container_total
     exp: kube_pod_container_info.sum(['cluster'])
-  - name: container_status_waiting
-    exp: kube_pod_container_status_waiting.sum(['cluster' , 'container'])
-  - name: container_status_terminated
-    exp: kube_pod_container_status_terminated.sum(['cluster' , 'container'])
+  - name: pod_status_waiting
+    exp: kube_pod_container_status_waiting_reason.valueEqual(1).sum(['cluster' , 'pod' , 'container' , 'reason'])
+  - name: pod_status_terminated
+    exp: kube_pod_container_status_terminated_reason.valueEqual(1).sum(['cluster' , 'pod' , 'container' , 'reason'])

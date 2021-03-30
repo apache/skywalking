@@ -35,7 +35,7 @@ metricsRules:
 
   - name: cpu_cores
     exp: (kube_node_status_capacity * 100).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
-  - name: cpu_total_percentage
+  - name: cpu_usage
     exp: (container_cpu_usage_seconds_total * 100).tagEqual('id' , '/').sum(['cluster' , 'node']).rate('PT1M')
   - name: cpu_cores_allocatable
     exp: (kube_node_status_allocatable * 100).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
@@ -53,13 +53,17 @@ metricsRules:
   - name: memory_limits
     exp: kube_pod_container_resource_limits.tagEqual('resource' , 'memory').sum(['cluster' , 'node'])
 
+  - name: memory_usage
+    exp: container_memory_working_set_bytes.tagEqual('id' , '/').sum(['cluster' , 'node'])
+
+
   - name: storage_total
     exp: kube_node_status_capacity.tagEqual('resource' , 'ephemeral_storage').sum(['cluster' , 'node'])
   - name: storage_allocatable
     exp: kube_node_status_allocatable.tagEqual('resource' , 'ephemeral_storage').sum(['cluster' , 'node'])
 
   - name: node_status
-    exp: kube_node_status_condition.tagMatch('status' , 'true|unknown').sum(['cluster' , 'node' ,'condition'])
+    exp: kube_node_status_condition.valueEqual(1).tagMatch('status' , 'true|unknown').sum(['cluster' , 'node' ,'condition'])
 
   - name: pod_total
     exp: kube_pod_info.sum(['cluster' , 'node'])
