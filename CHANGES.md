@@ -24,6 +24,9 @@ Release Notes.
 * Collect and report agent starting / shutdown events.
 * Support jedis pipeline in jedis-2.x-plugin.
 * Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
+* Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
+* Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
+* Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
 * Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info
 
 #### OAP-Backend
@@ -59,6 +62,7 @@ Release Notes.
 * Add functions in MAL to filter metrics according to the metric value.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
+* Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
 
 #### UI
 * Update selector scroller to show in all pages.
