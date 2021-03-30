@@ -135,13 +135,12 @@ public class CoreModuleConfig extends ModuleConfig {
     private String searchableLogsTags = "";
 
     /**
-     * The number of threads used to synchronously refresh the metrics data to the storage. When the value is zero or
-     * negative, the number of processors will used as the default value.
+     * The number of threads used to synchronously refresh the metrics data to the storage.
      *
      * @since 8.5.0
      */
     @Setter
-    private int syncThreads = -1;
+    private int syncThreads = 2;
 
     /**
      * The maximum number of processes supported for each synchronous storage operation. When the number of the flush
