@@ -41,17 +41,17 @@ public class ServiceNameFormatterTest {
         return new Case[] {
             new Case(
                 null,
-                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name","Clash"))),
+                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name", "Clash"))),
                 "Clash"
             ),
             new Case(
                 null,
-                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name","ClashX", "service.istio.io/canonical-revision", "v1"))),
+                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name", "ClashX", "service.istio.io/canonical-revision", "v1"))),
                 "ClashX"
             ),
             new Case(
                 "${pod.metadata.labels.(service.istio.io/canonical-name)}-${pod.metadata.labels.(service.istio.io/canonical-revision)}",
-                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name","Clash", "service.istio.io/canonical-revision", "v1beta"))),
+                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name", "Clash", "service.istio.io/canonical-revision", "v1beta"))),
                 "Clash-v1beta"
             ),
             new Case(
