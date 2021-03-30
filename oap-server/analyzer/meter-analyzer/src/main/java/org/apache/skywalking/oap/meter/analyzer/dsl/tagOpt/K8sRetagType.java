@@ -30,12 +30,15 @@ public enum K8sRetagType implements Retag {
 
     Pod2Service {
         @Override
-        public Sample[] execute(final Sample[] ss, final String newLabelName, final String existingLabelName) {
+        public Sample[] execute(final Sample[] ss,
+                                final String newLabelName,
+                                final String existingLabelName,
+                                final String namespaceLabelName) {
             Sample[] samples = Arrays.stream(ss).map(sample -> {
                 String podName = sample.getLabels().get(existingLabelName);
-
-                if (!Strings.isNullOrEmpty(podName)) {
-                    String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
+                String namespace = sample.getLabels().get(namespaceLabelName);
+                if (!Strings.isNullOrEmpty(podName) && !Strings.isNullOrEmpty(namespace)) {
+                    String serviceName = K8sInfoRegistry.getInstance().findServiceName(namespace, podName);
                     if (!Strings.isNullOrEmpty(serviceName)) {
                         Map<String, String> labels = Maps.newHashMap(sample.getLabels());
                         labels.put(newLabelName, serviceName);
