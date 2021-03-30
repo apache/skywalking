@@ -105,7 +105,6 @@ File Name | Descriptions
 | entryService | The entrance endpoint(URL) for test case access. Required. (HTTP Method: GET)
 | healthCheck | The health check endpoint(URL) for test case access. Required. (HTTP Method: HEAD)
 | startScript | Path of start up script. Required in `type: jvm` only.
-| framework | Case name.
 | runningMode | Running mode whether with the optional plugin, options, `default`(default), `with_optional`, `with_bootstrap`
 | withPlugins | Plugin selector rule. eg:`apm-spring-annotation-plugin-*.jar`. Required when `runningMode=with_optional` or `runningMode=with_bootstrap`.
 | environment | Same as `docker-compose#environment`.
@@ -131,7 +130,6 @@ type:
 entryService:
 healthCheck:
 startScript:
-framework:
 runningMode:
 withPlugins:
 environment:
