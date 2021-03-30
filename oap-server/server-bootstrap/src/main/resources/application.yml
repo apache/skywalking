@@ -327,7 +327,7 @@ envoy-metric:
     # the available variables are `pod`, `service`, f.e., you can use `${service.metadata.name}-${pod.metadata.labels.version}`
     # to append the version number to the service name.
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
-    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${service.metadata.name}"}
+    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
 
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:-}
