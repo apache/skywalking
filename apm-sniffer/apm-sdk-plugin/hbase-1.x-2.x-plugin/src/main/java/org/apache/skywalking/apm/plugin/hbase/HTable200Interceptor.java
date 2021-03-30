@@ -16,22 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
+package org.apache.skywalking.apm.plugin.hbase;
 
-import io.lettuce.core.cluster.RedisClusterClient;
+import java.lang.reflect.Field;
+import java.util.Properties;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.util.StringUtil;
 
-public class MockRedisClusterClient extends RedisClusterClient implements EnhancedInstance {
-
-    private Object object;
-
-    @Override
-    public Object getSkyWalkingDynamicField() {
-        return object;
-    }
+public class HTable200Interceptor extends HTableInterceptor {
 
     @Override
-    public void setSkyWalkingDynamicField(Object value) {
-        this.object = value;
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
+        Configuration configuration = ((ClusterConnection) allArguments[0]).getConfiguration();
+        Field field = configuration.getClass().getDeclaredField("overlay");
+        field.setAccessible(true);
+        Properties properties = (Properties) field.get(configuration);
+        String value = properties.getProperty("hbase.zookeeper.quorum");
+        if (StringUtil.isNotBlank(value)) {
+            objInst.setSkyWalkingDynamicField(value);
+        }
     }
 }

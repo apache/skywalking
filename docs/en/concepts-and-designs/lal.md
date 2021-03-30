@@ -1,32 +1,31 @@
 # Log Analysis Language
 
 Log Analysis Language (LAL) in SkyWalking is essentially a Domain-Specific Language (DSL) to analyze logs. You can use
-LAL to parse, extract, and save the logs, as well as collaborate the logs with traces (by extracting the trace id,
-segment id and span id) and metrics (by generating metrics from the logs and send them to the meter system).
+LAL to parse, extract, and save the logs, as well as collaborate the logs with traces (by extracting the trace ID,
+segment ID and span ID) and metrics (by generating metrics from the logs and sending them to the meter system).
 
-The LAL config files are in YAML format, and are located under directory `lal`, you can
+The LAL config files are in YAML format, and are located under directory `lal`. You can
 set `log-analyzer/default/lalFiles` in the `application.yml` file or set environment variable `SW_LOG_LAL_FILES` to
 activate specific LAL config files.
 
 ## Filter
 
 A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Users can use one or more filters
-to organize their processing logics. Every piece of log will be sent to all filters in an LAL rule. The piece of log
-sent into the filter is available as property `log` in the LAL, therefore you can access the log service name
-via `log.service`, for all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
+to organize their processing logic. Every piece of log will be sent to all filters in an LAL rule. A piece of log
+sent to the filter is available as property `log` in the LAL, therefore you can access the log service name
+via `log.service`. For all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
 
 All components are executed sequentially in the orders they are declared.
 
 ### Global Functions
 
-There are functions globally available that you can use them in all components (i.e. parsers, extractors, and sinks)
-when needed.
+Globally available functions may be used them in all components (i.e. parsers, extractors, and sinks) where necessary.
 
 - `abort`
 
 By default, all components declared are executed no matter what flags (`dropped`, `saved`, etc.) have been set. There
 are cases where you may want the filter chain to stop earlier when specified conditions are met. `abort` function aborts
-the remaining filter chain from where it's declared, all the remaining components won't be executed at all.
+the remaining filter chain from where it's declared, and all the remaining components won't be executed at all.
 `abort` function serves as a fast-fail mechanism in LAL.
 
 ```groovy
@@ -47,8 +46,8 @@ Parsers are responsible for parsing the raw logs into structured data in SkyWalk
 types of parsers at the moment, namely `json`, `yaml`, and `text`.
 
 When a piece of log is parsed, there is a corresponding property available, called `parsed`, injected by LAL.
-Property `parsed` is typically a map, containing all the fields parsed from the raw logs, for example, if the parser
-is `json` / `yaml`, `parsed` is a map containing all the key-values in the `json` / `yaml`, if the parser is `text`
+Property `parsed` is typically a map, containing all the fields parsed from the raw logs. For example, if the parser
+is `json` / `yaml`, `parsed` is a map containing all the key-values in the `json` / `yaml`; if the parser is `text`
 , `parsed` is a map containing all the captured groups and their values (for `regexp` and `grok`).
 
 All parsers share the following options:
@@ -108,7 +107,7 @@ filter {
 
 - `grok` (TODO)
 
-Because grok Java library has performance issue, we need some investigations and benchmark on it. Contributions are
+We're aware of certains performance issues in the grok Java library, and so we're currently conducting investigations and benchmarking. Contributions are
 welcome.
 
 ### Extractor
@@ -155,8 +154,7 @@ The unit of `timestamp` is millisecond.
 
 - `tag`
 
-`tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor is
-something like `tag key1: value, key2: value2`, you can use the properties of `parsed` as both keys and values.
+`tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor should look something like this: `tag key1: value, key2: value2`. You may use the properties of `parsed` as both keys and values.
 
 ```groovy
 filter {
@@ -171,9 +169,9 @@ filter {
 
 - `metrics`
 
-`metrics` extracts / generates metrics from the logs, and sends the generated metrics to the meter system, you can
+`metrics` extracts / generates metrics from the logs, and sends the generated metrics to the meter system. You may
 configure [MAL](mal.md) for further analysis of these metrics. The dedicated MAL config files are under
-directory `log-mal-rules`, you can set `log-analyzer/default/malFiles` to enable configured files.
+directory `log-mal-rules`, and you can set `log-analyzer/default/malFiles` to enable configured files.
 
 ```yaml
 # application.yml
@@ -209,7 +207,7 @@ filter {
 }
 ```
 
-The extractor above generates a metrics named `log_count`, with tag key `level` and value `1`, after this, you can
+The extractor above generates a metrics named `log_count`, with tag key `level` and value `1`. After that, you can
 configure MAL rules to calculate the log count grouping by logging level like this:
 
 ```yaml
@@ -223,7 +221,7 @@ metrics:
 
 ```
 
-The other metrics generated is `http_response_time`, so that you can configure MAL rules to generate more useful metrics
+The other metrics generated is `http_response_time`, so you can configure MAL rules to generate more useful metrics
 like percentiles.
 
 ```yaml
@@ -237,17 +235,17 @@ metrics:
 ### Sink
 
 Sinks are the persistent layer of the LAL. By default, all the logs of each filter are persisted into the storage.
-However, there are some mechanisms that allow you to selectively save some logs, or even drop all the logs after you've
+However, some mechanisms allow you to selectively save some logs, or even drop all the logs after you've
 extracted useful information, such as metrics.
 
 #### Sampler
 
-Sampler allows you to save the logs in a sampling manner. Currently, sampling strategy `rateLimit` is supported, welcome
-to contribute more sampling strategies. If multiple samplers are specified, the last one determines the final sampling
-result, see examples in [Enforcer](#enforcer).
+Sampler allows you to save the logs in a sampling manner. Currently, the sampling strategy `rateLimit` is supported. We welcome
+contributions on more sampling strategies. If multiple samplers are specified, the last one determines the final sampling
+result. See examples in [Enforcer](#enforcer).
 
-`rateLimit` samples `n` logs at most in 1 second. `rateLimit("SamplerID")` requires an ID for the sampler, sampler
-declarations with the same ID share the same sampler instance, and thus share the same `qps`, resetting logics.
+`rateLimit` samples `n` logs at a maximum rate of 1 second. `rateLimit("SamplerID")` requires an ID for the sampler. Sampler
+declarations with the same ID share the same sampler instance, thus sharing the same `qps` and resetting logic.
 
 Examples:
 
@@ -273,8 +271,8 @@ filter {
 
 #### Dropper
 
-Dropper is a special sink, meaning that all the logs are dropped without any exception. This is useful when you want to
-drop debugging logs,
+Dropper is a special sink, meaning that all logs are dropped without any exception. This is useful when you want to
+drop debugging logs.
 
 ```groovy
 filter {
@@ -292,7 +290,7 @@ filter {
 }
 ```
 
-or you have multiple filters, some of which are for extracting metrics, only one of them needs to be persisted.
+Or if you have multiple filters, some of which are for extracting metrics, only one of them has to be persisted.
 
 ```groovy
 filter { // filter A: this is for persistence
@@ -319,9 +317,9 @@ filter { // filter B:
 
 #### Enforcer
 
-Enforcer is another special sink that forcibly samples the log, a typical use case of enforcer is when you have
-configured a sampler and want to save some logs forcibly, for example, to save error logs even if the sampling mechanism
-is configured.
+Enforcer is another special sink that forcibly samples the log. A typical use case of enforcer is when you have
+configured a sampler and want to save some logs forcibly, such as to save error logs even if the sampling mechanism
+has been configured.
 
 ```groovy
 filter {

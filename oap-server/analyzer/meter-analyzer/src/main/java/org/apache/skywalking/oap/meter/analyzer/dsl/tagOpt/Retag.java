@@ -16,22 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
+package org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt;
 
-import io.lettuce.core.cluster.RedisClusterClient;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 
-public class MockRedisClusterClient extends RedisClusterClient implements EnhancedInstance {
-
-    private Object object;
-
-    @Override
-    public Object getSkyWalkingDynamicField() {
-        return object;
-    }
-
-    @Override
-    public void setSkyWalkingDynamicField(Object value) {
-        this.object = value;
-    }
+public interface Retag {
+    Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName, String namespaceLabelName);
 }
