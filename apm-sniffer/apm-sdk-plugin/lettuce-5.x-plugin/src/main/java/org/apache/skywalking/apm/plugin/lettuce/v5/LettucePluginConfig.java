@@ -29,10 +29,11 @@ public class LettucePluginConfig {
              */
             public static boolean TRACE_REDIS_PARAMETERS = false;
             /**
-             * For the sake of performance, SkyWalking won't save the entire Redis command string into the tag,
-             * but only the first {@code REDIS_COMMAND_MAX_LENGTH} characters.
+             * For the sake of performance, SkyWalking won't save Redis parameter string into the tag.
+             * If TRACE_REDIS_PARAMETERS is set to true, the first {@code REDIS_PARAMETER_MAX_LENGTH} parameter
+             * characters would be collected.
              * <p>
-             * Set a negative number to save the complete parameter string to the tag.
+             * Set a negative number to save specified length of parameter string to the tag.
              */
             public static int REDIS_PARAMETER_MAX_LENGTH = 128;
         }
