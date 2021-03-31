@@ -48,7 +48,8 @@ public class ResourceUtils {
         if (url == null) {
             throw new FileNotFoundException("path not found: " + path);
         }
-        return Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path);
+        return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path))
+                     .filter(File::isFile).toArray(File[]::new);
     }
 
     public static File[] getPathFiles(String parentPath, String[] fileNames) throws FileNotFoundException {
