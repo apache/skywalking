@@ -34,13 +34,13 @@ metricsRules:
 
 
   - name: cpu_cores
-    exp: (kube_node_status_capacity * 100).tagEqual('resource' , 'cpu').sum(['cluster'])
+    exp: (kube_node_status_capacity * 1000).tagEqual('resource' , 'cpu').sum(['cluster'])
   - name: cpu_cores_allocatable
-    exp: (kube_node_status_allocatable * 100).tagEqual('resource' , 'cpu').sum(['cluster'])
+    exp: (kube_node_status_allocatable * 1000).tagEqual('resource' , 'cpu').sum(['cluster'])
   - name: cpu_cores_requests
-    exp: (kube_pod_container_resource_requests * 100).tagEqual('resource' , 'cpu').sum(['cluster'])
+    exp: (kube_pod_container_resource_requests * 1000).tagEqual('resource' , 'cpu').sum(['cluster'])
   - name: cpu_cores_limits
-    exp: (kube_pod_container_resource_limits * 100).tagEqual('resource' , 'cpu').sum(['cluster'])
+    exp: (kube_pod_container_resource_limits * 1000).tagEqual('resource' , 'cpu').sum(['cluster'])
 
   - name: memory_total
     exp: kube_node_status_capacity.tagEqual('resource' , 'memory').sum(['cluster'])

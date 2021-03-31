@@ -111,9 +111,7 @@ templates:
                               "metricName": "k8s_cluster_cpu_cores,k8s_cluster_cpu_cores_requests,k8s_cluster_cpu_cores_limits,k8s_cluster_cpu_cores_allocatable",
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
-                              "aggregation": "/",
-                              "aggregationNum": "100",
-                              "unit": "Cores"
+                              "unit": "m"
                           },
                           {
                               "width": "4",
@@ -257,9 +255,7 @@ templates:
                               "metricName": "k8s_node_cpu_cores,k8s_node_cpu_cores_allocatable,k8s_node_cpu_cores_requests,k8s_node_cpu_cores_limits",
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
-                              "aggregation": "/",
-                              "aggregationNum": "100",
-                              "unit": "Cores"
+                              "unit": "m"
                           },
                           {
                               "width": "3",
@@ -299,9 +295,7 @@ templates:
                               "metricName": "k8s_node_cpu_usage",
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartLine",
-                              "aggregation": "/",
-                              "aggregationNum": "100",
-                              "unit": "Cores"
+                              "unit": "m"
                           },
                           {
                               "width": 3,
@@ -368,9 +362,7 @@ templates:
                               "metricName": "k8s_service_cpu_cores_requests,k8s_service_cpu_cores_limits",
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
-                              "aggregation": "/",
-                              "aggregationNum": "100",
-                              "unit": "Cores"
+                              "unit": "m"
                           },
                           {
                               "width": 3,
@@ -396,9 +388,7 @@ templates:
                               "metricName": "k8s_service_pod_cpu_usage",
                               "queryMetricType": "readLabeledMetricsValues",
                               "chartType": "ChartLine",
-                              "aggregation": "/",
-                              "aggregationNum": "100",
-                              "unit": "Cores"
+                              "unit": "m"
                           },
                           {
                               "width": 3,

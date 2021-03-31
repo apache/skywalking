@@ -36,9 +36,9 @@ metricsRules:
     exp: kube_pod_info.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').sum(['cluster' , 'service'])
 
   - name: cpu_cores_requests
-    exp: (kube_pod_container_resource_requests * 100).retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagEqual('resource' , 'cpu').sum(['cluster' , 'service'])
+    exp: (kube_pod_container_resource_requests * 1000).retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagEqual('resource' , 'cpu').sum(['cluster' , 'service'])
   - name: cpu_cores_limits
-    exp: (kube_pod_container_resource_limits * 100).retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagEqual('resource' , 'cpu').sum(['cluster' , 'service'])
+    exp: (kube_pod_container_resource_limits * 1000).retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagEqual('resource' , 'cpu').sum(['cluster' , 'service'])
   - name: memory_requests
     exp: kube_pod_container_resource_requests.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagEqual('resource' , 'memory').sum(['cluster' , 'service'])
   - name: memory_limits
@@ -54,7 +54,7 @@ metricsRules:
     exp: kube_pod_container_status_restarts_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').valueEqual(1).sum(['cluster' , 'service' , 'pod'])
 
   - name: pod_cpu_usage
-    exp: (container_cpu_usage_seconds_total * 100).tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').sum(['cluster' , 'service' , 'pod']).rate('PT1M')
+    exp: (container_cpu_usage_seconds_total * 1000).tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').sum(['cluster' , 'service' , 'pod']).rate('PT1M')
   - name: pod_memory_usage
     exp: container_memory_working_set_bytes.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').sum(['cluster' , 'service' , 'pod'])
 
