@@ -112,7 +112,8 @@ templates:
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
                               "aggregation": "/",
-                              "aggregationNum": "100"
+                              "aggregationNum": "100",
+                              "unit": "Cores"
                           },
                           {
                               "width": "4",
@@ -257,7 +258,8 @@ templates:
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
                               "aggregation": "/",
-                              "aggregationNum": "100"
+                              "aggregationNum": "100",
+                              "unit": "Cores"
                           },
                           {
                               "width": "3",
@@ -298,7 +300,8 @@ templates:
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartLine",
                               "aggregation": "/",
-                              "aggregationNum": "100"
+                              "aggregationNum": "100",
+                              "unit": "Cores"
                           },
                           {
                               "width": 3,
@@ -366,7 +369,8 @@ templates:
                               "queryMetricType": "readMetricsValues",
                               "chartType": "ChartArea",
                               "aggregation": "/",
-                              "aggregationNum": "100"
+                              "aggregationNum": "100",
+                              "unit": "Cores"
                           },
                           {
                               "width": 3,
@@ -393,7 +397,8 @@ templates:
                               "queryMetricType": "readLabeledMetricsValues",
                               "chartType": "ChartLine",
                               "aggregation": "/",
-                              "aggregationNum": "100"
+                              "aggregationNum": "100",
+                              "unit": "Cores"
                           },
                           {
                               "width": 3,
