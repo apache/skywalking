@@ -34,7 +34,7 @@ public class LettucePluginConfig {
              * <p>
              * Set a negative number to save the complete parameter string to the tag.
              */
-            public static int REDIS_COMMAND_MAX_LENGTH = 128;
+            public static int REDIS_PARAMETER_MAX_LENGTH = 128;
         }
     }
 }

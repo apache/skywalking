@@ -82,8 +82,8 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
             CommandArgs args = redisCommand.getArgs();
             statement = (args != null) ? args.toCommandString() : Constants.EMPTY_STRING;
         }
-        if (StringUtil.isNotEmpty(statement) && statement.length() > LettucePluginConfig.Plugin.Lettuce.REDIS_COMMAND_MAX_LENGTH) {
-            statement = statement.substring(0, LettucePluginConfig.Plugin.Lettuce.REDIS_COMMAND_MAX_LENGTH) + ABBR;
+        if (StringUtil.isNotEmpty(statement) && statement.length() > LettucePluginConfig.Plugin.Lettuce.REDIS_PARAMETER_MAX_LENGTH) {
+            statement = statement.substring(0, LettucePluginConfig.Plugin.Lettuce.REDIS_PARAMETER_MAX_LENGTH) + ABBR;
         }
         return statement;
     }
