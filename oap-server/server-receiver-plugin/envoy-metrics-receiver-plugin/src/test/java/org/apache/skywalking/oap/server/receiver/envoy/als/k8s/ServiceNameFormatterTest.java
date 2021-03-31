@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static com.google.common.collect.ImmutableSortedMap.of;
 import static junit.framework.TestCase.assertEquals;
 
 @RequiredArgsConstructor
@@ -40,22 +41,22 @@ public class ServiceNameFormatterTest {
         return new Case[] {
             new Case(
                 null,
-                ImmutableMap.of("service", service("Clash")),
+                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name", "Clash"))),
                 "Clash"
             ),
             new Case(
                 null,
-                ImmutableMap.of("service", service("ClashX"), "pod", pod("version", "v1")),
+                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name", "ClashX", "service.istio.io/canonical-revision", "v1"))),
                 "ClashX"
             ),
             new Case(
-                "${service.metadata.name}-${pod.metadata.labels.version}",
-                ImmutableMap.of("service", service("Clash"), "pod", pod("version", "v1beta")),
+                "${pod.metadata.labels.(service.istio.io/canonical-name)}-${pod.metadata.labels.(service.istio.io/canonical-revision)}",
+                ImmutableMap.of("pod", pod(of("service.istio.io/canonical-name", "Clash", "service.istio.io/canonical-revision", "v1beta"))),
                 "Clash-v1beta"
             ),
             new Case(
-                "${pod.metadata.labels.app}",
-                ImmutableMap.of("service", service("Clash"), "pod", pod("app", "ClashX-alpha")),
+                "${pod.metadata.labels.(service.istio.io/canonical-name)}",
+                ImmutableMap.of("service", service("Clash"), "pod", pod(of("service.istio.io/canonical-name", "ClashX-alpha"))),
                 "ClashX-alpha"
             )
         };
@@ -80,14 +81,14 @@ public class ServiceNameFormatterTest {
         };
     }
 
-    static V1Pod pod(final String label, final String value) {
+    static V1Pod pod(ImmutableMap<String, String> lb) {
         return new V1Pod() {
             @Override
             public V1ObjectMeta getMetadata() {
                 return new V1ObjectMeta() {
                     @Override
                     public Map<String, String> getLabels() {
-                        return ImmutableMap.of(label, value);
+                        return lb;
                     }
                 };
             }
