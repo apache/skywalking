@@ -209,7 +209,7 @@ public class K8SServiceRegistry {
 
     protected void removeService(final V1Service service) {
         ofNullable(service.getMetadata()).ifPresent(
-            metadata -> idServiceMap.remove(metadata.getUid())
+            metadata -> idServiceMap.remove(metadata.getNamespace() + ":" + metadata.getName())
         );
     }
 
