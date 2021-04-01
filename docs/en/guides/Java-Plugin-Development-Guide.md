@@ -3,7 +3,7 @@ This document describe how to understand, develop and contribute plugin.
 
 There are 2 kinds of plugin
 1. [Tracing plugin](#tracing-plugin). Follow the distributed tracing concept to collect spans with tags and logs.
-1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Guage, and Histogram formats.
+1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Gauge, and Histogram formats.
 
 We also provide the [plugin test tool](#plugin-test-tool) to verify the data collected and reported by the plugin. If you plan to contribute any plugin to our main repo, the data would be verified by this tool too.
 
@@ -232,8 +232,8 @@ SkyWalking boxed the byte code manipulation tech and tracing context propagation
 so you just need to define the intercept point(a.k.a. aspect pointcut in Spring)
 
 ### Intercept
-SkyWalking provide two common defines to intercept Contructor, instance method and class method.
-* Extend `ClassInstanceMethodsEnhancePluginDefine` defines `Contructor` intercept points and `instance method` intercept points.
+SkyWalking provide two common defines to intercept constructor, instance method and class method.
+* Extend `ClassInstanceMethodsEnhancePluginDefine` defines `constructor` intercept points and `instance method` intercept points.
 * Extend `ClassStaticMethodsEnhancePluginDefine` defines `class method` intercept points.
 
 Of course, you can extend `ClassEnhancePluginDefine` to set all intercept points. But it is unusual. 

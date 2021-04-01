@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        storage: ['h2', 'mysql', 'es6', 'es7', 'influxdb']
+        storage: [ 'h2', 'mysql', 'es6', 'es7', 'influxdb' ]
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
@@ -55,8 +55,25 @@ jobs:
         uses: ./.github/actions/e2e-test
         with:
           test_class: org.apache.skywalking.e2e.browser.BrowserE2E
-      - uses: actions/upload-artifact@v1
-        if: failure()
+  JavaScriptClientWithRealAgent:
+    name: Java Script Client With Real Agent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
         with:
-          name: logs
-          path: logs
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Cache local Maven repository
+        if: env.SKIP_CI != 'true'
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Run E2E Test
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/e2e-test
+        with:
+          test_class: org.apache.skywalking.e2e.browser.BrowserWithClientJSE2E

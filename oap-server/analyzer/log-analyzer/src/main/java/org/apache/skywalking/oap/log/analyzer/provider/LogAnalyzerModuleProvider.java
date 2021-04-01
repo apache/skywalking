@@ -20,8 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.provider;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.log.analyzer.provider.log.LogAnalyzerServiceImpl;
-import org.apache.skywalking.oap.log.analyzer.provider.log.listener.RecordAnalysisListener;
-import org.apache.skywalking.oap.log.analyzer.provider.log.listener.TrafficAnalysisListener;
+import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -59,12 +58,15 @@ public class LogAnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        logAnalyzerService.addListenerFactory(new RecordAnalysisListener.Factory(getManager(), moduleConfig));
-        logAnalyzerService.addListenerFactory(new TrafficAnalysisListener.Factory(getManager(), moduleConfig));
+        try {
+            logAnalyzerService.addListenerFactory(new LogFilterListener.Factory(getManager(), moduleConfig));
+        } catch (final Exception e) {
+            throw new ModuleStartException("Failed to create LAL listener.", e);
+        }
     }
 
     @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 

@@ -20,7 +20,9 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <GRPCLogClientAppender name="grpc-log"/>
+        <GRPCLogClientAppender name="grpc-log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </GRPCLogClientAppender>
     </Appenders>
 
 

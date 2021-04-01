@@ -65,6 +65,6 @@ public class LogAnalyzer {
 
     private void createListeners() {
         factoryManager.getLogAnalysisListenerFactories()
-                      .forEach(factory -> listeners.add(factory.create(moduleManager, moduleConfig)));
+                      .forEach(factory -> listeners.add(factory.create()));
     }
 }

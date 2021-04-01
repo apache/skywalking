@@ -18,39 +18,47 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import java.util.Arrays;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.IgnoreSuffixPatternsWatcher;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SpanLimitWatcher;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.Arrays;
-
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
-    
+
     private volatile String[] ignoreSuffixArray = new String[0];
-    
+
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     private IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher;
 
+    private SpanLimitWatcher spanLimitWatcher;
+
     @Override
     public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
-        ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
     }
 
     @Override
     public void boot() {
         ignoreSuffixArray = Config.Agent.IGNORE_SUFFIX.split(",");
-        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
-                .registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
+        ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
+        spanLimitWatcher = new SpanLimitWatcher("agent.span_limit_per_segment");
+
+        ConfigurationDiscoveryService configurationDiscoveryService = ServiceManager.INSTANCE.findService(
+            ConfigurationDiscoveryService.class);
+        configurationDiscoveryService.registerAgentConfigChangeWatcher(spanLimitWatcher);
+        configurationDiscoveryService.registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
+
         handleIgnoreSuffixPatternsChanged();
     }
 
@@ -74,12 +82,13 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         }
 
         int suffixIdx = operationName.lastIndexOf(".");
-        if (suffixIdx > -1 && Arrays.stream(ignoreSuffixArray).anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
+        if (suffixIdx > -1 && Arrays.stream(ignoreSuffixArray)
+                                    .anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             if (forceSampling || samplingService.trySampling(operationName)) {
-                context = new TracingContext(operationName);
+                context = new TracingContext(operationName, spanLimitWatcher);
             } else {
                 context = new IgnoredTracerContext();
             }
@@ -93,7 +102,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         this.status = status;
     }
 
-    void handleIgnoreSuffixPatternsChanged() {
+    public void handleIgnoreSuffixPatternsChanged() {
         if (StringUtil.isNotBlank(ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns())) {
             ignoreSuffixArray = ignoreSuffixPatternsWatcher.getIgnoreSuffixPatterns().split(",");
         }

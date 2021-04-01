@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -53,7 +54,8 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
     public Events queryEvents(final EventQueryCondition condition) throws Exception {
         final SearchSourceBuilder sourceBuilder = buildQuery(condition);
 
-        final SearchResponse response = getClient().search(Event.INDEX_NAME, sourceBuilder);
+        final SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME), sourceBuilder);
 
         final Events events = new Events();
         events.setTotal((int) response.getHits().totalHits);
@@ -84,7 +86,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
                 mustQueryList.add(QueryBuilders.termQuery(Event.SERVICE_INSTANCE, source.getServiceInstance()));
             }
             if (!isNullOrEmpty(source.getEndpoint())) {
-                mustQueryList.add(QueryBuilders.matchPhraseQuery(MatchCNameBuilder.INSTANCE.build(Event.ENDPOINT), source.getEndpoint()));
+                mustQueryList.add(QueryBuilders.matchPhraseQuery(
+                    MatchCNameBuilder.INSTANCE.build(Event.ENDPOINT),
+                    source.getEndpoint()
+                ));
             }
         }
 

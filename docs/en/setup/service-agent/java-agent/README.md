@@ -237,7 +237,3 @@ our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md)
 If you are interested in plugin compatible tests or agent performance, see the following reports.
 * [Plugin Test in every Pull Request](https://github.com/apache/skywalking/actions?query=workflow%3APluginsTest)
 * [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)
-
-# Notice
-¹ Due to gRPC didn't support JDK 1.6 since 2018, SkyWalking abandoned the JDK 6/7 supports in all 7.x releases. 
-But, with gRPC back forward compatibility(at least for now), all SkyWalking 6.x agents could work with 7.x, including the agent and backend.

@@ -57,11 +57,6 @@ jobs:
         uses: ./.github/actions/e2e-test
         with:
           test_class: org.apache.skywalking.e2e.simple.SimpleE2E
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
 
   FeatureGroup02:
     name: ${{ matrix.case.name }}
@@ -99,8 +94,3 @@ jobs:
         uses: ./.github/actions/e2e-test
         with:
           test_class: ${{ matrix.case.class }}
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.e2e;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import java.net.URI;
 import java.net.URL;
@@ -75,6 +76,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class SimpleQueryClient {
     protected final RestTemplate restTemplate = new RestTemplate();
+    protected final ObjectMapper objectMapper = new ObjectMapper();
 
     protected final String endpointUrl;
 
@@ -99,7 +101,8 @@ public class SimpleQueryClient {
                                             .replace("{pageNum}", query.pageNum())
                                             .replace("{pageSize}", query.pageSize())
                                             .replace("{needTotal}", query.needTotal())
-                                            .replace("{queryOrder}", query.queryOrder());
+                                            .replace("{queryOrder}", query.queryOrder())
+                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()));
         final ResponseEntity<GQLResponse<TracesData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
             new ParameterizedTypeReference<GQLResponse<TracesData>>() {
@@ -329,7 +332,8 @@ public class SimpleQueryClient {
                                             .replace("{end}", query.end())
                                             .replace("{metricsName}", query.metricsName())
                                             .replace("{serviceName}", query.serviceName())
-                                            .replace("{instanceName}", query.instanceName());
+                                            .replace("{instanceName}", query.instanceName())
+                                            .replace("{scope}", query.scope());
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<ReadMetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -414,7 +418,8 @@ public class SimpleQueryClient {
                                             .replace("{needTotal}", query.needTotal())
                                             .replace("{keywordsOfContent}", query.keywordsOfContent())
                                             .replace(
-                                                "{excludingKeywordsOfContent}", query.excludingKeywordsOfContent());
+                                                "{excludingKeywordsOfContent}", query.excludingKeywordsOfContent())
+                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()));
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<LogData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),

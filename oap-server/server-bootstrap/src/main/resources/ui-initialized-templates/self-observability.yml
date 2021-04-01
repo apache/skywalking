@@ -64,7 +64,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_jvm_young_gc_count,meter_instance_jvm_old_gc_count",
+                  "metricName": "meter_oap_instance_jvm_young_gc_count,meter_oap_instance_jvm_old_gc_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -76,7 +76,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_jvm_young_gc_time,meter_instance_jvm_old_gc_time",
+                  "metricName": "meter_oap_instance_jvm_young_gc_time,meter_oap_instance_jvm_old_gc_time",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "Millisecond"
@@ -88,7 +88,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_trace_count,meter_instance_trace_analysis_error_count",
+                  "metricName": "meter_oap_instance_trace_count,meter_oap_instance_trace_analysis_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -114,7 +114,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_mesh_count,meter_instance_mesh_analysis_error_count",
+                  "metricName": "meter_oap_instance_mesh_count,meter_oap_instance_mesh_analysis_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -140,7 +140,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_metrics_first_aggregation,meter_instance_metrics_second_aggregation",
+                  "metricName": "meter_oap_instance_metrics_first_aggregation,meter_oap_instance_metrics_second_aggregation",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per Minute"
@@ -152,7 +152,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_oap_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
+                  "metricName": "meter_oap_instance_persistence_prepare_count,meter_oap_instance_persistence_execute_count,meter_oap_instance_persistence_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per 5 Minutes"

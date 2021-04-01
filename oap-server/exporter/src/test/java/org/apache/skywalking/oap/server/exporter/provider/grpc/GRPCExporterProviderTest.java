@@ -92,7 +92,7 @@ public class GRPCExporterProviderTest {
         when(manager.find(CoreModule.NAME)).thenReturn(providerHolder);
         when(providerHolder.provider()).thenReturn(serviceHolder);
 
-        doNothing().when(exporter).initSubscriptionList();
+        doNothing().when(exporter).fetchSubscriptionList();
 
         grpcExporterProvider.setManager(manager);
         Whitebox.setInternalState(grpcExporterProvider, "exporter", exporter);

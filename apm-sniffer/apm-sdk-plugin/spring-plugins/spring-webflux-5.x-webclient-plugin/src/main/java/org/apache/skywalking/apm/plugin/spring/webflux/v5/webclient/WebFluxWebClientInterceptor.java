@@ -54,7 +54,7 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
         final String remotePeer = getIPAndPort(uri);
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
-        //set componet name
+        //set components name
         span.setComponent(ComponentsDefine.SPRING_WEBCLIENT);
         Tags.URL.set(span, uri.toString());
         Tags.HTTP.METHOD.set(span, request.method().toString());

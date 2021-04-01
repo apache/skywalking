@@ -57,7 +57,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
     }
 
     @Override
-    public void parse(final LogData.Builder logData) {
+    public LogAnalysisListener parse(final LogData.Builder logData) {
         LogDataBody body = logData.getBody();
         log.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
         // timestamp
@@ -105,6 +105,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
             log.setTagsRawData(logData.getTags().toByteArray());
         }
         log.getTags().addAll(appendSearchableTags(logData));
+        return this;
     }
 
     private Collection<Tag> appendSearchableTags(LogData.Builder logData) {
@@ -112,9 +113,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         logData.getTags().getDataList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
                 final Tag logTag = new Tag(tag.getKey(), tag.getValue());
-                if (!logTags.contains(logTag)) {
-                    logTags.add(logTag);
-                }
+                logTags.add(logTag);
             }
         });
         return logTags;
@@ -139,8 +138,7 @@ public class RecordAnalysisListener implements LogAnalysisListener {
         }
 
         @Override
-        public LogAnalysisListener create(final ModuleManager moduleManager,
-                                          final LogAnalyzerModuleConfig moduleConfig) {
+        public LogAnalysisListener create() {
             return new RecordAnalysisListener(sourceReceiver, namingControl, searchableTagKeys);
         }
     }

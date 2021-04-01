@@ -15,7 +15,7 @@
 
 FROM openresty/openresty:1.17.8.2-5-alpine-fat
 
-ENV COMMIT_HASH=cda47ae0a507ab86a378a298325c3c94d9a773c2
+ENV COMMIT_HASH=c3cee4841798a147d83b96a10914d4ac0e11d0aa
 
 WORKDIR /usr/share/skywalking-nginx-lua
 
@@ -24,3 +24,6 @@ ADD https://github.com/apache/skywalking-nginx-lua/archive/${COMMIT_HASH}.tar.gz
 RUN tar -xf ${COMMIT_HASH}.tar.gz --strip 1
 
 RUN rm ${COMMIT_HASH}.tar.gz
+
+RUN luarocks make rockspec/skywalking-nginx-lua-master-0.rockspec
+

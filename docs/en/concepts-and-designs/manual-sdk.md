@@ -1,9 +1,9 @@
 # Manual instrument SDK
-We have manual instrument SDK contributed from the community.
-- [Go2Sky](https://github.com/SkyAPM/go2sky). Go SDK follows SkyWalking format.
-- [C++](https://github.com/SkyAPM/cpp2sky). C++ SDK follows SkyWalking format. 
+Our incredible community has contributed to the manual instrument SDK.
+- [Go2Sky](https://github.com/SkyAPM/go2sky). Go SDK follows the SkyWalking format.
+- [C++](https://github.com/SkyAPM/cpp2sky). C++ SDK follows the SkyWalking format. 
 
-## What is SkyWalking formats and propagation protocols?
+## What are the SkyWalking format and the propagation protocols?
 See these protocols in [protocols document](../protocols/README.md).
 
 ## Envoy tracer

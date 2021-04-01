@@ -33,7 +33,7 @@
 
         <test.framework.version>7.3.0</test.framework.version>
 
-        <elasticsearch.version>7.3.0</elasticsearch.version>
+        <elasticsearch.version>7.5.0</elasticsearch.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
     </properties>
 

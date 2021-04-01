@@ -23,6 +23,7 @@ import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -92,42 +93,7 @@ public class Expression {
     }
 
     private void empower() {
-        expression.setDelegate(new GroovyObjectSupport() {
-
-            public SampleFamily propertyMissing(String metricName) {
-                ExpressionParsingContext.get().ifPresent(ctx -> {
-                    if (!ctx.samples.contains(metricName)) {
-                        ctx.samples.add(metricName);
-                    }
-                });
-                ImmutableMap<String, SampleFamily> sampleFamilies = propertyRepository.get();
-                if (sampleFamilies == null) {
-                    return SampleFamily.EMPTY;
-                }
-                if (sampleFamilies.containsKey(metricName)) {
-                    return sampleFamilies.get(metricName);
-                }
-                if (!ExpressionParsingContext.get().isPresent()) {
-                    log.warn("{} referred by \"{}\" doesn't exist in {}", metricName, literal, sampleFamilies.keySet());
-                }
-                return SampleFamily.EMPTY;
-            }
-
-            public SampleFamily avg(SampleFamily sf) {
-                ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.AVG);
-                return sf;
-            }
-
-            public SampleFamily latest(SampleFamily sf) {
-                ExpressionParsingContext.get().ifPresent(ctx -> ctx.downsampling = DownsamplingType.LATEST);
-                return sf;
-            }
-
-            public Number time() {
-                return Instant.now().getEpochSecond();
-            }
-
-        });
+        expression.setDelegate(new ExpressionDelegate(literal, propertyRepository));
         extendNumber(Number.class);
     }
 
@@ -138,5 +104,40 @@ public class Expression {
         expando.registerInstanceMethod("multiply", new NumberClosure(this, (n, s) -> s.multiply(n)));
         expando.registerInstanceMethod("div", new NumberClosure(this, (n, s) -> s.newValue(v -> n.doubleValue() / v)));
         expando.initialize();
+    }
+
+    @RequiredArgsConstructor
+    @SuppressWarnings("unused") // used in MAL expressions
+    public static class ExpressionDelegate extends GroovyObjectSupport {
+        public static final DownsamplingType AVG = DownsamplingType.AVG;
+        public static final DownsamplingType SUM = DownsamplingType.SUM;
+        public static final DownsamplingType LATEST = DownsamplingType.LATEST;
+
+        private final String literal;
+        private final ThreadLocal<ImmutableMap<String, SampleFamily>> propertyRepository;
+
+        public SampleFamily propertyMissing(String metricName) {
+            ExpressionParsingContext.get().ifPresent(ctx -> {
+                if (!ctx.samples.contains(metricName)) {
+                    ctx.samples.add(metricName);
+                }
+            });
+            ImmutableMap<String, SampleFamily> sampleFamilies = propertyRepository.get();
+            if (sampleFamilies == null) {
+                return SampleFamily.EMPTY;
+            }
+            if (sampleFamilies.containsKey(metricName)) {
+                return sampleFamilies.get(metricName);
+            }
+            if (!ExpressionParsingContext.get().isPresent()) {
+                log.warn("{} referred by \"{}\" doesn't exist in {}", metricName, literal, sampleFamilies.keySet());
+            }
+            return SampleFamily.EMPTY;
+        }
+
+        public Number time() {
+            return Instant.now().getEpochSecond();
+        }
+
     }
 }

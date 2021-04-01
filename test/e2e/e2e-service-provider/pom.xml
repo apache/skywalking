@@ -34,7 +34,6 @@
     <artifactId>e2e-service-provider</artifactId>
 
     <properties>
-        <sw.version>8.4.0</sw.version>
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.7</log4j2.version>
         <logback.version>1.2.3</logback.version>

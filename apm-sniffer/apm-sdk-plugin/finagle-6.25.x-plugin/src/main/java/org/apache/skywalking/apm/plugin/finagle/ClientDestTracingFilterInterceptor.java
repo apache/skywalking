@@ -33,7 +33,7 @@ import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 /**
  * When we create exitspan in ClientTracingFilter, we can't know the remote address because the ClientTracingFilter
  * is above the loadbalancefilter in the rpc call stack. However by intercept the ClientDestTracingFilter, we can get
- * the remote adress and set it to exitspan and contextCarrier.
+ * the remote address and set it to exitspan and contextCarrier.
  */
 public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
 

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -60,7 +61,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-            storage.getDownsampling(), record, isSuperDatasetModel(aClass)
+            storage.getDownsampling(), record,
+            isSuperDatasetModel(aClass),
+            FunctionCategory.uniqueFunctionName(aClass)
         );
 
         this.followColumnNameRules(model);

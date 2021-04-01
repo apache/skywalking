@@ -13,5 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-serviceName: e2e::${LABELS.app}
+serviceName: e2e::${LABELS."service.istio.io/canonical-name"}
 serviceInstanceName: ${NAME}
