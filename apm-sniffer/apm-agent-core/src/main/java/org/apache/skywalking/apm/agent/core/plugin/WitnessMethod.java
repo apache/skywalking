@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -28,7 +27,6 @@ import net.bytebuddy.matcher.ElementMatcher;
  * Witness Method for plugin activation
  */
 @ToString
-@RequiredArgsConstructor
 public class WitnessMethod {
 
     /**
@@ -36,10 +34,34 @@ public class WitnessMethod {
      */
     @Getter
     private final String declaringClassName;
+
     /**
      * matcher to match the witness method
      */
     @Getter
     private final ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher;
 
+    /**
+     * if exclusiveMode is {@link java.lang.Boolean#TRUE}, we do not want the selected method exists.
+     * But in either cases, the declaring class should exist.
+     */
+    @Getter
+    private final boolean exclusiveMode;
+
+    /**
+     * Shorthand constructor for WitnessMethod without breaking existing methods.
+     * By default, the witness method works in the inclusive mode
+     *
+     * @param declaringClassName the class to find the specific method
+     * @param elementMatcher     element matcher used to filter the declared methods in the class
+     */
+    public WitnessMethod(String declaringClassName, ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher) {
+        this(declaringClassName, elementMatcher, false);
+    }
+
+    public WitnessMethod(String declaringClassName, ElementMatcher<? super MethodDescription.InDefinedShape> elementMatcher, boolean exclusiveMode) {
+        this.declaringClassName = declaringClassName;
+        this.elementMatcher = elementMatcher;
+        this.exclusiveMode = exclusiveMode;
+    }
 }

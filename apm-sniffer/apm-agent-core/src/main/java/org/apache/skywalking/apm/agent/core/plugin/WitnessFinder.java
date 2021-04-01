@@ -43,8 +43,9 @@ public enum WitnessFinder {
 
     /**
      * get TypePool.Resolution of the witness class
+     *
      * @param witnessClass class name
-     * @param classLoader classLoader for finding the witnessClass
+     * @param classLoader  classLoader for finding the witnessClass
      * @return TypePool.Resolution
      */
     private TypePool.Resolution getResolution(String witnessClass, ClassLoader classLoader) {
@@ -70,10 +71,17 @@ public enum WitnessFinder {
         if (!resolution.isResolved()) {
             return false;
         }
-        return !resolution.resolve()
+        // i.e. inclusive mode
+        if (!witnessMethod.isExclusiveMode()) {
+            return !resolution.resolve()
+                    .getDeclaredMethods()
+                    .filter(witnessMethod.getElementMatcher())
+                    .isEmpty();
+        }
+        // check with exclusive mode
+        return resolution.resolve()
                 .getDeclaredMethods()
-                .filter(witnessMethod.getElementMatcher())
-                .isEmpty();
+                .filter(witnessMethod.getElementMatcher()).isEmpty();
     }
 
 }
