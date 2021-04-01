@@ -55,14 +55,14 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        final ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        ReactiveResponseHolder responseHolder = (ReactiveResponseHolder) objInst.getSkyWalkingDynamicField();
+        final AbstractSpan span = responseHolder.getSpan();
         return ((Mono) ret).doFinally(s -> {
-            final ReactiveResponseHolder responseHolder = (ReactiveResponseHolder) objInst.getSkyWalkingDynamicField();
-            HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-            AbstractSpan span = responseHolder.getSpan();
             if (span == null) {
                 return;
             }
+            HttpStatus httpStatus = exchange.getResponse().getStatusCode();
             if (httpStatus != null && httpStatus.isError()) {
                 span.errorOccurred();
                 Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
