@@ -28,6 +28,7 @@ Release Notes.
 * Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
 * Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
 * Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
+* Fix springmvc reactive api can't collect HTTP statusCode.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
