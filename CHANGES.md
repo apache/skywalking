@@ -25,6 +25,9 @@ Release Notes.
 * Support jedis pipeline in jedis-2.x-plugin.
 * Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
 * Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
+* Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
+* Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
+* Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -60,6 +63,9 @@ Release Notes.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
 * Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
+* Fix ALS K8SServiceRegistry didn't remove the correct entry.
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name
+* Append the root slash(/) to getIndex and getTemplate requests in ES client
 
 #### UI
 * Update selector scroller to show in all pages.
