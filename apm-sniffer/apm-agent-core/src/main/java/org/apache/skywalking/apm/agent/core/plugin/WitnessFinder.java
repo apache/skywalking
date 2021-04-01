@@ -36,7 +36,7 @@ public enum WitnessFinder {
      * @param classLoader for finding the witnessClass
      * @return true, if the given witnessClass exists, through the given classLoader.
      */
-    public boolean exist(String witnessClass, ClassLoader classLoader) {
+    public boolean satisfy(String witnessClass, ClassLoader classLoader) {
         return getResolution(witnessClass, classLoader)
                 .isResolved();
     }
@@ -68,7 +68,7 @@ public enum WitnessFinder {
      * and the given witness method does not exist in the exclusive mode
      * through the given classLoader.
      */
-    public boolean exist(WitnessMethod witnessMethod, ClassLoader classLoader) {
+    public boolean satisfy(WitnessMethod witnessMethod, ClassLoader classLoader) {
         TypePool.Resolution resolution = getResolution(witnessMethod.getDeclaringClassName(), classLoader);
         if (!resolution.isResolved()) {
             return false;

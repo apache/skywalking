@@ -40,7 +40,7 @@ public class WitnessTest {
 
     @Test
     public void testWitnessClass() {
-        Assert.assertTrue(finder.exist(className, this.getClass().getClassLoader()));
+        Assert.assertTrue(finder.satisfy(className, this.getClass().getClassLoader()));
     }
 
     @Test
@@ -50,14 +50,24 @@ public class WitnessTest {
                 .and(ElementMatchers.takesGenericArgument(0, target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
                 .and(ElementMatchers.takesArgument(1, target -> "java.lang.String".equals(target.getName())));
         WitnessMethod witnessMethod = new WitnessMethod(className, junction);
-        Assert.assertTrue(finder.exist(witnessMethod, this.getClass().getClassLoader()));
+        Assert.assertTrue(finder.satisfy(witnessMethod, this.getClass().getClassLoader()));
+    }
+
+    @Test
+    public void testWitnessMethodInExclusiveMode() {
+        ElementMatcher.Junction<MethodDescription> junction = ElementMatchers.named("bar")
+                .and(ElementMatchers.returnsGeneric(target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
+                .and(ElementMatchers.takesGenericArgument(0, target -> "java.util.List<java.util.Map<java.lang.String, java.lang.Object>>".equals(target.getTypeName())))
+                .and(ElementMatchers.takesArgument(1, target -> "java.lang.String".equals(target.getName())));
+        WitnessMethod witnessMethod = new WitnessMethod(className, junction, true);
+        Assert.assertTrue(finder.satisfy(witnessMethod, this.getClass().getClassLoader()));
     }
 
     @Test
     public void testWitnessMethodOnlyUsingName() {
         ElementMatcher.Junction<MethodDescription> junction = ElementMatchers.named("foo");
         WitnessMethod witnessMethod = new WitnessMethod(className, junction);
-        Assert.assertTrue(finder.exist(witnessMethod, this.getClass().getClassLoader()));
+        Assert.assertTrue(finder.satisfy(witnessMethod, this.getClass().getClassLoader()));
     }
 
     public List<Map<String, Object>> foo(List<Map<String, Object>> param, String s) {
