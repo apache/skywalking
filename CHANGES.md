@@ -28,6 +28,7 @@ Release Notes.
 * Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
 * Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
 * Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info
+* Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -63,6 +64,8 @@ Release Notes.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
 * Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
+* Fix ALS K8SServiceRegistry didn't remove the correct entry.
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name
 
 #### UI
 * Update selector scroller to show in all pages.
