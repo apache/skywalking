@@ -140,6 +140,7 @@ public class CoreModuleConfig extends ModuleConfig {
      * @since 8.5.0
      */
     @Setter
+    @Getter
     private int syncThreads = 2;
 
     /**
@@ -152,10 +153,6 @@ public class CoreModuleConfig extends ModuleConfig {
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
-    }
-
-    public int getSyncThreads() {
-        return this.syncThreads > 0 ? this.syncThreads : Runtime.getRuntime().availableProcessors();
     }
 
     /**
