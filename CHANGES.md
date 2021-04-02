@@ -5,7 +5,7 @@ Release Notes.
 8.5.0
 ------------------
 #### Project
-* **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option have been changed. 
+* **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option have been changed.
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
 * Upgrade lombok to 1.18.16.
@@ -50,13 +50,13 @@ Release Notes.
 * Upgrade the Zipkin Elasticsearch storage from 6 to 7.
 * Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
 * Fix `DatabaseSlowStatementBuilder` statement maybe null.
-* Remove fields of parent entity in the relation sources. 
+* Remove fields of parent entity in the relation sources.
 * Save Envoy http access logs when error occurs.
 * Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
 * Fix wrong metrics name setting in the `self-observability.yml`.
 * Add telemetry data about metrics in, metrics scraping, mesh error and trace in metrics to zipkin receiver.
 * Fix tags store of log and trace on h2/mysql/pg storage.
-* Merge indices by Metrics Function and Meter Function in Elasticsearch Storage. 
+* Merge indices by Metrics Function and Meter Function in Elasticsearch Storage.
 * Fix receiver don't need to get itself when healthCheck
 * Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
 * Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
@@ -64,6 +64,7 @@ Release Notes.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
 * Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
+* Make the flushing metrics operation concurrent.
 * Fix ALS K8SServiceRegistry didn't remove the correct entry.
 * Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name
 * Append the root slash(/) to getIndex and getTemplate requests in ES client
