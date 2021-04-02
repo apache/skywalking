@@ -74,7 +74,7 @@ metricsRules:
   - name: service_total
     exp: kube_service_info.sum(['cluster'])
   - name: service_pod_status
-    exp: kube_pod_status_phase.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').valueEqual(1).sum(['cluster' , 'service' , 'phase'])
+    exp: kube_pod_status_phase.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').valueEqual(1).sum(['cluster' , 'service' , 'phase'])
 
   - name: pod_total
     exp: kube_pod_info.sum(['cluster'])

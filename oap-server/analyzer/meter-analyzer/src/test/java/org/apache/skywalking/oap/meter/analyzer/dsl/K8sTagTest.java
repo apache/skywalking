@@ -133,7 +133,7 @@ public class K8sTagTest {
                           .labels(
                               of(
                                   "namespace", "default", "container", "my-nginx", "cpu", "total", "pod",
-                                  "my-nginx-5dc4865748-no-pod"
+                                  "my-nginx-5dc4865748-no-pod" , "service", ""
                               ))
                           .value(2)
                           .build(),
@@ -175,7 +175,7 @@ public class K8sTagTest {
                           .labels(
                               of(
                                   "namespace", "default", "container", "my-nginx", "cpu", "total", "pod",
-                                  "my-nginx-5dc4865748-no-service"
+                                  "my-nginx-5dc4865748-no-service" , "service", ""
                               ))
                           .value(2)
                           .build(),
