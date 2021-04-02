@@ -130,7 +130,7 @@ endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.RPC, Reque
 endpoint_url_sum = from(Endpoint.*).filter(endpointName in ["/v1", "/v2"]).sum()
 
 // Calculate the sum of calls for each service.
-endpoint_calls = from(Endpoint.*).sum()
+endpoint_calls = from(Endpoint.*).count()
 
 // Calculate the CPM with the GET method for each service.The value is made up with `tagKey:tagValue`.
 service_cpm_http_get = from(Service.*).filter(tags contain "http.method:GET").cpm()
