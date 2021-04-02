@@ -30,8 +30,6 @@ Release Notes.
 * Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
 * Fix bug that asynchttpclient plugin does not record the response status code
 
-
-
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
 * Metrics combination API supports abandoning results.
