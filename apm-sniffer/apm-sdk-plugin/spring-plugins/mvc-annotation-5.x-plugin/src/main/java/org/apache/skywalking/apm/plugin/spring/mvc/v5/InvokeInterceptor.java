@@ -55,10 +55,10 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
-        final ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        ReactiveResponseHolder responseHolder = (ReactiveResponseHolder) objInst.getSkyWalkingDynamicField();
-        final AbstractSpan span = responseHolder.getSpan();
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         return ((Mono) ret).doFinally(s -> {
+            ReactiveResponseHolder responseHolder = (ReactiveResponseHolder) objInst.getSkyWalkingDynamicField();
+            AbstractSpan span = responseHolder.getSpan();
             if (span == null) {
                 return;
             }
