@@ -21,6 +21,6 @@ package org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 
 public interface Retag {
-    final static String BLANK = "";
+    String BLANK = "";
     Sample[] execute(Sample[] ss, String newLabelName, String existingLabelName, String namespaceLabelName);
 }
