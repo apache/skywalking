@@ -98,7 +98,7 @@ All metrics data will be grouped by Scope.ID and min-level TimeBucket.
 ## Disable
 `Disable` is an advanced statement in OAL, which is only used in certain cases.
 Some of the aggregation and metrics are defined through core hard codes. Examples include `segment` and `top_n_database_statement`.
-This `disable` statement is designed for rendering them inactive.
+This `disable` statement is designed to render them inactive.
 By default, none of them are disabled.
 
 ## Examples
