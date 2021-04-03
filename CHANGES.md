@@ -29,6 +29,7 @@ Release Notes.
 * Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
 * Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info
 * Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
+* Fix bug that asynchttpclient plugin does not record the response status code
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
