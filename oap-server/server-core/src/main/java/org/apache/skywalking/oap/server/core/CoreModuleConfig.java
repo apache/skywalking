@@ -134,6 +134,23 @@ public class CoreModuleConfig extends ModuleConfig {
     @Getter
     private String searchableLogsTags = "";
 
+    /**
+     * The number of threads used to synchronously refresh the metrics data to the storage.
+     *
+     * @since 8.5.0
+     */
+    @Setter
+    @Getter
+    private int syncThreads = 2;
+
+    /**
+     * The maximum number of processes supported for each synchronous storage operation. When the number of the flush
+     * data is greater than this value, it will be assigned to multiple cores for execution.
+     */
+    @Getter
+    @Setter
+    private int maxSyncOperationNum = 50000;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
