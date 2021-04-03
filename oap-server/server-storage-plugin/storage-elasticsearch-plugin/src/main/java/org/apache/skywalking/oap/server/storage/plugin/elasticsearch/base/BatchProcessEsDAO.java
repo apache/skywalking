@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.List;
-
-import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -39,14 +37,15 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
     private BulkProcessor bulkProcessor;
     private final int bulkActions;
-    private final int syncBulkActions;
     private final int flushInterval;
     private final int concurrentRequests;
 
-    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int syncBulkActions, int flushInterval, int concurrentRequests) {
+    public BatchProcessEsDAO(ElasticSearchClient client,
+                             int bulkActions,
+                             int flushInterval,
+                             int concurrentRequests) {
         super(client);
         this.bulkActions = bulkActions;
-        this.syncBulkActions = syncBulkActions;
         this.flushInterval = flushInterval;
         this.concurrentRequests = concurrentRequests;
     }
@@ -63,20 +62,15 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     @Override
     public void synchronous(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
-            List<List<PrepareRequest>> partitions = Lists.partition(prepareRequests, syncBulkActions);
-
-            for (List<PrepareRequest> partition : partitions) {
-                BulkRequest request = new BulkRequest();
-
-                for (PrepareRequest prepareRequest : partition) {
-                    if (prepareRequest instanceof InsertRequest) {
-                        request.add((IndexRequest) prepareRequest);
-                    } else {
-                        request.add((UpdateRequest) prepareRequest);
-                    }
+            BulkRequest request = new BulkRequest();
+            for (PrepareRequest prepareRequest : prepareRequests) {
+                if (prepareRequest instanceof InsertRequest) {
+                    request.add((IndexRequest) prepareRequest);
+                } else {
+                    request.add((UpdateRequest) prepareRequest);
                 }
-                getClient().synchronousBulk(request);
             }
+            getClient().synchronousBulk(request);
         }
     }
 }
