@@ -85,6 +85,9 @@ Find the [demo](https://skywalking.apache.org/#demo) and [screenshots](https://s
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.
 Visit our [website](http://skywalking.apache.org/#users) to find the user page.
 
+# Contributor Over Time
+
+![image](https://user-images.githubusercontent.com/2106987/113481423-0bf86700-94cc-11eb-97e9-239deb0ae9f5.png)
 
 # Landscapes
 
