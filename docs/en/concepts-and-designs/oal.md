@@ -63,21 +63,21 @@ Parameter (2) is the `denominator` condition.
 
 In this case, the number of calls of each service. 
 
-- `histogram`. See [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map)
+- `histogram`. See [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map).
 > all_heatmap = from(All.latency).histogram(100, 20);
 
 In this case, the thermodynamic heatmap of all incoming requests. 
 Parameter (1) is the precision of latency calculation, such as in the above case, where 113ms and 193ms are considered the same in the 101-200ms group.
 Parameter (2) is the group amount. In the above case, 21(param value + 1) groups are 0-100ms, 101-200ms, ... 1901-2000ms, 2000+ms 
 
-- `apdex`. See [Apdex in WIKI](https://en.wikipedia.org/wiki/Apdex)
+- `apdex`. See [Apdex in WIKI](https://en.wikipedia.org/wiki/Apdex).
 > service_apdex = from(Service.latency).apdex(name, status);
 
 In this case, the apdex score of each service.
 Parameter (1) is the service name, which reflects the Apdex threshold value loaded from service-apdex-threshold.yml in the config folder.
 Parameter (2) is the status of this request. The status(success/failure) reflects the Apdex calculation.
 
-- `p99`, `p95`, `p90`, `p75`, `p50`. See [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile)
+- `p99`, `p95`, `p90`, `p75`, `p50`. See [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile).
 > all_percentile = from(All.latency).percentile(10);
 
 **percentile** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
