@@ -166,6 +166,8 @@ property key | Description | Default |
 `plugin.toolkit.log.grpc.reporter.server_port` | Specify which grpc server's port for log data to report to. | `11800` |
 `plugin.toolkit.log.grpc.reporter.max_message_size` | Specify the maximum size of log data for grpc client to report to. | `10485760` |
 `plugin.toolkit.log.grpc.reporter.upstream_timeout` | How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
+`plugin.lettuce.trace_redis_parameters` | If set to true, the parameters of Redis commands would be collected by Lettuce agent.| `false` |
+`plugin.lettuce.redis_parameter_max_length` | If set to positive number and `plugin.lettuce.trace_redis_parameters` is set to `true`, Redis command parameters would be collected and truncated to this length.| `128` |
 
 ## Dynamic Configurations
 All configurations above are static, if you need to change some agent settings at runtime, please read [CDS - Configuration Discovery Service document](configuration-discovery.md) for more details.
