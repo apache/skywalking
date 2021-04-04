@@ -17,14 +17,25 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 
 public class ReactiveResponseHolder implements ResponseHolder {
 
     private final ServerHttpResponse response;
 
+    private AbstractSpan span;
+
     public ReactiveResponseHolder(final ServerHttpResponse response) {
         this.response = response;
+    }
+
+    public void setSpan(AbstractSpan span) {
+        this.span = span;
+    }
+
+    public AbstractSpan getSpan() {
+        return this.span;
     }
 
     @Override
