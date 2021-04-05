@@ -142,7 +142,7 @@ segmentItems:
       peer: ''
       tags:
       - {key: p1, value: lisi}
-      - {key: p2, value: 16}
+      - {key: p2, value: '16'}
       - {key: username, value: lisi}
       skipAnalysis: 'true'
     - operationName: /case/tool-kit

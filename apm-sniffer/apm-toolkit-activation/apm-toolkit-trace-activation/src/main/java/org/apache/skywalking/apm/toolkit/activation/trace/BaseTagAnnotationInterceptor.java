@@ -68,7 +68,6 @@ public class BaseTagAnnotationInterceptor {
         if (tag != null && TagUtil.isReturnTag(tag.value())) {
             TagUtil.tagReturnSpanSpan(localSpan, context, tag);
         }
-        return;
     }
 
     void handleMethodException(Throwable t) {
