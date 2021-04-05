@@ -16,7 +16,9 @@
 
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotationActivation
+toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceStaticAnnotationActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceContextActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableActivation
 toolkit-tag=org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationActivation
+toolkit-tag=org.apache.skywalking.apm.toolkit.activation.trace.TagStaticAnnotationActivation
 toolkit-exception=org.apache.skywalking.apm.toolkit.activation.trace.IgnoredExceptionAnnotationActivation

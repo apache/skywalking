@@ -47,6 +47,12 @@ public class TestController {
     @Autowired
     private TestService testService;
 
+    @RequestMapping("/tool-static-kit")
+    public String toolStaticKitCase() {
+        TestService.testStatic("lisi", 16);
+        return "success";
+    }
+
     @RequestMapping("/tool-kit")
     public String toolKitCase() {
         testService.testSetOperationName("tool-kit-set-operation-name");
@@ -58,6 +64,7 @@ public class TestController {
         testService.testErrorThrowable();
         testService.testTagAnnotation("testTagAnnotationParam1", "testTagAnnotationParam2");
         testService.testTagAnnotationReturnInfo("zhangsan", 15);
+        TestService.testStatic("lisi", 16);
         TraceContext.putCorrelation(CORRELATION_CONTEXT_KEY, CORRELATION_CONTEXT_VALUE);
         ActiveSpan.tag("traceID", TraceContext.traceId());
         ActiveSpan.tag("segmentID", TraceContext.segmentId());
