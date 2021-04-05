@@ -32,6 +32,7 @@ Release Notes.
 * Fix springmvc reactive api can't collect HTTP statusCode.
 * Fix bug that asynchttpclient plugin does not record the response status code
 * Fix spanLayer is null in optional plugin(gateway-2.0.x-plugin gateway-2.1.x-plugin).
+* Support @Trace, @Tag and @Tags work for static methods.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.

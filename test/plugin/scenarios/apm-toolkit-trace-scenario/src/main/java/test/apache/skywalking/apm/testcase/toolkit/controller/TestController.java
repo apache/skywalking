@@ -47,12 +47,6 @@ public class TestController {
     @Autowired
     private TestService testService;
 
-    @RequestMapping("/tool-static-kit")
-    public String toolStaticKitCase() {
-        TestService.testStatic("lisi", 16);
-        return "success";
-    }
-
     @RequestMapping("/tool-kit")
     public String toolKitCase() {
         testService.testSetOperationName("tool-kit-set-operation-name");
