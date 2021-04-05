@@ -27,10 +27,10 @@ Release Notes.
 * Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
 * Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
 * Fix bug that springmvc-annotation-4.x-plugin, witness class does not exist in some versions.
-* Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info
+* Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info.
 * Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
 * Fix springmvc reactive api can't collect HTTP statusCode.
-* Fix bug that asynchttpclient plugin does not record the response status code
+* Fix bug that asynchttpclient plugin does not record the response status code.
 * Fix spanLayer is null in optional plugin(gateway-2.0.x-plugin gateway-2.1.x-plugin).
 
 #### OAP-Backend
@@ -43,7 +43,7 @@ Release Notes.
 * Update the Apdex metric combine calculator.
 * Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
 * Storage plugin supports postgresql.
-* Fix kubernetes.client.opeanapi.ApiException.
+* Fix kubernetes.client.openapi.ApiException.
 * Remove filename suffix in the meter active file config.
 * Introduce log analysis language (LAL).
 * Fix alarm httpclient connection leak.
