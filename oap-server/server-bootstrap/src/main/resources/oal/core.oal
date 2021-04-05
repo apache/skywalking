@@ -68,14 +68,3 @@ database_access_resp_time = from(DatabaseAccess.latency).longAvg();
 database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
-
-// Disable unnecessary hard core stream, targeting @Stream#name
-/////////
-// disable(segment);
-// disable(endpoint_relation_server_side);
-// disable(top_n_database_statement);
-// disable(zipkin_span);
-// disable(jaeger_span);
-// disable(profile_task);
-// disable(profile_task_log);
-// disable(profile_task_segment_snapshot);
