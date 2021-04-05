@@ -31,6 +31,7 @@ Release Notes.
 * Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
 * Fix springmvc reactive api can't collect HTTP statusCode.
 * Fix bug that asynchttpclient plugin does not record the response status code
+* Fix spanLayer is null in optional plugin(gateway-2.0.x-plugin gateway-2.1.x-plugin).
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -68,8 +69,9 @@ Release Notes.
 * Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
 * Make the flushing metrics operation concurrent.
 * Fix ALS K8SServiceRegistry didn't remove the correct entry.
-* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name
-* Append the root slash(/) to getIndex and getTemplate requests in ES client
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
+* Append the root slash(/) to getIndex and getTemplate requests in ES client.
+* Fix `disable` statement not working. This bug exists since 8.0.0.
 
 #### UI
 * Update selector scroller to show in all pages.

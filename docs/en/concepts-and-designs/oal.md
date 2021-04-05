@@ -101,6 +101,8 @@ Some of the aggregation and metrics are defined through core hard codes. Example
 This `disable` statement is designed to render them inactive.
 By default, none of them are disabled.
 
+**NOTICE**, all disable statements should be in `oal/disable.oal` script file. 
+
 ## Examples
 ```
 // Calculate p99 of both Endpoint1 and Endpoint2

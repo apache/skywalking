@@ -284,3 +284,8 @@ SkyWalking Resources:
 
 - Apache SkyWalking Team
 ```
+
+## Clean old release
+Once the latest release published, we should clean the old releases from mirror system.
+1. Update the download links(source, dist, asc, sha512) on the website to archive repo, https://archive.apache.org/dist/skywalking.
+2. After (1) deployed, remove previous releases from https://dist.apache.org/repos/dist/release/skywalking/.
