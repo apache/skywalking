@@ -42,6 +42,14 @@ public class TestService {
     });
 
     @Trace
+    @Tag(key = "p1", value = "arg[0]")
+    @Tag(key = "p2", value = "arg[1]")
+    @Tag(key = "username", value = "returnedObj.username")
+    public static User testStatic(final String username, final Integer age) {
+        return new User(username, age);
+    }
+
+    @Trace
     public void testTag() {
         ActiveSpan.tag("key", "value");
     }
