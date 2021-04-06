@@ -16,26 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+package org.apache.skywalking.oap.server.core.oal.rt;
 
-import org.junit.Assert;
-import org.junit.Test;
+public class DisableOALDefine extends OALDefine {
+    public static final DisableOALDefine INSTANCE = new DisableOALDefine();
 
-public class MachineInfoTest {
-
-    @Test
-    public void testMachine() {
-        int processNo = MachineInfo.getProcessNo();
-        Assert.assertTrue(processNo >= 0);
-
-        String hostIp = MachineInfo.getHostIp();
-        Assert.assertTrue(!StringUtil.isEmpty(hostIp));
-
-        String hostName = MachineInfo.getHostName();
-        Assert.assertTrue(!StringUtil.isEmpty(hostName));
-
-        String hostDesc = MachineInfo.getHostDesc();
-        Assert.assertTrue(!StringUtil.isEmpty(hostDesc) && hostDesc.contains("/"));
+    private DisableOALDefine() {
+        super(
+            "oal/disable.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
     }
-
 }

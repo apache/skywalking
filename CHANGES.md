@@ -26,9 +26,13 @@ Release Notes.
 * Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
 * Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
 * Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
-* Fix bug that springmvn-annotation-4.x-plugin, witness class does not exist in some versions.
-* Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info
+* Fix bug that springmvc-annotation-4.x-plugin, witness class does not exist in some versions.
+* Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info.
 * Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
+* Fix springmvc reactive api can't collect HTTP statusCode.
+* Fix bug that asynchttpclient plugin does not record the response status code.
+* Fix spanLayer is null in optional plugin(gateway-2.0.x-plugin gateway-2.1.x-plugin).
+* Support @Trace, @Tag and @Tags work for static methods.
 
 #### OAP-Backend
 * Allow user-defined `JAVA_OPTS` in the startup script.
@@ -40,7 +44,7 @@ Release Notes.
 * Update the Apdex metric combine calculator.
 * Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
 * Storage plugin supports postgresql.
-* Fix kubernetes.client.opeanapi.ApiException.
+* Fix kubernetes.client.openapi.ApiException.
 * Remove filename suffix in the meter active file config.
 * Introduce log analysis language (LAL).
 * Fix alarm httpclient connection leak.
@@ -68,8 +72,9 @@ Release Notes.
 * Support k8s monitoring.
 * Make the flushing metrics operation concurrent.
 * Fix ALS K8SServiceRegistry didn't remove the correct entry.
-* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name
-* Append the root slash(/) to getIndex and getTemplate requests in ES client
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
+* Append the root slash(/) to getIndex and getTemplate requests in ES client.
+* Fix `disable` statement not working. This bug exists since 8.0.0.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -87,6 +92,9 @@ Release Notes.
 * Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
 * When the topology radiation chart is displayed, the corresponding button should be highlighted.
 * Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
+* Support topology of two mutually calling services.
+* Implement a type of table chart in the dashboard.
+* Support event in the dashboard
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
