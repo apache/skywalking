@@ -58,6 +58,7 @@ public class TestController {
         testService.testErrorThrowable();
         testService.testTagAnnotation("testTagAnnotationParam1", "testTagAnnotationParam2");
         testService.testTagAnnotationReturnInfo("zhangsan", 15);
+        TestService.testStatic("lisi", 16);
         TraceContext.putCorrelation(CORRELATION_CONTEXT_KEY, CORRELATION_CONTEXT_VALUE);
         ActiveSpan.tag("traceID", TraceContext.traceId());
         ActiveSpan.tag("segmentID", TraceContext.segmentId());

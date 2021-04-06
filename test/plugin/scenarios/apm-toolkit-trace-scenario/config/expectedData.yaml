@@ -130,6 +130,21 @@ segmentItems:
       tags:
       - {key: username, value: zhangsan}
       skipAnalysis: 'true'
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testStatic(java.lang.String,java.lang.Integer)
+      parentSpanId: 0
+      spanId: 10
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 0
+      isError: false
+      spanType: Local
+      peer: ''
+      tags:
+      - {key: p1, value: lisi}
+      - {key: p2, value: '16'}
+      - {key: username, value: lisi}
+      skipAnalysis: 'true'
     - operationName: /case/tool-kit
       parentSpanId: -1
       spanId: 0

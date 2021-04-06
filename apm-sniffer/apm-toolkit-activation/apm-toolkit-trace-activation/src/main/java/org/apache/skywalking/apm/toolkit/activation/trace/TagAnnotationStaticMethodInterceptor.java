@@ -18,33 +18,28 @@
 
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
+
 import java.lang.reflect.Method;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-
-public class TagAnnotationMethodInterceptor extends BaseTagAnnotationInterceptor implements InstanceMethodsAroundInterceptor {
+public class TagAnnotationStaticMethodInterceptor extends BaseTagAnnotationInterceptor implements StaticMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-                             final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                             MethodInterceptResult result) {
         super.beforeMethod(method, allArguments);
     }
 
     @Override
-    public Object afterMethod(
-            final EnhancedInstance objInst,
-            final Method method,
-            final Object[] allArguments,
-            final Class<?>[] argumentsTypes,
-            final Object ret) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                              Object ret) {
         super.afterMethod(method, ret);
         return ret;
     }
 
     @Override
-    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-                                      final Class<?>[] argumentsTypes, final Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                                      Throwable t) {
         super.handleMethodException(t);
     }
 }
