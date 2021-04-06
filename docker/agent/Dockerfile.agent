@@ -24,7 +24,15 @@ ADD "$DIST_NAME.tar.gz" /
 
 RUN mv /$DIST_NAME /skywalking
 
-FROM apache/skywalking-base:8.4.0-es6 AS cli
+FROM alpine AS cli
+
+WORKDIR /skywalking/cli
+
+ARG CLI_VERSION=0.6.0
+
+ADD https://archive.apache.org/dist/skywalking/cli/${CLI_VERSION}/skywalking-cli-${CLI_VERSION}-bin.tgz /
+RUN tar -zxf /skywalking-cli-${CLI_VERSION}-bin.tgz -C / ; \
+    mv /skywalking-cli-${CLI_VERSION}-bin/bin/swctl-${CLI_VERSION}-linux-amd64 /skywalking/bin/swctl
 
 FROM $BASE_IMAGE
 
