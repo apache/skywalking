@@ -51,7 +51,7 @@ metricsRules:
   - name: pod_status_terminated
     exp: kube_pod_container_status_terminated_reason.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').valueEqual(1).sum(['cluster' , 'service' , 'pod' ,  'container' , 'reason'])
   - name: pod_status_restarts_total
-    exp: kube_pod_container_status_restarts_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').valueEqual(1).sum(['cluster' , 'service' , 'pod'])
+    exp: kube_pod_container_status_restarts_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod'])
 
   - name: pod_cpu_usage
     exp: (container_cpu_usage_seconds_total * 1000).tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).rate('PT1M')

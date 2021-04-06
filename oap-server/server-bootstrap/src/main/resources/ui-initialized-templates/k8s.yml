@@ -150,7 +150,9 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_cluster_node_status",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status-Node",
+                              "showTableValues": "false"
                           },
                           {
                               "width": "4",
@@ -161,7 +163,9 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_cluster_deployment_status",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Deployment-Available",
+                              "showTableValues": "false"
                           },
                           {
                               "width": "4",
@@ -171,11 +175,14 @@ templates:
                               "independentSelector": false,
                               "metricType": "LABELED_VALUE",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar",
-                              "metricName": "k8s_cluster_deployment_spec_replicas"
+                              "chartType": "ChartTable",
+                              "metricName": "k8s_cluster_deployment_spec_replicas",
+                              "showTableValues": "true",
+                              "tableHeaderCol1": "Deployment",
+                              "tableHeaderCol2": "Replicas"
                           },
                           {
-                              "width": 3,
+                              "width": "4",
                               "title": "Service Status",
                               "height": 200,
                               "entityType": "Service",
@@ -183,10 +190,12 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_cluster_service_pod_status",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "showTableValues": "false",
+                              "tableHeaderCol1": "Status-Service"
                           },
                           {
-                              "width": "3",
+                              "width": "4",
                               "title": "Pod Status Not Running",
                               "height": 200,
                               "entityType": "Service",
@@ -194,10 +203,11 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_cluster_pod_status_not_running",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status-Pod"
                           },
                           {
-                              "width": "3",
+                              "width": "4",
                               "title": "Pod Status Waiting",
                               "height": 200,
                               "entityType": "Service",
@@ -205,10 +215,12 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_cluster_pod_status_waiting",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Container-Pod-Waiting Reason",
+                              "showTableValues": "false"
                           },
                           {
-                              "width": "3",
+                              "width": "4",
                               "title": "Pod Status Terminated",
                               "height": 200,
                               "entityType": "Service",
@@ -243,7 +255,9 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_node_node_status",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status",
+                              "showTableValues": "false"
                           },
                           {
                               "width": "3",
@@ -350,7 +364,9 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_service_pod_status",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status-Pod",
+                              "showTableValues": "false"
                           },
                           {
                               "width": 3,
@@ -413,7 +429,9 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_service_pod_status_waiting",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "showTableValues": "false",
+                              "tableHeaderCol1": "Container-Pod-Waiting Reason"
                           },
                           {
                               "width": 3,
@@ -435,7 +453,10 @@ templates:
                               "metricType": "LABELED_VALUE",
                               "metricName": "k8s_service_pod_status_restarts_total",
                               "queryMetricType": "readLabeledMetricsValues",
-                              "chartType": "ChartBar"
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Pod",
+                              "showTableValues": "true",
+                              "tableHeaderCol2": "Restarts Total"
                           },
                           {
                               "width": 3,

@@ -67,7 +67,7 @@ metricsRules:
   - name: deployment_total
     exp: kube_deployment_labels.sum(['cluster'])
   - name: deployment_status
-    exp: kube_deployment_status_condition.valueEqual(1).tagMatch('condition' , 'Available').sum(['cluster' , 'deployment' ,'condition' , 'status'])
+    exp: kube_deployment_status_condition.valueEqual(1).tagMatch('condition' , 'Available').sum(['cluster' , 'deployment' ,'condition' , 'status']).tag({tags -> tags.remove('condition')})
   - name: deployment_spec_replicas
     exp: kube_deployment_spec_replicas.sum(['cluster' , 'deployment'])
 
