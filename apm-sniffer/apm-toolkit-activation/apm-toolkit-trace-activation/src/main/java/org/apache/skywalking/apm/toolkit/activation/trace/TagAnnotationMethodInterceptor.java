@@ -19,77 +19,32 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
-import org.apache.skywalking.apm.toolkit.trace.Tag;
-import org.apache.skywalking.apm.toolkit.trace.Tags;
 
-public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class TagAnnotationMethodInterceptor extends BaseTagAnnotationInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
-
-        if (!ContextManager.isActive()) {
-            return;
-        }
-
-        final AbstractSpan activeSpan = ContextManager.activeSpan();
-        final Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
-
-        final Tags tags = method.getAnnotation(Tags.class);
-        if (tags != null && tags.value().length > 0) {
-            for (final Tag tag : tags.value()) {
-                if (!TagUtil.isReturnTag(tag.value())) {
-                    TagUtil.tagParamsSpan(activeSpan, context, tag);
-                }
-            }
-        }
-
-        final Tag tag = method.getAnnotation(Tag.class);
-        if (tag != null && !TagUtil.isReturnTag(tag.value())) {
-            TagUtil.tagParamsSpan(activeSpan, context, tag);
-        }
+                             final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
+        super.beforeMethod(method, allArguments);
     }
 
     @Override
     public Object afterMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Object ret) {
-        if (ret == null || !ContextManager.isActive()) {
-            return ret;
-        }
-        final AbstractSpan localSpan = ContextManager.activeSpan();
-        final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
-        final Tags tags = method.getAnnotation(Tags.class);
-        if (tags != null && tags.value().length > 0) {
-            for (final Tag tag : tags.value()) {
-                if (TagUtil.isReturnTag(tag.value())) {
-                    TagUtil.tagReturnSpanSpan(localSpan, context, tag);
-                }
-            }
-        }
-        final Tag tag = method.getAnnotation(Tag.class);
-        if (tag != null && TagUtil.isReturnTag(tag.value())) {
-            TagUtil.tagReturnSpanSpan(localSpan, context, tag);
-        }
+            final EnhancedInstance objInst,
+            final Method method,
+            final Object[] allArguments,
+            final Class<?>[] argumentsTypes,
+            final Object ret) {
+        super.afterMethod(method, ret);
         return ret;
     }
 
     @Override
     public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final Throwable t) {
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().log(t);
-        }
+                                      final Class<?>[] argumentsTypes, final Throwable t) {
+        super.handleMethodException(t);
     }
 }

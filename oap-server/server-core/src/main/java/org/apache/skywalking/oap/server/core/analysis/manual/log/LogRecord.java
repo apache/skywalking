@@ -48,7 +48,7 @@ public class LogRecord extends AbstractLogRecord {
     public static class Builder extends AbstractLogRecord.Builder<LogRecord> {
 
         @Override
-        public LogRecord map2Data(final Map<String, Object> dbMap) {
+        public LogRecord storage2Entity(final Map<String, Object> dbMap) {
             LogRecord record = new LogRecord();
             map2Data(record, dbMap);
             record.setUniqueId((String) dbMap.get(UNIQUE_ID));
@@ -56,7 +56,7 @@ public class LogRecord extends AbstractLogRecord {
         }
 
         @Override
-        public Map<String, Object> data2Map(final LogRecord record) {
+        public Map<String, Object> entity2Storage(final LogRecord record) {
             Map<String, Object> dbMap = new HashMap<>();
             data2Map(dbMap, record);
             dbMap.put(UNIQUE_ID, record.getUniqueId());

@@ -17,12 +17,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base;
 
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexStructures;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.StorageModuleElasticsearch7Config;
 
@@ -30,18 +29,12 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.StorageMod
 public class StorageEs7Installer extends StorageEsInstaller {
     public StorageEs7Installer(final Client client,
                                final ModuleManager moduleManager,
-                               final StorageModuleElasticsearch7Config config) {
+                               final StorageModuleElasticsearch7Config config) throws StorageException {
         super(client, moduleManager, config);
     }
 
-    @SuppressWarnings("unchecked")
-    protected Map<String, Object> createMapping(Model model) {
-        Map<String, Object> mapping = super.createMapping(model);
-        Map<String, Object> type = (Map<String, Object>) mapping.remove(ElasticSearchClient.TYPE);
-        mapping.put("properties", type.get("properties"));
-
-        log.debug("elasticsearch index template setting: {}", mapping.toString());
-
-        return mapping;
+    @Override
+    protected IndexStructures getStructures() {
+        return new IndexEs7Structures();
     }
 }

@@ -78,11 +78,12 @@ public abstract class PxxMetrics extends Metrics implements IntValueHolder {
     }
 
     @Override
-    public void combine(Metrics metrics) {
+    public boolean combine(Metrics metrics) {
         this.isCalculated = false;
 
         PxxMetrics pxxMetrics = (PxxMetrics) metrics;
         this.detailGroup.append(pxxMetrics.detailGroup);
+        return true;
     }
 
     @Override

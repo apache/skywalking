@@ -93,7 +93,7 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
 
     private void verifyDuration(Trace trace) {
         final String expected = this.getDuration();
-        final String actual = String.valueOf(trace.getDuration());
+        final int actual = trace.getDuration();
 
         doVerify(expected, actual);
     }

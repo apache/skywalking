@@ -10,12 +10,6 @@ option java_generic_services = true;
 
 import "envoy/service/metrics/v3/metrics_service.proto";
 
-// This line is different from the definition in https://github.com/envoyproxy/data-plane-api to let
-// the dependency structure clearer.
-import "prometheus/client_model/metrics.proto";
-
-import "validate/validate.proto";
-
 // Service for streaming metrics to server that consumes the metrics data. It uses Prometheus metric
 // data model as a standard to represent metrics information.
 service MetricsService {

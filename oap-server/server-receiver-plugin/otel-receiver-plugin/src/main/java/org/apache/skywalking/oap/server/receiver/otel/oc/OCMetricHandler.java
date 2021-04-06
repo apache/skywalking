@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.otel.oc;
 
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
+import io.opencensus.proto.agent.common.v1.Node;
 import io.opencensus.proto.agent.metrics.v1.ExportMetricsServiceRequest;
 import io.opencensus.proto.agent.metrics.v1.ExportMetricsServiceResponse;
 import io.opencensus.proto.agent.metrics.v1.MetricsServiceGrpc;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
@@ -57,11 +59,32 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
         return new StreamObserver<ExportMetricsServiceRequest>() {
-            @Override public void onNext(ExportMetricsServiceRequest request) {
+            private Node node;
+            private Map<String, String> nodeLabels = new HashMap<>();
+
+            @Override
+            public void onNext(ExportMetricsServiceRequest request) {
+                if (request.hasNode()) {
+                    node = request.getNode();
+                    nodeLabels.clear();
+                    if (node.hasIdentifier()) {
+                        if (StringUtil.isNotBlank(node.getIdentifier().getHostName())) {
+                            nodeLabels.put("node_identifier_host_name", node.getIdentifier().getHostName());
+                        }
+                        if (node.getIdentifier().getPid() > 0) {
+                            nodeLabels.put("node_identifier_pid", String.valueOf(node.getIdentifier().getPid()));
+                        }
+                    }
+                }
                 metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()
                     .flatMap(metric -> metric.getTimeseriesList().stream().map(timeSeries ->
                         Tuple.of(metric.getMetricDescriptor(),
-                            buildLabels(metric.getMetricDescriptor().getLabelKeysList(), timeSeries.getLabelValuesList()),
+                                 buildLabelsFromNodeInfo(
+                                     nodeLabels, buildLabels(
+                                         metric.getMetricDescriptor().getLabelKeysList(),
+                                         timeSeries.getLabelValuesList()
+                                     )
+                                 ),
                             timeSeries)))
                     .flatMap(t -> t._3.getPointsList().stream().map(point -> Tuple.of(t._1, t._2, point)))
                     .map(Function1.liftTry(t -> {
@@ -105,6 +128,12 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
             result.put(keys.get(i).getKey(), values.get(i).getValue());
         }
         return result;
+    }
+
+    private static Map<String, String> buildLabelsFromNodeInfo(Map<String, String> nodeLabels,
+                                                               Map<String, String> buildLabelsResult) {
+        buildLabelsResult.putAll(nodeLabels);
+        return buildLabelsResult;
     }
 
     private static Map<Double, Long> buildBuckets(DistributionValue distributionValue) {

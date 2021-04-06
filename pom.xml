@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>8.4.0-SNAPSHOT</version>
+    <version>8.5.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -186,7 +186,7 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
         <mockito-core.version>3.5.13</mockito-core.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.16</lombok.version>
 
         <!-- core lib dependency -->
         <bytebuddy.version>1.10.19</bytebuddy.version>
@@ -352,6 +352,9 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
+                    <configuration>
+                        <forceCreation>true</forceCreation>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-shade-plugin</artifactId>

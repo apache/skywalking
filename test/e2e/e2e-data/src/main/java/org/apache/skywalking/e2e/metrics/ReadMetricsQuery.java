@@ -40,4 +40,6 @@ public class ReadMetricsQuery extends AbstractQuery<ReadMetricsQuery> {
 
     private String instanceName;
 
+    private String scope = "ServiceInstance";
+
 }

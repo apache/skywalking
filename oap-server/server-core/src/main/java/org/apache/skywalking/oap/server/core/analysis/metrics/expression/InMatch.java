@@ -22,6 +22,25 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 
 @FilterMatcher
 public class InMatch {
+
+    public boolean match(int left, long[] rights) {
+        for (long right : rights) {
+            if (left == right) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean match(long left, long[] rights) {
+        for (long right : rights) {
+            if (left == right) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean match(Object left, Object[] rights) {
         for (Object right : rights) {
             if (right instanceof String) {

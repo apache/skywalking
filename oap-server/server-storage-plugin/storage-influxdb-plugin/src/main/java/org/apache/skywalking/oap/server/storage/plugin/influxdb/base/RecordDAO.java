@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
@@ -41,9 +41,9 @@ public class RecordDAO implements IRecordDAO {
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
-    private final StorageBuilder<Record> storageBuilder;
+    private final StorageHashMapBuilder<Record> storageBuilder;
 
-    public RecordDAO(StorageBuilder<Record> storageBuilder) {
+    public RecordDAO(StorageHashMapBuilder<Record> storageBuilder) {
         this.storageBuilder = storageBuilder;
     }
 

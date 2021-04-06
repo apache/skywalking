@@ -53,7 +53,7 @@ ES_VERSION?=es6
 
 docker: init build.all docker.all
 
-DOCKER_TARGETS:=docker.oap docker.ui
+DOCKER_TARGETS:=docker.oap docker.ui docker.agent
 
 docker.all: $(DOCKER_TARGETS)
 
@@ -79,6 +79,10 @@ docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
+		$(DOCKER_RULE)
+
+docker.agent: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
+docker.agent: $(SW_ROOT)/docker/agent/Dockerfile.agent
 		$(DOCKER_RULE)
 
 

@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import java.util.HashMap;
@@ -69,10 +69,10 @@ public class AlarmRecord extends Record {
     @Column(columnName = RULE_NAME)
     private String ruleName;
 
-    public static class Builder implements StorageBuilder<AlarmRecord> {
+    public static class Builder implements StorageHashMapBuilder<AlarmRecord> {
 
         @Override
-        public Map<String, Object> data2Map(AlarmRecord storageData) {
+        public Map<String, Object> entity2Storage(AlarmRecord storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SCOPE, storageData.getScope());
             map.put(NAME, storageData.getName());
@@ -86,7 +86,7 @@ public class AlarmRecord extends Record {
         }
 
         @Override
-        public AlarmRecord map2Data(Map<String, Object> dbMap) {
+        public AlarmRecord storage2Entity(Map<String, Object> dbMap) {
             AlarmRecord record = new AlarmRecord();
             record.setScope(((Number) dbMap.get(SCOPE)).intValue());
             record.setName((String) dbMap.get(NAME));

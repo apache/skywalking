@@ -45,7 +45,7 @@ public class InvocableHandlerMethodInstrumentation extends ClassInstanceMethodsE
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("getMethodArgumentValues").and(
+                    return named("invoke").and(
                         takesArgumentWithType(0, "org.springframework.web.server.ServerWebExchange"));
                 }
 

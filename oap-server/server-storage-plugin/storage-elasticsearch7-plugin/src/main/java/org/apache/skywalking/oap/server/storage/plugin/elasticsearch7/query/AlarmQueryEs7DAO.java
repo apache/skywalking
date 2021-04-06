@@ -19,13 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import com.google.common.base.Strings;
+import java.io.IOException;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
-import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -34,17 +37,16 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.io.IOException;
-import java.util.Objects;
-
 public class AlarmQueryEs7DAO extends EsDAO implements IAlarmQueryDAO {
 
     public AlarmQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
-    public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from,
-        final long startTB, final long endTB) throws IOException {
+    @Override
+    public Alarms getAlarm(final Integer scopeId, final String keyword,
+                           final int limit, final int from,
+                           final long startTB, final long endTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -63,14 +65,15 @@ public class AlarmQueryEs7DAO extends EsDAO implements IAlarmQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(AlarmRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME), sourceBuilder);
 
         Alarms alarms = new Alarms();
         alarms.setTotal((int) response.getHits().getTotalHits().value);
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
-            AlarmRecord alarmRecord = builder.map2Data(searchHit.getSourceAsMap());
+            AlarmRecord alarmRecord = builder.storage2Entity(searchHit.getSourceAsMap());
 
             AlarmMessage message = new AlarmMessage();
             message.setId(String.valueOf(alarmRecord.getId0()));

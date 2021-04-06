@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.library.module;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -40,21 +40,19 @@ public class ModuleManager implements ModuleDefineHolder {
         ServiceLoader<ModuleDefine> moduleServiceLoader = ServiceLoader.load(ModuleDefine.class);
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
 
-        LinkedList<String> moduleList = new LinkedList<>(Arrays.asList(moduleNames));
+        HashSet<String> moduleSet = new HashSet<>(Arrays.asList(moduleNames));
         for (ModuleDefine module : moduleServiceLoader) {
-            for (String moduleName : moduleNames) {
-                if (moduleName.equals(module.name())) {
-                    module.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName), moduleProviderLoader);
-                    loadedModules.put(moduleName, module);
-                    moduleList.remove(moduleName);
-                }
+            if (moduleSet.contains(module.name())) {
+                module.prepare(this, applicationConfiguration.getModuleConfiguration(module.name()), moduleProviderLoader);
+                loadedModules.put(module.name(), module);
+                moduleSet.remove(module.name());
             }
         }
         // Finish prepare stage
         isInPrepareStage = false;
 
-        if (moduleList.size() > 0) {
-            throw new ModuleNotFoundException(moduleList.toString() + " missing.");
+        if (moduleSet.size() > 0) {
+            throw new ModuleNotFoundException(moduleSet.toString() + " missing.");
         }
 
         BootstrapFlow bootstrapFlow = new BootstrapFlow(loadedModules);

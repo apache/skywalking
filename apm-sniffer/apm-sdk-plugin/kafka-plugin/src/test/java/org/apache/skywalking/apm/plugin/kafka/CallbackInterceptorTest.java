@@ -65,23 +65,32 @@ public class CallbackInterceptorTest {
     private Object[] argumentsWithException;
     private Class[] argumentTypes;
 
-    private EnhancedInstance callBackInstance = new EnhancedInstance() {
+    private EnhancedInstance callBackInstance;
+
+    private static class CallbackInstance implements EnhancedInstance {
+        private CallbackCache cache;
+
+        public CallbackInstance(CallbackCache cache) {
+            this.cache = cache;
+        }
+
         @Override
         public Object getSkyWalkingDynamicField() {
-            CallbackCache cache = new CallbackCache();
-            cache.setSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
             return cache;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-
         }
-    };
+    }
 
     @Before
     public void setUp() {
         callbackInterceptor = new CallbackInterceptor();
+
+        CallbackCache cache = new CallbackCache();
+        cache.setSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
+        callBackInstance = new CallbackInstance(cache);
 
         arguments = new Object[] {
             recordMetadata,
@@ -131,6 +140,27 @@ public class CallbackInterceptorTest {
         assertCallbackSpanWithException(abstractSpans.get(0));
 
         assertCallbackSegmentRef(traceSegment.getRefs());
+    }
+
+    @Test
+    public void testCallbackWithCallbackAdapterInterceptor() throws Throwable {
+        CallbackCache cacheForAdapter = new CallbackCache();
+        cacheForAdapter.setSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
+        CallbackAdapterInterceptor callbackAdapterInterceptor = new CallbackAdapterInterceptor(cacheForAdapter);
+
+        CallbackCache cache = new CallbackCache();
+        cache.setCallback(callbackAdapterInterceptor);
+        EnhancedInstance instance = new CallbackInstance(cache);
+        callbackInterceptor.beforeMethod(instance, null, arguments, argumentTypes, null);
+        callbackInterceptor.afterMethod(instance, null, arguments, argumentTypes, null);
+    }
+
+    @Test
+    public void testCallbackWithNullCallbackCache() throws Throwable {
+        EnhancedInstance instance = new CallbackInstance(null);
+        callbackInterceptor.beforeMethod(instance, null, arguments, argumentTypes, null);
+        callbackInterceptor.afterMethod(instance, null, arguments, argumentTypes, null);
+        callbackInterceptor.handleMethodException(instance, null, arguments, argumentTypes, null);
     }
 
     private void assertCallbackSpanWithException(AbstractTracingSpan span) {

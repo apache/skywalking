@@ -19,42 +19,23 @@ package org.apache.skywalking.e2e.log;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class LogsQuery extends AbstractQuery<LogsQuery> {
 
-    private String metricName = "log";
-    private String state = "ALL";
     private String serviceId;
-    private String serviceInstanceId;
-    private String endpointId;
-    private String endpointName;
-    private String traceId;
-    private String segmentId;
-    private String spanId;
-    private String tagKey;
-    private String tagValue;
+    private String endpointId = "";
+    private String endpointName = "";
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
     private String keywordsOfContent = "";
     private String excludingKeywordsOfContent = "";
-
-    public String metricName() {
-        return metricName;
-    }
-
-    public LogsQuery metricName(String metricName) {
-        this.metricName = metricName;
-        return this;
-    }
-
-    public String state() {
-        return state;
-    }
-
-    public LogsQuery state(String state) {
-        this.state = state;
-        return this;
-    }
+    private List<Map<String, String>> tags = Collections.emptyList();
 
     public String serviceId() {
         return serviceId;
@@ -62,15 +43,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     public LogsQuery serviceId(String serviceId) {
         this.serviceId = serviceId;
-        return this;
-    }
-
-    public String serviceInstanceId() {
-        return serviceInstanceId;
-    }
-
-    public LogsQuery serviceInstanceId(String serviceInstanceId) {
-        this.serviceInstanceId = serviceInstanceId;
         return this;
     }
 
@@ -89,47 +61,6 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
 
     public LogsQuery endpointName(String endpointName) {
         this.endpointName = endpointName;
-        return this;
-    }
-
-    public String traceId() {
-        return traceId;
-    }
-
-    public LogsQuery traceId(String traceId) {
-        this.traceId = traceId;
-        return this;
-    }
-
-    public String segmentId() {
-        return segmentId;
-    }
-
-    public LogsQuery segmentId(String segmentId) {
-        this.segmentId = segmentId;
-        return this;
-    }
-
-    public String spanId() {
-        return spanId;
-    }
-
-    public LogsQuery spanId(String spanId) {
-        this.spanId = spanId;
-        return this;
-    }
-
-    public String tagKey() {
-        return tagKey;
-    }
-
-    public String tagValue() {
-        return tagValue;
-    }
-
-    public LogsQuery tag(String key, String value) {
-        this.tagKey = key;
-        this.tagValue = value;
         return this;
     }
 
@@ -184,5 +115,25 @@ public class LogsQuery extends AbstractQuery<LogsQuery> {
             keywords[i] = "\"" + keyword + "\"";
         }
         return String.join(",", keywords);
+    }
+
+    public List<Map<String, String>> tags() {
+        return tags;
+    }
+
+    public LogsQuery tags(List<Map<String, String>> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public LogsQuery addTag(String key, String value) {
+        if (Collections.EMPTY_LIST.equals(tags)) {
+            tags = new ArrayList<>();
+        }
+        Map<String, String> tag = new HashMap<>();
+        tag.put("key", key);
+        tag.put("value", value);
+        tags.add(tag);
+        return this;
     }
 }

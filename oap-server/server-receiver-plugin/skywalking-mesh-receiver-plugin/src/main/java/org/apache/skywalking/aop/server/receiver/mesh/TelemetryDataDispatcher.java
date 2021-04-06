@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
@@ -51,6 +52,7 @@ public class TelemetryDataDispatcher {
     private static SourceReceiver SOURCE_RECEIVER;
     private static NamingControl NAME_LENGTH_CONTROL;
     private static HistogramMetrics MESH_ANALYSIS_METRICS;
+    private static CounterMetrics MESH_ERROR_METRICS;
 
     private TelemetryDataDispatcher() {
     }
@@ -67,11 +69,14 @@ public class TelemetryDataDispatcher {
             "mesh_analysis_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
+        MESH_ERROR_METRICS = metricsCreator.createCounter("mesh_analysis_error_count", "The error number of mesh analysis",
+                MetricsTag.EMPTY_KEY,
+                MetricsTag.EMPTY_VALUE
+        );
     }
 
     public static void process(ServiceMeshMetric.Builder data) {
-        HistogramMetrics.Timer timer = MESH_ANALYSIS_METRICS.createTimer();
-        try {
+        try (HistogramMetrics.Timer ignored = MESH_ANALYSIS_METRICS.createTimer()) {
             if (data.getSourceServiceName() != null) {
                 data.setSourceServiceName(NAME_LENGTH_CONTROL.formatServiceName(data.getSourceServiceName()));
             }
@@ -93,8 +98,9 @@ public class TelemetryDataDispatcher {
             }
 
             doDispatch(data);
-        } finally {
-            timer.finish();
+        } catch (Exception e) {
+            MESH_ERROR_METRICS.inc();
+            log.error(e.getMessage(), e);
         }
     }
 

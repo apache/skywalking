@@ -18,32 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MetricsEsDAO;
-import org.elasticsearch.action.search.SearchResponse;
 
 public class MetricsEs7DAO extends MetricsEsDAO {
 
-    MetricsEs7DAO(final ElasticSearchClient client, final StorageBuilder<Metrics> storageBuilder) {
+    MetricsEs7DAO(ElasticSearchClient client, StorageHashMapBuilder<Metrics> storageBuilder) {
         super(client, storageBuilder);
-    }
-
-    @Override
-    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String[] ids = metrics.stream().map(Metrics::id).toArray(String[]::new);
-        SearchResponse response = getClient().ids(model.getName(), ids);
-
-        List<Metrics> result = new ArrayList<>(response.getHits().getHits().length);
-        for (int i = 0; i < response.getHits().getHits().length; i++) {
-            Metrics source = storageBuilder.map2Data(response.getHits().getAt(i).getSourceAsMap());
-            result.add(source);
-        }
-        return result;
     }
 }

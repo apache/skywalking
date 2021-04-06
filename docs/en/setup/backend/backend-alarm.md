@@ -25,7 +25,7 @@ Alarm rule is constituted by following keys
 - **Include names**. The following entity names are included in this rule. Please follow [Entity name define](#entity-name).
 - **Exclude names**. The following entity names are excluded in this rule. Please follow [Entity name define](#entity-name).
 - **Include names regex**. Provide a regex to include the entity names. If both setting the include name list and include name regex, both rules will take effect.
-- **Exclude names regex**. Provide a regex to exclude the exclude names. If both setting the exclude name list and exclude name regex, both rules will take effect.
+- **Exclude names regex**. Provide a regex to exclude the entity names. If both setting the exclude name list and exclude name regex, both rules will take effect.
 - **Include labels**. The following labels of the metric are included in this rule.
 - **Exclude labels**. The following labels of the metric are excluded in this rule.
 - **Include labels regex**. Provide a regex to include labels. If both setting the include label list and include label regex, both rules will take effect.
@@ -237,6 +237,25 @@ dingtalkHooks:
       secret: dummysecret
 ```
 
+## Feishu Hook
+To do this you need to follow the [Feishu Webhooks guide](https://www.feishu.cn/hc/zh-cn/articles/360024984973) and create new Webhooks.
+For security issue, you can config optional secret for individual webhook url.
+if you want to at someone, you can config `ats` which is the feishu's user_id and separated by "," .
+The alarm message will send through HTTP post by `application/json` content type if you configured Feishu Webhooks as following:
+```yml
+feishuHooks:
+  textTemplate: |-
+    {
+      "msg_type": "text",
+      "content": {
+        "text": "Apache SkyWalking Alarm: \n %s."
+      },
+      "ats":"feishu_user_id_1,feishu_user_id_2"
+    }
+  webhooks:
+    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
+      secret: dummysecret
+```
 
 ## Update the settings dynamically
 Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),

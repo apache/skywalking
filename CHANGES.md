@@ -2,107 +2,106 @@ Changes by Version
 ==================
 Release Notes.
 
-8.4.0
+8.5.0
 ------------------
 #### Project
-* Incompatible with previous releases when use H2/MySQL/TiDB storage options, due to support multiple alarm rules triggered for one entity.
-* Chore: adapt `create_source_release.sh` to make it runnable on Linux.
-* Add `package` to `.proto` files, prevent polluting top-level namespace in some languages; The OAP server supports previous agent releases, whereas the previous OAP server (<=8.3.0) won't recognize newer agents since this version (>= 8.4.0).
-* Add ElasticSearch 7.10 to test matrix and verify it works.
-* Replace Apache RAT with skywalking-eyes to check license headers.
+* **Incompatible Change**. Indices and templates of ElasticSearch(6/7, including zipkin-elasticsearch7) storage option have been changed.
+* Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
+* Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
+* Upgrade lombok to 1.18.16.
+* Add Java agent Dockerfile to build Docker image for Java agent.
 
 #### Java Agent
-* The operation name of quartz-scheduler plugin, has been changed as the `quartz-scheduler/${className}` format.
-* Fix jdk-http and okhttp-3.x plugin did not overwrite the old trace header.
-* Add interceptors of method(analyze, searchScroll, clearScroll, searchTemplate and deleteByQuery) for elasticsearch-6.x-plugin.
-* Support collecting logs of log4j, log4j2, and logback in the tracing context with a new `logger-plugin`.
-* Fix the unexpected RunningContext recreation in the Tomcat plugin.
-* Fix the potential NPE when trace_sql_parameters is enabled.
-* Update `byte-buddy` to 1.10.19.
-* Fix thrift plugin trace link broken when intermediate service does not mount agent
-* Fix thrift plugin collects wrong args when the method without parameter.
-* Fix DataCarrier's `org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer` implementation isn't activated in `IF_POSSIBLE` mode.
-* Fix ArrayBlockingQueueBuffer's useless `IF_POSSIBLE` mode list
-* Support building gRPC TLS channel but CA file is not required.
-* Add witness method mechanism in the agent plugin core.
-* Add Dolphinscheduler plugin definition.
-* Make sampling still works when the trace ignores plug-in activation.
-* Fix mssql-plugin occur ClassCastException when call the method of return generate key.
-* The operation name of dubbo and dubbo-2.7.x-plugin, has been changed as the `groupValue/className.methodName` format
-* Fix bug that rocketmq-plugin set the wrong tag.
-* Fix duplicated `EnhancedInstance` interface added.
-* Fix thread leaks caused by the elasticsearch-6.x-plugin plugin.
-
+* Remove invalid mysql configuration in agent.config.
+* Add net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.Listener to show detail message when redefine errors occur.
+* Fix ClassCastException of log4j gRPC reporter.
+* Fix NPE when Kafka reporter activated.
+* Enhance gRPC log appender to allow layout pattern.
+* Fix apm-dubbo-2.7.x-plugin memory leak due to some Dubbo RpcExceptions.
+* Fix lettuce-5.x-plugin get null host in redis sentinel mode.
+* Fix ClassCastException by making CallbackAdapterInterceptor to implement EnhancedInstance interface in the spring-kafka plugin.
+* Fix NullPointerException with KafkaProducer.send(record).
+* Support config `agent.span_limit_per_segment` can be changed in the runtime.
+* Collect and report agent starting / shutdown events.
+* Support jedis pipeline in jedis-2.x-plugin.
+* Fix apm-toolkit-log4j-2.x-activation no trace Id in async log.
+* Replace hbase-1.x-plugin with hbase-1.x-2.x-plugin to adapt hbase client 2.x
+* Remove the close_before_method and close_after_method parameters of custom-enhance-plugin to avoid memory leaks.
+* Fix bug that springmvc-annotation-4.x-plugin, witness class does not exist in some versions.
+* Add Redis command parameters to 'db.statement' field on Lettuce span UI for displaying more info.
+* Fix NullPointerException with `ReactiveRequestHolder.getHeaders`.
+* Fix springmvc reactive api can't collect HTTP statusCode.
+* Fix bug that asynchttpclient plugin does not record the response status code.
+* Fix spanLayer is null in optional plugin(gateway-2.0.x-plugin gateway-2.1.x-plugin).
+* Support @Trace, @Tag and @Tags work for static methods.
 
 #### OAP-Backend
-* Make meter receiver support MAL.
-* Support influxDB connection response format option. Fix some error when use JSON as influxDB response format.
-* Support Kafka MirrorMaker 2.0 to replicate topics between Kafka clusters.
-* Add the rule name field to alarm record storage entity as a part of ID, to support multiple alarm rules triggered for one entity. The scope id has been removed from the ID.
-* Fix MAL concurrent execution issues.
-* Fix group name can't be queried in the GraphQL.
-* Fix potential gRPC connection leak(not closed) for the channels among OAP instances.
-* Filter OAP instances(unassigned in booting stage) of the empty IP in KubernetesCoordinator.
-* Add component ID for Python aiohttp plugin requester and server.
-* Fix H2 in-memory database table missing issues
-* Add component ID for Python pyramid plugin server.
-* Add component ID for NodeJS Axios plugin.
-* Fix searchService method error in storage-influxdb-plugin.
-* Add JavaScript component ID.
-* Fix CVE of UninstrumentedGateways in Dynamic Configuration activation.
-* Improve query performance in storage-influxdb-plugin.
-* Fix the uuid field in GRPCConfigWatcherRegister is not updated.
-* Support Envoy {AccessLog,Metrics}Service API V3.
-* Adopt the [MAL](docs/en/concepts-and-designs/mal.md) in Envoy metrics service analyzer.
-* Fix the priority setting doesn't work of the ALS analyzers.
-* Fix bug that `endpoint-name-grouping.yml` is not customizable in Dockerized case.
-* Fix bug that istio version metric type on UI template mismatches the otel rule.
-* Improve ReadWriteSafeCache concurrency read-write performance
-* Fix bug that if use JSON as InfluxDB.ResponseFormat then NumberFormatException maybe occur.
-* Fix `timeBucket` not taking effect in EqualsAndHashCode annotation of some relationship metrics.
-* Fix `SharingServerConfig`'s propertie is not correct in the `application.yml`, contextPath -> restConnextPath.
-* Istio control plane: remove redundant metrics and polish panel layout.
-* Fix bug endpoint name grouping not work due to setting service name and endpoint name out of order.
-* Fix receiver analysis error count metrics
-* Log collecting and query implementation
+* Allow user-defined `JAVA_OPTS` in the startup script.
+* Metrics combination API supports abandoning results.
+* Add a new concept "Event" and its implementations to collect events.
+* Add some defensive codes for NPE and bump up Kubernetes client version to expose exception stack trace.
+* Update the `timestamp` field type for `LogQuery`.
+* Support Zabbix protocol to receive agent metrics.
+* Update the Apdex metric combine calculator.
+* Enhance `MeterSystem` to allow creating metrics with same `metricName` / `function` / `scope`.
+* Storage plugin supports postgresql.
+* Fix kubernetes.client.openapi.ApiException.
+* Remove filename suffix in the meter active file config.
+* Introduce log analysis language (LAL).
+* Fix alarm httpclient connection leak.
+* Add `sum` function in meter system.
+* Remove Jaeger receiver.
+* Remove the experimental Zipkin span analyzer.
+* Upgrade the Zipkin Elasticsearch storage from 6 to 7.
+* Require Zipkin receiver must work with `zipkin-elasticsearch7` storage option.
+* Fix `DatabaseSlowStatementBuilder` statement maybe null.
+* Remove fields of parent entity in the relation sources.
+* Save Envoy http access logs when error occurs.
+* Fix wrong `service_instance_sla` setting in the `topology-instance.yml`.
+* Fix wrong metrics name setting in the `self-observability.yml`.
+* Add telemetry data about metrics in, metrics scraping, mesh error and trace in metrics to zipkin receiver.
+* Fix tags store of log and trace on h2/mysql/pg storage.
+* Merge indices by Metrics Function and Meter Function in Elasticsearch Storage.
+* Fix receiver don't need to get itself when healthCheck
+* Remove group concept from AvgHistogramFunction. Heatmap(function result) doesn't support labels.
+* Support metrics grouped by scope labelValue in MAL, no need global same labelValue as before.
+* Add functions in MAL to filter metrics according to the metric value.
+* Optimize the self monitoring grafana dashboard.
+* Enhance the export service.
+* Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
+* Support k8s monitoring.
+* Make the flushing metrics operation concurrent.
+* Fix ALS K8SServiceRegistry didn't remove the correct entry.
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
+* Append the root slash(/) to getIndex and getTemplate requests in ES client.
+* Fix `disable` statement not working. This bug exists since 8.0.0.
 
 #### UI
-* Fix un-removed tags in trace query.
-* Fix unexpected metrics name on single value component.
-* Don't allow negative value as the refresh period.
-* Fix style issue in trace table view.
-* Separation Log and Dashboard selector data to avoid conflicts.
-* Fix trace instance selector bug.
-* Fix Unnecessary sidebar in tooltips for charts.
-* Refactor dashboard query in a common script.
-* Implement refreshing data for topology by updating date.
-* Implement group selector in the topology.
-* Fix all as default parameter for services selector.
-* Add icon for Python aiohttp plugin.
-* Add icon for Python pyramid plugin.
-* Fix topology render all services nodes when groups changed.
-* Fix rk-footer utc input's width.
-* Update rk-icon and rewrite rk-header svg tags with rk-icon.
-* Add icon for http type.
-* Fix rk-footer utc without local storage.
-* Sort group names in the topology.
-* Add logo for Dolphinscheduler.
-* Fix dashboard wrong instance.
-* Add a legend for the topology.
-* Update the condition of unhealthy cube.
-* Fix: use icons to replace buttons for task list in profile.
-* Fix: support `=` in the tag value in the trace query page.
-* Add envoy proxy component logo.
-* Chore: set up license-eye to check license headers and add missing license headers.
+* Update selector scroller to show in all pages.
+* Implement searching logs with date.
+* Add nodejs 14 compiling.
+* Fix trace id by clear search conditions.
+* Search endpoints with keywords.
+* Fix pageSize on logs page.
+* Update echarts version to 5.0.2.
+* Fix instance dependency on the topology page.
+* Fix resolved url for vue-property-decorator.
+* Show instance attributes.
+* Copywriting grammar fix.
+* Fix log pages tags column not updated.
+* Fix the problem that the footer and topology group is shaded when the topology radiation is displayed.
+* When the topology radiation chart is displayed, the corresponding button should be highlighted.
+* Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
+* Support topology of two mutually calling services.
+* Implement a type of table chart in the dashboard.
+* Support event in the dashboard
 
 #### Documentation
-* Update the documents of backend fetcher and self observability about the latest configurations.
-* Add documents about the group name of service.
-* Update docs about the latest UI.
-* Update the document of backend trace sampling with the latest configuration.
-* Update kafka plugin support version to 2.6.1.
+* Polish documentation due to we have covered all tracing, logging, and metrics fields.
+* Adjust documentation about Zipkin receiver.
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/68?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/76?closed=1)
 
 ------------------
 Find change logs of all versions [here](changes).

@@ -81,3 +81,17 @@ dingtalkHooks:
   webhooks:
 #    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
 #      secret: dummysecret
+
+feishuHooks:
+  textTemplate: |-
+    {
+    "msg_type": "text",
+    # at someone with feishu_user_ids
+    # "ats": "feishu_user_id_1,feishu_user_id_2",
+    "content": {
+      "text": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
+#      secret: dummysecret

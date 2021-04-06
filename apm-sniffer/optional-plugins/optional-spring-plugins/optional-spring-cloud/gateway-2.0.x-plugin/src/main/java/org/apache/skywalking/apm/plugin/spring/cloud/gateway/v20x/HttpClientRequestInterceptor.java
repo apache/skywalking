@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -52,7 +53,7 @@ public class HttpClientRequestInterceptor implements InstanceMethodsAroundInterc
             "SpringCloudGateway/sendRequest", contextCarrier, getPeer(url));
         abstractSpan.prepareForAsync();
         Tags.URL.set(abstractSpan, String.valueOf(allArguments[1]));
-
+        abstractSpan.setLayer(SpanLayer.HTTP);
         abstractSpan.setComponent(SPRING_CLOUD_GATEWAY);
         ContextManager.stopSpan(abstractSpan);
 

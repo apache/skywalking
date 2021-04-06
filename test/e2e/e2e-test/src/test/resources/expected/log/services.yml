@@ -15,4 +15,4 @@
 
 services:
   - key: not null
-    label: "e2e"
+    label: not null
