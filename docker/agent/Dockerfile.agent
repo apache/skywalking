@@ -18,7 +18,7 @@ ARG BASE_IMAGE='adoptopenjdk/openjdk8:alpine'
 
 FROM alpine as build
 
-ARG DIST_NAME
+ENV DIST_NAME=apache-skywalking-apm-bin
 
 ADD "$DIST_NAME.tar.gz" /
 
