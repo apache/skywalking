@@ -34,7 +34,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * EventHookCallbackTest.
  *
- * @author cchen@easipass.com 2021/4/7 13:46
  */
 public class EventHookCallbackTest {
 
@@ -61,7 +60,6 @@ public class EventHookCallbackTest {
         msgs.add(msg);
         new EventHookCallback(moduleProvider.getModuleManager()).doAlarm(msgs);
     }
-
 
     private AlarmMessage constructAlarmMessage() {
         AlarmMessage msg = new AlarmMessage();

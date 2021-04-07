@@ -35,7 +35,6 @@ import java.util.UUID;
 /**
  * EventCallBack: When an alert is present, an event is generated for each alert message. These events are then sent to the internal event analyzer.
  *
- * @author cchen chenmudu@gmail.com 2021/4/6 1:18
  */
 public class EventHookCallback implements AlarmCallback {
 
@@ -45,10 +44,9 @@ public class EventHookCallback implements AlarmCallback {
         this.manager = manager;
     }
 
-
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
-        if(null == manager) {
+        if (null == manager) {
             return ;
         }
         EventAnalyzerService analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
