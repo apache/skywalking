@@ -76,6 +76,7 @@ Release Notes.
 * Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
 * Append the root slash(/) to getIndex and getTemplate requests in ES client.
 * Fix `disable` statement not working. This bug exists since 8.0.0.
+* Remove the useless metric in `vm.yaml`.
 
 #### UI
 * Update selector scroller to show in all pages.
