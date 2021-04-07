@@ -38,7 +38,7 @@ and multiple formats,
 including
 1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
 1. Go and C++ SDKs.
-1. LUA agent especially for Nginx, OpenResty.
+1. LUA agent especially for Nginx, OpenResty and Apache APISIX.
 1. Browser agent.
 1. Service Mesh Observability. Control panel and data panel. 
 1. Metrics system, including Prometheus, OpenTelemetry, Spring Sleuth(Micrometer), Zabbix.
