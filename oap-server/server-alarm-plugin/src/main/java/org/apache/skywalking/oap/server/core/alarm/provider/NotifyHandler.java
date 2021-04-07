@@ -47,11 +47,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class NotifyHandler implements MetricsNotify {
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
-    private ModuleManager manager;
+    private final ModuleManager manager;
 
-    public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher) {
+    public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher, ModuleManager manager) {
         this.alarmRulesWatcher = alarmRulesWatcher;
         core = new AlarmCore(alarmRulesWatcher);
+        this.manager = manager;
     }
 
     @Override
@@ -170,9 +171,5 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher));
         allCallbacks.add(new EventHookCallback(this.manager));
         core.start(allCallbacks);
-    }
-
-    void setModuleManager(ModuleManager manager) {
-        this.manager = manager;
     }
 }

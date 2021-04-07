@@ -67,8 +67,7 @@ public class AlarmModuleProvider extends ModuleProvider {
 
         alarmRulesWatcher = new AlarmRulesWatcher(rules, this);
 
-        notifyHandler = new NotifyHandler(alarmRulesWatcher);
-        notifyHandler.setModuleManager(getManager());
+        notifyHandler = new NotifyHandler(alarmRulesWatcher, getManager());
         notifyHandler.init(new AlarmStandardPersistence());
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }

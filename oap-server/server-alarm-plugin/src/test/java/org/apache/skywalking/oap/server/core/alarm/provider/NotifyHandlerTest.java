@@ -281,15 +281,15 @@ public class NotifyHandlerTest {
 
         Rules rules = new Rules();
 
-        notifyHandler = new NotifyHandler(new AlarmRulesWatcher(rules, null));
+        moduleManager = mock(ModuleManager.class);
+
+        notifyHandler = new NotifyHandler(new AlarmRulesWatcher(rules, null), moduleManager);
 
         notifyHandler.init(alarmMessageList -> {
             for (AlarmMessage message : alarmMessageList) {
                 assertNotNull(message);
             }
         });
-
-        moduleManager = mock(ModuleManager.class);
 
         moduleProviderHolder = mock(ModuleProviderHolder.class);
 
