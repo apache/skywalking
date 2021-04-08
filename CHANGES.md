@@ -96,7 +96,8 @@ Release Notes.
 * Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
 * Support topology of two mutually calling services.
 * Implement a type of table chart in the dashboard.
-* Support event in the dashboard
+* Support event in the dashboard.
+* Show instance name in the trace view.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
