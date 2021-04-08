@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.context.ids;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 
 public class DistributedTraceIds {
     private LinkedList<DistributedTraceId> relatedGlobalTraces;
@@ -36,6 +37,13 @@ public class DistributedTraceIds {
     public void append(DistributedTraceId distributedTraceId) {
         if (relatedGlobalTraces.size() > 0 && relatedGlobalTraces.getFirst() instanceof NewDistributedTraceId) {
             relatedGlobalTraces.removeFirst();
+        }
+        /*
+         * There maybe an exception in some plugins, which causes the span to fail to exit,
+         * which results in the ThreadLocal not being cleaned up, and this data is increasing.
+         */
+        if (relatedGlobalTraces.size() >= Config.Agent.TRACE_SEGMENT_REF_LIMIT_PER_SEGMENT) {
+            return;
         }
         if (!relatedGlobalTraces.contains(distributedTraceId)) {
             relatedGlobalTraces.add(distributedTraceId);

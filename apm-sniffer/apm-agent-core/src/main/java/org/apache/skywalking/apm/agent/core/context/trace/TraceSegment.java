@@ -89,6 +89,13 @@ public class TraceSegment {
         if (refs == null) {
             refs = new LinkedList<>();
         }
+        /*
+         * There maybe an exception in some plugins, which causes the span to fail to exit,
+         * which results in the ThreadLocal not being cleaned up, and this data is increasing.
+         */
+        if (refs.size() >= Config.Agent.TRACE_SEGMENT_REF_LIMIT_PER_SEGMENT) {
+            return;
+        }
         if (!refs.contains(refSegment)) {
             refs.add(refSegment);
         }
