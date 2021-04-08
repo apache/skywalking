@@ -141,6 +141,8 @@ catalog:
             path: "/en/setup/backend/spring-sleuth-setup"
           - name: "Log Analyzer"
             path: "/en/setup/backend/log-analyzer"
+          - name: "Infrastructure Monitoring"
+            path: "/en/setup/backend/backend-infrastructure-monitoring"
       - name: "UI Setup"
         path: "/en/setup/backend/ui-setup"
       - name: "CLI Setup"
