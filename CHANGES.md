@@ -74,8 +74,9 @@ Release Notes.
 * Make the flushing metrics operation concurrent.
 * Fix ALS K8SServiceRegistry didn't remove the correct entry.
 * Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
-* Append the root slash(/) to getIndex and getTemplate requests in ES client.
+* Append the root slash(/) to getIndex and getTemplate requests in ES(6 and 7) client.
 * Fix `disable` statement not working. This bug exists since 8.0.0.
+* Remove the useless metric in `vm.yaml`.
 
 #### UI
 * Update selector scroller to show in all pages.
