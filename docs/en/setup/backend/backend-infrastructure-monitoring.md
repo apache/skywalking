@@ -14,6 +14,7 @@ We defined the VM entity as a `Service` in OAP, use `vm::` as a prefix to identi
 3. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
    
 ## Supported Metrics
+
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|-----|-----|-----|-----|
 | CPU Usage | % | cpu_total_percentage | The CPU cores total used percentage, if there are 2 cores the max usage is 200% | Prometheus node-exporter |
@@ -60,6 +61,7 @@ From the different point of view to monitor the K8s, there are 3 kinds of metric
 
 ### CLuster 
 These metrics are related to the selected cluster(`Current Service in the dashboard`).
+
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|-----|-----|-----|-----|
 | Node Total |  | k8s_cluster_node_total | The number of the nodes | K8s kube-state-metrics|
@@ -81,6 +83,7 @@ These metrics are related to the selected cluster(`Current Service in the dashbo
 
 ### Node
 These metrics are related to the selected node (`Current Instance in the dashboard`).
+
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|-----|-----|-----|-----|
 | Pod Total |  | k8s_node_pod_total | The number of the pods which in this node | K8s kube-state-metrics |
@@ -94,6 +97,7 @@ These metrics are related to the selected node (`Current Instance in the dashboa
 
 ### Service
 In these metrics, the pods are related to the selected service (`Current Endpoint in the dashboard`).
+
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|-----|-----|-----|-----|
 | Service Pod Total |  | k8s_service_pod_total | The number of the pods | K8s kube-state-metrics |

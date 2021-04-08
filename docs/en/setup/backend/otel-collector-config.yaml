@@ -70,7 +70,7 @@ data:
       zpages: {}
     exporters:
       opencensus:
-        endpoint: "6.tcp.ngrok.io:13032" # The OAP Server address
+        endpoint: "OAP:11800" # The OAP Server address
         insecure: true    
       logging:
         logLevel: debug
