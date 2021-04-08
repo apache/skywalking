@@ -52,7 +52,7 @@ Defined the k8s-service as an `Endpoint` in OAP, the name is `$serviceName.$name
 ## Setup 
 1. Setup [kube-state-metric](https://github.com/kubernetes/kube-state-metrics#kubernetes-deployment).
 2. cAdvisor is integrated into `kubelet` by default.
-3. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). Prometheus Receiver in OpenTelemetry Collector for K8s can reference [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml). For a quick start, we provided a full example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../backend/otel-collector-config.yaml).
+3. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). Prometheus Receiver in OpenTelemetry Collector for K8s can reference [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml). For a quick start, we provided a full example for OpenTelemetry Collector configuration [otel-collector-config.yaml](otel-collector-config.yaml).
 4. Config SkyWalking [OpenTelemetry receiver](backend-receivers.md#opentelemetry-receiver).
 
 ## Supported Metrics
