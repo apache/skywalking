@@ -9,6 +9,7 @@ Release Notes.
 * Update frontend-maven-plugin to 1.11.0, for Download node x64 binary on Apple Silicon.
 * Add E2E test for VM monitoring that metrics from Prometheus node-exporter.
 * Upgrade lombok to 1.18.16.
+* Add Java agent Dockerfile to build Docker image for Java agent.
 
 #### Java Agent
 * Remove invalid mysql configuration in agent.config.
@@ -69,11 +70,14 @@ Release Notes.
 * Optimize the self monitoring grafana dashboard.
 * Enhance the export service.
 * Add function `retagByK8sMeta` and opt type `K8sRetagType.Pod2Service` in MAL for k8s to relate pods and services.
+* Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
+* Support k8s monitoring.
 * Make the flushing metrics operation concurrent.
 * Fix ALS K8SServiceRegistry didn't remove the correct entry.
 * Using "service.istio.io/canonical-name" to replace "app" label to resolve Envoy ALS service name.
-* Append the root slash(/) to getIndex and getTemplate requests in ES client.
+* Append the root slash(/) to getIndex and getTemplate requests in ES(6 and 7) client.
 * Fix `disable` statement not working. This bug exists since 8.0.0.
+* Remove the useless metric in `vm.yaml`.
 
 #### UI
 * Update selector scroller to show in all pages.
@@ -93,11 +97,14 @@ Release Notes.
 * Refactor the route mapping, Dynamically import routing components, Improve first page loading performance.
 * Support topology of two mutually calling services.
 * Implement a type of table chart in the dashboard.
-* Support event in the dashboard
+* Support event in the dashboard.
+* Show instance name in the trace view.
+* Fix groups of services in the topography.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
 * Adjust documentation about Zipkin receiver.
+* Add backend-infrastructure-monitoring doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/76?closed=1)
 

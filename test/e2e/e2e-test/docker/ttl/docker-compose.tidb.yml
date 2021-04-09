@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   tidb:
-    image: pingcap/tidb:latest
+    image: pingcap/tidb:v4.0.12
     expose:
       - 4000
     volumes:

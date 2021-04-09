@@ -1,0 +1,74 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+expSuffix: tag({tags -> tags.cluster = 'k8s-cluster::' + tags.cluster}).instance(['cluster'] , ['node'])
+metricPrefix: k8s_node
+metricsRules:
+
+  - name: cpu_cores
+    exp: (kube_node_status_capacity * 1000).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
+  - name: cpu_usage
+    exp: (container_cpu_usage_seconds_total * 1000).tagEqual('id' , '/').sum(['cluster' , 'node']).rate('PT1M')
+  - name: cpu_cores_allocatable
+    exp: (kube_node_status_allocatable * 1000).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
+  - name: cpu_cores_requests
+    exp: (kube_pod_container_resource_requests * 1000).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
+  - name: cpu_cores_limits
+    exp: (kube_pod_container_resource_limits * 1000).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
+
+  - name: memory_total
+    exp: kube_node_status_capacity.tagEqual('resource' , 'memory').sum(['cluster' , 'node'])
+  - name: memory_allocatable
+    exp: kube_node_status_allocatable.tagEqual('resource' , 'memory').sum(['cluster' , 'node'])
+  - name: memory_requests
+    exp: kube_pod_container_resource_requests.tagEqual('resource' , 'memory').sum(['cluster' , 'node'])
+  - name: memory_limits
+    exp: kube_pod_container_resource_limits.tagEqual('resource' , 'memory').sum(['cluster' , 'node'])
+
+  - name: memory_usage
+    exp: container_memory_working_set_bytes.tagEqual('id' , '/').sum(['cluster' , 'node'])
+
+
+  - name: storage_total
+    exp: kube_node_status_capacity.tagEqual('resource' , 'ephemeral_storage').sum(['cluster' , 'node'])
+  - name: storage_allocatable
+    exp: kube_node_status_allocatable.tagEqual('resource' , 'ephemeral_storage').sum(['cluster' , 'node'])
+
+  - name: node_status
+    exp: kube_node_status_condition.valueEqual(1).tagMatch('status' , 'true|unknown').sum(['cluster' , 'node' ,'condition'])
+
+  - name: pod_total
+    exp: kube_pod_info.sum(['cluster' , 'node'])
+
+  - name: network_receive
+    exp: container_network_receive_bytes_total.sum(['cluster' , 'node']).irate()
+  - name: network_transmit
+    exp: container_network_transmit_bytes_total.sum(['cluster' , 'node']).irate()
