@@ -21,6 +21,10 @@ package org.apache.skywalking.apm.testcase.elasticsearch.config;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +40,17 @@ public class ElasticsearchConfig {
         HttpHost[] httpHostArry = parseEsHost();
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(httpHostArry));
         return client;
+    }
+
+    @Bean(destroyMethod = "close")
+    public TransportClient transportClient() {
+        HttpHost[] httpHostArry = parseEsHost();
+        Settings settings = Settings.builder().put("cluster.name", "skywalking-fat").build();
+        PreBuiltTransportClient preBuiltTransportClient = new PreBuiltTransportClient(settings);
+        for (HttpHost httpHost : httpHostArry) {
+            preBuiltTransportClient.addTransportAddress(new TransportAddress(httpHost.getAddress(), 9300));
+        }
+        return preBuiltTransportClient;
     }
 
     private HttpHost[] parseEsHost() {

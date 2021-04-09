@@ -31,6 +31,8 @@ import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequ
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -44,6 +46,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
@@ -71,6 +74,9 @@ public class CaseController {
     @Autowired
     private RestHighLevelClient client;
 
+    @Autowired
+    private TransportClient transportClient;
+
     @GetMapping("/healthCheck")
     public String healthCheck() throws Exception {
         ClusterHealthRequest request = new ClusterHealthRequest();
@@ -92,30 +98,33 @@ public class CaseController {
         try {
             // health
             health();
-            
+
             // get settings
             getSettings();
-            
+
             // put settings
             putSettings();
-            
+
             // create
             createIndex(indexName);
-            
+
             // index
             index(indexName);
+
+            //prepareIndex
+            prepareIndex(indexName);
 
             client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
 
             // get
             get(indexName);
-            
+
             // search
             search(indexName);
-            
+
             // update
             update(indexName);
-            
+
             // delete
             delete(indexName);
         } finally {
@@ -142,8 +151,8 @@ public class CaseController {
             RecoverySettings.INDICES_RECOVERY_MAX_BYTES_PER_SEC_SETTING.getKey();
         int transientSettingValue = 10;
         Settings transientSettings = Settings.builder()
-                .put(transientSettingKey, transientSettingValue, ByteSizeUnit.BYTES)
-                .build();
+                                             .put(transientSettingKey, transientSettingValue, ByteSizeUnit.BYTES)
+                                             .build();
         request.transientSettings(transientSettings);
         ClusterUpdateSettingsResponse response = client.cluster().putSettings(request, RequestOptions.DEFAULT);
         if (response == null) {
@@ -154,7 +163,11 @@ public class CaseController {
     }
 
     private void getSettings() throws IOException {
-        ClusterGetSettingsResponse response = client.cluster().getSettings(new ClusterGetSettingsRequest(), RequestOptions.DEFAULT);
+        ClusterGetSettingsResponse response = client.cluster()
+                                                    .getSettings(
+                                                        new ClusterGetSettingsRequest(),
+                                                        RequestOptions.DEFAULT
+                                                    );
         if (response == null) {
             String message = "elasticsearch get settings fail.";
             LOGGER.error(message);
@@ -263,6 +276,24 @@ public class CaseController {
         int length = searchResponse.getHits().getHits().length;
         if (!(length > 0)) {
             String message = "elasticsearch search data fail.";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
+    }
+
+    private void prepareIndex(String indexName) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.field("author", "Marker");
+            builder.field("title", "Java programing.");
+        }
+        builder.endObject();
+        BulkRequestBuilder bulkRequestBuilder = transportClient.prepareBulk();
+        bulkRequestBuilder.add(transportClient.prepareIndex(indexName, null, "1").setSource(builder));
+        BulkResponse bulkResponse = bulkRequestBuilder.execute().actionGet();
+        if (bulkResponse.status().getStatus() >= 400) {
+            String message = "elasticsearch index data fail.";
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
