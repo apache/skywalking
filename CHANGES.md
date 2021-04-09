@@ -104,6 +104,7 @@ Release Notes.
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
 * Adjust documentation about Zipkin receiver.
 * Add backend-infrastructure-monitoring doc.
+* Polish k8s monitoring otel-collector configuration example.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/76?closed=1)
 
