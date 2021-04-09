@@ -17,6 +17,7 @@ Release Notes.
 
 
 #### Documentation
+* Polish k8s monitoring otel-collector configuration example.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
 
