@@ -98,6 +98,7 @@ Release Notes.
 * Implement a type of table chart in the dashboard.
 * Support event in the dashboard.
 * Show instance name in the trace view.
+* Fix services groups in the topography.
 
 #### Documentation
 * Polish documentation due to we have covered all tracing, logging, and metrics fields.
