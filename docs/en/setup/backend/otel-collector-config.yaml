@@ -30,9 +30,8 @@ data:
             scrape_interval: 15s
             evaluation_interval: 15s
           scrape_configs:
-            - job_name: 'kubernetes-cadvisor' 
+            - job_name: 'kubernetes-cadvisor'
               scheme: https
-              metrics_path: /metrics/cadvisor
               tls_config:
                 ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
               bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -41,9 +40,15 @@ data:
               relabel_configs:
               - action: labelmap
                 regex: __meta_kubernetes_node_label_(.+)
-              - source_labels: []
-                target_label: cluster   # relabel the cluster name 
+              - source_labels: []       # relabel the cluster name 
+                target_label: cluster
                 replacement: gke-cluster-1
+              - target_label: __address__
+                replacement: kubernetes.default.svc:443
+              - source_labels: [__meta_kubernetes_node_name]
+                regex: (.+)
+                target_label: __metrics_path__
+                replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
               - source_labels: [instance]   # relabel the node name 
                 separator: ;
                 regex: (.+)
@@ -70,7 +75,7 @@ data:
       zpages: {}
     exporters:
       opencensus:
-        endpoint: "OAP:11800" # The OAP Server address
+        endpoint: "6.tcp.ngrok.io:13032" # The OAP Server address
         insecure: true    
       logging:
         logLevel: debug
@@ -161,39 +166,3 @@ spec:
               - key: otel-collector-config
                 path: otel-collector-config.yaml
           name: otel-collector-config-vol
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: otel-collector
-rules:
-- apiGroups: [""]
-  resources:
-  - nodes
-  - nodes/proxy
-  - nodes/metrics
-  - services
-  - endpoints
-  - pods
-  verbs: ["get", "list", "watch"]
-- apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs: ["get", "list", "watch"]
-- nonResourceURLs: ["/metrics"]
-  verbs: ["get"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: otel-collector
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: otel-collector
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: monitoring
