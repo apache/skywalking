@@ -1,0 +1,3 @@
+jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonRpcHttpClientInstrumentation
+jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonRpcBasicServerInstrumentation
+jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonServiceExporterInstrumentation

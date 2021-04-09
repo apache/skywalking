@@ -34,6 +34,7 @@
     <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
+        <module>jsonrpc4j-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
