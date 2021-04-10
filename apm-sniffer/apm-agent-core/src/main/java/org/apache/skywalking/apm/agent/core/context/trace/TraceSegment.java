@@ -104,7 +104,11 @@ public class TraceSegment {
      * For testing use only.
      */
     public List<TraceSegmentRef> getRefs() {
-        return Lists.newArrayList(traceSegmentRef);
+        if (null == traceSegmentRef) {
+            return null;
+        } else {
+            return Lists.newArrayList(traceSegmentRef);
+        }
     }
 
     public DistributedTraceId getRelatedGlobalTrace() {
