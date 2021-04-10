@@ -8,6 +8,7 @@ Release Notes.
 
 
 #### Java Agent
+* Reduce the number of TraceSegmentRef held in TraceSegment to avoid OOM
 
 
 #### OAP-Backend
