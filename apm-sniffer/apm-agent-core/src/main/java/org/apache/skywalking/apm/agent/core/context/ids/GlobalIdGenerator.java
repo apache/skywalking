@@ -75,7 +75,7 @@ public final class GlobalIdGenerator {
             if (currentTimeMillis < lastTimestamp) {
                 // Just for considering time-shift-back by Ops or OS. @hanahmily 's suggestion.
                 if (runRandomTimestamp != currentTimeMillis) {
-                    lastRandomValue = ThreadLocalRandom.current().nextInt();
+                    lastRandomValue = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
                     runRandomTimestamp = currentTimeMillis;
                 }
                 return lastRandomValue;
