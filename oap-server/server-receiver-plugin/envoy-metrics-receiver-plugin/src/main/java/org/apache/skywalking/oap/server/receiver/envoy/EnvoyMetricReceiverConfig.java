@@ -33,7 +33,7 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
     private boolean acceptMetricsService = false;
     private String alsHTTPAnalysis;
-    private String alsTCPAnalysis;
+    private String alsTCPAnalysis; // TODO: add to doc
     @Getter
     private String k8sServiceNameRule;
 
