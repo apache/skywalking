@@ -39,13 +39,25 @@ public class TraceSegment {
     private String traceSegmentId;
 
     /**
+     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #traceSegmentRef} contains only one
+     * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
+     * we only related the first parent TraceSegment.
+     * <p>
+     * This field will not be serialized. Keeping this field is only for quick accessing.
+     */
+    private TraceSegmentRef traceSegmentRef;
+
+    /**
      * The spans belong to this trace segment. They all have finished. All active spans are hold and controlled by
      * "skywalking-api" module.
      */
     private List<AbstractTracingSpan> spans;
 
-    private TraceSegmentRef traceSegmentRef;
-
+    /**
+     * The <code>relatedGlobalTraceId</code> represent the related trace. Most time it related only one
+     * element, because only one parent {@link TraceSegment} exists, but, in batch scenario, the num becomes greater
+     * than 1, also meaning multi-parents {@link TraceSegment}. But we only related the first parent TraceSegment.
+     */
     private DistributedTraceId relatedGlobalTraceId;
 
     private boolean ignore = false;
@@ -70,14 +82,18 @@ public class TraceSegment {
      * @param refSegment {@link TraceSegmentRef}
      */
     public void ref(TraceSegmentRef refSegment) {
-        this.traceSegmentRef = refSegment;
+        if (null == traceSegmentRef) {
+            this.traceSegmentRef = refSegment;
+        }
     }
 
     /**
      * Establish the line between this segment and the relative global trace id.
      */
     public void relatedGlobalTrace(DistributedTraceId distributedTraceId) {
-        this.relatedGlobalTraceId = distributedTraceId;
+        if (relatedGlobalTraceId instanceof NewDistributedTraceId) {
+            this.relatedGlobalTraceId = distributedTraceId;
+        }
     }
 
     /**
@@ -154,7 +170,7 @@ public class TraceSegment {
 
     @Override
     public String toString() {
-        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", traceSegmentRef=" + traceSegmentRef + ", spans=" + spans + ", relatedGlobalTraceId=" + relatedGlobalTraceId + '}';
+        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", traceSegmentRef=" + traceSegmentRef + ", spans=" + spans + "}";
     }
 
     public long createTime() {
