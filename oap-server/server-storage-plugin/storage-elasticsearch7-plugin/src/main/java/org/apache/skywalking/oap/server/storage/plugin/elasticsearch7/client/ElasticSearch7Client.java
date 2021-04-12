@@ -175,7 +175,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         indexName = formatIndexName(indexName);
         try {
             Response response = client.getLowLevelClient()
-                                      .performRequest(new Request(HttpGet.METHOD_NAME, indexName));
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "/" + indexName));
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
                 healthChecker.health();
@@ -218,7 +218,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         name = formatIndexName(name);
         try {
             Response response = client.getLowLevelClient()
-                                      .performRequest(new Request(HttpGet.METHOD_NAME, "_template/" + name));
+                                      .performRequest(new Request(HttpGet.METHOD_NAME, "/_template/" + name));
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
                 healthChecker.health();
