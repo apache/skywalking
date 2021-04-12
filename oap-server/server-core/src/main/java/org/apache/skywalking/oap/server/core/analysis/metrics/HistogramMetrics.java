@@ -75,9 +75,10 @@ public abstract class HistogramMetrics extends Metrics {
     }
 
     @Override
-    public void combine(Metrics metrics) {
+    public boolean combine(Metrics metrics) {
         HistogramMetrics histogramMetrics = (HistogramMetrics) metrics;
         this.dataset.append(histogramMetrics.dataset);
+        return true;
     }
 
     /**

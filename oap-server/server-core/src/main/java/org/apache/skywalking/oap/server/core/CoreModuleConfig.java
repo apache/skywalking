@@ -125,6 +125,31 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+    /**
+     * Define the set of logs tag keys, which should be searchable through the GraphQL.
+     *
+     * @since 8.4.0
+     */
+    @Setter
+    @Getter
+    private String searchableLogsTags = "";
+
+    /**
+     * The number of threads used to synchronously refresh the metrics data to the storage.
+     *
+     * @since 8.5.0
+     */
+    @Setter
+    @Getter
+    private int syncThreads = 2;
+
+    /**
+     * The maximum number of processes supported for each synchronous storage operation. When the number of the flush
+     * data is greater than this value, it will be assigned to multiple cores for execution.
+     */
+    @Getter
+    @Setter
+    private int maxSyncOperationNum = 50000;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
@@ -149,7 +174,16 @@ public class CoreModuleConfig extends ModuleConfig {
          * Aggregator mode OAP receives data from {@link #Mixed} and {@link #Aggregator} OAP nodes, and do 2nd round
          * aggregation. Then save the final result to the storage.
          */
-        Aggregator
+        Aggregator;
+
+        public static Role fromName(String name) {
+            for (Role role : Role.values()) {
+                if (role.name().equalsIgnoreCase(name)) {
+                    return role;
+                }
+            }
+            return Mixed;
+        }
     }
 
     /**

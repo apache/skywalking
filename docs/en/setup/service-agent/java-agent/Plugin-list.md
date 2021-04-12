@@ -23,7 +23,7 @@
 - grpc-1.x
 - gson-2.8.x
 - h2-1.x
-- hbase-1.x
+- hbase-1.x/2.x
 - httpasyncclient-4.x
 - httpclient-3.x
 - httpclient-4.x
@@ -39,9 +39,6 @@
 - kotlin-coroutine
 - lettuce-5.x
 - light4j
-- log4j-logger
-- log4j2-logger
-- logback-logger
 - mariadb-2.x
 - memcache-2.x
 - mongodb-2.x

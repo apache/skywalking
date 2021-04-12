@@ -15,12 +15,12 @@
 
 services:
   - key: not null
-    label: re(ratings.*)
+    label: e2e::ratings
   - key: not null
-    label: re(reviews.*)
+    label: e2e::reviews
   - key: not null
-    label: re(productpage.*)
+    label: e2e::productpage
   - key: not null
-    label: re(details.*)
+    label: e2e::details
   - key: not null
-    label: re(istio-ingressgateway.*)
+    label: e2e::istio-ingressgateway

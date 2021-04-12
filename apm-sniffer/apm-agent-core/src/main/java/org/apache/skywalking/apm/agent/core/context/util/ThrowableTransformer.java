@@ -37,10 +37,12 @@ public enum ThrowableTransformer {
             stackMessage.append(printExceptionInfo(causeException));
 
             boolean isLookDeeper = printStackElement(causeException.getStackTrace(), new AppendListener() {
+                @Override
                 public void append(String value) {
                     stackMessage.append(value);
                 }
 
+                @Override
                 public boolean overMaxLength() {
                     return stackMessage.length() > maxLength;
                 }

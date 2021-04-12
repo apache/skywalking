@@ -30,4 +30,13 @@ public interface BootService {
     void onComplete() throws Throwable;
 
     void shutdown() throws Throwable;
+
+    /**
+     * {@code BootService}s with higher priorities will be started earlier, and shut down later than those {@code BootService}s with lower priorities.
+     *
+     * @return the priority of this {@code BootService}.
+     */
+    default int priority() {
+        return 0;
+    }
 }

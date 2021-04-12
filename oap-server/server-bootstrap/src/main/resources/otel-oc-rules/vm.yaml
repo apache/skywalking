@@ -1,0 +1,94 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+expSuffix: tag({tags -> tags.node_identifier_host_name = 'vm::' + tags.node_identifier_host_name}).service(['node_identifier_host_name'])
+metricPrefix: meter_vm
+metricsRules:
+
+  #node cpu
+  - name: cpu_total_percentage
+    exp: (node_cpu_seconds_total * 100).tagNotEqual('mode' , 'idle').sum(['node_identifier_host_name']).rate('PT1M')
+  - name: cpu_average_used
+    exp: (node_cpu_seconds_total * 100).sum(['node_identifier_host_name' , 'mode']).rate('PT1M')
+  - name: cpu_load1
+    exp: node_load1 * 100
+  - name: cpu_load5
+    exp: node_load5 * 100
+  - name: cpu_load15
+    exp: node_load15 * 100
+
+    #node Memory
+  - name: memory_total
+    exp: node_memory_MemTotal_bytes
+  - name: memory_available
+    exp: node_memory_MemAvailable_bytes
+  - name: memory_used
+    exp: node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+  - name: memory_swap_free
+    exp: node_memory_SwapFree_bytes
+  - name: memory_swap_total
+    exp: node_memory_SwapTotal_bytes
+  - name: memory_swap_percentage
+    exp: 100 - ((node_memory_SwapFree_bytes * 100) / node_memory_SwapTotal_bytes)
+
+    #node filesystem
+  - name: filesystem_percentage
+    exp: 100 - ((node_filesystem_avail_bytes * 100).sum(['node_identifier_host_name' , 'mountpoint']) / node_filesystem_size_bytes.sum(['node_identifier_host_name' , 'mountpoint']))
+
+    #node disk
+  - name: disk_read
+    exp: node_disk_read_bytes_total.sum(['node_identifier_host_name']).rate('PT1M')
+  - name: disk_written
+    exp: node_disk_written_bytes_total.sum(['node_identifier_host_name']).rate('PT1M')
+
+    #node network
+  - name: network_receive
+    exp: node_network_receive_bytes_total.sum(['node_identifier_host_name']).irate()
+  - name: network_transmit
+    exp: node_network_transmit_bytes_total.sum(['node_identifier_host_name']).irate()
+
+    #node netstat
+  - name: tcp_curr_estab
+    exp: node_netstat_Tcp_CurrEstab
+  - name: tcp_tw
+    exp: node_sockstat_TCP_tw
+  - name: tcp_alloc
+    exp: node_sockstat_TCP_alloc
+  - name: sockets_used
+    exp: node_sockstat_sockets_used
+  - name: udp_inuse
+    exp: node_sockstat_UDP_inuse
+
+    #node filefd
+  - name: filefd_allocated
+    exp: node_filefd_allocated
+
+
+

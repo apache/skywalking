@@ -94,6 +94,8 @@ property key | Description | Default |
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 `collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
+`collector.get_agent_dynamic_config_interval`|Sniffer get agent dynamic config interval|`20`|
+`collector.dns_period_resolve_active`|If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses.|`false`|
 `logging.level`|Log level: TRACE, DEBUG, INFO, WARN, ERROR, OFF. Default is info.|`INFO`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
@@ -132,7 +134,7 @@ property key | Description | Default |
 `plugin.solrj.trace_statement`|If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.|`false`|
 `plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 `plugin.light4j.trace_handler_chain`|If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request.|false|
-`plugin.opgroup.*`|Support operation name customize group rules in different plugins. Read [Group rule supported plugins](op_name_group_rule.md)|Not set|
+`plugin.opgroup.*`|Support operation name customize group rules in different plugins. Read [Group rule supported plugins](../../backend/endpoint-grouping-rules.md)|Not set|
 `plugin.springtransaction.simplify_transaction_definition_name`|If true, the transaction definition name will be simplified.|false|
 `plugin.jdkthreading.threading_class_prefixes` | Threading classes (`java.lang.Runnable` and `java.util.concurrent.Callable`) and their subclasses, including anonymous inner classes whose name match any one of the `THREADING_CLASS_PREFIXES` (splitted by `,`) will be instrumented, make sure to only specify as narrow prefixes as what you're expecting to instrument, (`java.` and `javax.` will be ignored due to safety issues) | Not set |
 `plugin.tomcat.collect_http_params`| This config item controls that whether the Tomcat plugin should collect the parameters of the request. Also, activate implicitly in the profiled trace. | `false` |
@@ -159,6 +161,16 @@ property key | Description | Default |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
 `plugin.springannotation.classname_match_regex` |  Match spring beans with regular expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
+`plugin.toolkit.log.transmit_formatted` | Whether or not to transmit logged data as formatted or un-formatted. | `true` |
+`plugin.toolkit.log.grpc.reporter.server_host` | Specify which grpc server's host for log data to report to. | `127.0.0.1` |
+`plugin.toolkit.log.grpc.reporter.server_port` | Specify which grpc server's port for log data to report to. | `11800` |
+`plugin.toolkit.log.grpc.reporter.max_message_size` | Specify the maximum size of log data for grpc client to report to. | `10485760` |
+`plugin.toolkit.log.grpc.reporter.upstream_timeout` | How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
+`plugin.lettuce.trace_redis_parameters` | If set to true, the parameters of Redis commands would be collected by Lettuce agent.| `false` |
+`plugin.lettuce.redis_parameter_max_length` | If set to positive number and `plugin.lettuce.trace_redis_parameters` is set to `true`, Redis command parameters would be collected and truncated to this length.| `128` |
+
+## Dynamic Configurations
+All configurations above are static, if you need to change some agent settings at runtime, please read [CDS - Configuration Discovery Service document](configuration-discovery.md) for more details.
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -176,7 +188,6 @@ Now, we have the following known optional plugins.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
 * Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
 * Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
-* [Plugin of logger(logback, log4j, log4j2)](agent-optional-plugins/Logger-plugin.md) in the optional plugin folder. For the performance perspective, please only activate it when you need to add logs(from logback,log4j, or log4j2) to the span log event. **Notice, collecting logs in the tracing would impact the performance and memory seriously. Only collect necessary logs.**
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
@@ -207,7 +218,7 @@ The tag is, key=`x-le` and value = `{"logic-span":true}`.
 * Application Toolkit, are a collection of libraries, provided by SkyWalking APM. Using them, you have a bridge between your application and SkyWalking APM agent. 
     * If you want your codes to interact with SkyWalking agent, including `getting trace id`, `setting tags`, `propagating custom data` etc.. Try [SkyWalking manual APIs](Application-toolkit-trace.md).
     * If you require customized metrics, try [SkyWalking Meter System Toolkit](Application-toolkit-meter.md).
-    * If you want to print trace context(e.g. traceId) in your logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
+    * If you want to print trace context(e.g. traceId) in your logs, or collect logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
 [log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
     * If you want to forward MicroMeter/Spring Sleuth metrics to Meter System, use [SkyWalking MicroMeter Register](Application-toolkit-micrometer.md).
@@ -228,7 +239,3 @@ our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md)
 If you are interested in plugin compatible tests or agent performance, see the following reports.
 * [Plugin Test in every Pull Request](https://github.com/apache/skywalking/actions?query=workflow%3APluginsTest)
 * [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)
-
-# Notice
-¹ Due to gRPC didn't support JDK 1.6 since 2018, SkyWalking abandoned the JDK 6/7 supports in all 7.x releases. 
-But, with gRPC back forward compatibility(at least for now), all SkyWalking 6.x agents could work with 7.x, including the agent and backend.

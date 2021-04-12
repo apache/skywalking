@@ -35,6 +35,7 @@ public class ConditionExpression {
     private List<String> attributes = new ArrayList<>();
     private String value;
     private List<String> values;
+    private boolean number;
 
     public ConditionExpression(final String expressionType, final String attributes, final String value) {
         this.expressionType = expressionType;
@@ -50,11 +51,17 @@ public class ConditionExpression {
         }
     }
 
+    public void isNumber() {
+        number = true;
+    }
+
     public void enterMultiConditionValue() {
         values = new LinkedList<>();
     }
 
     public void exitMultiConditionValue() {
-        value = "new Object[]{" + String.join(",", values) + "}";
+        value = number ?
+            "new long[]{" + String.join(",", values) + "}" :
+            "new Object[]{" + String.join(",", values) + "}";
     }
 }

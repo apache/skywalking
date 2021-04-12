@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.DATA_BINARY;
@@ -50,24 +49,16 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.segment.Segm
  * H2/MySQL is different from standard {@link org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.Builder},
  * this maps the tags into multiple columns.
  */
-public class H2SegmentRecordBuilder implements StorageBuilder<Record> {
-    private int numOfSearchableValuesPerTag;
-    private final List<String> searchTagKeys;
+public class H2SegmentRecordBuilder extends AbstractSearchTagBuilder<Record> {
 
     public H2SegmentRecordBuilder(final int maxSizeOfArrayColumn,
                                   final int numOfSearchableValuesPerTag,
                                   final List<String> searchTagKeys) {
-        this.numOfSearchableValuesPerTag = numOfSearchableValuesPerTag;
-        final int maxNumOfTags = maxSizeOfArrayColumn / numOfSearchableValuesPerTag;
-        if (searchTagKeys.size() > maxNumOfTags) {
-            this.searchTagKeys = searchTagKeys.subList(0, maxNumOfTags);
-        } else {
-            this.searchTagKeys = searchTagKeys;
-        }
+        super(maxSizeOfArrayColumn, numOfSearchableValuesPerTag, searchTagKeys, TAGS);
     }
 
     @Override
-    public Map<String, Object> data2Map(Record record) {
+    public Map<String, Object> entity2Storage(Record record) {
         SegmentRecord storageData = (SegmentRecord) record;
         storageData.setStatement(Strings.join(new String[] {
             storageData.getEndpointName(),
@@ -92,38 +83,12 @@ public class H2SegmentRecordBuilder implements StorageBuilder<Record> {
             map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
         }
         map.put(VERSION, storageData.getVersion());
-        storageData.getTagsRawData().forEach(spanTag -> {
-            final int index = searchTagKeys.indexOf(spanTag.getKey());
-            boolean shouldAdd = true;
-            int tagIdx = 0;
-            final String tagExpression = spanTag.toString();
-            for (int i = 0; i < numOfSearchableValuesPerTag; i++) {
-                tagIdx = index * numOfSearchableValuesPerTag + i;
-                final String previousValue = (String) map.get(TAGS + "_" + tagIdx);
-                if (previousValue == null) {
-                    // Still have at least one available slot, add directly.
-                    shouldAdd = true;
-                    break;
-                }
-                // If value is duplicated with added one, ignore.
-                if (previousValue.equals(tagExpression)) {
-                    shouldAdd = false;
-                    break;
-                }
-                // Reach the end of tag
-                if (i == numOfSearchableValuesPerTag - 1) {
-                    shouldAdd = false;
-                }
-            }
-            if (shouldAdd) {
-                map.put(TAGS + "_" + tagIdx, tagExpression);
-            }
-        });
+        analysisSearchTag(storageData.getTagsRawData(), map);
         return map;
     }
 
     @Override
-    public Record map2Data(Map<String, Object> dbMap) {
+    public Record storage2Entity(Map<String, Object> dbMap) {
         SegmentRecord record = new SegmentRecord();
         record.setSegmentId((String) dbMap.get(SEGMENT_ID));
         record.setTraceId((String) dbMap.get(TRACE_ID));

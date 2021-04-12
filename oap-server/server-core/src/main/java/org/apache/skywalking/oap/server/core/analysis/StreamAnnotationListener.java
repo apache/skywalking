@@ -51,6 +51,10 @@ public class StreamAnnotationListener implements AnnotationListener {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream) aClass.getAnnotation(Stream.class);
 
+            if (DisableRegister.INSTANCE.include(stream.name())) {
+                return;
+            }
+
             if (stream.processor().equals(RecordStreamProcessor.class)) {
                 RecordStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             } else if (stream.processor().equals(MetricsStreamProcessor.class)) {

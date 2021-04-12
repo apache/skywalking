@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
@@ -47,7 +48,8 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
     private final HistogramMetrics histogram;
     private final CounterMetrics sourceDispatcherCounter;
 
-    public AccessLogServiceGRPCHandler(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
+    public AccessLogServiceGRPCHandler(ModuleManager manager,
+                                       EnvoyMetricReceiverConfig config) throws ModuleStartException {
         ServiceLoader<ALSHTTPAnalysis> alshttpAnalyses = ServiceLoader.load(ALSHTTPAnalysis.class);
         envoyHTTPAnalysisList = new ArrayList<>();
         for (String httpAnalysisName : config.getAlsHTTPAnalysis()) {
@@ -62,9 +64,18 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
         LOGGER.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        counter = metricCreator.createCounter("envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        histogram = metricCreator.createHistogramMetric("envoy_als_in_latency", "The process latency of service ALS metric receiver", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        sourceDispatcherCounter = metricCreator.createCounter("envoy_als_source_dispatch_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        counter = metricCreator.createCounter(
+            "envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
+        histogram = metricCreator.createHistogramMetric(
+            "envoy_als_in_latency", "The process latency of service ALS metric receiver", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
+        sourceDispatcherCounter = metricCreator.createCounter(
+            "envoy_als_source_dispatch_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
     }
 
     @Override
@@ -93,9 +104,10 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                     StreamAccessLogsMessage.LogEntriesCase logCase = message.getLogEntriesCase();
 
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
-                            .getNode()
-                            .getId(), role, logCase, message);
+                        LOGGER.debug(
+                            "Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
+                                .getNode()
+                                .getId(), role, logCase, message);
                     }
 
                     switch (logCase) {
@@ -103,10 +115,12 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                             StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
 
                             List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
-                            for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
-                                logs.getLogEntryList().forEach(log -> {
-                                    sourceResult.addAll(analysis.analysis(identifier, log, role));
-                                });
+                            for (final HTTPAccessLogEntry log : logs.getLogEntryList()) {
+                                List<ServiceMeshMetric.Builder> result = new ArrayList<>();
+                                for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
+                                    result = analysis.analysis(result, identifier, log, role);
+                                }
+                                sourceResult.addAll(result);
                             }
 
                             sourceDispatcherCounter.inc(sourceResult.size());

@@ -18,7 +18,14 @@
 
 package org.apache.skywalking.e2e;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.alarm.AlarmQuery;
 import org.apache.skywalking.e2e.alarm.GetAlarm;
@@ -26,11 +33,19 @@ import org.apache.skywalking.e2e.alarm.GetAlarmData;
 import org.apache.skywalking.e2e.browser.BrowserErrorLog;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogQuery;
 import org.apache.skywalking.e2e.browser.BrowserErrorLogsData;
+import org.apache.skywalking.e2e.event.Event;
+import org.apache.skywalking.e2e.event.EventData;
+import org.apache.skywalking.e2e.event.EventsQuery;
+import org.apache.skywalking.e2e.log.Log;
+import org.apache.skywalking.e2e.log.LogData;
+import org.apache.skywalking.e2e.log.LogsQuery;
+import org.apache.skywalking.e2e.log.SupportQueryLogsByKeywords;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MultiMetricsData;
 import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsData;
+import org.apache.skywalking.e2e.metrics.ReadLabeledMetricsQuery;
 import org.apache.skywalking.e2e.metrics.ReadMetrics;
 import org.apache.skywalking.e2e.metrics.ReadMetricsData;
 import org.apache.skywalking.e2e.metrics.ReadMetricsQuery;
@@ -57,17 +72,11 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 @SuppressWarnings("UnstableApiUsage")
 @Slf4j
 public class SimpleQueryClient {
     protected final RestTemplate restTemplate = new RestTemplate();
+    protected final ObjectMapper objectMapper = new ObjectMapper();
 
     protected final String endpointUrl;
 
@@ -92,7 +101,8 @@ public class SimpleQueryClient {
                                             .replace("{pageNum}", query.pageNum())
                                             .replace("{pageSize}", query.pageSize())
                                             .replace("{needTotal}", query.needTotal())
-                                            .replace("{queryOrder}", query.queryOrder());
+                                            .replace("{queryOrder}", query.queryOrder())
+                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()));
         final ResponseEntity<GQLResponse<TracesData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
             new ParameterizedTypeReference<GQLResponse<TracesData>>() {
@@ -322,7 +332,8 @@ public class SimpleQueryClient {
                                             .replace("{end}", query.end())
                                             .replace("{metricsName}", query.metricsName())
                                             .replace("{serviceName}", query.serviceName())
-                                            .replace("{instanceName}", query.instanceName());
+                                            .replace("{instanceName}", query.instanceName())
+                                            .replace("{scope}", query.scope());
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<ReadMetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -337,7 +348,7 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getReadMetricsValues();
     }
 
-    public List<ReadMetrics> readLabeledMetrics(final ReadMetricsQuery query) throws Exception {
+    public List<ReadMetrics> readLabeledMetrics(final ReadLabeledMetricsQuery query) throws Exception {
         final URL queryFileUrl = Resources.getResource("read-labeled-metrics.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream()
@@ -348,7 +359,10 @@ public class SimpleQueryClient {
                                             .replace("{end}", query.end())
                                             .replace("{metricsName}", query.metricsName())
                                             .replace("{serviceName}", query.serviceName())
-                                            .replace("{instanceName}", query.instanceName());
+                                            .replace("{instanceName}", query.instanceName())
+                                            .replace("{scope}", query.scope())
+                                            .replace("{labels}", query.labels().stream()
+                                                    .map(s -> "\"" + s + "\"").collect(Collectors.joining(",")));
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<ReadLabeledMetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -366,14 +380,14 @@ public class SimpleQueryClient {
     public GetAlarm readAlarms(final AlarmQuery query) throws Exception {
         final URL queryFileUrl = Resources.getResource("read-alarms.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
-            .stream()
-            .filter(it -> !it.startsWith("#"))
-            .collect(Collectors.joining())
-            .replace("{step}", query.step())
-            .replace("{start}", query.start())
-            .replace("{end}", query.end())
-            .replace("{pageSize}", "20")
-            .replace("{needTotal}", "true");
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{step}", query.step())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{pageSize}", "20")
+                                            .replace("{needTotal}", "true");
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<GetAlarmData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -386,5 +400,71 @@ public class SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getGetAlarm();
+    }
+
+    public List<Log> logs(final LogsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("logs.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream().filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{serviceId}", query.serviceId())
+                                            .replace("{endpointId}", query.endpointId())
+                                            .replace("{endpointName}", query.endpointName())
+                                            .replace("{start}", query.start())
+                                            .replace("{end}", query.end())
+                                            .replace("{step}", query.step())
+                                            .replace("{pageNum}", query.pageNum())
+                                            .replace("{pageSize}", query.pageSize())
+                                            .replace("{needTotal}", query.needTotal())
+                                            .replace("{keywordsOfContent}", query.keywordsOfContent())
+                                            .replace(
+                                                "{excludingKeywordsOfContent}", query.excludingKeywordsOfContent())
+                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()));
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<LogData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<LogData>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getLogs().getData();
+    }
+
+    public boolean supportQueryLogsByKeywords() throws Exception {
+        final URL queryFileUrl = Resources.getResource("support-query-logs-by-keywords.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<SupportQueryLogsByKeywords>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<SupportQueryLogsByKeywords>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody().getData().isSupport());
+    }
+
+    public List<Event> events(final EventsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("events.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream().filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{uuid}", query.uuid());
+        LOGGER.info("Query: {}", queryString);
+        final ResponseEntity<GQLResponse<EventData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<EventData>>() {
+            }
+        );
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getEvents().getData();
     }
 }

@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -51,20 +52,21 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
                                 final Duration duration) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         buildQuery(sourceBuilder, condition, duration);
-
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         if (function == Function.Latest) {
             return readMetricsValues(condition, valueColumnName, duration).getValues().latestValue(defaultValue);
         }
+
         TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
-            .field(Metrics.ENTITY_ID)
-            .size(1);
+                                                                         .field(Metrics.ENTITY_ID)
+                                                                         .size(1);
         functionAggregation(function, entityIdAggregation, valueColumnName);
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()), sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
@@ -83,6 +85,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
         return defaultValue;
     }
 
+    @Override
     protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
         switch (function) {
             case Avg:

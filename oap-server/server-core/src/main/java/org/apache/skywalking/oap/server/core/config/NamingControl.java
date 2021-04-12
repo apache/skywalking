@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -44,7 +45,7 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #serviceNameMaxLength};
      */
     public String formatServiceName(String serviceName) {
-        if (serviceName.length() > serviceNameMaxLength) {
+        if (serviceName != null && serviceName.length() > serviceNameMaxLength) {
             final String rename = serviceName.substring(0, serviceNameMaxLength);
             if (log.isDebugEnabled()) {
                 log.debug(
@@ -69,7 +70,7 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #instanceNameMaxLength};
      */
     public String formatInstanceName(String instanceName) {
-        if (instanceName.length() > instanceNameMaxLength) {
+        if (instanceName != null && instanceName.length() > instanceNameMaxLength) {
             final String rename = instanceName.substring(0, instanceNameMaxLength);
             if (log.isDebugEnabled()) {
                 log.debug(
@@ -95,6 +96,10 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #endpointNameMaxLength};
      */
     public String formatEndpointName(String serviceName, String endpointName) {
+        if (StringUtil.isEmpty(serviceName) || endpointName == null) {
+            return endpointName;
+        }
+
         String lengthControlledName = endpointName;
         if (endpointName.length() > endpointNameMaxLength) {
             lengthControlledName = endpointName.substring(0, endpointNameMaxLength);

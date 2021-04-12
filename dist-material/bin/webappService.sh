@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,14 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env sh
-
 PRG="$0"
-PRGDIR=`dirname "$PRG"`
-[ -z "$WEBAPP_HOME" ] && WEBAPP_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
+PRGDIR=$(dirname "$PRG")
+[ -z "$WEBAPP_HOME" ] && WEBAPP_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
 WEBAPP_LOG_DIR="${WEBAPP_LOG_DIR:-${WEBAPP_HOME}/logs}"
-JAVA_OPTS=" -Xms256M -Xmx512M"
+JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx512M}"
 JAR_PATH="${WEBAPP_HOME}/webapp"
 
 if [ ! -d "${WEBAPP_LOG_DIR}" ]; then

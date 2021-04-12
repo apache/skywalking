@@ -131,7 +131,12 @@ public class LogEntry2MetricsAdapter {
     }
 
     protected String endpoint() {
-        return ofNullable(entry.getRequest()).map(HTTPRequestProperties::getPath).orElse("/");
+        if (!entry.hasRequest()) {
+            return "/";
+        }
+        final HTTPRequestProperties request = entry.getRequest();
+        final String method = request.getRequestMethod().name();
+        return method + ":" + request.getPath();
     }
 
     protected static long formatAsLong(final Timestamp timestamp) {
@@ -202,7 +207,7 @@ public class LogEntry2MetricsAdapter {
                 return "fault_injected";
             } else if (responseFlags.getRateLimited()) {
                 return "rate_limited";
-            } else if (responseFlags.getUnauthorizedDetails() != null) {
+            } else if (responseFlags.hasUnauthorizedDetails()) {
                 return "unauthorized_details";
             } else if (responseFlags.getRateLimitServiceError()) {
                 return "rate_limit_service_error";

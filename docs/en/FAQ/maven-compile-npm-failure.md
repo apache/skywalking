@@ -1,7 +1,7 @@
-### Problem： Maven compilation failure with error like `Error: not found: python2`
-When you compile the project via maven, it failed at module `apm-webapp` and the following error occured.
+### Problem： Maven compilation failure with error such as `Error: not found: python2`
+When you compile the project via Maven, it fails at module `apm-webapp` and the following error occurs.
 
-Pay attention to key words such as `node-sass` and `Error: not found: python2`.
+Pay attention to keywords such as `node-sass` and `Error: not found: python2`.
 
 ```
 [INFO] > node-sass@4.11.0 postinstall C:\XXX\skywalking\skywalking-ui\node_modules\node-sass
@@ -42,11 +42,11 @@ Pay attention to key words such as `node-sass` and `Error: not found: python2`.
 
 ### Reason
 
-It has nothing to do with SkyWalking.   
-According to https://github.com/sass/node-sass/issues/1176, if you live in countries where requesting resources from `GitHub` and `npmjs.org` is very slowly, some precompiled binaries for dependency `node-sass` will fail to be downloaded during `npm install`, then npm will try to compile them itself. That's why `python2` is needed.
+The error has nothing to do with SkyWalking.   
+According to the issue here (https://github.com/sass/node-sass/issues/1176), if you live in countries where requesting resources from `GitHub` and `npmjs.org` runs slow, some precompiled binaries for dependency `node-sass` would fail to be downloaded during `npm install`, and npm would try to compile them itself. That's why `python2` is needed.
 
-### Resolve
-#### 1. Use mirror. Such as in China, please edit `skywalking\apm-webapp\pom.xml`     
+### Resolution
+#### 1. Use mirror. For instance, if you're in China, please edit `skywalking\apm-webapp\pom.xml` as follows.    
 Find
 ```
 <configuration>  
@@ -59,4 +59,4 @@ Replace it with
  <arguments>install --registry=https://registry.npm.taobao.org/ --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/</arguments>  
 </configuration>
 ```
-#### 2. Get an enough powerful VPN
+#### 2. Get a sufficiently powerful VPN.

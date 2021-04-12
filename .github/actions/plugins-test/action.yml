@@ -1,0 +1,88 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+name: "Run Plugin Test"
+description: "Common steps when running a plugin test"
+inputs:
+  test_case:
+    description: "The plugin test name"
+    required: true
+  java_version:
+    description: "The Java version under which this test case will run"
+    required: false
+    default: "jdk8"
+runs:
+  using: "composite"
+  steps:
+    - name: Check Unintended Changes
+      shell: bash
+      run: |
+        echo "::group::Check sw.version"
+        sudo apt install -y -q xmlstarlet
+        SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
+        if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
+          echo "Please don't submit the change of sw.version in test/e2e/pom.xml"
+          exit 1
+        fi
+        echo "::endgroup::"
+    - name: Check License
+      shell: bash
+      run: |
+        echo "::group::Build License-Eye Binary"
+        git clone https://github.com/apache/skywalking-eyes.git
+        git -C skywalking-eyes reset --hard 9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+        make -C skywalking-eyes docker || make -C skywalking-eyes docker
+        rm -rf skywalking-eyes
+        docker run --rm -v $(pwd):/github/workspace license-eye:latest header check
+        echo "::endgroup::"
+    - name: Add checkstyle-plugin
+      shell: bash
+      run: |
+        echo "::group::Add checkstyle plugin to the pom.xml"
+        sed -i "/<\/sourceDirectories>/i <sourceDirectory>scenarios\/""${{ inputs.test_case }}""<\/sourceDirectory>" test/plugin/pom.xml
+        echo "::endgroup::"
+    - name: Build SkyWalking Agent
+      shell: bash
+      run: |
+        echo "::group::Build SkyWalking Agent"
+        # Retry one more time due to frequent "maven connection reset"
+        ./mvnw --batch-mode clean package -DskipTests -Pagent || \
+        ./mvnw --batch-mode clean package -DskipTests -Pagent
+        echo "::endgroup::"
+    - name: Build Docker Image
+      shell: bash
+      run: |
+        echo "::group::Build Docker Image"
+        # Retry one more time due to frequent "maven connection reset"
+        ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests -P${{ inputs.java_version }} || \
+        ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests -P${{ inputs.java_version }}
+        echo "::endgroup::"
+    - name: Run Plugin Test ${{ inputs.test_case }}
+      shell: bash
+      run: |
+        echo "::group::Run Plugin Test ${{ inputs.test_case }}"
+        bash test/plugin/run.sh --image_version=${{ inputs.java_version }}-1.0.0 ${{ inputs.test_case }}
+        echo "::endgroup::"
+    - name: Report Coverage
+      shell: bash
+      env:
+        CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
+      run: |
+        echo "::group::Uploading Code Coverage"
+        bash -x tools/coverage/report.sh
+        echo "::endgroup::"

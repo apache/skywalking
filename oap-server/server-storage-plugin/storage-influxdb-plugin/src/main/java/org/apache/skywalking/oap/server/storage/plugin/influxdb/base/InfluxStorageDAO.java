@@ -26,8 +26,9 @@ import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 
 public class InfluxStorageDAO implements StorageDAO {
@@ -38,22 +39,22 @@ public class InfluxStorageDAO implements StorageDAO {
     }
 
     @Override
-    public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new MetricsDAO(influxClient, storageBuilder);
+    public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
+        return new MetricsDAO(influxClient, (StorageHashMapBuilder<Metrics>) storageBuilder);
     }
 
     @Override
-    public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new RecordDAO(storageBuilder);
+    public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
+        return new RecordDAO((StorageHashMapBuilder<Record>) storageBuilder);
     }
 
     @Override
-    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new NoneStreamDAO(influxClient, storageBuilder);
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
+        return new NoneStreamDAO(influxClient, (StorageHashMapBuilder<NoneStream>) storageBuilder);
     }
 
     @Override
-    public IManagementDAO newManagementDao(final StorageBuilder<ManagementData> storageBuilder) {
-        return new ManagementDAO(influxClient, storageBuilder);
+    public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
+        return new ManagementDAO(influxClient, (StorageHashMapBuilder<ManagementData>) storageBuilder);
     }
 }

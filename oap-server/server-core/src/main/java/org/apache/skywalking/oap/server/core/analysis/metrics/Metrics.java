@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -29,6 +30,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * Metrics represents the statistic data, which analysis by OAL script or hard code. It has the lifecycle controlled by
  * TTL(time to live).
  */
+@EqualsAndHashCode(of = {
+    "timeBucket"
+})
 public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
@@ -52,8 +56,9 @@ public abstract class Metrics extends StreamData implements StorageData {
      * Merge the given metrics instance, these two must be the same metrics type.
      *
      * @param metrics to be merged
+     * @return {@code true} if the combined metrics should be continuously processed. {@code false} means it should be abandoned, and the implementation needs to keep the data unaltered in this case.
      */
-    public abstract void combine(Metrics metrics);
+    public abstract boolean combine(Metrics metrics);
 
     /**
      * Calculate the metrics final value when required.

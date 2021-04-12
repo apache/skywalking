@@ -62,6 +62,7 @@ public class Config {
 
         /**
          * If the operation name of the first span is included in this set, this segment should be ignored.
+         * Multiple values should be separated by `,`.
          */
         public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
 
@@ -163,7 +164,14 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
-
+        /**
+         * Get agent dynamic config interval
+         */
+        public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
+        /**
+         * If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses.
+         */
+        public static boolean IS_RESOLVE_DNS_PERIODICALLY = false;
     }
 
     public static class Profile {

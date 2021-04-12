@@ -54,9 +54,10 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         total += ((PercentMetrics) metrics).total;
         match += ((PercentMetrics) metrics).match;
+        return true;
     }
 
     @Override

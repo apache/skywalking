@@ -224,7 +224,7 @@ The text of each license is the standard Apache 2.0 license.
    flatbuffers files from istio/proxy: https://github.com/istio/proxy Apache 2.0
    mvnw files from https://github.com/takari/maven-wrapper Apache 2.0
    svg files from skywalking-ui/src/assets/icons: https://github.com/google/material-design-icons Apache 2.0
-    
+
 ========================================================================
 BSD licenses
 ========================================================================

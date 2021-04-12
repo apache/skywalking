@@ -1,0 +1,512 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "K8s"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+          {
+              "name": "K8s",
+              "type": "service",
+              "serviceGroup": "k8s-cluster",
+              "children": [
+                  {
+                      "name": "Cluster",
+                      "children": [
+                          {
+                              "width": "2",
+                              "title": "Node Total",
+                              "height": "100",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_node_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "2",
+                              "title": "Namespace Total",
+                              "height": "100",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_namespace_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "2",
+                              "title": "Deployment Total",
+                              "height": "100",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_deployment_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "2",
+                              "title": "Service Total",
+                              "height": "100",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_service_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "2",
+                              "title": "Pod Total",
+                              "height": "100",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_pod_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": 2,
+                              "title": "Container Total",
+                              "height": "100",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_container_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "4",
+                              "title": "CPU Resources",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_cpu_cores,k8s_cluster_cpu_cores_requests,k8s_cluster_cpu_cores_limits,k8s_cluster_cpu_cores_allocatable",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "unit": "m"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Memory Resources",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_memory_total,k8s_cluster_memory_requests,k8s_cluster_memory_limits,k8s_cluster_memory_allocatable",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824",
+                              "unit": "GB"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Storage Resources",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_cluster_storage_total,k8s_cluster_storage_allocatable",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824",
+                              "unit": "GB"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Node Status",
+                              "height": "200",
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_node_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status-Node",
+                              "showTableValues": "false"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Deployment Status",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_deployment_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Deployment-Available",
+                              "showTableValues": "false"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Deployment Spec Replicas",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "metricName": "k8s_cluster_deployment_spec_replicas",
+                              "showTableValues": "true",
+                              "tableHeaderCol1": "Deployment",
+                              "tableHeaderCol2": "Replicas"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Service Status",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_service_pod_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "showTableValues": "false",
+                              "tableHeaderCol1": "Status-Service"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Pod Status Not Running",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_pod_status_not_running",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status-Pod"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Pod Status Waiting",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_pod_status_waiting",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Container-Pod-Waiting Reason",
+                              "showTableValues": "false"
+                          },
+                          {
+                              "width": "4",
+                              "title": "Pod Status Terminated",
+                              "height": 200,
+                              "entityType": "Service",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_cluster_container_status_terminated",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          }
+                      ]
+                  },
+                  {
+                      "name": "Node",
+                      "children": [
+                          {
+                              "width": "3",
+                              "title": "Pod Total",
+                              "height": 350,
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_node_pod_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": "3",
+                              "title": "Node Status",
+                              "height": 350,
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_node_node_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status",
+                              "showTableValues": "false"
+                          },
+                          {
+                              "width": "3",
+                              "title": "CPU Resources",
+                              "height": "350",
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_node_cpu_cores,k8s_node_cpu_cores_allocatable,k8s_node_cpu_cores_requests,k8s_node_cpu_cores_limits",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "unit": "m"
+                          },
+                          {
+                              "width": "3",
+                              "title": "Memory Resources",
+                              "height": "350",
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "unit": "GB",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "metricName": "k8s_node_memory_total,k8s_node_memory_allocatable,k8s_node_memory_requests,k8s_node_memory_limits",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824"
+                          },
+                          {
+                              "width": "3",
+                              "title": "Storage Resources",
+                              "height": 350,
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "unit": "GB",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "metricName": "k8s_node_storage_total,k8s_node_storage_allocatable",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824"
+                          },
+                          {
+                              "width": 3,
+                              "title": "CPU Usage",
+                              "height": 350,
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_node_cpu_usage",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartLine",
+                              "unit": "m"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Memory Usage",
+                              "height": 350,
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_node_memory_usage",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartLine",
+                              "aggregation": "/",
+                              "aggregationNum": "1073741824",
+                              "unit": "GB"
+                          },
+                          {
+                              "width": "3",
+                              "title": "Network I/O",
+                              "height": 350,
+                              "entityType": "ServiceInstance",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_node_network_receive,k8s_node_network_transmit",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartLine",
+                              "unit": "KB/s",
+                              "aggregation": "/",
+                              "aggregationNum": "1024"
+                          }
+                      ]
+                  },
+                  {
+                      "name": "Service",
+                      "children": [
+                          {
+                              "width": 3,
+                              "title": "Service Pod Total",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_service_pod_total",
+                              "queryMetricType": "readMetricsValue",
+                              "chartType": "ChartNum"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Service Pod Status",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_status",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Status-Pod",
+                              "showTableValues": "false"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Service CPU Resources",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_service_cpu_cores_requests,k8s_service_cpu_cores_limits",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "unit": "m"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Service Memory Resources",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "REGULAR_VALUE",
+                              "metricName": "k8s_service_memory_requests,k8s_service_memory_limits",
+                              "queryMetricType": "readMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "1048576",
+                              "unit": "MB"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod CPU Usage",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_cpu_usage",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartLine",
+                              "unit": "m"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Memory Usage",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_memory_usage",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartLine",
+                              "aggregation": "/",
+                              "aggregationNum": "1048576",
+                              "unit": "MB"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Waiting",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_status_waiting",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "showTableValues": "false",
+                              "tableHeaderCol1": "Container-Pod-Waiting Reason"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Terminated",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_status_terminated",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartBar"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Restarts",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_status_restarts_total",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartTable",
+                              "tableHeaderCol1": "Pod",
+                              "showTableValues": "true",
+                              "tableHeaderCol2": "Restarts Total"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Network Receive",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_network_receive",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartLine",
+                              "aggregation": "/",
+                              "aggregationNum": "1024",
+                              "unit": "KB/s"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Network Transmit",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_network_transmit",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartLine",
+                              "aggregationNum": "1024",
+                              "aggregation": "/",
+                              "unit": "KB/s"
+                          },
+                          {
+                              "width": 3,
+                              "title": "Pod Storage Usage",
+                              "height": "248",
+                              "entityType": "Endpoint",
+                              "independentSelector": false,
+                              "metricType": "LABELED_VALUE",
+                              "metricName": "k8s_service_pod_fs_usage",
+                              "queryMetricType": "readLabeledMetricsValues",
+                              "chartType": "ChartArea",
+                              "aggregation": "/",
+                              "aggregationNum": "1048576",
+                              "unit": "MB"
+                          }
+                      ]
+                  }
+              ]
+          }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

@@ -3,7 +3,7 @@ This document describe how to understand, develop and contribute plugin.
 
 There are 2 kinds of plugin
 1. [Tracing plugin](#tracing-plugin). Follow the distributed tracing concept to collect spans with tags and logs.
-1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Guage, and Histogram formats.
+1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Gauge, and Histogram formats.
 
 We also provide the [plugin test tool](#plugin-test-tool) to verify the data collected and reported by the plugin. If you plan to contribute any plugin to our main repo, the data would be verified by this tool too.
 
@@ -232,8 +232,8 @@ SkyWalking boxed the byte code manipulation tech and tracing context propagation
 so you just need to define the intercept point(a.k.a. aspect pointcut in Spring)
 
 ### Intercept
-SkyWalking provide two common defines to intercept Contructor, instance method and class method.
-* Extend `ClassInstanceMethodsEnhancePluginDefine` defines `Contructor` intercept points and `instance method` intercept points.
+SkyWalking provide two common defines to intercept constructor, instance method and class method.
+* Extend `ClassInstanceMethodsEnhancePluginDefine` defines `constructor` intercept points and `instance method` intercept points.
 * Extend `ClassStaticMethodsEnhancePluginDefine` defines `class method` intercept points.
 
 Of course, you can extend `ClassEnhancePluginDefine` to set all intercept points. But it is unusual. 
@@ -299,6 +299,31 @@ The following sections will tell you how to implement the interceptor.
 tomcat-7.x/8.x=TomcatInstrumentation
 ```
 
+4. Set up `witnessClasses` and/or `witnessMethods` if the instrumentation should be activated in specific versions.
+
+   Example:
+
+   ```java
+   // The plugin is activated only when the foo.Bar class exists.
+   @Override
+   protected String[] witnessClasses() {
+     return new String[] {
+       "foo.Bar"
+     };
+   }
+   
+   // The plugin is activated only when the foo.Bar#hello method exists.
+   @Override
+   protected List<WitnessMethod> witnessMethods() {
+     List<WitnessMethod> witnessMethodList = new ArrayList<>();
+     WitnessMethod witnessMethod = new WitnessMethod("foo.Bar", ElementMatchers.named("hello"));
+     witnessMethodList.add(witnessMethod);
+     return witnessMethodList;
+   }
+   ```
+   For more example, see [WitnessTest.java](../../../apm-sniffer/apm-agent-core/src/test/java/org/apache/skywalking/apm/agent/core/plugin/witness/WitnessTest.java)
+
+   
 
 ### Implement an interceptor
 As an interceptor for an instance method, the interceptor implements 

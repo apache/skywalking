@@ -32,3 +32,7 @@ org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService
 org.apache.skywalking.apm.agent.core.meter.MeterService
 org.apache.skywalking.apm.agent.core.meter.MeterSender
 org.apache.skywalking.apm.agent.core.context.status.StatusCheckService
+org.apache.skywalking.apm.agent.core.remote.LogReportServiceClient
+org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService
+org.apache.skywalking.apm.agent.core.remote.EventReportServiceClient
+org.apache.skywalking.apm.agent.core.ServiceInstanceGenerator
