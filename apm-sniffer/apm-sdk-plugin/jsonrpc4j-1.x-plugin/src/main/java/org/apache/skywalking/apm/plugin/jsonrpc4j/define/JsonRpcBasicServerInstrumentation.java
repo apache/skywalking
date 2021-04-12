@@ -31,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class JsonRpcBasicServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.JsonRpcBasicServer";
-    private final String INVOKE_INTERCEPTOR = "com.wosai.middleware.hera.plugin.jsonrpc4j.JsonRpcBasicServerInvokeInterceptor";
+    private final String INVOKE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcBasicServerInvokeInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

@@ -65,7 +65,6 @@ public class JsonServiceExporterInterceptor implements InstanceMethodsAroundInte
 
         HttpServletResponse response = (HttpServletResponse) objects[1];
         AbstractSpan span = ContextManager.activeSpan();
-
         if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
             Tags.STATUS_CODE.set(span, String.valueOf(response.getStatus()));
         }

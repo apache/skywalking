@@ -31,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class JsonServiceExporterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.spring.JsonServiceExporter";
-    private final String INTERCEPTOR_CLASS = "com.wosai.middleware.hera.plugin.jsonrpc4j.JsonServiceExporterInterceptor";
+    private final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonServiceExporterInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

@@ -35,9 +35,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.JsonRpcHttpClient";
-    private final String INTERCEPTOR_CLASS = "com.wosai.middleware.hera.plugin.jsonrpc4j.JsonRpcHttpClientInterceptor";
+    private final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcHttpClientInterceptor";
 
-    private final String PER_CONNECTION_INTERCEPTOR_CLASS = "com.wosai.middleware.hera.plugin.jsonrpc4j.JsonRpcHttpClientPrepareConnectionInterceptor";
+    private final String PER_CONNECTION_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcHttpClientPrepareConnectionInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
