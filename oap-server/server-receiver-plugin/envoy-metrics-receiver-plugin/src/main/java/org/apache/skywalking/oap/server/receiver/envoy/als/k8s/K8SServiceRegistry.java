@@ -267,7 +267,7 @@ public class K8SServiceRegistry {
     protected ServiceMetaInfo findService(final String ip) {
         final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
         if (isNull(service)) {
-            log.warn("Unknown ip {}, ip -> service is null", ip);
+            log.debug("Unknown ip {}, ip -> service is null", ip);
             return ServiceMetaInfo.UNKNOWN;
         }
         return service;
