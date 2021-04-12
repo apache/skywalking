@@ -4,7 +4,7 @@ Component library settings are about your own or third-party libraries used in t
 In agent or SDK, regardless of whether the library name is collected as ID or String (literally, e.g. SpringMVC), the collector
 formats data in ID for better performance and less storage requirements. 
 
-Also, the collector conjectures the remote service based on the component library. For exampple: if
+Also, the collector conjectures the remote service based on the component library. For example: if
 the component library is MySQL Driver library, then the remote service should be MySQL Server. 
 
 For these two reasons, the collector requires two parts of settings in this file:
