@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -38,18 +39,19 @@ import java.util.UUID;
  */
 public class EventHookCallback implements AlarmCallback {
 
-    private final ModuleManager manager;
+    private final EventAnalyzerService analyzerService;
 
     public EventHookCallback(ModuleManager manager) {
-        this.manager = manager;
+        this.analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
     }
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
-        EventAnalyzerService analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
         alarmMessage.forEach(a -> {
             for (Event event : constructCurrentEvent(a)) {
-                analyzerService.analyze(event);
+                if (Objects.nonNull(event)) {
+                    this.analyzerService.analyze(event);
+                }
             }
         });
     }
@@ -64,7 +66,6 @@ public class EventHookCallback implements AlarmCallback {
                 .setMessage(msg.getAlarmMessage())
                 .setType(Type.Error)
                 .setEndTime(millis);
-
         switch (msg.getScopeId()) {
             case DefaultScopeDefine.SERVICE :
                 IDManager.ServiceID.ServiceIDDefinition singleServiceIdDef = IDManager.ServiceID.analysisId(msg.getId0());
@@ -88,7 +89,7 @@ public class EventHookCallback implements AlarmCallback {
                         Source.newBuilder()
                                 .setService(doubleServiceIdDef.getName())
                                 .build()
-                );
+                ).setUuid(UUID.randomUUID().toString());
                 events[1] = builder.build();
                 break;
             case DefaultScopeDefine.SERVICE_INSTANCE :
@@ -116,7 +117,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setServiceInstance(doubleInstanceIdDef.getName())
                                 .setService(doubleInstanceIdDef.getServiceId())
                                 .build()
-                ).build();
+                ).setUuid(UUID.randomUUID().toString());
                 events[1] = builder.build();
                 break;
             case DefaultScopeDefine.ENDPOINT :
@@ -144,7 +145,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setEndpoint(doubleEndpointIDDef.getEndpointName())
                                 .setService(doubleEndpointIDDef.getServiceId())
                                 .build()
-                );
+                ).setUuid(UUID.randomUUID().toString());
                 events[1] = builder.build();
                 break;
         }
