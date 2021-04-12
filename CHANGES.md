@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 
+* BugFix: filter invalid Envoy access logs whose socket address is empty.
 
 #### UI
 
