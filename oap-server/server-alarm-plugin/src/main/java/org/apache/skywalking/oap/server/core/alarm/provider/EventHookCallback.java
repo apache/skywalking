@@ -46,59 +46,108 @@ public class EventHookCallback implements AlarmCallback {
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
-        if (null == manager) {
-            return ;
-        }
         EventAnalyzerService analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
         alarmMessage.forEach(a -> {
-            analyzerService.analyze(constructCurrentEvent(a));
+            for (Event event : constructCurrentEvent(a)) {
+                analyzerService.analyze(event);
+            }
         });
     }
 
-    private Event constructCurrentEvent(AlarmMessage msg) {
+    private Event[] constructCurrentEvent(AlarmMessage msg) {
+        Event[] events = new Event[2];
         long millis = System.currentTimeMillis();
-        Event event =  Event.newBuilder()
+        Event.Builder builder = Event.newBuilder()
                 .setUuid(UUID.randomUUID().toString())
                 .setName("Alarm")
-                .setStartTime(millis)
+                .setStartTime(millis - msg.getPeriod())
                 .setMessage(msg.getAlarmMessage())
                 .setType(Type.Error)
-                .setEndTime(millis)
-                .build();
+                .setEndTime(millis);
 
         switch (msg.getScopeId()) {
             case DefaultScopeDefine.SERVICE :
-                IDManager.ServiceID.ServiceIDDefinition serviceIdDef = IDManager.ServiceID.analysisId(msg.getId0());
-                event = event.toBuilder().setSource(
+                IDManager.ServiceID.ServiceIDDefinition singleServiceIdDef = IDManager.ServiceID.analysisId(msg.getId0());
+                builder.setSource(
                     Source.newBuilder()
-                            .setService(serviceIdDef.getName())
+                            .setService(singleServiceIdDef.getName())
                             .build()
-                ).build();
+                );
+                events[0] = builder.build();
+                break;
+            case DefaultScopeDefine.SERVICE_RELATION :
+                IDManager.ServiceID.ServiceIDDefinition doubleServiceIdDef = IDManager.ServiceID.analysisId(msg.getId0());
+                builder.setSource(
+                        Source.newBuilder()
+                            .setService(doubleServiceIdDef.getName())
+                            .build()
+                );
+                events[0] = builder.build();
+                doubleServiceIdDef = IDManager.ServiceID.analysisId(msg.getId1());
+                builder.setSource(
+                        Source.newBuilder()
+                                .setService(doubleServiceIdDef.getName())
+                                .build()
+                );
+                events[1] = builder.build();
                 break;
             case DefaultScopeDefine.SERVICE_INSTANCE :
-                IDManager.ServiceInstanceID.InstanceIDDefinition instanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId0());
-                event = event.toBuilder().setSource(
+                IDManager.ServiceInstanceID.InstanceIDDefinition singleInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId0());
+                builder.setSource(
                         Source.newBuilder()
-                                .setServiceInstance(instanceIdDef.getName())
+                                .setServiceInstance(singleInstanceIdDef.getName())
+                                .setService(singleInstanceIdDef.getServiceId())
+                                .build()
+                );
+                events[0] = builder.build();
+                break;
+            case DefaultScopeDefine.SERVICE_INSTANCE_RELATION :
+                IDManager.ServiceInstanceID.InstanceIDDefinition doubleInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId0());
+                builder.setSource(
+                        Source.newBuilder()
+                                .setServiceInstance(doubleInstanceIdDef.getName())
+                                .setService(doubleInstanceIdDef.getServiceId())
+                                .build()
+                );
+                events[0] = builder.build();
+                doubleInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId1());
+                builder.setSource(
+                        Source.newBuilder()
+                                .setServiceInstance(doubleInstanceIdDef.getName())
+                                .setService(doubleInstanceIdDef.getServiceId())
                                 .build()
                 ).build();
+                events[1] = builder.build();
                 break;
             case DefaultScopeDefine.ENDPOINT :
-                IDManager.EndpointID.EndpointIDDefinition endpointIDDef = IDManager.EndpointID.analysisId(msg.getId0());
-                event = event.toBuilder().setSource(
+                IDManager.EndpointID.EndpointIDDefinition singleEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId0());
+                builder.setSource(
                         Source.newBuilder()
-                                .setEndpoint(endpointIDDef.getEndpointName())
+                                .setEndpoint(singleEndpointIDDef.getEndpointName())
+                                .setService(singleEndpointIDDef.getServiceId())
                                 .build()
-                ).build();
+                );
+                events[0] = builder.build();
                 break;
-            default:
-                event = event.toBuilder().setSource(
+            case DefaultScopeDefine.ENDPOINT_RELATION :
+                IDManager.EndpointID.EndpointIDDefinition doubleEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId0());
+                builder.setSource(
                         Source.newBuilder()
-                                .setService(msg.getName())
+                                .setEndpoint(doubleEndpointIDDef.getEndpointName())
+                                .setService(doubleEndpointIDDef.getServiceId())
                                 .build()
-                ).build();
+                );
+                events[0] = builder.build();
+                doubleEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId1());
+                builder.setSource(
+                        Source.newBuilder()
+                                .setEndpoint(doubleEndpointIDDef.getEndpointName())
+                                .setService(doubleEndpointIDDef.getServiceId())
+                                .build()
+                );
+                events[1] = builder.build();
                 break;
         }
-        return event;
+        return events;
     }
 }
