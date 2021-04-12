@@ -11,7 +11,7 @@ Release Notes.
 
 
 #### OAP-Backend
-
+* Loop alarm into event system.
 
 #### UI
 
