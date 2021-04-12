@@ -18,39 +18,54 @@
 
 package org.apache.skywalking.apm.testcase.elasticsearch.config;
 
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
+import java.net.InetAddress;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ElasticsearchConfig {
+public class TransportClientConfig {
 
     @Value("${elasticsearch.server}")
     private String elasticsearchHost;
 
-    @Bean(destroyMethod = "close")
-    public RestHighLevelClient client() {
-        HttpHost[] httpHostArry = parseEsHost();
-        RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(httpHostArry));
+    public final static Integer PORT = 9300; //port
+
+    @Bean
+    public TransportClient getESClientConnection()
+        throws Exception {
+
+        TransportClient client = null;
+        Settings settings = Settings.builder()
+                                    .put("cluster.name", "skywalking-fat")
+                                    .put("client.transport.sniff", false)
+                                    .build();
+
+        client = new PreBuiltTransportClient(settings);
+        for (TransportAddress i : parseEsHost()) {
+            client.addTransportAddress(i);
+        }
         return client;
     }
 
-    private HttpHost[] parseEsHost() {
-        HttpHost[] httpHostArray = null;
+    private TransportAddress[] parseEsHost()
+        throws Exception {
+        TransportAddress[] transportAddresses = null;
         if (!elasticsearchHost.isEmpty()) {
             String[] hostIp = elasticsearchHost.split(",");
-            httpHostArray = new HttpHost[hostIp.length];
+            transportAddresses = new TransportAddress[hostIp.length];
 
             for (int i = 0; i < hostIp.length; ++i) {
                 String[] hostIpItem = hostIp[i].split(":");
                 String ip = hostIpItem[0].trim();
                 String port = hostIpItem[1].trim();
-                httpHostArray[i] = new HttpHost(ip, Integer.parseInt(port), "http");
+                transportAddresses[i] = new TransportAddress(InetAddress.getByName(ip), PORT);
             }
         }
-        return httpHostArray;
+        return transportAddresses;
     }
 }
