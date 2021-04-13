@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.plugin.jsonrpc4j;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -32,7 +31,7 @@ public class JsonRpcBasicServerInvokeInterceptor implements InstanceMethodsAroun
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult result) throws Throwable {
         Method rpcMethod = (Method) objects[1];
         AbstractSpan span = ContextManager.activeSpan();
-        Tags.JSON_RPC_METHOD.set(span, rpcMethod.getName());
+        JsonRpcConstants.JSON_RPC_METHOD_TAG.set(span, rpcMethod.getName());
     }
 
     @Override

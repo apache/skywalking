@@ -102,8 +102,6 @@ public final class Tags {
 
     public static final String VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT = "{\"logic-span\":true}";
 
-    public static final StringTag JSON_RPC_METHOD = new StringTag(1, "jsonrpc.method");
-
     /**
      * Creates a {@code StringTag} with the given key and cache it, if it's created before, simply return it without
      * creating a new one.
