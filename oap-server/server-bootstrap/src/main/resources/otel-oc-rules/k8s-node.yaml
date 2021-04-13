@@ -36,7 +36,7 @@ metricsRules:
   - name: cpu_cores
     exp: (kube_node_status_capacity * 1000).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
   - name: cpu_usage
-    exp: (container_cpu_usage_seconds_total * 1000).tagEqual('id' , '/').sum(['cluster' , 'node']).rate('PT1M')
+    exp: (container_cpu_usage_seconds_total * 1000).tagEqual('id' , '/').sum(['cluster' , 'node']).irate()
   - name: cpu_cores_allocatable
     exp: (kube_node_status_allocatable * 1000).tagEqual('resource' , 'cpu').sum(['cluster' , 'node'])
   - name: cpu_cores_requests
@@ -69,6 +69,6 @@ metricsRules:
     exp: kube_pod_info.sum(['cluster' , 'node'])
 
   - name: network_receive
-    exp: container_network_receive_bytes_total.sum(['cluster' , 'node']).irate()
+    exp: container_network_receive_bytes_total.tagEqual('id' , '/').sum(['cluster' , 'node']).irate()
   - name: network_transmit
-    exp: container_network_transmit_bytes_total.sum(['cluster' , 'node']).irate()
+    exp: container_network_transmit_bytes_total.tagEqual('id' , '/').sum(['cluster' , 'node']).irate()
