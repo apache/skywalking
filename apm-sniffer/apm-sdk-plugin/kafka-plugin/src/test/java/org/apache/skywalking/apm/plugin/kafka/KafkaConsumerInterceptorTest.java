@@ -47,6 +47,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA_CONSUMER;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(PowerMockRunner.class)
@@ -125,9 +126,8 @@ public class KafkaConsumerInterceptorTest {
         assertThat(traceSegments.size(), is(1));
 
         TraceSegment traceSegment = traceSegments.get(0);
-        List<TraceSegmentRef> refs = traceSegment.getRefs();
-        assertThat(refs.size(), is(1));
-        assertTraceSegmentRef(refs.get(0));
+        assertNotNull(traceSegment.getRef());
+        assertTraceSegmentRef(traceSegment.getRef());
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));

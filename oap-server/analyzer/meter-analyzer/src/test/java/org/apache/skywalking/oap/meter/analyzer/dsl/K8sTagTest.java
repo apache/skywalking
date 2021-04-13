@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.Retag;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.junit.Before;
 import org.junit.Test;
@@ -133,7 +134,7 @@ public class K8sTagTest {
                           .labels(
                               of(
                                   "namespace", "default", "container", "my-nginx", "cpu", "total", "pod",
-                                  "my-nginx-5dc4865748-no-pod"
+                                  "my-nginx-5dc4865748-no-pod" , "service", Retag.BLANK
                               ))
                           .value(2)
                           .build(),
@@ -175,7 +176,7 @@ public class K8sTagTest {
                           .labels(
                               of(
                                   "namespace", "default", "container", "my-nginx", "cpu", "total", "pod",
-                                  "my-nginx-5dc4865748-no-service"
+                                  "my-nginx-5dc4865748-no-service" , "service", Retag.BLANK
                               ))
                           .value(2)
                           .build(),
