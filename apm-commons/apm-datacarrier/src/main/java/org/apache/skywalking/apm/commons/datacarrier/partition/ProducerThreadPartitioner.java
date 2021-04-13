@@ -27,7 +27,7 @@ public class ProducerThreadPartitioner<T> implements IDataPartitioner<T> {
 
     @Override
     public int partition(int total, T data) {
-        return (int) Thread.currentThread().getId() % total;
+        return (int) Thread.currentThread().getId() & (total - 1);
     }
 
     @Override

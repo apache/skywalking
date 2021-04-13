@@ -30,9 +30,10 @@ public class Channels<T> {
     private final BufferStrategy strategy;
     private final long size;
 
-    public Channels(int channelSize, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
+    public Channels(int initChannelSize, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
         this.dataPartitioner = partitioner;
         this.strategy = strategy;
+        int channelSize = channelSizeFor(initChannelSize);
         bufferChannels = new QueueBuffer[channelSize];
         for (int i = 0; i < channelSize; i++) {
             if (BufferStrategy.BLOCKING.equals(strategy)) {
@@ -43,6 +44,14 @@ public class Channels<T> {
         }
         // noinspection PointlessArithmeticExpression
         size = 1L * channelSize * bufferSize; // it's not pointless, it prevents numeric overflow before assigning an integer to a long
+    }
+
+    /**
+     * returns a power of two size for the given target capacity.
+     */
+    private static int channelSizeFor(int initSize) {
+        int n = -1 >>> Integer.numberOfLeadingZeros(initSize - 1);
+        return n < 0 ? 1 : (n >= 1073741824 ? 1073741824 : n + 1);
     }
 
     public boolean save(T data) {
