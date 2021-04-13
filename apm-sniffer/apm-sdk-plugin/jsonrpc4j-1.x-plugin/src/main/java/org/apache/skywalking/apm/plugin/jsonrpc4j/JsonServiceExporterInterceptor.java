@@ -44,7 +44,7 @@ public class JsonServiceExporterInterceptor implements InstanceMethodsAroundInte
     }
 
     @Override
-    public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult result) throws Throwable {
 
         HttpServletRequest request = (HttpServletRequest) objects[0];
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -55,13 +55,13 @@ public class JsonServiceExporterInterceptor implements InstanceMethodsAroundInte
         }
 
         AbstractSpan span = ContextManager.createEntrySpan(request.getRequestURI(), contextCarrier);
-        Tags.URL.set(span, request.getRequestURL().toString());
         Tags.HTTP.METHOD.set(span, request.getMethod());
-        span.setComponent(ComponentsDefine.JSON_RPC_CLIENT);
+        Tags.URL.set(span, request.getRequestURL().toString());
+        span.setComponent(ComponentsDefine.JSON_RPC_SERVER);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
 
         HttpServletResponse response = (HttpServletResponse) objects[1];
         AbstractSpan span = ContextManager.activeSpan();
@@ -74,7 +74,7 @@ public class JsonServiceExporterInterceptor implements InstanceMethodsAroundInte
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
 
     }
 }

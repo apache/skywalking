@@ -30,8 +30,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class JsonRpcBasicServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.JsonRpcBasicServer";
-    private final String INVOKE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcBasicServerInvokeInterceptor";
+    public static final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.JsonRpcBasicServer";
+    public static final String INVOKE_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcBasicServerInvokeInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

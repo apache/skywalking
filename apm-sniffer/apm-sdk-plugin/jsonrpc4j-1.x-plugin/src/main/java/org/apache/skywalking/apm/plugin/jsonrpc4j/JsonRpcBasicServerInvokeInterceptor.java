@@ -27,22 +27,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-
 public class JsonRpcBasicServerInvokeInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
-        Method parameter = (Method) objects[1];
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult result) throws Throwable {
+        Method rpcMethod = (Method) objects[1];
         AbstractSpan span = ContextManager.activeSpan();
-        Tags.JSON_RPC_METHOD.set(span, parameter.getName());
+        Tags.JSON_RPC_METHOD.set(span, rpcMethod.getName());
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
         ContextManager.activeSpan().log(throwable);
     }
 }

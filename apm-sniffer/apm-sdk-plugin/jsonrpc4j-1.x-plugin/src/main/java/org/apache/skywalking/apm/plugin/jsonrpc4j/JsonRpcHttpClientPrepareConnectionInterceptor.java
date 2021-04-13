@@ -34,12 +34,12 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class JsonRpcHttpClientPrepareConnectionInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object retObj) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Object retObj) {
         HttpURLConnection connection = (HttpURLConnection) retObj;
         Map<String, String> patchedHeaders = new HashMap<>();
         AbstractSpan span = ContextManager.activeSpan();
@@ -59,7 +59,7 @@ public class JsonRpcHttpClientPrepareConnectionInterceptor implements InstanceMe
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
 
     }
 }

@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.jsonrpc4j;
 
-
 import java.net.URL;
 
 public class JsonRpcPeerInfo {
-
 
     private URL serviceUrl;
 
@@ -35,7 +33,6 @@ public class JsonRpcPeerInfo {
     public void setPort(int port) {
         this.port = port;
     }
-
 
     private int port;
 

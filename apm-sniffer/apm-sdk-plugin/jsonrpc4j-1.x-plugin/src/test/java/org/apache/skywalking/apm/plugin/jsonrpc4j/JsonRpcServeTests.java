@@ -19,9 +19,7 @@
 package org.apache.skywalking.apm.plugin.jsonrpc4j;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
-import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
-import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
+import com.googlecode.jsonrpc4j.JsonRpcBasicServer;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
@@ -40,18 +38,19 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class JsonRpcHttpClientTests {
+public class JsonRpcServeTests {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -59,30 +58,42 @@ public class JsonRpcHttpClientTests {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private MockJsonRpcHttpClient enhancedInstance;
+    private MockJsonRpcBasicServer mockJsonRpcBasicServer;
+
+    private MockJsonServiceExporterInterceptor mockJsonServiceExporterInterceptor;
+
+    private JsonServiceExporterInterceptor jsonServiceExporterInterceptor;
+
+    private JsonRpcBasicServerInvokeInterceptor jsonRpcBasicServerInvokeInterceptor;
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private JsonRpcHttpClientInterceptor httpClientInterceptor;
-    private JsonRpcHttpClientPrepareConnectionInterceptor jsonRpcHttpClientPrepareConnectionInterceptor;
-    private URL url;
-    private HttpURLConnection httpURLConnection;
+    private HttpServletRequest httpServletRequest;
+
+    private HttpServletResponse httpServletResponse;
 
     @Before
     public void setUp() throws Exception {
-        url = new URL("http://localhost:8080/test");
-        enhancedInstance = new MockJsonRpcHttpClient(objectMapper, url, new HashMap<>(), false, false);
-        httpClientInterceptor = new JsonRpcHttpClientInterceptor();
-        jsonRpcHttpClientPrepareConnectionInterceptor = new JsonRpcHttpClientPrepareConnectionInterceptor();
-        httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpServletRequest = mock(HttpServletRequest.class);
+        httpServletResponse = mock(HttpServletResponse.class);
+        when(httpServletRequest.getRequestURI()).thenReturn("/test");
+        when(httpServletRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080"));
+        when(httpServletResponse.getStatus()).thenReturn(200);
+        httpServletResponse = mock(HttpServletResponse.class);
+        jsonRpcBasicServerInvokeInterceptor = new JsonRpcBasicServerInvokeInterceptor();
+        jsonServiceExporterInterceptor = new JsonServiceExporterInterceptor();
+        mockJsonRpcBasicServer = new MockJsonRpcBasicServer(objectMapper, null);
+        mockJsonServiceExporterInterceptor = new MockJsonServiceExporterInterceptor();
     }
 
     @Test
-    public void testMethodAround() throws Throwable {
-        Object[] objects = new Object[]{"OperationKey", url};
-        httpClientInterceptor.onConstruct(enhancedInstance, objects);
-        httpClientInterceptor.beforeMethod(enhancedInstance, null, objects, null, null);
-        jsonRpcHttpClientPrepareConnectionInterceptor.afterMethod(enhancedInstance, null, null, null, httpURLConnection);
-        httpClientInterceptor.afterMethod(enhancedInstance, null, objects, null, null);
+    public void testJsonRpcServerMethodAround() throws Throwable {
+        Object[] objects = new Object[]{httpServletRequest};
+        jsonServiceExporterInterceptor.beforeMethod(mockJsonServiceExporterInterceptor, null, objects, null, null);
+        objects = new Object[]{null, JsonRpcServeTests.class.getMethod("testJsonRpcServerMethodAround")};
+        jsonRpcBasicServerInvokeInterceptor.beforeMethod(mockJsonRpcBasicServer, null, objects, null, null);
+        objects = new Object[]{null, httpServletResponse};
+        jsonServiceExporterInterceptor.afterMethod(mockJsonServiceExporterInterceptor, null, objects, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -90,32 +101,36 @@ public class JsonRpcHttpClientTests {
         AbstractTracingSpan finishedSpan = SegmentHelper.getSpans(traceSegment).get(0);
 
         List<TagValuePair> tags = SpanHelper.getTags(finishedSpan);
-        assertThat(tags.size(), is(2));
-        assertThat(tags.get(0).getValue(), is("POST"));
-        assertThat(tags.get(1).getValue(), is(url.toString()));
+        assertThat(tags.size(), is(4));
         Assert.assertEquals(false, SpanHelper.getErrorOccurred(finishedSpan));
     }
 
-    private class MockJsonRpcHttpClient extends JsonRpcHttpClient implements EnhancedInstance {
+    private class MockJsonRpcBasicServer extends JsonRpcBasicServer implements EnhancedInstance {
 
-        private Object object;
-
-        public MockJsonRpcHttpClient(ObjectMapper mapper, URL serviceUrl, Map<String, String> headers, boolean gzipRequests, boolean acceptGzipResponses) {
-            super(mapper, serviceUrl, headers, gzipRequests, acceptGzipResponses);
+        public MockJsonRpcBasicServer(ObjectMapper mapper, Object handler) {
+            super(mapper, handler);
         }
 
         @Override
         public Object getSkyWalkingDynamicField() {
-            return object;
+            return null;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            object = value;
         }
     }
 
-    @OverrideImplementor(ContextManagerExtendService.class)
-    public static class ContextManagerExtendOverrideService extends ContextManagerExtendService {
+    private class MockJsonServiceExporterInterceptor extends JsonServiceExporterInterceptor implements EnhancedInstance {
+
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return null;
+        }
+
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+
+        }
     }
 }

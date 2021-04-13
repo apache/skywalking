@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.jsonrpc4j.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -28,16 +29,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import java.net.URL;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 @SuppressWarnings("unused")
 public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.JsonRpcHttpClient";
-    private final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcHttpClientInterceptor";
+    public static final String ENHANCE_CLASS = "com.googlecode.jsonrpc4j.JsonRpcHttpClient";
 
-    private final String PER_CONNECTION_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcHttpClientPrepareConnectionInterceptor";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcHttpClientInterceptor";
+
+    public static final String PER_CONNECTION_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jsonrpc4j.JsonRpcHttpClientPrepareConnectionInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -51,7 +52,7 @@ public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
                 new ConstructorInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArguments(6).and(takesArgument(1, URL.class));
+                        return ElementMatchers.takesArguments(6).and(ElementMatchers.takesArgument(1, URL.class));
                     }
 
                     @Override
@@ -62,7 +63,7 @@ public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
                 new ConstructorInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArguments(5).and(takesArgument(1, URL.class));
+                        return ElementMatchers.takesArguments(5).and(ElementMatchers.takesArgument(1, URL.class));
                     }
 
                     @Override
@@ -73,7 +74,6 @@ public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
         };
     }
 
-
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
@@ -81,8 +81,7 @@ public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
 
-                        //确保只会有一个invoke方法被拦截，防止span的重复创建
-                        return named("invoke").and(takesArguments(4))
+                        return ElementMatchers.named("invoke").and(ElementMatchers.takesArguments(4))
                                 .and(takesArgumentWithType(2, "java.lang.reflect.Type"));
                     }
 
@@ -99,7 +98,7 @@ public class JsonRpcHttpClientInstrumentation extends ClassInstanceMethodsEnhanc
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("prepareConnection");
+                        return ElementMatchers.named("prepareConnection");
                     }
 
                     @Override

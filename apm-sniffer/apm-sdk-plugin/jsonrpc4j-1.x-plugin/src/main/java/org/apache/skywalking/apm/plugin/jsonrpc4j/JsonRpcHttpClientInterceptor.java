@@ -34,9 +34,8 @@ import java.net.URL;
 @SuppressWarnings("unused")
 public class JsonRpcHttpClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-
     @Override
-    public void onConstruct(EnhancedInstance enhancedInstance, Object[] objects) {
+    public void onConstruct(EnhancedInstance objInst, Object[] objects) {
         URL url = (URL) objects[1];
         JsonRpcPeerInfo clientDto = new JsonRpcPeerInfo();
         int port = url.getPort();
@@ -50,12 +49,12 @@ public class JsonRpcHttpClientInterceptor implements InstanceMethodsAroundInterc
 
         clientDto.setPort(port);
         clientDto.setServiceUrl(url);
-        enhancedInstance.setSkyWalkingDynamicField(clientDto);
+        objInst.setSkyWalkingDynamicField(clientDto);
     }
 
     @Override
-    public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
-        JsonRpcPeerInfo clientDto = (JsonRpcPeerInfo) enhancedInstance.getSkyWalkingDynamicField();
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult result) throws Throwable {
+        JsonRpcPeerInfo clientDto = (JsonRpcPeerInfo) objInst.getSkyWalkingDynamicField();
         String methodName = objects[0].toString();
         String operationName = clientDto.getServiceUrl().getPath() + "." + methodName;
         AbstractSpan span = ContextManager.createExitSpan(operationName, new ContextCarrier(), clientDto.getServiceUrl().getHost() + ":" + clientDto.getPort());
@@ -65,13 +64,13 @@ public class JsonRpcHttpClientInterceptor implements InstanceMethodsAroundInterc
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
         ContextManager.stopSpan();
         return o;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
         ContextManager.activeSpan().log(throwable);
     }
 
