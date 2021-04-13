@@ -11,8 +11,8 @@ Release Notes.
 
 
 #### OAP-Backend
-
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
+* Fix K8s monitoring the incorrect metrics calculate. 
 
 #### UI
 
