@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-import com.google.common.collect.Lists;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -39,13 +38,13 @@ public class TraceSegment {
     private String traceSegmentId;
 
     /**
-     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #traceSegmentRef} contains only one
+     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #ref} contains only one
      * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
-     * we only related the first parent TraceSegment.
+     * we only cached the first parent segment reference.
      * <p>
      * This field will not be serialized. Keeping this field is only for quick accessing.
      */
-    private TraceSegmentRef traceSegmentRef;
+    private TraceSegmentRef ref;
 
     /**
      * The spans belong to this trace segment. They all have finished. All active spans are hold and controlled by
@@ -82,8 +81,8 @@ public class TraceSegment {
      * @param refSegment {@link TraceSegmentRef}
      */
     public void ref(TraceSegmentRef refSegment) {
-        if (null == traceSegmentRef) {
-            this.traceSegmentRef = refSegment;
+        if (null == ref) {
+            this.ref = refSegment;
         }
     }
 
@@ -117,14 +116,10 @@ public class TraceSegment {
     }
 
     /**
-     * For testing use only.
+     * Get the first parent segment reference.
      */
-    public List<TraceSegmentRef> getRefs() {
-        if (null == traceSegmentRef) {
-            return null;
-        } else {
-            return Lists.newArrayList(traceSegmentRef);
-        }
+    public TraceSegmentRef getRef() {
+        return ref;
     }
 
     public DistributedTraceId getRelatedGlobalTrace() {
@@ -170,7 +165,7 @@ public class TraceSegment {
 
     @Override
     public String toString() {
-        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", traceSegmentRef=" + traceSegmentRef + ", spans=" + spans + "}";
+        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", ref=" + ref + ", spans=" + spans + "}";
     }
 
     public long createTime() {

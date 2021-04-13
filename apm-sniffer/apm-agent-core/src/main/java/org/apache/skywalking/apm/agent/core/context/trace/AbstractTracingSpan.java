@@ -303,8 +303,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             refs = new LinkedList<>();
         }
         /*
-         * There maybe an exception in some plugins, which causes the span to fail to exit,
-         * which results in the ThreadLocal not being cleaned up, and the refs data is increasing.
+         * Provide the OOM protection if the entry span hosts too many references.
          */
         if (refs.size() >= Config.Agent.TRACE_SEGMENT_REF_LIMIT_PER_SPAN) {
             return;
