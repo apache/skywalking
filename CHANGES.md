@@ -11,7 +11,7 @@ Release Notes.
 
 
 #### OAP-Backend
-
+* Fix K8s monitoring the incorrect metrics calculate. 
 
 #### UI
 
