@@ -19,14 +19,12 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
 import io.envoyproxy.envoy.config.core.v3.Address;
-import lombok.experimental.UtilityClass;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
 
-@UtilityClass
 public class Addresses {
-    public boolean isValid(final Address address) {
+    public static boolean isValid(final Address address) {
         return nonNull(address)
             && address.hasSocketAddress()
             && isNotBlank(address.getSocketAddress().getAddress());
