@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonRpcHttpClientInstrumentation
-jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonRpcBasicServerInstrumentation
-jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonServiceExporterInstrumentation
+type: jvm
+entryService: http://localhost:8080/jsonrpc4j-1.x-scenario/case/json-rpc
+healthCheck: http://localhost:8080/jsonrpc4j-1.x-scenario/case/healthCheck
+startScript: ./bin/startup.sh

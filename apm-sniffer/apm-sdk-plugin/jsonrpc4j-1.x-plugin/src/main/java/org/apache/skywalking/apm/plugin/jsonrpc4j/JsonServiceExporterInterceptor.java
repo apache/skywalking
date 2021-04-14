@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -58,6 +59,7 @@ public class JsonServiceExporterInterceptor implements InstanceMethodsAroundInte
         Tags.HTTP.METHOD.set(span, request.getMethod());
         Tags.URL.set(span, request.getRequestURL().toString());
         span.setComponent(ComponentsDefine.JSON_RPC_SERVER);
+        SpanLayer.asRPCFramework(span);
     }
 
     @Override

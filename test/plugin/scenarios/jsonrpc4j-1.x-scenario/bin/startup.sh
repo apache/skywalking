@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,6 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonRpcHttpClientInstrumentation
-jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonRpcBasicServerInstrumentation
-jsonrpc4j=org.apache.skywalking.apm.plugin.jsonrpc4j.define.JsonServiceExporterInstrumentation
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/jsonrpc4j-1.x-scenario.jar &
