@@ -147,7 +147,7 @@ public class SynchronousDispatcherInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
         AssertTools.assertHttpSpan(spans.get(0));
-        AssertTools.assertTraceSegmentRef(traceSegment.getRefs().get(0));
+        AssertTools.assertTraceSegmentRef(traceSegment.getRef());
     }
 
     @Test
