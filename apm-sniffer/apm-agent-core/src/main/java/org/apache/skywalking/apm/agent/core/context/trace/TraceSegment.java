@@ -40,7 +40,7 @@ public class TraceSegment {
     /**
      * The refs of parent trace segments, except the primary one. For most RPC call, {@link #ref} contains only one
      * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
-     * we only cached the first parent segment reference.
+     * we only cache the first parent segment reference.
      * <p>
      * This field will not be serialized. Keeping this field is only for quick accessing.
      */
