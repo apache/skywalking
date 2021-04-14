@@ -50,6 +50,9 @@ public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
     public static final String SUBSCRIBE_INTERCEPT_TYPE_PATTERN = "java.util.regex.Pattern";
     public static final String SUBSCRIBE_INTERCEPT_TYPE_NAME = "java.util.Collection";
     public static final String SUBSCRIBE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.kafka.SubscribeMethodInterceptor";
+    public static final String ASSIGN_METHOD = "assign";
+    public static final String ASSIGN_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.kafka.AssignMethodInterceptor";
+    public static final String ASSIGN_INTERCEPT_TYPE_NAME = "java.util.Collection";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -120,7 +123,24 @@ public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
                 public boolean isOverrideArgs() {
                     return false;
                 }
-            }
+            },
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(ASSIGN_METHOD)
+                                .and(takesArgumentWithType(0, ASSIGN_INTERCEPT_TYPE_NAME));
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return ASSIGN_INTERCEPT_CLASS;
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                }
         };
     }
 
