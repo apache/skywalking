@@ -1,7 +1,6 @@
 Apache SkyWalking release guide
 --------------------
-This document guides every committer to release SkyWalking in The Apache Way,
-and helps committers check the release for votes.
+If you're a committer, you can learn how to release SkyWalking in The Apache Way and start the voting process by reading this document.
 
 
 ## Set up your development environment
