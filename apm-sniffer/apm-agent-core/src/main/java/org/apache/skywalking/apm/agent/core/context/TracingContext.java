@@ -189,7 +189,7 @@ public class TracingContext implements AbstractTracerContext {
     public void extract(ContextCarrier carrier) {
         TraceSegmentRef ref = new TraceSegmentRef(carrier);
         this.segment.ref(ref);
-        this.segment.relatedGlobalTraces(new PropagatedTraceId(carrier.getTraceId()));
+        this.segment.relatedGlobalTrace(new PropagatedTraceId(carrier.getTraceId()));
         AbstractSpan span = this.activeSpan();
         if (span instanceof EntrySpan) {
             span.ref(ref);
@@ -229,7 +229,7 @@ public class TracingContext implements AbstractTracerContext {
             TraceSegmentRef segmentRef = new TraceSegmentRef(snapshot);
             this.segment.ref(segmentRef);
             this.activeSpan().ref(segmentRef);
-            this.segment.relatedGlobalTraces(snapshot.getTraceId());
+            this.segment.relatedGlobalTrace(snapshot.getTraceId());
             this.correlationContext.continued(snapshot);
             this.extensionContext.continued(snapshot);
             this.extensionContext.handle(this.activeSpan());
@@ -245,7 +245,7 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private DistributedTraceId getPrimaryTraceId() {
-        return segment.getRelatedGlobalTraces().get(0);
+        return segment.getRelatedGlobalTrace();
     }
 
     @Override
