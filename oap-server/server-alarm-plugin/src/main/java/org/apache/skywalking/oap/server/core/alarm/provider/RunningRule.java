@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -35,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
@@ -74,6 +76,7 @@ public class RunningRule {
     private final Pattern excludeLabelsRegex;
     private final AlarmMessageFormatter formatter;
     private final boolean onlyAsCondition;
+    private final List<Tag> tags;
 
     public RunningRule(AlarmRule alarmRule) {
         metricsName = alarmRule.getMetricsName();
@@ -104,6 +107,7 @@ public class RunningRule {
             Pattern.compile(alarmRule.getExcludeLabelsRegex()) : null;
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
         this.onlyAsCondition = alarmRule.isOnlyAsCondition();
+        this.tags = alarmRule.getTags().entrySet().stream().map(e -> new Tag(e.getKey(), e.getValue())).collect(Collectors.toList());
     }
 
     /**
@@ -236,6 +240,7 @@ public class RunningRule {
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setOnlyAsCondition(this.onlyAsCondition);
                 alarmMessage.setStartTime(System.currentTimeMillis());
+                alarmMessage.setTags(this.tags);
                 alarmMessageList.add(alarmMessage);
             }
         });

@@ -18,7 +18,6 @@ name: E2E
 
 on:
   pull_request:
-    # Do not run this workflow when and only when `*.md` files are modified
     paths:
       - '**'
       - '!**.md'
@@ -29,15 +28,14 @@ env:
   SW_AGENT_JDK_VERSION: 8
 
 jobs:
-  FeatureGroup01:
-    name: Feature
+  Log:
+    name: Log
     runs-on: ubuntu-latest
-    timeout-minutes: 90
     strategy:
       matrix:
-        case: [auth, ssl]
+        storage: ['h2', 'mysql', 'es6', 'es7', 'influxdb', 'postgres']
     env:
-      SW_SIMPLE_CASE: ${{ matrix.case }}
+      SW_STORAGE: ${{ matrix.storage }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -56,39 +54,4 @@ jobs:
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test
         with:
-          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
-
-  FeatureGroup02:
-    name: ${{ matrix.case.name }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    strategy:
-      matrix:
-        case:
-          - name: Lua Nginx
-            class: org.apache.skywalking.e2e.LuaE2E
-          - name: Gateway
-            class: org.apache.skywalking.e2e.GatewayE2E
-          - name: Meter
-            class: org.apache.skywalking.e2e.meter.MeterE2E
-          - name: Zabbix
-            class: org.apache.skywalking.e2e.zabbix.ZabbixE2E
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
-        with:
-          test_class: ${{ matrix.case.class }}
+          test_class: org.apache.skywalking.e2e.alarm.AlarmE2E

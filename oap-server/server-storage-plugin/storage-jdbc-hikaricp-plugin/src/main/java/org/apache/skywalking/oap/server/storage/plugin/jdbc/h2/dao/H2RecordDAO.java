@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -72,6 +73,18 @@ public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO {
                     numOfSearchableValuesPerTag,
                     Arrays.asList(configService.getSearchableLogsTags()
                                                .split(Const.COMMA))
+                );
+            } else if (AlarmRecord.class.equals(
+                    storageBuilder.getClass().getMethod("storage2Entity", Map.class).getReturnType())) {
+                this.maxSizeOfArrayColumn = maxSizeOfArrayColumn;
+                final ConfigService configService = manager.find(CoreModule.NAME)
+                        .provider()
+                        .getService(ConfigService.class);
+                this.storageBuilder = new H2AlarmRecordBuilder(
+                        maxSizeOfArrayColumn,
+                        numOfSearchableValuesPerTag,
+                        Arrays.asList(configService.getSearchableAlarmTags()
+                                .split(Const.COMMA))
                 );
             } else {
                 this.maxSizeOfArrayColumn = 1;

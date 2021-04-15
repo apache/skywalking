@@ -24,6 +24,9 @@ rules:
     silence-period: 1
     message: Response time of service {name} is more than 10ms in 1 minutes of last 10 minutes.
     only-as-condition: false
+    tags:
+      level: WARNING
+      receivers: lisi
   # service sla > 1%
   service_sla_rule:
     metrics-name: service_sla
@@ -38,6 +41,9 @@ composite-rules:
   comp_rule:
     expression: service_resp_time_rule && service_sla_rule
     message: Service {name} response time is more than 10ms and sla is more than 1%.
+    tags:
+      level: CRITICAL
+      receivers: zhangsan
 
 webhooks:
   - http://provider:9090/alarm/receive

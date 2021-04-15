@@ -35,6 +35,17 @@ message AlarmMessage {
     string ruleName = 6;
     string alarmMessage = 7;
     int64 startTime = 8;
+    AlarmTags tags = 9;
+}
+
+message AlarmTags {
+    // String key, String value pair.
+    repeated KeyStringValuePair data = 1;
+}
+
+message KeyStringValuePair {
+    string key = 1;
+    string value = 2;
 }
 
 message Response {

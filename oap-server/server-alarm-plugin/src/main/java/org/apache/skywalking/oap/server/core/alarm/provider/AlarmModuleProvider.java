@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
+
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -67,7 +68,7 @@ public class AlarmModuleProvider extends ModuleProvider {
         alarmRulesWatcher = new AlarmRulesWatcher(rules, this);
 
         notifyHandler = new NotifyHandler(alarmRulesWatcher);
-        notifyHandler.init(new AlarmStandardPersistence());
+        notifyHandler.init(new AlarmStandardPersistence(getManager()));
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 

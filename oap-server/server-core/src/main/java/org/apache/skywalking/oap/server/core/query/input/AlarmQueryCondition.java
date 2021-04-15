@@ -16,26 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.query.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 
-import java.util.Map;
+import java.util.List;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter
 @Getter
-@ToString
-public class CompositeAlarmRule {
-    private String alarmRuleName;
-    private String expression;
-    private String message;
-    private Map<String, String> tags;
+@Setter
+public class AlarmQueryCondition {
+    private Duration duration;
+    private Scope scope;
+    private String keyword;
+    private Pagination paging;
+    private List<Tag> tags;
 }
