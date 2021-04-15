@@ -8,7 +8,7 @@ Release Notes.
 
 
 #### Java Agent
-
+* Improve `GlobalIdGenerator` performance.
 
 #### OAP-Backend
 
