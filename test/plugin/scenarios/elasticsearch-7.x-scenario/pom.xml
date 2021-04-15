@@ -31,9 +31,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
 
-        <test.framework.version>7.2.1</test.framework.version>
+        <test.framework.version>7.3.0</test.framework.version>
 
-        <elasticsearch.version>7.2.1</elasticsearch.version>
+        <elasticsearch.version>7.5.0</elasticsearch.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
     </properties>
 
