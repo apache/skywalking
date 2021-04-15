@@ -9,7 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
-
+* Add an agent plugin to support elasticsearch7.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
