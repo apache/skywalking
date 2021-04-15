@@ -350,6 +350,9 @@ Apache-CXF:
 dolphinscheduler:
   id: 106
   languages: Java
+jsonrpc4j:
+  id: 107
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

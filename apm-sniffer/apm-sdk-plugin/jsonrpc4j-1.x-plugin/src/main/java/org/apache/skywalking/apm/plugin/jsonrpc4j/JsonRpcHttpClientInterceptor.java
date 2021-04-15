@@ -59,7 +59,7 @@ public class JsonRpcHttpClientInterceptor implements InstanceMethodsAroundInterc
         String methodName = objects[0].toString();
         String operationName = clientDto.getServiceUrl().getPath() + "." + methodName;
         AbstractSpan span = ContextManager.createExitSpan(operationName, new ContextCarrier(), clientDto.getServiceUrl().getHost() + ":" + clientDto.getPort());
-        span.setComponent(ComponentsDefine.JSON_RPC_CLIENT);
+        span.setComponent(ComponentsDefine.JSON_RPC);
         Tags.HTTP.METHOD.set(span, "POST");
         Tags.URL.set(span, clientDto.getServiceUrlString());
         SpanLayer.asRPCFramework(span);
@@ -77,6 +77,6 @@ public class JsonRpcHttpClientInterceptor implements InstanceMethodsAroundInterc
     }
 
     private boolean isHttps(URL url) {
-        return url.toString().toLowerCase().startsWith("https");
+        return url.getProtocol().equals("https");
     }
 }

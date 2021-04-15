@@ -69,7 +69,7 @@ public class JsonRpcHttpClientTests {
 
     @Before
     public void setUp() throws Exception {
-        url = new URL("http://localhost:8080/test");
+        url = new URL("HTTP://localhost:8080/test");
         enhancedInstance = new MockJsonRpcHttpClient(objectMapper, url, new HashMap<>(), false, false);
         httpClientInterceptor = new JsonRpcHttpClientInterceptor();
         jsonRpcHttpClientPrepareConnectionInterceptor = new JsonRpcHttpClientPrepareConnectionInterceptor();

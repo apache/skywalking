@@ -15,6 +15,6 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/jsonrpc4j-1.x-scenario/case/json-rpc
-healthCheck: http://localhost:8080/jsonrpc4j-1.x-scenario/case/healthCheck
+entryService: http://127.0.0.1:8080/jsonrpc4j-1.x-scenario/case/json-rpc
+healthCheck: http://127.0.0.1:8080/jsonrpc4j-1.x-scenario/case/healthCheck
 startScript: ./bin/startup.sh

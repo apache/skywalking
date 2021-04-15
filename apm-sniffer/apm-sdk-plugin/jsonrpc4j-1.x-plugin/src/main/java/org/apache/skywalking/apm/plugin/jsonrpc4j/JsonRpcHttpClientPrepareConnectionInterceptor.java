@@ -28,8 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Map;
 
 @SuppressWarnings("unused")
 public class JsonRpcHttpClientPrepareConnectionInterceptor implements InstanceMethodsAroundInterceptor {
@@ -41,7 +39,6 @@ public class JsonRpcHttpClientPrepareConnectionInterceptor implements InstanceMe
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] objects, Class<?>[] classes, Object retObj) {
         HttpURLConnection connection = (HttpURLConnection) retObj;
-        Map<String, String> patchedHeaders = new HashMap<>();
         AbstractSpan span = ContextManager.activeSpan();
         if (span == null) {
             return retObj;

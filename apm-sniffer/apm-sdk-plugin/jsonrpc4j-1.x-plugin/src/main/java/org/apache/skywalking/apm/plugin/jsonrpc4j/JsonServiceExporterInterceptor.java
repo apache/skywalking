@@ -58,7 +58,7 @@ public class JsonServiceExporterInterceptor implements InstanceMethodsAroundInte
         AbstractSpan span = ContextManager.createEntrySpan(request.getRequestURI(), contextCarrier);
         Tags.HTTP.METHOD.set(span, request.getMethod());
         Tags.URL.set(span, request.getRequestURL().toString());
-        span.setComponent(ComponentsDefine.JSON_RPC_SERVER);
+        span.setComponent(ComponentsDefine.JSON_RPC);
         SpanLayer.asRPCFramework(span);
     }
 

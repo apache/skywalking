@@ -16,46 +16,44 @@
 
 segmentItems:
   - serviceName: jsonrpc4j-1.x-scenario
-    segmentSize: ge 3
+    segmentSize: ge 2
     segments:
       - segmentId: not null
         spans:
-          - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
-            operationId: 0
+          - operationName: /jsonrpc4j-1.x-scenario/path/to/demo-service
             parentSpanId: -1
             spanId: 0
-            spanLayer: RPCFramework
+            tags:
+              - { key: http.method, value: POST }
+              - { key: url, value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service' }
+              - { key: jsonrpc.method, value: sayHello }
+              - { key: status_code, value: '200' }
+            logs: null
             startTime: nq 0
             endTime: nq 0
-            componentId: 3
+            spanLayer: RPC_FRAMEWORK
             isError: false
             spanType: Entry
-            peer: ''
-            tags:
-              - {key: url, value: not null}
+            componentId: 107
+            peer: null
             refs:
-              - {parentEndpoint: /dubbo-2.5.x-scenario/case/dubbo, networkAddress: 'localhost:20080',
-                 refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-                                                                                           null, parentService: dubbo-2.5.x-scenario, traceId: not null}
-            skipAnalysis: 'false'
+              - { parentEndpoint: /jsonrpc4j-1.x-scenario/case/json-rpc, networkAddress: 'localhost:8080',refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,parentServiceInstance: not null, parentService: jsonrpc4j-1.x-scenario, traceId: not null }
       - segmentId: not null
         spans:
-          - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
-            operationId: 0
+          - operationName: /jsonrpc4j-1.x-scenario/path/to/demo-service.sayHello
             parentSpanId: 0
             spanId: 1
-            spanLayer: RPCFramework
+            spanLayer: RPC_FRAMEWORK
             startTime: nq 0
             endTime: nq 0
-            componentId: 3
+            componentId: 107
             isError: false
             spanType: Exit
-            peer: localhost:20080
+            peer: 'localhost:8080'
             tags:
-              - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()'}
-            skipAnalysis: 'false'
-          - operationName: /dubbo-2.5.x-scenario/case/dubbo
-            operationId: 0
+              - { key: url, value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service' }
+              - { key: http.method, value: POST }
+          - operationName: /jsonrpc4j-1.x-scenario/case/json-rpc
             parentSpanId: -1
             spanId: 0
             spanLayer: Http
@@ -64,8 +62,6 @@ segmentItems:
             componentId: 1
             isError: false
             spanType: Entry
-            peer: ''
             tags:
-              - {key: url, value: 'http://localhost:8080/dubbo-2.5.x-scenario/case/dubbo'}
-              - {key: http.method, value: GET}
-            skipAnalysis: 'false'
+              - { key: url, value: 'http://localhost/:8080/jsonrpc4j-1.x-scenario/case/json-rpc' }
+              - { key: http.method, value: GET }
