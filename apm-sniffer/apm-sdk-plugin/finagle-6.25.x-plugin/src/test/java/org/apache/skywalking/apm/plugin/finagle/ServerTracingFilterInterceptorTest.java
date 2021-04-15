@@ -135,7 +135,7 @@ public class ServerTracingFilterInterceptorTest extends AbstractTracingFilterTes
 
     private void assertServer() {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        TraceSegmentRef actual = traceSegment.getRefs().get(0);
+        TraceSegmentRef actual = traceSegment.getRef();
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
         assertThat(SegmentRefHelper.getParentServiceInstance(actual), is("instance"));
         assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("3.4.5"));

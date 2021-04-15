@@ -109,7 +109,7 @@ public class TracingHandlerTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
 
         assertHttpSpan(spans.get(0));
-        assertTraceSegmentRef(traceSegment.getRefs().get(0));
+        assertTraceSegmentRef(traceSegment.getRef());
     }
 
     private HttpServerExchange buildExchange() {

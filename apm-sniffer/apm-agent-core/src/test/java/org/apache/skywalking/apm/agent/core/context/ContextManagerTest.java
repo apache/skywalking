@@ -54,6 +54,7 @@ import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -90,7 +91,7 @@ public class ContextManagerTest {
         ContextManager.stopSpan();
 
         TraceSegment actualSegment = tracingData.getTraceSegments().get(0);
-        assertNull(actualSegment.getRefs());
+        assertNull(actualSegment.getRef());
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
         assertThat(Objects.requireNonNull(spanList).size(), is(1));
@@ -134,9 +135,9 @@ public class ContextManagerTest {
         assertThat(tracingData.getTraceSegments().size(), is(1));
 
         TraceSegment actualSegment = tracingData.getTraceSegments().get(0);
-        assertThat(actualSegment.getRefs().size(), is(1));
+        assertNotNull(actualSegment.getRef());
 
-        TraceSegmentRef ref = actualSegment.getRefs().get(0);
+        TraceSegmentRef ref = actualSegment.getRef();
         MatcherAssert.assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("127.0.0.1:8080"));
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
@@ -192,7 +193,7 @@ public class ContextManagerTest {
 
         assertThat(tracingData.getTraceSegments().size(), is(1));
         TraceSegment actualSegment = tracingData.getTraceSegments().get(0);
-        assertNull(actualSegment.getRefs());
+        assertNull(actualSegment.getRef());
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
         assertThat(Objects.requireNonNull(spanList).size(), is(2));
