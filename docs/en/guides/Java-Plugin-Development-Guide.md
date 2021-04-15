@@ -1,7 +1,7 @@
 # Plugin Development Guide
-This document describe how to understand, develop and contribute plugin. 
+This document describes how to understand, develop and contribute a plugin. 
 
-There are 2 kinds of plugin
+There are 2 kinds of plugin:
 1. [Tracing plugin](#tracing-plugin). Follow the distributed tracing concept to collect spans with tags and logs.
 1. [Meter plugin](#meter-plugin). Collect numeric metrics in Counter, Gauge, and Histogram formats.
 
@@ -10,42 +10,41 @@ We also provide the [plugin test tool](#plugin-test-tool) to verify the data col
 # Tracing plugin
 ## Concepts
 ### Span
-Span is an important and common concept in distributed tracing system. Learn **Span** from 
+The span is an important and recognized concept in the distributed tracing system. Learn about the **span** from the
 [Google Dapper Paper](https://research.google.com/pubs/pub36356.html)  and
 [OpenTracing](http://opentracing.io)
 
-SkyWalking supports OpenTracing and OpenTracing-Java API from 2017. Our Span concepts are similar with the paper and OpenTracing.
-Also we extend the Span.
+SkyWalking has supported OpenTracing and OpenTracing-Java API since 2017. Our concepts of the span are similar to that of the Google Dapper Paper and OpenTracing. We have also extended the span.
 
-There are three types of Span
+There are three types of span:
 
 1.1 EntrySpan
-EntrySpan represents a service provider, also the endpoint of server side. As an APM system, we are targeting the 
-application servers. So almost all the services and MQ-consumer are EntrySpan(s).
+The EntrySpan represents a service provider. It is also an endpoint on the server end. As an APM system, our target is the 
+application servers. Therefore, almost all the services and MQ-consumers are EntrySpan.
 
 1.2 LocalSpan
-LocalSpan represents a normal Java method, which does not relate to remote service, neither a MQ producer/consumer
-nor a service(e.g. HTTP service) provider/consumer.
+The LocalSpan represents a normal Java method that does not concern remote services. It is neither a MQ producer/consumer
+nor a service (e.g. HTTP service) provider/consumer.
 
 1.3 ExitSpan
-ExitSpan represents a client of service or MQ-producer, as named as `LeafSpan` at early age of SkyWalking.
-e.g. accessing DB by JDBC, reading Redis/Memcached are cataloged an ExitSpan. 
+The ExitSpan represents a client of service or MQ-producer. It is named the `LeafSpan` in the early versions of SkyWalking.
+For example, accessing DB through JDBC and reading Redis/Memcached are classified as an ExitSpan. 
 
 ### ContextCarrier
-In order to implement distributed tracing, the trace across process need to be bind, and the context should propagate 
-across the process. That is ContextCarrier's duty.
+In order to implement distributed tracing, cross-process tracing has to be bound, and the context must propagate 
+across the process. This is where the ContextCarrier comes in.
 
-Here are the steps about how to use **ContextCarrier** in a `A->B` distributed call.
-1. Create a new and empty `ContextCarrier` at client side.
-1. Create an ExitSpan by `ContextManager#createExitSpan` or use `ContextManager#inject` to init the `ContextCarrier`.
-1. Put all items of `ContextCarrier` into heads(e.g. HTTP HEAD), attachments(e.g. Dubbo RPC framework) or messages(e.g. Kafka)
-1. The `ContextCarrier` propagates to server side by the service call.
-1. At server side, get all items from heads, attachments or messages.
-1. Create an EntrySpan by `ContextManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
+Here are the steps on how to use the **ContextCarrier** in an `A->B` distributed call.
+1. Create a new and empty `ContextCarrier` on the client end.
+1. Create an ExitSpan by `ContextManager#createExitSpan` or use `ContextManager#inject` to initalize the `ContextCarrier`.
+1. Place all items of `ContextCarrier` into heads (e.g. HTTP HEAD), attachments (e.g. Dubbo RPC framework) or messages (e.g. Kafka).
+1. The `ContextCarrier` propagates to the server end through the service call.
+1. On the server end, obtain all items from the heads, attachments or messages.
+1. Create an EntrySpan by `ContextManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server ends.
 
 
-Let's demonstrate the steps by Apache HTTPComponent client plugin and Tomcat 7 server plugin
-1. Client side steps by Apache HTTPComponent client plugin
+See the following examples, where we use the Apache HTTPComponent client plugin and Tomcat 7 server plugin:
+1. Using the Apache HTTPComponent client plugin on the client end
 ```java
             span = ContextManager.createExitSpan("/span/operation/name", contextCarrier, "ip:port");
             CarrierItem next = contextCarrier.items();
@@ -55,7 +54,7 @@ Let's demonstrate the steps by Apache HTTPComponent client plugin and Tomcat 7 s
             }
 ```
 
-2. Server side steps by Tomcat 7 server plugin
+2. Using the Tomcat 7 server plugin on the server end
 ```java
             ContextCarrier contextCarrier = new ContextCarrier();
             CarrierItem next = contextCarrier.items();
