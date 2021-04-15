@@ -9,7 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
-
+* Improve `GlobalIdGenerator` performance.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
