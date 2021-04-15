@@ -237,8 +237,10 @@ segmentItems:
             isError: false
             spanType: Local
             tags:
-              - { key: db.type, value: Elasticsearch }
-              - { key: db.statement, value: not null }
+              - {key: db.type, value: Elasticsearch}
+              - {key: es.took_millis, value: not null }
+              - {key: es.total_hits, value: not null }
+              - {key: db.statement, value: not null }
             skipAnalysis: 'false'
           - operationName: Elasticsearch/UpdateRequest
             operationId: 0
@@ -295,7 +297,7 @@ segmentItems:
               - { key: node.address, value: not null }
               - { key: es.indices, value: not null }
             skipAnalysis: 'false'
-          - operationName: /elasticsearch7-case/case/elasticsearch
+          - operationName: /elasticsearch-case/case/elasticsearch
             operationId: 0
             parentSpanId: -1
             spanId: 0
