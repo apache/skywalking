@@ -9,6 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
+* Improve `GlobalIdGenerator` performance.
 * Add an agent plugin to support elasticsearch7.
 
 #### OAP-Backend
