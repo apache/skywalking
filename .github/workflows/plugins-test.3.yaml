@@ -71,6 +71,7 @@ jobs:
           - xxl-job-2.x-scenario
           - thrift-scenario
           - dbcp-2.x-scenario
+          - jsonrpc4j-1.x-plugin
     steps:
       - uses: actions/checkout@v2
         with:
