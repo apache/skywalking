@@ -227,26 +227,20 @@ segmentItems:
               - { key: es.types, value: not null }
               - { key: db.statement, value: not null }
             skipAnalysis: 'false'
-          - operationName: Elasticsearch/UpdateRequest
+          - operationName: Elasticsearch/actionGet
             operationId: 0
             parentSpanId: 0
             spanId: 14
-            spanLayer: Database
             startTime: nq 0
             endTime: nq 0
             componentId: 48
             isError: false
-            spanType: Exit
-            peer: not null
+            spanType: Local
             tags:
               - { key: db.type, value: Elasticsearch }
-              - { key: db.instance, value: not null }
-              - { key: node.address, value: not null }
-              - { key: es.indices, value: not null }
-              - { key: es.types, value: not null }
               - { key: db.statement, value: not null }
             skipAnalysis: 'false'
-          - operationName: Elasticsearch/DeleteRequest
+          - operationName: Elasticsearch/UpdateRequest
             operationId: 0
             parentSpanId: 0
             spanId: 15
@@ -265,10 +259,29 @@ segmentItems:
               - { key: es.types, value: not null }
               - { key: db.statement, value: not null }
             skipAnalysis: 'false'
-          - operationName: Elasticsearch/DeleteIndexRequest
+          - operationName: Elasticsearch/DeleteRequest
             operationId: 0
             parentSpanId: 0
             spanId: 16
+            spanLayer: Database
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 48
+            isError: false
+            spanType: Exit
+            peer: not null
+            tags:
+              - { key: db.type, value: Elasticsearch }
+              - { key: db.instance, value: not null }
+              - { key: node.address, value: not null }
+              - { key: es.indices, value: not null }
+              - { key: es.types, value: not null }
+              - { key: db.statement, value: not null }
+            skipAnalysis: 'false'
+          - operationName: Elasticsearch/DeleteIndexRequest
+            operationId: 0
+            parentSpanId: 0
+            spanId: 17
             spanLayer: Database
             startTime: nq 0
             endTime: nq 0

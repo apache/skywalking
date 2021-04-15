@@ -41,7 +41,7 @@ public class TransportClientConfig {
 
         TransportClient client = null;
         Settings settings = Settings.builder()
-                                    .put("cluster.name", "skywalking-fat")
+                                    .put("cluster.name", "docker-node")
                                     .put("client.transport.sniff", false)
                                     .build();
 
