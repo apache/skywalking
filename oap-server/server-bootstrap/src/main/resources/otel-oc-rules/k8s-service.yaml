@@ -54,13 +54,13 @@ metricsRules:
     exp: kube_pod_container_status_restarts_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod'])
 
   - name: pod_cpu_usage
-    exp: (container_cpu_usage_seconds_total * 1000).tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).rate('PT1M')
+    exp: (container_cpu_usage_seconds_total * 1000).tagNotEqual('container' , '').tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).irate()
   - name: pod_memory_usage
-    exp: container_memory_working_set_bytes.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod'])
+    exp: container_memory_working_set_bytes.tagNotEqual('container' , '').tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod'])
 
   - name: pod_network_receive
-    exp: container_network_receive_bytes_total.tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).irate()
+    exp: container_network_receive_bytes_total.tagNotEqual('container' , '').tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).irate()
   - name: pod_network_transmit
-    exp: container_network_transmit_bytes_total.tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).irate()
+    exp: container_network_transmit_bytes_total.tagNotEqual('container' , '').tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod']).irate()
   - name: pod_fs_usage
-    exp: container_fs_usage_bytes.tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod'])
+    exp: container_fs_usage_bytes.tagNotEqual('container' , '').tagNotEqual('pod' , '').retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace').tagNotEqual('service' , '').sum(['cluster' , 'service' , 'pod'])

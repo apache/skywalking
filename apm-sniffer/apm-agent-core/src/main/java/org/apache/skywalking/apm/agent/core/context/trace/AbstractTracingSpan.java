@@ -305,7 +305,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         /*
          * Provide the OOM protection if the entry span hosts too many references.
          */
-        if (refs.size() >= Config.Agent.TRACE_SEGMENT_REF_LIMIT_PER_SPAN) {
+        if (refs.size() == Config.Agent.TRACE_SEGMENT_REF_LIMIT_PER_SPAN) {
             return;
         }
         if (!refs.contains(ref)) {
