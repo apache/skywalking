@@ -58,14 +58,14 @@ public class EventHookCallback implements AlarmCallback {
 
     private Event[] constructCurrentEvent(AlarmMessage msg) {
         Event[] events = new Event[2];
-        long millis = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
         Event.Builder builder = Event.newBuilder()
                 .setUuid(UUID.randomUUID().toString())
                 .setName("Alarm")
-                .setStartTime(millis - msg.getPeriod())
+                .setStartTime(now - (msg.getPeriod() * 60 * 1000))
                 .setMessage(msg.getAlarmMessage())
                 .setType(Type.Error)
-                .setEndTime(millis);
+                .setEndTime(now);
         switch (msg.getScopeId()) {
             case DefaultScopeDefine.SERVICE :
                 IDManager.ServiceID.ServiceIDDefinition singleServiceIdDef = IDManager.ServiceID.analysisId(msg.getId0());
@@ -97,7 +97,7 @@ public class EventHookCallback implements AlarmCallback {
                 builder.setSource(
                         Source.newBuilder()
                                 .setServiceInstance(singleInstanceIdDef.getName())
-                                .setService(singleInstanceIdDef.getServiceId())
+                                .setService(IDManager.ServiceID.analysisId(singleInstanceIdDef.getServiceId()).getName())
                                 .build()
                 );
                 events[0] = builder.build();
@@ -107,7 +107,7 @@ public class EventHookCallback implements AlarmCallback {
                 builder.setSource(
                         Source.newBuilder()
                                 .setServiceInstance(doubleInstanceIdDef.getName())
-                                .setService(doubleInstanceIdDef.getServiceId())
+                                .setService(IDManager.ServiceID.analysisId(doubleInstanceIdDef.getServiceId()).getName())
                                 .build()
                 );
                 events[0] = builder.build();
@@ -115,7 +115,7 @@ public class EventHookCallback implements AlarmCallback {
                 builder.setSource(
                         Source.newBuilder()
                                 .setServiceInstance(doubleInstanceIdDef.getName())
-                                .setService(doubleInstanceIdDef.getServiceId())
+                                .setService(IDManager.ServiceID.analysisId(doubleInstanceIdDef.getServiceId()).getName())
                                 .build()
                 ).setUuid(UUID.randomUUID().toString());
                 events[1] = builder.build();
@@ -125,7 +125,7 @@ public class EventHookCallback implements AlarmCallback {
                 builder.setSource(
                         Source.newBuilder()
                                 .setEndpoint(singleEndpointIDDef.getEndpointName())
-                                .setService(singleEndpointIDDef.getServiceId())
+                                .setService(IDManager.ServiceID.analysisId(singleEndpointIDDef.getServiceId()).getName())
                                 .build()
                 );
                 events[0] = builder.build();
@@ -135,7 +135,7 @@ public class EventHookCallback implements AlarmCallback {
                 builder.setSource(
                         Source.newBuilder()
                                 .setEndpoint(doubleEndpointIDDef.getEndpointName())
-                                .setService(doubleEndpointIDDef.getServiceId())
+                                .setService(IDManager.ServiceID.analysisId(doubleEndpointIDDef.getServiceId()).getName())
                                 .build()
                 );
                 events[0] = builder.build();
@@ -143,7 +143,7 @@ public class EventHookCallback implements AlarmCallback {
                 builder.setSource(
                         Source.newBuilder()
                                 .setEndpoint(doubleEndpointIDDef.getEndpointName())
-                                .setService(doubleEndpointIDDef.getServiceId())
+                                .setService(IDManager.ServiceID.analysisId(doubleEndpointIDDef.getServiceId()).getName())
                                 .build()
                 ).setUuid(UUID.randomUUID().toString());
                 events[1] = builder.build();
