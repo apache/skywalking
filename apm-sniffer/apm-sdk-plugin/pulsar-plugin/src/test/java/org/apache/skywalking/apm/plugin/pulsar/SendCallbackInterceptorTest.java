@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -104,7 +105,7 @@ public class SendCallbackInterceptorTest {
 
         assertCallbackSpan(abstractSpans.get(0));
 
-        assertCallbackSegmentRef(traceSegment.getRefs());
+        assertCallbackSegmentRef(traceSegment.getRef());
     }
 
     @Test
@@ -121,7 +122,7 @@ public class SendCallbackInterceptorTest {
 
         assertCallbackSpanWithException(abstractSpans.get(0));
 
-        assertCallbackSegmentRef(traceSegment.getRefs());
+        assertCallbackSegmentRef(traceSegment.getRef());
     }
 
     private void assertCallbackSpanWithException(AbstractTracingSpan span) {
@@ -131,11 +132,10 @@ public class SendCallbackInterceptorTest {
         assertThat(SpanHelper.getErrorOccurred(span), is(true));
     }
 
-    private void assertCallbackSegmentRef(List<TraceSegmentRef> refs) {
-        assertThat(refs.size(), is(1));
+    private void assertCallbackSegmentRef(TraceSegmentRef traceSegmentRef) {
+        Assert.assertNotNull(traceSegmentRef);
 
-        TraceSegmentRef segmentRef = refs.get(0);
-        SegmentRefAssert.assertSpanId(segmentRef, 1);
+        SegmentRefAssert.assertSpanId(traceSegmentRef, 1);
     }
 
     private void assertCallbackSpan(AbstractTracingSpan span) {
