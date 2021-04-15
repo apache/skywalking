@@ -130,7 +130,7 @@ public class SofaRpcProviderInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         assertThat(SegmentHelper.getSpans(traceSegment).size(), is(1));
         assertProviderSpan(SegmentHelper.getSpans(traceSegment).get(0));
-        assertTraceSegmentRef(traceSegment.getRefs().get(0));
+        assertTraceSegmentRef(traceSegment.getRef());
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {

@@ -132,8 +132,8 @@ public class InterceptorTest {
         assertThat(segmentStorage.getTraceSegments().size(), is(2));
         TraceSegment segment0 = segmentStorage.getTraceSegments().get(0);
         TraceSegment segment1 = segmentStorage.getTraceSegments().get(1);
-        assertThat(segment0.getRefs().size(), is(1));
-        assertNull(segment1.getRefs());
+        assertNotNull(segment0.getRef());
+        assertNull(segment1.getRef());
         List<AbstractTracingSpan> spans0 = SegmentHelper.getSpans(segment0);
         assertNotNull(spans0);
         assertThat(spans0.size(), is(1));

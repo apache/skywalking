@@ -458,7 +458,12 @@ GoMicroServer:
 Nginx:
   id: 6000
   languages: Lua
-
+Kong:
+  id: 6001
+  languages: Lua
+APISIX:
+  id: 6002
+  languages: Lua
 
 # [7000, 8000) are reserved for Python components
 Python:

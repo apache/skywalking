@@ -66,6 +66,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -266,8 +267,8 @@ public class SkywalkingSpanActivationTest {
 
         TraceSegment tracingSegment = assertTraceSemgnets();
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(tracingSegment);
-        assertThat(tracingSegment.getRefs().size(), is(1));
-        TraceSegmentRef ref = tracingSegment.getRefs().get(0);
+        assertNotNull(tracingSegment.getRef());
+        TraceSegmentRef ref = tracingSegment.getRef();
         SegmentRefAssert.assertSegmentId(ref, "3.4.5");
         SegmentRefAssert.assertSpanId(ref, 3);
         assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
@@ -307,7 +308,7 @@ public class SkywalkingSpanActivationTest {
 
         TraceSegment tracingSegment = assertTraceSemgnets();
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(tracingSegment);
-        assertNull(tracingSegment.getRefs());
+        assertNull(tracingSegment.getRef());
         assertSpanCommonsAttribute(spans.get(0));
     }
 
@@ -342,10 +343,10 @@ public class SkywalkingSpanActivationTest {
         List<TraceSegment> segments = storage.getTraceSegments();
         assertThat(segments.size(), is(2));
         TraceSegment traceSegment = segments.get(0);
-        assertThat(traceSegment.getRefs().size(), is(1));
+        assertNotNull(traceSegment.getRef());
 
         traceSegment = segments.get(1);
-        assertNull(traceSegment.getRefs());
+        assertNull(traceSegment.getRef());
     }
 
     private void assertSpanCommonsAttribute(AbstractTracingSpan span) {
