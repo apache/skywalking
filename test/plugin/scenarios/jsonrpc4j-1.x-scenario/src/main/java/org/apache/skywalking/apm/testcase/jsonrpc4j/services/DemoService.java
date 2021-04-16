@@ -22,5 +22,6 @@ import com.googlecode.jsonrpc4j.JsonRpcService;
 
 @JsonRpcService("/path/to/demo-service")
 public interface DemoService {
+
     String sayHello();
 }

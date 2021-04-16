@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 
 @AutoJsonRpcServiceImpl
 @Service
-public class DemoServiceImp implements DemoService{
+public class DemoServiceImp implements DemoService {
+
     @Override
     public String sayHello() {
         return "hello";
