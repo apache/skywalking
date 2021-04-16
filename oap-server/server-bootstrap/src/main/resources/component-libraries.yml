@@ -350,7 +350,7 @@ Apache-CXF:
 dolphinscheduler:
   id: 106
   languages: Java
-jsonrpc4j:
+JsonRpc:
   id: 107
   languages: Java
 
