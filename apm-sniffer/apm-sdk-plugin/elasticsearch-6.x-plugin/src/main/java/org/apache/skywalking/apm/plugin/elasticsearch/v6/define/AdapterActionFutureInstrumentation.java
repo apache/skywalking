@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -81,11 +81,9 @@ public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine
 
     @Override
     protected List<WitnessMethod> witnessMethods() {
-        return Arrays.asList(new WitnessMethod[] {
-            new WitnessMethod(
-                Constants.SEARCH_HITS_WITNESS_CLASSES,
-                named("getTotalHits").and(takesArguments(0)).and(returns(long.class))
-            )
-        });
+        return Collections.singletonList(new WitnessMethod(
+            Constants.SEARCH_HITS_WITNESS_CLASSES,
+            named("getTotalHits").and(takesArguments(0)).and(returns(long.class))
+        ));
     }
 }

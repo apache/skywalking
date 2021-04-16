@@ -45,26 +45,22 @@ public class AdapterActionFutureActionGetMethodsInterceptor implements InstanceM
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        if (!isTrace(objInst)) {
-            return;
+        if (isTrace(objInst)) {
+            AbstractSpan span = ContextManager.createLocalSpan(Constants.DB_TYPE + "/" + Constants.BASE_FUTURE_METHOD);
+            span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
+            Tags.DB_TYPE.set(span, Constants.DB_TYPE);
         }
-
-        AbstractSpan span = ContextManager.createLocalSpan(Constants.DB_TYPE + "/" + Constants.BASE_FUTURE_METHOD);
-        span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
-        Tags.DB_TYPE.set(span, Constants.DB_TYPE);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
 
-        if (!isTrace(objInst)) {
-            return ret;
+        if (isTrace(objInst)) {
+            AbstractSpan span = ContextManager.activeSpan();
+            parseResponseInfo((ActionResponse) ret, span);
+            ContextManager.stopSpan();
         }
-
-        AbstractSpan span = ContextManager.activeSpan();
-        parseResponseInfo((ActionResponse) ret, span);
-        ContextManager.stopSpan();
         return ret;
     }
 
