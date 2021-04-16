@@ -17,7 +17,5 @@
 #
 server:
   port: 8080
-  servlet:
-    context-path: /elasticsearch-case
 logging:
   config: classpath:log4j2.xml

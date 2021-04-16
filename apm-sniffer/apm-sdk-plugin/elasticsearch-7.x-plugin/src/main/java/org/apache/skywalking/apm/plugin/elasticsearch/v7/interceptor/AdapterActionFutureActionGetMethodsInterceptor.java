@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
+package org.apache.skywalking.apm.plugin.elasticsearch.v7.interceptor;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -108,7 +109,7 @@ public class AdapterActionFutureActionGetMethodsInterceptor implements InstanceM
 
     private void parseSearchResponse(SearchResponse searchResponse, AbstractSpan span) {
         span.tag(Constants.ES_TOOK_MILLIS, Long.toString(searchResponse.getTook().getMillis()));
-        span.tag(Constants.ES_TOTAL_HITS, Long.toString(searchResponse.getHits().getTotalHits()));
+        span.tag(Constants.ES_TOTAL_HITS, Long.toString(searchResponse.getHits().getTotalHits().value));
         if (TRACE_DSL) {
             String tagValue = searchResponse.toString();
             tagValue = ELASTICSEARCH_DSL_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, ELASTICSEARCH_DSL_LENGTH_THRESHOLD) : tagValue;
