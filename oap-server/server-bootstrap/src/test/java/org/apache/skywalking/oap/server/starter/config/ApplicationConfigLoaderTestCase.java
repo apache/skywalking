@@ -18,13 +18,16 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
-import java.util.Properties;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Properties;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationConfigLoaderTestCase {
@@ -34,6 +37,7 @@ public class ApplicationConfigLoaderTestCase {
     @Before
     public void setUp() throws ConfigFileNotFoundException {
         System.setProperty("SW_STORAGE", "mysql");
+        System.setProperty("SW_RECEIVER_ZIPKIN", "default");
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
         applicationConfiguration = configLoader.load();
     }
@@ -47,4 +51,13 @@ public class ApplicationConfigLoaderTestCase {
         Properties properties = (Properties) providerConfig.get("properties");
         assertThat(properties.get("jdbcUrl"), is("jdbc:mysql://localhost:3306/swtest"));
     }
+
+    @Test
+    public void testLoadZipkinReceiverConfig() {
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
+                .getProviderConfiguration("default");
+        List<String> instanceNameRule = (List<String>) providerConfig.get("instanceNameRule");
+        assertEquals(2, instanceNameRule.size());
+    }
+
 }
