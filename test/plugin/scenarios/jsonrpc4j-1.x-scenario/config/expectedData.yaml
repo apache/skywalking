@@ -20,40 +20,26 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: /jsonrpc4j-1.x-scenario/path/to/demo-service
-            parentSpanId: -1
-            spanId: 0
-            tags:
-              - { key: http.method, value: POST }
-              - { key: url, value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service' }
-              - { key: jsonrpc.method, value: sayHello }
-              - { key: status_code, value: '200' }
-            logs: null
-            startTime: nq 0
-            endTime: nq 0
-            spanLayer: RPC_FRAMEWORK
-            isError: false
-            spanType: Entry
-            componentId: 107
-            peer: null
-            refs:
-              - { parentEndpoint: /jsonrpc4j-1.x-scenario/case/json-rpc, networkAddress: 'localhost:8080',refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,parentServiceInstance: not null, parentService: jsonrpc4j-1.x-scenario, traceId: not null }
-      - segmentId: not null
-        spans:
           - operationName: /jsonrpc4j-1.x-scenario/path/to/demo-service.sayHello
+            operationId: 0
             parentSpanId: 0
             spanId: 1
-            spanLayer: RPC_FRAMEWORK
+            spanLayer: RPCFramework
             startTime: nq 0
             endTime: nq 0
             componentId: 107
             isError: false
             spanType: Exit
-            peer: 'localhost:8080'
+            peer: localhost:8080
+            skipAnalysis: false
             tags:
-              - { key: url, value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service' }
               - { key: http.method, value: POST }
+              - {
+                key: url,
+                value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service',
+              }
           - operationName: /jsonrpc4j-1.x-scenario/case/json-rpc
+            operationId: 0
             parentSpanId: -1
             spanId: 0
             spanLayer: Http
@@ -62,6 +48,44 @@ segmentItems:
             componentId: 1
             isError: false
             spanType: Entry
+            peer: ''
+            skipAnalysis: false
             tags:
-              - { key: url, value: 'http://localhost/:8080/jsonrpc4j-1.x-scenario/case/json-rpc' }
+              - {
+                key: url,
+                value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/case/json-rpc',
+              }
               - { key: http.method, value: GET }
+      - segmentId: not null
+        spans:
+          - operationName: /jsonrpc4j-1.x-scenario/path/to/demo-service
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 107
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - { key: http.method, value: POST }
+              - {
+                key: url,
+                value: 'http://localhost:8080/jsonrpc4j-1.x-scenario/path/to/demo-service',
+              }
+              - { key: jsonrpc.method, value: sayHello }
+              - { key: status_code, value: '200' }
+            refs:
+              - {
+                parentEndpoint: /jsonrpc4j-1.x-scenario/case/json-rpc,
+                networkAddress: 'localhost:8080',
+                refType: CrossProcess,
+                parentSpanId: 1,
+                parentTraceSegmentId: not null,
+                parentServiceInstance: not null,
+                parentService: jsonrpc4j-1.x-scenario,
+                traceId: not null,
+              }
