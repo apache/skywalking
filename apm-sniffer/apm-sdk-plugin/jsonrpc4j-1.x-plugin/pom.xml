@@ -30,8 +30,6 @@
     <artifactId>jsonrpc4j-1.x-plugin</artifactId>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
         <jsonrpc4j.version>1.5.3</jsonrpc4j.version>
         <javax-servlet-api.version>3.0.1</javax-servlet-api.version>
     </properties>

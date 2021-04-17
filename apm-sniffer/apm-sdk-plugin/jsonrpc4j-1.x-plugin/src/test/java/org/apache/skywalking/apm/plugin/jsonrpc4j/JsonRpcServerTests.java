@@ -50,7 +50,7 @@ import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class JsonRpcServeTests {
+public class JsonRpcServerTests {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -90,7 +90,7 @@ public class JsonRpcServeTests {
     public void testJsonRpcServerMethodAround() throws Throwable {
         Object[] objects = new Object[]{httpServletRequest};
         jsonServiceExporterInterceptor.beforeMethod(mockJsonServiceExporterInterceptor, null, objects, null, null);
-        objects = new Object[]{null, JsonRpcServeTests.class.getMethod("testJsonRpcServerMethodAround")};
+        objects = new Object[]{null, JsonRpcServerTests.class.getMethod("testJsonRpcServerMethodAround")};
         jsonRpcBasicServerInvokeInterceptor.beforeMethod(mockJsonRpcBasicServer, null, objects, null, null);
         objects = new Object[]{null, httpServletResponse};
         jsonServiceExporterInterceptor.afterMethod(mockJsonServiceExporterInterceptor, null, objects, null, null);
