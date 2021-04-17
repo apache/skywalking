@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
+package org.apache.skywalking.apm.plugin.elasticsearch.v7.define;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +53,7 @@ public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.AdapterActionFutureActionGetMethodsInterceptor";
+                    return "org.apache.skywalking.apm.plugin.elasticsearch.v7.interceptor.AdapterActionFutureActionGetMethodsInterceptor";
                 }
 
                 @Override
@@ -83,7 +83,7 @@ public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine
     protected List<WitnessMethod> witnessMethods() {
         return Collections.singletonList(new WitnessMethod(
             Constants.SEARCH_HITS_WITNESS_CLASSES,
-            named("getTotalHits").and(takesArguments(0)).and(returns(long.class))
+            named("getTotalHits").and(takesArguments(0)).and(returns(named("org.apache.lucene.search.TotalHits")))
         ));
     }
 }
