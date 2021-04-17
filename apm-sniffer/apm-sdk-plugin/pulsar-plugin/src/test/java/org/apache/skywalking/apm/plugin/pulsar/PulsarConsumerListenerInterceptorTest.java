@@ -109,8 +109,6 @@ public class PulsarConsumerListenerInterceptorTest {
     private void assertConsumerSpan(AbstractTracingSpan span) {
         SpanAssert.assertLayer(span, SpanLayer.MQ);
         SpanAssert.assertComponent(span, PULSAR_CONSUMER);
-        SpanAssert.assertTagSize(span, 1);
-        SpanAssert.assertTag(span, 0, "persistent://my-tenant/my-ns/my-topic");
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
