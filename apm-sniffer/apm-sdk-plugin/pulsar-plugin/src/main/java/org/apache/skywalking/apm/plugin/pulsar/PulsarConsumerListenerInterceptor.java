@@ -46,7 +46,7 @@ import java.lang.reflect.Method;
  */
 public class PulsarConsumerListenerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String CONSUMER_OPERATE_NAME = "Pulsar/Consumer/MessageListener/";
+    public static final String CONSUMER_OPERATE_NAME = "Pulsar/Consumer/MessageListener";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,

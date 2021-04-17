@@ -11,6 +11,7 @@ Release Notes.
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
 * Improve `GlobalIdGenerator` performance.
 * Add an agent plugin to support elasticsearch7.
+* Add `MessageListener` enhancement in pulsar plugin
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.

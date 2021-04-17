@@ -15,9 +15,9 @@
 # limitations under the License.
 segmentItems:
 - serviceName: pulsar-scenario
-  segmentSize: ge 3
+  segmentSize: ge 4
   segments:
-  - segmentId: not null
+    - segmentId: not null
     spans:
     - operationName: Pulsar/test/Producer
       operationId: 0
@@ -83,11 +83,29 @@ segmentItems:
       spanType: Entry
       peer: ''
       tags:
-        - {key: transmission.latency, value: not null}
-        - {key: mq.broker, value: not null}
-        - {key: mq.topic, value: test}
+        - { key: transmission.latency, value: not null }
+        - { key: mq.broker, value: not null }
+        - { key: mq.topic, value: test }
       refs:
-      - {parentEndpoint: /case/pulsar-case, networkAddress: not null, refType: CrossProcess,
-        parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: pulsar-scenario, traceId: not null}
+        - { parentEndpoint: /case/pulsar-case, networkAddress: not null, refType: CrossProcess,
+          parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                             null, parentService: pulsar-scenario, traceId: not null }
       skipAnalysis: 'false'
+    - segmentId: not null
+      spans:
+        - operationName: Pulsar/Consumer/MessageListener
+          operationId: 0
+          parentSpanId: -1
+          spanId: 0
+          spanLayer: MQ
+          startTime: nq 0
+          endTime: nq 0
+          componentId: 74
+          isError: false
+          spanType: Local
+          peer: ''
+          refs:
+            - { parentEndpoint: /case/pulsar-case, networkAddress: not null, refType: CrossProcess,
+                parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null,
+                parentService: pulsar-scenario, traceId: not null }
+          skipAnalysis: 'false'
