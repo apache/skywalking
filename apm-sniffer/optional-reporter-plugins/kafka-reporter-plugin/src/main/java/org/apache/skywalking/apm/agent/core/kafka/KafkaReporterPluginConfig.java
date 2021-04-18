@@ -42,6 +42,10 @@ public class KafkaReporterPluginConfig {
 
             public static String TOPIC_METER = "skywalking-meters";
 
+            public static String MM_TO_SOURCE_ALIAS = "";
+
+            public static String MM_TO_SOURCE_SEPARATOR = "";
+
             public static Map<String, String> PRODUCER_CONFIG = new HashMap<>();
 
             /**

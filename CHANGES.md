@@ -12,6 +12,8 @@ Release Notes.
 * Improve `GlobalIdGenerator` performance.
 * Add an agent plugin to support elasticsearch7.
 * Add `jsonrpc4j` agent plugin.
+* new options to support multi skywalking cluster use same kafka cluster(plugin.kafka.mm_to_source_alias,plugin.kafka.mm_to_source_separator)
+* resolve agent has no retries if connect kafka cluster failed when bootstrap
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
