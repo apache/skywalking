@@ -39,9 +39,12 @@ import java.util.UUID;
  */
 public class EventHookCallback implements AlarmCallback {
 
-    private final EventAnalyzerService analyzerService;
+    private EventAnalyzerService analyzerService;
 
     public EventHookCallback(ModuleManager manager) {
+        if (Objects.isNull(manager) || Objects.isNull(manager.find(EventAnalyzerModule.NAME))) {
+            return;
+        }
         this.analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
     }
 
