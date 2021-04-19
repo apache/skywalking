@@ -58,19 +58,19 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender implements KafkaConn
                                                                  .setServiceInstance(Config.Agent.INSTANCE_NAME)
                                                                  .build();
 
-            if (LOGGER.isDebugEnable()) {
-                LOGGER.debug(
-                        "JVM metrics reporting, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(),
-                        buffer.size()
-                );
-            }
+                if (LOGGER.isDebugEnable()) {
+                    LOGGER.debug(
+                            "JVM metrics reporting, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(),
+                            buffer.size()
+                    );
+                }
 
-            producer.send(new ProducerRecord<>(
-                    topic,
-                    metrics.getServiceInstance(),
-                    Bytes.wrap(metrics.toByteArray())
-            ));
-            producer.flush();
+                producer.send(new ProducerRecord<>(
+                        topic,
+                        metrics.getServiceInstance(),
+                        Bytes.wrap(metrics.toByteArray())
+                ));
+                producer.flush();
             }
         }
     }
