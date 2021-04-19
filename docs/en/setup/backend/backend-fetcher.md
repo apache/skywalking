@@ -91,10 +91,11 @@ kafka-fetcher:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
 ```
 
-`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements` and `skywalking-meters` topics are required by `kafka-fetcher`.
+`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements`, `skywalking-meters`
+and `skywalking-logs` topics are required by `kafka-fetcher`.
 If they do not exist, Kafka Fetcher will create them in default. Also, you can create them by yourself before the OAP server started.
 
-When using the OAP server automatical creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:
+When using the OAP server automatic creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:
 
 ```yaml
 kafka-fetcher:
