@@ -12,7 +12,7 @@ Release Notes.
 * Improve `GlobalIdGenerator` performance.
 * Add an agent plugin to support elasticsearch7.
 * Add `jsonrpc4j` agent plugin.
-* Support Seata plugin.
+* Add Seata in the component definition. Seata plugin hosts on Seata project.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
