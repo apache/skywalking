@@ -55,7 +55,7 @@ public class AssignMethodInterceptorTest {
     };
 
     @Before
-    public void setUp() {
+    public void setup() {
         partitions.add(new TopicPartition("test", 0));
         partitions.add(new TopicPartition("test-1", 1));
         interceptor = new AssignMethodInterceptor();

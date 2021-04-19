@@ -126,7 +126,6 @@ public class CaseController {
             });
         }, bootstrapServers);
 
-
         Thread thread = new ConsumerThread();
         thread.start();
 
