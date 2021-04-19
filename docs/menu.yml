@@ -61,6 +61,10 @@ catalog:
         catalog:
         - name: "Setup"
           path: "/en/setup/service-agent/java-agent/readme"
+        - name: "Setup in Docker"
+          path: "/en/setup/service-agent/java-agent/containerization#docker"
+        - name: "Setup in Kubernetes"
+          path: "/en/setup/service-agent/java-agent/containerization#kubernetes"
         - name: "Supported middleware, framework and library"
           path: "/en/setup/service-agent/java-agent/Supported-list"
         - name: "Agent Configuration Properties"
