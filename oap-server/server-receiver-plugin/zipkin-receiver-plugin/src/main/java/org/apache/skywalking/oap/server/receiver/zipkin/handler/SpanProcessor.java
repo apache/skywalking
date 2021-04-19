@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -49,7 +50,7 @@ public class SpanProcessor {
 
             List<Span> spanList = decoder.decodeList(out.toByteArray());
 
-            SpanForward forward = new SpanForward(namingControl, receiver);
+            SpanForward forward = new SpanForward(namingControl, receiver, config);
             forward.send(spanList);
         }
     }
