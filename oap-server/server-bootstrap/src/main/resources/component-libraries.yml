@@ -353,6 +353,9 @@ dolphinscheduler:
 JsonRpc:
   id: 107
   languages: Java
+seata:
+  id: 108
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
