@@ -46,6 +46,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * Configuring, initializing and holding a KafkaProducer instance for reporters.
@@ -68,7 +69,7 @@ public class KafkaProducerManager implements BootService, Runnable {
 
     @Override
     public void boot() {
-        bootProducerFuture =  Executors.newSingleThreadScheduledExecutor(
+        bootProducerFuture = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("kafkaProducerInitThread")
         ).scheduleAtFixedRate(new RunnableWithExceptionProtection(
                 this,
@@ -77,9 +78,8 @@ public class KafkaProducerManager implements BootService, Runnable {
     }
 
     String formatTopicNameThenRegister(String topic) {
-        String topicName = KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_ALIAS
-                + KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_SEPARATOR
-                + topic;
+        String topicName = StringUtil.isBlank(KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE) ? topic
+                : KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE + "-" + topic;
         topics.add(topicName);
         return topicName;
     }
@@ -148,6 +148,7 @@ public class KafkaProducerManager implements BootService, Runnable {
 
     /**
      * make kafka producer init later but before {@link GRPCChannelManager}
+     *
      * @return priority value
      */
     @Override

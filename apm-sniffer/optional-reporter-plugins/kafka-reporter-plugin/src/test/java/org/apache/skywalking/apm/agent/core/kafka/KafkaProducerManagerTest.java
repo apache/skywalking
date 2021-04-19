@@ -42,14 +42,12 @@ public class KafkaProducerManagerTest {
     @Test
     public void testFormatTopicNameThenRegister() {
         KafkaProducerManager kafkaProducerManager = new KafkaProducerManager();
-        KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_ALIAS = "product";
-        KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_SEPARATOR = "-";
+        KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE = "product";
         String value = kafkaProducerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS);
-        String expectValue = KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_ALIAS + KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_SEPARATOR + KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS;
+        String expectValue = KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE + "-" + KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS;
         assertEquals(value, expectValue);
 
-        KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_ALIAS = "";
-        KafkaReporterPluginConfig.Plugin.Kafka.MM_TO_SOURCE_SEPARATOR = "";
+        KafkaReporterPluginConfig.Plugin.Kafka.NAMESPACE = "";
         value = kafkaProducerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS);
         assertEquals(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS, value);
     }
