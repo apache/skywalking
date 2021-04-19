@@ -53,7 +53,7 @@ public class ApplicationConfigLoaderTestCase {
     }
 
     @Test
-    public void testLoadZipkinReceiverConfig() {
+    public void testLoadListTypeConfig() {
         Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
                 .getProviderConfiguration("default");
         List<String> instanceNameRule = (List<String>) providerConfig.get("instanceNameRule");
