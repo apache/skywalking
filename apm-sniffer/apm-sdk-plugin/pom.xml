@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.5.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -72,6 +72,7 @@
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
         <module>elasticsearch-6.x-plugin</module>
+        <module>elasticsearch-7.x-plugin</module>
         <module>undertow-plugins</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
@@ -108,6 +109,7 @@
         <module>mssql-jtds-1.x-plugin</module>
         <module>mssql-jdbc-plugin</module>
         <module>cxf-3.x-plugin</module>
+        <module>jsonrpc4j-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

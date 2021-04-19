@@ -16,26 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+package org.apache.skywalking.apm.testcase.jsonrpc4j.services;
 
-import org.junit.Assert;
-import org.junit.Test;
+import com.googlecode.jsonrpc4j.JsonRpcService;
 
-public class MachineInfoTest {
+@JsonRpcService("/path/to/demo-service")
+public interface DemoService {
 
-    @Test
-    public void testMachine() {
-        int processNo = MachineInfo.getProcessNo();
-        Assert.assertTrue(processNo >= 0);
-
-        String hostIp = MachineInfo.getHostIp();
-        Assert.assertTrue(!StringUtil.isEmpty(hostIp));
-
-        String hostName = MachineInfo.getHostName();
-        Assert.assertTrue(!StringUtil.isEmpty(hostName));
-
-        String hostDesc = MachineInfo.getHostDesc();
-        Assert.assertTrue(!StringUtil.isEmpty(hostDesc) && hostDesc.contains("/"));
-    }
-
+    String sayHello();
 }

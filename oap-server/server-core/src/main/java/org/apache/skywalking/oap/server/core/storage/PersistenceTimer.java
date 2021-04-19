@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +50,9 @@ public enum PersistenceTimer {
     private HistogramMetrics executeLatency;
     private long lastTime = System.currentTimeMillis();
     private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
+    private int syncOperationThreadsNum;
+    private int maxSyncoperationNum;
+    private ExecutorService executorService;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -71,7 +77,9 @@ public enum PersistenceTimer {
             "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
-
+        syncOperationThreadsNum = moduleConfig.getSyncThreads();
+        maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
+        executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
                      .scheduleWithFixedDelay(
@@ -118,9 +126,22 @@ public enum PersistenceTimer {
 
             HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
             try {
-                if (CollectionUtils.isNotEmpty(prepareRequests)) {
-                    batchDAO.synchronous(prepareRequests);
+                List<List<PrepareRequest>> partitions = Lists.partition(prepareRequests, maxSyncoperationNum);
+                CountDownLatch countDownLatch = new CountDownLatch(partitions.size());
+                for (final List<PrepareRequest> partition : partitions) {
+                    executorService.submit(() -> {
+                        try {
+                            if (CollectionUtils.isNotEmpty(partition)) {
+                                batchDAO.synchronous(partition);
+                            }
+                        } catch (Throwable e) {
+                            log.error(e.getMessage(), e);
+                        } finally {
+                            countDownLatch.countDown();
+                        }
+                    });
                 }
+                countDownLatch.await();
             } finally {
                 executeLatencyTimer.finish();
             }

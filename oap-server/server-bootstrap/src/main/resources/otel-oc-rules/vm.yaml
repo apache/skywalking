@@ -89,8 +89,6 @@ metricsRules:
     #node filefd
   - name: filefd_allocated
     exp: node_filefd_allocated
-  - name: filefd_maximum
-    exp: node_filefd_maximum
 
 
 

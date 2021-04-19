@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 
 public enum K8sRetagType implements Retag {
-
     Pod2Service {
         @Override
         public Sample[] execute(final Sample[] ss,
@@ -39,11 +38,12 @@ public enum K8sRetagType implements Retag {
                 String namespace = sample.getLabels().get(namespaceLabelName);
                 if (!Strings.isNullOrEmpty(podName) && !Strings.isNullOrEmpty(namespace)) {
                     String serviceName = K8sInfoRegistry.getInstance().findServiceName(namespace, podName);
-                    if (!Strings.isNullOrEmpty(serviceName)) {
-                        Map<String, String> labels = Maps.newHashMap(sample.getLabels());
-                        labels.put(newLabelName, serviceName);
-                        return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+                    if (Strings.isNullOrEmpty(serviceName)) {
+                        serviceName = BLANK;
                     }
+                    Map<String, String> labels = Maps.newHashMap(sample.getLabels());
+                    labels.put(newLabelName, serviceName);
+                    return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
                 }
                 return sample;
             }).toArray(Sample[]::new);

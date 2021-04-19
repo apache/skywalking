@@ -350,8 +350,11 @@ Apache-CXF:
 dolphinscheduler:
   id: 106
   languages: Java
-seata:
+JsonRpc:
   id: 107
+  languages: Java
+seata:
+  id: 108
   languages: Java
 
 # .NET/.NET Core components
@@ -461,7 +464,12 @@ GoMicroServer:
 Nginx:
   id: 6000
   languages: Lua
-
+Kong:
+  id: 6001
+  languages: Lua
+APISIX:
+  id: 6002
+  languages: Lua
 
 # [7000, 8000) are reserved for Python components
 Python:

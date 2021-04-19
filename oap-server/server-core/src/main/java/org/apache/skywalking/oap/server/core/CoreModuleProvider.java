@@ -50,6 +50,7 @@ import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
+import org.apache.skywalking.oap.server.core.oal.rt.DisableOALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -118,6 +119,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private final SourceReceiverImpl receiver;
     private ApdexThresholdConfig apdexThresholdConfig;
     private EndpointNameGroupingRuleWatcher endpointNameGroupingRuleWatcher;
+    private OALEngineLoaderService oalEngineLoaderService;
 
     public CoreModuleProvider() {
         super();
@@ -160,8 +162,6 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (FileNotFoundException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-
-        StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
 
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
@@ -264,9 +264,10 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
         // add oal engine loader service implementations
-        this.registerServiceImplementation(OALEngineLoaderService.class, new OALEngineLoaderService(getManager()));
+        oalEngineLoaderService = new OALEngineLoaderService(getManager());
+        this.registerServiceImplementation(OALEngineLoaderService.class, oalEngineLoaderService);
 
-        annotationScan.registerListener(streamAnnotationListener);
+        annotationScan.registerListener(new StreamAnnotationListener(getManager()));
 
         if (moduleConfig.isGRPCSslEnabled()) {
             this.remoteClientManager = new RemoteClientManager(getManager(), moduleConfig.getRemoteTimeout(),
@@ -292,6 +293,9 @@ public class CoreModuleProvider extends ModuleProvider {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
         remoteClientManager.start();
+
+        // Disable OAL script has higher priority
+        oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
 
         try {
             receiver.scan();

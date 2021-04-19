@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import java.net.InetSocketAddress;
 import java.util.List;
 import javax.net.ssl.SSLSession;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -40,7 +41,7 @@ public class AsyncHandlerWrapper implements AsyncHandler {
     private final AsyncHandler userAsyncHandler;
     private final AbstractSpan asyncSpan;
 
-    private static ILog LOGGER = LogManager.getLogger(AsyncHandlerWrapper.class);
+    private static final ILog LOGGER = LogManager.getLogger(AsyncHandlerWrapper.class);
 
     public AsyncHandlerWrapper(AsyncHandler asyncHandler, AbstractSpan span) {
         this.userAsyncHandler = asyncHandler == null ? new AsyncCompletionHandlerBase() : asyncHandler;
@@ -49,6 +50,11 @@ public class AsyncHandlerWrapper implements AsyncHandler {
 
     @Override
     public State onStatusReceived(final HttpResponseStatus httpResponseStatus) throws Exception {
+        int statusCode = httpResponseStatus.getStatusCode();
+        Tags.STATUS_CODE.set(asyncSpan, String.valueOf(statusCode));
+        if (statusCode >= 400) {
+            asyncSpan.errorOccurred();
+        }
         return userAsyncHandler.onStatusReceived(httpResponseStatus);
     }
 

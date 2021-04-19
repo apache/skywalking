@@ -234,7 +234,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         indexName = formatIndexName(indexName);
         try {
             Response response = client.getLowLevelClient()
-                                      .performRequest(HttpGet.METHOD_NAME, indexName);
+                                      .performRequest(HttpGet.METHOD_NAME, "/" + indexName);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
                 healthChecker.health();
@@ -341,7 +341,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         name = formatIndexName(name);
         try {
             Response response = client.getLowLevelClient()
-                                      .performRequest(HttpGet.METHOD_NAME, "_template/" + name);
+                                      .performRequest(HttpGet.METHOD_NAME, "/_template/" + name);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
                 healthChecker.health();
