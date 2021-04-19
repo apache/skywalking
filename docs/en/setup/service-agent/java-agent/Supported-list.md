@@ -123,8 +123,6 @@ metrics based on the tracing data.
   * [log4j](https://github.com/apache/log4j) 2.x
   * [log4j2](https://github.com/apache/logging-log4j2) 1.2.x 
   * [logback](https://github.com/qos-ch/logback) 1.2.x
-* Distributed Transaction Framework
-  * [seata](https://github.com/seata/seata) seata 1.4.x
   
 
 # Meter Plugins
