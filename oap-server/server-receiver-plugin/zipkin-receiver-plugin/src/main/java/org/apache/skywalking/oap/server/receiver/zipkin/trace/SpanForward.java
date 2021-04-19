@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -29,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.EndpointMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanEncode;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpan;
 import zipkin2.Span;
@@ -36,8 +38,10 @@ import zipkin2.codec.SpanBytesEncoder;
 
 @RequiredArgsConstructor
 public class SpanForward {
+    private static final String DEFAULT_SERVICE_INSTANCE_NAME = " unknown_instance";
     private final NamingControl namingControl;
     private final SourceReceiver receiver;
+    private final ZipkinReceiverConfig config;
 
     public void send(List<Span> spanList) {
         spanList.forEach(span -> {
@@ -49,7 +53,11 @@ public class SpanForward {
                 serviceName = "Unknown";
             }
             serviceName = namingControl.formatServiceName(serviceName);
-            zipkinSpan.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+            String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
+            zipkinSpan.setServiceId(serviceId);
+            String serviceInstanceName = this.getServiceInstanceName(span);
+            serviceInstanceName = namingControl.formatInstanceName(serviceInstanceName);
+            zipkinSpan.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(serviceId, serviceInstanceName));
 
             long startTime = span.timestampAsLong() / 1000;
             zipkinSpan.setStartTime(startTime);
@@ -92,5 +100,15 @@ public class SpanForward {
             serviceMeta.setTimeBucket(timeBucket);
             receiver.receive(serviceMeta);
         });
+    }
+
+    private String getServiceInstanceName(Span span) {
+        for (String tagName : config.getInstanceNameRule()) {
+            String serviceInstanceName = span.tags().get(tagName);
+            if (StringUtil.isNotEmpty(serviceInstanceName)) {
+                return serviceInstanceName;
+            }
+        }
+        return DEFAULT_SERVICE_INSTANCE_NAME;
     }
 }
