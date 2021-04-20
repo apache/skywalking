@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
+package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,28 +26,32 @@ import org.apache.skywalking.apm.toolkit.logging.common.log.SkywalkingContext;
 
 import java.lang.reflect.Method;
 
-/**
- * <p>Pass the global trace context into the _sw field of RingBufferLogEvent instance after enhancing</p>
- */
-
-public class RingBufferLogEventMethodInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class PrintMDCSkywalkingContextInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SkywalkingContext skywalkingContext = new SkywalkingContext(ContextManager.getGlobalTraceId(),
-                ContextManager.getSegmentId(), ContextManager.getSpanId());
-        objInst.setSkyWalkingDynamicField(skywalkingContext);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        return ret;
+        if (!ContextManager.isActive()) {
+            if (allArguments[0] instanceof EnhancedInstance) {
+                SkywalkingContext skywalkingContext = (SkywalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+                if (skywalkingContext != null) {
+                    return "SW_CTX:" + skywalkingContext.toString();
+                }
+            }
+        }
+        return "SW_CTX:" + new SkywalkingContext(ContextManager.getGlobalTraceId(),
+                ContextManager.getSegmentId(),
+                ContextManager.getSpanId())
+                .toString();
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+
     }
 }

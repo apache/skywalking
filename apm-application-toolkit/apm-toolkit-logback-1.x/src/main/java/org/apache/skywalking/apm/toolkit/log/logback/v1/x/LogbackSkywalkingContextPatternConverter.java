@@ -16,16 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc;
+package org.apache.skywalking.apm.toolkit.log.logback.v1.x;
 
-import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.pattern.ClassicConverter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 
-/**
- * Override "X" and "mdc",SuperClass run before Subclass.
- */
-public class TraceIdMDCPatternLogbackLayout extends PatternLayout {
-    static {
-        defaultConverterMap.put("X", LogbackMDCPatternConverter.class.getName());
-        defaultConverterMap.put("mdc", LogbackMDCPatternConverter.class.getName());
+public class LogbackSkywalkingContextPatternConverter extends ClassicConverter {
+    /**
+     * As default, return "SW_CTX: N/A" to the output message, if sky-walking agent in active mode, return the real skywalking context
+     * in the recent Context, if existed.
+     *
+     * @param iLoggingEvent the event
+     * @return the skywalking context: N/A, or the real skywalking context.
+     */
+    @Override
+    public String convert(ILoggingEvent iLoggingEvent) {
+        return "SW_CTX: N/A";
     }
 }

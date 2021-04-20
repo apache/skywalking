@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkywalkingContext;
 
 import java.lang.reflect.Method;
 
@@ -38,9 +39,9 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
         Object ret) throws Throwable {
         if (!ContextManager.isActive()) {
             if (allArguments[0] instanceof EnhancedInstance) {
-                String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-                if (tid != null) {
-                    return "TID:" + tid;
+                SkywalkingContext skywalkingContext = (SkywalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+                if (skywalkingContext != null) {
+                    return "TID:" + skywalkingContext.getTraceId();
                 }
             }
         }

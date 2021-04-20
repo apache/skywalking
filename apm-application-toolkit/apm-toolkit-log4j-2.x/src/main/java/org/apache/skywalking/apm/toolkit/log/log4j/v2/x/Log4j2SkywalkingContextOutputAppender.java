@@ -16,16 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc;
+package org.apache.skywalking.apm.toolkit.log.log4j.v2.x;
 
-import ch.qos.logback.classic.PatternLayout;
-
-/**
- * Override "X" and "mdc",SuperClass run before Subclass.
- */
-public class TraceIdMDCPatternLogbackLayout extends PatternLayout {
-    static {
-        defaultConverterMap.put("X", LogbackMDCPatternConverter.class.getName());
-        defaultConverterMap.put("mdc", LogbackMDCPatternConverter.class.getName());
+public class Log4j2SkywalkingContextOutputAppender {
+    /**
+     * As default, append "SW_CTX: N/A" to the output message, if sky-walking agent in active mode, append the real skywalking context
+     * in the recent Context, if existed, or empty String.
+     *
+     * @param toAppendTo origin output message.
+     */
+    public static void append(StringBuilder toAppendTo) {
+        toAppendTo.append("SW_CTX: N/A");
     }
 }

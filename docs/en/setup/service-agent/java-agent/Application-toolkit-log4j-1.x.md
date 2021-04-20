@@ -21,6 +21,12 @@ log4j.appender.CONSOLE.layout.ConversionPattern=%d [%T] %-5p %c{1}:%L - %m%n
 
 * When you use `-javaagent` to active the sky-walking tracer, log4j will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
 
+# Print skywalking context in your logs
+
+* Your only need to replace pattern `%T` with `%T{SW_CTX}`.
+
+* When you use `-javaagent` to active the sky-walking tracer, log4j will output `SW_CTX: [$serviceName,$instanceName,$traceId,$traceSegmentId,$spanId]`, if it existed. If the tracer is inactive, the output will be `SW_CTX: N/A`.
+
 # gRPC reporter
 
 The gRPC report could forward the collected logs to SkyWalking OAP server, or [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite). Trace id, segment id, and span id will attach to logs automatically. You don't need to change the layout.

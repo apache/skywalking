@@ -59,6 +59,12 @@
 
 * When you use `-javaagent` to active the sky-walking tracer, logback will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
 
+# Print skywalking context in your logs
+
+* Your only need to replace pattern `%tid` or `%X{tid]}` with `%sw_ctx` or `%X{sw_ctx}`.
+
+* When you use `-javaagent` to active the sky-walking tracer, logback will output `SW_CTX: [$serviceName,$instanceName,$traceId,$traceSegmentId,$spanId]`, if it existed. If the tracer is inactive, the output will be `SW_CTX: N/A`.
+
 # logstash logback plugin
 
 * Dependency the toolkit, such as using maven or gradle
@@ -75,17 +81,23 @@
 
 ```xml
 <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+    <!-- add TID(traceId) field -->
     <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.TraceIdJsonProvider">
+    </provider>
+    <!-- add SW_CTX(skywalking context) field -->
+    <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.SkywalkingContextJsonProvider">
     </provider>
 </encoder>
 ```
 
 * set `LoggingEventCompositeJsonEncoder` of logstash in logback-spring.xml for custom json format
 
-1.add converter for %tid as child of <configuration> node
+1.add converter for %tid or %sw_ctx as child of <configuration> node
 ```xml
-<!--add converter for %tid -->
-    <conversionRule conversionWord="tid" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
+<!-- add converter for %tid -->
+<conversionRule conversionWord="tid" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
+<!-- add converter for %sw_ctx -->    
+<conversionRule conversionWord="sw_ctx" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackSkywalkingContextPatternConverter"/>
 ```
 2.add json encoder for custom json format
 
@@ -98,12 +110,13 @@
                 <pattern>
                     <pattern>
                         {
-                        "level": "%level",
-                        "tid": "%tid",
-                        "thread": "%thread",
-                        "class": "%logger{1.}:%L",
-                        "message": "%message",
-                        "stackTrace": "%exception{10}"
+                            "level": "%level",
+                            "tid": "%tid",
+                            "skywalkingContext": "%sw_ctx",
+                            "thread": "%thread",
+                            "class": "%logger{1.}:%L",
+                            "message": "%message",
+                            "stackTrace": "%exception{10}"
                         }
                     </pattern>
                 </pattern>

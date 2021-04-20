@@ -16,16 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc;
+package org.apache.skywalking.apm.toolkit.log.log4j.v1.x;
 
-import ch.qos.logback.classic.PatternLayout;
+import org.apache.log4j.helpers.PatternConverter;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * Override "X" and "mdc",SuperClass run before Subclass.
+ * Default implementation outputs "SW_CTX: N/A". But, if in sky-walking agent active mode, output will become the real
+ * skywalking context.
+ * <p>
  */
-public class TraceIdMDCPatternLogbackLayout extends PatternLayout {
-    static {
-        defaultConverterMap.put("X", LogbackMDCPatternConverter.class.getName());
-        defaultConverterMap.put("mdc", LogbackMDCPatternConverter.class.getName());
+
+public class SkywalkingContextPatternConverter extends PatternConverter {
+    @Override
+    protected String convert(LoggingEvent loggingEvent) {
+        return "SW_CTX: N/A";
     }
 }
