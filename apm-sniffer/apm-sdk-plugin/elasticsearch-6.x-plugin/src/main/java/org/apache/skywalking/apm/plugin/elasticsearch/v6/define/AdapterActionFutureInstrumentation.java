@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
+import java.util.Collections;
+import java.util.List;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.WitnessMethod;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
@@ -28,6 +31,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.returns;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine {
@@ -39,7 +44,7 @@ public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -71,6 +76,14 @@ public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{Constants.TASK_TRANSPORT_CHANNEL_WITNESS_CLASSES};
+        return new String[] {Constants.TASK_TRANSPORT_CHANNEL_WITNESS_CLASSES};
+    }
+
+    @Override
+    protected List<WitnessMethod> witnessMethods() {
+        return Collections.singletonList(new WitnessMethod(
+            Constants.SEARCH_HITS_WITNESS_CLASSES,
+            named("getTotalHits").and(takesArguments(0)).and(returns(long.class))
+        ));
     }
 }
