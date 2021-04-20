@@ -39,6 +39,9 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.yaml.snakeyaml.Yaml;
 
 @Slf4j
+/**
+ * FieldsHelper
+ */
 public enum FieldsHelper {
     SINGLETON;
 
@@ -82,7 +85,24 @@ public enum FieldsHelper {
             final StringBuffer serviceNamePattern = new StringBuffer();
             while (m.find()) {
                 final String property = m.group("property");
-                flatBuffersFieldNames.add(Splitter.on('.').omitEmptyStrings().splitToList(property));
+                List<String> tokens = Splitter.on('.').omitEmptyStrings().splitToList(property);
+
+                StringBuilder tokenBuffer = new StringBuilder();
+                List<String> compactedTokens = new ArrayList<>(tokens.size());
+                for (String token : tokens) {
+                    if (tokenBuffer.length() == 0 && token.startsWith("\"")) {
+                       tokenBuffer.append(token);
+                    } else if (tokenBuffer.length() > 0) {
+                        tokenBuffer.append(".").append(token);
+                        if (token.endsWith("\"")) {
+                            compactedTokens.add(tokenBuffer.toString().replaceAll("\"", ""));
+                            tokenBuffer.setLength(0);
+                        }
+                    } else {
+                        compactedTokens.add(token);
+                    }
+                }
+                flatBuffersFieldNames.add(compactedTokens);
                 m.appendReplacement(serviceNamePattern, "%s");
             }
 

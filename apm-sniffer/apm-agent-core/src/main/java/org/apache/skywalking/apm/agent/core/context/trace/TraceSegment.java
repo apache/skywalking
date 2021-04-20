@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
-import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.apache.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -39,13 +38,13 @@ public class TraceSegment {
     private String traceSegmentId;
 
     /**
-     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #refs} contains only one
+     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #ref} contains only one
      * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
-     * we use this {@code #refs} to link them.
+     * we only cache the first parent segment reference.
      * <p>
      * This field will not be serialized. Keeping this field is only for quick accessing.
      */
-    private List<TraceSegmentRef> refs;
+    private TraceSegmentRef ref;
 
     /**
      * The spans belong to this trace segment. They all have finished. All active spans are hold and controlled by
@@ -54,14 +53,11 @@ public class TraceSegment {
     private List<AbstractTracingSpan> spans;
 
     /**
-     * The <code>relatedGlobalTraces</code> represent a set of all related trace. Most time it contains only one
+     * The <code>relatedGlobalTraceId</code> represent the related trace. Most time it related only one
      * element, because only one parent {@link TraceSegment} exists, but, in batch scenario, the num becomes greater
-     * than 1, also meaning multi-parents {@link TraceSegment}. <p> The difference between
-     * <code>relatedGlobalTraces</code> and {@link #refs} is: {@link #refs} targets this {@link TraceSegment}'s direct
-     * parent, <p> and <p> <code>relatedGlobalTraces</code> targets this {@link TraceSegment}'s related call chain, a
-     * call chain contains multi {@link TraceSegment}s, only using {@link #refs} is not enough for analysis and ui.
+     * than 1, also meaning multi-parents {@link TraceSegment}. But we only related the first parent TraceSegment.
      */
-    private DistributedTraceIds relatedGlobalTraces;
+    private DistributedTraceId relatedGlobalTraceId;
 
     private boolean ignore = false;
 
@@ -75,8 +71,7 @@ public class TraceSegment {
     public TraceSegment() {
         this.traceSegmentId = GlobalIdGenerator.generate();
         this.spans = new LinkedList<>();
-        this.relatedGlobalTraces = new DistributedTraceIds();
-        this.relatedGlobalTraces.append(new NewDistributedTraceId());
+        this.relatedGlobalTraceId = new NewDistributedTraceId();
         this.createTime = System.currentTimeMillis();
     }
 
@@ -86,19 +81,18 @@ public class TraceSegment {
      * @param refSegment {@link TraceSegmentRef}
      */
     public void ref(TraceSegmentRef refSegment) {
-        if (refs == null) {
-            refs = new LinkedList<>();
-        }
-        if (!refs.contains(refSegment)) {
-            refs.add(refSegment);
+        if (null == ref) {
+            this.ref = refSegment;
         }
     }
 
     /**
-     * Establish the line between this segment and all relative global trace ids.
+     * Establish the line between this segment and the relative global trace id.
      */
-    public void relatedGlobalTraces(DistributedTraceId distributedTraceId) {
-        relatedGlobalTraces.append(distributedTraceId);
+    public void relatedGlobalTrace(DistributedTraceId distributedTraceId) {
+        if (relatedGlobalTraceId instanceof NewDistributedTraceId) {
+            this.relatedGlobalTraceId = distributedTraceId;
+        }
     }
 
     /**
@@ -121,16 +115,15 @@ public class TraceSegment {
         return traceSegmentId;
     }
 
-    public boolean hasRef() {
-        return !(refs == null || refs.size() == 0);
+    /**
+     * Get the first parent segment reference.
+     */
+    public TraceSegmentRef getRef() {
+        return ref;
     }
 
-    public List<TraceSegmentRef> getRefs() {
-        return refs;
-    }
-
-    public List<DistributedTraceId> getRelatedGlobalTraces() {
-        return relatedGlobalTraces.getRelatedGlobalTraces();
+    public DistributedTraceId getRelatedGlobalTrace() {
+        return relatedGlobalTraceId;
     }
 
     public boolean isSingleSpanSegment() {
@@ -152,7 +145,7 @@ public class TraceSegment {
      */
     public SegmentObject transform() {
         SegmentObject.Builder traceSegmentBuilder = SegmentObject.newBuilder();
-        traceSegmentBuilder.setTraceId(getRelatedGlobalTraces().get(0).getId());
+        traceSegmentBuilder.setTraceId(getRelatedGlobalTrace().getId());
         /*
          * Trace Segment
          */
@@ -172,7 +165,7 @@ public class TraceSegment {
 
     @Override
     public String toString() {
-        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", refs=" + refs + ", spans=" + spans + ", relatedGlobalTraces=" + relatedGlobalTraces + '}';
+        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", ref=" + ref + ", spans=" + spans + "}";
     }
 
     public long createTime() {

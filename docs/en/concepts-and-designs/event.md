@@ -12,7 +12,7 @@ Currently, the officially supported clients to report events are:
 
 - [ ] Java Agent Toolkit: Using the Java agent toolkit to report events within the applications.
 - [x] SkyWalking CLI: Using the CLI to report events from the command line interface.
-- [ ] Kubernetes Event Exporter: Deploying an event exporter to refine and report Kubernetes events.
+- [x] [Kubernetes Event Exporter](http://github.com/apache/skywalking-kubernetes-event-exporter): Deploying an event exporter to refine and report Kubernetes events.
 
 ## Event Definitions
 

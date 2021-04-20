@@ -34,7 +34,7 @@ public class ServiceNameFormatter {
     private final StringBuffer serviceNamePattern;
 
     public ServiceNameFormatter(String rule) {
-        rule = StringUtils.defaultIfBlank(rule, "${service.metadata.name}");
+        rule = StringUtils.defaultIfBlank(rule, "${pod.metadata.labels.(service.istio.io/canonical-name)}");
 
         this.properties = new ArrayList<>();
         this.serviceNamePattern = new StringBuffer();

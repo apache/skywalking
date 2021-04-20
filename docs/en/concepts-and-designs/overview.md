@@ -1,5 +1,5 @@
 # Overview
-SkyWalking: an open source observability platform used to collect, analyze, aggregate and visualize data from services and cloud native
+SkyWalking is an open source observability platform used to collect, analyze, aggregate and visualize data from services and cloud native
 infrastructures. SkyWalking provides an easy way to maintain a clear view of your distributed systems, even across Clouds.
 It is a modern APM, specially designed for cloud native, container based distributed systems.
 

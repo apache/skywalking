@@ -27,20 +27,23 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 
 public enum K8sRetagType implements Retag {
-
     Pod2Service {
         @Override
-        public Sample[] execute(final Sample[] ss, final String newLabelName, final String existingLabelName) {
+        public Sample[] execute(final Sample[] ss,
+                                final String newLabelName,
+                                final String existingLabelName,
+                                final String namespaceLabelName) {
             Sample[] samples = Arrays.stream(ss).map(sample -> {
                 String podName = sample.getLabels().get(existingLabelName);
-
-                if (!Strings.isNullOrEmpty(podName)) {
-                    String serviceName = K8sInfoRegistry.getInstance().findServiceName(podName);
-                    if (!Strings.isNullOrEmpty(serviceName)) {
-                        Map<String, String> labels = Maps.newHashMap(sample.getLabels());
-                        labels.put(newLabelName, serviceName);
-                        return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+                String namespace = sample.getLabels().get(namespaceLabelName);
+                if (!Strings.isNullOrEmpty(podName) && !Strings.isNullOrEmpty(namespace)) {
+                    String serviceName = K8sInfoRegistry.getInstance().findServiceName(namespace, podName);
+                    if (Strings.isNullOrEmpty(serviceName)) {
+                        serviceName = BLANK;
                     }
+                    Map<String, String> labels = Maps.newHashMap(sample.getLabels());
+                    labels.put(newLabelName, serviceName);
+                    return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
                 }
                 return sample;
             }).toArray(Sample[]::new);

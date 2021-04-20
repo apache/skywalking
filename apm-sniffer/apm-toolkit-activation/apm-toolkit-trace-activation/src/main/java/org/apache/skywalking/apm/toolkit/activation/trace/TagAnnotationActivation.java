@@ -23,7 +23,8 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
@@ -36,9 +37,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalM
 /**
  * Intercepts all methods annotated with {@link org.apache.skywalking.apm.toolkit.trace.Tag}
  */
-public class TagAnnotationActivation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TagAnnotationActivation extends ClassEnhancePluginDefine {
 
     public static final String TAG_ANNOTATION_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationMethodInterceptor";
+    public static final String TAG_ANNOTATION_STATIC_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationStaticMethodInterceptor";
     public static final String TAG_ANNOTATION = "org.apache.skywalking.apm.toolkit.trace.Tag";
     public static final String TAGS_ANNOTATION = "org.apache.skywalking.apm.toolkit.trace.Tags";
     public static final String TRACE_ANNOTATION = "org.apache.skywalking.apm.toolkit.trace.Trace";
@@ -67,6 +69,28 @@ public class TagAnnotationActivation extends ClassInstanceMethodsEnhancePluginDe
                     return false;
                 }
             }
+        };
+    }
+
+    @Override
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[]{
+                new StaticMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return isAnnotatedWith(named(TAG_ANNOTATION));
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return TAG_ANNOTATION_STATIC_METHOD_INTERCEPTOR;
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                }
         };
     }
 

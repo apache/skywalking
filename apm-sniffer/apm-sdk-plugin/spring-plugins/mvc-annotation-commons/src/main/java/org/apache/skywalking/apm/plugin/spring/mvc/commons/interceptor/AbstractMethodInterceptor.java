@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.RequestHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.ResponseHolder;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveResponseHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
@@ -185,7 +186,11 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     span.errorOccurred();
                     Tags.STATUS_CODE.set(span, Integer.toString(response.statusCode()));
                 }
-
+                if (response instanceof ReactiveResponseHolder) {
+                    ReactiveResponseHolder reactiveResponse = (ReactiveResponseHolder) response;
+                    AbstractSpan async = span.prepareForAsync();
+                    reactiveResponse.setSpan(async);
+                }
                 ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);

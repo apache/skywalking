@@ -20,11 +20,9 @@ package org.apache.skywalking.oap.server.receiver.envoy.als;
 
 import com.google.protobuf.Duration;
 import com.google.protobuf.Timestamp;
-import com.google.protobuf.UInt32Value;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPRequestProperties;
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
 import io.envoyproxy.envoy.data.accesslog.v3.ResponseFlags;
 import io.envoyproxy.envoy.data.accesslog.v3.TLSProperties;
 import java.time.Instant;
@@ -36,7 +34,6 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Optional.ofNullable;
 
 /**
  * Adapt {@link HTTPAccessLogEntry} objects to {@link ServiceMeshMetric} builders.
@@ -97,9 +94,8 @@ public class LogEntry2MetricsAdapter {
     protected ServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final String endpoint = endpoint();
-        final int responseCode = ofNullable(entry.getResponse()).map(HTTPResponseProperties::getResponseCode)
-                                                                .map(UInt32Value::getValue)
-                                                                .orElse(200);
+        int responseCode = entry.getResponse().getResponseCode().getValue();
+        responseCode = responseCode > 0 ? responseCode : 200;
         final boolean status = responseCode >= 200 && responseCode < 400;
         final Protocol protocol = requestProtocol(entry.getRequest());
         final String tlsMode = parseTLS(properties.getTlsProperties());
@@ -162,15 +158,11 @@ public class LogEntry2MetricsAdapter {
         if (properties == null) {
             return NON_TLS;
         }
-        TLSProperties.CertificateProperties lp = Optional
-            .ofNullable(properties.getLocalCertificateProperties())
-            .orElse(TLSProperties.CertificateProperties.newBuilder().build());
+        TLSProperties.CertificateProperties lp = properties.getLocalCertificateProperties();
         if (isNullOrEmpty(lp.getSubject()) && !hasSAN(lp.getSubjectAltNameList())) {
             return NON_TLS;
         }
-        TLSProperties.CertificateProperties pp = Optional
-            .ofNullable(properties.getPeerCertificateProperties())
-            .orElse(TLSProperties.CertificateProperties.newBuilder().build());
+        TLSProperties.CertificateProperties pp = properties.getPeerCertificateProperties();
         if (isNullOrEmpty(pp.getSubject()) && !hasSAN(pp.getSubjectAltNameList())) {
             return TLS;
         }

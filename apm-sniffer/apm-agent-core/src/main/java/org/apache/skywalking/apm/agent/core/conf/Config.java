@@ -67,6 +67,11 @@ public class Config {
         public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
 
         /**
+         * The max number of TraceSegmentRef in a single span to keep memory cost estimatable.
+         */
+        public static int TRACE_SEGMENT_REF_LIMIT_PER_SPAN = 500;
+
+        /**
          * The max number of spans in a single segment. Through this config item, SkyWalking keep your application
          * memory cost estimated.
          */

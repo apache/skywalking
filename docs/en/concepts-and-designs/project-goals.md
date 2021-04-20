@@ -1,13 +1,10 @@
 # Design Goals
-The document outlines the core design goals for SkyWalking project.
+This document outlines the core design goals for the SkyWalking project.
 
-- **Keep Observability**. No matter how does the target system deploy, SkyWalking could provide a solution or 
-integration way to keep observability for it. Based on this, SkyWalking provides several runtime forms and probes.
+- **Maintaining Observability**. Regardless of the deployment method of the target system, SkyWalking provides an integration solution for it to maintain observability. Based on this, SkyWalking provides multiple runtime forms and probes.
 
-- **Topology, Metrics and Trace Together**. The first step to see and understand a distributed system should be 
-from topology map. It visualizes the whole complex system as an easy map. Under that topology, OSS people requires
-more about metrics for service, instance, endpoint and calls. Trace exists as detail logs for making sense of those metrics.
-Such as when endpoint latency becomes long, you want to see the slowest the trace to find out why. So you can see,
+- **Topology, Metrics and Trace Together**. The first step to understanding a distributed system is the topology map. It visualizes the entire complex system in an easy-to-read layout. Under the topology, the OSS personnel have higher requirements in terms of the metrics for service, instance, endpoint and calls. Traces are in the form of detailed logs to make sense of those metrics.
+For example, when the endpoint latency becomes long, you want to see the slowest the trace to find out why. So you can see,
 they are from big picture to details, they are all needed. SkyWalking integrates and provides a lot of features to
 make this possible and easy understand.
 
@@ -27,15 +24,14 @@ and also don't fit every scenario. So, we provide a lot of features for being pl
 (3) Use Service Mesh in modern infrastructure.
 (4) Use cloud services.
 (5) Across cloud deployment. 
-SkyWalking should run well in all these cases.
+SkyWalking should run well in all of these cases.
 
-- **Interop**. Observability is a big landscape, SkyWalking is impossible to support all, even by its community.
-As that, it supports to interop with other OSS system, mostly probes, such as Zipkin, Jaeger, OpenTracing, OpenCensus.
-To accept and understand their data formats makes sure SkyWalking more useful for end users. And don't require
-the users to switch their libraries.
+- **Interoperability**. The observability landscape is so vast that it is virtually impossible for SkyWalking to support all systems, even with the support of its community.
+Currently, it supports interoperability with other OSS systems, especially probes, such as Zipkin, Jaeger, OpenTracing, and OpenCensus.
+It is very important to end users that SkyWalking has the ability to accept and read these data formats, since the users are not required to switch their libraries.
 
 
 ## What is next?
-- See [probe Introduction](probe-introduction.md) to know SkyWalking's probe groups.
-- From [backend overview](backend-overview.md), you can understand what backend does after it received probe data.
-- If you want to customize UI, start with [UI overview](ui-overview.md) document. 
+- See [probe Introduction](probe-introduction.md) to learn about SkyWalking's probe groups.
+- From [backend overview](backend-overview.md), you can understand what the backend does after it receives probe data.
+- If you want to customize the UI, start with the [UI overview](ui-overview.md) document. 
