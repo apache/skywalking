@@ -8,7 +8,7 @@ Release Notes.
 
 
 #### Java Agent
-
+* Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
