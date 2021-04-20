@@ -39,21 +39,22 @@ import java.util.UUID;
  */
 public class EventHookCallback implements AlarmCallback {
 
-    private EventAnalyzerService analyzerService;
+    private final ModuleManager manager;
 
     public EventHookCallback(ModuleManager manager) {
-        if (Objects.isNull(manager) || Objects.isNull(manager.find(EventAnalyzerModule.NAME))) {
-            return;
-        }
-        this.analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
+        this.manager = manager;
     }
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
+        if (Objects.isNull(this.manager)) {
+            return ;
+        }
+        EventAnalyzerService analyzerService = manager.find(EventAnalyzerModule.NAME).provider().getService(EventAnalyzerService.class);
         alarmMessage.forEach(a -> {
             for (Event event : constructCurrentEvent(a)) {
                 if (Objects.nonNull(event)) {
-                    this.analyzerService.analyze(event);
+                    analyzerService.analyze(event);
                 }
             }
         });
