@@ -13,6 +13,7 @@ Release Notes.
 * Add an agent plugin to support elasticsearch7.
 * Add `jsonrpc4j` agent plugin.
 * Add Seata in the component definition. Seata plugin hosts on Seata project.
+* Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
