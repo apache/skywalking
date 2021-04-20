@@ -22,6 +22,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Setter
 @Getter
 public class ZipkinReceiverConfig extends ModuleConfig {
@@ -33,4 +36,5 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private long jettyIdleTimeOut = 30000;
     private int jettyAcceptorPriorityDelta = 0;
     private int jettyAcceptQueueSize = 0;
+    private List<String> instanceNameRule = new ArrayList<>();
 }

@@ -76,24 +76,19 @@ public class DingtalkHookCallback implements AlarmCallback {
         if (this.alarmRulesWatcher.getDingtalkSettings() == null || this.alarmRulesWatcher.getDingtalkSettings().getWebhooks().isEmpty()) {
             return;
         }
-        CloseableHttpClient httpClient = HttpClients.custom().build();
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.custom().build()) {
             DingtalkSettings dingtalkSettings = this.alarmRulesWatcher.getDingtalkSettings();
             dingtalkSettings.getWebhooks().forEach(webHookUrl -> {
+                String url = getUrl(webHookUrl);
                 alarmMessages.forEach(alarmMessage -> {
-                    String url = getUrl(webHookUrl);
                     String requestBody = String.format(
                             this.alarmRulesWatcher.getDingtalkSettings().getTextTemplate(), alarmMessage.getAlarmMessage()
                     );
                     sendAlarmMessage(httpClient, url, requestBody);
                 });
             });
-        } finally {
-            try {
-                httpClient.close();
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
     }
 
