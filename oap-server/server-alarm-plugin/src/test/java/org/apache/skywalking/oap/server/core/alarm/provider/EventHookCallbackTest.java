@@ -22,19 +22,21 @@ import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerServiceImpl;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,33 +50,54 @@ public class EventHookCallbackTest {
 
     private MockEventAnalyzerService mockEventAnalyzerService = mock(MockEventAnalyzerService.class);
 
+    private EventAnalyzerService eventAnalyzerService = mock(EventAnalyzerServiceImpl.class);
+
     @Test
-    public void testEventCallback() throws Exception {
+    public void testEventCallbackHasRightFlow() throws Exception {
         List<AlarmMessage> msgs = mockAlarmMessagesHasSingleElement();
         EventHookCallback callback = new EventHookCallback(this.moduleManager);
         when(moduleManager.find("event-analyzer")).thenReturn(moduleProviderHolder);
         when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
         when(moduleServiceHolder.getService(EventAnalyzerService.class)).thenReturn(mockEventAnalyzerService);
 
-        //No args are judged here, some args are replaced in private methods.
+        //make sure current service be called.
         callback.doAlarm(msgs);
         verify(mockEventAnalyzerService).analyze(any(Event.class));
 
-        EventAnalyzerService eventAnalyzerService = mock(EventAnalyzerServiceImpl.class);
         when(moduleServiceHolder.getService(EventAnalyzerService.class)).thenReturn(eventAnalyzerService);
         callback.doAlarm(msgs);
-        verify(mockEventAnalyzerService).analyze(any(Event.class));
+        //Ensure that the current Event is properly constructed
+        ArgumentCaptor<Event> argument = ArgumentCaptor.forClass(Event.class);
+        verify(eventAnalyzerService).analyze(argument.capture());
+        Event value = argument.getValue();
+        AlarmMessage msg = msgs.get(0);
+        assertEquals(msg.getName(), value.getSource().getService());
+        assertEquals("Alarm", value.getName());
+        assertEquals(msg.getAlarmMessage(), value.getMessage());
+        assertEquals(msg.getPeriod(), (value.getEndTime() - value.getStartTime()) / 1000 / 60);
 
-        Method method = EventHookCallback.class.getDeclaredMethod("constructCurrentEvent", AlarmMessage.class);
-        method.setAccessible(true);
-        Object listEvent = method.invoke(callback, msgs.get(0));
-        List<Event> events = (List<Event>) listEvent;
-        Event event = events.get(0);
-        AlarmMessage alarm = msgs.get(0);
+    }
 
-        assertEquals(event.getMessage(), alarm.getAlarmMessage());
-        assertEquals(event.getSource().getService(), alarm.getName());
-        assertEquals(event.getName(), "Alarm");
+    @Test
+    public void testRelationEventBeProperlyConstructed() {
+        List<AlarmMessage> msgs = mockAlarmMessagesHasSourceAndDest();
+        EventHookCallback callback = new EventHookCallback(this.moduleManager);
+        when(moduleManager.find("event-analyzer")).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(EventAnalyzerService.class)).thenReturn(eventAnalyzerService);
+        callback.doAlarm(msgs);
+
+        ArgumentCaptor<Event> argument = ArgumentCaptor.forClass(Event.class);
+        verify(eventAnalyzerService, times(2)).analyze(argument.capture());
+        List<Event> events = argument.getAllValues();
+        assertEquals(events.size(), 2);
+        Event sourceEvent = events.get(0);
+        Event destEvent = events.get(1);
+        AlarmMessage msg = msgs.get(0);
+        assertEquals(sourceEvent.getSource().getService(), IDManager.ServiceID.analysisId(msg.getId0()).getName());
+        assertEquals((sourceEvent.getEndTime() - sourceEvent.getStartTime()) / 1000 / 60, msg.getPeriod());
+        assertEquals(destEvent.getSource().getService(), IDManager.ServiceID.analysisId(msg.getId1()).getName());
+        assertEquals((destEvent.getEndTime() - destEvent.getStartTime()) / 1000 / 60, msg.getPeriod());
     }
 
     private List<AlarmMessage> mockAlarmMessagesHasSingleElement() {
@@ -85,6 +108,18 @@ public class EventHookCallbackTest {
         msg.setId0("dGVzdC1za3l3YWxraW5n.1");
         msg.setAlarmMessage("Alarm caused by Rule service_resp_time_rule");
         msg.setPeriod(3);
+        return Arrays.asList(msg);
+    }
+
+    private List<AlarmMessage> mockAlarmMessagesHasSourceAndDest() {
+        AlarmMessage msg = new AlarmMessage();
+        msg.setScopeId(DefaultScopeDefine.SERVICE_RELATION);
+        msg.setScope("");
+        msg.setName("test-skywalking");
+        msg.setId0(IDManager.ServiceID.buildId("sourceIdStr", true));
+        msg.setId1(IDManager.ServiceID.buildId("destIdStr", true));
+        msg.setAlarmMessage("Alarm caused by Rule service_resp_time_rule");
+        msg.setPeriod(5);
         return Arrays.asList(msg);
     }
 
