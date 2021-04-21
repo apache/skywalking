@@ -32,19 +32,17 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * A handler deserializes the message of JVM Metrics and pushes it to downstream.
  */
 @Slf4j
-public class JVMMetricsHandler implements KafkaHandler {
+public class JVMMetricsHandler extends AbstractKafkaHandler {
 
     private final NamingControl namingLengthControl;
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
-    private final KafkaFetcherConfig config;
-
     public JVMMetricsHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
+        super(moduleManager, config);
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()
                                                 .getService(NamingControl.class);
-        this.config = config;
     }
 
     @Override
@@ -72,12 +70,7 @@ public class JVMMetricsHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfMetrics();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfMetrics();
     }
 }
