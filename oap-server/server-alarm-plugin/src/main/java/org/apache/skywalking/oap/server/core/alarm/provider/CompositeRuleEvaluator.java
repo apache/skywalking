@@ -84,6 +84,7 @@ public class CompositeRuleEvaluator {
                     message.setRuleName(compositeAlarmRule.getAlarmRuleName());
                     String alarmMessage = formatMessage(message, compositeAlarmRule.getMessage(), compositeAlarmRule.getExpression());
                     message.setAlarmMessage(alarmMessage);
+                    message.setPeriod(headMsg.getPeriod());
                     compositeRuleMessages.add(message);
                 }
             });

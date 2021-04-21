@@ -54,3 +54,11 @@ The end time of the event. This field may be empty if the event has not ended ye
 
 **NOTE:** When reporting an event, you typically call the report function twice, the first time for starting of the event and the second time for ending of the event, both with the same UUID.
 There are also cases where you would already have both the start time and end time. For example, when exporting events from a third-party system, the start time and end time are already known so you may simply call the report function once.
+
+## Known Events
+
+| Name | Type | When |
+| :----: | :----: | :-----|
+| Start | Normal | When your Java Application starts with SkyWalking Agent installed, the `Start` Event will be created. |
+| Shutdown | Normal | When your Java Application stops with SkyWalking Agent installed, the `Shutdown` Event will be created.  |
+| Alarm | Error | When the Alarm is triggered, the corresponding `Alarm` Event will is created. |
