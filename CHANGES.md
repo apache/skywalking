@@ -13,6 +13,7 @@ Release Notes.
 * Add an agent plugin to support elasticsearch7.
 * Add `jsonrpc4j` agent plugin.
 * fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface
+* Add Seata in the component definition. Seata plugin hosts on Seata project.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
