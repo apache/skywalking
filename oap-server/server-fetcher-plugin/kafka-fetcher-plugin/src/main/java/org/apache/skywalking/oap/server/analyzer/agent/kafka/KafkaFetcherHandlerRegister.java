@@ -81,7 +81,9 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             config.getTopicNameOfMetrics(),
             config.getTopicNameOfProfiling(),
             config.getTopicNameOfTracingSegments(),
-            config.getTopicNameOfMeters()
+            config.getTopicNameOfMeters(),
+            config.getTopicNameOfLogs(),
+            config.getTopicNameOfJsonLogs()
         ))
                                               .values()
                                               .entrySet()

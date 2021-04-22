@@ -56,6 +56,44 @@ services:
       broker-b:
         condition: service_healthy
 
+  filebeat:
+    image: elastic/filebeat:7.12.0
+    networks:
+      - e2e
+    volumes:
+      - ./filebeat.yaml:/usr/share/filebeat/filebeat.yml
+      - /tmp/skywalking-logs/:/tmp/skywalking-logs/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5066", "||", "exit", "1"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      broker-a:
+        condition: service_healthy
+      broker-b:
+        condition: service_healthy
+
+  fluentd:
+    build:
+      context: ../../../
+      dockerfile: e2e-test/docker/kafka/Dockerfile.fluentd
+    networks:
+      - e2e
+    volumes:
+      - ./fluentd.conf:/opt/bitnami/fluentd/conf/fluentd.conf
+      - /tmp/skywalking-logs/:/tmp/skywalking-logs/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:24220", "||", "exit", "1"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      broker-a:
+        condition: service_healthy
+      broker-b:
+        condition: service_healthy
+
   provider:
     extends:
       file: ../base-compose.yml
@@ -67,5 +105,10 @@ services:
         condition: service_healthy
       sw-satellite:
         condition: service_healthy
+      filebeat:
+        condition: service_healthy
+      fluentd:
+        condition: service_healthy
+
 networks:
   e2e:

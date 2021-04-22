@@ -26,6 +26,7 @@ Release Notes.
 * Add `okhttp-4.x` plugin.
 * Fix NPE when thrift field is nested in plugin `thrift`
 * Fix possible NullPointerException in agent's ES plugin.
+* Support `native-json` format log in kafka-fetcher-plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.

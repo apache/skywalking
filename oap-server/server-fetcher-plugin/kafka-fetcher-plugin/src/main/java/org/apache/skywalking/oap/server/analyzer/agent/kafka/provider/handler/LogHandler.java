@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -73,7 +74,7 @@ public class LogHandler implements KafkaHandler {
     public void handle(final ConsumerRecord<String, Bytes> record) {
         HistogramMetrics.Timer timer = histogram.createTimer();
         try {
-            LogData logData = LogData.parseFrom(record.value().get());
+            LogData logData = parseConsumerRecord(record);
             logAnalyzerService.doAnalysis(logData);
         } catch (Exception e) {
             errorCounter.inc();
@@ -81,5 +82,9 @@ public class LogHandler implements KafkaHandler {
         } finally {
             timer.finish();
         }
+    }
+
+    protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws InvalidProtocolBufferException {
+        return LogData.parseFrom(record.value().get());
     }
 }
