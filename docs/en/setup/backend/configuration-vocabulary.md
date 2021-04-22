@@ -210,6 +210,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | active | Activate the Prometheus fetcher. | SW_PROMETHEUS_FETCHER_ACTIVE | false |
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
+| - | - | namespace | namespace aims to isolate multi OAP cluster when using the same Kafka cluster.if you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. you should also set namespace in `agent.config`, the property named| SW_NAMESPACE | - |
 | - | - | groupId | A unique string that identifies the consumer group this consumer belongs to.| - | skywalking-consumer |
 | - | - | consumePartitions | Which PartitionId(s) of the topics assign to the OAP server. If more than one, is separated by commas. | SW_KAFKA_FETCHER_CONSUME_PARTITIONS | - |
 | - | - | isSharding | it was true when OAP Server in cluster. | SW_KAFKA_FETCHER_IS_SHARDING | false |
