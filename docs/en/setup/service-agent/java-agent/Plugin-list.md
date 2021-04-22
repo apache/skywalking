@@ -16,6 +16,7 @@
 - elastic-job-3.x
 - elasticsearch-5.x
 - elasticsearch-6.x
+- elasticsearch-7.x
 - feign-default-http-9.x
 - feign-pathvar-9.x
 - finagle
@@ -113,3 +114,4 @@
 - mssql-jtds-1.x
 - mssql-jdbc
 - apache-cxf-3.x
+- jsonrpc4j
