@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.logging.common.log.SkywalkingContext;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 public class TcpSocketAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -38,7 +38,7 @@ public class TcpSocketAppenderInterceptor implements InstanceMethodsAroundInterc
                                                                         .getPropertyMap() != null) {
             Map<String, String> propertyMap = event.getLoggerContextVO().getPropertyMap();
             propertyMap.put("TID", ContextManager.getGlobalTraceId());
-            propertyMap.put("SW_CTX", new SkywalkingContext(ContextManager.getGlobalTraceId(),
+            propertyMap.put("SW_CTX", new SkyWalkingContext(ContextManager.getGlobalTraceId(),
                     ContextManager.getSegmentId(), ContextManager.getSpanId()).toString());
         }
     }

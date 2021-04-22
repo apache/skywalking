@@ -24,13 +24,13 @@ import org.apache.logging.log4j.core.pattern.ConverterKeys;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
 
 /**
- * {@link SkywalkingContextConverter} is a log4j2 plugin, by annotation as {@link Plugin}. It convert the pattern key: sw_ctx.
+ * {@link SkyWalkingContextConverter} is a log4j2 plugin, by annotation as {@link Plugin}. It convert the pattern key: sw_ctx.
  * Use '%sw_ctx' in log4j2's config. '%sw_ctx' will output as SW_CTX:xxxx
  * <p>
  */
-@Plugin(name = "SkywalkingContextConverter", category = "Converter")
+@Plugin(name = "SkyWalkingContextConverter", category = "Converter")
 @ConverterKeys({"sw_ctx"})
-public class SkywalkingContextConverter extends LogEventPatternConverter {
+public class SkyWalkingContextConverter extends LogEventPatternConverter {
 
     /**
      * Constructs an instance of LoggingEventPatternConverter.
@@ -38,16 +38,16 @@ public class SkywalkingContextConverter extends LogEventPatternConverter {
      * @param name  name of converter.
      * @param style CSS style for output.
      */
-    protected SkywalkingContextConverter(String name, String style) {
+    protected SkyWalkingContextConverter(String name, String style) {
         super(name, style);
     }
 
-    public static SkywalkingContextConverter newInstance(String[] options) {
-        return new SkywalkingContextConverter("sw_ctx", "sw_ctx");
+    public static SkyWalkingContextConverter newInstance(String[] options) {
+        return new SkyWalkingContextConverter("sw_ctx", "sw_ctx");
     }
 
     @Override
     public void format(LogEvent event, StringBuilder toAppendTo) {
-        Log4j2SkywalkingContextOutputAppender.append(toAppendTo);
+        Log4j2SkyWalkingContextOutputAppender.append(toAppendTo);
     }
 }

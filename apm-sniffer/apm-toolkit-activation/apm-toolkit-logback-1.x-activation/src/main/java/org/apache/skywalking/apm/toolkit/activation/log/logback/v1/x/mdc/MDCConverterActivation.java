@@ -37,8 +37,8 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
     public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc.LogbackMDCPatternConverter";
     public static final String ENHANCE_TID_METHOD = "convertTID";
     public static final String INTERCEPT_TID_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCTraceIdInterceptor";
-    public static final String ENHANCE_SKYWALKING_CONTEXT_METHOD = "convertSkywalkingContext";
-    public static final String INTERCEPT_SKYWALKING_CONTEXT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCSkywalkingContextInterceptor";
+    public static final String ENHANCE_SKYWALKING_CONTEXT_METHOD = "convertSkyWalkingContext";
+    public static final String INTERCEPT_SKYWALKING_CONTEXT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCSkyWalkingContextInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

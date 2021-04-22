@@ -28,14 +28,14 @@ import net.logstash.logback.fieldnames.LogstashFieldNames;
 import java.io.IOException;
 import java.util.Map;
 
-public class SkywalkingContextJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> implements FieldNamesAware<LogstashFieldNames> {
+public class SkyWalkingContextJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> implements FieldNamesAware<LogstashFieldNames> {
 
     public static final String SKYWALKING_CONTEXT = "SW_CTX";
 
     @Override
     public void writeTo(JsonGenerator generator, ILoggingEvent event) throws IOException {
-        String skywalkingContext = getSkywalkingContext(event);
-        JsonWritingUtils.writeStringField(generator, getFieldName(), skywalkingContext);
+        String skyWalkingContext = getSkyWalkingContext(event);
+        JsonWritingUtils.writeStringField(generator, getFieldName(), skyWalkingContext);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class SkywalkingContextJsonProvider extends AbstractFieldJsonProvider<ILo
         setFieldName(SKYWALKING_CONTEXT);
     }
 
-    public String getSkywalkingContext(ILoggingEvent event) {
+    public String getSkyWalkingContext(ILoggingEvent event) {
         Map<String, String> map = event.getLoggerContextVO().getPropertyMap();
         return map.get(SKYWALKING_CONTEXT);
     }

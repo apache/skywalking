@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.toolkit.log.log4j.v1.x;
 import org.apache.log4j.helpers.PatternParser;
 
 /**
- * Base on '%T', use {@link TraceIdPatternConverter} to convert the '%T' to traceId or '%T{SW_CTX}' to skywalking context.
+ * Base on '%T', use {@link TraceIdPatternConverter} to convert the '%T' to traceId or '%T{SW_CTX}' to SkyWalking context.
  * <p>
  */
 public class TraceIdPatternParser extends PatternParser {
@@ -36,7 +36,7 @@ public class TraceIdPatternParser extends PatternParser {
         if ('T' == c) {
             String option = super.extractOption();
             if (option != null && option.equals(SKYWALKING_CONTEXT_OPTION)) {
-                addConverter(new SkywalkingContextPatternConverter());
+                addConverter(new SkyWalkingContextPatternConverter());
             } else {
                 addConverter(new TraceIdPatternConverter());
             }

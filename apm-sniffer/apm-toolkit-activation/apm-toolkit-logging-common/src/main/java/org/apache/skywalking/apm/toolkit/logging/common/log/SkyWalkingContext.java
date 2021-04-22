@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.toolkit.logging.common.log;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
 
-public class SkywalkingContext {
+public class SkyWalkingContext {
     private final String serviceName = Config.Agent.SERVICE_NAME;
     private final String instanceName = Config.Agent.INSTANCE_NAME;
 
@@ -28,7 +28,7 @@ public class SkywalkingContext {
     private String traceSegmentId;
     private int spanId;
 
-    public SkywalkingContext(String traceId, String traceSegmentId, int spanId) {
+    public SkyWalkingContext(String traceId, String traceSegmentId, int spanId) {
         this.traceId = traceId;
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;

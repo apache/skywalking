@@ -22,12 +22,12 @@ import org.apache.log4j.helpers.PatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * Default implementation outputs "SW_CTX: N/A". But, if in sky-walking agent active mode, output will become the real
- * skywalking context.
+ * Default implementation outputs "SW_CTX: N/A". But, if in SkyWalking agent active mode, output will become the real
+ * SkyWalking context.
  * <p>
  */
 
-public class SkywalkingContextPatternConverter extends PatternConverter {
+public class SkyWalkingContextPatternConverter extends PatternConverter {
     @Override
     protected String convert(LoggingEvent loggingEvent) {
         return "SW_CTX: N/A";

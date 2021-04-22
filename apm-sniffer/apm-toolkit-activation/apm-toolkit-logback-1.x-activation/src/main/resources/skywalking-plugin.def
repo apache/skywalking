@@ -15,11 +15,11 @@
 # limitations under the License.
 
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.LogbackPatternConverterActivation
-toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.LogbackSkywalkingContextPatternConverterActivation
+toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.LogbackSkyWalkingContextPatternConverterActivation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.MDCConverterActivation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async.AsyncAppenderBaseInstrumentation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async.LoggingEventInstrumentation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.TcpSocketAppenderActivation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.TraceIdJsonProviderActivation
-toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.SkywalkingContextJsonProviderActivation
+toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.SkyWalkingContextJsonProviderActivation
 toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.log.GRPCLogAppenderActivation

@@ -48,7 +48,7 @@ public class LogbackMDCPatternConverter extends MDCConverter {
         if (convert4TID) {
             return convertTID(iLoggingEvent);
         } else if (convert4SWCTX) {
-            return convertSkywalkingContext(iLoggingEvent);
+            return convertSkyWalkingContext(iLoggingEvent);
         }
         return super.convert(iLoggingEvent);
     }
@@ -57,7 +57,7 @@ public class LogbackMDCPatternConverter extends MDCConverter {
         return "TID: N/A";
     }
 
-    public String convertSkywalkingContext(ILoggingEvent iLoggingEvent) {
+    public String convertSkyWalkingContext(ILoggingEvent iLoggingEvent) {
         return "SW_CTX: N/A";
     }
 }

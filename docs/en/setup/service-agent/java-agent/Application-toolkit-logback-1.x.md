@@ -57,13 +57,13 @@
     </configuration>
 ```
 
-* When you use `-javaagent` to active the sky-walking tracer, logback will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+* When you use `-javaagent` to active the SkyWalking tracer, logback will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
 
-# Print skywalking context in your logs
+# Print SkyWalking context in your logs
 
 * Your only need to replace pattern `%tid` or `%X{tid]}` with `%sw_ctx` or `%X{sw_ctx}`.
 
-* When you use `-javaagent` to active the sky-walking tracer, logback will output `SW_CTX: [$serviceName,$instanceName,$traceId,$traceSegmentId,$spanId]`, if it existed. If the tracer is inactive, the output will be `SW_CTX: N/A`.
+* When you use `-javaagent` to active the SkyWalking tracer, logback will output `SW_CTX: [$serviceName,$instanceName,$traceId,$traceSegmentId,$spanId]`, if it existed. If the tracer is inactive, the output will be `SW_CTX: N/A`.
 
 # logstash logback plugin
 
@@ -84,8 +84,8 @@
     <!-- add TID(traceId) field -->
     <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.TraceIdJsonProvider">
     </provider>
-    <!-- add SW_CTX(skywalking context) field -->
-    <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.SkywalkingContextJsonProvider">
+    <!-- add SW_CTX(SkyWalking context) field -->
+    <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.SkyWalkingContextJsonProvider">
     </provider>
 </encoder>
 ```
@@ -97,7 +97,7 @@
 <!-- add converter for %tid -->
 <conversionRule conversionWord="tid" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
 <!-- add converter for %sw_ctx -->    
-<conversionRule conversionWord="sw_ctx" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackSkywalkingContextPatternConverter"/>
+<conversionRule conversionWord="sw_ctx" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackSkyWalkingContextPatternConverter"/>
 ```
 2.add json encoder for custom json format
 
@@ -112,7 +112,7 @@
                         {
                             "level": "%level",
                             "tid": "%tid",
-                            "skywalkingContext": "%sw_ctx",
+                            "skyWalkingContext": "%sw_ctx",
                             "thread": "%thread",
                             "class": "%logger{1.}:%L",
                             "message": "%message",

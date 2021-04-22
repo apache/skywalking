@@ -16,17 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash;
+package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.logging.common.log.SkywalkingContext;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
-public class SkywalkingContextJsonProviderInterceptor implements InstanceMethodsAroundInterceptor {
+public class PrintSkyWalkingContextInterceptor implements InstanceMethodsAroundInterceptor {
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -36,16 +37,15 @@ public class SkywalkingContextJsonProviderInterceptor implements InstanceMethods
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        if (ret != null && !"N/A".equals(ret)) {
-            return ret;
-        }
-        if (!ContextManager.isActive() && allArguments[0] instanceof EnhancedInstance) {
-            SkywalkingContext skywalkingContext = (SkywalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-            if (skywalkingContext != null) {
-                return skywalkingContext.toString();
+        if (!ContextManager.isActive()) {
+            if (allArguments[0] instanceof EnhancedInstance) {
+                SkyWalkingContext skyWalkingContext = (SkyWalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+                if (skyWalkingContext != null) {
+                    return "SW_CTX:" + skyWalkingContext.toString();
+                }
             }
         }
-        return new SkywalkingContext(ContextManager.getGlobalTraceId(),
+        return "SW_CTX:" + new SkyWalkingContext(ContextManager.getGlobalTraceId(),
                 ContextManager.getSegmentId(),
                 ContextManager.getSpanId())
                 .toString();

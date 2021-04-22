@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x;
+package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,19 +24,19 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class SkywalkingContextConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
+public class SkyWalkingContextJsonProviderActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.SkywalkingContextConverterMethodInterceptor";
-    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.log4j.v2.x.SkywalkingContextConverter";
-    private static final String ENHANCE_METHOD = "format";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash.SkyWalkingContextJsonProviderInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.SkyWalkingContextJsonProvider";
+    public static final String ENHANCE_METHOD = "getSkyWalkingContext";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return null;
     }
 
     @Override
@@ -45,7 +45,6 @@ public class SkywalkingContextConverterActivation extends ClassInstanceMethodsEn
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-
                     return named(ENHANCE_METHOD);
                 }
 
@@ -64,7 +63,6 @@ public class SkywalkingContextConverterActivation extends ClassInstanceMethodsEn
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 }
-

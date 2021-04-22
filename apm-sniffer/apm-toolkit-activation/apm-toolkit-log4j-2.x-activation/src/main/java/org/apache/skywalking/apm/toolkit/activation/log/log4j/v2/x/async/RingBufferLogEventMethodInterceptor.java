@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.logging.common.log.SkywalkingContext;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
@@ -35,9 +35,9 @@ public class RingBufferLogEventMethodInterceptor implements InstanceMethodsAroun
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SkywalkingContext skywalkingContext = new SkywalkingContext(ContextManager.getGlobalTraceId(),
+        SkyWalkingContext skyWalkingContext = new SkyWalkingContext(ContextManager.getGlobalTraceId(),
                 ContextManager.getSegmentId(), ContextManager.getSpanId());
-        objInst.setSkyWalkingDynamicField(skywalkingContext);
+        objInst.setSkyWalkingDynamicField(skyWalkingContext);
     }
 
     @Override

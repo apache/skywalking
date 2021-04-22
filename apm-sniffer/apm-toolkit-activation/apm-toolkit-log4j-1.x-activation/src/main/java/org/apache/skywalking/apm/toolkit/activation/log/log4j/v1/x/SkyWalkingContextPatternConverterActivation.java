@@ -29,14 +29,14 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Active the toolkit class "SkywalkingContextPatternConverter". Should not dependency or import any class in
- * "skywalking-toolkit-log4j-1.x" module. Activation's classloader is diff from "SkywalkingContextPatternConverter", using direct
+ * Active the toolkit class "SkyWalkingContextPatternConverter". Should not dependency or import any class in
+ * "skywalking-toolkit-log4j-1.x" module. Activation's classloader is diff from "SkyWalkingContextPatternConverter", using direct
  * will trigger classloader issue.
  */
-public class SkywalkingContextPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
+public class SkyWalkingContextPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.log4j.v1.x.SkywalkingContextPatternConverter";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.PrintSkywalkingContextInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.log4j.v1.x.SkyWalkingContextPatternConverter";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x.PrintSkyWalkingContextInterceptor";
     public static final String ENHANCE_METHOD = "convert";
 
     /**

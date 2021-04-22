@@ -21,13 +21,13 @@ package org.apache.skywalking.apm.toolkit.log.logback.v1.x;
 import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
-public class LogbackSkywalkingContextPatternConverter extends ClassicConverter {
+public class LogbackSkyWalkingContextPatternConverter extends ClassicConverter {
     /**
-     * As default, return "SW_CTX: N/A" to the output message, if sky-walking agent in active mode, return the real skywalking context
+     * As default, return "SW_CTX: N/A" to the output message, if SkyWalking agent in active mode, return the real SkyWalking context
      * in the recent Context, if existed.
      *
      * @param iLoggingEvent the event
-     * @return the skywalking context: N/A, or the real skywalking context.
+     * @return the SkyWalking context: N/A, or the real SkyWalking context.
      */
     @Override
     public String convert(ILoggingEvent iLoggingEvent) {

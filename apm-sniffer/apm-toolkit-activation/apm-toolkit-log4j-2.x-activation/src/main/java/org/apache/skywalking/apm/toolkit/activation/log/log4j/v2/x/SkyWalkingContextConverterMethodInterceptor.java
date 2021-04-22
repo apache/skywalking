@@ -16,36 +16,49 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x;
+package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.logging.common.log.SkywalkingContext;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
-public class PrintSkywalkingContextInterceptor implements InstanceMethodsAroundInterceptor {
+public class SkyWalkingContextConverterMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        String skyWalkingContextStr = "";
 
+        //Async Thread, where ContextManager is not active
+        if (!ContextManager.isActive() && allArguments[0] instanceof EnhancedInstance) {
+            SkyWalkingContext skyWalkingContext = (SkyWalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+            if (skyWalkingContext == null) {
+                skyWalkingContextStr = "N/A";
+            } else {
+                skyWalkingContextStr = skyWalkingContext.toString();
+            }
+        } else {
+            skyWalkingContextStr = new SkyWalkingContext(ContextManager.getGlobalTraceId(),
+                    ContextManager.getSegmentId(),
+                    ContextManager.getSpanId())
+                    .toString();
+        }
+        ((StringBuilder) allArguments[1]).append("SW_CTX: ").append(skyWalkingContextStr);
+        result.defineReturnValue(null);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        return "SW_CTX:" + new SkywalkingContext(ContextManager.getGlobalTraceId(),
-                ContextManager.getSegmentId(),
-                ContextManager.getSpanId())
-                .toString();
+        return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-
     }
 }
