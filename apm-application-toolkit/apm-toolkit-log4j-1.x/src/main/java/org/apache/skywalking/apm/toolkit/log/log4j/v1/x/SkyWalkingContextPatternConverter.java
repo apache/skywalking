@@ -16,21 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x;
+package org.apache.skywalking.apm.toolkit.log.log4j.v1.x;
 
-import ch.qos.logback.classic.pattern.ClassicConverter;
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import org.apache.log4j.helpers.PatternConverter;
+import org.apache.log4j.spi.LoggingEvent;
 
-public class LogbackPatternConverter extends ClassicConverter {
-    /**
-     * As default, return "TID: N/A" to the output message, if SkyWalking agent in active mode, return the real traceId
-     * in the recent Context, if existed.
-     *
-     * @param iLoggingEvent the event
-     * @return the traceId: N/A, empty String, or the real traceId.
-     */
+/**
+ * Default implementation outputs "SW_CTX: N/A". But, if in SkyWalking agent active mode, output will become the real
+ * SkyWalking context.
+ * <p>
+ */
+
+public class SkyWalkingContextPatternConverter extends PatternConverter {
     @Override
-    public String convert(ILoggingEvent iLoggingEvent) {
-        return "TID: N/A";
+    protected String convert(LoggingEvent loggingEvent) {
+        return "SW_CTX: N/A";
     }
 }

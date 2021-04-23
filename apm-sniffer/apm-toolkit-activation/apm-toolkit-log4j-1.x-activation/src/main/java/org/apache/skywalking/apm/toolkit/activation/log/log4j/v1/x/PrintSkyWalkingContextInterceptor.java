@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
+package org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,28 +26,26 @@ import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
-/**
- * <p>Pass the global trace context into the _sw field of RingBufferLogEvent instance after enhancing</p>
- */
-
-public class RingBufferLogEventMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class PrintSkyWalkingContextInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SkyWalkingContext skyWalkingContext = new SkyWalkingContext(ContextManager.getGlobalTraceId(),
-                ContextManager.getSegmentId(), ContextManager.getSpanId());
-        objInst.setSkyWalkingDynamicField(skyWalkingContext);
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        return ret;
+        return "SW_CTX:" + new SkyWalkingContext(ContextManager.getGlobalTraceId(),
+                ContextManager.getSegmentId(),
+                ContextManager.getSpanId())
+                .toString();
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+
     }
 }

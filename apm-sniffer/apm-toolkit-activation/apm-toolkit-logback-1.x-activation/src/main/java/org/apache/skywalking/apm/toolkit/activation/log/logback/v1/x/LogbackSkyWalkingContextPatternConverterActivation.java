@@ -16,63 +16,65 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc;
+package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Support MDC https://logback.qos.ch/manual/mdc.html
+ * Active the toolkit class "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackSkyWalkingContextPatternConverter". Should not
+ * dependency or import any class in "skywalking-toolkit-logback-1.x" module. Activation's classloader is diff from
+ * "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackSkyWalkingContextPatternConverter", using direct will trigger classloader
+ * issue.
+ * <p>
  */
-public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
+public class LogbackSkyWalkingContextPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc.LogbackMDCPatternConverter";
-    public static final String ENHANCE_TID_METHOD = "convertTID";
-    public static final String INTERCEPT_TID_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCTraceIdInterceptor";
-    public static final String ENHANCE_SKYWALKING_CONTEXT_METHOD = "convertSkyWalkingContext";
-    public static final String INTERCEPT_SKYWALKING_CONTEXT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCSkyWalkingContextInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.PrintSkyWalkingContextInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackSkyWalkingContextPatternConverter";
+    public static final String ENHANCE_METHOD = "convert";
 
+    /**
+     * @return the target class, which needs active.
+     */
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
+
+    /**
+     * @return null, no need to intercept constructor of enhance class.
+     */
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
+    /**
+     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their
+     * interceptors.
+     */
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_TID_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPT_TID_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_SKYWALKING_CONTEXT_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return INTERCEPT_SKYWALKING_CONTEXT_CLASS;
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override
@@ -81,10 +83,5 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
                 }
             }
         };
-    }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
     }
 }

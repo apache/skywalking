@@ -11,7 +11,7 @@
 
 * Config a layout
 ```properties
-log4j.appender.CONSOLE.layout=TraceIdPatternLayout
+log4j.appender.CONSOLE.layout=org.apache.skywalking.apm.toolkit.log.log4j.v1.x.TraceIdPatternLayout
 ```
 
 * set `%T` in `layout.ConversionPattern` ( In 2.0-2016, you should use %x, [Why change?](https://github.com/wu-sheng/sky-walking/issues/77) )
@@ -19,7 +19,13 @@ log4j.appender.CONSOLE.layout=TraceIdPatternLayout
 log4j.appender.CONSOLE.layout.ConversionPattern=%d [%T] %-5p %c{1}:%L - %m%n
 ```
 
-* When you use `-javaagent` to active the sky-walking tracer, log4j will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+* When you use `-javaagent` to active the SkyWalking tracer, log4j will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+
+# Print SkyWalking context in your logs
+
+* Your only need to replace pattern `%T` with `%T{SW_CTX}`.
+
+* When you use `-javaagent` to active the SkyWalking tracer, log4j will output `SW_CTX: [$serviceName,$instanceName,$traceId,$traceSegmentId,$spanId]`, if it existed. If the tracer is inactive, the output will be `SW_CTX: N/A`.
 
 # gRPC reporter
 
