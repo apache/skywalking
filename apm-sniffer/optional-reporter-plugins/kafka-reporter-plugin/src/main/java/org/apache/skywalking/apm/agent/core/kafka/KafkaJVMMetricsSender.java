@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -38,13 +39,11 @@ import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
  * A report to send JVM Metrics data to Kafka Broker.
  */
 @OverrideImplementor(JVMMetricsSender.class)
-public class KafkaJVMMetricsSender extends JVMMetricsSender {
+public class KafkaJVMMetricsSender extends JVMMetricsSender implements KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(KafkaJVMMetricsSender.class);
     private KafkaProducer<String, Bytes> producer;
     private String topic;
-
     private BlockingQueue<JVMMetric> queue;
-    private volatile boolean running = false;
 
     @Override
     public void run() {
@@ -52,7 +51,7 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
             List<JVMMetric> buffer = new ArrayList<>();
             queue.drainTo(buffer);
 
-            if (running) {
+            if (producer != null) {
                 JVMMetricCollection metrics = JVMMetricCollection.newBuilder()
                                                                  .addAllMetrics(buffer)
                                                                  .setService(Config.Agent.SERVICE_NAME)
@@ -61,15 +60,15 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
 
                 if (LOGGER.isDebugEnable()) {
                     LOGGER.debug(
-                        "JVM metrics reporting, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(),
-                        buffer.size()
+                            "JVM metrics reporting, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(),
+                            buffer.size()
                     );
                 }
 
                 producer.send(new ProducerRecord<>(
-                    topic,
-                    metrics.getServiceInstance(),
-                    Bytes.wrap(metrics.toByteArray())
+                        topic,
+                        metrics.getServiceInstance(),
+                        Bytes.wrap(metrics.toByteArray())
                 ));
                 producer.flush();
             }
@@ -79,14 +78,13 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
     @Override
     public void prepare() {
         queue = new LinkedBlockingQueue<>(Config.Jvm.BUFFER_SIZE);
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METRICS);
     }
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
-        running = true;
-
     }
 
     @Override
@@ -94,6 +92,13 @@ public class KafkaJVMMetricsSender extends JVMMetricsSender {
         if (!queue.offer(metric)) {
             queue.poll();
             queue.offer(metric);
+        }
+    }
+
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
         }
     }
 }

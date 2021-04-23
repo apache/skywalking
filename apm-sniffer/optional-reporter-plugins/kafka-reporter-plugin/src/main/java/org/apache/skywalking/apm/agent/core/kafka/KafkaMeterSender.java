@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.Map;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -37,7 +38,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterDataCollection;
  * A report to send Metrics data of meter system to Kafka Broker.
  */
 @OverrideImplementor(MeterSender.class)
-public class KafkaMeterSender extends MeterSender {
+public class KafkaMeterSender extends MeterSender implements KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
 
     private String topic;
@@ -45,16 +46,20 @@ public class KafkaMeterSender extends MeterSender {
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METER;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_METER);
     }
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
     }
 
     @Override
     public void send(Map<MeterId, BaseMeter> meterMap, MeterService meterService) {
+        if (producer == null) {
+            return;
+        }
         MeterDataCollection.Builder builder = MeterDataCollection.newBuilder();
         transform(meterMap, meterData -> {
             if (LOGGER.isDebugEnable()) {
@@ -66,5 +71,12 @@ public class KafkaMeterSender extends MeterSender {
             new ProducerRecord<>(topic, Config.Agent.INSTANCE_NAME, Bytes.wrap(builder.build().toByteArray())));
 
         producer.flush();
+    }
+
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
+        }
     }
 }
