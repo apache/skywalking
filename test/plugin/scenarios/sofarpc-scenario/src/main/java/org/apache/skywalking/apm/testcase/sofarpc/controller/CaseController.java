@@ -44,7 +44,7 @@ public class CaseController {
     @ResponseBody
     public String sofarpc() {
         SofaRpcDemoService service = consumerConfig.refer();
-        System.out.println(service.hello("sofarpc"));
+        service.hello("sofarpc");
         return SUCCESS;
     }
 }

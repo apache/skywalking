@@ -23,6 +23,8 @@ import com.netflix.hystrix.HystrixInvokable;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 /**
@@ -30,6 +32,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  */
 public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
     private final HystrixCommandExecutionHook actual;
+
+    private static ILog LOGGER = LogManager.getLogger(SWExecutionHookWrapper.class);
 
     public SWExecutionHookWrapper(HystrixCommandExecutionHook actual) {
         this.actual = actual;
@@ -42,10 +46,14 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
             return;
         }
 
-        EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
-        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
-        if (ContextManager.isActive()) {
-            enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        try {
+            EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
+            EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
+            if (ContextManager.isActive()) {
+                enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to set ContextSnapshot.", e);
         }
         actual.onStart(commandInstance);
     }
@@ -194,10 +202,14 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
             return;
         }
 
-        EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
-        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
-        if (ContextManager.isActive()) {
-            enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        try {
+            EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
+            EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
+            if (ContextManager.isActive()) {
+                enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to set ContextSnapshot.", e);
         }
         actual.onStart(commandInstance);
     }

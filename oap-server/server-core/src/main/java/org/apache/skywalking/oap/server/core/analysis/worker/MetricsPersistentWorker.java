@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
@@ -91,11 +92,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer());
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
         aggregationCounter = metricsCreator.createCounter(
-                "metrics_aggregation", "The number of rows in aggregation",
-                new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
+            "metrics_aggregation", "The number of rows in aggregation",
+            new MetricsTag.Keys("metricName", "level", "dimensionality"),
+            new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
         );
     }
 
@@ -172,7 +174,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                     /*
                      * Merge metrics into cachedMetrics, change only happens inside cachedMetrics.
                      */
-                    cachedMetrics.combine(metrics);
+                    final boolean isAbandoned = !cachedMetrics.combine(metrics);
+                    if (isAbandoned) {
+                        continue;
+                    }
                     cachedMetrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
                     nextWorker(cachedMetrics);
@@ -209,18 +214,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             context.clear();
         }
 
-        List<String> notInCacheIds = new ArrayList<>();
-        for (Metrics metric : metrics) {
-            if (!context.containsKey(metric)) {
-                notInCacheIds.add(metric.id());
-            }
-        }
-
-        if (notInCacheIds.size() > 0) {
-            List<Metrics> metricsList = metricsDAO.multiGet(model, notInCacheIds);
-            for (Metrics metric : metricsList) {
-                context.put(metric, metric);
-            }
+        List<Metrics> noInCacheMetrics = metrics.stream()
+                                                .filter(m -> !context.containsKey(m))
+                                                .collect(Collectors.toList());
+        if (!noInCacheMetrics.isEmpty()) {
+            metricsDAO.multiGet(model, noInCacheMetrics).forEach(m -> context.put(m, m));
         }
     }
 

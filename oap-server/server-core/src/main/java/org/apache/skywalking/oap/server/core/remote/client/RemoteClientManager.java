@@ -65,9 +65,10 @@ public class RemoteClientManager implements Service {
 
     /**
      * Initial the manager for all remote communication clients.
+     *
      * @param moduleDefineHolder for looking up other modules
      * @param remoteTimeout      for cluster internal communication, in second unit.
-     * @param trustedCAFile         SslContext to verify server certificates.
+     * @param trustedCAFile      SslContext to verify server certificates.
      */
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder,
                                int remoteTimeout,
@@ -80,7 +81,8 @@ public class RemoteClientManager implements Service {
      * Initial the manager for all remote communication clients.
      *
      * Initial the manager for all remote communication clients.
-     *  @param moduleDefineHolder for looking up other modules
+     *
+     * @param moduleDefineHolder for looking up other modules
      * @param remoteTimeout      for cluster internal communication, in second unit.
      */
     public RemoteClientManager(final ModuleDefineHolder moduleDefineHolder, final int remoteTimeout) {
@@ -103,7 +105,10 @@ public class RemoteClientManager implements Service {
             gauge = moduleDefineHolder.find(TelemetryModule.NAME)
                                       .provider()
                                       .getService(MetricsCreator.class)
-                                      .createGauge("cluster_size", "Cluster size of current oap node", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+                                      .createGauge(
+                                          "cluster_size", "Cluster size of current oap node", MetricsTag.EMPTY_KEY,
+                                          MetricsTag.EMPTY_VALUE
+                                      );
         }
         try {
             if (Objects.isNull(clusterNodesQuery)) {
@@ -187,13 +192,24 @@ public class RemoteClientManager implements Service {
      * @param remoteInstances Remote instance collection by query cluster config.
      */
     private void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
-        final Map<Address, RemoteClientAction> remoteClientCollection = this.usingClients.stream()
-                                                                                         .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
+        final Map<Address, RemoteClientAction> remoteClientCollection =
+            this.usingClients.stream()
+                             .collect(Collectors.toMap(
+                                 RemoteClient::getAddress,
+                                 client -> new RemoteClientAction(
+                                     client, Action.Close)
+                             ));
 
-        final Map<Address, RemoteClientAction> latestRemoteClients = remoteInstances.stream()
-                                                                                    .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
+        final Map<Address, RemoteClientAction> latestRemoteClients =
+            remoteInstances.stream()
+                           .collect(Collectors.toMap(
+                               RemoteInstance::getAddress,
+                               remote -> new RemoteClientAction(
+                                   null, Action.Create)
+                           ));
 
-        final Set<Address> unChangeAddresses = Sets.intersection(remoteClientCollection.keySet(), latestRemoteClients.keySet());
+        final Set<Address> unChangeAddresses = Sets.intersection(
+            remoteClientCollection.keySet(), latestRemoteClients.keySet());
 
         unChangeAddresses.stream()
                          .filter(remoteClientCollection::containsKey)
@@ -230,7 +246,10 @@ public class RemoteClientManager implements Service {
 
         remoteClientCollection.values()
                               .stream()
-                              .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
+                              .filter(remoteClientAction ->
+                                          remoteClientAction.getAction().equals(Action.Close)
+                                              && !remoteClientAction.getRemoteClient().getAddress().isSelf()
+                              )
                               .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
     }
 

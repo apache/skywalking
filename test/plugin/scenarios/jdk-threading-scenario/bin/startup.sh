@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -Dskywalking.plugin.jdkthreading.threading_class_prefixes=test.org.apache.skywalking. -jar ${agent_opts} ${home}/../libs/jdk-threading-scenario.jar &
+java -Dskywalking.plugin.jdkthreading.threading_class_prefixes=test.apache.skywalking. -jar ${agent_opts} ${home}/../libs/jdk-threading-scenario.jar &

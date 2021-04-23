@@ -21,10 +21,7 @@
 
 set -x
 
-K8S_VER=$2
-if [[ "${K8S_VER}" == "" ]]; then
-    K8S_VER="k8s-v1.15.4"
-fi
+K8S_VER=${K8S_VER:-'k8s-v1.18.0'}
 
 function waitMinikube() {
   set +e
@@ -73,30 +70,6 @@ function startMinikubeNone() {
   export MINIKUBE_WANTREPORTERRORPROMPT=false
   export MINIKUBE_HOME=$HOME
   export CHANGE_MINIKUBE_NONE_USER=true
-
-  # Troubleshoot problem with Docker build on some CircleCI machines.
-  if [ -f /proc/sys/net/ipv4/ip_forward ]; then
-    echo "IP forwarding setting: $(cat /proc/sys/net/ipv4/ip_forward)"
-    echo "My hostname is:"
-    hostname
-    echo "My distro is:"
-    cat /etc/*-release
-    echo "Contents of /etc/sysctl.d/"
-    ls -l /etc/sysctl.d/ || true
-    echo "Contents of /etc/sysctl.conf"
-    grep ip_forward /etc/sysctl.conf
-    echo "Config files setting ip_forward"
-    find /etc/sysctl.d/ -type f -exec grep ip_forward \{\} \; -print
-    if [ "$(cat /proc/sys/net/ipv4/ip_forward)" -eq 0 ]; then
-      whoami
-      echo "Cannot build images without IPv4 forwarding, attempting to turn on forwarding"
-      sudo sysctl -w net.ipv4.ip_forward=1
-      if [ "$(cat /proc/sys/net/ipv4/ip_forward)" -eq 0 ]; then
-        echo "Cannot build images without IPv4 forwarding"
-        exit 1
-      fi
-    fi
-  fi
 
   sudo -E minikube config set WantUpdateNotification false
   sudo -E minikube config set WantReportErrorPrompt false

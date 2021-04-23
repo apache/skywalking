@@ -34,7 +34,7 @@ public class DashboardConfigurationMatcher extends AbstractMatcher<DashboardConf
         doVerify(this.name, configuration.getName());
         doVerify(this.type, String.valueOf(configuration.getType()));
         doVerify(this.configuration, configuration.getConfiguration());
-        doVerify(this.activated, String.valueOf(configuration.isActivated()));
-        doVerify(this.disabled, String.valueOf(configuration.isDisabled()));
+        doVerify(this.activated, configuration.isActivated());
+        doVerify(this.disabled, configuration.isDisabled());
     }
 }

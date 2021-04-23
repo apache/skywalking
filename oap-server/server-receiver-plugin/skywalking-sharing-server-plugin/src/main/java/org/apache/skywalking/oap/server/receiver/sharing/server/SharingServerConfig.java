@@ -25,17 +25,17 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class SharingServerConfig extends ModuleConfig {
-    private String host;
+    private String restHost;
     /**
      * Only setting the real port(not 0) makes the jetty server online.
      */
-    private int port;
-    private String contextPath;
-    private int jettyMinThreads = 1;
-    private int jettyMaxThreads = 200;
-    private long jettyIdleTimeOut = 30000;
-    private int jettyAcceptorPriorityDelta = 0;
-    private int jettyAcceptQueueSize = 0;
+    private int restPort;
+    private String restContextPath;
+    private int restMinThreads = 1;
+    private int restMaxThreads = 200;
+    private long restIdleTimeOut = 30000;
+    private int restAcceptorPriorityDelta = 0;
+    private int restAcceptQueueSize = 0;
 
     private String gRPCHost;
     /**

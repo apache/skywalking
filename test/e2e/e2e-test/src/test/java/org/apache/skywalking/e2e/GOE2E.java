@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.e2e;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -50,16 +49,24 @@ import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.DockerComposeContainer;
 
+import java.net.URL;
+import java.util.List;
+
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_MULTIPLE_LINEAR_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
@@ -90,7 +97,7 @@ public class GOE2E extends SkyWalkingTestAdapter {
     @BeforeAll
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
-        trafficController(javaConsumerHostPort, "/info");
+        trafficController(javaConsumerHostPort, "/correlation");
     }
 
     @AfterAll
@@ -156,6 +163,16 @@ public class GOE2E extends SkyWalkingTestAdapter {
         verifyServiceInstanceRelationMetrics(topology.getCalls());
     }
 
+    @RetryableTest
+    void correlation() throws Exception {
+        final URL url = new URL("http", javaConsumerHostPort.host(), javaConsumerHostPort.port(), "/correlation");
+
+        ResponseEntity<String> resp = restTemplate.postForEntity(url.toURI(), trafficData, String.class);
+        LOGGER.info("verifying correlation: {}", resp);
+
+        Assert.assertEquals("consumer_go2sky_provider", resp.getBody());
+    }
+
     private Instances verifyServiceInstances(final Service service) throws Exception {
         final Instances instances = graphql.instances(
             new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
@@ -209,6 +226,9 @@ public class GOE2E extends SkyWalkingTestAdapter {
             instanceRespTimeMatcher.verify(serviceMetrics);
             LOGGER.info("{}: {}", metricName, serviceMetrics);
         }
+        for (String metricName : ALL_SERVICE_MULTIPLE_LINEAR_METRICS) {
+            verifyPercentileMetrics(graphql, metricName, service.getKey(), startTime);
+        }
     }
 
     private void verifyInstancesMetrics(Instances instances) throws Exception {
@@ -252,6 +272,9 @@ public class GOE2E extends SkyWalkingTestAdapter {
                 instanceRespTimeMatcher.verify(metrics);
 
                 LOGGER.info("{}: {}", metricName, metrics);
+            }
+            for (String metricName : ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS) {
+                verifyPercentileMetrics(graphql, metricName, endpoint.getKey(), startTime);
             }
         }
     }

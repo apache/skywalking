@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -72,6 +72,7 @@
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
         <module>elasticsearch-6.x-plugin</module>
+        <module>elasticsearch-7.x-plugin</module>
         <module>undertow-plugins</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
@@ -97,9 +98,18 @@
         <module>mariadb-2.x-plugin</module>
         <module>influxdb-2.x-plugin</module>
         <module>baidu-brpc-plugin</module>
-        <module>hbase-1.x-plugin</module>
+        <module>hbase-1.x-2.x-plugin</module>
         <module>graphql-plugin</module>
         <module>xxl-job-2.x-plugin</module>
+        <module>thrift-plugin</module>
+        <module>httpclient-commons</module>
+        <module>asynchttpclient-2.x-plugin</module>
+        <module>dbcp-2.x-plugin</module>
+        <module>mssql-commons</module>
+        <module>mssql-jtds-1.x-plugin</module>
+        <module>mssql-jdbc-plugin</module>
+        <module>cxf-3.x-plugin</module>
+        <module>jsonrpc4j-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -181,7 +191,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
@@ -191,7 +201,7 @@
                                     </then>
                                 </if>
 
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

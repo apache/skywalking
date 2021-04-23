@@ -36,15 +36,15 @@ segmentItems:
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - {operationName: test.org.apache.skywalking.apm.testcase.spring3.component.TestComponentBean.componentMethod,
+    - {operationName: test.apache.skywalking.apm.testcase.spring3.component.TestComponentBean.componentMethod,
       operationId: 0, parentSpanId: 1, spanId: 2, spanLayer: Unknown, startTime: nq
         0, endTime: nq 0, componentId: 93, isError: false, spanType: Local, peer: '',
       skipAnalysis: 'false'}
-    - {operationName: test.org.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean.doSomeStuff,
+    - {operationName: test.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean.doSomeStuff,
       operationId: 0, parentSpanId: 1, spanId: 3, spanLayer: Unknown, startTime: nq
         0, endTime: nq 0, componentId: 93, isError: false, spanType: Local, peer: '',
       skipAnalysis: 'false'}
-    - {operationName: test.org.apache.skywalking.apm.testcase.spring3.service.TestServiceBean.doSomeBusiness,
+    - {operationName: test.apache.skywalking.apm.testcase.spring3.service.TestServiceBean.doSomeBusiness,
       operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Unknown, startTime: nq
         0, endTime: nq 0, componentId: 93, isError: false, spanType: Local, peer: '',
       skipAnalysis: 'false'}

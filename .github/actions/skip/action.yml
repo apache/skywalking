@@ -1,0 +1,87 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+name: "Set Skip Env Var"
+description: "Action to set the SKIP_CI environment variable indicating that we should skip CI jobs"
+inputs:
+  paths:
+    description: >-
+      Set the SKIP_CI environment variable when and only when all the changed files located in one of the path,
+      the paths is shell-style pattern.
+    required: false
+    default: >-
+      "*.md"
+      "*.txt"
+      "skywalking-ui"
+      ".asf.yaml"
+      ".dlc.yaml"
+      ".licenserc.yaml"
+      "docs/menu.yml"
+      ".github/actions/skip/action.yml"
+      ".github/workflows/codeql.yaml"
+      "dist-material/release-docs"
+      "test/plugin/*"
+      "*/component-libraries.yml"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check Changed Files And Set Env Var
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+          exit 0
+        fi
+
+        BASE_SHA=$(jq -r '.pull_request.base.sha' $GITHUB_EVENT_PATH)
+        echo "Base sha is $BASE_SHA, head sha is $GITHUB_SHA"
+
+        git fetch --no-tags --progress --recurse-submodules --depth=1 origin ${BASE_SHA}:origin/${BASE_SHA}
+        BASE_SHA=origin/${BASE_SHA}
+        echo "Base sha is $BASE_SHA, head sha is $GITHUB_SHA"
+
+        if ! files=$(git --no-pager diff --name-only ${GITHUB_SHA} ${BASE_SHA}); then
+          exit 1
+        fi
+
+        echo "Ignore pattern:"
+        for pattern in $(echo '${{ inputs.paths }}'); do
+          echo $pattern
+        done
+
+        echo "Changed files:"
+        for file in ${files}; do
+          echo $file
+        done
+
+        echo "SKIP_CI=true" >> $GITHUB_ENV
+        for file in ${files}; do
+          matched=0
+          for pattern in $(echo '${{ inputs.paths }}'); do
+            pattern=$(echo "$pattern" | sed 's/"//g')
+            if eval "[[ '$file' == $pattern ]]"; then
+              matched=1
+              break
+            fi
+          done
+          if [[ "$matched" == "0" ]]; then
+            echo "$file doesn't match pattern $(echo '${{ inputs.paths }}'), stop checking"
+            echo "SKIP_CI=false" >> $GITHUB_ENV
+            break
+          fi
+        done

@@ -35,7 +35,7 @@ segmentItems:
       - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/simpleJob'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpoint: xxl-job/SimpleJob/test.org.apache.skywalking.apm.testcase.xxljob.job.BeanJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+      - {parentEndpoint: xxl-job/SimpleJob/test.apache.skywalking.apm.testcase.xxljob.job.BeanJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
   - segmentId: not null
     spans:
     - operationName: /xxl-job-2.x-scenario/case/simpleJob
@@ -53,7 +53,7 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/simpleJob'}
-    - operationName: xxl-job/SimpleJob/test.org.apache.skywalking.apm.testcase.xxljob.job.BeanJob
+    - operationName: xxl-job/SimpleJob/test.apache.skywalking.apm.testcase.xxljob.job.BeanJob
       operationId: 0
       parentSpanId: -1
       spanId: 0

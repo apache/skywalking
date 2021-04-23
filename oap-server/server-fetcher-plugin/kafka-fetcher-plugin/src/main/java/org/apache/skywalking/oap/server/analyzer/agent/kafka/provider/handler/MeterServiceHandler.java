@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -28,41 +27,59 @@ import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * A handler deserializes the message of meter system data and pushes it to downstream.
  */
 @Slf4j
-public class MeterServiceHandler implements KafkaHandler {
-    private KafkaFetcherConfig config;
+public class MeterServiceHandler extends AbstractKafkaHandler {
     private IMeterProcessService processService;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
 
     public MeterServiceHandler(ModuleManager manager, KafkaFetcherConfig config) {
-        this.config = config;
+        super(manager, config);
         this.processService = manager.find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
+        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "meter_in_latency", "The process latency of meter",
+                new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka-fetcher")
+        );
+        errorCounter = metricsCreator.createCounter("meter_analysis_error_count", "The error number of meter analysis",
+                new MetricsTag.Keys("protocol"),
+                new MetricsTag.Values("kafka-fetcher")
+        );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
         try {
             MeterDataCollection meterDataCollection = MeterDataCollection.parseFrom(record.value().get());
-
             MeterProcessor processor = processService.createProcessor();
-            meterDataCollection.getMeterDataList().forEach(meterData -> processor.read(meterData));
+            meterDataCollection.getMeterDataList().forEach(meterData -> {
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    processor.read(meterData);
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
+                }
+            });
             processor.process();
 
-        } catch (InvalidProtocolBufferException e) {
-            log.error("", e);
+        } catch (Exception e) {
+            log.error("handle record failed", e);
         }
     }
 
     @Override
-    public String getTopic() {
+    protected String getPlainTopic() {
         return config.getTopicNameOfMeters();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
     }
 }

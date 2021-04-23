@@ -60,7 +60,7 @@ public class GRPCExporterProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        exporter.initSubscriptionList();
+        exporter.fetchSubscriptionList();
     }
 
     @Override

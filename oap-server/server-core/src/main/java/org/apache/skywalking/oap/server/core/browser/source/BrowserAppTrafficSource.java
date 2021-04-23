@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.browser.source;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.core.source.Source;
 
 /**
@@ -29,9 +28,7 @@ import org.apache.skywalking.oap.server.core.source.Source;
 @Setter
 @Getter
 public abstract class BrowserAppTrafficSource extends Source {
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     protected String name;
-
     protected final NodeType nodeType = NodeType.Browser;
 
     private final int count = 1;

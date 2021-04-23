@@ -18,3 +18,4 @@
 
 org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageProvider
 org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageProvider
+org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.PostgreSQLStorageProvider

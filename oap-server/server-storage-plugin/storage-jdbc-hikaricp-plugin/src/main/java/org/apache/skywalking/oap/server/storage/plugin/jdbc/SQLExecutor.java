@@ -49,7 +49,7 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
             preparedStatement.setObject(i + 1, param.get(i));
         }
 
-        LOGGER.debug("execute aql in batch: {}", sql);
+        LOGGER.debug("execute sql in batch: {}", sql);
         preparedStatement.execute();
     }
 }

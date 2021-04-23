@@ -74,7 +74,10 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().log(t);
+        CallbackCache cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
+        if (null != cache) {
+            ContextManager.activeSpan().log(t);
+        }
     }
 
     private ContextSnapshot getSnapshot(CallbackCache cache) {

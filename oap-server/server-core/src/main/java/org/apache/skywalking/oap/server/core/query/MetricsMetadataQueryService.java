@@ -18,8 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -47,5 +51,22 @@ public class MetricsMetadataQueryService implements Service {
         } else {
             return MetricsType.UNKNOWN;
         }
+    }
+
+    public List<MetricDefinition> listMetrics(String regex) {
+        return ValueColumnMetadata.INSTANCE.getAllMetadata()
+                                           .entrySet()
+                                           .stream()
+                                           .filter(
+                                               metadata ->
+                                                   StringUtil.isNotEmpty(regex) ?
+                                                       metadata.getKey().matches(regex) : true)
+                                           .map(metadata -> new MetricDefinition(
+                                                    metadata.getKey(),
+                                                    typeOfMetrics(metadata.getKey()),
+                                                    DefaultScopeDefine.catalogOf(metadata.getValue().getScopeId())
+                                                )
+                                           )
+                                           .collect(Collectors.toList());
     }
 }

@@ -41,4 +41,4 @@ for exec_data in "${JACOCO_HOME}"/*.exec; do
     "${JACOCO_HOME}"/"$exec_data".exec
 done
 
-bash <(curl -s https://codecov.io/bash) -X fix -f /tmp/report-*.xml
+bash <(curl -s https://codecov.io/bash) -X fix -f /tmp/report-*.xml || true

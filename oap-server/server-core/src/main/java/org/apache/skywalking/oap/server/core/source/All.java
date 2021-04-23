@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -56,4 +57,7 @@ public class All extends Source {
     @Getter
     @Setter
     private RequestType type;
+    @Getter
+    @Setter
+    private List<String> tags;
 }

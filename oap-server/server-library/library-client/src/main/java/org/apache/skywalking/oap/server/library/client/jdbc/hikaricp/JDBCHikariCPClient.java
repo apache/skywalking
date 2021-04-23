@@ -80,7 +80,7 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
     }
 
     public void execute(Connection connection, String sql) throws JDBCClientException {
-        LOGGER.debug("execute aql: {}", sql);
+        LOGGER.debug("execute sql: {}", sql);
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
             healthChecker.health();
@@ -90,14 +90,14 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
         }
     }
 
-    public boolean execute(Connection connection, String sql, Object... params) throws JDBCClientException {
+    public int executeUpdate(Connection connection, String sql, Object... params) throws JDBCClientException {
         LOGGER.debug("execute query with result: {}", sql);
-        boolean result;
+        int result;
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
             setStatementParam(statement, params);
-            result = statement.execute();
+            result = statement.executeUpdate();
             statement.closeOnCompletion();
             healthChecker.health();
         } catch (SQLException e) {

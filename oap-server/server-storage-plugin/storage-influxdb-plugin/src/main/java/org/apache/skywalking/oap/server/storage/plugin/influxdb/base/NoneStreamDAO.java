@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
@@ -33,24 +32,22 @@ public class NoneStreamDAO implements INoneStreamDAO {
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
-    private InfluxClient client;
-    private StorageBuilder<NoneStream> storageBuilder;
+    private final InfluxClient client;
+    private final StorageHashMapBuilder<NoneStream> storageBuilder;
 
-    public NoneStreamDAO(InfluxClient client, StorageBuilder<NoneStream> storageBuilder) {
+    public NoneStreamDAO(InfluxClient client, StorageHashMapBuilder<NoneStream> storageBuilder) {
         this.client = client;
         this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public void insert(final Model model, final NoneStream noneStream) throws IOException {
+    public void insert(final Model model, final NoneStream noneStream) {
         final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling())
             * PADDING_SIZE + SUFFIX.getAndIncrement();
 
         final InfluxInsertRequest request = new InfluxInsertRequest(model, noneStream, storageBuilder)
             .time(timestamp, TimeUnit.NANOSECONDS);
-        TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
-            request.addFieldAsTag(field, tag);
-        });
+        TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach(request::addFieldAsTag);
         client.write(request.getPoint());
     }
 }

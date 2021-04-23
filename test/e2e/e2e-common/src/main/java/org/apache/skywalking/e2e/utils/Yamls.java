@@ -38,6 +38,10 @@ public final class Yamls {
         <T> T as(final Class<T> klass);
     }
 
+    public static boolean exists(final String file) {
+        return new ClassPathResource(Envs.resolve(file)).exists();
+    }
+
     public static AsTypeBuilder load(final String file) throws IOException {
         final InputStream inputStream = new ClassPathResource(Envs.resolve(file)).getInputStream();
 

@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.apm.testcase.mongodb.controller;
 
-import com.mongodb.client.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.FindIterable;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;

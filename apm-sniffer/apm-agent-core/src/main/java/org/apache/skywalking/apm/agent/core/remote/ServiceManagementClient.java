@@ -21,10 +21,10 @@ package org.apache.skywalking.apm.agent.core.remote;
 import io.grpc.Channel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -40,7 +40,6 @@ import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.apm.network.management.v3.ManagementServiceGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
@@ -52,7 +51,7 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ManagementServiceGrpc.ManagementServiceBlockingStub managementServiceBlockingStub;
     private volatile ScheduledFuture<?> heartbeatFuture;
-    private volatile boolean instancePropertiesSubmitted = false;
+    private volatile AtomicInteger sendPropertiesCounter = new AtomicInteger(0);
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
@@ -77,10 +76,6 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
                                                               .setValue(Config.Agent.INSTANCE_PROPERTIES.get(key))
                                                               .build());
         }
-
-        Config.Agent.INSTANCE_NAME = StringUtil.isEmpty(Config.Agent.INSTANCE_NAME)
-            ? UUID.randomUUID().toString().replaceAll("-", "") + "@" + OSUtil.getIPV4()
-            : Config.Agent.INSTANCE_NAME;
     }
 
     @Override
@@ -112,7 +107,7 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             try {
                 if (managementServiceBlockingStub != null) {
-                    if (!instancePropertiesSubmitted) {
+                    if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
 
                         managementServiceBlockingStub
                             .withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
@@ -123,7 +118,6 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
                                                                             Config.OsInfo.IPV4_LIST_SIZE))
                                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                                                         .build());
-                        instancePropertiesSubmitted = true;
                     } else {
                         final Commands commands = managementServiceBlockingStub.withDeadlineAfter(
                             GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS

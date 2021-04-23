@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG JAVA_VERSION=8
+ARG BASE_IMAGE='adoptopenjdk/openjdk8:alpine'
 
 FROM apache/skywalking-base:8.1.0-es6 AS cli
 
-FROM adoptopenjdk/openjdk$JAVA_VERSION:alpine
+FROM $BASE_IMAGE
 
 ENV JAVA_OPTS=" -Xms256M " \
     SW_CLUSTER="standalone" \

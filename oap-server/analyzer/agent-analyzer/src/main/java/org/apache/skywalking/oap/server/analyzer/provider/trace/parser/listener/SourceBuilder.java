@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -41,64 +44,36 @@ class SourceBuilder {
     private final NamingControl namingControl;
 
     @Getter
+    @Setter
     private String sourceServiceName;
-
-    public void setSourceServiceName(final String sourceServiceName) {
-        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
-    }
-
     @Getter
     @Setter
     private NodeType sourceNodeType;
     @Getter
+    @Setter
     private String sourceServiceInstanceName;
-
-    public void setSourceServiceInstanceName(final String sourceServiceInstanceName) {
-        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
-    }
-
     /**
      * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
      * cases. This service always comes from the span.ref, so it is always a normal service.
      */
     @Getter
+    @Setter
     private String sourceEndpointOwnerServiceName;
-
-    public void setSourceEndpointOwnerServiceName(final String sourceServiceName) {
-        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceServiceName);
-    }
-
     @Getter
+    @Setter
     private String sourceEndpointName;
-
-    public void setSourceEndpointName(final String sourceEndpointName) {
-        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
-    }
-
     @Getter
+    @Setter
     private String destServiceName;
-
-    public void setDestServiceName(final String destServiceName) {
-        this.destServiceName = namingControl.formatServiceName(destServiceName);
-    }
-
     @Getter
     @Setter
     private NodeType destNodeType;
     @Getter
+    @Setter
     private String destServiceInstanceName;
-
-    public void setDestServiceInstanceName(final String destServiceInstanceName) {
-        this.destServiceInstanceName = namingControl.formatServiceName(destServiceInstanceName);
-    }
-
     @Getter
+    @Setter
     private String destEndpointName;
-
-    public void setDestEndpointName(final String destEndpointName) {
-        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
-    }
-
     @Getter
     @Setter
     private int componentId;
@@ -120,6 +95,18 @@ class SourceBuilder {
     @Getter
     @Setter
     private long timeBucket;
+    @Getter
+    private final List<String> tags = new ArrayList<>();
+
+    void prepare() {
+        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
+        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceEndpointOwnerServiceName);
+        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
+        this.destServiceName = namingControl.formatServiceName(destServiceName);
+        this.destServiceInstanceName = namingControl.formatInstanceName(destServiceInstanceName);
+        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
+    }
 
     /**
      * The global level metrics source
@@ -134,6 +121,7 @@ class SourceBuilder {
         all.setResponseCode(responseCode);
         all.setType(type);
         all.setTimeBucket(timeBucket);
+        all.setTags(tags);
         return all;
     }
 
@@ -150,6 +138,7 @@ class SourceBuilder {
         service.setStatus(status);
         service.setResponseCode(responseCode);
         service.setType(type);
+        service.setTags(tags);
         service.setTimeBucket(timeBucket);
         return service;
     }
@@ -190,6 +179,7 @@ class SourceBuilder {
         serviceInstance.setStatus(status);
         serviceInstance.setResponseCode(responseCode);
         serviceInstance.setType(type);
+        serviceInstance.setTags(tags);
         serviceInstance.setTimeBucket(timeBucket);
         return serviceInstance;
     }
@@ -232,6 +222,7 @@ class SourceBuilder {
         endpoint.setStatus(status);
         endpoint.setResponseCode(responseCode);
         endpoint.setType(type);
+        endpoint.setTags(tags);
         endpoint.setTimeBucket(timeBucket);
         return endpoint;
     }
@@ -293,5 +284,9 @@ class SourceBuilder {
         databaseAccess.setStatus(status);
         databaseAccess.setTimeBucket(timeBucket);
         return databaseAccess;
+    }
+
+    public void setTag(KeyStringValuePair tag) {
+        tags.add(tag.getKey().trim() + ":" + tag.getValue().trim());
     }
 }

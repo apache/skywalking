@@ -1,0 +1,73 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+  - serviceName: asynchttpclient-scenario
+    segmentSize: ge 3
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: AsyncHttpClient/asynchttpclient/back
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 102
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/asynchttpclient/back'}
+              - {key: status_code, value: '200'}
+          - operationName: /asynchttpclient/case
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: not null
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: url, value: 'http://localhost:8080/asynchttpclient/case'}
+              - {key: http.method, value: GET}
+      - segmentId: not null
+        spans:
+          - operationName: /asynchttpclient/back
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: not null
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: url, value: 'http://localhost:8080/asynchttpclient/back'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpoint: /asynchttpclient/case, networkAddress: 'localhost:8080',
+                 refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null,
+                 parentService: asynchttpclient-scenario, traceId: not null}

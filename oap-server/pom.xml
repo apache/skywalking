@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -68,10 +68,9 @@
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <joda-time.version>2.10.5</joda-time.version>
-        <kubernetes.version>8.0.0</kubernetes.version>
+        <kubernetes.version>10.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
-        <caffeine.version>2.6.2</caffeine.version>
         <okhttp.version>3.9.0</okhttp.version>
         <jackson-core.version>2.9.5</jackson-core.version>
         <jackson-annotations.version>2.9.5</jackson-annotations.version>
@@ -99,6 +98,9 @@
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
+        <postgresql.version>42.2.18</postgresql.version>
     </properties>
 
     <dependencies>
@@ -360,11 +362,6 @@
                 <artifactId>zipkin</artifactId>
                 <version>${zipkin.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.github.ben-manes.caffeine</groupId>
-                <artifactId>caffeine</artifactId>
-                <version>${caffeine.version}</version>
-            </dependency>
             <!-- -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -536,6 +533,34 @@
                 <groupId>org.mvel</groupId>
                 <artifactId>mvel2</artifactId>
                 <version>${mvel.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-collections</groupId>
+                        <artifactId>commons-collections</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.flatbuffers</groupId>
+                <artifactId>flatbuffers-java</artifactId>
+                <version>${flatbuffers-java.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

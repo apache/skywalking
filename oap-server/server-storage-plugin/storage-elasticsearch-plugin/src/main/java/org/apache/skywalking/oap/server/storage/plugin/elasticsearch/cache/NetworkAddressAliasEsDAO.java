@@ -53,7 +53,7 @@ public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAl
 
             final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
             for (SearchHit searchHit : response.getHits().getHits()) {
-                networkAddressAliases.add(builder.map2Data(searchHit.getSourceAsMap()));
+                networkAddressAliases.add(builder.storage2Entity(searchHit.getSourceAsMap()));
             }
         } catch (Throwable t) {
             log.error(t.getMessage(), t);

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,6 +30,9 @@
 
     <modules>
         <module>agent-analyzer</module>
+        <module>log-analyzer</module>
+        <module>meter-analyzer</module>
+        <module>event-analyzer</module>
     </modules>
 
     <dependencies>

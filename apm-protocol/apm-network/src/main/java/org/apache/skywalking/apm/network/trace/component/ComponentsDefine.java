@@ -180,4 +180,22 @@ public class ComponentsDefine {
     public static final OfficialComponent XXL_JOB = new OfficialComponent(98, "xxl-job");
 
     public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(99, "spring-webflux-webclient");
+
+    public static final OfficialComponent THRIFT_SERVER = new OfficialComponent(100, "thrift-server");
+
+    public static final OfficialComponent THRIFT_CLIENT = new OfficialComponent(101, "thrift-client");
+
+    public static final OfficialComponent ASYNC_HTTP_CLIENT = new OfficialComponent(102, "AsyncHttpClient");
+
+    public static final OfficialComponent DBCP = new OfficialComponent(103, "dbcp");
+
+    public static final OfficialComponent MSSQL_JDBC_DRIVER = new OfficialComponent(104, "mssql-jdbc-driver");
+
+    public static final OfficialComponent APACHE_CXF = new OfficialComponent(105, "Apache-CXF");
+
+    public static final OfficialComponent DOLPHIN_SCHEDULER = new OfficialComponent(106, "dolphinscheduler");
+
+    public static final OfficialComponent JSON_RPC = new OfficialComponent(107, "JsonRpc");
+  
+    public static final OfficialComponent SEATA = new OfficialComponent(108, "Seata");
 }

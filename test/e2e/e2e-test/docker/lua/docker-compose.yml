@@ -66,7 +66,7 @@ services:
         condition: service_healthy
     volumes:
       - ../lua/nginx.conf:/var/nginx/conf.d/nginx.conf
-    entrypoint: ['bash', '-c', 'sleep 5 && /usr/bin/openresty -c /var/nginx/conf.d/nginx.conf']
+    entrypoint: ['bash', '-c', 'sleep 5 && openresty -c /var/nginx/conf.d/nginx.conf']
 
 networks:
   e2e:

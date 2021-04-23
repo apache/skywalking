@@ -78,6 +78,11 @@ public class DefaultScopeDefine {
     public static final int BROWSER_APP_SINGLE_VERSION_TRAFFIC = 39;
     public static final int BROWSER_APP_PAGE_TRAFFIC = 40;
 
+    public static final int LOG = 41;
+    public static final int ENDPOINT_META = 42;
+
+    public static final int EVENT = 43;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
@@ -293,6 +298,34 @@ public class DefaultScopeDefine {
      */
     public static boolean inEndpointRelationCatalog(int scopeId) {
         return ENDPOINT_RELATION_CATALOG.containsKey(scopeId);
+    }
+
+    /**
+     * Get the catalog string name of the given scope
+     *
+     * @param scope id of the source scope.
+     * @return literal string name of the catalog owning the scope.
+     */
+    public static String catalogOf(int scope) {
+        if (inServiceCatalog(scope)) {
+            return SERVICE_CATALOG_NAME;
+        }
+        if (inServiceInstanceCatalog(scope)) {
+            return SERVICE_INSTANCE_CATALOG_NAME;
+        }
+        if (inEndpointCatalog(scope)) {
+            return ENDPOINT_CATALOG_NAME;
+        }
+        if (inServiceRelationCatalog(scope)) {
+            return SERVICE_RELATION_CATALOG_NAME;
+        }
+        if (inServiceInstanceRelationCatalog(scope)) {
+            return SERVICE_INSTANCE_RELATION_CATALOG_NAME;
+        }
+        if (inEndpointRelationCatalog(scope)) {
+            return ENDPOINT_RELATION_CATALOG_NAME;
+        }
+        return "UNKNOWN";
     }
 
     /**

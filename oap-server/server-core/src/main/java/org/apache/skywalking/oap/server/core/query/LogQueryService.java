@@ -19,15 +19,21 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.query.type.LogState;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
+
+import static java.util.Objects.nonNull;
 
 public class LogQueryService implements Service {
 
@@ -45,21 +51,45 @@ public class LogQueryService implements Service {
         return logQueryDAO;
     }
 
-    public Logs queryLogs(final String metricName,
-                          int serviceId,
-                          int serviceInstanceId,
+    public boolean supportQueryLogsByKeywords() {
+        return getLogQueryDAO().supportQueryLogsByKeywords();
+    }
+
+    public Logs queryLogs(String serviceId,
+                          String serviceInstanceId,
                           String endpointId,
-                          String traceId,
-                          LogState state,
-                          String stateCode,
+                          String endpointName,
+                          TraceScopeCondition relatedTrace,
                           Pagination paging,
+                          Order queryOrder,
                           final long startTB,
-                          final long endTB) throws IOException {
+                          final long endTB,
+                          final List<Tag> tags,
+                          List<String> keywordsOfContent,
+                          List<String> excludingKeywordsOfContent) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        Logs logs = getLogQueryDAO().queryLogs(
-            metricName, serviceId, serviceInstanceId, endpointId, traceId, state, stateCode, paging, page
-                .getFrom(), page.getLimit(), startTB, endTB);
+        if (nonNull(keywordsOfContent)) {
+            keywordsOfContent = keywordsOfContent.stream()
+                                                 .filter(StringUtil::isNotEmpty)
+                                                 .collect(Collectors.toList());
+        }
+        if (nonNull(excludingKeywordsOfContent)) {
+            excludingKeywordsOfContent = excludingKeywordsOfContent.stream()
+                                                                   .filter(StringUtil::isNotEmpty)
+                                                                   .collect(Collectors.toList());
+        }
+
+        Logs logs = getLogQueryDAO().queryLogs(serviceId,
+                                               serviceInstanceId,
+                                               endpointId,
+                                               endpointName,
+                                               relatedTrace,
+                                               queryOrder,
+                                               page.getFrom(), page.getLimit(),
+                                               startTB, endTB, tags,
+                                               keywordsOfContent, excludingKeywordsOfContent
+        );
         logs.getLogs().forEach(log -> {
             if (StringUtil.isNotEmpty(log.getServiceId())) {
                 final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
@@ -71,7 +101,6 @@ public class LogQueryService implements Service {
                     .analysisId(log.getServiceInstanceId());
                 log.setServiceInstanceName(instanceIDDefinition.getName());
             }
-            log.setEndpointId(log.getEndpointId());
         });
         return logs;
     }

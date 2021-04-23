@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -38,6 +40,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLContext;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +74,8 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -84,6 +89,7 @@ import org.elasticsearch.action.support.ActiveShardCount;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -209,6 +215,51 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return response.isAcknowledged();
     }
 
+    public boolean updateIndexMapping(String indexName, Map<String, Object> mapping) throws IOException {
+        indexName = formatIndexName(indexName);
+        Map<String, Object> properties = (Map<String, Object>) mapping.get(ElasticSearchClient.TYPE);
+        PutMappingRequest putMappingRequest = new PutMappingRequest(indexName);
+        Gson gson = new Gson();
+        putMappingRequest.type(ElasticSearchClient.TYPE);
+        putMappingRequest.source(gson.toJson(properties), XContentType.JSON);
+        PutMappingResponse response = client.indices().putMapping(putMappingRequest);
+        log.debug("put {} index mapping finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        return response.isAcknowledged();
+    }
+
+    public Map<String, Object> getIndex(String indexName) throws IOException {
+        if (StringUtil.isBlank(indexName)) {
+            return new HashMap<>();
+        }
+        indexName = formatIndexName(indexName);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(HttpGet.METHOD_NAME, "/" + indexName);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            return (Map<String, Object>) Optional.ofNullable(templates.get(indexName)).orElse(new HashMap<>());
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
     public boolean createIndex(String indexName, Map<String, Object> settings,
                                Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
@@ -286,6 +337,39 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return client.indices().exists(request);
     }
 
+    public Map<String, Object> getTemplate(String name) throws IOException {
+        name = formatIndexName(name);
+        try {
+            Response response = client.getLowLevelClient()
+                                      .performRequest(HttpGet.METHOD_NAME, "/_template/" + name);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                healthChecker.health();
+                throw new IOException(
+                    "The response status code of template exists request should be 200, but it is " + statusCode);
+            }
+            Type type = new TypeToken<HashMap<String, Object>>() {
+            }.getType();
+            Map<String, Object> templates = new Gson().<HashMap<String, Object>>fromJson(
+                new InputStreamReader(response.getEntity().getContent()),
+                type
+            );
+            if (templates.containsKey(name)) {
+                return (Map<String, Object>) templates.get(name);
+            }
+            return new HashMap<>();
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                return new HashMap<>();
+            }
+            healthChecker.unHealth(e);
+            throw e;
+        } catch (IOException t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
+    }
+
     public boolean isExistsTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
@@ -302,8 +386,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         }
     }
 
-    public boolean createTemplate(String indexName, Map<String, Object> settings,
-                                  Map<String, Object> mapping) throws IOException {
+    public boolean createOrUpdateTemplate(String indexName, Map<String, Object> settings,
+                                          Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
 
         String[] patterns = new String[] {indexName + "-*"};
@@ -327,11 +411,13 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public boolean deleteTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
-        Response response = client.getLowLevelClient().performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
+        Response response = client.getLowLevelClient()
+                                  .performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
-    public SearchResponse search(IndexNameMaker indexNameMaker, SearchSourceBuilder searchSourceBuilder) throws IOException {
+    public SearchResponse search(IndexNameMaker indexNameMaker,
+                                 SearchSourceBuilder searchSourceBuilder) throws IOException {
         String[] indexNames = Arrays.stream(indexNameMaker.make()).map(this::formatIndexName).toArray(String[]::new);
         return doSearch(searchSourceBuilder, indexNames);
     }
@@ -342,7 +428,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     }
 
     protected SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
-                                    String... indexNames) throws IOException {
+                                      String... indexNames) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexNames);
         searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
         searchRequest.types(TYPE);

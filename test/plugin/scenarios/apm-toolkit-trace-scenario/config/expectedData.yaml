@@ -22,7 +22,7 @@ segmentItems:
     - {operationName: tool-kit-set-operation-name, parentSpanId: 0,
       spanId: 1, spanLayer: Unknown, startTime: nq 0, endTime: nq 0,
       componentId: 0, isError: false, spanType: Local, peer: '', skipAnalysis: true}
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTag()
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTag()
       parentSpanId: 0
       spanId: 2
       spanLayer: Unknown
@@ -35,7 +35,7 @@ segmentItems:
       tags:
       - {key: key, value: value}
       skipAnalysis: 'true'
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testInfo(java.lang.String)
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testInfo(java.lang.String)
       parentSpanId: 0
       spanId: 3
       spanLayer: Unknown
@@ -52,7 +52,7 @@ segmentItems:
       tags:
       - {key: testTag, value: testInfoParam}
       skipAnalysis: 'true'
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testDebug()
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testDebug()
       parentSpanId: 0
       spanId: 4
       spanLayer: Unknown
@@ -67,11 +67,11 @@ segmentItems:
         - {key: event, value: debug}
         - {key: message, value: TestDebugMsg}
       skipAnalysis: 'true'
-    - {operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testError(),
+    - {operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testError(),
        parentSpanId: 0, spanId: 5, spanLayer: Unknown, startTime: nq 0, endTime: nq 0,
        componentId: 0, isError: true, spanType: Local, peer: '',
       skipAnalysis: 'true'}
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorMsg()
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorMsg()
       parentSpanId: 0
       spanId: 6
       spanLayer: Unknown
@@ -86,7 +86,7 @@ segmentItems:
         - {key: event, value: error}
         - {key: message, value: TestErrorMsg}
       skipAnalysis: 'true'
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorThrowable()
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorThrowable()
       parentSpanId: 0
       spanId: 7
       spanLayer: Unknown
@@ -103,7 +103,7 @@ segmentItems:
         - {key: message, value: Test-Exception}
         - {key: stack, value: not null}
       skipAnalysis: 'true'
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotation(java.lang.String,java.lang.String)
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotation(java.lang.String,java.lang.String)
       parentSpanId: 0
       spanId: 8
       spanLayer: Unknown
@@ -117,7 +117,7 @@ segmentItems:
       - {key: p1, value: testTagAnnotationParam1}
       - {key: p2, value: testTagAnnotationParam2}
       skipAnalysis: 'true'
-    - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotationReturnInfo(java.lang.String,java.lang.Integer)
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotationReturnInfo(java.lang.String,java.lang.Integer)
       parentSpanId: 0
       spanId: 9
       spanLayer: Unknown
@@ -129,6 +129,21 @@ segmentItems:
       peer: ''
       tags:
       - {key: username, value: zhangsan}
+      skipAnalysis: 'true'
+    - operationName: test.apache.skywalking.apm.testcase.toolkit.controller.TestService.testStatic(java.lang.String,java.lang.Integer)
+      parentSpanId: 0
+      spanId: 10
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 0
+      isError: false
+      spanType: Local
+      peer: ''
+      tags:
+      - {key: p1, value: lisi}
+      - {key: p2, value: '16'}
+      - {key: username, value: lisi}
       skipAnalysis: 'true'
     - operationName: /case/tool-kit
       parentSpanId: -1
@@ -143,6 +158,9 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/tool-kit'}
       - {key: http.method, value: GET}
+      - {key: traceID, value: not null}
+      - {key: segmentID, value: not null}
+      - {key: spanID, value: not null}
       skipAnalysis: 'true'
       refs:
       - {parentEndpoint: /app, networkAddress: '127.0.0.1:8080', refType: CrossProcess,
@@ -309,3 +327,27 @@ segmentItems:
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: apm-toolkit-trace-scenario,
         traceId: not null}
       skipAnalysis: 'true'
+
+meterItems:
+- serviceName: apm-toolkit-trace-scenario
+  meterSize: 3
+  meters:
+    - meterId:
+        name: test_counter
+        tags:
+          - {name: ck1, value: cv1}
+      singleValue: gt 0
+    - meterId:
+        name: test_gauge
+        tags:
+          - {name: gk1, value: gv1}
+      singleValue: gt 0
+    - meterId:
+        name: test_histogram
+        tags:
+          - {name: hk1, value: hv1}
+      histogramBuckets:
+        - 0.0
+        - 1.0
+        - 5.0
+        - 10.0

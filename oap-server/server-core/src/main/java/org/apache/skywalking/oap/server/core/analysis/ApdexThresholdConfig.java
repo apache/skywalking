@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Apdex threshold configuration dictionary adapter. Looking up a service apdex threshold from dynamic config service.
@@ -94,7 +95,7 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
 
     @SuppressWarnings("unchecked")
     private void updateConfig(final Reader contentRender) {
-        dictionary = (Map<String, Integer>) new Yaml().load(contentRender);
+        dictionary = (Map<String, Integer>) new Yaml(new SafeConstructor()).load(contentRender);
         if (dictionary == null) {
             dictionary = Collections.emptyMap();
         }

@@ -47,7 +47,9 @@ public class CaseController {
     @RequestMapping("/okhttp-case")
     @ResponseBody
     public String okHttpScenario() {
-        Request request = new Request.Builder().url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-0").build();
+        // Like gateway forward trace header.
+        Request request = new Request.Builder().url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-0")
+                                               .header("sw8", "123456").build();
 
         new OkHttpClient().newCall(request).enqueue(new Callback() {
             @Override
@@ -58,6 +60,7 @@ public class CaseController {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Request request = new Request.Builder().url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-1")
+                                                       .header("sw8", "123456")
                                                        .build();
                 new OkHttpClient().newCall(request).execute();
             }

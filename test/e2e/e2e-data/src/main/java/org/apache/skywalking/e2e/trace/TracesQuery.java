@@ -20,12 +20,19 @@ package org.apache.skywalking.e2e.trace;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class TracesQuery extends AbstractQuery<TracesQuery> {
     private String traceState = "ALL";
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
     private String queryOrder = "BY_DURATION";
+    private List<Map<String, String>> tags = Collections.emptyList();
 
     public String traceState() {
         return traceState;
@@ -59,6 +66,11 @@ public class TracesQuery extends AbstractQuery<TracesQuery> {
         return this;
     }
 
+    public TracesQuery pageSize(int pageSize) {
+        this.pageSize = String.valueOf(pageSize);
+        return this;
+    }
+
     public String needTotal() {
         return needTotal;
     }
@@ -87,8 +99,23 @@ public class TracesQuery extends AbstractQuery<TracesQuery> {
         return this;
     }
 
-    public TracesQuery pageSize(int pageSize) {
-        this.pageSize = String.valueOf(pageSize);
+    public List<Map<String, String>> tags() {
+        return tags;
+    }
+
+    public TracesQuery tags(List<Map<String, String>> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public TracesQuery addTag(String key, String value) {
+        if (Collections.EMPTY_LIST.equals(tags)) {
+            tags = new ArrayList<>();
+        }
+        Map<String, String> tag = new HashMap<>();
+        tag.put("key", key);
+        tag.put("value", value);
+        tags.add(tag);
         return this;
     }
 }

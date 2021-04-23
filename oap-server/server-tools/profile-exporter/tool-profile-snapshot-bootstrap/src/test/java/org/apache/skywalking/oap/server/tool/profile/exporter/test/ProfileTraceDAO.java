@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
@@ -52,7 +52,7 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
                                        int from,
                                        TraceState traceState,
                                        QueryOrder queryOrder,
-                                       final List<SpanTag> tags) throws IOException {
+                                       final List<Tag> tags) throws IOException {
         return null;
     }
 

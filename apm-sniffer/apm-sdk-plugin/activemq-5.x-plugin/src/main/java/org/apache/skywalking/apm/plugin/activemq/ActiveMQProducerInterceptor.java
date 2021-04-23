@@ -59,6 +59,7 @@ public class ActiveMQProducerInterceptor implements InstanceMethodsAroundInterce
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan, activeMQDestination.getPhysicalName());
         }
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.ACTIVEMQ_PRODUCER);
         CarrierItem next = contextCarrier.items();

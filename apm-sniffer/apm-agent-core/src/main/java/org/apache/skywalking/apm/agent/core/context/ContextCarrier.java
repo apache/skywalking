@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.io.Serializable;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
@@ -30,25 +31,79 @@ import org.apache.skywalking.apm.util.StringUtil;
  * TracingContext}.
  * <p>
  */
-@Setter
-@Getter
+@Setter(AccessLevel.PACKAGE)
 public class ContextCarrier implements Serializable {
+    @Getter
     private String traceId;
+    /**
+     * The segment id of the parent.
+     */
+    @Getter
     private String traceSegmentId;
+    /**
+     * The span id in the parent segment.
+     */
+    @Getter
     private int spanId = -1;
+    @Getter
     private String parentService = Constants.EMPTY_STRING;
+    @Getter
     private String parentServiceInstance = Constants.EMPTY_STRING;
+    /**
+     * The endpoint(entrance URI/method signature) of the parent service.
+     */
+    @Getter
     private String parentEndpoint;
+    /**
+     * The network address(ip:port, hostname:port) used in the parent service to access the current service.
+     */
+    @Getter
     private String addressUsedAtClient;
-
-    private CorrelationContext correlationContext = new CorrelationContext();
+    /**
+     * The extension context contains the optional context to enhance the analysis in some certain scenarios.
+     */
+    @Getter(AccessLevel.PACKAGE)
     private ExtensionContext extensionContext = new ExtensionContext();
+    /**
+     * User's custom context container. The context propagates with the main tracing context.
+     */
+    @Getter(AccessLevel.PACKAGE)
+    private CorrelationContext correlationContext = new CorrelationContext();
 
+    /**
+     * @return the list of items, which could exist in the current tracing context.
+     */
     public CarrierItem items() {
         SW8ExtensionCarrierItem sw8ExtensionCarrierItem = new SW8ExtensionCarrierItem(extensionContext, null);
-        SW8CorrelationCarrierItem sw8CorrelationCarrierItem = new SW8CorrelationCarrierItem(correlationContext, sw8ExtensionCarrierItem);
+        SW8CorrelationCarrierItem sw8CorrelationCarrierItem = new SW8CorrelationCarrierItem(
+            correlationContext, sw8ExtensionCarrierItem);
         SW8CarrierItem sw8CarrierItem = new SW8CarrierItem(this, sw8CorrelationCarrierItem);
         return new CarrierItemHead(sw8CarrierItem);
+    }
+
+    /**
+     * @return the injector for the extension context.
+     */
+    public ExtensionInjector extensionInjector() {
+        return new ExtensionInjector(extensionContext);
+    }
+
+    /**
+     * Extract the extension context to tracing context
+     */
+    void extractExtensionTo(TracingContext tracingContext) {
+        tracingContext.getExtensionContext().extract(this);
+        // The extension context could have field not to propagate further, so, must use the this.* to process.
+        this.extensionContext.handle(tracingContext.activeSpan());
+    }
+
+    /**
+     * Extract the correlation context to tracing context
+     */
+    void extractCorrelationTo(TracingContext tracingContext) {
+        tracingContext.getCorrelationContext().extract(this);
+        // The correlation context could have field not to propagate further, so, must use the this.* to process.
+        this.correlationContext.handle(tracingContext.activeSpan());
     }
 
     /**
@@ -122,10 +177,6 @@ public class ContextCarrier implements Serializable {
                 && StringUtil.isNotEmpty(addressUsedAtClient);
         }
         return false;
-    }
-
-    public CorrelationContext getCorrelationContext() {
-        return correlationContext;
     }
 
     public enum HeaderVersion {

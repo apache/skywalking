@@ -44,6 +44,14 @@
     </modules>
 
     <properties>
+        <sw.version>
+            <!--
+            Please manually set the SkyWalking version here to build in the IDE
+            (if you build from command line, just use ./mvnw -Dsw.version=x.y.z),
+            but make sure not to check it into the code base / git
+            -->
+        </sw.version>
+
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -57,14 +65,32 @@
         <guava.version>28.2-jre</guava.version>
         <h2.version>1.4.199</h2.version>
         <mysql.version>8.0.13</mysql.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.16</lombok.version>
+        <kafka-clients.version>2.4.1</kafka-clients.version>
+        <jacoco.version>0.8.6</jacoco.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+        <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
 
-        <testcontainers.version>1.13.0</testcontainers.version>
+        <testcontainers.version>1.15.1</testcontainers.version>
     </properties>
+
+    <repositories>
+       <repository>
+           <id>apache.snapshots</id>
+           <name>Apache Development Snapshot Repository</name>
+           <url>https://repository.apache.org/content/groups/snapshots/</url>
+           <releases>
+               <enabled>false</enabled>
+           </releases>
+           <snapshots>
+               <enabled>true</enabled>
+           </snapshots>
+       </repository>
+    </repositories>
+
 
     <dependencyManagement>
         <dependencies>

@@ -82,11 +82,160 @@ segmentItems:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
-      skipAnalysis: 'false'
-    - operationName: Elasticsearch/UpdateRequest
+    - operationName: Elasticsearch/SearchRequest
       operationId: 0
       parentSpanId: 0
       spanId: 5
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+    - operationName: Elasticsearch/SearchScrollRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 6
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/SearchRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 7
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+    - operationName: Elasticsearch/SearchScrollRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 8
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/SearchRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 9
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+    - operationName: Elasticsearch/ClearScrollRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 10
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/SearchRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 11
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+    - operationName: Elasticsearch/ClearScrollRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 12
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/SearchTemplateRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 13
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+    - operationName: Elasticsearch/SearchTemplateRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 14
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+    - operationName: Elasticsearch/UpdateRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 15
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -99,10 +248,74 @@ segmentItems:
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
       skipAnalysis: 'false'
+    - operationName: Elasticsearch/AnalyzeRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 16
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: analyzer, value: ''}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/AnalyzeRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 17
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: analyzer, value: ''}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/DeleteByQueryRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 18
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
+    - operationName: Elasticsearch/DeleteByQueryRequest
+      operationId: 0
+      parentSpanId: 0
+      spanId: 19
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 77
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+        - {key: db.type, value: Elasticsearch}
+        - {key: db.instance, value: not null}
+        - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/DeleteRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 6
+      spanId: 20
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -117,7 +330,7 @@ segmentItems:
     - operationName: Elasticsearch/IndexRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 7
+      spanId: 21
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -136,7 +349,7 @@ segmentItems:
     - operationName: Elasticsearch/actionGet
       operationId: 0
       parentSpanId: 0
-      spanId: 8
+      spanId: 22
       startTime: nq 0
       endTime: nq 0
       componentId: 48
@@ -149,7 +362,7 @@ segmentItems:
     - operationName: Elasticsearch/GetRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 9
+      spanId: 23
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -168,7 +381,7 @@ segmentItems:
     - operationName: Elasticsearch/SearchRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 10
+      spanId: 24
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -187,7 +400,7 @@ segmentItems:
     - operationName: Elasticsearch/UpdateRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 11
+      spanId: 25
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -206,7 +419,7 @@ segmentItems:
     - operationName: Elasticsearch/DeleteRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 12
+      spanId: 26
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
@@ -225,7 +438,7 @@ segmentItems:
     - operationName: Elasticsearch/DeleteIndexRequest
       operationId: 0
       parentSpanId: 0
-      spanId: 13
+      spanId: 27
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0

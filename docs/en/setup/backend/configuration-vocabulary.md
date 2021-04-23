@@ -30,6 +30,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | instanceNameMaxLength| Max length limitation of service instance name. The max length of service + instance names should be less than 200.|SW_INSTANCE_NAME_MAX_LENGTH|70|
 | - | - | endpointNameMaxLength| Max length limitation of endpoint name. The max length of service + endpoint names should be less than 240.|SW_ENDPOINT_NAME_MAX_LENGTH|150|
 | - | - | searchableTracesTags | Define the set of span tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_TAG_KEYS | http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker|
+| - | - | searchableLogsTags | Define the set of log tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_LOGS_TAG_KEYS | level |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_CORE_GRPC_THREAD_POOL_SIZE | CPU core * 4|
 | - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_CORE_GRPC_POOL_QUEUE_SIZE | 10000|
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CALL | - |
@@ -38,6 +39,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxSizeOfNetworkAddressAlias|Max size of network address detected in the be monitored system.| - | 1_000_000|
 | - | - | maxPageSizeOfQueryProfileSnapshot|The max size in every OAP query for snapshot analysis| - | 500 |
 | - | - | maxSizeOfAnalyzeProfileSnapshot|The max number of snapshots analyzed by OAP| - | 12000 |
+| - | - | syncThreads|The number of threads used to synchronously refresh the metrics data to the storage.| SW_CORE_SYNC_THREADS | 2 |
+| - | - | maxSyncOperationNum|The maximum number of processes supported for each synchronous storage operation. When the number of the flush data is greater than this value, it will be assigned to multiple cores for execution.| SW_CORE_MAX_SYNC_OPERATION_NUM | 50000 |
 |cluster|standalone| - | standalone is not suitable for one node running, no available configuration.| - | - |
 | - | zookeeper|nameSpace|The namespace, represented by root path, isolates the configurations in the zookeeper.|SW_NAMESPACE| `/`, root path|
 | - | - | hostPort|hosts and ports of Zookeeper Cluster|SW_CLUSTER_ZK_HOST_PORT| localhost:2181|
@@ -66,6 +69,10 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | namespace| Namespace used by SkyWalking node coordination.| SW_CLUSTER_NACOS_NAMESPACE|public|
 | - | - | internalComHost| The hostname registered in the Nacos for the internal communication of OAP cluster.| - | -|
 | - | - | internalComPort| The port registered in the Nacos for the internal communication of OAP cluster.| - | -1|
+| - | - | username | Nacos Auth username | SW_CLUSTER_NACOS_USERNAME | - |
+| - | - | password | Nacos Auth password | SW_CLUSTER_NACOS_PASSWORD | - |
+| - | - | accessKey | Nacos Auth accessKey | SW_CLUSTER_NACOS_ACCESSKEY | - |
+| - | - | secretKey | Nacos Auth secretKey  | SW_CLUSTER_NACOS_SECRETKEY | - |
 | storage|elasticsearch| - | ElasticSearch 6 storage implementation | - | - |
 | - | - | nameSpace | Prefix of indexes created and used by SkyWalking. | SW_NAMESPACE | - |
 | - | - | clusterNodes | ElasticSearch cluster nodes for client connection.| SW_STORAGE_ES_CLUSTER_NODES |localhost|
@@ -81,7 +88,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | superDatasetDayStep | Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0.|SW_SUPERDATASET_STORAGE_DAY_STEP|-1 |
 | - | - | superDatasetIndexShardsFactor | Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.|SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR|5 |
 | - | - | superDatasetIndexReplicasNumber | Represent the replicas number in the super size dataset record index.|SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER|0 |
-| - | - | bulkActions| Bulk size of the batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 1000|
+| - | - | bulkActions| Async bulk size of the record data batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 1000|
 | - | - | flushInterval| Period of flush, no matter `bulkActions` reached or not. Unit is second.| SW_STORAGE_ES_FLUSH_INTERVAL | 10|
 | - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
 | - | - | resultWindowMaxSize | The max size of dataset when OAP loading cache, such as network alias. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
@@ -104,7 +111,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | superDatasetDayStep | Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0.|SW_SUPERDATASET_STORAGE_DAY_STEP|-1 |
 | - | - | superDatasetIndexShardsFactor | Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.|SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR|5 |
 | - | - | superDatasetIndexReplicasNumber | Represent the replicas number in the super size dataset record index.|SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER|0 |
-| - | - | bulkActions| Bulk size of the batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 1000|
+| - | - | bulkActions| Async bulk size of the record data batch execution. | SW_STORAGE_ES_BULK_ACTIONS| 1000|
+| - | - | syncBulkActions| Sync bulk size of the metrics data batch execution. | SW_STORAGE_ES_SYNC_BULK_ACTIONS| 50000|
 | - | - | flushInterval| Period of flush, no matter `bulkActions` reached or not. Unit is second.| SW_STORAGE_ES_FLUSH_INTERVAL | 10|
 | - | - | concurrentRequests| The number of concurrent requests allowed to be executed. | SW_STORAGE_ES_CONCURRENT_REQUESTS| 2 |
 | - | - | resultWindowMaxSize | The max size of dataset when OAP loading cache, such as network alias. | SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE | 10000|
@@ -125,6 +133,11 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | metadataQueryMaxSize | The max size of metadata per query. | SW_STORAGE_MYSQL_QUERY_MAX_SIZE | 5000 |
 | - | - | maxSizeOfArrayColumn | Some entities, such as trace segment, include the logic column with multiple values. In the MySQL, we use multiple physical columns to host the values, such as, Change column_a with values [1,2,3,4,5] to `column_a_0 = 1, column_a_1 = 2, column_a_2 = 3 , column_a_3 = 4, column_a_4 = 5` | SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN | 20 |
 | - | - | numOfSearchableValuesPerTag | In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such as multiple HTTP exit spans all have their own `http.method` tag. This configuration set the limitation of max num of values for the same tag key. | SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG | 2 |
+| - |postgresql| - | PostgreSQL storage. | - | - |
+| - | - | properties | Hikari connection pool configurations | - | Listed in the `application.yaml`. |
+| - | - | metadataQueryMaxSize | The max size of metadata per query. | SW_STORAGE_MYSQL_QUERY_MAX_SIZE | 5000 |
+| - | - | maxSizeOfArrayColumn | Some entities, such as trace segment, include the logic column with multiple values. In the PostgreSQL, we use multiple physical columns to host the values, such as, Change column_a with values [1,2,3,4,5] to `column_a_0 = 1, column_a_1 = 2, column_a_2 = 3 , column_a_3 = 4, column_a_4 = 5` | SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN | 20 |
+| - | - | numOfSearchableValuesPerTag | In a trace segment, it includes multiple spans with multiple tags. Different spans could have same tag keys, such as multiple HTTP exit spans all have their own `http.method` tag. This configuration set the limitation of max num of values for the same tag key. | SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG | 2 |
 | - |influxdb| - | InfluxDB storage. |- | - |
 | - | - | url| InfluxDB connection URL. | SW_STORAGE_INFLUXDB_URL | http://localhost:8086|
 | - | - | user | User name of InfluxDB. | SW_STORAGE_INFLUXDB_USER | root|
@@ -132,16 +145,26 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | database | Database of InfluxDB. | SW_STORAGE_INFLUXDB_DATABASE | skywalking |
 | - | - | actions | The number of actions to collect. | SW_STORAGE_INFLUXDB_ACTIONS | 1000 |
 | - | - | duration | The time to wait at most (milliseconds). | SW_STORAGE_INFLUXDB_DURATION | 1000|
+| - | - | batchEnabled | If true, write points with batch api. | SW_STORAGE_INFLUXDB_BATCH_ENABLED | true|
 | - | - | fetchTaskLogMaxSize | The max number of fetch task log in a request. | SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE | 5000|
+| - | - | connectionResponseFormat | The response format of connection to influxDB, cannot be anything but MSGPACK or JSON. | SW_STORAGE_INFLUXDB_CONNECTION_RESPONSE_FORMAT | MSGPACK |
 | agent-analyzer | default | Agent Analyzer. | SW_AGENT_ANALYZER | default |
 | - | -| sampleRate|Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default.|SW_TRACE_SAMPLE_RATE|10000|
 | - | - |slowDBAccessThreshold|The slow database access thresholds. Unit ms.|SW_SLOW_DB_THRESHOLD|default:200,mongodb:100|
 | - | - |forceSampleErrorSegment|When sampling mechanism activated, this config would make the error status segment sampled, ignoring the sampling rate.|SW_FORCE_SAMPLE_ERROR_SEGMENT|true|
 | - | - |segmentStatusAnalysisStrategy|Determine the final segment status from the status of spans. Available values are `FROM_SPAN_STATUS` , `FROM_ENTRY_SPAN` and `FROM_FIRST_SPAN`. `FROM_SPAN_STATUS` represents the segment status would be error if any span is in error status. `FROM_ENTRY_SPAN` means the segment status would be determined by the status of entry spans only. `FROM_FIRST_SPAN` means the segment status would be determined by the status of the first span only.|SW_SEGMENT_STATUS_ANALYSIS_STRATEGY|FROM_SPAN_STATUS|
+| - | - |noUpstreamRealAddressAgents|Exit spans with the component in the list would not generate the client-side instance relation metrics. As some tracing plugins can't collect the real peer ip address, such as Nginx-LUA and Envoy. |SW_NO_UPSTREAM_REAL_ADDRESS|6000,9000|
+| - | - |slowTraceSegmentThreshold|Setting this threshold about the latency would make the slow trace segments sampled if they cost more time, even the sampling mechanism activated. The default value is `-1`, which means would not sample slow traces. Unit, millisecond. |SW_SLOW_TRACE_SEGMENT_THRESHOLD|-1|
+| - | - |meterAnalyzerActiveFiles|Which files could be meter analyzed, files split by ","|SW_METER_ANALYZER_ACTIVE_FILES||
 | receiver-sharing-server|default| Sharing server provides new gRPC and restful servers for data collection. Ana make the servers in the core module working for internal communication only.| - | - |
-| - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report| - | - |
-| - | - | restPort | Binding port of restful service |  - | - |
-| - | - | restContextPath| Web context path of restful service| - | - |
+| - | - | restHost| Binding IP of restful service. Services include GraphQL query and HTTP data report| SW_RECEIVER_SHARING_REST_HOST | - |
+| - | - | restPort | Binding port of restful service | SW_RECEIVER_SHARING_REST_PORT | - |
+| - | - | restContextPath| Web context path of restful service| SW_RECEIVER_SHARING_REST_CONTEXT_PATH | - |
+| - | - | restMinThreads| Min threads number of restful service| SW_RECEIVER_SHARING_JETTY_MIN_THREADS|1|
+| - | - | restMaxThreads| Max threads number of restful service| SW_RECEIVER_SHARING_JETTY_MAX_THREADS|200|
+| - | - | restIdleTimeOut| Connector idle timeout in milliseconds of restful service| SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT|30000|
+| - | - | restAcceptorPriorityDelta| Thread priority delta to give to acceptor threads of restful service| SW_RECEIVER_SHARING_JETTY_DELTA|0|
+| - | - | restAcceptQueueSize| ServerSocketChannel backlog  of restful service| SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE|0|
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_GRPC_HOST | 0.0.0.0. Not Activated |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_GRPC_PORT | Not Activated |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_RECEIVER_GRPC_THREAD_POOL_SIZE | CPU core * 4|
@@ -151,30 +174,31 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | gRPCSslCertChainPath| The file path of gRPC SSL cert chain| SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH | - |
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL | - |
 | - | - | authentication | The token text for the authentication. Work for gRPC connection only. Once this is set, the client is required to use the same token. | SW_AUTHENTICATION | - |
+| log-analyzer | default | Log Analyzer. | SW_LOG_ANALYZER | default |
+| - | - | lalFiles | The LAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_LAL_FILES | default |
+| - | - | malFiles | The MAL configuration file names (without file extension) to be activated. Read [LAL](../../concepts-and-designs/lal.md) for more details. | SW_LOG_MAL_FILES | "" |
+| event-analyzer | default | Event Analyzer. | SW_EVENT_ANALYZER | default |
 | receiver-register|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-trace|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-jvm| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-clr| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | receiver-profile| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
+| receiver-zabbix| default| Read [receiver doc](backend-zabbix.md) for more details | - | - |
+| - | - | port| Exported tcp port, Zabbix agent could connect and transport data| SW_RECEIVER_ZABBIX_PORT | 10051 |
+| - | - | host| Bind to host| SW_RECEIVER_ZABBIX_HOST | 0.0.0.0 |
+| - | - | activeFiles| Enable config when receive agent request| SW_RECEIVER_ZABBIX_ACTIVE_FILES | agent |
 | service-mesh| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
-| istio-telemetry| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | envoy-metric| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | - | - | acceptMetricsService | Open Envoy Metrics Service analysis | SW_ENVOY_METRIC_SERVICE | true|
 | - | - | alsHTTPAnalysis | Open Envoy Access Log Service analysis. Value = `k8s-mesh` means open the analysis | SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS | - |
-| receiver-oc | default | Read [receiver doc](backend-receivers.md) for more details | - | - |
-| - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_OC_RECEIVER_GRPC_HOST | - |
-| - | - | gRPCPort| Binding port of gRPC service | SW_OC_RECEIVER_GRPC_PORT | - |
-| - | - | gRPCThreadPoolSize|Pool size of gRPC server| - | CPU core * 4|
-| - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| - | 10000|
-| - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | - | - |
-| - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | - | 4M(based on Netty) |
+| - | - | k8sServiceNameRule | `k8sServiceNameRule` allows you to customize the service name in ALS via Kubernetes metadata, the available variables are `pod`, `service`, e.g., you can use `${service.metadata.name}-${pod.metadata.labels.version}` to append the version number to the service name. Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell. | - |
+| receiver-otel | default | Read [receiver doc](backend-receivers.md) for more details | - | - |
+| - | - | enabledHandlers|Enabled handlers for otel| SW_OTEL_RECEIVER_ENABLED_HANDLERS | - |
+| - | - | enabledOcRules|Enabled metric rules for OC handler | SW_OTEL_RECEIVER_ENABLED_OC_RULES | - |
 | receiver_zipkin |default| Read [receiver doc](backend-receivers.md) | - | - |
 | - | - | restHost| Binding IP of restful service. |SW_RECEIVER_ZIPKIN_HOST|0.0.0.0|
 | - | - | restPort | Binding port of restful service | SW_RECEIVER_ZIPKIN_PORT|9411|
 | - | - | restContextPath| Web context path of restful service| SW_RECEIVER_ZIPKIN_CONTEXT_PATH|/|
-| - | - | needAnalysis|Analysis zipkin span to generate metrics| - | false|
-| - | - | maxCacheSize| Max cache size for span analysis | - | 1_000_000 |
-| - | - | expireTime| The expire time of analysis cache, unit is second. | - | 20|
 | receiver_jaeger | default| Read [receiver doc](backend-receivers.md) | - | - |
 | - | - | gRPCHost|Binding IP of gRPC service. Services include gRPC data report and internal communication among OAP nodes| SW_RECEIVER_JAEGER_HOST | - |
 | - | - | gRPCPort| Binding port of gRPC service | SW_RECEIVER_JAEGER_PORT | - |
@@ -186,24 +210,29 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | active | Activate the Prometheus fetcher. | SW_PROMETHEUS_FETCHER_ACTIVE | false |
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
+| - | - | namespace | namespace aims to isolate multi OAP cluster when using the same Kafka cluster.if you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. you should also set namespace in `agent.config`, the property named| SW_NAMESPACE | - |
 | - | - | groupId | A unique string that identifies the consumer group this consumer belongs to.| - | skywalking-consumer |
 | - | - | consumePartitions | Which PartitionId(s) of the topics assign to the OAP server. If more than one, is separated by commas. | SW_KAFKA_FETCHER_CONSUME_PARTITIONS | - |
 | - | - | isSharding | it was true when OAP Server in cluster. | SW_KAFKA_FETCHER_IS_SHARDING | false |
 | - | - | createTopicIfNotExist | If true, create the Kafka topic when it does not exist. | - | true |
 | - | - | partitions | The number of partitions for the topic being created. | SW_KAFKA_FETCHER_PARTITIONS | 3 |
-| - | - | enableMeterSystem | To enable to fetch and handle [Meter System](backend-meter.md) data. | SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM | false
+| - | - | enableMeterSystem | To enable to fetch and handle [Meter System](backend-meter.md) data. | SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM | false |
+| - | - | enableLog | To enable to fetch and handle log data. | SW_KAFKA_FETCHER_ENABLE_LOG | false |
 | - | - | replicationFactor | The replication factor for each partition in the topic being created. | SW_KAFKA_FETCHER_PARTITIONS_FACTOR | 2 |
+| - | - | kafkaHandlerThreadPoolSize | Pool size of kafka message handler executor. | SW_KAFKA_HANDLER_THREAD_POOL_SIZE | CPU core * 2 |
+| - | - | kafkaHandlerThreadPoolQueueSize | The queue size of kafka message handler executor. | SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE | 10000 |
 | - | - | topicNameOfMeters | Specifying Kafka topic name for Meter system data. | - | skywalking-meters |
 | - | - | topicNameOfMetrics | Specifying Kafka topic name for JVM Metrics data. | - | skywalking-metrics |
 | - | - | topicNameOfProfiling | Specifying Kafka topic name for Profiling data. | - | skywalking-profilings |
 | - | - | topicNameOfTracingSegments | Specifying Kafka topic name for Tracing data. | - | skywalking-segments |
 | - | - | topicNameOfManagements | Specifying Kafka topic name for service instance reporting and registering. | - | skywalking-managements |
+| - | - | topicNameOfLogs | Specifying Kafka topic name for log data. | - | skywalking-logs |
 | receiver-browser | default | Read [receiver doc](backend-receivers.md) for more details | - | - | - |
 | - | - | sampleRate | Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default. | SW_RECEIVER_BROWSER_SAMPLE_RATE | 10000 |
 | query | graphql | - | GraphQL query implementation | - |
 | - | - | path | Root path of GraphQL query and mutation. | SW_QUERY_GRAPHQL_PATH | /graphql|
 | alarm | default | - | Read [alarm doc](backend-alarm.md) for more details. | - |
-| telemetry | - | - | Read [telemetry doc](backend-telemetry.md) for more details. | - | 
+| telemetry | - | - | Read [telemetry doc](backend-telemetry.md) for more details. | - |
 | - | none| - | No op implementation | - |
 | - | prometheus| host | Binding host for Prometheus server fetching data| SW_TELEMETRY_PROMETHEUS_HOST|0.0.0.0|
 | - | - | port|  Binding port for Prometheus server fetching data|SW_TELEMETRY_PROMETHEUS_PORT|1234|
@@ -225,7 +254,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | etcd| clusterName| Service name used for SkyWalking cluster. |SW_CONFIG_ETCD_CLUSTER_NAME|default|
 | - | - | serverAddr| hosts and ports used of etcd cluster.| SW_CONFIG_ETCD_SERVER_ADDR|localhost:2379|
 | - | - | group |Additional prefix of the configuration key| SW_CONFIG_ETCD_GROUP | skywalking|
-| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 
+| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60
 | - | consul | hostPort| hosts and ports used of Consul cluster.| SW_CONFIG_CONSUL_HOST_AND_PORTS|localhost:8500|
 | - | - | aclToken| ALC Token of Consul. Empty string means `without ALC token`.| SW_CONFIG_CONSUL_ACL_TOKEN | - |
 | - | - | period | The period of data sync. Unit is second. | SW_CONFIG_CONSUL_PERIOD | 60 |
@@ -235,10 +264,16 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | nacos | serverAddr | Nacos Server Host | SW_CONFIG_NACOS_SERVER_ADDR | 127.0.0.1|
 | - | - | port | Nacos Server Port | SW_CONFIG_NACOS_SERVER_PORT | 8848 |
 | - | - | group | Nacos Configuration namespace | SW_CONFIG_NACOS_SERVER_NAMESPACE | - |
-| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_ZK_PERIOD | 60 |
+| - | - | period | The period of data sync. Unit is second. | SW_CONFIG_CONFIG_NACOS_PERIOD | 60 |
+| - | - | username | Nacos Auth username | SW_CONFIG_NACOS_USERNAME | - |
+| - | - | password | Nacos Auth password | SW_CONFIG_NACOS_PASSWORD | - |
+| - | - | accessKey | Nacos Auth accessKey | SW_CONFIG_NACOS_ACCESSKEY | - |
+| - | - | secretKey | Nacos Auth secretKey  | SW_CONFIG_NACOS_SECRETKEY | - |
 | exporter | grpc | targetHost | The host of target grpc server for receiving export data. | SW_EXPORTER_GRPC_HOST | 127.0.0.1 |
 | - | - | targetPort | The port of target grpc server for receiving export data. | SW_EXPORTER_GRPC_PORT | 9870 |
 | health-checker | default | checkIntervalSeconds | The period of check OAP internal health status. Unit is second. | SW_HEALTH_CHECKER_INTERVAL_SECONDS | 5 |
+| configuration-discovery | default | disableMessageDigest | If true, agent receives the latest configuration every time even without change. In default, OAP uses SHA512 message digest mechanism to detect changes of configuration. | SW_DISABLE_MESSAGE_DIGEST | false
+| receiver-event|default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 
 ## Notice
 ¹ System Environment Variable name could be declared and changed in the application.yml. The names listed here,

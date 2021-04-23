@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -48,24 +49,26 @@ public class StorageModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[]{
-                IBatchDAO.class,
-                StorageDAO.class,
-                IHistoryDeleteDAO.class,
-                INetworkAddressAliasDAO.class,
-                ITopologyQueryDAO.class,
-                IMetricsQueryDAO.class,
-                ITraceQueryDAO.class,
-                IMetadataQueryDAO.class,
-                IAggregationQueryDAO.class,
-                IAlarmQueryDAO.class,
-                ITopNRecordsQueryDAO.class,
-                ILogQueryDAO.class,
-                IProfileTaskQueryDAO.class,
-                IProfileTaskLogQueryDAO.class,
-                IProfileThreadSnapshotQueryDAO.class,
-                UITemplateManagementDAO.class,
-                IBrowserLogQueryDAO.class
+        return new Class[] {
+            StorageBuilderFactory.class,
+            IBatchDAO.class,
+            StorageDAO.class,
+            IHistoryDeleteDAO.class,
+            INetworkAddressAliasDAO.class,
+            ITopologyQueryDAO.class,
+            IMetricsQueryDAO.class,
+            ITraceQueryDAO.class,
+            IMetadataQueryDAO.class,
+            IAggregationQueryDAO.class,
+            IAlarmQueryDAO.class,
+            ITopNRecordsQueryDAO.class,
+            ILogQueryDAO.class,
+            IProfileTaskQueryDAO.class,
+            IProfileTaskLogQueryDAO.class,
+            IProfileThreadSnapshotQueryDAO.class,
+            UITemplateManagementDAO.class,
+            IBrowserLogQueryDAO.class,
+            IEventQueryDAO.class
         };
     }
 }

@@ -14,5 +14,5 @@
 # limitations under the License.
 
 endpoints:
-  - key: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1_L2luZm8=
-    label: /info
+  - key: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1_L2NvcnJlbGF0aW9u
+    label: /correlation

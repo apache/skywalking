@@ -236,6 +236,7 @@ public class RunningRule {
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setOnlyAsCondition(this.onlyAsCondition);
                 alarmMessage.setStartTime(System.currentTimeMillis());
+                alarmMessage.setPeriod(this.period);
                 alarmMessageList.add(alarmMessage);
             }
         });

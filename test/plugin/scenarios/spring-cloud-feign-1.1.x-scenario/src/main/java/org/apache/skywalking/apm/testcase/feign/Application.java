@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.apm.testcase.feign;
 
+import com.netflix.loadbalancer.DynamicServerListLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableFeignClients
@@ -32,5 +36,12 @@ public class Application {
         } catch (Exception e) {
             // Never do this
         }
+    }
+
+    @Bean
+    public ILoadBalancer loadBalancer() {
+        DynamicServerListLoadBalancer<Server> serverDynamicServerListLoadBalancer = new DynamicServerListLoadBalancer<>();
+        serverDynamicServerListLoadBalancer.addServer(new Server("localhost", 8080));
+        return serverDynamicServerListLoadBalancer;
     }
 }

@@ -25,12 +25,13 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * implements Callback and EnhancedInstance, for kafka callback in lambda expression
  */
-public class CallbackAdapterInterceptor implements Callback {
+public class CallbackAdapterInterceptor implements Callback, EnhancedInstance {
 
     /**
      * user Callback object
@@ -63,5 +64,14 @@ public class CallbackAdapterInterceptor implements Callback {
             }
             ContextManager.stopSpan();
         }
+    }
+
+    @Override
+    public Object getSkyWalkingDynamicField() {
+        return callbackCache;
+    }
+
+    @Override
+    public void setSkyWalkingDynamicField(final Object value) {
     }
 }

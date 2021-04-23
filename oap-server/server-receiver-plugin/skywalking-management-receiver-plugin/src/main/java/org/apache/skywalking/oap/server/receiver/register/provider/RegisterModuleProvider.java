@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.grpc.ManagementServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.grpc.ManagementServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.rest.ManagementServiceKeepAliveHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.rest.ManagementServiceReportPropertiesHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
@@ -56,7 +57,9 @@ public class RegisterModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ManagementServiceHandler(getManager()));
+        ManagementServiceHandler managementServiceHandler = new ManagementServiceHandler(getManager());
+        grpcHandlerRegister.addHandler(managementServiceHandler);
+        grpcHandlerRegister.addHandler(new ManagementServiceHandlerCompat(managementServiceHandler));
 
         JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                                 .provider()

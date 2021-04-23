@@ -30,21 +30,43 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.*"})
 public class ITClusterModuleConsulProviderFunctionalTest {
 
     private String consulAddress;
 
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
+
     @Before
     public void before() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         consulAddress = System.getProperty("consul.address");
         assertFalse(StringUtil.isEmpty(consulAddress));
     }
@@ -179,7 +201,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-
+        provider.setManager(moduleManager);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();

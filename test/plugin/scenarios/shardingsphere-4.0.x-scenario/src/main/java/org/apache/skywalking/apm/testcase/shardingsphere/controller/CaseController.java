@@ -23,27 +23,37 @@ import org.apache.skywalking.apm.testcase.shardingsphere.service.config.Sharding
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderItemRepositoryImpl;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderRepositoryImpl;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.service.RawPojoService;
+import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/case")
 public class CaseController {
+    
+    private CommonService commonService = null;
 
     @RequestMapping("/healthCheck")
     @ResponseBody
-    public String healthCheck() {
+    public String healthCheck() throws SQLException {
+        DataSourceUtil.createDataSource("");
+        DataSourceUtil.createSchema("demo_ds_0");
+        DataSourceUtil.createSchema("demo_ds_1");
+        DataSourceUtil.createDataSource("demo_ds_0");
+        DataSourceUtil.createDataSource("demo_ds_1");
+        DataSource dataSource = new ShardingDatabasesAndTablesConfigurationPrecise().createDataSource();
+        commonService = new RawPojoService(new JDBCOrderRepositoryImpl(dataSource), new JDBCOrderItemRepositoryImpl(dataSource));
+        commonService.initEnvironment();
         return "Success";
     }
 
     @RequestMapping("/execute")
     @ResponseBody
     public String execute() {
-        DataSource dataSource = new ShardingDatabasesAndTablesConfigurationPrecise().getDataSource();
-        CommonService commonService = new RawPojoService(new JDBCOrderRepositoryImpl(dataSource), new JDBCOrderItemRepositoryImpl(dataSource));
         commonService.processSuccess(false);
         return "Success";
     }

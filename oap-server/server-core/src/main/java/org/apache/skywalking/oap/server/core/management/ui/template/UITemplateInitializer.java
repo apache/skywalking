@@ -18,32 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.query.enumeration.TemplateType;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * UITemplateInitializer load the template from the config file in YAML format. The template definition is by JSON format in default,
- * but it depends on the UI implementation only.
+ * UITemplateInitializer load the template from the config file in YAML format. The template definition is by JSON
+ * format in default, but it depends on the UI implementation only.
  */
+@Slf4j
 public class UITemplateInitializer {
     private Map yamlData;
 
     public UITemplateInitializer(InputStream inputStream) {
         Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(inputStream, Map.class);
-    }
-
-    public UITemplateInitializer(Reader io) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(io, Map.class);
+        try {
+            yamlData = yaml.loadAs(inputStream, Map.class);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
     }
 
     public List<UITemplate> read() {
@@ -68,16 +73,16 @@ public class UITemplateInitializer {
                     }
                     newTemplate.setConfiguration(configuration);
                     newTemplate.setActivated(
-                            BooleanUtils.booleanToValue(
-                                    // The template should be activated in default, it is just an option.
-                                    (Boolean) template.getOrDefault("activated", false)
-                            )
+                        BooleanUtils.booleanToValue(
+                            // The template should be activated in default, it is just an option.
+                            (Boolean) template.getOrDefault("activated", false)
+                        )
                     );
                     newTemplate.setDisabled(
-                            BooleanUtils.booleanToValue(
-                                    // The template should be available in default.
-                                    (Boolean) template.getOrDefault("disabled", false)
-                            )
+                        BooleanUtils.booleanToValue(
+                            // The template should be available in default.
+                            (Boolean) template.getOrDefault("disabled", false)
+                        )
                     );
                     if (uiTemplates.contains(newTemplate)) {
                         throw new IllegalArgumentException("Template " + newTemplate.getName() + " name conflicts");

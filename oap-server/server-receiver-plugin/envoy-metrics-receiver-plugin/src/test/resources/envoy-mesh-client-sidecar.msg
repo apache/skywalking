@@ -33,8 +33,7 @@
                     "pod-template-hash": "822879871",
                     "version": "v1"
                 },
-                "locality": { },
-                "buildVersion": "55c80965eab994e6bfa2227e3942fa89928d0d70/1.10.0-dev/Clean/RELEASE/BoringSSL"
+                "locality": { }
             },
             "logName": "als"
         },

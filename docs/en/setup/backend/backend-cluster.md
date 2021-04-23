@@ -107,6 +107,15 @@ cluster:
   # other configurations
 ```
 
+Nacos support authenticate by username or accessKey, empty means no need auth. extra config is bellow:
+```yaml
+nacos:
+  username:
+  password:
+  accessKey:
+  secretKey:
+```
+
 Same as Zookeeper coordinator,
 in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
 The following setting are provided to set the host and port manually, based on your own LAN env.

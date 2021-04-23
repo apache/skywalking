@@ -16,7 +16,14 @@
 
 name: docker-ci
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+  schedule:
+    - cron: '0 18 * * *'
+
 env:
   SKIP_TEST: true
   DOCKER_DIR: ./docker
@@ -26,6 +33,7 @@ jobs:
     runs-on: ubuntu-16.04
     timeout-minutes: 90
     strategy:
+      fail-fast: true
       matrix:
         es: [es6, es7]
     steps:
@@ -46,7 +54,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build docker image
-        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && make docker
+        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && (make docker || make docker)
       - name: Bootstrap cluster
         run: |
           case ${{ matrix.es }} in
@@ -56,7 +64,7 @@ jobs:
 
           export TAG=${{ matrix.es }}
           cd ${DOCKER_DIR} && docker-compose up -d
-      - name: Check port avaliable
+      - name: Check port available
         run: |
           source ./test/scripts/env.sh
           echo "Waiting for OAP ready"

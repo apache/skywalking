@@ -1,6 +1,9 @@
 ## Support custom trace ignore
 Here is an optional plugin `apm-trace-ignore-plugin`
 
+**Notice:**
+Sampling still works when the trace ignores plug-in activation.
+
 ## Introduce
 - The purpose of this plugin is to filter endpoint which are expected to be ignored by the tracing system.
 - You can setup multiple URL path patterns, The endpoints match these patterns wouldn't be traced.

@@ -33,7 +33,7 @@ import org.powermock.api.support.membermodification.MemberModifier;
 public class DataCarrierTest {
     @Test
     public void testCreateDataCarrier() throws IllegalAccessException {
-        DataCarrier<SampleData> carrier = new DataCarrier<>(5, 100);
+        DataCarrier<SampleData> carrier = new DataCarrier<>(5, 100, BufferStrategy.IF_POSSIBLE);
 
         Channels<SampleData> channels = (Channels<SampleData>) (MemberModifier.field(DataCarrier.class, "channels")
                                                                               .get(carrier));
@@ -42,8 +42,7 @@ public class DataCarrierTest {
         QueueBuffer<SampleData> buffer = channels.getBuffer(0);
         Assert.assertEquals(100, buffer.getBufferSize());
 
-        Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy").get(buffer), BufferStrategy.BLOCKING);
-        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
+        Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy").get(buffer), BufferStrategy.IF_POSSIBLE);
         Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy")
                                           .get(buffer), BufferStrategy.IF_POSSIBLE);
 
@@ -81,8 +80,7 @@ public class DataCarrierTest {
 
     @Test
     public void testIfPossibleProduce() throws IllegalAccessException {
-        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
-        carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
+        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100, BufferStrategy.IF_POSSIBLE);
 
         for (int i = 0; i < 200; i++) {
             Assert.assertTrue(carrier.produce(new SampleData().setName("d" + i)));

@@ -24,7 +24,7 @@ nodes:
     isReal: true
   - id: Z28yc2t5.1
     name: go2sky
-    type: http
+    type: GoHttpServer
     isReal: true
   - id: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1
     name: e2e-service-java-provider

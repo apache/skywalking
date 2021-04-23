@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -55,12 +56,16 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> getAllServices(long startTimestamp, long endTimestamp) throws IOException {
+    public List<Service> getAllServices(final String group) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
         sql.append(ServiceTraffic.NODE_TYPE).append("=?");
         condition.add(NodeType.Normal.value());
+        if (StringUtil.isNotEmpty(group)) {
+            sql.append(" and ").append(ServiceTraffic.GROUP).append("=?");
+            condition.add(group);
+        }
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -74,7 +79,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
+    public List<Service> getAllBrowserServices() throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
@@ -118,7 +123,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(long startTimestamp, long endTimestamp, String keyword) throws IOException {
+    public List<Service> searchServices(String keyword) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
@@ -255,6 +260,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             Service service = new Service();
             service.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
             service.setName(resultSet.getString(ServiceTraffic.NAME));
+            service.setGroup(resultSet.getString(ServiceTraffic.GROUP));
             services.add(service);
         }
 

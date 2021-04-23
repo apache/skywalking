@@ -50,9 +50,9 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(final Boolean includingDisabled) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> where = select().raw("*::field")
-                                                        .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where();
+        final WhereQueryImpl<SelectQueryImpl> where = select().raw("*::field")
+                                                              .from(client.getDatabase(), UITemplate.INDEX_NAME)
+                                                              .where();
         if (!includingDisabled) {
             where.and(eq(UITemplate.DISABLED, BooleanUtils.FALSE));
         }
@@ -70,7 +70,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
                 for (int i = 1; i < columnNames.size(); i++) {
                     data.put(columnNames.get(i), columnValues.get(i));
                 }
-                UITemplate uiTemplate = builder.map2Data(data);
+                UITemplate uiTemplate = builder.storage2Entity(data);
                 configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
             }
         }
@@ -82,11 +82,11 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         final UITemplate.Builder builder = new UITemplate.Builder();
         final UITemplate uiTemplate = setting.toEntity();
 
-        Point point = Point.measurement(UITemplate.INDEX_NAME)
-                           .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
-                           .fields(builder.data2Map(uiTemplate))
-                           .time(1L, TimeUnit.NANOSECONDS)
-                           .build();
+        final Point point = Point.measurement(UITemplate.INDEX_NAME)
+                                 .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                                 .fields(builder.entity2Storage(uiTemplate))
+                                 .time(1L, TimeUnit.NANOSECONDS)
+                                 .build();
         client.write(point);
         return TemplateChangeStatus.builder().status(true).build();
     }
@@ -102,11 +102,11 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
-            Point point = Point.measurement(UITemplate.INDEX_NAME)
-                               .fields(builder.data2Map(uiTemplate))
-                               .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
-                               .time(1L, TimeUnit.NANOSECONDS)
-                               .build();
+            final Point point = Point.measurement(UITemplate.INDEX_NAME)
+                                     .fields(builder.entity2Storage(uiTemplate))
+                                     .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                                     .time(1L, TimeUnit.NANOSECONDS)
+                                     .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
         } else {
@@ -121,11 +121,11 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
                                                         .where(eq(InfluxConstants.TagName.ID_COLUMN, name));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
-            Point point = Point.measurement(UITemplate.INDEX_NAME)
-                               .tag(InfluxConstants.TagName.ID_COLUMN, name)
-                               .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
-                               .time(1L, TimeUnit.NANOSECONDS)
-                               .build();
+            final Point point = Point.measurement(UITemplate.INDEX_NAME)
+                                     .tag(InfluxConstants.TagName.ID_COLUMN, name)
+                                     .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
+                                     .time(1L, TimeUnit.NANOSECONDS)
+                                     .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
         } else {

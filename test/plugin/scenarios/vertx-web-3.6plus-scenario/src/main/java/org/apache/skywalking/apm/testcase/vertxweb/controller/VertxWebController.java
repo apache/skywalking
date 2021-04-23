@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.vertxweb.controller;
 
 import io.vertx.core.AbstractVerticle;

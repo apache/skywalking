@@ -30,6 +30,7 @@ import org.joda.time.DateTime;
 
 @Slf4j
 public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
+
     public HistoryDeleteEsDAO(ElasticSearchClient client) {
         super(client);
     }
@@ -49,9 +50,9 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                 return;
             }
         }
-        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMdd"));
-
-        List<String> indexes = client.retrievalIndexByAliases(model.getName());
+        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
+        String tableName = IndexController.INSTANCE.getTableName(model);
+        List<String> indexes = client.retrievalIndexByAliases(tableName);
 
         List<String> prepareDeleteIndexes = new ArrayList<>();
         List<String> leftIndices = new ArrayList<>();
@@ -67,7 +68,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
             client.deleteByIndexName(prepareDeleteIndex);
         }
         String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
-        String formattedLatestIndex =  client.formatIndexName(latestIndex);
+        String formattedLatestIndex = client.formatIndexName(latestIndex);
         if (!leftIndices.contains(formattedLatestIndex)) {
             client.createIndex(latestIndex);
         }

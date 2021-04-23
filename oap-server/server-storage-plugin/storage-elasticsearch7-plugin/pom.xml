@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     <artifactId>storage-elasticsearch7-plugin</artifactId>
 
     <properties>
-        <elasticsearch.version>7.0.0</elasticsearch.version>
+        <elasticsearch.version>7.5.0</elasticsearch.version>
     </properties>
 
     <dependencyManagement>

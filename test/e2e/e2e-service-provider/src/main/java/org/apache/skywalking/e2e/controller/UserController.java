@@ -19,25 +19,47 @@
 package org.apache.skywalking.e2e.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.apache.skywalking.e2e.User;
 import org.apache.skywalking.e2e.UserRepo;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Random;
+
 @RestController
 @RequiredArgsConstructor
 @SuppressWarnings("SameReturnValue")
 public class UserController {
     private final UserRepo userRepo;
+    private final int sleepMin = 500;
+    private final int sleepMax = 1000;
 
     @PostMapping("/info")
-    public String info() {
+    public String info() throws InterruptedException {
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
         return "whatever";
     }
 
     @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) {
+    public User createAuthor(@RequestBody final User user) throws InterruptedException {
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
         return userRepo.save(user);
+    }
+
+    @PostMapping("/correlation")
+    public String correlation() throws InterruptedException {
+        Thread.sleep(randomSleepLong(sleepMin, sleepMax));
+        TraceContext.putCorrelation("PROVIDER_KEY", "provider");
+        return TraceContext.getCorrelation("CONSUMER_KEY").orElse("") + "_"
+            + TraceContext.getCorrelation("MIDDLE_KEY").orElse("") + "_"
+            + TraceContext.getCorrelation("PROVIDER_KEY").orElse("");
+    }
+
+    private long randomSleepLong(int min, int max) {
+        Random rand = new Random();
+        int randomNumber = rand.nextInt((max - min) + 1) + min;
+        return randomNumber;
     }
 }

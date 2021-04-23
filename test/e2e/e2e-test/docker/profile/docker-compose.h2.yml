@@ -19,7 +19,7 @@ services:
   h2db:
     build:
       context: .
-      dockerfile: Dockerfile.h2
+      dockerfile: ../Dockerfile.h2
     networks:
       - e2e
     expose:

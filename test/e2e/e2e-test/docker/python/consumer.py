@@ -43,6 +43,12 @@ if __name__ == '__main__':
             with request.urlopen(req, data):
                 self.wfile.write(data)
 
+            req2 = request.Request("http://provider-kafka:9089/users")
+            req2.add_header('Content-Type', 'application/json; charset=utf-8')
+            req2.add_header('Content-Length', str(len(data)))
+            with request.urlopen(req2, data):
+                self.wfile.write(data)
+
     PORT = 9090
     Handler = SimpleHTTPRequestHandler
 

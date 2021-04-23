@@ -58,6 +58,7 @@ public class MetricQuery implements GraphQLQueryResolver {
             condition.setEntity(new MockEntity(null));
 
             kv.setValue(query.readMetricsValue(condition, duration));
+            values.addKVInt(kv);
         } else {
             for (final String id : metrics.getIds()) {
                 KVInt kv = new KVInt();

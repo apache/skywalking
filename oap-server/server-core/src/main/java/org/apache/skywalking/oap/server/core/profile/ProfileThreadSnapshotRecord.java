@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -71,10 +71,10 @@ public class ProfileThreadSnapshotRecord extends Record {
         return getTaskId() + Const.ID_CONNECTOR + getSegmentId() + Const.ID_CONNECTOR + getSequence() + Const.ID_CONNECTOR;
     }
 
-    public static class Builder implements StorageBuilder<ProfileThreadSnapshotRecord> {
+    public static class Builder implements StorageHashMapBuilder<ProfileThreadSnapshotRecord> {
 
         @Override
-        public ProfileThreadSnapshotRecord map2Data(Map<String, Object> dbMap) {
+        public ProfileThreadSnapshotRecord storage2Entity(Map<String, Object> dbMap) {
             final ProfileThreadSnapshotRecord snapshot = new ProfileThreadSnapshotRecord();
             snapshot.setTaskId((String) dbMap.get(TASK_ID));
             snapshot.setSegmentId((String) dbMap.get(SEGMENT_ID));
@@ -90,7 +90,7 @@ public class ProfileThreadSnapshotRecord extends Record {
         }
 
         @Override
-        public Map<String, Object> data2Map(ProfileThreadSnapshotRecord storageData) {
+        public Map<String, Object> entity2Storage(ProfileThreadSnapshotRecord storageData) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(TASK_ID, storageData.getTaskId());
             map.put(SEGMENT_ID, storageData.getSegmentId());

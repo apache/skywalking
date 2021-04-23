@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.baidu.brpc.service;
 
-
 import com.baidu.brpc.RpcContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

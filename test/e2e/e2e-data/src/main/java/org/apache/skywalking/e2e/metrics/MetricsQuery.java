@@ -18,10 +18,15 @@
 
 package org.apache.skywalking.e2e.metrics;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.skywalking.e2e.AbstractQuery;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(fluent = true)
@@ -105,23 +110,34 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_RELATION_SERVER_CPM
     };
 
-    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_instance_cpu_percentage";
-    public static String METER_INSTANCE_JVM_MEMORY_BYTES_USED = "meter_instance_jvm_memory_bytes_used";
-    public static String METER_INSTANCE_TRACE_COUNT = "meter_instance_trace_count";
-    public static String METER_INSTANCE_METRICS_FIRST_AGGREGATION = "meter_instance_metrics_first_aggregation";
-    public static String METER_INSTANCE_PERSISTENCE_PREPARE_COUNT = "meter_instance_persistence_prepare_count";
-    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT = "meter_instance_persistence_execute_count";
+    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_oap_instance_cpu_percentage";
+    public static String METER_INSTANCE_JVM_MEMORY_BYTES_USED = "meter_oap_instance_jvm_memory_bytes_used";
+    public static String METER_INSTANCE_TRACE_COUNT = "meter_oap_instance_trace_count";
+    public static String METER_INSTANCE_METRICS_FIRST_AGGREGATION = "meter_oap_instance_metrics_first_aggregation";
+    public static String METER_INSTANCE_PERSISTENCE_PREPARE_COUNT = "meter_oap_instance_persistence_prepare_count";
+    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT = "meter_oap_instance_persistence_execute_count";
 
     public static String[] ALL_SO11Y_LINER_METRICS = {
         METER_INSTANCE_CPU_PERCENTAGE,
         METER_INSTANCE_JVM_MEMORY_BYTES_USED,
-        METER_INSTANCE_TRACE_COUNT,
         METER_INSTANCE_METRICS_FIRST_AGGREGATION,
         METER_INSTANCE_PERSISTENCE_PREPARE_COUNT,
         METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT 
     };
 
-    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_instance_persistence_execute_percentile";
+    public static String[] ALL_ENVOY_LINER_METRICS = {
+        "envoy_heap_memory_used",
+        "envoy_heap_memory_max_used",
+        "envoy_memory_allocated",
+        "envoy_memory_allocated_max",
+        "envoy_memory_physical_size",
+        "envoy_memory_physical_size_max",
+        "envoy_total_connections_used",
+        "envoy_worker_threads",
+        "envoy_worker_threads_max"
+    };
+
+    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_oap_instance_persistence_execute_percentile";
 
     public static String[] ALL_SO11Y_LABELED_METRICS = {
         METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE
@@ -138,4 +154,28 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         METER_PROCESS_FILES_MAX
     };
 
+    public static Map<String, List<String>> SIMPLE_ZABBIX_METERS = ImmutableMap.<String, List<String>>builder()
+            .put("meter_agent_system_cpu_util", Arrays.asList("idle"))
+            .put("meter_agent_vm_memory_size", Arrays.asList("total"))
+            .put("meter_agent_vfs_fs_size", Arrays.asList("/-total"))
+            .build();
+
+    public static String[] SIMPLE_PROM_VM_METERS = {
+        "meter_vm_memory_used",
+        "meter_vm_memory_total",
+        "meter_vm_memory_available",
+        "meter_vm_disk_written",
+        "meter_vm_network_transmit",
+        "meter_vm_tcp_curr_estab",
+        "meter_vm_tcp_alloc",
+        "meter_vm_sockets_used",
+        "meter_vm_udp_inuse",
+        "meter_vm_filefd_allocated"
+    };
+
+    public static Map<String, List<String>> SIMPLE_PROM_VM_LABELED_METERS = ImmutableMap.<String, List<String>>builder()
+        .put("meter_vm_cpu_average_used", Arrays.asList("idle"))
+        .put("meter_vm_filesystem_percentage", Arrays.asList("/etc/hosts"))
+        .build();
 }
+

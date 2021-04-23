@@ -27,8 +27,9 @@ import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -40,22 +41,22 @@ public class H2StorageDAO implements StorageDAO {
     private final int numOfSearchableValuesPerTag;
 
     @Override
-    public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new H2MetricsDAO(h2Client, storageBuilder);
+    public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
+        return new H2MetricsDAO(h2Client, (StorageHashMapBuilder<Metrics>) storageBuilder);
     }
 
     @Override
-    public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new H2RecordDAO(manager, h2Client, storageBuilder, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+    public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
+        return new H2RecordDAO(manager, h2Client, (StorageHashMapBuilder<Record>) storageBuilder, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
     }
 
     @Override
-    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new H2NoneStreamDAO(h2Client, storageBuilder);
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
+        return new H2NoneStreamDAO(h2Client, (StorageHashMapBuilder<NoneStream>) storageBuilder);
     }
 
     @Override
-    public IManagementDAO newManagementDao(final StorageBuilder<ManagementData> storageBuilder) {
-        return new H2ManagementDAO(h2Client, storageBuilder);
+    public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
+        return new H2ManagementDAO(h2Client, (StorageHashMapBuilder<ManagementData>) storageBuilder);
     }
 }

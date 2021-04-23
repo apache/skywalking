@@ -21,7 +21,7 @@
     <parent>
         <artifactId>optional-reporter-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${kafk-clients.version}</version>
+            <version>${kafka-clients.version}</version>
         </dependency>
     </dependencies>
 
@@ -118,7 +118,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
@@ -127,7 +127,7 @@
                                         <copy file="${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar" tofile="${optional.reporter.plugins.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

@@ -9,14 +9,17 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-register**. gRPC and HTTPRestful services to provide service, service instance and endpoint register.
 1. **service-mesh**. gRPC services accept data from inbound mesh probes.
 1. **receiver-jvm**. gRPC services accept JVM metrics data.
-1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
 1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics.
-1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
-1. **receiver_zipkin**. See [details](#zipkin-receiver).
-1. **receiver_jaeger**. See [details](#jaeger-receiver).
-1. **receiver-oc**. See [details](#opencensus-receiver).
-1. **receiver-meter**. See [details](backend-meter.md).
+1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter.
+1. **receiver-otel**. See [details](#opentelemetry-receiver). Receiver for analyzing metrics data from OpenTelemetry
+1. **receiver-meter**. See [details](backend-meter.md). Receiver for analyzing metrics in SkyWalking native meter format.
 1. **receiver-browser**. gRPC services to accept browser performance data and error log.
+1. **receiver-log**. Receiver for native log format. Read [Log Analyzer](log-analyzer.md) for advanced features. 
+1. **configuration-discovery**. gRPC services handle configurationDiscovery.
+1. **receiver-event**. gRPC services to handle events data.
+1. **receiver-zabbix**. See [details](backend-zabbix.md).
+1. Experimental receivers. 
+    1. **receiver_zipkin**. See [details](#zipkin-receiver).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -34,10 +37,6 @@ receiver-jvm:
 
 service-mesh:
   selector: ${SW_SERVICE_MESH:default}
-  default:
-
-istio-telemetry:
-  selector: ${SW_ISTIO_TELEMETRY:default}
   default:
 
 envoy-metric:
@@ -66,6 +65,21 @@ receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
   default:
     sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+
+log-analyzer:
+   selector: ${SW_LOG_ANALYZER:default}
+   default:
+      lalFiles: ${SW_LOG_LAL_FILES:default}
+      malFiles: ${SW_LOG_MAL_FILES:""}
+  
+configuration-discovery:
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
+  default:
+
+receiver-event:
+   selector: ${SW_RECEIVER_EVENT:default}
+   default:
+
 ```
 
 ## gRPC/HTTP server for receiver
@@ -89,15 +103,57 @@ receiver-sharing-server:
 Notice, if you add these settings, make sure they are not as same as core module,
 because gRPC/HTTP servers of core are still used for UI and OAP internal communications.
 
+## OpenTelemetry receiver
+
+OpenTelemetry receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
+If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/otel-<handler>-rules`.
+Eg, the `oc` handler loads fules from `$CLASSPATH/otel-oc-rules`, 
+
+Supported handlers:
+    * `oc`: [OpenCensus](https://github.com/open-telemetry/opentelemetry-collector/blob/master/exporter/opencensusexporter/README.md) gRPC service handler.
+
+The rule file should be in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
+Notice, `receiver-otel` only support `group`, `defaultMetricLevel` and `metricsRules` nodes of scheme due to the push mode it opts to.
+
+To active the `oc` handler and `istio` relevant rules:
+```yaml
+receiver-otel:
+  selector: ${SW_OTEL_RECEIVER:default}
+  default:
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
+    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane"}
+```
+The receiver adds labels with `key = node_identifier_host_name` and `key = node_identifier_pid` to the collected data samples，
+and values from `Node.identifier.host_name` and `Node.identifier.pid` defined in opencensus agent proto,
+to be the identification of the metric data.
+
+| Rule Name | Description | Configuration File | Data Source |
+|----|----|-----|----|
+|istio-controlplane| Metrics of Istio control panel | otel-oc-rules/istio-controlplane.yaml | Istio Control Panel -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|oap| Metrics of SkyWalking OAP server itself | otel-oc-rules/oap.yaml | SkyWalking OAP Server(SelfObservability) -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|vm| Metrics of VMs | otel-oc-rules/vm.yaml | Prometheus node-exporter(VMs) -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|k8s-cluster| Metrics of K8s cluster | otel-oc-rules/k8s-cluster.yaml | K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|k8s-node| Metrics of K8s cluster | otel-oc-rules/k8s-node.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+|k8s-service| Metrics of K8s cluster | otel-oc-rules/k8s-service.yaml | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector --OC format--> SkyWalking OAP Server |
+
+## Meter receiver
+
+Meter receiver supports accept the metrics into the meter-system. OAP can load the configuration at bootstrap. 
+
+The file is written in YAML format, defined by the scheme described in [backend-meter](./backend-meter.md).
+
+To active the `default` implementation:
+```yaml
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:default}
+  default:
+```
+
 ## Zipkin receiver
-Zipkin receiver could work in two different mode.
-1. Tracing mode(default). Tracing mode is that, skywalking OAP acts like zipkin collector,
-fully supports Zipkin v1/v2 formats through HTTP service,
-also provide persistence and query in skywalking UI.
-But it wouldn't analysis metrics from them. In most case, I suggest you could use this feature, when metrics come from service mesh.
-Notice, in this mode, Zipkin receiver requires `zipkin-elasticsearch` storage implementation active. 
-Read [this](backend-storage.md#elasticsearch-6-with-zipkin-trace-extension) to know 
-how to active.
+Zipkin receiver makes the OAP server as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through HTTP service.
+Make sure you use this with `SW_STORAGE=zipkin-elasticsearch7` option to activate Zipkin storage implementation.
+Once this receiver and storage activated, SkyWalking native traces would be ignored, and SkyWalking wouldn't analysis topology, metrics, endpoint
+dependency from Zipkin's trace. 
 
 Use following config to active.
 ```yaml
@@ -114,75 +170,6 @@ receiver_zipkin:
     jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
 ```
 
-2. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
-native format, and analysis like skywalking trace. This feature can't work in production env right now,
-because of Zipkin tag/endpoint value unpredictable, we can't make sure it fits production env requirements.
-
-Active `analysis mode`, you should set `needAnalysis` config.
-```yaml
-receiver_zipkin:
-  selector: ${SW_RECEIVER_ZIPKIN:-}
-  default:
-    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
-    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
-    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
-    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
-    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
-    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
-    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
-    needAnalysis: true    
-```
-
-NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
-
-## Jaeger receiver
-Jaeger receiver right now only works in `Tracing Mode`, and no analysis.
-Jaeger receiver provides extra gRPC host/port, if absent, sharing-server host/port will be used, then core gRPC host/port.
-Receiver requires `jaeger-elasticsearch` storage implementation active. 
-Read [this](backend-storage.md#elasticsearch-6-with-jaeger-trace-extension) to know how to active.
-
-Right now, you need [jaeger agent](https://www.jaegertracing.io/docs/1.11/architecture/#agent) to batch
-send spans to SkyWalking oap server. Read [Jaeger Architecture](https://www.jaegertracing.io/docs/1.11/architecture/)
-to get more details.
-
-Active the receiver.
-```yaml
-receiver_jaeger:
-  selector: ${SW_RECEIVER_JAEGER:-}
-  default:
-    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
-    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
-``` 
-
-NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
-
-## Opencensus receiver
-
-Opencensus receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
-If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/oc-rules`.
-
-The file is written in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
-Notice, `receiver-oc` only support `metricsRules` node of scheme due to the push mode it opts to.
-
-To active the `default` implementation:
-```yaml
-receiver-oc:
-  selector: ${SW_OC_RECEIVER:-}
-  default:
-    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
-    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
-```
-
-## Meter receiver
-
-Meter receiver supports accept the metrics into the meter-system. OAP can load the configuration at bootstrap. 
-
-The file is written in YAML format, defined by the scheme described in [backend-meter](./backend-meter.md).
-
-To active the `default` implementation:
-```yaml
-receiver-meter:
-  selector: ${SW_RECEIVER_METER:default}
-  default:
-```
+NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-es7-x.y.z.tar.gz` tar.
+And this requires `zipkin-elasticsearch7` storage implementation active.
+Read [this](backend-storage.md#elasticsearch-7-with-zipkin-trace-extension) doc to know Zipkin as storage option.

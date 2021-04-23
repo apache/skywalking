@@ -25,9 +25,12 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -45,6 +48,8 @@ public class ZookeeperCoordinatorTest {
 
     private ServiceCacheBuilder cacheBuilder = mock(ServiceCacheBuilder.class);
 
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
+
     private ServiceCache serviceCache = mock(ServiceCache.class);
 
     private ZookeeperCoordinator coordinator;
@@ -61,7 +66,10 @@ public class ZookeeperCoordinatorTest {
         doNothing().when(serviceDiscovery).registerService(any());
         when(serviceDiscovery.serviceCacheBuilder()).thenReturn(cacheBuilder);
         config.setHostPort(address.getHost() + ":" + address.getPort());
-        coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
+        doNothing().when(healthChecker).health();
+        ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
+        coordinator = new ZookeeperCoordinator(manager, config, serviceDiscovery);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @Test

@@ -58,6 +58,11 @@ The e2e test involves some/all of the OAP server, storage, coordinator, webapp, 
 besides, there is a test controller(JUnit test) running outside of the container that sends traffics to the instrumented service,
 and then verifies the corresponding results after those requests, by GraphQL API of the SkyWalking Web App.
 
+Before all following steps, please set the SkyWalking version `sw.version` in the [pom.xml](../../../test/e2e/pom.xml)
+so that you can build it in your local IDE, but please make sure not to check this change into the codebase. However, if
+you prefer to build it in command line interface with `./mvnw`, you can simply use property `-Dsw.version=x.y.z` without
+modifying the pom.xml.
+
 #### Writing E2E Cases
 
 - Set up environment in IntelliJ IDEA
@@ -88,7 +93,7 @@ As for the last step, we have a friendly framework to help you get started more 
 To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
 They send **designed** requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
 
-In the test framework, we provide a `TrafficController` to periodically send traffic data to the instrumented services, you can simply enable it by giving a url and traffic data, refer to [../../../test/e2e/e2e-test/src/test/java/org/apache/skywalking/e2e/base/TrafficController.java].
+In the test framework, we provide a `TrafficController` to periodically send traffic data to the instrumented services, you can simply enable it by giving a url and traffic data, refer to [this](../../../test/e2e/e2e-test/src/test/java/org/apache/skywalking/e2e/base/TrafficController.java).
 
 - Troubleshooting
 
@@ -145,7 +150,7 @@ miss any newly-added dependency:
 
 ## Profile
 The performance profile is an enhancement feature in the APM system. We are using the thread dump to estimate the method execution time, rather than adding many local spans. In this way, the resource cost would be much less than using distributed tracing to locate slow method. This feature is suitable in the production environment. The following documents are important for developers to understand the key parts of this feature
-- [Profile data report procotol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided like other trace, JVM data through gRPC.
+- [Profile data report protocol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided like other trace, JVM data through gRPC.
 - [Thread dump merging mechanism](backend-profile.md) introduces the merging mechanism, which helps the end users to understand the profile report.
 - [Exporter tool of profile raw data](backend-profile-export.md) introduces when the visualization doesn't work well through the official UI, how to package the original profile data, which helps the users report the issue.
 

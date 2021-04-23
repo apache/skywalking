@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -33,12 +32,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * A handler deserializes the message of profiling snapshot and pushes it to downstream.
  */
 @Slf4j
-public class ProfileTaskHandler implements KafkaHandler {
-
-    private final KafkaFetcherConfig config;
+public class ProfileTaskHandler extends AbstractKafkaHandler {
 
     public ProfileTaskHandler(ModuleManager manager, KafkaFetcherConfig config) {
-        this.config = config;
+        super(manager, config);
     }
 
     @Override
@@ -62,18 +59,13 @@ public class ProfileTaskHandler implements KafkaHandler {
             snapshotRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(snapshot.getTime()));
 
             RecordStreamProcessor.getInstance().in(snapshotRecord);
-        } catch (InvalidProtocolBufferException e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("handle record failed", e);
         }
     }
 
     @Override
-    public String getTopic() {
+    protected String getPlainTopic() {
         return config.getTopicNameOfProfiling();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
     }
 }

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SpanTag;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
 
@@ -77,5 +77,5 @@ public class Segment extends Source {
     private int version;
     @Setter
     @Getter
-    private List<SpanTag> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();
 }

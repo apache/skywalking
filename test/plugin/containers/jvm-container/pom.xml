@@ -47,9 +47,9 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>skywalking/agent-test-jvm:${project.version}</name>
+                                    <name>skywalking/agent-test-jvm:jdk8-${project.version}</name>
                                     <build>
-                                        <from>openjdk:8</from>
+                                        <from>openjdk:8u102</from>
                                         <workdir>/usr/local/skywalking/scenario</workdir>
                                         <assembly>
                                             <mode>dir</mode>

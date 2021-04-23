@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -46,7 +47,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * A service management data(Instance registering properties and Instance pinging) reporter.
  */
 @OverrideImplementor(ServiceManagementClient.class)
-public class KafkaServiceManagementServiceClient implements BootService, Runnable {
+public class KafkaServiceManagementServiceClient implements BootService, Runnable, KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(KafkaServiceManagementServiceClient.class);
 
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
@@ -57,10 +58,13 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
     private KafkaProducer<String, Bytes> producer;
 
     private String topic;
+    private AtomicInteger sendPropertiesCounter = new AtomicInteger(0);
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT);
 
         SERVICE_INSTANCE_PROPERTIES = new ArrayList<>();
         for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
@@ -77,41 +81,53 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
-
         heartbeatFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("ServiceManagementClientKafkaProducer")
         ).scheduleAtFixedRate(new RunnableWithExceptionProtection(
             this,
             t -> LOGGER.error("unexpected exception.", t)
         ), 0, Config.Collector.HEARTBEAT_PERIOD, TimeUnit.SECONDS);
-
-        InstanceProperties instance = InstanceProperties.newBuilder()
-                                                        .setService(Config.Agent.SERVICE_NAME)
-                                                        .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                                                        .addAllProperties(OSUtil.buildOSInfo(
-                                                            Config.OsInfo.IPV4_LIST_SIZE))
-                                                        .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
-                                                        .build();
-        producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(), Bytes.wrap(instance.toByteArray())));
-        producer.flush();
     }
 
     @Override
     public void run() {
-        InstancePingPkg ping = InstancePingPkg.newBuilder()
-                                              .setService(Config.Agent.SERVICE_NAME)
-                                              .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                                              .build();
-        if (LOGGER.isDebugEnable()) {
-            LOGGER.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
+        if (producer == null) {
+            return;
         }
-        producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
+        if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
+            InstanceProperties instance = InstanceProperties.newBuilder()
+                                                            .setService(Config.Agent.SERVICE_NAME)
+                                                            .setServiceInstance(Config.Agent.INSTANCE_NAME)
+                                                            .addAllProperties(OSUtil.buildOSInfo(
+                                                                Config.OsInfo.IPV4_LIST_SIZE))
+                                                            .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
+                                                            .build();
+            producer.send(new ProducerRecord<>(topic, TOPIC_KEY_REGISTER + instance.getServiceInstance(),
+                                               Bytes.wrap(instance.toByteArray())
+            ));
+            producer.flush();
+        } else {
+            InstancePingPkg ping = InstancePingPkg.newBuilder()
+                                                  .setService(Config.Agent.SERVICE_NAME)
+                                                  .setServiceInstance(Config.Agent.INSTANCE_NAME)
+                                                  .build();
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("Heartbeat reporting, instance: {}", ping.getServiceInstance());
+            }
+            producer.send(new ProducerRecord<>(topic, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
+        }
     }
 
     @Override
     public void onComplete() {
 
+    }
+
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
+        }
     }
 
     @Override

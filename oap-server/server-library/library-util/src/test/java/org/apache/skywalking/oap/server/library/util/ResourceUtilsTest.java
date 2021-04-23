@@ -17,13 +17,32 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import java.io.FileNotFoundException;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class ResourceUtilsTest {
 
     @Test(expected = FileNotFoundException.class)
     public void shouldThrowWhenResourceNotFound() throws FileNotFoundException {
         ResourceUtils.read("/not-existed");
+    }
+
+    @Test
+    public void testGetPathFilesSuccess() throws FileNotFoundException {
+        final File[] files = ResourceUtils.getPathFiles("testdata", new String[] {
+            "prometheus.txt"
+        });
+        Assert.assertNotNull(files);
+        Assert.assertEquals(1, files.length);
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void testGetPathFilesNotFound() throws FileNotFoundException {
+        ResourceUtils.getPathFiles("testdata", new String[] {
+            "not-existed"
+        });
     }
 }

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -106,9 +106,9 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <copy file="${project.build.directory}/apache-skywalking-apm-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin.tar.gz" overwrite="true" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

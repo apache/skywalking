@@ -21,10 +21,19 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -35,6 +44,21 @@ import static org.junit.Assert.assertTrue;
 public class ClusterModuleKubernetesProviderTest {
 
     private ClusterModuleKubernetesProvider provider = new ClusterModuleKubernetesProvider();
+
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
+
+    @Before
+    public void before() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+        provider.setManager(moduleManager);
+    }
 
     @Test
     public void name() {
@@ -53,7 +77,7 @@ public class ClusterModuleKubernetesProviderTest {
     }
 
     @Test
-    public void prepare() throws Exception {
+    public void prepare() {
         provider.prepare();
     }
 

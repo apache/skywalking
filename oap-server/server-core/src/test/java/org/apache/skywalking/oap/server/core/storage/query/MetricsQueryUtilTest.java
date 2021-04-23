@@ -37,6 +37,7 @@ import org.junit.runners.Parameterized;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Arrays.asList;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
 import static org.apache.skywalking.oap.server.core.storage.annotation.Column.ValueDataType.LABELED_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -108,7 +109,7 @@ public class MetricsQueryUtilTest {
     @Before
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            MODULE_NAME, "value", LABELED_VALUE, Function.None, DEFAULT_VALUE
+            MODULE_NAME, "value", LABELED_VALUE, Function.None, DEFAULT_VALUE, SERVICE
         );
     }
 

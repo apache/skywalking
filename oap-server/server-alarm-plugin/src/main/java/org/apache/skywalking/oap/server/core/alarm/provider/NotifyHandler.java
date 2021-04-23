@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkHookCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackhookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatHookCallback;
@@ -40,15 +41,18 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class NotifyHandler implements MetricsNotify {
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
+    private final ModuleManager manager;
 
-    public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher) {
+    public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher, ModuleManager manager) {
         this.alarmRulesWatcher = alarmRulesWatcher;
         core = new AlarmCore(alarmRulesWatcher);
+        this.manager = manager;
     }
 
     @Override
@@ -164,6 +168,8 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new SlackhookCallback(alarmRulesWatcher));
         allCallbacks.add(new WechatHookCallback(alarmRulesWatcher));
         allCallbacks.add(new DingtalkHookCallback(alarmRulesWatcher));
+        allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher));
+        allCallbacks.add(new EventHookCallback(this.manager));
         core.start(allCallbacks);
     }
 }

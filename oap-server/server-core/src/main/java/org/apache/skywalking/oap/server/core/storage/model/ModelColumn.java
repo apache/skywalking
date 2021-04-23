@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import java.lang.reflect.Type;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @Getter
 public class ModelColumn {
@@ -30,6 +31,7 @@ public class ModelColumn {
     private final boolean matchQuery;
     private final boolean storageOnly;
     private final int length;
+    private final Column.AnalyzerType analyzer;
 
     public ModelColumn(ColumnName columnName,
                        Class<?> type,
@@ -37,12 +39,14 @@ public class ModelColumn {
                        boolean matchQuery,
                        boolean storageOnly,
                        boolean isValue,
-                       int length) {
+                       int length,
+                       Column.AnalyzerType analyzer) {
         this.columnName = columnName;
         this.type = type;
         this.genericType = genericType;
         this.matchQuery = matchQuery;
         this.length = length;
+        this.analyzer = analyzer;
         /*
          * byte[] and {@link IntKeyLongValueHashMap} could never be query.
          */

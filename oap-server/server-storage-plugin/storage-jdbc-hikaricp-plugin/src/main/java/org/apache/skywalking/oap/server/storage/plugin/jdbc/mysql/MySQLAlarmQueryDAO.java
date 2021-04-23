@@ -69,7 +69,7 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
 
-            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total " + sql.toString(), parameters
+            try (ResultSet resultSet = client.executeQuery(connection, buildCountStatement(sql.toString()), parameters
                 .toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
@@ -97,7 +97,11 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
         return alarms;
     }
 
-    private void buildLimit(StringBuilder sql, int from, int limit) {
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
         sql.append(" LIMIT ").append(from).append(", ").append(limit);
+    }
+    
+    protected String buildCountStatement(String sql) {
+        return "select count(1) total " + sql;
     }
 }

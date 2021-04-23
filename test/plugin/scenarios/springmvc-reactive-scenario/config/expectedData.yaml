@@ -16,7 +16,7 @@
 
 segmentItems:
 - serviceName: springmvc-reactive-scenario
-  segmentSize: nq 0
+  segmentSize: ge 2
   segments:
   - segmentId: not null
     spans:
@@ -36,6 +36,35 @@ segmentItems:
       - {key: db.instance, value: test}
       - {key: db.statement, value: not null}
       skipAnalysis: 'false'
+    - operationName: '/testcase/error'
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      isError: false
+      componentId: not null
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+    - operationName: 'future/get:/testcase/error'
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: not null
+      startTime: not null
+      endTime: not null
+      isError: true
+      componentId: not null
+      logs:
+      - logEvent:
+        - {key: event, value: error}
+        - {key: error.kind, value: not null}
+        - {key: message, value: not null}
+        - {key: stack, value: not null}
+      skipAnalysis: 'false'
     - operationName: '{GET}/testcase/{test}'
       operationId: 0
       parentSpanId: -1
@@ -44,7 +73,31 @@ segmentItems:
       startTime: not null
       endTime: not null
       componentId: 14
+      isError: false
       tags:
       - {key: url, value: not null}
       - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: '{GET}/testcase/error'
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 14
+      spanType: Entry
+      isError: true
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      - {key: status_code, value: '500'}
+      logs:
+      - logEvent:
+        - {key: event, value: error}
+        - {key: error.kind, value: not null}
+        - {key: message, value: not null}
+        - {key: stack, value: not null}
       skipAnalysis: 'false'

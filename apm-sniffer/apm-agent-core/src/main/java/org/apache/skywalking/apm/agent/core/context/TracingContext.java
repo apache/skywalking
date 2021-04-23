@@ -22,8 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SpanLimitWatcher;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.apache.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -103,14 +106,18 @@ public class TracingContext implements AbstractTracerContext {
      * profile status
      */
     private final ProfileStatusReference profileStatus;
-
+    @Getter(AccessLevel.PACKAGE)
     private final CorrelationContext correlationContext;
+    @Getter(AccessLevel.PACKAGE)
     private final ExtensionContext extensionContext;
+
+    //CDS watcher
+    private final SpanLimitWatcher spanLimitWatcher;
 
     /**
      * Initialize all fields with default value.
      */
-    TracingContext(String firstOPName) {
+    TracingContext(String firstOPName, SpanLimitWatcher spanLimitWatcher) {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
         isRunningInAsyncMode = false;
@@ -126,6 +133,7 @@ public class TracingContext implements AbstractTracerContext {
 
         this.correlationContext = new CorrelationContext();
         this.extensionContext = new ExtensionContext();
+        this.spanLimitWatcher = spanLimitWatcher;
     }
 
     /**
@@ -181,15 +189,14 @@ public class TracingContext implements AbstractTracerContext {
     public void extract(ContextCarrier carrier) {
         TraceSegmentRef ref = new TraceSegmentRef(carrier);
         this.segment.ref(ref);
-        this.segment.relatedGlobalTraces(new PropagatedTraceId(carrier.getTraceId()));
+        this.segment.relatedGlobalTrace(new PropagatedTraceId(carrier.getTraceId()));
         AbstractSpan span = this.activeSpan();
         if (span instanceof EntrySpan) {
             span.ref(ref);
         }
 
-        this.correlationContext.extract(carrier);
-        this.extensionContext.extract(carrier);
-        this.extensionContext.handle(span);
+        carrier.extractExtensionTo(this);
+        carrier.extractCorrelationTo(this);
     }
 
     /**
@@ -222,7 +229,7 @@ public class TracingContext implements AbstractTracerContext {
             TraceSegmentRef segmentRef = new TraceSegmentRef(snapshot);
             this.segment.ref(segmentRef);
             this.activeSpan().ref(segmentRef);
-            this.segment.relatedGlobalTraces(snapshot.getTraceId());
+            this.segment.relatedGlobalTrace(snapshot.getTraceId());
             this.correlationContext.continued(snapshot);
             this.extensionContext.continued(snapshot);
             this.extensionContext.handle(this.activeSpan());
@@ -238,7 +245,17 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private DistributedTraceId getPrimaryTraceId() {
-        return segment.getRelatedGlobalTraces().get(0);
+        return segment.getRelatedGlobalTrace();
+    }
+
+    @Override
+    public String getSegmentId() {
+        return segment.getTraceSegmentId();
+    }
+
+    @Override
+    public int getSpanId() {
+        return activeSpan().getSpanId();
     }
 
     /**
@@ -529,12 +546,12 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private boolean isLimitMechanismWorking() {
-        if (spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT) {
+        if (spanIdGenerator >= spanLimitWatcher.getSpanLimit()) {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastWarningTimestamp > 30 * 1000) {
                 LOGGER.warn(
                     new RuntimeException("Shadow tracing context. Thread dump"),
-                    "More than {} spans required to create", Config.Agent.SPAN_LIMIT_PER_SEGMENT
+                    "More than {} spans required to create", spanLimitWatcher.getSpanLimit()
                 );
                 lastWarningTimestamp = currentTimeMillis;
             }

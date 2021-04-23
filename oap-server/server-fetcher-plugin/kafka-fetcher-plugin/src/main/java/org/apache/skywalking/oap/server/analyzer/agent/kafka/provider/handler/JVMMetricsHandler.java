@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -33,19 +32,17 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * A handler deserializes the message of JVM Metrics and pushes it to downstream.
  */
 @Slf4j
-public class JVMMetricsHandler implements KafkaHandler {
+public class JVMMetricsHandler extends AbstractKafkaHandler {
 
     private final NamingControl namingLengthControl;
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
-    private final KafkaFetcherConfig config;
-
     public JVMMetricsHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
+        super(moduleManager, config);
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()
                                                 .getService(NamingControl.class);
-        this.config = config;
     }
 
     @Override
@@ -67,18 +64,13 @@ public class JVMMetricsHandler implements KafkaHandler {
             builder.getMetricsList().forEach(jvmMetric -> {
                 jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
             });
-        } catch (InvalidProtocolBufferException e) {
-            log.error("", e);
+        } catch (Exception e) {
+            log.error("handle record failed", e);
         }
     }
 
     @Override
-    public String getTopic() {
+    protected String getPlainTopic() {
         return config.getTopicNameOfMetrics();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
     }
 }

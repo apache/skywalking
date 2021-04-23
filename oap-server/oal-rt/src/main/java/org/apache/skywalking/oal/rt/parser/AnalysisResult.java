@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
@@ -43,7 +44,7 @@ public class AnalysisResult {
 
     private int sourceScopeId;
 
-    private String sourceAttribute;
+    private List<String> sourceAttribute = new ArrayList<>();
 
     private String aggregationFunctionName;
 

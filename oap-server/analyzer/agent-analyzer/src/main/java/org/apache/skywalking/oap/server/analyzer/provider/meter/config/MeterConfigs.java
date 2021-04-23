@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -30,6 +30,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,7 +44,11 @@ public class MeterConfigs {
     /**
      * Load all configs from path
      */
-    public static List<MeterConfig> loadConfig(String path) throws ModuleStartException {
+    public static List<MeterConfig> loadConfig(String path, List<String> fileNames) throws ModuleStartException {
+        if (CollectionUtils.isEmpty(fileNames)) {
+            return Collections.emptyList();
+        }
+
         File[] configs;
         try {
             configs = ResourceUtils.getPathFiles(path);
@@ -53,20 +58,21 @@ public class MeterConfigs {
 
         return Arrays.stream(configs)
             .map(f -> {
+                String fileName = f.getName();
+                int dotIndex = fileName.lastIndexOf('.');
+                fileName = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+                if (!fileNames.contains(fileName)) {
+                    return null;
+                }
                 try (Reader r = new FileReader(f)) {
-                    return new Yaml().loadAs(r, Config.class);
+                    return new Yaml().loadAs(r, MeterConfig.class);
                 } catch (IOException e) {
                     log.warn("Reading file {} failed", f, e);
                 }
                 return null;
             })
             .filter(Objects::nonNull)
-            .flatMap(c -> c.getMeters().stream())
             .collect(Collectors.toList());
     }
 
-    @Data
-    public static class Config {
-        private List<MeterConfig> meters;
-    }
 }

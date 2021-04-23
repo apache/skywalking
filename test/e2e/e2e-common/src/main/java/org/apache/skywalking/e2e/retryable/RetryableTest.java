@@ -49,10 +49,10 @@ public @interface RetryableTest {
     /**
      * @return maximum times to retry, or -1 for infinite retries. {@code -1} by default.
      */
-    int value() default -1;
+    int value() default 60;
 
     /**
      * @return the interval between any two retries, in millisecond. {@code 1000} by default.
      */
-    long interval() default 1000;
+    long interval() default 10000;
 }

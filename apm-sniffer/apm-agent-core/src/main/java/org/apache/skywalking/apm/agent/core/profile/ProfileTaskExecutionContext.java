@@ -82,7 +82,7 @@ public class ProfileTaskExecutionContext {
         }
 
         // check first operation name matches
-        if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
+        if (!Objects.equals(task.getFirstSpanOPName(), firstSpanOPName)) {
             return ProfileStatusReference.createWithNone();
         }
 

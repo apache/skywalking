@@ -19,11 +19,14 @@ package test.apache.skywalking.apm.testcase.sc.springmvcreactive.controller;
 
 import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.AsyncRestTemplate;
 import reactor.core.publisher.Mono;
 import test.apache.skywalking.apm.testcase.sc.springmvcreactive.service.TestService;
 
@@ -41,6 +44,17 @@ public class Controller {
     @GetMapping("/testcase/{test}")
     public Mono<String> hello(@RequestBody(required = false) String body, @PathVariable("test") String test) throws SQLException {
         testService.executeSQL();
+        ListenableFuture<ResponseEntity<String>> forEntity = new AsyncRestTemplate().getForEntity("http://localhost:8080/testcase/error", String.class);
+        try {
+            forEntity.get();
+        } catch (Exception e) {
+        }
         return Mono.just("Hello World");
     }
+
+    @GetMapping("/testcase/error")
+    public Mono<String> error() {
+        throw new RuntimeException("this is Error");
+    }
+
 }

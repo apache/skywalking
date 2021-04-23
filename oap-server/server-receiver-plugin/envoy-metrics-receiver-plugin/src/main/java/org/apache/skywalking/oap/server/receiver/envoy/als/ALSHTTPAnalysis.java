@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 
 /**
@@ -30,9 +32,25 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 public interface ALSHTTPAnalysis {
     String name();
 
-    void init(EnvoyMetricReceiverConfig config);
+    void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException;
 
-    List<Source> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role);
+    /**
+     * The method works as a chain of analyzers. Logs are processed sequentially by analyzers one by one, the results of the previous analyzer are passed into the current one.
+     *
+     * To do fast-success, the analyzer could simply check the results of the previous analyzer and return if not empty.
+     *
+     * @param result of the previous analyzer.
+     * @param identifier of the Envoy node where the logs are emitted.
+     * @param entry the log entry.
+     * @param role the role of the Envoy node where the logs are emitted.
+     * @return the analysis results.
+     */
+    List<ServiceMeshMetric.Builder> analysis(
+        final List<ServiceMeshMetric.Builder> result,
+        final StreamAccessLogsMessage.Identifier identifier,
+        final HTTPAccessLogEntry entry,
+        final Role role
+    );
 
     Role identify(StreamAccessLogsMessage.Identifier alsIdentifier, Role prev);
 }

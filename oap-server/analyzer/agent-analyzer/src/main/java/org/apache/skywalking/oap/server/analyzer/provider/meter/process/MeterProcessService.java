@@ -18,56 +18,45 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Management all of the meter builders.
  */
 public class MeterProcessService implements IMeterProcessService {
 
-    private List<MeterBuilder> meterBuilders;
     private final ModuleManager manager;
-
-    private volatile boolean started = false;
+    private List<MetricConvert> metricConverts;
 
     public MeterProcessService(ModuleManager manager) {
         this.manager = manager;
     }
 
-    public void start(List<MeterConfig> meterBuilders) {
+    public void start(List<MeterConfig> configs) {
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        this.meterBuilders = meterBuilders.stream()
-                                          .map(c -> new MeterBuilder(c, meterSystem))
-                                          .collect(Collectors.toList());
+        this.metricConverts = configs.stream().map(c -> new MetricConvert(c, meterSystem)).collect(Collectors.toList());
     }
 
     /**
      * Generate a new processor when receive meter data.
      */
+    @Override
     public MeterProcessor createProcessor() {
         return new MeterProcessor(this);
     }
 
     /**
-     * Init all meters.
+     * Getting all converters.
      */
-    public synchronized void initMeters() {
-        if (!started) {
-            meterBuilders.stream().forEach(MeterBuilder::initMeter);
-            started = true;
-        }
-    }
-
-    /**
-     * Getting enabled builders.
-     */
-    public List<MeterBuilder> enabledBuilders() {
-        return meterBuilders.stream().filter(MeterBuilder::hasInit).collect(Collectors.toList());
+    public List<MetricConvert> converts() {
+        return metricConverts;
     }
 
 }

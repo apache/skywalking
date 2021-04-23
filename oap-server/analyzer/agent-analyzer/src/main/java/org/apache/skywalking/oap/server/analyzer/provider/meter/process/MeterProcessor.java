@@ -18,19 +18,28 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
+import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.dsl.HistogramType;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 /**
  * Process meter when receive the meter data.
@@ -46,7 +55,7 @@ public class MeterProcessor {
     /**
      * All of meters has been read. Using it to process groovy script.
      */
-    private final Map<String, EvalMultipleData> meters = new HashMap<>();
+    private final Map<String, List<SampleBuilder>> meters = new HashMap<>();
 
     /**
      * Agent service name.
@@ -68,22 +77,32 @@ public class MeterProcessor {
     }
 
     public void read(MeterData data) {
-        // Parse to eval data
-        EvalData evalData;
+        // Parse and save meter
         switch (data.getMetricCase()) {
             case SINGLEVALUE:
-                evalData = EvalSingleData.build(data.getSingleValue(), this);
+                MeterSingleValue single = data.getSingleValue();
+                meters.computeIfAbsent(single.getName(), k -> new ArrayList<>()).add(SampleBuilder.builder()
+                    .name(single.getName())
+                    .labels(single.getLabelsList().stream().collect(toImmutableMap(Label::getName, Label::getValue)))
+                    .value(single.getValue())
+                    .build());
                 break;
             case HISTOGRAM:
-                evalData = EvalHistogramData.build(data.getHistogram(), this);
+                MeterHistogram histogram = data.getHistogram();
+                Map<String, String> baseLabel = histogram.getLabelsList().stream().collect(Collectors.toMap(Label::getName, Label::getValue));
+                meters.computeIfAbsent(histogram.getName(), k -> new ArrayList<>())
+                    .addAll(histogram.getValuesList().stream().map(v ->
+                        SampleBuilder.builder()
+                            .name(histogram.getName())
+                            .labels(ImmutableMap.<String, String>builder()
+                                .putAll(baseLabel)
+                                .put("le", String.valueOf(v.getBucket())).build())
+                            .value(v.getCount()).build()
+                ).collect(Collectors.toList()));
                 break;
             default:
                 return;
         }
-
-        // Save meter
-        final EvalMultipleData multipleEvalData = meters.computeIfAbsent(evalData.getName(), k -> new EvalMultipleData(k));
-        multipleEvalData.appendData(evalData);
 
         // Agent info
         if (StringUtil.isNotEmpty(data.getService())) {
@@ -107,127 +126,21 @@ public class MeterProcessor {
         }
 
         // Get all meter builders.
-        final List<MeterBuilder> enabledBuilders = processService.enabledBuilders();
-        if (CollectionUtils.isEmpty(enabledBuilders)) {
+        final List<MetricConvert> converts = processService.converts();
+        if (CollectionUtils.isEmpty(converts)) {
             return;
         }
 
         try {
-            // Init groovy shell
-            final Binding binding = new Binding();
-            binding.setVariable("meter", new BindingMeterMap(meters));
-            final GroovyShell shell = new GroovyShell(binding);
-
-            // Build meter and send
-            for (MeterBuilder builder : enabledBuilders) {
-                builder.buildAndSend(this, shell);
-            }
+            converts.stream().forEach(convert -> convert.toMeter(meters.entrySet().stream().collect(toImmutableMap(
+                Map.Entry::getKey,
+                v -> SampleFamilyBuilder.newBuilder(
+                    v.getValue().stream().map(s -> s.build(service, serviceInstance, timestamp)).toArray(Sample[]::new)
+                ).histogramType(HistogramType.ORDINARY).defaultHistogramBucketUnit(TimeUnit.MILLISECONDS).build()
+            ))));
         } catch (Exception e) {
             log.warn("Process meters failure.", e);
         }
     }
 
-    /**
-     * Agent service name
-     */
-    String service() {
-        return service;
-    }
-
-    /**
-     * Agent service instance name
-     */
-    String serviceInstance() {
-        return serviceInstance;
-    }
-
-    /**
-     * Agent send time
-     * @return
-     */
-    Long timestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Current agent window.
-     */
-    Window window() {
-        return Window.getWindow(service(), serviceInstance());
-    }
-
-    /**
-     * Wrapper the meter map, If could not found the meter, It will throw a easy to identity exception, not the NPE.
-     */
-    private static class BindingMeterMap implements Map<String, EvalMultipleData> {
-        private final Map<String, EvalMultipleData> data;
-
-        public BindingMeterMap(Map<String, EvalMultipleData> data) {
-            this.data = data;
-        }
-
-        @Override
-        public int size() {
-            return data.size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return data.isEmpty();
-        }
-
-        @Override
-        public boolean containsKey(Object key) {
-            return data.containsKey(key);
-        }
-
-        @Override
-        public boolean containsValue(Object value) {
-            return data.containsValue(value);
-        }
-
-        @Override
-        public EvalMultipleData get(Object key) {
-            final EvalMultipleData data = this.data.get(key);
-            if (data == null) {
-                throw new IllegalArgumentException("Could not found meter: " + key);
-            }
-            return data;
-        }
-
-        @Override
-        public EvalMultipleData put(String key, EvalMultipleData value) {
-            return data.put(key, value);
-        }
-
-        @Override
-        public EvalMultipleData remove(Object key) {
-            return data.remove(key);
-        }
-
-        @Override
-        public void putAll(Map<? extends String, ? extends EvalMultipleData> m) {
-            data.putAll(m);
-        }
-
-        @Override
-        public void clear() {
-            data.clear();
-        }
-
-        @Override
-        public Set<String> keySet() {
-            return data.keySet();
-        }
-
-        @Override
-        public Collection<EvalMultipleData> values() {
-            return data.values();
-        }
-
-        @Override
-        public Set<Entry<String, EvalMultipleData>> entrySet() {
-            return data.entrySet();
-        }
-    }
 }

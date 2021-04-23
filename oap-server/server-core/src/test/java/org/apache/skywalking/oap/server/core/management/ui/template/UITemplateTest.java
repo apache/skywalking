@@ -34,7 +34,7 @@ public class UITemplateTest {
         uiTemplate.setDisabled(BooleanUtils.FALSE);
 
         final UITemplate.Builder builder = new UITemplate.Builder();
-        final UITemplate uiTemplate2 = builder.map2Data(builder.data2Map(uiTemplate));
+        final UITemplate uiTemplate2 = builder.storage2Entity(builder.entity2Storage(uiTemplate));
 
         Assert.assertEquals(uiTemplate, uiTemplate2);
 

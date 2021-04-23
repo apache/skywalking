@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -30,5 +31,5 @@ public class Argument {
 
     private final int type;
 
-    private final String text;
+    private final List<String> text;
 }

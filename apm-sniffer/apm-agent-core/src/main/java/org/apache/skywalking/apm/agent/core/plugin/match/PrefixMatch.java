@@ -44,7 +44,7 @@ public class PrefixMatch implements IndirectMatch {
             if (junction == null) {
                 junction = ElementMatchers.nameStartsWith(prefix);
             } else {
-                junction = junction.and(ElementMatchers.nameStartsWith(prefix));
+                junction = junction.or(ElementMatchers.nameStartsWith(prefix));
             }
         }
 

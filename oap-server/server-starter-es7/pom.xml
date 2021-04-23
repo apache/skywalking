@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,7 +30,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <elasticsearch.version>7.0.0</elasticsearch.version>
+        <elasticsearch.version>7.5.0</elasticsearch.version>
     </properties>
 
     <dependencies>
@@ -42,6 +42,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-elasticsearch7-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 

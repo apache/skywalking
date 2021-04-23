@@ -88,6 +88,34 @@ public @interface Column {
     ValueDataType dataType() default ValueDataType.NOT_VALUE;
 
     /**
+     * The storage analyzer mode.
+     *
+     * @since 8.4.0
+     */
+    AnalyzerType analyzer() default AnalyzerType.OAP_ANALYZER;
+
+    /**
+     * The analyzer declares the text analysis mode.
+     */
+    enum AnalyzerType {
+        /**
+         * The default analyzer.
+         */
+        OAP_ANALYZER("oap_analyzer"),
+        /**
+         * The log analyzer.
+         */
+        OAP_LOG_ANALYZER("oap_log_analyzer");
+
+        @Getter
+        private final String name;
+
+        AnalyzerType(final String name) {
+            this.name = name;
+        }
+    }
+
+    /**
      * ValueDataType represents the data structure of value column. The persistent way of the value column determine the
      * available ways to query the data.
      */

@@ -48,11 +48,6 @@
             <version>${test.framework.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-dbcp2</artifactId>
-            <version>2.2.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <version>${spring-boot-version}</version>
@@ -143,11 +138,11 @@
     <pluginRepositories>
         <pluginRepository>
             <id>spring-snapshots</id>
-            <url>http://repo.spring.io/snapshot</url>
+            <url>https://repo.spring.io/snapshot</url>
         </pluginRepository>
         <pluginRepository>
             <id>spring-milestones</id>
-            <url>http://repo.spring.io/milestone</url>
+            <url>https://repo.spring.io/milestone</url>
         </pluginRepository>
     </pluginRepositories>
 </project>

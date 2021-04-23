@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.boot;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,13 +47,13 @@ public enum ServiceManager {
     }
 
     public void shutdown() {
-        for (BootService service : bootedServices.values()) {
+        bootedServices.values().stream().sorted(Comparator.comparingInt(BootService::priority).reversed()).forEach(service -> {
             try {
                 service.shutdown();
             } catch (Throwable e) {
                 LOGGER.error(e, "ServiceManager try to shutdown [{}] fail.", service.getClass().getName());
             }
-        }
+        });
     }
 
     private Map<Class, BootService> loadAllServices() {
@@ -99,23 +100,23 @@ public enum ServiceManager {
     }
 
     private void prepare() {
-        for (BootService service : bootedServices.values()) {
+        bootedServices.values().stream().sorted(Comparator.comparingInt(BootService::priority)).forEach(service -> {
             try {
                 service.prepare();
             } catch (Throwable e) {
                 LOGGER.error(e, "ServiceManager try to pre-start [{}] fail.", service.getClass().getName());
             }
-        }
+        });
     }
 
     private void startup() {
-        for (BootService service : bootedServices.values()) {
+        bootedServices.values().stream().sorted(Comparator.comparingInt(BootService::priority)).forEach(service -> {
             try {
                 service.boot();
             } catch (Throwable e) {
                 LOGGER.error(e, "ServiceManager try to start [{}] fail.", service.getClass().getName());
             }
-        }
+        });
     }
 
     private void onComplete() {

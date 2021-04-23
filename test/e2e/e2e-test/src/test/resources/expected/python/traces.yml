@@ -24,6 +24,14 @@ traces:
       - not null
   - key: not null
     endpointNames:
+      - /users
+    duration: ge 0
+    start: gt 0
+    isError: false
+    traceIds:
+      - not null
+  - key: not null
+    endpointNames:
       - /test
     duration: ge 0
     start: gt 0

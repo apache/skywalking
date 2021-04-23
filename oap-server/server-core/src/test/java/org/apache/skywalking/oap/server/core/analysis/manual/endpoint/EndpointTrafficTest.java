@@ -52,7 +52,7 @@ public class EndpointTrafficTest {
         endpointTraffic.setName(endpointName);
 
         final EndpointTraffic.Builder builder = new EndpointTraffic.Builder();
-        final EndpointTraffic another = builder.map2Data(builder.data2Map(endpointTraffic));
+        final EndpointTraffic another = builder.storage2Entity(builder.entity2Storage(endpointTraffic));
 
         Assert.assertEquals(endpointTraffic, another);
     }

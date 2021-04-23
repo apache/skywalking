@@ -26,13 +26,17 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,7 +45,7 @@ public class NacosCoordinatorTest {
     private NamingService namingService = mock(NamingService.class);
     private ClusterModuleNacosConfig nacosConfig = new ClusterModuleNacosConfig();
     private NacosCoordinator coordinator;
-
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
     private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
 
@@ -51,8 +55,11 @@ public class NacosCoordinatorTest {
 
     @Before
     public void setUp() throws NacosException {
+        doNothing().when(healthChecker).health();
         nacosConfig.setServiceName(SERVICE_NAME);
-        coordinator = new NacosCoordinator(namingService, nacosConfig);
+        ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
+        coordinator = new NacosCoordinator(manager, namingService, nacosConfig);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @Test

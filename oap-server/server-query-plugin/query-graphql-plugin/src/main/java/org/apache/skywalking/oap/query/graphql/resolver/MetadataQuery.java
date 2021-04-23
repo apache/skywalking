@@ -62,13 +62,13 @@ public class MetadataQuery implements GraphQLQueryResolver {
         return new ClusterBrief();
     }
 
-    public List<Service> getAllServices(final Duration duration) throws IOException, ParseException {
-        return getMetadataQueryService().getAllServices(duration.getStartTimestamp(), duration.getEndTimestamp());
+    public List<Service> getAllServices(final Duration duration,
+                                        final String group) throws IOException, ParseException {
+        return getMetadataQueryService().getAllServices(group);
     }
 
     public List<Service> getAllBrowserServices(final Duration duration) throws IOException, ParseException {
-        return getMetadataQueryService().getAllBrowserServices(
-            duration.getStartTimestamp(), duration.getEndTimestamp());
+        return getMetadataQueryService().getAllBrowserServices();
     }
 
     public List<Service> searchServices(final Duration duration,

@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.kafka;
 
 import java.util.List;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -35,7 +36,7 @@ import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
  * to report the tracing profile snapshot data by Kafka Producer.
  */
 @OverrideImplementor(ProfileSnapshotSender.class)
-public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
+public class KafkaProfileSnapshotSender extends ProfileSnapshotSender implements KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(ProfileSnapshotSender.class);
 
     private String topic;
@@ -43,16 +44,20 @@ public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_PROFILING);
     }
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
     }
 
     @Override
     public void send(final List<TracingThreadSnapshot> buffer) {
+        if (producer == null) {
+            return;
+        }
         for (TracingThreadSnapshot snapshot : buffer) {
             final ThreadSnapshot object = snapshot.transform();
             if (LOGGER.isDebugEnable()) {
@@ -69,4 +74,10 @@ public class KafkaProfileSnapshotSender extends ProfileSnapshotSender {
         }
     }
 
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
+        }
+    }
 }

@@ -13,9 +13,7 @@ Native supported storage
 - MySQL
 - TiDB
 - InfluxDB
-
-Redistribution version with supported storage.
-- ElasticSearch 5
+- PostgreSQL
 
 
 ## H2
@@ -63,18 +61,17 @@ storage:
     superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
     superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the bulk every 1000 requests
+    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
+    oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
-
-In order to use ElasticSearch 7, comment/remove the section `storage/elasticsearch` and find the corresponding config section(`storage/elasticsearch7`),
-uncomment to enable it.
 
 ### ElasticSearch 6 With Https SSL Encrypting communications.
 
@@ -154,13 +151,13 @@ We strongly advice you to read more about these configurations from ElasticSearc
 This effects the performance of ElasticSearch very much.
 
 
-### ElasticSearch 6 with Zipkin trace extension
-This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
+### ElasticSearch 7 with Zipkin trace extension
+This implementation shares most of `elasticsearch7`, just extends to support zipkin span storage.
 It has all same configs.
 ```yaml
 storage:
-  selector: ${SW_STORAGE:zipkin-elasticsearch}
-  zipkin-elasticsearch:
+  selector: ${SW_STORAGE:zipkin-elasticsearch7}
+  zipkin-elasticsearch7:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
@@ -174,32 +171,9 @@ storage:
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
-
-### ElasticSearch 6 with Jaeger trace extension
-This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
-It has all same configs.
-```yaml
-storage:
-  selector: ${SW_STORAGE:jaeger-elasticsearch}
-  jaeger-elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-```
-
 
 ### About Namespace
 When namespace is set, names of all indexes in ElasticSearch will use it as prefix.
-
 
 ## MySQL
 Active MySQL as storage, set storage provider to **mysql**. 
@@ -225,22 +199,25 @@ All connection related settings including link url, username and password are in
 Here are some of the settings, please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for all the settings.
 
 ## TiDB
-Currently tested TiDB in version 2.0.9, and Mysql Client driver in version 8.0.13.
-Active TiDB as storage, set storage provider to **mysql**. 
+Tested TiDB Server 4.0.8 version and Mysql Client driver 8.0.13 version currently.
+Active TiDB as storage, set storage provider to **tidb**. 
 
 ```yaml
 storage:
-  selector: ${SW_STORAGE:mysql}
-  mysql:
+  selector: ${SW_STORAGE:tidb}
+  tidb:
     properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/swtest"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:""}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
       dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+      dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
 ```
 All connection related settings including link url, username and password are in `application.yml`. 
 These settings can refer to the configuration of *MySQL* above.
@@ -262,9 +239,28 @@ storage:
 ```
 All connection related settings including link url, username and password are in `application.yml`. The Metadata storage provider settings can refer to the configuration of **H2/MySQL** above.
 
-## ElasticSearch 5
-ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
-[OpenSkyWalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
+## PostgreSQL
+PostgreSQL jdbc driver uses version 42.2.18, it supports PostgreSQL 8.2 or newer.
+Active PostgreSQL as storage, set storage provider to **postgresql**. 
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:postgresql}
+  postgresql:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:postgres}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:123456}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
+    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
+```
+All connection related settings including link url, username and password are in `application.yml`. 
+Here are some of the settings, please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for all the settings.
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 

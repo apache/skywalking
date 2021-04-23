@@ -34,7 +34,7 @@ public class ElasticsearchConfig {
     @Bean(destroyMethod = "close")
     public RestHighLevelClient client() {
         HttpHost[] httpHostArry = parseEsHost();
-        RestHighLevelClient client = new RestHighLevelClient((RestClient.builder(httpHostArry)));
+        RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(httpHostArry));
         return client;
     }
 

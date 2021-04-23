@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
@@ -31,8 +32,11 @@ public class AsyncAppenderBaseMethodInterceptor implements InstanceMethodsAround
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         if (allArguments[0] instanceof EnhancedInstance) {
+            SkyWalkingContext skyWalkingContext = new SkyWalkingContext(ContextManager.getGlobalTraceId(),
+                    ContextManager.getSegmentId(), ContextManager.getSpanId());
+
             EnhancedInstance instances = (EnhancedInstance) allArguments[0];
-            instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
+            instances.setSkyWalkingDynamicField(skyWalkingContext);
         }
     }
 

@@ -39,34 +39,28 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
-            .append(timeBucketColumnName).append("<= ? and ")
-            .append(timeBucketColumnName).append(">= ?");
-        long minTimeBucket = 0;
-        DateTime minDate = new DateTime(1900, 1, 1, 0, 0);
+            .append(timeBucketColumnName).append("<= ? ");
 
         try (Connection connection = client.getConnection()) {
             long deadline;
             if (model.isRecord()) {
-                deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMddHHmmss"));
+                deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
             } else {
                 switch (model.getDownsampling()) {
                     case Minute:
-                        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMddHHmm"));
-                        minTimeBucket = Long.valueOf(minDate.toString("yyyyMMddHHmm"));
+                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
                         break;
                     case Hour:
-                        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMddHH"));
-                        minTimeBucket = Long.valueOf(minDate.toString("yyyyMMddHH"));
+                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
                         break;
                     case Day:
-                        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMdd"));
-                        minTimeBucket = Long.valueOf(minDate.toString("yyyyMMdd"));
+                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
                         break;
                     default:
                         return;
                 }
             }
-            client.execute(connection, dataDeleteSQL.toString(), deadline, minTimeBucket);
+            client.executeUpdate(connection, dataDeleteSQL.toString(), deadline);
         } catch (JDBCClientException | SQLException e) {
             throw new IOException(e.getMessage(), e);
         }

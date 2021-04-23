@@ -17,6 +17,8 @@ services:
   - key: not null
     label: provider
   - key: not null
+    label: provider-kafka
+  - key: not null
     label: consumer
   - key: not null
     label: Your_ApplicationName

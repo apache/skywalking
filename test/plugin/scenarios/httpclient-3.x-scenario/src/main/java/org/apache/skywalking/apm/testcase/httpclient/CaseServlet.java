@@ -35,7 +35,7 @@ public class CaseServlet extends HttpServlet {
         MultiThreadedHttpConnectionManager httpConnectionManager = new MultiThreadedHttpConnectionManager();
         HttpClient client = new HttpClient(httpConnectionManager);
 
-        HttpMethod httpGet = new GetMethod("http://localhost:8080" + req.getContextPath() + "/case/context-propagate");
+        HttpMethod httpGet = new GetMethod("http://localhost:8080" + req.getContextPath() + "/case/context-propagate?q1=v1&chinese=%e4%b8%ad%e6%96%87");
         int statusCode = client.executeMethod(httpGet);
 
         try (PrintWriter printWriter = resp.getWriter()) {

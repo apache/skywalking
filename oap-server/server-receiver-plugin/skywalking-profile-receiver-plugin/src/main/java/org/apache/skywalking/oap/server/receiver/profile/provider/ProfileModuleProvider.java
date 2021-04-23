@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.profile.module.ProfileModule;
 import org.apache.skywalking.oap.server.receiver.profile.provider.handler.ProfileTaskServiceHandler;
+import org.apache.skywalking.oap.server.receiver.profile.provider.handler.ProfileTaskServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 /**
@@ -57,7 +58,9 @@ public class ProfileModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ProfileTaskServiceHandler(getManager()));
+        ProfileTaskServiceHandler profileTaskServiceHandler = new ProfileTaskServiceHandler(getManager());
+        grpcHandlerRegister.addHandler(profileTaskServiceHandler);
+        grpcHandlerRegister.addHandler(new ProfileTaskServiceHandlerCompat(profileTaskServiceHandler));
     }
 
     @Override

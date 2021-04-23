@@ -74,6 +74,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                     segmentParserService.send(segment);
                 } catch (Exception e) {
                     errorCounter.inc();
+                    log.error(e.getMessage(), e);
                 } finally {
                     timer.finish();
                 }
@@ -105,6 +106,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                 segmentParserService.send(segment);
             } catch (Exception e) {
                 errorCounter.inc();
+                log.error(e.getMessage(), e);
             } finally {
                 timer.finish();
             }

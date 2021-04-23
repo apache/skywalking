@@ -22,14 +22,13 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
- * Node type describe which kind of node of Service or Network address represents to.
- * <p>
- * The value comes from 'org.apache.skywalking.apm.network.language.agent.SpanLayer' at first place, but most likely it
- * will extend and be used directly from different sources, such as Mesh.
+ * Node type describe which kind of node of Service or Network address represents to. The node with {@link #Normal} and
+ * {@link #Browser} type would be treated as an observed node.
  */
 public enum NodeType {
     /**
-     * <code>Unknown = 0;</code>
+     * <code>Normal = 0;</code>
+     * This node type would be treated as an observed node.
      */
     Normal(0),
     /**
@@ -54,6 +53,7 @@ public enum NodeType {
     Cache(5),
     /**
      * <code>Browser = 6;</code>
+     * This node type would be treated as an observed node.
      */
     Browser(6),
     /**
@@ -101,7 +101,7 @@ public enum NodeType {
     }
 
     /**
-     * Right now, spanLayerValue is exact same as NodeType value.
+     * @return the node type conjectured from the give span layer.
      */
     public static NodeType fromSpanLayerValue(SpanLayer spanLayer) {
         switch (spanLayer) {
@@ -120,7 +120,7 @@ public enum NodeType {
             case UNRECOGNIZED:
                 return Unrecognized;
             default:
-                throw new UnexpectedException("Unknown NodeType value");
+                throw new UnexpectedException("Can't transfer to the NodeType. SpanLayer=" + spanLayer);
         }
     }
 }

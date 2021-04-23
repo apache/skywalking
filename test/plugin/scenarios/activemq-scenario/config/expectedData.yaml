@@ -65,6 +65,7 @@ segmentItems:
       tags:
       - {key: mq.broker, value: not null}
       - {key: mq.queue, value: test}
+      - {key: transmission.latency, value: not null}
       refs:
       - {parentEndpoint: /activemq-scenario/case/activemq, networkAddress: not null,
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,

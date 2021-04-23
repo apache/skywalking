@@ -68,20 +68,20 @@ public class SharingServerModuleProvider extends ModuleProvider {
 
     @Override
     public void prepare() {
-        JettyServerConfig jettyServerConfig = JettyServerConfig.builder()
-                                                               .host(config.getHost()).port(config.getPort())
-                                                               .contextPath(config.getContextPath())
-                                                               .jettyMinThreads(config.getJettyMinThreads())
-                                                               .jettyMaxThreads(config.getJettyMaxThreads())
-                                                               .jettyAcceptQueueSize(config.getJettyAcceptQueueSize())
-                                                               .jettyAcceptorPriorityDelta(
-                                                                   config.getJettyAcceptorPriorityDelta())
-                                                               .jettyIdleTimeOut(config.getJettyIdleTimeOut()).build();
-
-        if (config.getPort() != 0) {
-            jettyServerConfig.setHost(Strings.isBlank(config.getHost()) ? "0.0.0.0" : config.getHost());
-            jettyServerConfig.setPort(config.getPort());
-            jettyServerConfig.setContextPath(config.getContextPath());
+        if (config.getRestPort() > 0) {
+            JettyServerConfig jettyServerConfig =
+                JettyServerConfig.builder()
+                                 .host(config.getRestHost()).port(config.getRestPort())
+                                 .contextPath(config.getRestContextPath())
+                                 .jettyMinThreads(config.getRestMinThreads())
+                                 .jettyMaxThreads(config.getRestMaxThreads())
+                                 .jettyAcceptQueueSize(config.getRestAcceptQueueSize())
+                                 .jettyAcceptorPriorityDelta(
+                                     config.getRestAcceptorPriorityDelta())
+                                 .jettyIdleTimeOut(config.getRestIdleTimeOut()).build();
+            jettyServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
+            jettyServerConfig.setPort(config.getRestPort());
+            jettyServerConfig.setContextPath(config.getRestContextPath());
 
             jettyServer = new JettyServer(jettyServerConfig);
             jettyServer.initialize();

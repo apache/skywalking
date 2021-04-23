@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.okhttp.v3;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -74,16 +73,12 @@ public class AsyncCallInterceptor implements InstanceConstructorInterceptor, Ins
         SpanLayer.asHttp(span);
 
         Field headersField = Request.class.getDeclaredField("headers");
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
-
         headersField.setAccessible(true);
         Headers.Builder headerBuilder = request.headers().newBuilder();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            headerBuilder.add(next.getHeadKey(), next.getHeadValue());
+            headerBuilder.set(next.getHeadKey(), next.getHeadValue());
         }
         headersField.set(request, headerBuilder.build());
 

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,9 +33,12 @@ public class Log {
     private String endpointId;
     private String endpointName;
     private String traceId;
-    private String timestamp;
-    private boolean isError;
-    private String statusCode;
+    private Long timestamp;
     private ContentType contentType = ContentType.NONE;
     private String content;
+    private final List<KeyValue> tags;
+
+    public Log() {
+        tags = new ArrayList<>();
+    }
 }

@@ -35,7 +35,7 @@ segmentItems:
       - {key: url, value: 'http://localhost:8080/quartz-scheduler-2.x-scenario/case/call'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpoint: quartz-scheduler/DemoJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+      - {parentEndpoint: quartz-scheduler/org.apache.skywalking.apm.testcase.quartzscheduler.job.DemoJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
   - segmentId: not null
     spans:
     - operationName: /quartz-scheduler-2.x-scenario/case/call
@@ -53,7 +53,7 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/quartz-scheduler-2.x-scenario/case/call'}
-    - operationName: quartz-scheduler/DemoJob
+    - operationName: quartz-scheduler/org.apache.skywalking.apm.testcase.quartzscheduler.job.DemoJob
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -68,4 +68,30 @@ segmentItems:
       tags:
       - {key: x-le, value: '{"logic-span":true}'}
       - {key: jobGroup, value: 'DemoJobGroup'}
+      - {key: jobName, value: 'DemoJob'}
       - {key: jobDataMap, value: '{param1=test}'}
+  - segmentId: not null
+    spans:
+    - operationName: quartz-scheduler/org.apache.skywalking.apm.testcase.quartzscheduler.job.ExceptionJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 97
+      isError: true
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
+      - {key: jobGroup, value: 'ExceptionJobGroup'}
+      - {key: jobName, value: 'ExceptionJob'}
+      - {key: jobDataMap, value: '{param1=test}'}
+      logs:
+      - logEvent:
+        - {key: event, value: error}
+        - {key: error.kind, value: org.quartz.JobExecutionException}
+        - {key: message, value: not null}
+        - {key: stack, value: not null}

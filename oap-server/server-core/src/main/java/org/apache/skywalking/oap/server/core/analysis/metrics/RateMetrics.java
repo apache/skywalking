@@ -55,9 +55,10 @@ public abstract class RateMetrics extends Metrics implements IntValueHolder {
     }
 
     @Override
-    public final void combine(Metrics metrics) {
+    public final boolean combine(Metrics metrics) {
         denominator += ((RateMetrics) metrics).denominator;
         numerator += ((RateMetrics) metrics).numerator;
+        return true;
     }
 
     @Override

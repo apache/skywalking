@@ -1,0 +1,204 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: "VM"
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, as they are used in the topology page only.
+    type: "DASHBOARD"
+    # Configuration could be defined through UI, and use `export` to format in the standard JSON.
+    configuration: |-
+      [
+        {
+          "name": "VM",
+          "type": "service",
+          "serviceGroup": "vm",
+          "children": [
+            {
+              "name": "VM",
+              "children": [
+                {
+                  "width": "4",
+                  "title": "CPU Usage",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_cpu_total_percentage",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
+                  "title": "Memory RAM Usage",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_memory_used",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576"
+                },
+                {
+                  "width": "4",
+                  "title": "Memory Swap Usage",
+                  "height": "100",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_memory_swap_percentage",
+                  "queryMetricType": "readMetricsValue",
+                  "chartType": "ChartNum",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
+                  "title": "CPU Average Used",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricName": "meter_vm_cpu_average_used",
+                  "metricLabels": "",
+                  "unit": "%",
+                  "labelsIndex": ""
+                },
+                {
+                  "width": "4",
+                  "title": "CPU Load",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_cpu_load1,meter_vm_cpu_load5,meter_vm_cpu_load15",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "aggregation": "/",
+                  "aggregationNum": "100"
+                },
+                {
+                  "width": "4",
+                  "title": "Memory RAM",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_memory_total,meter_vm_memory_available,meter_vm_memory_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576",
+                  "unit": "MB"
+                },
+                {
+                  "width": "4",
+                  "title": "Memory Swap",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_memory_swap_free,meter_vm_memory_swap_total",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576",
+                  "unit": "MB"
+                },
+                {
+                  "width": "4",
+                  "title": "File System Mountpoint Usage",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "meter_vm_filesystem_percentage",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "aggregation": "+",
+                  "aggregationNum": "0",
+                  "unit": "%"
+                },
+                {
+                  "width": "4",
+                  "title": "Disk R/W",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_disk_read,meter_vm_disk_written",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "aggregation": "/",
+                  "aggregationNum": "1024",
+                  "unit": "KB/s - OTEL, ops - Zabbix"
+                },
+                {
+                  "width": "4",
+                  "title": "Network Bandwidth Usage",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_network_receive,meter_vm_network_transmit",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartArea",
+                  "aggregation": "/",
+                  "aggregationNum": "1024",
+                  "unit": "KB/s"
+                },
+                {
+                  "width": "4",
+                  "title": "Network Status",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_tcp_curr_estab,meter_vm_tcp_tw,meter_vm_tcp_alloc,meter_vm_sockets_used,meter_vm_udp_inuse",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "4",
+                  "title": "Filefd Allocated",
+                  "height": 350,
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "meter_vm_filefd_allocated",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

@@ -57,7 +57,7 @@ public class KafkaMeterE2E extends SkyWalkingTestAdapter {
     protected DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "ui", port = 8080)
+    @ContainerHostAndPort(name = "oap", port = 12800)
     protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")

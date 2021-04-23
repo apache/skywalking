@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -56,6 +58,9 @@ public class OALEngineLoaderService implements Service {
                                                       .provider()
                                                       .getService(SourceReceiver.class)
                                                       .getDispatcherDetectorListener());
+            engine.setStorageBuilderFactory(moduleManager.find(StorageModule.NAME)
+                                                         .provider()
+                                                         .getService(StorageBuilderFactory.class));
 
             engine.start(OALEngineLoaderService.class.getClassLoader());
             engine.notifyAllListeners();

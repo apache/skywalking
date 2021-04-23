@@ -16,14 +16,6 @@
 version: '2.1'
 
 services:
-  ui:
-    extends:
-      file: ../base-compose.yml
-      service: ui
-    depends_on:
-      oap:
-        condition: service_healthy
-
   zookeeper:
     image: zookeeper:3.4
     hostname: zookeeper

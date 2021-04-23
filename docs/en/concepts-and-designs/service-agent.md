@@ -1,39 +1,33 @@
 # Service Auto Instrument Agent
-Service auto instrument agent is a subset of Language based native agents. In this kind of agent, it is based on
-some language specific features, usually a VM based languages. 
+The service auto instrument agent is a subset of language-based native agents. This kind of agents is based on
+some language-specific features, especially those of a VM-based language. 
 
 ## What does Auto Instrument mean?
-Many users know these agents from hearing
-`They say don't need to change any single line of codes`, SkyWalking used to put these words in our readme page too.
-But actually, it is right and wrong. For end user, **YES**, they don't need to change codes, at least for most cases.
-But also **NO**, the codes are still changed by agent, usually called `manipulate codes at runtime`. Underlying, it is just
-auto instrument agent including codes about how to change codes through VM interface, such as change class in Java through 
+Many users learned about these agents when they first heard that "Not a single line of code has to be changed". SkyWalking used to mention this in its readme page as well.
+However, this does not reflect the full picture. For end users, it is true that they no longer have to modify their codes in most cases.
+But it is important to understand that the codes are in fact still modified by the agent, which is usually known as "runtime code manipulation". The underlying logic is that the
+auto instrument agent uses the VM interface for code modification to dynamically add in the instrument code, such as modifying the class in Java through 
 `javaagent premain`.
 
-Also, we said that the most auto instrument agents are VM based, but actually, you can build a tool at compiling time, rather than 
+In fact, although the SkyWalking team has mentioned that most auto instrument agents are VM-based, you may build such tools during compiling time rather than
 runtime.
 
-## What are limits?
-Auto instrument is so cool, also you can create those in compiling time, that you don't depend on VM features, then is there
-any limit?
+## What are the limitations?
+Auto instrument is very helpful, as you may perform auto instrument during compiling time, without having to depend on VM features. But there are also certain limitations that come with it:
 
-The answer definitely **YES**. And they are:
-- **In process propagation possible in most cases**. In many high level languages, they are used to build business system, 
-such as Java and .NET. Most codes of business logic are running in the same thread for per request, which make the propagation 
-could be based on thread Id, and stack module to make sure the context is safe.
+- **Higher possibility of in-process propagation in many cases**. Many high-level languages, such as Java and .NET, are used for building business systems. 
+ Most business logic codes run in the same thread for each request, which causes propagation to be based on thread ID, in order for the stack module to make sure that the context is safe.
 
-- **Just effect frameworks or libraries**. Because of the changing codes by agents, it also means the codes are already known 
-by agent plugin developers. So, there is always a supported list in this kind of probes.
-Like [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md).
+- **Only works in certain frameworks or libraries**. Since the agents are responsible for modifying the codes during runtime, the codes are already known 
+to the agent plugin developers. There is usually a list of frameworks or libraries supported by this kind of probes.
+For example, see the [SkyWalking Java agent supported list](../setup/service-agent/java-agent/Supported-list.md).
 
-- **Across thread can't be supported all the time**. Like we said about **in process propagation**, most codes
-run in a single thread per request, especially business codes. But in some other scenarios, they do things in different threads, such as 
-job assignment, task pool or batch process. Or some languages provide coroutine or similar thing like `Goroutine`, then 
-developer could run async process with low payload, even been encouraged. In those cases, auto instrument will face problems. 
+- **Cross-thread operations are not always supported**. Like what is mentioned above regarding in-process propagation, most codes (especially business codes)
+run in a single thread per request. But in some other cases, they operate across different threads, such as assigning tasks to other threads, task pools or batch processes. Some languages may even provide coroutine or similar components like `Goroutine`, which allows developers to run async process with low payload. In such cases, auto instrument will face problems. 
 
-So, no mystery for auto instrument, in short words, agent developers write an activation to make 
-instrument codes work you. That is all. 
+So, there's nothing mysterious about auto instrument. In short, agent developers write an activation script to make 
+instrument codes work for you. That's it! 
 
 ## What is next?
-If you want to learn about manual instrument libs in SkyWalking, see [Manual instrument SDK](manual-sdk.md) section.
+If you want to learn about manual instrument libs in SkyWalking, see the [Manual instrument SDK](manual-sdk.md) section.
 

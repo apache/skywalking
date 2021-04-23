@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.plugin.httpclient.v3;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -35,21 +33,19 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.httpclient.HttpClientPluginConfig;
+import org.apache.skywalking.apm.util.StringUtil;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final MethodInterceptResult result) throws Throwable {
-
-        final HttpClient client = (HttpClient) objInst;
-
-        HostConfiguration hostConfiguration = (HostConfiguration) allArguments[0];
-        if (hostConfiguration == null) {
-            hostConfiguration = client.getHostConfiguration();
-        }
+                             final Class<?>[] argumentsTypes, final MethodInterceptResult result) throws Throwable {
 
         final HttpMethod httpMethod = (HttpMethod) allArguments[1];
+        if (httpMethod == null) {
+            return;
+        }
         final String remotePeer = httpMethod.getURI().getHost() + ":" + httpMethod.getURI().getPort();
 
         final URI uri = httpMethod.getURI();
@@ -67,12 +63,15 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             next = next.next();
             httpMethod.setRequestHeader(next.getHeadKey(), next.getHeadValue());
         }
+
+        if (HttpClientPluginConfig.Plugin.HttpClient.COLLECT_HTTP_PARAMS) {
+           collectHttpParam(httpMethod, span);
+        }
     }
 
     @Override
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final Object ret) {
-
+                              final Class<?>[] argumentsTypes, final Object ret) {
         if (ret != null) {
             final int statusCode = (Integer) ret;
             final AbstractSpan span = ContextManager.activeSpan();
@@ -80,15 +79,22 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
                 span.errorOccurred();
                 Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
             }
+            final HttpMethod httpMethod = (HttpMethod) allArguments[1];
+            if (httpMethod == null) {
+                return ret;
+            }
+            // Active HTTP parameter collection automatically in the profiling context.
+            if (!HttpClientPluginConfig.Plugin.HttpClient.COLLECT_HTTP_PARAMS && span.isProfiling()) {
+                collectHttpParam(httpMethod, span);
+            }
         }
-
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final Throwable t) {
+                                      final Class<?>[] argumentsTypes, final Throwable t) {
         ContextManager.activeSpan().log(t);
     }
 
@@ -97,4 +103,13 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         return requestPath != null && requestPath.length() > 0 ? requestPath : "/";
     }
 
+    private void collectHttpParam(HttpMethod httpMethod, AbstractSpan span) {
+        String tagValue = httpMethod.getQueryString();
+        if (StringUtil.isNotEmpty(tagValue)) {
+            tagValue = HttpClientPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
+                    StringUtil.cut(tagValue, HttpClientPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) :
+                    tagValue;
+            Tags.HTTP.PARAMS.set(span, tagValue);
+        }
+    }
 }

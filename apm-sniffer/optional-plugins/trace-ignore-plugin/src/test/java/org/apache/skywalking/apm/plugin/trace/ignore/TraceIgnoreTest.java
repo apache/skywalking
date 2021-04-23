@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.powermock.reflect.Whitebox;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,8 +52,10 @@ public class TraceIgnoreTest {
     @Test
     public void testTraceIgnore() {
         SamplingService service = ServiceManager.INSTANCE.findService(SamplingService.class);
-        IgnoreConfig.Trace.IGNORE_PATH = "/eureka/**";
-        service.boot();
+        Whitebox.setInternalState(
+            service, "patterns",
+            new String[] {"/eureka/**"}
+        );
 
         Assert.assertFalse(service.trySampling("/eureka/apps"));
         Assert.assertTrue(service.trySampling("/consul/apps"));

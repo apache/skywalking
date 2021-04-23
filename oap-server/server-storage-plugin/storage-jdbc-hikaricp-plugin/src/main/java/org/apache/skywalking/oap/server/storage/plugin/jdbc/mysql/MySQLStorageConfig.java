@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Setter
 @Getter
-public final class MySQLStorageConfig extends ModuleConfig {
+public class MySQLStorageConfig extends ModuleConfig {
     private int metadataQueryMaxSize = 5000;
     /**
      * Inherit from {@link org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig#getMaxSizeOfArrayColumn()}

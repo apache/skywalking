@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -64,10 +64,10 @@ public class TopNDatabaseStatement extends TopN {
         return Objects.hash(getServiceId());
     }
 
-    public static class Builder implements StorageBuilder<TopNDatabaseStatement> {
+    public static class Builder implements StorageHashMapBuilder<TopNDatabaseStatement> {
 
         @Override
-        public TopNDatabaseStatement map2Data(Map<String, Object> dbMap) {
+        public TopNDatabaseStatement storage2Entity(Map<String, Object> dbMap) {
             TopNDatabaseStatement statement = new TopNDatabaseStatement();
             statement.setStatement((String) dbMap.get(STATEMENT));
             statement.setTraceId((String) dbMap.get(TRACE_ID));
@@ -78,7 +78,7 @@ public class TopNDatabaseStatement extends TopN {
         }
 
         @Override
-        public Map<String, Object> data2Map(TopNDatabaseStatement storageData) {
+        public Map<String, Object> entity2Storage(TopNDatabaseStatement storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(STATEMENT, storageData.getStatement());
             map.put(TRACE_ID, storageData.getTraceId());

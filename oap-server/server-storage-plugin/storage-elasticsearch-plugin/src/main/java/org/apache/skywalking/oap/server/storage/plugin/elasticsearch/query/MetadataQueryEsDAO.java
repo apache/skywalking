@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -39,6 +40,7 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -57,22 +59,26 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> getAllServices(long startTimestamp, long endTimestamp) throws IOException {
+    public List<Service> getAllServices(final String group) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()));
+        if (StringUtil.isNotEmpty(group)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.GROUP, group));
+        }
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         return buildServices(response);
     }
 
     @Override
-    public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
+    public List<Service> getAllBrowserServices() throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -81,7 +87,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         return buildServices(response);
     }
@@ -96,7 +103,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
 
         final List<Service> serviceList = buildServices(response);
         List<Database> databases = new ArrayList<>();
@@ -110,7 +118,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(long startTimestamp, long endTimestamp, String keyword) throws IOException {
+    public List<Service> searchServices(String keyword) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -124,7 +132,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
         return buildServices(response);
     }
 
@@ -136,7 +145,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NAME, serviceCode));
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(1);
-        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME), sourceBuilder);
         final List<Service> services = buildServices(response);
         return services.size() > 0 ? services.get(0) : null;
     }
@@ -156,13 +166,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
 
-        SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(EndpointTraffic.INDEX_NAME), sourceBuilder);
 
         List<Endpoint> endpoints = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
-            final EndpointTraffic endpointTraffic = new EndpointTraffic.Builder().map2Data(sourceAsMap);
+            final EndpointTraffic endpointTraffic = new EndpointTraffic.Builder().storage2Entity(sourceAsMap);
 
             Endpoint endpoint = new Endpoint();
             endpoint.setId(endpointTraffic.id());
@@ -189,13 +200,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(InstanceTraffic.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient()
+            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME), sourceBuilder);
 
         List<ServiceInstance> serviceInstances = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
-            final InstanceTraffic instanceTraffic = new InstanceTraffic.Builder().map2Data(sourceAsMap);
+            final InstanceTraffic instanceTraffic = new InstanceTraffic.Builder().storage2Entity(sourceAsMap);
 
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(instanceTraffic.id());
@@ -227,11 +239,12 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
             final ServiceTraffic.Builder builder = new ServiceTraffic.Builder();
-            final ServiceTraffic serviceTraffic = builder.map2Data(sourceAsMap);
+            final ServiceTraffic serviceTraffic = builder.storage2Entity(sourceAsMap);
 
             Service service = new Service();
             service.setId(serviceTraffic.id());
             service.setName(serviceTraffic.getName());
+            service.setGroup(serviceTraffic.getGroup());
             services.add(service);
         }
 

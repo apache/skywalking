@@ -19,7 +19,12 @@
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -28,10 +33,26 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class ExtensionContext {
 
+    private static final ILog LOGGER = LogManager.getLogger(ExtensionContext.class);
+    /**
+     * The separator of extendable fields.
+     */
+    private static final String SEPARATOR = "-";
+    /**
+     * The default value of extendable fields.
+     */
+    private static final String PLACEHOLDER = " ";
     /**
      * Tracing Mode. If true means represents all spans generated in this context should skip analysis.
      */
     private boolean skipAnalysis;
+
+    /**
+     * The sending timestamp of the exit span.
+     */
+    @Getter
+    @Setter
+    private Long sendingTimestamp;
 
     /**
      * Serialize this {@link ExtensionContext} to a {@link String}
@@ -39,7 +60,10 @@ public class ExtensionContext {
      * @return the serialization string.
      */
     String serialize() {
-        return skipAnalysis ? "1" : "0";
+        String res = skipAnalysis ? "1" : "0";
+        res += SEPARATOR;
+        res += Objects.isNull(sendingTimestamp) ? PLACEHOLDER : sendingTimestamp;
+        return res;
     }
 
     /**
@@ -49,11 +73,24 @@ public class ExtensionContext {
         if (StringUtil.isEmpty(value)) {
             return;
         }
-        final String[] extensionParts = value.split("-");
+        String[] extensionParts = value.split(SEPARATOR);
+        String extensionPart;
         // All parts of the extension header are optional.
         // only try to read it when it exist.
         if (extensionParts.length > 0) {
-            this.skipAnalysis = Objects.equals(extensionParts[0], "1");
+            extensionPart = extensionParts[0];
+            this.skipAnalysis = Objects.equals(extensionPart, "1");
+        }
+
+        if (extensionParts.length > 1) {
+            extensionPart = extensionParts[1];
+            if (StringUtil.isNotBlank(extensionPart)) {
+                try {
+                    this.sendingTimestamp = Long.parseLong(extensionPart);
+                } catch (NumberFormatException e) {
+                    LOGGER.error(e, "the downstream sending timestamp is illegal:[{}]", extensionPart);
+                }
+            }
         }
     }
 
@@ -72,25 +109,39 @@ public class ExtensionContext {
     }
 
     /**
-     * Handle the tracing span.
+     * Process the active span
+     *
+     * 1. Set the `skipAnalysis` flag.
+     * 2. Tag the {@link Tags#TRANSMISSION_LATENCY} if the context includes `sendingTimestamp`,
+     *    which is set by the client side.
      */
     void handle(AbstractSpan span) {
         if (this.skipAnalysis) {
             span.skipAnalysis();
+        }
+        if (Objects.nonNull(sendingTimestamp)) {
+            Tags.TRANSMISSION_LATENCY.set(span, String.valueOf(System.currentTimeMillis() - sendingTimestamp));
         }
     }
 
     /**
      * Clone the context data, work for capture to cross-thread.
      */
+    @Override
     public ExtensionContext clone() {
         final ExtensionContext context = new ExtensionContext();
         context.skipAnalysis = this.skipAnalysis;
+        context.sendingTimestamp = this.sendingTimestamp;
         return context;
     }
 
+    /**
+     * Continue the context in another thread.
+     * @param snapshot holds the context
+     */
     void continued(ContextSnapshot snapshot) {
         this.skipAnalysis = snapshot.getExtensionContext().skipAnalysis;
+        this.sendingTimestamp = snapshot.getExtensionContext().sendingTimestamp;
     }
 
     @Override
@@ -100,11 +151,11 @@ public class ExtensionContext {
         if (o == null || getClass() != o.getClass())
             return false;
         ExtensionContext that = (ExtensionContext) o;
-        return skipAnalysis == that.skipAnalysis;
+        return skipAnalysis == that.skipAnalysis && Objects.equals(this.sendingTimestamp, that.sendingTimestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(skipAnalysis);
+        return Objects.hash(skipAnalysis, sendingTimestamp);
     }
 }

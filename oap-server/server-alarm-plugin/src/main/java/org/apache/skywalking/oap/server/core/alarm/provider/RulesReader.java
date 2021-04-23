@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
-import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
@@ -38,13 +39,13 @@ public class RulesReader {
     private Map yamlData;
 
     public RulesReader(InputStream inputStream) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(inputStream, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(inputStream);
     }
 
     public RulesReader(Reader io) {
-        Yaml yaml = new Yaml();
-        yamlData = yaml.loadAs(io, Map.class);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        yamlData = (Map) yaml.load(io);
     }
 
     /**
@@ -61,10 +62,10 @@ public class RulesReader {
             readWechatConfig(rules);
             readCompositeRuleConfig(rules);
             readDingtalkConfig(rules);
+            readFeishuConfig(rules);
         }
         return rules;
     }
-
 
     /**
      * Read rule config into {@link AlarmRule}
@@ -225,6 +226,27 @@ public class RulesReader {
                 });
             }
             rules.setDingtalks(dingtalkSettings);
+        }
+    }
+
+    /**
+     * Read feishu hook config into {@link FeishuSettings}
+     */
+    private void readFeishuConfig(Rules rules) {
+        Map feishuConfig = (Map) yamlData.get("feishuHooks");
+        if (feishuConfig != null) {
+            FeishuSettings feishuSettings = new FeishuSettings();
+            Object textTemplate = feishuConfig.getOrDefault("textTemplate", "");
+            feishuSettings.setTextTemplate((String) textTemplate);
+            List<Map<String, Object>> wechatWebhooks = (List<Map<String, Object>>) feishuConfig.get("webhooks");
+            if (wechatWebhooks != null) {
+                wechatWebhooks.forEach(wechatWebhook -> {
+                    Object secret = wechatWebhook.getOrDefault("secret", "");
+                    Object url = wechatWebhook.getOrDefault("url", "");
+                    feishuSettings.getWebhooks().add(new FeishuSettings.WebHookUrl((String) secret, (String) url));
+                });
+            }
+            rules.setFeishus(feishuSettings);
         }
     }
 }

@@ -39,7 +39,7 @@ public class MessageConcurrentlyConsumeInterceptor extends AbstractMessageConsum
         if (status == ConsumeConcurrentlyStatus.RECONSUME_LATER) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
-            Tags.STATUS_CODE.set(activeSpan, status.name());
+            Tags.MQ_STATUS.set(activeSpan, status.name());
         }
         ContextManager.stopSpan();
         return ret;

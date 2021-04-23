@@ -4,11 +4,11 @@ cluster.
 
 The latest introduction video could be found on the Youtube
 
-[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
+[![RocketBot UI](https://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
 
 SkyWalking dashboard includes the following part.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/dashboard.png"/>
+<img src="https://skywalking.apache.org/ui-doc/7.0.0/dashboard.png"/>
 
 1. **Feature Tab Selector Zone**. The key features are list there. The more details will be introduced below.
 1. **Reload Zone**. Control the reload mechanism, including reload periodically or manually.
@@ -25,21 +25,74 @@ Dashboard provide metrics of service, service instance and endpoint. There are a
 Service, Instance and Dashboard selector could reload manually rather than reload the whole page. NOTICE, the **Reload Zone**
 wouldn't reload these selectors.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/dashboard-reload.png"/>
+<img src="https://skywalking.apache.org/ui-doc/7.0.0/dashboard-reload.png"/>
 
 Two default dashboards are provided to visualize the metrics of service and database.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/dashboard-default.png"/>
+<img src="https://skywalking.apache.org/ui-doc/7.0.0/dashboard-default.png"/>
 
 User could click the `lock` button left aside the `Service/Instance/Endpoint Reload` button to custom your own dashboard.
+
+### Custom Dashboard
+Users could customize the dashboard. The default dashboards are provided through the default templates located in 
+`/ui-initialized-templates` folders.
+
+The template file follows this format.
+```yaml
+templates:
+  - name: template name # The unique name
+    # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
+    # DASHBOARD type templates could have multiple definitions, by using different names.
+    # TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT type templates should be defined once, 
+    # as they are used in the topology page only.
+    type: "DASHBOARD" 
+    # Custom the dashboard or create a new one on the UI, set the metrics as you like in the edit mode.
+    # Then, you could export this configuration through the page and add it here.
+    configuration: |-
+      [
+        {
+          "name":"Spring Sleuth",
+          "type":"service",
+          "children":[
+            {
+              "name":"Sleuth",
+              "children": [{
+                "width": "3",
+                "title": "HTTP Request",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_http_server_requests_count",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }
+              ...
+              ]
+            }
+          ]
+      }
+      ]
+    # Activated means this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually on the page.
+    activated: false
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false
+```
+
+**NOTE**, UI initialized templates would only be initialized if there is no template in the storage has the same name.
+Check the entity named as `ui_template` in your storage.
 
 ## Topology
 Topology map shows the relationship among the services and instances with metrics.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/topology.png"/>
+<img src="https://skywalking.apache.org/ui-doc/8.4.0/topology.png"/>
 
 * Topology shows the default global topology including all services.
-* **Service Selector** supports to show direct relationships including upstream and downstream.
+* **Service Selector** provides 2 level selectors, service group list and service name list. The group name is separated from 
+the service name if it follows `<group name>::<logic name>` format. Topology map is available for single group, single service, 
+or global(include all services).
 * **Custom Group** provides the any sub topology capability of service group.
 * **Service Deep Dive** opens when you click any service. The honeycomb could do metrics, trace and alarm query of the selected service.
 * **Service Relationship Metrics** gives the metrics of service RPC interactions and instances of these two services.
@@ -47,11 +100,11 @@ Topology map shows the relationship among the services and instances with metric
 ## Trace Query
 Trace query is a typical feature as SkyWalking provided distributed agents.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/trace.png"/>
+<img src="https://skywalking.apache.org/ui-doc/7.0.0/trace.png"/>
 
 * **Trace Segment List** is not the trace list. Every trace has several segments belonging to different services. If  
 query by all services or by trace id, different segments with same trace id could be list there.
-* **Span** is clickable, the detail of each span will pop up at the left side.
+* **Span** is clickable, the detail of each span will pop up on the left side.
 * **Trace Views** provides 3 typical and different usage views to visualize the trace. 
 
 ## Profile
@@ -59,7 +112,7 @@ Profile is an interaction feature. It provides the method level performance diag
 
 To start the profile analysis, user need to create the profile task
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/profile-create.png" width="440px"/>
+<img src="https://skywalking.apache.org/ui-doc/7.0.0/profile-create.png" width="440px"/>
 
 1. Select the specific service. 
 1. Set the endpoint name. This endpoint name typically is the operation name of the first span. Find this on the trace 
@@ -82,10 +135,16 @@ Typically, we analysis spans having long self duration, if the span and its chil
 After choose the right span, and click the `analysis` button, you will see the stack based analysis result. The slowest methods
 have been highlighted.
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/profile-result.png"/>
+<img src="https://skywalking.apache.org/ui-doc/7.0.0/profile-result.png"/>
 
 ### Advanced features
 1. Since 7.1.0, the profiled trace collects the HTTP request parameters for Tomcat and SpringMVC Controller automatically.
+
+## Log
+Since 8.3.0, SkyWalking provides log query for the browser monitoring. Use [Apache SkyWalking Client JS](https://github.com/apache/skywalking-client-js)
+agent would collect metrics and error logs.
+
+<img src="https://skywalking.apache.org/ui-doc/8.3.0/log.png"/>
 
 ## Alarm
 Alarm page lists all triggered alarm. Read the backend setup documentation to know how to set up the alarm rule or integrate

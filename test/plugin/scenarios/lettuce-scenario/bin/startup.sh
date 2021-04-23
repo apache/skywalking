@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -Dredis.host=${REDIS_SERVERS} -jar ${agent_opts} ${home}/../libs/lettuce-scenario.jar &
+java -Dredis.host=${REDIS_SERVERS} -jar -Dskywalking.plugin.lettuce.trace_redis_parameters=true ${agent_opts} ${home}/../libs/lettuce-scenario.jar &

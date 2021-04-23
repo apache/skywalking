@@ -18,18 +18,29 @@
 
 package org.apache.skywalking.apm.testcase.elasticsearch;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
@@ -43,15 +54,15 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.script.mustache.SearchTemplateRequest;
+import org.elasticsearch.script.mustache.SearchTemplateResponse;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
 
 import static java.util.Collections.singletonMap;
 
@@ -91,8 +102,28 @@ public class RestHighLevelClientCase {
             get(client, indexName);
             // search
             search(client, indexName);
+            // scroll
+            scroll(client, indexName);
+            // scrollAsync
+            scrollAsync(client, indexName);
+            // clearScroll
+            clearScroll(client, indexName);
+            // clearScrollAsync
+            clearScrollAsync(client, indexName);
+            // searchTemplate
+            searchTemplate(client, indexName);
+            // searchTemplateAsync
+            searchTemplateAsync(client, indexName);
             // update
             update(client, indexName);
+            // analyze
+            analyze(client, indexName);
+            // analyzeAsync
+            analyzeAsync(client, indexName);
+            // deleteByQuery
+            deleteByQuery(client, indexName);
+            // deleteByQueryAsync
+            deleteByQueryAsync(client, indexName);
             // delete
             delete(client, indexName);
         } finally {
@@ -130,7 +161,7 @@ public class RestHighLevelClientCase {
         request.settings(Settings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0));
 
         CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
-        if (createIndexResponse.isAcknowledged() == false) {
+        if (!createIndexResponse.isAcknowledged()) {
             String message = "elasticsearch create index fail.";
             LOGGER.error(message);
             throw new RuntimeException(message);
@@ -180,6 +211,37 @@ public class RestHighLevelClientCase {
         }
     }
 
+    private void analyze(RestHighLevelClient client, String indexName) throws IOException {
+        AnalyzeRequest analyzeRequest = new AnalyzeRequest(indexName).text("SkyWalking");
+        AnalyzeResponse analyzeResponse = client.indices().analyze(analyzeRequest, RequestOptions.DEFAULT);
+        if (null == analyzeResponse.getTokens() || analyzeResponse.getTokens().size() < 1) {
+            String message = "elasticsearch analyze index fail.";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
+    }
+
+    private void analyzeAsync(RestHighLevelClient client, String indexName) throws IOException {
+        ActionListener<AnalyzeResponse> listener = new ActionListener<AnalyzeResponse>() {
+            @Override
+            public void onResponse(final AnalyzeResponse analyzeResponse) {
+                if (null == analyzeResponse.getTokens() || analyzeResponse.getTokens().size() < 1) {
+                    String message = "elasticsearch analyze index fail.";
+                    LOGGER.error(message);
+                    throw new RuntimeException(message);
+                }
+            }
+
+            @Override
+            public void onFailure(final Exception e) {
+                LOGGER.error(e.getMessage());
+                throw new RuntimeException(e);
+            }
+        };
+        AnalyzeRequest analyzeRequest = new AnalyzeRequest(indexName).text("SkyWalking");
+        client.indices().analyzeAsync(analyzeRequest, RequestOptions.DEFAULT, listener);
+    }
+
     private void delete(RestHighLevelClient client, String indexName) throws IOException {
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         AcknowledgedResponse deleteIndexResponse = client.indices().delete(request, RequestOptions.DEFAULT);
@@ -206,5 +268,206 @@ public class RestHighLevelClientCase {
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
+    }
+
+    private void scroll(RestHighLevelClient client, String indexName) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(indexName);
+        searchRequest.source(sourceBuilder);
+        searchRequest.scroll(TimeValue.timeValueSeconds(30));
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        SearchScrollRequest scrollRequest = new SearchScrollRequest(searchResponse.getScrollId());
+        client.scroll(scrollRequest, RequestOptions.DEFAULT);
+    }
+
+    private void scrollAsync(RestHighLevelClient client, String indexName) throws IOException, InterruptedException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(indexName);
+        searchRequest.source(sourceBuilder);
+        searchRequest.scroll(TimeValue.timeValueSeconds(30));
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        ActionListener<SearchResponse> listener = new ActionListener<SearchResponse>() {
+            @Override
+            public void onResponse(final SearchResponse searchResponse) {
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onFailure(final Exception e) {
+                countDownLatch.countDown();
+                LOGGER.error(e.getMessage());
+                throw new RuntimeException(e);
+            }
+        };
+
+        SearchScrollRequest scrollRequest = new SearchScrollRequest(searchResponse.getScrollId());
+        client.scrollAsync(scrollRequest, RequestOptions.DEFAULT, listener);
+
+        countDownLatch.await();
+    }
+
+    private void clearScroll(RestHighLevelClient client, String indexName) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(indexName);
+        searchRequest.source(sourceBuilder);
+        searchRequest.scroll(TimeValue.timeValueSeconds(30));
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+        clearScrollRequest.addScrollId(searchResponse.getScrollId());
+        client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
+    }
+
+    private void clearScrollAsync(RestHighLevelClient client,
+                                  String indexName) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(indexName);
+        searchRequest.source(sourceBuilder);
+        searchRequest.scroll(TimeValue.timeValueSeconds(30));
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+        clearScrollRequest.addScrollId(searchResponse.getScrollId());
+        client.clearScrollAsync(clearScrollRequest, RequestOptions.DEFAULT, new ActionListener<ClearScrollResponse>() {
+            @Override
+            public void onResponse(final ClearScrollResponse clearScrollResponse) {
+
+            }
+
+            @Override
+            public void onFailure(final Exception e) {
+                LOGGER.error(e.getMessage());
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private void searchTemplate(RestHighLevelClient client, String indexName) throws IOException {
+
+        SearchTemplateRequest searchTemplateRequest = new SearchTemplateRequest();
+        searchTemplateRequest.setRequest(new SearchRequest(indexName));
+        searchTemplateRequest.setScriptType(ScriptType.INLINE);
+
+        searchTemplateRequest.setScript("{\n" +
+                                            "  \"from\": \"{{from}}\",\n" +
+                                            "  \"size\": \"{{size}}\",\n" +
+                                            "  \"query\": {\n" +
+                                            "    \"term\": {\n" +
+                                            "      \"{{field}}\": {\n" +
+                                            "        \"value\": \"{{value}}\"\n" +
+                                            "      }\n" +
+                                            "    }\n" +
+                                            "  }\n" +
+                                            "}");
+
+        Map<String, Object> scriptParams = new HashMap<>();
+        scriptParams.put("field", "author");
+        scriptParams.put("value", "Marker");
+        scriptParams.put("size", 10);
+        scriptParams.put("from", 0);
+        searchTemplateRequest.setScriptParams(scriptParams);
+
+        SearchTemplateResponse searchTemplateResponse = client.searchTemplate(
+            searchTemplateRequest, RequestOptions.DEFAULT);
+        if (!(searchTemplateResponse.getResponse().getHits().totalHits > 0)) {
+            String message = "elasticsearch searchTemplateAsync data fail.";
+            LOGGER.error(message);
+            throw new RuntimeException(message);
+        }
+    }
+
+    private void searchTemplateAsync(RestHighLevelClient client, String indexName) throws IOException {
+
+        SearchTemplateRequest searchTemplateRequest = new SearchTemplateRequest();
+        searchTemplateRequest.setRequest(new SearchRequest(indexName));
+        searchTemplateRequest.setScriptType(ScriptType.INLINE);
+
+        searchTemplateRequest.setScript("{\n" +
+                                            "  \"from\": \"{{from}}\",\n" +
+                                            "  \"size\": \"{{size}}\",\n" +
+                                            "  \"query\": {\n" +
+                                            "    \"term\": {\n" +
+                                            "      \"{{field}}\": {\n" +
+                                            "        \"value\": \"{{value}}\"\n" +
+                                            "      }\n" +
+                                            "    }\n" +
+                                            "  }\n" +
+                                            "}");
+
+        Map<String, Object> scriptParams = new HashMap<>();
+        scriptParams.put("field", "author");
+        scriptParams.put("value", "Marker");
+        scriptParams.put("size", 10);
+        scriptParams.put("from", 0);
+        searchTemplateRequest.setScriptParams(scriptParams);
+
+        client.searchTemplateAsync(
+            searchTemplateRequest, RequestOptions.DEFAULT, new ActionListener<SearchTemplateResponse>() {
+                @Override
+                public void onResponse(final SearchTemplateResponse searchTemplateResponse) {
+                    if (!(searchTemplateResponse.getResponse().getHits().totalHits > 0)) {
+                        String message = "elasticsearch searchTemplateAsync data fail.";
+                        LOGGER.error(message);
+                        throw new RuntimeException(message);
+                    }
+                }
+
+                @Override
+                public void onFailure(final Exception e) {
+                    LOGGER.error(e);
+                    throw new RuntimeException();
+                }
+            });
+    }
+
+    private void deleteByQuery(RestHighLevelClient client, String indexName) throws IOException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("author", "Marker1"));
+
+        DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest(indexName);
+        deleteByQueryRequest.setQuery(sourceBuilder.query());
+        BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(
+            deleteByQueryRequest, RequestOptions.DEFAULT);
+        bulkByScrollResponse.getStatus();
+    }
+
+    private void deleteByQueryAsync(RestHighLevelClient client,
+                                    String indexName) throws IOException, InterruptedException {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("author", "Marker2"));
+
+        DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest(indexName);
+        deleteByQueryRequest.setQuery(sourceBuilder.query());
+
+        client.deleteByQueryAsync(
+            deleteByQueryRequest, RequestOptions.DEFAULT, new ActionListener<BulkByScrollResponse>() {
+                @Override
+                public void onResponse(final BulkByScrollResponse bulkByScrollResponse) {
+
+                }
+
+                @Override
+                public void onFailure(final Exception e) {
+                    LOGGER.error(e);
+                    throw new RuntimeException();
+                }
+            }
+        );
     }
 }

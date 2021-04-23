@@ -22,22 +22,25 @@ import com.google.common.collect.Maps;
 import io.vavr.CheckedFunction1;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.StaticConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.metric.promethues.PrometheusMetricConverter;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rule;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.StaticConfig;
 import org.apache.skywalking.oap.server.fetcher.prometheus.http.HttpClient;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -49,19 +52,24 @@ import org.apache.skywalking.oap.server.library.util.prometheus.Parser;
 import org.apache.skywalking.oap.server.library.util.prometheus.Parsers;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-import static java.util.stream.Collectors.toList;
-
+@Slf4j
 public class PrometheusFetcherProvider extends ModuleProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(PrometheusFetcherProvider.class);
 
     private final PrometheusFetcherConfig config;
 
     private List<Rule> rules;
 
     private ScheduledExecutorService ses;
+
+    private HistogramMetrics histogram;
+
+    private CounterMetrics errorCounter;
 
     public PrometheusFetcherProvider() {
         config = new PrometheusFetcherConfig();
@@ -84,72 +92,89 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        if (!config.isActive()) {
-            return;
-        }
-        rules = Rules.loadRules(config.getRulePath());
+        rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
         ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "metrics_fetcher_latency", "The process latency of metrics scraping",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        errorCounter = metricsCreator.createCounter("metrics_fetcher_error_count", "The error number of metrics scraping",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        if (!config.isActive()) {
+        if (rules.isEmpty()) {
             return;
         }
         final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
         rules.forEach(r -> {
             ses.scheduleAtFixedRate(new Runnable() {
 
-                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r.getMetricsRules(), service);
+                private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r, service);
 
                 @Override public void run() {
-                    if (Objects.isNull(r.getStaticConfig())) {
-                        return;
-                    }
-                    StaticConfig sc = r.getStaticConfig();
-                    long now = System.currentTimeMillis();
-                    converter.toMeter(sc.getTargets().stream()
-                        .map(CheckedFunction1.liftTry(target -> {
-                            List<Metric> result = new LinkedList<>();
-                            String content = HttpClient.builder().url(target.getUrl()).caFilePath(target.getSslCaFilePath()).build().request();
-                            try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
-                                Parser p = Parsers.text(targetStream);
-                                MetricFamily mf;
-
-                                while ((mf = p.parse(now)) != null) {
-                                    result.addAll(mf.getMetrics().stream()
-                                        .peek(metric -> {
-                                            if (Objects.isNull(sc.getLabels())) {
-                                                return;
-                                            }
-                                            Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
-                                            extraLabels.put("instance", target.getUrl());
-                                            extraLabels.forEach((key, value) -> {
-                                                if (metric.getLabels().containsKey(key)) {
-                                                    metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
+                    try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                        if (Objects.isNull(r.getStaticConfig())) {
+                            return;
+                        }
+                        StaticConfig sc = r.getStaticConfig();
+                        long now = System.currentTimeMillis();
+                        converter.toMeter(sc.getTargets().stream()
+                                .map(CheckedFunction1.liftTry(target -> {
+                                    URI url = new URI(target.getUrl());
+                                    URI targetURL = url.resolve(r.getMetricsPath());
+                                    String content = HttpClient.builder().url(targetURL.toString()).caFilePath(target.getSslCaFilePath()).build().request();
+                                    List<Metric> result = new ArrayList<>();
+                                    try (InputStream targetStream = new ByteArrayInputStream(content.getBytes(Charsets.UTF_8))) {
+                                        Parser p = Parsers.text(targetStream);
+                                        MetricFamily mf;
+                                        while ((mf = p.parse(now)) != null) {
+                                            mf.getMetrics().forEach(metric -> {
+                                                if (Objects.isNull(sc.getLabels())) {
+                                                    return;
                                                 }
-                                                metric.getLabels().put(key, value);
+                                                Map<String, String> extraLabels = Maps.newHashMap(sc.getLabels());
+                                                extraLabels.put("instance", target.getUrl());
+                                                extraLabels.forEach((key, value) -> {
+                                                    if (metric.getLabels().containsKey(key)) {
+                                                        metric.getLabels().put("exported_" + key, metric.getLabels().get(key));
+                                                    }
+                                                    metric.getLabels().put(key, value);
+                                                });
                                             });
-                                        })
-                                        .collect(toList()));
-                                }
-                            }
-                            return result;
-                        }))
-                        .flatMap(tryIt -> PrometheusMetricConverter.log(tryIt, "Load metric"))
-                        .flatMap(Collection::stream));
+                                            result.addAll(mf.getMetrics());
+                                        }
+                                    }
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Fetch metrics from prometheus: {}", result);
+                                    }
+                                    return result;
+                                }))
+                                .flatMap(tryIt -> MetricConvert.log(tryIt, "Load metric"))
+                                .flatMap(Collection::stream));
+                    } catch (Exception e) {
+                        errorCounter.inc();
+                        log.error(e.getMessage(), e);
                     }
+                }
             }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
         });
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {
+            TelemetryModule.NAME,
+            CoreModule.NAME
+        };
     }
-
 }

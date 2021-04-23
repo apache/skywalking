@@ -20,18 +20,20 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 
 import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.receiver.envoy.als.mx.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class EnvoyMetricReceiverProvider extends ModuleProvider {
     private final EnvoyMetricReceiverConfig config;
+
+    protected String fieldMappingFile = "metadata-service-mapping.yaml";
 
     public EnvoyMetricReceiverProvider() {
         config = new EnvoyMetricReceiverConfig();
@@ -54,7 +56,11 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
+        try {
+            FieldsHelper.SINGLETON.init(fieldMappingFile, config.serviceMetaInfoFactory().clazz());
+        } catch (final Exception e) {
+            throw new ModuleStartException("Failed to load metadata-service-mapping.yaml", e);
+        }
     }
 
     @Override
@@ -63,14 +69,13 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
                                                   .provider()
                                                   .getService(GRPCHandlerRegister.class);
         if (config.isAcceptMetricsService()) {
-            getManager().find(CoreModule.NAME)
-                        .provider()
-                        .getService(OALEngineLoaderService.class)
-                        .load(EnvoyOALDefine.INSTANCE);
-
-            service.addHandler(new MetricServiceGRPCHandler(getManager()));
+            final MetricServiceGRPCHandler handler = new MetricServiceGRPCHandler(getManager(), config);
+            service.addHandler(handler);
+            service.addHandler(new MetricServiceGRPCHandlerV3(handler));
         }
-        service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
+        final AccessLogServiceGRPCHandler handler = new AccessLogServiceGRPCHandler(getManager(), config);
+        service.addHandler(handler);
+        service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
     }
 
     @Override

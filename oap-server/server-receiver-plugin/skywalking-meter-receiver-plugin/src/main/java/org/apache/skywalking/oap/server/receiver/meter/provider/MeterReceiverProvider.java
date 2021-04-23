@@ -28,7 +28,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.meter.module.MeterReceiverModule;
 import org.apache.skywalking.oap.server.receiver.meter.provider.handler.MeterServiceHandler;
+import org.apache.skywalking.oap.server.receiver.meter.provider.handler.MeterServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class MeterReceiverProvider extends ModuleProvider {
 
@@ -61,17 +63,19 @@ public class MeterReceiverProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new MeterServiceHandler(processService));
+        MeterServiceHandler meterServiceHandlerCompat = new MeterServiceHandler(getManager(), processService);
+        grpcHandlerRegister.addHandler(meterServiceHandlerCompat);
+        grpcHandlerRegister.addHandler(new MeterServiceHandlerCompat(meterServiceHandlerCompat));
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-        processService.initMeters();
     }
 
     @Override
     public String[] requiredModules() {
         return new String[] {
+            TelemetryModule.NAME,
             CoreModule.NAME,
             AnalyzerModule.NAME,
             SharingServerModule.NAME

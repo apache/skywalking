@@ -44,10 +44,18 @@ public class DataCarrier<T> {
     }
 
     public DataCarrier(String name, String envPrefix, int channelSize, int bufferSize) {
+        this(name, envPrefix, channelSize, bufferSize, BufferStrategy.BLOCKING);
+    }
+
+    public DataCarrier(String name, String envPrefix, int channelSize, int bufferSize, BufferStrategy strategy) {
         this.name = name;
         bufferSize = EnvUtil.getInt(envPrefix + "_BUFFER_SIZE", bufferSize);
         channelSize = EnvUtil.getInt(envPrefix + "_CHANNEL_SIZE", channelSize);
-        channels = new Channels<>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), BufferStrategy.BLOCKING);
+        channels = new Channels<>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), strategy);
+    }
+
+    public DataCarrier(int channelSize, int bufferSize, BufferStrategy strategy) {
+        this("DEFAULT", "DEFAULT", channelSize, bufferSize, strategy);
     }
 
     /**
@@ -59,14 +67,6 @@ public class DataCarrier<T> {
      */
     public DataCarrier setPartitioner(IDataPartitioner<T> dataPartitioner) {
         this.channels.setPartitioner(dataPartitioner);
-        return this;
-    }
-
-    /**
-     * override the strategy at runtime. Notice, {@link Channels} will override several channels one by one.
-     */
-    public DataCarrier setBufferStrategy(BufferStrategy strategy) {
-        this.channels.setStrategy(strategy);
         return this;
     }
 

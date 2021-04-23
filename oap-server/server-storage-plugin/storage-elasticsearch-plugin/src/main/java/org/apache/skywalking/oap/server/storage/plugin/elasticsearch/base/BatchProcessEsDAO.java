@@ -40,7 +40,10 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     private final int flushInterval;
     private final int concurrentRequests;
 
-    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int flushInterval, int concurrentRequests) {
+    public BatchProcessEsDAO(ElasticSearchClient client,
+                             int bulkActions,
+                             int flushInterval,
+                             int concurrentRequests) {
         super(client);
         this.bulkActions = bulkActions;
         this.flushInterval = flushInterval;
@@ -60,7 +63,6 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     public void synchronous(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             BulkRequest request = new BulkRequest();
-
             for (PrepareRequest prepareRequest : prepareRequests) {
                 if (prepareRequest instanceof InsertRequest) {
                     request.add((IndexRequest) prepareRequest);

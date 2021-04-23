@@ -31,7 +31,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -40,15 +42,12 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 
@@ -62,7 +61,7 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.Sp
 public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
     private final List<SourceBuilder> entrySourceBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> exitSourceBuilders = new ArrayList<>(10);
-    private final List<DatabaseSlowStatement> slowDatabaseAccesses = new ArrayList<>(10);
+    private final List<DatabaseSlowStatementBuilder> dbSlowStatementBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
     private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
@@ -184,7 +183,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
              * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
              * Keeping dest instance name as NULL makes no instance relation generate from this exit span.
              */
-            if (!config.getNoUpstreamRealAddressAgents().contains(span.getComponentId())) {
+            if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())) {
                 sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
             }
             sourceBuilder.setDestNodeType(NodeType.Normal);
@@ -195,26 +194,24 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         setPublicAttrs(sourceBuilder, span);
         exitSourceBuilders.add(sourceBuilder);
 
-        if (sourceBuilder.getType().equals(RequestType.DATABASE)) {
+        if (RequestType.DATABASE.equals(sourceBuilder.getType())) {
             boolean isSlowDBAccess = false;
 
-            DatabaseSlowStatement statement = new DatabaseSlowStatement();
-            statement.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
-            statement.setDatabaseServiceId(
-                IDManager.ServiceID.buildId(networkAddress, NodeType.Database)
-            );
-            statement.setLatency(sourceBuilder.getLatency());
-            statement.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
-            statement.setTraceId(segmentObject.getTraceId());
+            DatabaseSlowStatementBuilder slowStatementBuilder = new DatabaseSlowStatementBuilder(namingControl);
+            slowStatementBuilder.setServiceName(networkAddress);
+            slowStatementBuilder.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
+            slowStatementBuilder.setLatency(sourceBuilder.getLatency());
+            slowStatementBuilder.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+            slowStatementBuilder.setTraceId(segmentObject.getTraceId());
             for (KeyStringValuePair tag : span.getTagsList()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
-                    if (StringUtil.isEmpty(sqlStatement)) {
-                        statement.setStatement("[No statement]/" + span.getOperationName());
-                    } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                        statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
-                    } else {
-                        statement.setStatement(sqlStatement);
+                    if (StringUtil.isNotEmpty(sqlStatement)) {
+                        if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
+                            slowStatementBuilder.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
+                        } else {
+                            slowStatementBuilder.setStatement(sqlStatement);
+                        }
                     }
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
@@ -226,8 +223,13 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 }
             }
 
+            if (StringUtil.isEmpty(slowStatementBuilder.getStatement())) {
+                String statement = StringUtil.isEmpty(
+                    span.getOperationName()) ? "[No statement]" : "[No statement]/" + span.getOperationName();
+                slowStatementBuilder.setStatement(statement);
+            }
             if (isSlowDBAccess) {
-                slowDatabaseAccesses.add(statement);
+                dbSlowStatementBuilders.add(slowStatementBuilder);
             }
         }
     }
@@ -245,6 +247,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     log.warn("span {} has illegal status code {}", span, tag.getValue());
                 }
             }
+            sourceBuilder.setTag(tag);
         });
 
         sourceBuilder.setStatus(!span.getIsError());
@@ -270,6 +273,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     @Override
     public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
+            entrySourceBuilder.prepare();
             sourceReceiver.receive(entrySourceBuilder.toAll());
             sourceReceiver.receive(entrySourceBuilder.toService());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstance());
@@ -291,6 +295,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
+            exitSourceBuilder.prepare();
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
 
             /*
@@ -306,9 +311,13 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             }
         });
 
-        slowDatabaseAccesses.forEach(sourceReceiver::receive);
+        dbSlowStatementBuilders.forEach(dbSlowStatBuilder -> {
+            dbSlowStatBuilder.prepare();
+            sourceReceiver.receive(dbSlowStatBuilder.toDatabaseSlowStatement());
+        });
 
         logicEndpointBuilders.forEach(logicEndpointBuilder -> {
+            logicEndpointBuilder.prepare();
             sourceReceiver.receive(logicEndpointBuilder.toEndpoint());
         });
     }

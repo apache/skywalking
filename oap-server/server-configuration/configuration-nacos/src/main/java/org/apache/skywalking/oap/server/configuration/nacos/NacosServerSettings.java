@@ -32,4 +32,8 @@ public class NacosServerSettings extends ModuleConfig {
     private int port = 8848;
     private String group;
     private int period = 60;
+    private String username;
+    private String password;
+    private String accessKey;
+    private String secretKey;
 }

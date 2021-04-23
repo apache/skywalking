@@ -62,19 +62,16 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
         List<URI> uris = EtcdUtils.parse(config);
-
         //TODO check isSSL
         client = new EtcdClient(uris.toArray(new URI[] {}));
-        EtcdCoordinator coordinator = new EtcdCoordinator(config, client);
+        EtcdCoordinator coordinator = new EtcdCoordinator(getManager(), config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException {
-
     }
 
     @Override

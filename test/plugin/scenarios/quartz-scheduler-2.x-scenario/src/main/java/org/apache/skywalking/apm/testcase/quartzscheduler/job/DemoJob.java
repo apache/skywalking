@@ -30,7 +30,7 @@ import java.io.IOException;
 @Slf4j
 public class DemoJob implements Job {
 
-    private static final OkHttpClient client = new OkHttpClient.Builder().build();
+    private static final OkHttpClient CLIENT = new OkHttpClient.Builder().build();
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
@@ -39,7 +39,7 @@ public class DemoJob implements Job {
         Request request = new Request.Builder().url("http://localhost:8080/quartz-scheduler-2.x-scenario/case/call").build();
         Response response = null;
         try {
-            response = client.newCall(request).execute();
+            response = CLIENT.newCall(request).execute();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -422,8 +422,8 @@ public class RunningRuleTest {
         }
 
         @Override
-        public void combine(Metrics metrics) {
-
+        public boolean combine(Metrics metrics) {
+            return true;
         }
 
         @Override
@@ -479,8 +479,8 @@ public class RunningRuleTest {
         }
 
         @Override
-        public void combine(Metrics metrics) {
-
+        public boolean combine(Metrics metrics) {
+            return true;
         }
 
         @Override
@@ -531,8 +531,8 @@ public class RunningRuleTest {
         }
 
         @Override
-        public void combine(Metrics metrics) {
-
+        public boolean combine(Metrics metrics) {
+            return true;
         }
 
         @Override
