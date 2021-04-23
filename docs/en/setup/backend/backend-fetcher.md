@@ -84,11 +84,15 @@ Kafka Fetcher pulls messages from Kafka Broker(s) what is the Agent delivered. C
 
 Kafka Fetcher is disabled in default, and we configure as following to enable.
 
+namespace aims to isolate multi OAP cluster when using the same Kafka cluster.
+if you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. you should also set namespace in `agent.config`, the property named `plugin.kafka.namespace`.
+
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
 ```
 
 `skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements`, `skywalking-meters`
@@ -102,6 +106,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
@@ -117,6 +122,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
@@ -133,6 +139,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}

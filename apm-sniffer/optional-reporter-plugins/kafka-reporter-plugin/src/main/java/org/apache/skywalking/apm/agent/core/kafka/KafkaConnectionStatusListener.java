@@ -18,24 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.kafka;
 
-import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
-import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
-
-/**
- * For compatible with {@link ContextManagerExtendService}, don't need to manage connection status by self.
- */
-@OverrideImplementor(ContextManagerExtendService.class)
-public class KafkaContextManagerExtendService extends ContextManagerExtendService implements KafkaConnectionStatusListener {
-
-    @Override
-    public void prepare() {
-        ServiceManager.INSTANCE.findService(KafkaProducerManager.class).addListener(this);
-    }
-
-    @Override
-    public void onStatusChanged(KafkaConnectionStatus status) {
-        statusChanged(GRPCChannelStatus.CONNECTED);
-    }
+interface KafkaConnectionStatusListener {
+    void onStatusChanged(KafkaConnectionStatus status);
 }
