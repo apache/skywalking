@@ -12,6 +12,8 @@ Release Notes.
 * Improve `GlobalIdGenerator` performance.
 * Add an agent plugin to support elasticsearch7.
 * Add `jsonrpc4j` agent plugin.
+* new options to support multi skywalking cluster use same kafka cluster(plugin.kafka.namespace)
+* resolve agent has no retries if connect kafka cluster failed when bootstrap
 * Add Seata in the component definition. Seata plugin hosts on Seata project.
 * Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned.
 * Support print SkyWalking context to logs.
