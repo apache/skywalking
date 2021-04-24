@@ -59,6 +59,26 @@ segmentItems:
         skipAnalysis: 'false'
   - segmentId: not null
     spans:
+      - operationName: Kafka/Producer/Callback
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: MQ
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 40
+        isError: false
+        spanType: Local
+        peer: ''
+        tags:
+          - { key: mq.topic, value: assign }
+        refs:
+          - { parentEndpoint: /case/kafka-case, networkAddress: '', refType: CrossThread,
+            parentSpanId: 4, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                               null, parentService: 'kafka-scenario', traceId: not null }
+        skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
     - operationName: Kafka/test/Producer
       operationId: 0
       parentSpanId: 0
@@ -103,6 +123,21 @@ segmentItems:
       tags:
         - {key: mq.broker, value: 'kafka-server:9092'}
         - {key: mq.topic, value: test2}
+      skipAnalysis: 'false'
+    - operationName: Kafka/assign/Producer
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: MQ
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 40
+      isError: false
+      spanType: Exit
+      peer: kafka-server:9092
+      tags:
+        - { key: mq.broker, value: 'kafka-server:9092' }
+        - { key: mq.topic, value: assign }
       skipAnalysis: 'false'
     - operationName: /case/kafka-case
       operationId: 0
@@ -204,3 +239,25 @@ segmentItems:
              refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
              parentServiceInstance: not null, parentService: kafka-scenario,
              traceId: not null}
+  - segmentId: not null
+    spans:
+      - operationName: Kafka/assign/Consumer/testGroup3
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: MQ
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 41
+        isError: false
+        spanType: Entry
+        peer: ''
+        tags:
+          - { key: mq.broker, value: 'kafka-server:9092' }
+          - { key: mq.topic, value: assign }
+          - { key: transmission.latency, value: not null }
+        refs:
+          - { parentEndpoint: /case/kafka-case, networkAddress: 'kafka-server:9092', refType: CrossProcess,
+            parentSpanId: 4, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                               null, parentService: 'kafka-scenario', traceId: not null }
+        skipAnalysis: 'false'

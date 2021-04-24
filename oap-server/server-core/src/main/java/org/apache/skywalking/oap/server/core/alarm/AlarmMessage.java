@@ -39,5 +39,6 @@ public class AlarmMessage {
     private String alarmMessage;
     private List<Tag> tags;
     private long startTime;
+    private transient int period;
     private transient boolean onlyAsCondition;
 }

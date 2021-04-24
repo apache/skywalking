@@ -84,23 +84,29 @@ Kafka Fetcher pulls messages from Kafka Broker(s) what is the Agent delivered. C
 
 Kafka Fetcher is disabled in default, and we configure as following to enable.
 
+namespace aims to isolate multi OAP cluster when using the same Kafka cluster.
+if you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. you should also set namespace in `agent.config`, the property named `plugin.kafka.namespace`.
+
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
 ```
 
-`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements` and `skywalking-meters` topics are required by `kafka-fetcher`.
+`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements`, `skywalking-meters`
+and `skywalking-logs` topics are required by `kafka-fetcher`.
 If they do not exist, Kafka Fetcher will create them in default. Also, you can create them by yourself before the OAP server started.
 
-When using the OAP server automatical creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:
+When using the OAP server automatic creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:
 
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
@@ -116,6 +122,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
@@ -132,6 +139,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}

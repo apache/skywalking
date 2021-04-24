@@ -342,6 +342,7 @@ kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
   default:
     bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
     partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableMeterSystem: ${SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM:false}
@@ -372,6 +373,7 @@ receiver_zipkin:
     jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
     jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
     jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
+    instanceNameRule: ${SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE:[spring.instance_id,node_id]}
 
 receiver_jaeger:
   selector: ${SW_RECEIVER_JAEGER:-}

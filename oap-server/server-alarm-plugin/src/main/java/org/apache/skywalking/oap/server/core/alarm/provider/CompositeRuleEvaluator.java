@@ -86,6 +86,7 @@ public class CompositeRuleEvaluator {
                     message.setRuleName(compositeAlarmRule.getAlarmRuleName());
                     String alarmMessage = formatMessage(message, compositeAlarmRule.getMessage(), compositeAlarmRule.getExpression());
                     message.setAlarmMessage(alarmMessage);
+                    message.setPeriod(headMsg.getPeriod());
                     message.setTags(compositeAlarmRule.getTags().entrySet().stream().map(e -> new Tag(e.getKey(), e.getValue())).collect(Collectors.toList()));
                     compositeRuleMessages.add(message);
                 }
