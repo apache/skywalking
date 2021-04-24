@@ -179,7 +179,7 @@ public class TiDBStorageProvider extends ModuleProvider {
                                                + "]. Potential out of bound in the runtime.");
         }
         final int numOfSearchableAlarmTags = configService.getSearchableAlarmTags().split(Const.COMMA).length;
-        if (numOfSearchableLogsTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
+        if (numOfSearchableAlarmTags * config.getNumOfSearchableValuesPerTag() > config.getMaxSizeOfArrayColumn()) {
             throw new ModuleStartException("Size of searchableAlarmTags[" + numOfSearchableAlarmTags
                     + "] * numOfSearchableValuesPerTag[" + config.getNumOfSearchableValuesPerTag()
                     + "] > maxSizeOfArrayColumn[" + config.getMaxSizeOfArrayColumn()
