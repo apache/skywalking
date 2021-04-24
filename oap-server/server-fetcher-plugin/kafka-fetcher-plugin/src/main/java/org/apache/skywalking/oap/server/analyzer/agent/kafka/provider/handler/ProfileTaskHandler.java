@@ -32,12 +32,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * A handler deserializes the message of profiling snapshot and pushes it to downstream.
  */
 @Slf4j
-public class ProfileTaskHandler implements KafkaHandler {
-
-    private final KafkaFetcherConfig config;
+public class ProfileTaskHandler extends AbstractKafkaHandler {
 
     public ProfileTaskHandler(ModuleManager manager, KafkaFetcherConfig config) {
-        this.config = config;
+        super(manager, config);
     }
 
     @Override
@@ -67,12 +65,7 @@ public class ProfileTaskHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfProfiling();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfProfiling();
     }
 }
