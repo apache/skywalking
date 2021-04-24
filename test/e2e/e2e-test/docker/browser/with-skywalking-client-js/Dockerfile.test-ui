@@ -28,7 +28,7 @@ RUN sed -in-place -e 's/300000/3000/g' src/trace/segment.ts \
     && npm link
 
 # download and build skywalking client test
-ARG CLIENT_JS_TEST_COMMIT_HASH=396c2ab5b5db928de421e1bd002a9b6479e63fc2
+ARG CLIENT_JS_TEST_COMMIT_HASH=6cf76ed83f21b78e5fd25b81341dd13f52df6413
 ARG CLIENT_JS_TEST_CODE=${CLIENT_JS_TEST_COMMIT_HASH}.tar.gz
 ARG CLIENT_JS_TEST_CODE_URL=https://github.com/SkyAPMTest/skywalking-client-test/archive/${CLIENT_JS_TEST_CODE}
 
