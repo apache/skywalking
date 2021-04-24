@@ -28,8 +28,8 @@ env:
   SW_AGENT_JDK_VERSION: 8
 
 jobs:
-  Log:
-    name: Log
+  Alalrm:
+    name: Alalrm
     runs-on: ubuntu-latest
     strategy:
       matrix:

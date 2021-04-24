@@ -31,12 +31,12 @@ rules:
   service_resp_time_rule:
     metrics-name: service_resp_time
     # [Optional] Default, match all services in this metrics
-#    include-names:
-#      - dubbox-provider
-#      - dubbox-consumer
-    threshold: 1
+    include-names:
+      - dubbox-provider
+      - dubbox-consumer
+    threshold: 1000
     op: ">"
-    period: 1
+    period: 10
     count: 1
     tags:
       level: WARNING
