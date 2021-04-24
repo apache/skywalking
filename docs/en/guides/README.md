@@ -1,52 +1,48 @@
 # Guides
-There are many ways that you can help the SkyWalking community.
+There are many ways you can contribute to the SkyWalking community.
 
-- Go through our documents, point out or fix unclear things. Translate the documents to other languages.
-- Download our [releases](http://skywalking.apache.org/downloads/), try to monitor your applications, and feedback to us about 
-what you think.
-- Read our source codes, Ask questions for details.
-- Find some bugs, [submit issue](https://github.com/apache/skywalking/issues), and try to fix it.
-- Find [help wanted issues](https://github.com/apache/skywalking/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22),
-which are good for you to start.
-- Submit issue or start discussion through [GitHub issue](https://github.com/apache/skywalking/issues/new).
-- See all mail list discussion through [website list review](https://lists.apache.org/list.html?dev@skywalking.apache.org).
-If you are a SkyWalking committer, could login and use the mail list in browser mode. Otherwise, 
-follow the next step to subscribe. 
-- Issue report and discussion also could take place in `dev@skywalking.apache.org`. 
-Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list. 
+- Go through our documents, and point out or fix a problem. Translate the documents into other languages.
+- Download our [releases](http://skywalking.apache.org/downloads/), try to monitor your applications, and provide feedback to us.
+- Read our source codes. For details, reach out to us.
+- If you find any bugs, [submit an issue](https://github.com/apache/skywalking/issues). You can also try to fix it.
+- Find [help wanted issues](https://github.com/apache/skywalking/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22). This is a good place for you to start.
+- Submit an issue or start a discussion at [GitHub issue](https://github.com/apache/skywalking/issues/new).
+- See all mail list discussions at [website list review](https://lists.apache.org/list.html?dev@skywalking.apache.org).
+If you are already a SkyWalking committer, you can log in and use the mail list in the browser mode. Otherwise, subscribe following the step below.
+- Issue reports and discussions may also take place via `dev@skywalking.apache.org`. 
+Mail to `dev-subscribe@skywalking.apache.org`, and follow the instructions in the reply to subscribe to the mail list. 
 
 ## Contact Us
-All the following channels are open to the community, you could choose the way you like.
+All of the following channels are open to the community.
 * Submit an [issue](https://github.com/apache/skywalking/issues)
-* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
+* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`. Follow the instructions in the reply to subscribe to the mail list.
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
 
-## Become official Apache SkyWalking Committer
-The PMC will assess the contributions of every contributor, including, but not limited to, 
-code contributions, and follow the Apache guides to promote, vote and invite new committer and PMC member.
-Read [Become official Apache SkyWalking Committer](asf/committer.md) to get details.
+## Become an official Apache SkyWalking Committer
+The PMC assesses the contributions of every contributor, including their code contributions. It also  promotes, votes on, and invites new committers and PMC members according to the Apache guides.
+See [Become official Apache SkyWalking Committer](asf/committer.md) for more details.
 
 ## For code developer
-For developers, first step, read [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the environment.
+For developers, the starting point is the [Compiling Guide](How-to-build.md). It guides developers on how to build the project in local and set up the environment.
 
 ### Integration Tests
-After setting up the environment and writing your codes, in order to make it more easily accepted by SkyWalking project, you'll
-need to run the tests locally to verify that your codes don't break any existed features,
-and write some unit test (UT) codes to verify that the new codes work well, preventing them being broke by future contributors.
-If the new codes involve other components or libraries, you're also supposed to write integration tests (IT).
+After setting up the environment and writing your codes, to facilitate integration with the SkyWalking project, you'll
+need to run tests locally to verify that your codes would not break any existed features,
+as well as write some unit test (UT) codes to verify that the new codes would work well. This will prevent them from being broken by future contributors.
+If the new codes involve other components or libraries, you should also write integration tests (IT).
 
-SkyWalking leverages plugin `maven-surefire-plugin` to run the UTs while using `maven-failsafe-plugin`
-to run the ITs, `maven-surefire-plugin` will exclude ITs (whose class name starts with `IT`)
-and leave them for `maven-failsafe-plugin` to run, which is bound to the `verify` goal, `CI-with-IT` profile.
-Therefore, to run the UTs, try `./mvnw clean test`, this will only run the UTs, not including ITs.
+SkyWalking leverages the plugin `maven-surefire-plugin` to run the UTs and uses `maven-failsafe-plugin`
+to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts with `IT`)
+and leaves them for `maven-failsafe-plugin` to run, which is bound to the `verify` goal and `CI-with-IT` profile.
+Therefore, to run the UTs, try `./mvnw clean test`, which only runs the UTs but not the ITs.
 
-If you want to run the ITs please activate the `CI-with-IT` profile
+If you would like to run the ITs, please activate the `CI-with-IT` profile
 as well as the the profiles of the modules whose ITs you want to run.
-e.g. if you want to run the ITs in `oap-server`, try `./mvnw -Pbackend,CI-with-IT clean verify`,
-and if you'd like to run all the ITs, simply run `./mvnw -Pall,CI-with-IT clean verify`.
+E.g. if you would like to run the ITs in `oap-server`, try `./mvnw -Pbackend,CI-with-IT clean verify`,
+and if you would like to run all the ITs, simply run `./mvnw -Pall,CI-with-IT clean verify`.
 
-Please be advised that if you're writing integration tests, name it with the pattern `IT*` to make them only run in `CI-with-IT` profile.
+Please be advised that if you're writing integration tests, name it with the pattern `IT*` so they would only run with the `CI-with-IT` profile.
 
 ### End to End Tests (E2E for short)
 Since version 6.3.0, we have introduced more automatic tests to perform software quality assurance, E2E is one of the most important parts.
