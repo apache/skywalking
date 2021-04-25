@@ -18,7 +18,6 @@
 
 package test.apache.skywalking.apm.testcase.implinterface;
 
-
 import org.springframework.stereotype.Controller;
 
 @Controller
