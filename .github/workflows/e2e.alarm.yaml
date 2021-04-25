@@ -29,7 +29,7 @@ env:
 
 jobs:
   Alalrm:
-    name: Alalrm
+    name: Alarm
     runs-on: ubuntu-latest
     strategy:
       matrix:
