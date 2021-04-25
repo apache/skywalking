@@ -75,13 +75,13 @@ public class AlarmStandardPersistence implements AlarmCallback {
         final ConfigService configService = manager.find(CoreModule.NAME)
                 .provider()
                 .getService(ConfigService.class);
-        HashSet<Tag> logTags = new HashSet<>();
+        HashSet<Tag> alarmTags = new HashSet<>();
         tags.forEach(tag -> {
             if (configService.getSearchableAlarmTags().contains(tag.getKey())) {
-                final Tag logTag = new Tag(tag.getKey(), tag.getValue());
-                logTags.add(logTag);
+                final Tag alarmTag = new Tag(tag.getKey(), tag.getValue());
+                alarmTags.add(alarmTag);
             }
         });
-        return logTags;
+        return alarmTags;
     }
 }

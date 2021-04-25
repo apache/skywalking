@@ -28,7 +28,7 @@ env:
   SW_AGENT_JDK_VERSION: 8
 
 jobs:
-  Alalrm:
+  Alarm:
     name: Alarm
     runs-on: ubuntu-latest
     strategy:
