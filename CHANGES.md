@@ -24,6 +24,7 @@ Release Notes.
 * Loop alarm into event system.
 * Support alarm tags.
 * Support WeLink as a channel of alarm notification.
+* Upgrade the etcd4j version to solve the memory leak problem. The problem address is: [here](https://github.com/jurmous/etcd4j/pull/185)
 
 #### UI
 * Add logo for kong plugin.
