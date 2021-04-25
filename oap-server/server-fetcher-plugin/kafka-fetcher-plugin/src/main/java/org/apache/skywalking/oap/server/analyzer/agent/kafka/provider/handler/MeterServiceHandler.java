@@ -37,14 +37,13 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * A handler deserializes the message of meter system data and pushes it to downstream.
  */
 @Slf4j
-public class MeterServiceHandler implements KafkaHandler {
-    private KafkaFetcherConfig config;
+public class MeterServiceHandler extends AbstractKafkaHandler {
     private IMeterProcessService processService;
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
 
     public MeterServiceHandler(ModuleManager manager, KafkaFetcherConfig config) {
-        this.config = config;
+        super(manager, config);
         this.processService = manager.find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
         MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
                 .provider()
@@ -80,12 +79,7 @@ public class MeterServiceHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfMeters();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfMeters();
     }
 }

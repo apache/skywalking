@@ -44,7 +44,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.CHANNEL_SI
  * A tracing segment data reporter.
  */
 @OverrideImplementor(TraceSegmentServiceClient.class)
-public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener {
+public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
 
     private String topic;
@@ -54,15 +54,15 @@ public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<Tr
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_SEGMENT;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_SEGMENT);
     }
 
     @Override
     public void boot() {
         carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE, BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
-
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
     }
 
     @Override
@@ -83,6 +83,9 @@ public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<Tr
 
     @Override
     public void consume(final List<TraceSegment> data) {
+        if (producer == null) {
+            return;
+        }
         data.forEach(traceSegment -> {
             SegmentObject upstreamSegment = traceSegment.transform();
             ProducerRecord<String, Bytes> record = new ProducerRecord<>(
@@ -121,4 +124,10 @@ public class KafkaTraceSegmentServiceClient implements BootService, IConsumer<Tr
         carrier.produce(traceSegment);
     }
 
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
+        }
+    }
 }

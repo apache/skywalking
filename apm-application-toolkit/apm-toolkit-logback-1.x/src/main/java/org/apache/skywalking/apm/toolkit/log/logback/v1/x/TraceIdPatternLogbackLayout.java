@@ -22,11 +22,12 @@ import ch.qos.logback.classic.PatternLayout;
 
 /**
  * Based on the logback-compoenent convert register mechanism, register {@link LogbackPatternConverter} as a new
- * convert, match to "tid". You can use "%tid" in logback config file, "Pattern" section.
+ * convert, match to "tid" and "sw_ctx". You can use "%tid" or "sw_ctx" in logback config file, "Pattern" section.
  * <p>
  */
 public class TraceIdPatternLogbackLayout extends PatternLayout {
     static {
         defaultConverterMap.put("tid", LogbackPatternConverter.class.getName());
+        defaultConverterMap.put("sw_ctx", LogbackSkyWalkingContextPatternConverter.class.getName());
     }
 }
