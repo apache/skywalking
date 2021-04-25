@@ -25,6 +25,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Map;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,4 +37,5 @@ public class CompositeAlarmRule {
     private String alarmRuleName;
     private String expression;
     private String message;
+    private Map<String, String> tags;
 }

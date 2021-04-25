@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -62,6 +63,8 @@ public class RecordDAO implements IRecordDAO {
             rawTags = ((SegmentRecord) record).getTagsRawData();
         } else if (LogRecord.INDEX_NAME.equals(model.getName())) {
             rawTags = ((LogRecord) record).getTags();
+        } else if (AlarmRecord.INDEX_NAME.equals(model.getName())) {
+            rawTags = ((AlarmRecord) record).getTags();
         }
         if (nonNull(rawTags)) {
             Map<String, List<Tag>> collect = rawTags.stream()

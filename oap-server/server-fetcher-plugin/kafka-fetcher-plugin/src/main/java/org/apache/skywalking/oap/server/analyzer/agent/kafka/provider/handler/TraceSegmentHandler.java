@@ -37,17 +37,15 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * A handler deserializes the message of the trace segment data and pushes it to downstream.
  */
 @Slf4j
-public class TraceSegmentHandler implements KafkaHandler {
+public class TraceSegmentHandler extends AbstractKafkaHandler {
 
-    private final KafkaFetcherConfig config;
     private final ISegmentParserService segmentParserService;
 
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
 
-    public TraceSegmentHandler(ModuleManager moduleManager,
-                               KafkaFetcherConfig config) {
-        this.config = config;
+    public TraceSegmentHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
+        super(moduleManager, config);
         this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
                                                  .provider()
                                                  .getService(ISegmentParserService.class);
@@ -96,12 +94,7 @@ public class TraceSegmentHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfTracingSegments();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfTracingSegments();
     }
 }

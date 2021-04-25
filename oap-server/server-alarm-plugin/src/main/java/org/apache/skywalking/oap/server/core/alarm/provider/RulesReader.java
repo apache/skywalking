@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.HashMap;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -63,6 +65,7 @@ public class RulesReader {
             readCompositeRuleConfig(rules);
             readDingtalkConfig(rules);
             readFeishuConfig(rules);
+            readWeLinkConfig(rules);
         }
         return rules;
     }
@@ -107,7 +110,7 @@ public class RulesReader {
                 alarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));
-
+                alarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>()));
                 rules.getRules().add(alarmRule);
             }
         });
@@ -203,6 +206,7 @@ public class RulesReader {
                 compositeAlarmRule.setExpression(expression);
                 compositeAlarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
+                compositeAlarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>(0)));
                 rules.getCompositeRules().add(compositeAlarmRule);
             }
         });
@@ -247,6 +251,34 @@ public class RulesReader {
                 });
             }
             rules.setFeishus(feishuSettings);
+        }
+    }
+
+    /**
+     * Read WeLink hook config into {@link WeLinkSettings}
+     */
+    private void readWeLinkConfig(Rules rules) {
+        Map welinkConfig = (Map) yamlData.get("welinkHooks");
+        if (welinkConfig != null) {
+            WeLinkSettings welinkSettings = new WeLinkSettings();
+            Object textTemplate = welinkConfig.getOrDefault("textTemplate", "");
+            welinkSettings.setTextTemplate((String) textTemplate);
+            List<Map<String, Object>> welinkWebHooks = (List<Map<String, Object>>) welinkConfig.get("webhooks");
+            if (welinkWebHooks != null) {
+                welinkWebHooks.forEach(welinkWebhook -> {
+                    String clientId = (String) welinkWebhook.getOrDefault("client_id", "");
+                    String clientSecret = (String) welinkWebhook.getOrDefault("client_secret", "");
+                    String accessTokenUrl = (String) welinkWebhook.getOrDefault("access_token_url", "");
+                    String messageUrl = (String) welinkWebhook.getOrDefault("message_url", "");
+                    String groupIds = (String) welinkWebhook.getOrDefault("group_ids", "");
+                    String rebootName = (String) welinkWebhook.getOrDefault("robot_name", "reboot");
+                    welinkSettings.getWebhooks()
+                                  .add(new WeLinkSettings.WebHookUrl(clientId, clientSecret, accessTokenUrl, messageUrl,
+                                                                     rebootName, groupIds
+                                  ));
+                });
+            }
+            rules.setWelinks(welinkSettings);
         }
     }
 }

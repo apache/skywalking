@@ -13,14 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-alarm:
-  total: 2
-  msgs:
-    - startTime: gt 0
-      scope: Service
-      id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
-      message: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
-    - startTime: gt 0
-      scope: Service
-      id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
-      message: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+total: 2
+matchers:
+  - startTime: gt 0
+    scope: Service
+    id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    message: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
+  - startTime: gt 0
+    scope: Service
+    id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    message: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi

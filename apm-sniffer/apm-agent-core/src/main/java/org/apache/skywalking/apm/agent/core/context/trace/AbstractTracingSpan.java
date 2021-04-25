@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.context.trace;
 import java.util.*;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.status.StatusCheckService;
@@ -298,6 +299,12 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     public void ref(TraceSegmentRef ref) {
         if (refs == null) {
             refs = new LinkedList<>();
+        }
+        /*
+         * Provide the OOM protection if the entry span hosts too many references.
+         */
+        if (refs.size() == Config.Agent.TRACE_SEGMENT_REF_LIMIT_PER_SPAN) {
+            return;
         }
         if (!refs.contains(ref)) {
             refs.add(ref);

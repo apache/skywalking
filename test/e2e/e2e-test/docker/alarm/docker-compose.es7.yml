@@ -16,10 +16,30 @@
 version: '2.1'
 
 services:
+  es:
+    image: elastic/elasticsearch:7.4.2
+    expose:
+      - 9200
+    networks:
+      - e2e
+    environment:
+      - discovery.type=single-node
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
   oap:
     extends:
       file: ../base-compose.yml
-      service: oap
+      service: oap-es7
+    environment:
+      SW_STORAGE: elasticsearch7
+      SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
+    depends_on:
+      es:
+        condition: service_healthy
     volumes:
       - ./alarm-settings.yml:/skywalking/config/alarm-settings.yml
 

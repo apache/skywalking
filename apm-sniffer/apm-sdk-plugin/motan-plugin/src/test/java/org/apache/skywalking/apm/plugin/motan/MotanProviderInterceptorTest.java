@@ -50,8 +50,8 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -100,8 +100,7 @@ public class MotanProviderInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertMotanProviderSpan(spans.get(0));
-        assertTrue(traceSegment.getRefs() == null);
-
+        assertNull(traceSegment.getRef());
     }
 
     @Test
@@ -120,7 +119,7 @@ public class MotanProviderInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertMotanProviderSpan(spans.get(0));
-        assertRefSegment(traceSegment.getRefs().get(0));
+        assertRefSegment(traceSegment.getRef());
     }
 
     @Test

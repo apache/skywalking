@@ -36,6 +36,7 @@ inputs:
       ".github/workflows/codeql.yaml"
       "dist-material/release-docs"
       "test/plugin/*"
+      "*/component-libraries.yml"
 
 runs:
   using: "composite"
