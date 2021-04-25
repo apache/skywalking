@@ -24,5 +24,5 @@ import java.util.List;
 @Data
 public class GetAlarm {
     private int total;
-    private List<AlarmMatcher> msgs;
+    private List<Alarm> msgs;
 }

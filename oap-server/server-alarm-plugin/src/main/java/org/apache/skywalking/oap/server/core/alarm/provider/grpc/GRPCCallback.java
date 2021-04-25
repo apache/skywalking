@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmServiceGrpc;
+import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmTags;
+import org.apache.skywalking.oap.server.core.alarm.grpc.KeyStringValuePair;
 import org.apache.skywalking.oap.server.core.alarm.grpc.Response;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
@@ -107,7 +109,9 @@ public class GRPCCallback implements AlarmCallback {
             builder.setRuleName(message.getRuleName());
             builder.setAlarmMessage(message.getAlarmMessage());
             builder.setStartTime(message.getStartTime());
-
+            AlarmTags.Builder alarmTagsBuilder = AlarmTags.newBuilder();
+            message.getTags().forEach(m -> alarmTagsBuilder.addData(KeyStringValuePair.newBuilder().setKey(m.getKey()).setValue(m.getValue()).build()));
+            builder.setTags(alarmTagsBuilder.build());
             streamObserver.onNext(builder.build());
         });
 

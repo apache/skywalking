@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.HashMap;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
@@ -107,7 +108,7 @@ public class RulesReader {
                 alarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));
-
+                alarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>()));
                 rules.getRules().add(alarmRule);
             }
         });
@@ -203,6 +204,7 @@ public class RulesReader {
                 compositeAlarmRule.setExpression(expression);
                 compositeAlarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
+                compositeAlarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>(0)));
                 rules.getCompositeRules().add(compositeAlarmRule);
             }
         });

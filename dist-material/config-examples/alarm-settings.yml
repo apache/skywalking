@@ -29,6 +29,8 @@ rules:
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
     message: Successful rate of endpoint {name} is lower than 75%
+    tags:
+      level: WARNING
   service_resp_time_rule:
     metrics-name: service_resp_time
     # [Optional] Default, match all services in this metrics
@@ -39,6 +41,8 @@ rules:
     op: ">"
     period: 10
     count: 1
+    tags:
+      level: CRITICAL
   service_instance_resp_time_rule:
     metrics-name: service_instance_resp_time
     op: ">"

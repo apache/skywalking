@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Evaluate composite rule using expression eval
@@ -85,6 +87,7 @@ public class CompositeRuleEvaluator {
                     String alarmMessage = formatMessage(message, compositeAlarmRule.getMessage(), compositeAlarmRule.getExpression());
                     message.setAlarmMessage(alarmMessage);
                     message.setPeriod(headMsg.getPeriod());
+                    message.setTags(compositeAlarmRule.getTags().entrySet().stream().map(e -> new Tag(e.getKey(), e.getValue())).collect(Collectors.toList()));
                     compositeRuleMessages.add(message);
                 }
             });
