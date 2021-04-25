@@ -109,6 +109,7 @@
         <module>mssql-jtds-1.x-plugin</module>
         <module>mssql-jdbc-plugin</module>
         <module>cxf-3.x-plugin</module>
+        <module>jsonrpc4j-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

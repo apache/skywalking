@@ -15,44 +15,6 @@ telemetry:
 
 but you can set one of `prometheus` to enable them, for more information, refer to the details below.
 
-## Prometheus
-Prometheus is supported as telemetry implementor. 
-By using this, prometheus collects metrics from SkyWalking backend.
-
-Set `prometheus` to provider. The endpoint open at `http://0.0.0.0:1234/` and `http://0.0.0.0:1234/metrics`.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-```
-
-Set host and port if needed.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-    host: 127.0.0.1
-    port: 1543
-```
-
-Set SSL relevant settings to expose a secure endpoint. Notice private key file and cert chain file could be uploaded once
-changes are applied to them.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-    host: 127.0.0.1
-    port: 1543
-    sslEnabled: true
-    sslKeyPath: /etc/ssl/key.pem
-    sslCertChainPath: /etc/ssl/cert-chain.pem
-```
-
-### Grafana Visualization
-Provide the grafana dashboard settings. 
-Check [SkyWalking OAP Cluster Monitor Dashboard](grafana-cluster.json) config and [SkyWalking OAP Instance Monitor Dashboard](grafana-instance.json) config.
-
-
 ## Self Observability
 
 SkyWalking supports to collect telemetry data into OAP backend directly. Users could check them out through UI or
@@ -125,3 +87,48 @@ staticConfig:
     service: oap-server
 ...
 ```
+
+___
+
+**WARNING**, since Apr 21, 2021, **Grafana** project has been relicensed to **AGPL-v3**, no as Apache 2.0 anymore. Check the LICENSE details.
+The following Prometheus + Grafana solution is optional, not a recommendation.
+
+## Prometheus
+Prometheus is supported as telemetry implementor. 
+By using this, prometheus collects metrics from SkyWalking backend.
+
+Set `prometheus` to provider. The endpoint open at `http://0.0.0.0:1234/` and `http://0.0.0.0:1234/metrics`.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+```
+
+Set host and port if needed.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+    host: 127.0.0.1
+    port: 1543
+```
+
+Set SSL relevant settings to expose a secure endpoint. Notice private key file and cert chain file could be uploaded once
+changes are applied to them.
+```yaml
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  prometheus:
+    host: 127.0.0.1
+    port: 1543
+    sslEnabled: true
+    sslKeyPath: /etc/ssl/key.pem
+    sslCertChainPath: /etc/ssl/cert-chain.pem
+```
+
+### Grafana Visualization
+Provide the grafana dashboard settings. 
+Check [SkyWalking OAP Cluster Monitor Dashboard](grafana-cluster.json) config and [SkyWalking OAP Instance Monitor Dashboard](grafana-instance.json) config.
+
+
+
