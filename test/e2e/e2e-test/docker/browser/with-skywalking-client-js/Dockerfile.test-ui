@@ -16,7 +16,7 @@
 FROM node:10.23 AS builder
 
 ## download and build skywalking client js
-ARG CLIENT_JS_COMMIT_HASH=43951cc636e063316bb9fd61edde6c52f6eb13e2
+ARG CLIENT_JS_COMMIT_HASH=7ae0775b0c41327718041eae321d3c97e5e90edf
 ARG CLIENT_JS_CODE=${CLIENT_JS_COMMIT_HASH}.tar.gz
 ARG CLIENT_JS_CODE_URL=https://github.com/apache/skywalking-client-js/archive/${CLIENT_JS_CODE}
 
