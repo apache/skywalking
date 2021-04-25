@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
-import org.apache.pulsar.client.api.Message;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.pulsar.client.api.MessageListener;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -33,54 +31,56 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * Interceptor for pulsar consumer message listener enhanced instance
+ * Interceptor for getting pulsar consumer message listener enhanced instance
  * <p>
  * Here is the intercept process steps:
  *
  * <pre>
- *  1. Get @{@link ContextCarrier} from message
- *  2. Create a local span when call <code>received</code> method
- *  3. Extract trace information from context carrier
- *  4. Stop the local span when <code>received</code> method finished.
+ *  1. Return null if {@link org.apache.pulsar.client.impl.conf.ConsumerConfigurationData} has no message listener
+ *  2. Return a new lambda expression wrap original message listener
+ *  3. New lambda will create local span that continued message reception span
+ *  4. Stop the local span when original message listener <code>received</code> method finished.
  * </pre>
  */
 public class PulsarConsumerListenerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String CONSUMER_OPERATE_NAME = "Pulsar/Consumer/MessageListener";
+    public static final String OPERATE_NAME_PREFIX = "Pulsar/";
+    public static final String CONSUMER_OPERATE_NAME = "/Consumer/MessageListener";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
             MethodInterceptResult result) throws Throwable {
-        if (allArguments[1] != null) {
-            Message msg = (Message) allArguments[1];
-            ContextCarrier carrier = new ContextCarrier();
-            CarrierItem next = carrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(msg.getProperty(next.getHeadKey()));
-            }
-            AbstractSpan activeSpan = ContextManager.createLocalSpan(CONSUMER_OPERATE_NAME);
-            ContextManager.extract(carrier);
-            activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
-            SpanLayer.asMQ(activeSpan);
-            Tags.MQ_TOPIC.set(activeSpan, msg.getTopicName());
-        }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
             Object ret) throws Throwable {
-        if (allArguments[1] != null) {
-            ContextManager.stopSpan();
-        }
-        return ret;
+        return ret == null ? null : (MessageListener) (consumer, message) -> {
+            final MessageEnhanceRequiredInfo requiredInfo = (MessageEnhanceRequiredInfo) ((EnhancedInstance) message)
+                    .getSkyWalkingDynamicField();
+            if (requiredInfo == null) {
+                ((MessageListener) ret).received(consumer, message);
+            } else {
+                AbstractSpan activeSpan = ContextManager
+                        .createLocalSpan(OPERATE_NAME_PREFIX + requiredInfo.getTopic() + CONSUMER_OPERATE_NAME);
+                activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
+                SpanLayer.asMQ(activeSpan);
+                Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopic());
+                ContextManager.continued(requiredInfo.getContextSnapshot());
+
+                try {
+                    ((MessageListener) ret).received(consumer, message);
+                } catch (Exception e) {
+                    ContextManager.activeSpan().log(e);
+                } finally {
+                    ContextManager.stopSpan();
+                }
+            }
+        };
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
             Class<?>[] argumentsTypes, Throwable t) {
-        if (allArguments[1] != null) {
-            ContextManager.activeSpan().log(t);
-        }
     }
 }

@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * The pulsar consumer listener instrumentation use {@link org.apache.pulsar.client.api.MessageListener} as an enhanced
@@ -39,12 +39,12 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 public class PulsarConsumerListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.PulsarConsumerListenerInterceptor";
-    public static final String ENHANCE_METHOD = "received";
-    public static final String ENHANCE_CLASS = "org.apache.pulsar.client.api.MessageListener";
+    public static final String ENHANCE_METHOD = "getMessageListener";
+    public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.conf.ConsumerConfigurationData";
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 
     @Override
