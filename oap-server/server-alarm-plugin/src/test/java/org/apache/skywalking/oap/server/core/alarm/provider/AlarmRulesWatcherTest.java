@@ -90,6 +90,7 @@ public class AlarmRulesWatcherTest {
         assertNotNull(alarmRulesWatcher.getDingtalkSettings());
         assertNotNull(alarmRulesWatcher.getWechatSettings());
         assertNotNull(alarmRulesWatcher.getSlackSettings());
+        assertNotNull(alarmRulesWatcher.getWeLinkSettings());
     }
 
     @Test
