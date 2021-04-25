@@ -45,7 +45,8 @@ templates:
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
                   "parentService": false,
-                  "unit": "CPM - calls per minute"
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
                   "width": 3,
@@ -168,7 +169,8 @@ templates:
                   "metricName": "service_cpm",
                   "queryMetricType": "readMetricsValue",
                   "chartType": "ChartNum",
-                  "unit": "CPM - calls per minute"
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
                   "width": 3,
@@ -221,10 +223,23 @@ templates:
                   "metricName": "service_cpm",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
-                  "unit": "CPM - calls per minute"
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
-                  "width": "4",
+                  "width": 3,
+                  "title": "Service Throughput",
+                  "height": "200",
+                  "entityType": "Service",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_throughput_received,service_throughput_sent",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "Bytes"
+                },
+                {
+                  "width": "3",
                   "title": "Service Instances Load",
                   "height": "280",
                   "entityType": "ServiceInstance",
@@ -234,10 +249,11 @@ templates:
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
                   "parentService": true,
-                  "unit": "CPM - calls per minute"
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
-                  "width": "4",
+                  "width": "3",
                   "title": "Slow Service Instance",
                   "height": "280",
                   "entityType": "ServiceInstance",
@@ -250,7 +266,7 @@ templates:
                   "unit": "ms"
                 },
                 {
-                  "width": "4",
+                  "width": "3",
                   "title": "Service Instance Successful Rate",
                   "height": "280",
                   "entityType": "ServiceInstance",
@@ -271,21 +287,34 @@ templates:
               "name": "Instance",
               "children": [
                 {
-                  "width": "4",
+                  "width": "3",
                   "title": "Service Instance Load",
-                  "height": "150",
+                  "height": "200",
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
                   "metricName": "service_instance_cpm",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
-                  "unit": "CPM - calls per minute"
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
-                  "width": "4",
+                  "width": 3,
+                  "title": "Service Instance Throughput",
+                  "height": "200",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "service_instance_throughput_received,service_instance_throughput_sent",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "Bytes"
+                },
+                {
+                  "width": "3",
                   "title": "Service Instance Successful Rate",
-                  "height": "150",
+                  "height": "200",
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
@@ -297,9 +326,9 @@ templates:
                   "aggregationNum": "100"
                 },
                 {
-                  "width": "4",
+                  "width": "3",
                   "title": "Service Instance Latency",
-                  "height": "150",
+                  "height": "200",
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
@@ -434,7 +463,8 @@ templates:
                   "queryMetricType": "sortMetrics",
                   "chartType": "ChartSlow",
                   "parentService": true,
-                  "unit": "CPM - calls per minute"
+                  "unit": "CPM / PPM",
+                  "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
                 },
                 {
                   "width": "4",

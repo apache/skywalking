@@ -1,0 +1,40 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+expSuffix: tag({tags -> tags.app = "istio-dp::" + tags.app}).service(['app']).instance(['app'], ['kubernetes_pod_name'])
+metricPrefix: envoy
+metricsRules:
+  - name: request_reset_remote
+    exp: envoy_cluster_upstream_rq_rx_reset.sum(['app', 'kubernetes_pod_name'])
+  - name: request_reset_local
+    exp: envoy_cluster_upstream_rq_tx_reset.sum(['app', 'kubernetes_pod_name'])
+
+  - name: request_count_total
+    exp: envoy_cluster_upstream_rq_total.sum(['app', 'kubernetes_pod_name'])
+  - name: request_count_active
+    exp: envoy_cluster_upstream_rq_active.sum(['app', 'kubernetes_pod_name'])
+
+  - name: request_retry_count_total
+    exp: envoy_cluster_upstream_rq_retry.sum(['app', 'kubernetes_pod_name'])
+  - name: request_retry_count_success
+    exp: envoy_cluster_upstream_rq_retry_success.sum(['app', 'kubernetes_pod_name'])
+
+  - name: total_connections
+    exp: envoy_cluster_upstream_cx_total.sum(['app', 'kubernetes_pod_name'])
+  - name: active_connections # total_connections_used
+    exp: envoy_cluster_upstream_cx_active.sum(['app', 'kubernetes_pod_name'])
+
+  - name: connection_established_duration_percentile
+    exp: envoy_cluster_upstream_cx_connect_ms.sum(['le', 'app', 'kubernetes_pod_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,95,99])

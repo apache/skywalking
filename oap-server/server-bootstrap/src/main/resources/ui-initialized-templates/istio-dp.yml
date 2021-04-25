@@ -28,7 +28,7 @@ templates:
               "children": [
                 {
                   "width": "3",
-                  "title": "Heap Memory Used",
+                  "title": "Heap Memory",
                   "height": 350,
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
@@ -42,17 +42,6 @@ templates:
                 },
                 {
                   "width": "3",
-                  "title": "Connections Used",
-                  "height": 350,
-                  "entityType": "ServiceInstance",
-                  "independentSelector": false,
-                  "metricType": "REGULAR_VALUE",
-                  "metricName": "envoy_total_connections_used,envoy_parent_connections_used",
-                  "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine"
-                },
-                {
-                  "width": "3",
                   "title": "Concurrency",
                   "height": 350,
                   "entityType": "ServiceInstance",
@@ -61,6 +50,64 @@ templates:
                   "metricName": "envoy_worker_threads,envoy_worker_threads_max",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Connections",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_total_connections,envoy_active_connections,envoy_parent_connections_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Requests",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_request_count_total,envoy_request_count_active",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Request Retry",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_request_retry_count_total,envoy_request_retry_count_success",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Request Reset",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_request_reset_remote,envoy_request_reset_local",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Connection Setup Duration",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "LABELED_VALUE",
+                  "metricName": "envoy_connection_established_duration_percentile",
+                  "queryMetricType": "readLabeledMetricsValues",
+                  "chartType": "ChartLine",
+                  "metricLabels": "P50, P75, P90, P95, P99",
+                  "labelsIndex": "0, 1, 2, 3, 4",
+                  "unit": "percentile in ms"
                 },
                 {
                   "width": "3",

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.tcp;
 
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v3.ConnectionProperties;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.TCPInfo;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 import static org.apache.skywalking.apm.util.StringUtil.isBlank;
@@ -85,6 +87,7 @@ public class TCPLogEntry2MetricsAdapter {
 
     protected ServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
+        final ConnectionProperties connectionProperties = entry.getConnectionProperties();
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
 
@@ -93,6 +96,11 @@ public class TCPLogEntry2MetricsAdapter {
                              .setTlsMode(tlsMode)
                              .setProtocol(Protocol.TCP)
                              .setStatus(isBlank(internalErrorCode))
+                             .setTcp(
+                                 TCPInfo.newBuilder()
+                                        .setReceivedBytes(connectionProperties.getReceivedBytes())
+                                        .setSentBytes(connectionProperties.getSentBytes())
+                             )
                              .setInternalErrorCode(internalErrorCode);
 
         Optional.ofNullable(sourceService)

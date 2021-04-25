@@ -49,7 +49,9 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
             preparedStatement.setObject(i + 1, param.get(i));
         }
 
-        LOGGER.debug("execute sql in batch: {}", sql);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("execute sql in batch: {}, parameters: {}", sql, param);
+        }
         preparedStatement.execute();
     }
 }
