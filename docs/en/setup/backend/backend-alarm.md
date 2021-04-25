@@ -30,6 +30,7 @@ Alarm rule is constituted by following keys
 - **Exclude labels**. The following labels of the metric are excluded in this rule.
 - **Include labels regex**. Provide a regex to include labels. If both setting the include label list and include label regex, both rules will take effect.
 - **Exclude labels regex**. Provide a regex to exclude labels. If both setting the exclude label list and exclude label regex, both rules will take effect.
+- **Tags**. Tags are key/value pairs that are attached to alarms. Tags are intended to be used to specify identifying attributes of alarms that are meaningful and relevant to users.
 
 *The settings of labels is required by meter-system which intends to store metrics from label-system platform, just like Prometheus, Micrometer, etc.
 The function supports the above four settings should implement `LabeledValueHolder`.*
@@ -57,7 +58,7 @@ Composite rule is constituted by the following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
 - **Expression**. Specify how to compose rules, support `&&`, `||`, `()`.
 - **Message**. Specify the notification message when rule triggered.
-
+- **Tags**. Tags are key/value pairs that are attached to alarms. Tags are intended to be used to specify identifying attributes of alarms that are meaningful and relevant to users.
 ```yaml
 rules:
   # Rule unique name, must be ended with `_rule`.
@@ -74,6 +75,8 @@ rules:
     silence-period: 10
     # Specify if the rule can send notification or just as an condition of composite rule
     only-as-condition: false
+    tags:
+      level: WARNING
   service_percent_rule:
     metrics-name: service_percent
     # [Optional] Default, match all services in this metrics
@@ -115,6 +118,8 @@ composite-rules:
     # Must satisfied percent rule and resp time rule 
     expression: service_percent_rule && service_resp_time_percentile_rule
     message: Service {name} successful rate is less than 80% and P50 of response time is over 1000ms
+    tags:
+      level: CRITICAL
 ```
 
 
@@ -143,7 +148,7 @@ Webhook requires the peer is a web container. The alarm message will send throug
 - **ruleName**. The rule name you configured in `alarm-settings.yml`.
 - **alarmMessage**. Alarm text message.
 - **startTime**. Alarm time measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
-
+- **tags**. The tags you configured in `alarm-settings.yml` 
 Example as following
 ```json
 [{
@@ -154,7 +159,11 @@ Example as following
 	"id1": "",  
     "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage xxxx",
-	"startTime": 1560524171000
+	"startTime": 1560524171000,
+    "tags": [{
+        "key": "level",
+        "value": "WARNING"
+     }]
 }, {
 	"scopeId": 1,
 	"scope": "SERVICE",
@@ -163,7 +172,11 @@ Example as following
 	"id1": "",
     "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage yyy",
-	"startTime": 1560524171000
+	"startTime": 1560524171000,
+    "tags": [{
+        "key": "level",
+        "value": "CRITICAL"
+    }]
 }]
 ```
 
@@ -182,6 +195,17 @@ message AlarmMessage {
     string ruleName = 6;
     string alarmMessage = 7;
     int64 startTime = 8;
+    AlarmTags tags = 9;
+}
+
+message AlarmTags {
+    // String key, String value pair.
+    repeated KeyStringValuePair data = 1;
+}
+
+message KeyStringValuePair {
+    string key = 1;
+    string value = 2;
 }
 ```
 

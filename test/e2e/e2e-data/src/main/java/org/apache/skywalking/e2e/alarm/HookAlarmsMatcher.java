@@ -17,47 +17,38 @@
 
 package org.apache.skywalking.e2e.alarm;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
+import lombok.NoArgsConstructor;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @Data
-@Slf4j
-public class AlarmsMatcher {
+@NoArgsConstructor
+@AllArgsConstructor
+public class HookAlarmsMatcher extends AbstractMatcher<HookAlarms> {
+    private ArrayList<HookAlarmMatcher> messages;
 
-    private int total;
+    @Override
+    public void verify(HookAlarms hookAlarms) {
+        assertThat(this.messages).hasSameSizeAs(hookAlarms.getMessages());
 
-    private List<AlarmMatcher> matchers;
-
-    public AlarmsMatcher() {
-        this.matchers = new LinkedList<>();
-    }
-
-    public void verify(final GetAlarm alarms) {
-        LOGGER.info("alarms:{} matchers:{}", alarms, this.matchers);
-        Assert.assertEquals(this.total, alarms.getTotal());
-
-        assertThat(this.matchers).hasSameSizeAs(alarms.getMsgs());
-
-        for (int i = 0; i < this.matchers.size(); i++) {
+        for (int i = 0; i < this.messages.size(); i++) {
             boolean matched = false;
-            for (Alarm alarm : alarms.getMsgs()) {
+            for (HookAlarm hookAlarm : hookAlarms.getMessages()) {
                 try {
-                    this.matchers.get(i).verify(alarm);
+                    this.messages.get(i).verify(hookAlarm);
                     matched = true;
                 } catch (Throwable ignored) {
                 }
             }
             if (!matched) {
-                fail("\nExpected: %s\nActual: %s", this.matchers, alarms);
+                fail("\nExpected: %s\nActual: %s", this.messages.get(i), hookAlarms.getMessages());
             }
         }
     }
-
 }

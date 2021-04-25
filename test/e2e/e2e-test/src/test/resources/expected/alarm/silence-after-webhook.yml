@@ -21,6 +21,11 @@ messages:
     id1: ""
     ruleName: service_resp_time_rule
     alarmMessage: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
     startTime: gt 0
   - scopeId: 1
     scope: SERVICE
@@ -30,6 +35,11 @@ messages:
     ruleName: comp_rule
     alarmMessage: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
     startTime: gt 0
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
   - scopeId: 1
     scope: SERVICE
     name: e2e-service-provider
@@ -37,6 +47,11 @@ messages:
     id1: ""
     ruleName: service_resp_time_rule
     alarmMessage: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
     startTime: gt 0
   - scopeId: 1
     scope: SERVICE
@@ -46,4 +61,9 @@ messages:
     ruleName: comp_rule
     alarmMessage: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
     startTime: gt 0
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
 

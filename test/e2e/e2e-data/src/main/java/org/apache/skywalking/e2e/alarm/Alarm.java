@@ -6,36 +6,29 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.e2e.alarm;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.apache.skywalking.e2e.common.KeyValue;
 
-import java.util.Map;
+import java.util.List;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter
-@Getter
-@ToString
-public class CompositeAlarmRule {
-    private String alarmRuleName;
-    private String expression;
+@Data
+@Accessors(chain = true)
+public class Alarm {
+    private String startTime;
+    private String scope;
+    private String id;
     private String message;
-    private Map<String, String> tags;
+    private List<KeyValue> tags;
 }

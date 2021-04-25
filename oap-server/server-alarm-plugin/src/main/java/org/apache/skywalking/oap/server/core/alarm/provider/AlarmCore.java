@@ -81,7 +81,9 @@ public class AlarmCore {
                         alarmMessageList.addAll(messages);
                     }
                     List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsCondition()).collect(Collectors.toList());
-                    allCallbacks.forEach(callback -> callback.doAlarm(filteredMessages));
+                    if (filteredMessages.size() > 0) {
+                        allCallbacks.forEach(callback -> callback.doAlarm(filteredMessages));
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
