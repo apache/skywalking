@@ -281,6 +281,24 @@ feishuHooks:
       secret: dummysecret
 ```
 
+## WeLink Hook
+To do this you need to follow the [WeLink Webhooks guide](https://open.welink.huaweicloud.com/apiexplorer/#/apiexplorer?type=internal&method=POST&path=/welinkim/v1/im-service/chat/group-chat) and create new Webhooks.
+The alarm message will send through HTTP post by `application/json` content type if you configured WeLink Webhooks as following:
+```yml
+welinkHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  webhooks:
+    # you may find your own client_id and client_secret in your app, below are dummy, need to change.
+    - client_id: "dummy_client_id"
+      client_secret: dummy_secret_key
+      access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+      message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+      # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
+      group_ids: "dummy_group_id"
+      # make a name you like for the robot, it will display in group
+      robot_name: robot
+```
+
 ## Update the settings dynamically
 Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.
