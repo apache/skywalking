@@ -18,10 +18,17 @@
 package org.apache.skywalking.e2e.alarm;
 
 import lombok.Data;
+import org.apache.skywalking.e2e.common.KeyValue;
+import org.apache.skywalking.e2e.common.KeyValueMatcher;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
+import java.util.List;
+
+import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.fail;
+
 @Data
-public class HookAlarmMatcher extends AbstractMatcher<HookAlarmMatcher> {
+public class HookAlarmMatcher extends AbstractMatcher<HookAlarm> {
     private String scopeId;
     private String scope;
     private String name;
@@ -30,16 +37,33 @@ public class HookAlarmMatcher extends AbstractMatcher<HookAlarmMatcher> {
     private String ruleName;
     private String alarmMessage;
     private String startTime;
+    private List<KeyValueMatcher> tags;
 
     @Override
-    public void verify(HookAlarmMatcher hookAlarmMatcher) {
-        doVerify(this.scopeId, hookAlarmMatcher.getScopeId());
-        doVerify(this.scope, hookAlarmMatcher.getScope());
-        doVerify(this.name, hookAlarmMatcher.getName());
-        doVerify(this.id0, hookAlarmMatcher.getId0());
-        doVerify(this.id1, hookAlarmMatcher.getId1());
-        doVerify(this.ruleName, hookAlarmMatcher.getRuleName());
-        doVerify(this.alarmMessage, hookAlarmMatcher.getAlarmMessage());
-        doVerify(this.startTime, hookAlarmMatcher.getStartTime());
+    public void verify(HookAlarm hookAlarm) {
+        doVerify(this.scopeId, hookAlarm.getScopeId());
+        doVerify(this.scope, hookAlarm.getScope());
+        doVerify(this.name, hookAlarm.getName());
+        doVerify(this.id0, hookAlarm.getId0());
+        doVerify(this.id1, hookAlarm.getId1());
+        doVerify(this.ruleName, hookAlarm.getRuleName());
+        doVerify(this.alarmMessage, hookAlarm.getAlarmMessage());
+        doVerify(this.startTime, hookAlarm.getStartTime());
+        if (nonNull(getTags())) {
+            for (final KeyValueMatcher matcher : getTags()) {
+                boolean matched = false;
+                for (final KeyValue keyValue : hookAlarm.getTags()) {
+                    try {
+                        matcher.verify(keyValue);
+                        matched = true;
+                    } catch (Throwable ignore) {
+
+                    }
+                }
+                if (!matched) {
+                    fail("\nExpected: %s\n Actual: %s", getTags(), hookAlarm.getTags());
+                }
+            }
+        }
     }
 }

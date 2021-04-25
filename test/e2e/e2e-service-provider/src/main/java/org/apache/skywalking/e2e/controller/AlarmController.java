@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.skywalking.e2e.KeyValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +65,7 @@ public class AlarmController {
         private String ruleName;
         private String alarmMessage;
         private long startTime;
+        private List<KeyValue> tags;
     }
 
     /**

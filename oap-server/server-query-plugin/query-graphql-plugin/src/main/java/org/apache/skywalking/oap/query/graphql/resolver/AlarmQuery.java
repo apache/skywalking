@@ -20,7 +20,10 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.util.List;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -28,6 +31,8 @@ import org.apache.skywalking.oap.server.core.query.type.AlarmTrend;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import static java.util.Objects.nonNull;
 
 public class AlarmQuery implements GraphQLQueryResolver {
 
@@ -50,13 +55,18 @@ public class AlarmQuery implements GraphQLQueryResolver {
     }
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
-                           final Pagination paging) throws IOException {
+                           final Pagination paging, final List<Tag> tags) throws IOException {
         Integer scopeId = null;
         if (scope != null) {
             scopeId = scope.getScopeId();
         }
-
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         return getQueryService().getAlarm(
-            scopeId, keyword, paging, duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec());
+            scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
     }
 }
