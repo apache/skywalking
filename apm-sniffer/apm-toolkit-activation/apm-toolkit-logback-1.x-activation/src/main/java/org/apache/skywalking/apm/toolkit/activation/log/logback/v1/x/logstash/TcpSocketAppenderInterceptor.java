@@ -20,10 +20,13 @@ package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import java.lang.reflect.Method;
+import java.util.Map;
+
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 public class TcpSocketAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -33,7 +36,10 @@ public class TcpSocketAppenderInterceptor implements InstanceMethodsAroundInterc
         ILoggingEvent event = (ILoggingEvent) allArguments[0];
         if (event != null && event.getLoggerContextVO() != null && event.getLoggerContextVO()
                                                                         .getPropertyMap() != null) {
-            event.getLoggerContextVO().getPropertyMap().put("TID", ContextManager.getGlobalTraceId());
+            Map<String, String> propertyMap = event.getLoggerContextVO().getPropertyMap();
+            propertyMap.put("TID", ContextManager.getGlobalTraceId());
+            propertyMap.put("SW_CTX", new SkyWalkingContext(ContextManager.getGlobalTraceId(),
+                    ContextManager.getSegmentId(), ContextManager.getSpanId()).toString());
         }
     }
 

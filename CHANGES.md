@@ -12,9 +12,12 @@ Release Notes.
 * Improve `GlobalIdGenerator` performance.
 * Add an agent plugin to support elasticsearch7.
 * Add `jsonrpc4j` agent plugin.
-* fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface
+* new options to support multi skywalking cluster use same kafka cluster(plugin.kafka.namespace)
+* resolve agent has no retries if connect kafka cluster failed when bootstrap
 * Add Seata in the component definition. Seata plugin hosts on Seata project.
-* Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned
+* Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned.
+* Support print SkyWalking context to logs.
+* fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -31,6 +34,7 @@ Release Notes.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
+* Print SkyWalking context to logs configuration example.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
 

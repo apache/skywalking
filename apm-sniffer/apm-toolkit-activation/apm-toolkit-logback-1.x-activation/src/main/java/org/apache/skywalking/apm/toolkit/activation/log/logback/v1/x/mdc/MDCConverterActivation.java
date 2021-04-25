@@ -34,9 +34,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  */
 public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCTraceIdInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc.LogbackMDCPatternConverter";
-    public static final String ENHANCE_METHOD = "convertTID";
+    public static final String ENHANCE_TID_METHOD = "convertTID";
+    public static final String INTERCEPT_TID_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCTraceIdInterceptor";
+    public static final String ENHANCE_SKYWALKING_CONTEXT_METHOD = "convertSkyWalkingContext";
+    public static final String INTERCEPT_SKYWALKING_CONTEXT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.PrintMDCSkyWalkingContextInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -49,12 +51,28 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
+                    return named(ENHANCE_TID_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return INTERCEPT_TID_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_SKYWALKING_CONTEXT_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_SKYWALKING_CONTEXT_CLASS;
                 }
 
                 @Override

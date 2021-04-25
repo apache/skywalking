@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 import java.lang.reflect.Method;
 
@@ -39,9 +40,9 @@ public class TraceIdJsonProviderInterceptor implements InstanceMethodsAroundInte
             return ret;
         }
         if (!ContextManager.isActive() && allArguments[0] instanceof EnhancedInstance) {
-            String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-            if (tid != null) {
-                return tid;
+            SkyWalkingContext skyWalkingContext = (SkyWalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+            if (skyWalkingContext != null) {
+                return skyWalkingContext.getTraceId();
             }
         }
         return ContextManager.getGlobalTraceId();
