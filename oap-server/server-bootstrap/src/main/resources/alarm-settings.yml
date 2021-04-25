@@ -38,6 +38,8 @@ rules:
     op: ">"
     period: 10
     count: 1
+    tags:
+      level: WARNING
 
 webhooks:
 #  - http://127.0.0.1/notify/

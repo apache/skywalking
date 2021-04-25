@@ -22,6 +22,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 public class AlarmMessage {
@@ -30,4 +33,9 @@ public class AlarmMessage {
     private String id;
     private String message;
     private Long startTime;
+    private final List<KeyValue> tags;
+
+    public AlarmMessage() {
+        tags = new ArrayList<>();
+    }
 }

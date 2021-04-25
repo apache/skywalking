@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -43,8 +46,8 @@ public class AlarmQueryService implements Service {
     }
 
     public Alarms getAlarm(final Integer scopeId, final String keyword, final Pagination paging, final long startTB,
-        final long endTB) throws IOException {
+        final long endTB, final List<Tag> tags) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
-        return getAlarmQueryDAO().getAlarm(scopeId, keyword, page.getLimit(), page.getFrom(), startTB, endTB);
+        return getAlarmQueryDAO().getAlarm(scopeId, keyword, page.getLimit(), page.getFrom(), startTB, endTB, tags);
     }
 }
