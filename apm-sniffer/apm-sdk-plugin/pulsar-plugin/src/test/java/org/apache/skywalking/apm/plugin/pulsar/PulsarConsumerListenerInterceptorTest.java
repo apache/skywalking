@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
+import org.apache.pulsar.client.api.MessageListener;
 import org.apache.pulsar.common.api.proto.PulsarApi;
 import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef.SegmentRefType;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
@@ -45,27 +47,32 @@ import java.util.List;
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.PULSAR_CONSUMER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class PulsarConsumerInterceptorTest {
-
-    @SegmentStoragePoint
-    private SegmentStorage segmentStorage;
+public class PulsarConsumerListenerInterceptorTest {
 
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
+    @SegmentStoragePoint
+    private SegmentStorage segmentStorage;
+    private final EnhancedInstance consumerConfigurationDataInstance = new EnhancedInstance() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return null;
+        }
 
-    private ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo;
-
-    private MessageEnhanceRequiredInfo messageEnhanceRequiredInfo;
-
-    private PulsarConsumerInterceptor consumerInterceptor;
-
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+        }
+    };
+    private PulsarConsumerListenerInterceptor consumerListenerInterceptor;
     private MockMessage msg;
-
-    private EnhancedInstance consumerInstance = new EnhancedInstance() {
+    private PulsarConsumerInterceptor consumerInterceptor;
+    private ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo;
+    private final EnhancedInstance consumerInstance = new EnhancedInstance() {
         @Override
         public Object getSkyWalkingDynamicField() {
             return consumerEnhanceRequiredInfo;
@@ -76,84 +83,90 @@ public class PulsarConsumerInterceptorTest {
             consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) value;
         }
     };
+    private MockConsumer consumer;
+    private MessageListener messageListener;
 
     @Before
     public void setUp() {
         consumerInterceptor = new PulsarConsumerInterceptor();
+        consumerListenerInterceptor = new PulsarConsumerListenerInterceptor();
+        messageListener = (consumer, message) -> message.getTopicName();
         consumerEnhanceRequiredInfo = new ConsumerEnhanceRequiredInfo();
 
         consumerEnhanceRequiredInfo.setTopic("persistent://my-tenant/my-ns/my-topic");
         consumerEnhanceRequiredInfo.setServiceUrl("pulsar://localhost:6650");
         consumerEnhanceRequiredInfo.setSubscriptionName("my-sub");
+        consumerEnhanceRequiredInfo.setHasMessageListener(true);
         msg = new MockMessage();
         msg.getMessageBuilder()
                 .addProperties(PulsarApi.KeyValue.newBuilder()
                         .setKey(SW8CarrierItem.HEADER_NAME)
                         .setValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="));
-        messageEnhanceRequiredInfo = new MessageEnhanceRequiredInfo();
-        msg.setSkyWalkingDynamicField(messageEnhanceRequiredInfo);
+        msg.setSkyWalkingDynamicField(new MessageEnhanceRequiredInfo());
+        consumer = new MockConsumer();
     }
 
     @Test
-    public void testConsumerWithNullMessage() throws Throwable {
-        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[] {null}, new Class[0], null);
-        consumerInterceptor.afterMethod(consumerInstance, null, new Object[] {null}, new Class[0], null);
+    public void testWithNoMessageListener() throws Throwable {
+        consumerListenerInterceptor
+                .beforeMethod(consumerConfigurationDataInstance, null, new Object[0], new Class[0], null);
+        final MessageListener messageListener = (MessageListener) consumerListenerInterceptor
+                .afterMethod(consumerConfigurationDataInstance, null, new Object[0], new Class[0], null);
+
+        List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
+        assertThat(traceSegments.size(), is(0));
+        assertNull(messageListener);
+    }
+
+    @Test
+    public void testWithMessageListenerHasNoRequiredInfo() throws Throwable {
+        consumerListenerInterceptor
+                .beforeMethod(consumerConfigurationDataInstance, null, new Object[0], new Class[0], null);
+        final MessageListener enhancedMessageListener = (MessageListener) consumerListenerInterceptor
+                .afterMethod(consumerConfigurationDataInstance, null, new Object[0], new Class[0],
+                        this.messageListener);
+        assertNotNull(enhancedMessageListener);
+        msg.setSkyWalkingDynamicField(null);
+        enhancedMessageListener.received(consumer, msg);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         assertThat(traceSegments.size(), is(0));
     }
 
     @Test
-    public void testConsumerWithMessage() throws Throwable {
-        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[] {msg}, new Class[0], null);
-        consumerInterceptor.afterMethod(consumerInstance, null, new Object[] {msg}, new Class[0], null);
-
-        List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
-        assertThat(traceSegments.size(), is(1));
-
-        TraceSegment traceSegment = traceSegments.get(0);
-        assertNotNull(traceSegment.getRef());
-        assertTraceSegmentRef(traceSegment.getRef());
-
-        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertThat(spans.size(), is(1));
-        assertConsumerSpan(spans.get(0));
-    }
-
-    @Test
-    public void testConsumerWithMessageListener() throws Throwable {
-        consumerEnhanceRequiredInfo.setHasMessageListener(true);
+    public void testWithMessageListenerHasRequiredInfo() throws Throwable {
         consumerInterceptor.beforeMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
         consumerInterceptor.afterMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
+        consumerListenerInterceptor
+                .beforeMethod(consumerConfigurationDataInstance, null, new Object[0], new Class[0], null);
+        final MessageListener enhancedMessageListener = (MessageListener) consumerListenerInterceptor
+                .afterMethod(consumerConfigurationDataInstance, null, new Object[0], new Class[0],
+                        this.messageListener);
+        assertNotNull(enhancedMessageListener);
+        enhancedMessageListener.received(consumer, msg);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
-        assertThat(traceSegments.size(), is(1));
+        assertThat(traceSegments.size(), is(2));
 
-        TraceSegment traceSegment = traceSegments.get(0);
+        TraceSegment traceSegment = traceSegments.get(1);
         assertNotNull(traceSegment.getRef());
         assertTraceSegmentRef(traceSegment.getRef());
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
         assertConsumerSpan(spans.get(0));
-
-        final MessageEnhanceRequiredInfo requiredInfo = (MessageEnhanceRequiredInfo) msg.getSkyWalkingDynamicField();
-        assertThat(requiredInfo.getTopic(), is(
-                ((ConsumerEnhanceRequiredInfo) consumerInstance.getSkyWalkingDynamicField()).getTopic()));
-        assertNotNull(requiredInfo.getContextSnapshot());
     }
 
     private void assertConsumerSpan(AbstractTracingSpan span) {
         SpanAssert.assertLayer(span, SpanLayer.MQ);
         SpanAssert.assertComponent(span, PULSAR_CONSUMER);
-        SpanAssert.assertTagSize(span, 2);
-        SpanAssert.assertTag(span, 0, "pulsar://localhost:6650");
-        SpanAssert.assertTag(span, 1, "persistent://my-tenant/my-ns/my-topic");
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
-        MatcherAssert.assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
+        MatcherAssert.assertThat(ref.getParentEndpoint(),
+                is("Pulsar/persistent://my-tenant/my-ns/my-topic/Consumer/my-sub"));
+        MatcherAssert.assertThat(SegmentRefHelper.getSpanId(ref), is(0));
+        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref), is("3.4.5"));
+        MatcherAssert.assertThat(ref.getType(), is(SegmentRefType.CROSS_THREAD));
     }
 }

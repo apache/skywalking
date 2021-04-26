@@ -18,15 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
-/**
- * Pulsar consumer enhance required info is required by consumer enhanced object method interceptor
- */
-public class ConsumerEnhanceRequiredInfo {
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
-    /**
-     * service url of the consumer
-     */
-    private String serviceUrl;
+/**
+ * Pulsar message enhance required info is required by consumer enhanced object method interceptor
+ */
+public class MessageEnhanceRequiredInfo {
 
     /**
      * topic name of the consumer
@@ -34,29 +31,16 @@ public class ConsumerEnhanceRequiredInfo {
     private String topic;
 
     /**
-     * subscription name of the consumer
+     * receiving message span snapshot
      */
-    private String subscriptionName;
+    private ContextSnapshot contextSnapshot;
 
-    /**
-     * whether the consumer has a message listener
-     */
-    private boolean hasMessageListener;
-
-    public boolean isHasMessageListener() {
-        return hasMessageListener;
+    public ContextSnapshot getContextSnapshot() {
+        return contextSnapshot;
     }
 
-    public void setHasMessageListener(boolean hasMessageListener) {
-        this.hasMessageListener = hasMessageListener;
-    }
-
-    public String getServiceUrl() {
-        return serviceUrl;
-    }
-
-    public void setServiceUrl(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
+    public void setContextSnapshot(ContextSnapshot contextSnapshot) {
+        this.contextSnapshot = contextSnapshot;
     }
 
     public String getTopic() {
@@ -66,13 +50,4 @@ public class ConsumerEnhanceRequiredInfo {
     public void setTopic(String topic) {
         this.topic = topic;
     }
-
-    public String getSubscriptionName() {
-        return subscriptionName;
-    }
-
-    public void setSubscriptionName(String subscriptionName) {
-        this.subscriptionName = subscriptionName;
-    }
-
 }
