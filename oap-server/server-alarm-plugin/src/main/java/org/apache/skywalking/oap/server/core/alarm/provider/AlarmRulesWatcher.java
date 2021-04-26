@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSetting
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
@@ -139,4 +140,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         return this.rules.getFeishus();
     }
 
+    public WeLinkSettings getWeLinkSettings() {
+        return this.rules.getWelinks();
+    }
 }
