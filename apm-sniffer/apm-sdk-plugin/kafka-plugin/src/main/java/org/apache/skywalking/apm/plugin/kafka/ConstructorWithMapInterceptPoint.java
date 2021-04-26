@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  **/
 public class ConstructorWithMapInterceptPoint extends AbstractConstructorInterceptPoint<Map<String, ?>> {
 
-    protected ConsumerEnhanceRequiredInfo resolveConsumerEnhanceRequiredInfo(Map<String,?> configArgument) {
+    protected ConsumerEnhanceRequiredInfo resolveConsumerEnhanceRequiredInfo(Map<String, ?> configArgument) {
         ConsumerEnhanceRequiredInfo requiredInfo = new ConsumerEnhanceRequiredInfo();
 
         if (configArgument != null) {
