@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,21 +25,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConsumerConstructorInterceptorTest {
+public class ConstructorWithMapInterceptPointTest {
 
     @Mock
-    private ConsumerConfig consumerConfig;
+    private Map<String, String> consumerConfig;
 
     @Mock
-    private ConsumerConstructorInterceptor constructorInterceptor;
+    private ConstructorWithMapInterceptPoint constructorInterceptor;
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo;
@@ -58,12 +56,10 @@ public class ConsumerConstructorInterceptorTest {
 
     @Before
     public void setUp() {
-        List<String> mockBootstrapServers = new ArrayList<String>();
-        mockBootstrapServers.add("localhost:9092");
-        mockBootstrapServers.add("localhost:19092");
-        when(consumerConfig.getList("bootstrap.servers")).thenReturn(mockBootstrapServers);
+        String mockBootstrapServers = "localhost:9092,localhost:19092";
+        when(consumerConfig.get("bootstrap.servers")).thenReturn(mockBootstrapServers);
 
-        constructorInterceptor = new ConsumerConstructorInterceptor();
+        constructorInterceptor = new ConstructorWithMapInterceptPoint();
     }
 
     @Test
