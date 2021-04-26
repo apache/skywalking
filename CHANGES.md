@@ -17,8 +17,8 @@ Release Notes.
 * Add Seata in the component definition. Seata plugin hosts on Seata project.
 * Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned.
 * Support print SkyWalking context to logs.
-* Add an optional agent plugin to support mybatis.
 * Add `MessageListener` enhancement in pulsar plugin
+* Add an optional agent plugin to support mybatis.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
