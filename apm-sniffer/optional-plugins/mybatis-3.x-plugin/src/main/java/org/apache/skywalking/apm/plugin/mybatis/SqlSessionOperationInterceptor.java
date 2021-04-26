@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInterceptor {
@@ -34,7 +35,7 @@ public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInte
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        String operationName = objInst.getClass().getName() + "." + method.getName();
+        String operationName = MethodUtil.generateOperationName(method);
         AbstractSpan lastSpan = null;
         if (ContextManager.isActive()) {
             lastSpan = ContextManager.activeSpan();
@@ -52,7 +53,7 @@ public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInte
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        String operationName = objInst.getClass().getName() + "." + method.getName();
+        String operationName = MethodUtil.generateOperationName(method);
         if (String.valueOf(ContextManager.getRuntimeContext().get(MYBATIS_ENTRY_METHOD_NAME)).equals(operationName)) {
             ContextManager.getRuntimeContext().remove(MYBATIS_ENTRY_METHOD_NAME);
             ContextManager.stopSpan();
@@ -63,7 +64,7 @@ public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInte
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        String operationName = objInst.getClass().getName() + "." + method.getName();
+        String operationName = MethodUtil.generateOperationName(method);
         if (String.valueOf(ContextManager.getRuntimeContext().get(MYBATIS_ENTRY_METHOD_NAME)).equals(operationName)) {
             ContextManager.activeSpan().log(t);
         }

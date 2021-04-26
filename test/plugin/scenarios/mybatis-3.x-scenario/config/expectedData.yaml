@@ -51,7 +51,7 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: ''}
         - {key: db.statement, value: ''}
-      - operationName: org.mybatis.spring.SqlSessionTemplate.insert
+      - operationName: org.mybatis.spring.SqlSessionTemplate.insert(java.lang.String,java.lang.Object)
         operationId: 0
         parentSpanId: 0
         spanId: 1
@@ -97,7 +97,7 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: ''}
         - {key: db.statement, value: ''}
-      - operationName: org.mybatis.spring.SqlSessionTemplate.insert
+      - operationName: org.mybatis.spring.SqlSessionTemplate.insert(java.lang.String,java.lang.Object)
         operationId: 0
         parentSpanId: 0
         spanId: 4
