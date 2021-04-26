@@ -387,7 +387,8 @@ public class SimpleQueryClient {
                                             .replace("{start}", query.start())
                                             .replace("{end}", query.end())
                                             .replace("{pageSize}", "20")
-                                            .replace("{needTotal}", "true");
+                                            .replace("{needTotal}", "true")
+                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()));
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<GetAlarmData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -398,7 +399,7 @@ public class SimpleQueryClient {
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
         }
-
+        LOGGER.info("Result: {}", responseEntity.getBody());
         return Objects.requireNonNull(responseEntity.getBody()).getData().getGetAlarm();
     }
 

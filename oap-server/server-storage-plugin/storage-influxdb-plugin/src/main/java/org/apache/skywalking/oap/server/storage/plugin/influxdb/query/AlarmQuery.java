@@ -21,17 +21,21 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
+import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
@@ -50,13 +54,14 @@ public class AlarmQuery implements IAlarmQueryDAO {
 
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
-                           long endTB) throws IOException {
+                           long endTB, List<Tag> tags) throws IOException {
 
         WhereQueryImpl<SelectQueryImpl> recallQuery = select()
             .function("top", AlarmRecord.START_TIME, limit + from).as(AlarmRecord.START_TIME)
             .column(AlarmRecord.ID0)
             .column(AlarmRecord.ALARM_MESSAGE)
             .column(AlarmRecord.SCOPE)
+            .column(AlarmRecord.TAGS_RAW_DATA)
             .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
             .where();
         if (startTB > 0 && endTB > 0) {
@@ -68,6 +73,13 @@ public class AlarmQuery implements IAlarmQueryDAO {
         }
         if (Objects.nonNull(scopeId)) {
             recallQuery.and(eq(AlarmRecord.SCOPE, scopeId));
+        }
+        if (CollectionUtils.isNotEmpty(tags)) {
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> nested = recallQuery.andNested();
+            for (final Tag tag : tags) {
+                nested.and(contains(tag.getKey(), "'" + tag.getValue() + "'"));
+            }
+            nested.close();
         }
 
         WhereQueryImpl<SelectQueryImpl> countQuery = select().count(AlarmRecord.ID0)
@@ -106,7 +118,10 @@ public class AlarmQuery implements IAlarmQueryDAO {
                   message.setMessage((String) values.get(3));
                   message.setScope(scope);
                   message.setScopeId(sid);
-
+                  String dataBinaryBase64 = (String) values.get(5);
+                  if (!com.google.common.base.Strings.isNullOrEmpty(dataBinaryBase64)) {
+                      parserDataBinaryBase64(dataBinaryBase64, message.getTags());
+                  }
                   alarms.getMsgs().add(message);
               });
         return alarms;

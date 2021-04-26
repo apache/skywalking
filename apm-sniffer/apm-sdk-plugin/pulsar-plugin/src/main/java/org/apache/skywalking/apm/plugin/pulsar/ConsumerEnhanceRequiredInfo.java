@@ -38,6 +38,19 @@ public class ConsumerEnhanceRequiredInfo {
      */
     private String subscriptionName;
 
+    /**
+     * whether the consumer has a message listener
+     */
+    private boolean hasMessageListener;
+
+    public boolean isHasMessageListener() {
+        return hasMessageListener;
+    }
+
+    public void setHasMessageListener(boolean hasMessageListener) {
+        this.hasMessageListener = hasMessageListener;
+    }
+
     public String getServiceUrl() {
         return serviceUrl;
     }

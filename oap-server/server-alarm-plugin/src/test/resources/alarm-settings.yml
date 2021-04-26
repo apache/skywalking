@@ -121,3 +121,16 @@ feishuHooks:
       secret: dummysecret
     - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2
       secret:
+
+welinkHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  webhooks:
+    # you may find your own client_id and client_secret in your app, below are dummy, need to change.
+    - client_id: "dummy_client_id"
+      client_secret: dummy_secret_key
+      access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+      message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+      # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
+      group_ids: "dummy_group_id"
+      # make a name you like for the robot, it will display in group
+      robot_name: robot
