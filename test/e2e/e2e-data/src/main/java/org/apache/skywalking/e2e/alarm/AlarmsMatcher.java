@@ -21,31 +21,41 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @Data
 @Slf4j
 public class AlarmsMatcher {
-    private GetAlarm alarm;
 
-    public void verify(final GetAlarm alarm) {
-        LOGGER.info("alarms:{} matchers:{}", alarm, this.alarm);
-        Assert.assertEquals(this.alarm.getTotal(), alarm.getTotal());
+    private int total;
 
-        assertThat(this.alarm.getMsgs()).hasSameSizeAs(alarm.getMsgs());
+    private List<AlarmMatcher> matchers;
 
-        for (int i = 0; i < this.alarm.getMsgs().size(); i++) {
+    public AlarmsMatcher() {
+        this.matchers = new LinkedList<>();
+    }
+
+    public void verify(final GetAlarm alarms) {
+        LOGGER.info("alarms:{} matchers:{}", alarms, this.matchers);
+        Assert.assertEquals(this.total, alarms.getTotal());
+
+        assertThat(this.matchers).hasSameSizeAs(alarms.getMsgs());
+
+        for (int i = 0; i < this.matchers.size(); i++) {
             boolean matched = false;
-            for (AlarmMatcher alarmMatcher : alarm.getMsgs()) {
+            for (Alarm alarm : alarms.getMsgs()) {
                 try {
-                    this.alarm.getMsgs().get(i).verify(alarmMatcher);
+                    this.matchers.get(i).verify(alarm);
                     matched = true;
                 } catch (Throwable ignored) {
                 }
             }
             if (!matched) {
-                fail("\nExpected: %s\nActual: %s", this.alarm, alarm);
+                fail("\nExpected: %s\nActual: %s", this.matchers, alarms);
             }
         }
     }

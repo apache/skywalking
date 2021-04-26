@@ -23,6 +23,8 @@ Release Notes.
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
 * Fix K8s monitoring the incorrect metrics calculate. 
 * Loop alarm into event system.
+* Support alarm tags.
+* Support WeLink as a channel of alarm notification.
 
 #### UI
 * Add logo for kong plugin.

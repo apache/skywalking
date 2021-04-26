@@ -19,10 +19,13 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
 import com.google.common.collect.Lists;
+
+import java.util.Arrays;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +76,7 @@ public class GRPChookCallbackTest {
         alarmMessage.setAlarmMessage("message");
         alarmMessage.setRuleName("mock_rule");
         alarmMessage.setStartTime(System.currentTimeMillis());
-
+        alarmMessage.setTags(Arrays.asList(new Tag("key", "value")));
         alarmMessageList = Lists.newArrayList(alarmMessage);
     }
 }
