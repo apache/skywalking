@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -112,7 +111,6 @@ public class OALRuntime implements OALEngine {
     private final List<Class> metricsClasses;
     private final List<Class> dispatcherClasses;
     private final boolean openEngineDebug;
-    private static final Map<String, Class<?>> DISPATCHER_CLASS_CACHE = new HashMap<>();
 
     public OALRuntime(OALDefine define) {
         oalDefine = define;
@@ -196,13 +194,7 @@ public class OALRuntime implements OALEngine {
         }
 
         for (Map.Entry<String, DispatcherContext> entry : allDispatcherContext.getAllContext().entrySet()) {
-            final String fullClassName = dispatcherClassName(entry.getKey(), true);
-            if (DISPATCHER_CLASS_CACHE.containsKey(fullClassName)) {
-                continue;
-            }
-            final Class dispatcherClass = generateDispatcherClass(entry.getKey(), entry.getValue());
-            dispatcherClasses.add(dispatcherClass);
-            DISPATCHER_CLASS_CACHE.put(fullClassName, dispatcherClass);
+            dispatcherClasses.add(generateDispatcherClass(entry.getKey(), entry.getValue()));
         }
 
         oalScripts.getDisableCollection().getAllDisableSources().forEach(disable -> {
