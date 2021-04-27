@@ -46,6 +46,7 @@
 - mongodb-3.x
 - mongodb-4.x
 - motan-0.x
+- mybatis-3.x
 - mysql-5.x
 - mysql-6.x
 - mysql-8.x

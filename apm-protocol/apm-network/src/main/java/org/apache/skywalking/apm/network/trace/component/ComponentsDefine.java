@@ -198,4 +198,6 @@ public class ComponentsDefine {
     public static final OfficialComponent JSON_RPC = new OfficialComponent(107, "JsonRpc");
   
     public static final OfficialComponent SEATA = new OfficialComponent(108, "Seata");
+
+    public static final OfficialComponent MYBATIS = new OfficialComponent(109, "MyBatis");
 }
