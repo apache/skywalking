@@ -26,6 +26,7 @@ Release Notes.
 * Loop alarm into event system.
 * Support alarm tags.
 * Support WeLink as a channel of alarm notification.
+* Fix: Some defensive codes didn't work in `PercentileFunction combine`.
 
 #### UI
 * Add logo for kong plugin.
