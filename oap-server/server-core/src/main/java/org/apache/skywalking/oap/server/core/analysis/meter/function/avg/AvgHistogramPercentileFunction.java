@@ -157,15 +157,16 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
     public boolean combine(final Metrics metrics) {
         AvgHistogramPercentileFunction percentile = (AvgHistogramPercentileFunction) metrics;
 
-        if (ranks.size() > 0) {
-            if (this.ranks.size() != ranks.size()) {
+        if (this.ranks.size() > 0) {
+            IntList ranksOfThat = percentile.getRanks();
+            if (this.ranks.size() != ranksOfThat.size()) {
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
-                         ranks.size(), this.ranks.size()
+                         ranksOfThat.size(), this.ranks.size()
                 );
                 return true;
             } else {
-                if (!this.ranks.equals(percentile.getRanks())) {
-                    log.warn("Rank {} doesn't exist in the previous ranks {}", percentile.getRanks(), ranks);
+                if (!this.ranks.equals(ranksOfThat)) {
+                    log.warn("Rank {} doesn't exist in the previous ranks {}", ranksOfThat, this.ranks);
                     return true;
                 }
             }
