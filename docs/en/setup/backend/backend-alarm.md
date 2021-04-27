@@ -30,7 +30,7 @@ Alarm rule is constituted by following keys
 - **Exclude labels**. The following labels of the metric are excluded in this rule.
 - **Include labels regex**. Provide a regex to include labels. If both setting the include label list and include label regex, both rules will take effect.
 - **Exclude labels regex**. Provide a regex to exclude labels. If both setting the exclude label list and exclude label regex, both rules will take effect.
-- **Tags**. Tags are key/value pairs that are attached to alarms. Tags are intended to be used to specify identifying attributes of alarms that are meaningful and relevant to users.
+- **Tags**. Tags are key/value pairs that are attached to alarms. Tags are intended to be used to specify identifying attributes of alarms that are meaningful and relevant to users. If you want to these tags searchable on SkyWalking UI, you need to set the tag keys in `core/default/searchableAlarmTags`, or through system environment variable, `SW_SEARCHABLE_ALARM_TAG_KEYS`. The default supported key is `level`.
 
 *The settings of labels is required by meter-system which intends to store metrics from label-system platform, just like Prometheus, Micrometer, etc.
 The function supports the above four settings should implement `LabeledValueHolder`.*
