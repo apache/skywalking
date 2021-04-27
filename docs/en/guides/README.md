@@ -78,7 +78,7 @@ Follow these steps:
 1. Define the containers in `docker-compose.yml`, and carefully specify the dependencies, starting orders, and most importantly, link them together, e.g. set the correct OAP address on the agent end, and set the correct coordinator address in OAP, etc.
 1. Write (or hopefully reuse) the test codes to verify that the results are correct.
 
-As for the final step, we have a user-friendly framework to help you get started more quickly. This framework provides tge annotation `@DockerCompose("docker-compose.yml")` to load/parse and start up all the containers in the proper order.
+As for the final step, we have a user-friendly framework to help you get started more quickly. This framework provides the annotation `@DockerCompose("docker-compose.yml")` to load/parse and start up all the containers in the proper order.
 `@ContainerHost`/`@ContainerPort` obtains the real host/port of the container. `@ContainerHostAndPort` obtains both. `@DockerContainer` obtains the running container.
 
 - Write test controller
