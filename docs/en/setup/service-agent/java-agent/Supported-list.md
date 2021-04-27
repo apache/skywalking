@@ -123,6 +123,8 @@ metrics based on the tracing data.
   * [log4j](https://github.com/apache/log4j) 2.x
   * [log4j2](https://github.com/apache/logging-log4j2) 1.2.x 
   * [logback](https://github.com/qos-ch/logback) 1.2.x
+* ORM
+  * [MyBatis](https://github.com/mybatis/mybatis-3) 3.4.x -> 3.5.x
 
 # Meter Plugins
 The meter plugin provides the advanced metrics collections, which are not a part of tracing.
