@@ -22,16 +22,19 @@ import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.impl.MessageImpl;
 import org.apache.pulsar.common.api.proto.PulsarApi;
 import org.apache.pulsar.shade.io.netty.buffer.ByteBuf;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockMessage extends MessageImpl {
+public class MockMessage extends MessageImpl implements EnhancedInstance {
 
     private PulsarApi.MessageMetadata.Builder msgMetadataBuilder = PulsarApi.MessageMetadata.newBuilder();
 
     private transient Map<String, String> properties;
+
+    private Object enhancedSkyWalkingField;
 
     public MockMessage() {
         this(null, "1:1", new HashMap(), null, null);
@@ -65,5 +68,15 @@ public class MockMessage extends MessageImpl {
     @Override
     public String getProperty(String name) {
         return this.getProperties().get(name);
+    }
+
+    @Override
+    public Object getSkyWalkingDynamicField() {
+        return enhancedSkyWalkingField;
+    }
+
+    @Override
+    public void setSkyWalkingDynamicField(Object value) {
+        this.enhancedSkyWalkingField = value;
     }
 }

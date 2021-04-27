@@ -14,10 +14,11 @@
 # limitations under the License.
 
 {
-  "query":"query queryData($duration: Duration!, $paging: Pagination!) {
+  "query":"query queryData($duration: Duration!, $paging: Pagination!, $tags: [AlarmTag]) {
     getAlarm: getAlarm(
         duration: $duration,
-        paging: $paging
+        paging: $paging,
+        tags: $tags
     ) {
         total
         msgs {
@@ -25,6 +26,9 @@
             scope
             id
             message
+            tags {
+              key, value
+            }
         }
    }}",
   "variables":{
@@ -36,6 +40,7 @@
     "paging":{
       "pageSize":"{pageSize}",
       "needTotal":"{needTotal}"
-    }
+    },
+   "tags": {tags}
   }
 }

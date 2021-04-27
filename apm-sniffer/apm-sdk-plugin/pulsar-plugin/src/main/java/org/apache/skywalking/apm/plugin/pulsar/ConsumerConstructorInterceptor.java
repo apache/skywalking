@@ -45,6 +45,7 @@ public class ConsumerConstructorInterceptor implements InstanceConstructorInterc
         requireInfo.setServiceUrl(pulsarClient.getLookup().getServiceUrl());
         requireInfo.setTopic(topic);
         requireInfo.setSubscriptionName(consumerConfigurationData.getSubscriptionName());
+        requireInfo.setHasMessageListener(consumerConfigurationData.getMessageListener() != null);
         objInst.setSkyWalkingDynamicField(requireInfo);
     }
 }
