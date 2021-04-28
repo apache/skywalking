@@ -20,9 +20,6 @@ package org.apache.skywalking.apm.plugin.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
-/**
- *
- **/
 public class ConstructorWithConsumerConfigInterceptPoint extends AbstractConstructorInterceptPoint<ConsumerConfig> {
 
     @Override
