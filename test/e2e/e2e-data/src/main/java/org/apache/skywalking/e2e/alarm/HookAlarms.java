@@ -20,35 +20,12 @@ package org.apache.skywalking.e2e.alarm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HookAlarms extends AbstractMatcher<HookAlarms> {
-    private ArrayList<HookAlarmMatcher> messages;
-
-    @Override
-    public void verify(HookAlarms hookAlarms) {
-        assertThat(this.messages).hasSameSizeAs(hookAlarms.getMessages());
-
-        for (int i = 0; i < this.messages.size(); i++) {
-            boolean matched = false;
-            for (HookAlarmMatcher alarmMatcher : hookAlarms.getMessages()) {
-                try {
-                    this.messages.get(i).verify(alarmMatcher);
-                    matched = true;
-                } catch (Throwable ignored) {
-                }
-            }
-            if (!matched) {
-                fail("\nExpected: %s\nActual: %s", this.messages.get(i), hookAlarms.getMessages());
-            }
-        }
-    }
+public class HookAlarms {
+    private ArrayList<HookAlarm> messages;
 }

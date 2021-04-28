@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -60,7 +61,9 @@ public class RunningRuleTest {
         alarmRule.setThreshold("75");
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301434");
         long timeInPeriod1 = 201808301434L;
@@ -88,7 +91,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
@@ -125,7 +130,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setMessage("response percentile of endpoint {name} is lower than expected values");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
@@ -179,7 +186,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         //alarmRule.setSilencePeriod(0);
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441");
 
@@ -224,7 +233,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setSilencePeriod(2);
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -261,7 +272,9 @@ public class RunningRuleTest {
         alarmRule.setPeriod(15);
         alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
         alarmRule.setExcludeNames(Lists.newArrayList("Service_123"));
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -293,7 +306,9 @@ public class RunningRuleTest {
         alarmRule.setPeriod(10);
         alarmRule.setMessage("Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
         alarmRule.setIncludeNamesRegex("Service\\_1(\\d)+");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -325,7 +340,9 @@ public class RunningRuleTest {
         alarmRule.setPeriod(10);
         alarmRule.setMessage("Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
         alarmRule.setExcludeNamesRegex("Service\\_2(\\d)+");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -574,7 +591,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setMessage("response percentile of endpoint {name} is lower than expected value");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 

@@ -133,7 +133,14 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableLogsTags = "";
-
+    /**
+     * Define the set of Alarm tag keys, which should be searchable through the GraphQL.
+     *
+     * @since 8.6.0
+     */
+    @Setter
+    @Getter
+    private String searchableAlarmTags = "";
     /**
      * The number of threads used to synchronously refresh the metrics data to the storage.
      *
