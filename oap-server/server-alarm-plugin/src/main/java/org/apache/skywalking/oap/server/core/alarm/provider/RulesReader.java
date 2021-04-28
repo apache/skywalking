@@ -21,16 +21,20 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.HashMap;
+import java.util.stream.Collectors;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -257,28 +261,24 @@ public class RulesReader {
     /**
      * Read WeLink hook config into {@link WeLinkSettings}
      */
+    @SuppressWarnings("unchecked")
     private void readWeLinkConfig(Rules rules) {
-        Map welinkConfig = (Map) yamlData.get("welinkHooks");
-        if (welinkConfig != null) {
-            WeLinkSettings welinkSettings = new WeLinkSettings();
-            Object textTemplate = welinkConfig.getOrDefault("textTemplate", "");
-            welinkSettings.setTextTemplate((String) textTemplate);
-            List<Map<String, Object>> welinkWebHooks = (List<Map<String, Object>>) welinkConfig.get("webhooks");
-            if (welinkWebHooks != null) {
-                welinkWebHooks.forEach(welinkWebhook -> {
-                    String clientId = (String) welinkWebhook.getOrDefault("client_id", "");
-                    String clientSecret = (String) welinkWebhook.getOrDefault("client_secret", "");
-                    String accessTokenUrl = (String) welinkWebhook.getOrDefault("access_token_url", "");
-                    String messageUrl = (String) welinkWebhook.getOrDefault("message_url", "");
-                    String groupIds = (String) welinkWebhook.getOrDefault("group_ids", "");
-                    String rebootName = (String) welinkWebhook.getOrDefault("robot_name", "reboot");
-                    welinkSettings.getWebhooks()
-                                  .add(new WeLinkSettings.WebHookUrl(clientId, clientSecret, accessTokenUrl, messageUrl,
-                                                                     rebootName, groupIds
-                                  ));
-                });
-            }
-            rules.setWelinks(welinkSettings);
+        Map<String, Object> welinkConfig = (Map<String, Object>) yamlData.getOrDefault(
+            "welinkHooks",
+            Collections.EMPTY_MAP
+        );
+        String textTemplate = (String) welinkConfig.get("textTemplate");
+        List<Map<String, String>> welinkWebHooks = (List<Map<String, String>>) welinkConfig.get("webhooks");
+        if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(welinkWebHooks)) {
+            return;
         }
+        List<WeLinkSettings.WebHookUrl> webHookUrls = welinkWebHooks.stream().map(
+            WeLinkSettings.WebHookUrl::generateFromMap
+        ).collect(Collectors.toList());
+
+        WeLinkSettings welinkSettings = new WeLinkSettings();
+        welinkSettings.setTextTemplate(textTemplate);
+        welinkSettings.setWebhooks(webHookUrls);
+        rules.setWelinks(welinkSettings);
     }
 }
