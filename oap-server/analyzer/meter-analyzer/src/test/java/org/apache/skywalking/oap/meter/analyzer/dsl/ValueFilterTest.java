@@ -56,84 +56,84 @@ public class ValueFilterTest {
             {
                 "valueEqual",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 "http_success_request.valueEqual(1)",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 false,
                 },
             {
                 "valueNotEqual",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 "http_success_request.valueNotEqual(1)",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build()
                 ).build()),
                 false,
                 },
             {
                 "valueGreater",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 "http_success_request.valueGreater(1)",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build()
                 ).build()),
                 false,
                 },
             {
                 "valueGreaterEqual",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 "http_success_request.valueGreaterEqual(1)",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 false,
                 },
             {
                 "valueLess",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 "http_success_request.valueLess(2)",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 false,
                 },
             {
                 "valueLessEqual",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 "http_success_request.valueLessEqual(2)",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t2")).value(2).build(),
-                    Sample.builder().labels(of("idc", "t3")).value(1).build()
+                    Sample.builder().labels(of("idc", "t1")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t2")).value(2).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3")).value(1).name("http_success_request").build()
                 ).build()),
                 false,
                 },
