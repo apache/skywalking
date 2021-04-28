@@ -35,11 +35,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
             String requestURL = null;
             RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(m, RequestMapping.class);
             if (methodRequestMapping != null) {
-                if (methodRequestMapping.value().length > 0) {
-                    requestURL = methodRequestMapping.value()[0];
-                } else if (methodRequestMapping.path().length > 0) {
-                    requestURL = methodRequestMapping.path()[0];
-                }
+                requestURL = methodRequestMapping.value().length > 0 ? methodRequestMapping.value()[0] : "";
             }
             return requestURL;
         });

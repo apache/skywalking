@@ -18,14 +18,18 @@
 
 package test.apache.skywalking.apm.testcase.implinterface;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/impl")
-public interface TestCaseInterface {
-    @RequestMapping(path = "/requestmapping")
-    String implRequestMappingAnnotationTestCase();
+@RestController
+public class TestCaseController implements TestCaseInterface {
 
-    @GetMapping("/restmapping")
-    String implRestAnnotationTestCase();
+    @Override
+    public String implRequestMappingAnnotationTestCase() {
+        return "implRequestMappingAnnotationTestCase";
+    }
+
+    @Override
+    public String implRestAnnotationTestCase() {
+        return "implRestAnnotationTestCase";
+    }
 }

@@ -16,34 +16,16 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.spring3;
+package test.apache.skywalking.apm.testcase.implinterface;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import test.apache.skywalking.apm.testcase.spring3.service.TestServiceBean;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-@Controller
-public class CaseController {
+@RequestMapping("/impl")
+public interface TestCaseInterface {
+    @RequestMapping("/requestmapping")
+    String implRequestMappingAnnotationTestCase();
 
-    private static final String SUCCESS = "Success";
-
-    @Autowired
-    private TestServiceBean testServiceBean;
-
-    @RequestMapping(value = "/case/spring3")
-    @ResponseBody
-    public String updateUser() {
-        testServiceBean.doSomeBusiness("test");
-        testServiceBean.doInvokeImplCase();
-        return SUCCESS;
-    }
-
-    @RequestMapping(value = "/healthCheck")
-    @ResponseBody
-    public String healthCheck() {
-        return SUCCESS;
-    }
-
+    @RequestMapping(value = "/restmapping", method = RequestMethod.GET)
+    String implRestAnnotationTestCase();
 }
