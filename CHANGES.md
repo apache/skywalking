@@ -27,6 +27,7 @@ Release Notes.
 * Support alarm tags.
 * Support WeLink as a channel of alarm notification.
 * Fix: Some defensive codes didn't work in `PercentileFunction combine`.
+* CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
 
 #### UI
 * Add logo for kong plugin.
