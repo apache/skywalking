@@ -246,7 +246,7 @@ The text of each license is the standard Apache 2.0 license.
     transport 5.5.0: https://github.com/elastic/elasticsearch/tree/master/client/transport , Apache 2.0
     securesm 1.1: https://github.com/elastic/securesm/blob/master/pom.xml , Apache 2.0
     LMAX Ltd.(disruptor) 3.3.6: https://github.com/LMAX-Exchange/disruptor , Apache 2.0
-    Eclipse (Jetty) 9.4.28.v20200408: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
+    Eclipse (Jetty) 9.4.40.v20210413: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
     Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
