@@ -26,7 +26,7 @@ import test.apache.skywalking.apm.testcase.spring3.component.TestComponentBean;
 
 @Service
 public class TestServiceBean {
-    public static final String URL = "http://localhost:8080/spring-3.0.x-scenario/";
+    public static final String URL = "http://localhost:8080/spring-3.0.x-scenario";
 
     @Autowired
     private TestComponentBean componentBean;
