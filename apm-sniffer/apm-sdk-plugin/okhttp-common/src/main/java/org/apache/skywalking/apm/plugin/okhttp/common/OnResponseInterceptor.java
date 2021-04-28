@@ -16,14 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3;
+package org.apache.skywalking.apm.plugin.okhttp.common;
 
-import java.lang.reflect.Method;
 import okhttp3.Response;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+
+import java.lang.reflect.Method;
 
 /**
  * {@link OnResponseInterceptor} validate the response code if it is great equal than 400. if so. the transaction status
