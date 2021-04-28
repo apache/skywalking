@@ -75,6 +75,7 @@ public class K8sTagTest {
                                   "my-nginx-5dc4865748-mbczh"
                               ))
                           .value(2)
+                          .name("container_cpu_usage_seconds_total")
                           .build(),
                     Sample.builder()
                           .labels(
@@ -83,6 +84,7 @@ public class K8sTagTest {
                                   "kube-state-metrics-6f979fd498-z7xwx"
                               ))
                           .value(1)
+                          .name("container_cpu_usage_seconds_total")
                           .build()
                 ).build()),
                 "container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace')",
@@ -95,6 +97,7 @@ public class K8sTagTest {
                                   "service", "nginx-service.default"
                               ))
                           .value(2)
+                          .name("container_cpu_usage_seconds_total")
                           .build(),
                     Sample.builder()
                           .labels(
@@ -104,6 +107,7 @@ public class K8sTagTest {
                                   "service", "kube-state-metrics.kube-system"
                               ))
                           .value(1)
+                          .name("container_cpu_usage_seconds_total")
                           .build()
                 ).build()),
                 false,
@@ -118,6 +122,7 @@ public class K8sTagTest {
                                   "my-nginx-5dc4865748-no-pod"
                               ))
                           .value(2)
+                          .name("container_cpu_usage_seconds_total")
                           .build(),
                     Sample.builder()
                           .labels(
@@ -126,6 +131,7 @@ public class K8sTagTest {
                                   "kube-state-metrics-6f979fd498-z7xwx"
                               ))
                           .value(1)
+                          .name("container_cpu_usage_seconds_total")
                           .build()
                 ).build()),
                 "container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace')",
@@ -137,6 +143,7 @@ public class K8sTagTest {
                                   "my-nginx-5dc4865748-no-pod" , "service", Retag.BLANK
                               ))
                           .value(2)
+                          .name("container_cpu_usage_seconds_total")
                           .build(),
                     Sample.builder()
                           .labels(
@@ -146,6 +153,7 @@ public class K8sTagTest {
                                   "service", "kube-state-metrics.kube-system"
                               ))
                           .value(1)
+                          .name("container_cpu_usage_seconds_total")
                           .build()
                 ).build()),
                 false,
@@ -160,6 +168,7 @@ public class K8sTagTest {
                                   "my-nginx-5dc4865748-no-service"
                               ))
                           .value(2)
+                          .name("container_cpu_usage_seconds_total")
                           .build(),
                     Sample.builder()
                           .labels(
@@ -168,6 +177,7 @@ public class K8sTagTest {
                                   "kube-state-metrics-6f979fd498-z7xwx"
                               ))
                           .value(1)
+                          .name("container_cpu_usage_seconds_total")
                           .build()
                 ).build()),
                 "container_cpu_usage_seconds_total.retagByK8sMeta('service' , K8sRetagType.Pod2Service , 'pod' , 'namespace')",
@@ -179,6 +189,7 @@ public class K8sTagTest {
                                   "my-nginx-5dc4865748-no-service" , "service", Retag.BLANK
                               ))
                           .value(2)
+                          .name("container_cpu_usage_seconds_total")
                           .build(),
                     Sample.builder()
                           .labels(
@@ -188,6 +199,7 @@ public class K8sTagTest {
                                   "service", "kube-state-metrics.kube-system"
                               ))
                           .value(1)
+                          .name("container_cpu_usage_seconds_total")
                           .build()
                 ).build()),
                 false,
