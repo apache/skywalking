@@ -66,7 +66,9 @@ public class AdapterActionFutureActionGetMethodsInterceptor implements InstanceM
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().log(t);
+        if (isTrace(objInst)) {
+            ContextManager.activeSpan().log(t);
+        }
     }
 
     private boolean isTrace(EnhancedInstance objInst) {
