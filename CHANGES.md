@@ -19,6 +19,7 @@ Release Notes.
 * Support print SkyWalking context to logs.
 * Add `MessageListener` enhancement in pulsar plugin
 * Add an optional agent plugin to support mybatis.
+* Fix possible NullPointerException in agent's ES plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
