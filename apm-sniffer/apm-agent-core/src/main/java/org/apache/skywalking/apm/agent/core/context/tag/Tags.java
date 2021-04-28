@@ -82,6 +82,8 @@ public final class Tags {
      */
     public static final StringTag MQ_STATUS = new StringTag(16, "mq_status");
 
+    public static final StringTag MYBATIS_MAPPER = new StringTag(17, "mybatis.mapper");
+
     /**
      * The latency of transmission. When there are more than one downstream parent/segment-ref(s), multiple tags will be
      * recorded, such as a batch consumption in MQ.
