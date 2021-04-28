@@ -37,6 +37,7 @@ Release Notes.
 * Add tooltip for dashboard component.
 * Fix style of endpoint dependency.
 * Support search and visualize alarms with tags.
+* Update configuration on dashboard.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
