@@ -54,7 +54,7 @@ public class AggregationTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-           /* {
+            {
                 "sum",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                         Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
@@ -92,7 +92,7 @@ public class AggregationTest {
                 "http_success_request.min()",
                 Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(ImmutableMap.of()).value(3).name("http_success_request").build()).build()),
                 false,
-            },*/
+            },
             {
                 "min-by",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
@@ -110,7 +110,6 @@ public class AggregationTest {
                 ).build()),
                 false,
             },
-
             {
                 "max",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
