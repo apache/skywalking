@@ -1,5 +1,5 @@
 # Setup java agent
-1. Agent is available for JDK 8 - 14 in 7.x releases. JDK 1.6 - JDK 12 are supported in all 6.x releases [NOTICE¹](#notice)
+1. Agent is available for JDK 8 - 14.
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
@@ -190,6 +190,7 @@ Now, we have the following known optional plugins.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
 * Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
 * Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
+* Plugin of mybatis-3.x in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
