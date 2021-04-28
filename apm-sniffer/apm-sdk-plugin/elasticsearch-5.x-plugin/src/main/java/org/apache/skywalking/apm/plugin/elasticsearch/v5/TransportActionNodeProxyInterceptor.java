@@ -46,32 +46,42 @@ public class TransportActionNodeProxyInterceptor implements InstanceConstructorI
 
         ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo) ((EnhancedInstance) objInst.getSkyWalkingDynamicField())
             .getSkyWalkingDynamicField();
-        String opType = allArguments[1].getClass().getSimpleName();
-        String operationName = ELASTICSEARCH_DB_OP_PREFIX + opType;
-        AbstractSpan span = ContextManager.createExitSpan(operationName, enhanceInfo.transportAddresses());
-        span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
-        Tags.DB_TYPE.set(span, DB_TYPE);
-        Tags.DB_INSTANCE.set(span, enhanceInfo.getClusterName());
-        if (TRACE_DSL) {
-            Tags.DB_STATEMENT.set(span, enhanceInfo.getSource());
+        if (enhanceInfo != null) {
+            String opType = allArguments[1].getClass().getSimpleName();
+            String operationName = ELASTICSEARCH_DB_OP_PREFIX + opType;
+            AbstractSpan span = ContextManager.createExitSpan(operationName, enhanceInfo.transportAddresses());
+            span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
+            Tags.DB_TYPE.set(span, DB_TYPE);
+            Tags.DB_INSTANCE.set(span, enhanceInfo.getClusterName());
+            if (TRACE_DSL) {
+                Tags.DB_STATEMENT.set(span, enhanceInfo.getSource());
+            }
+            span.tag(ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
+            span.tag(ES_INDEX, wrapperNullStringValue(enhanceInfo.getIndices()));
+            span.tag(ES_TYPE, wrapperNullStringValue(enhanceInfo.getTypes()));
+            SpanLayer.asDB(span);
         }
-        span.tag(ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
-        span.tag(ES_INDEX, wrapperNullStringValue(enhanceInfo.getIndices()));
-        span.tag(ES_TYPE, wrapperNullStringValue(enhanceInfo.getTypes()));
-        SpanLayer.asDB(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo) ((EnhancedInstance) objInst.getSkyWalkingDynamicField())
+            .getSkyWalkingDynamicField();
+        if (enhanceInfo != null) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().log(t);
+        ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo) ((EnhancedInstance) objInst.getSkyWalkingDynamicField())
+            .getSkyWalkingDynamicField();
+        if (enhanceInfo != null) {
+            ContextManager.activeSpan().log(t);
+        }
     }
 
     @Override
