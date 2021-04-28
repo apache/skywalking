@@ -29,6 +29,7 @@ Release Notes.
 * Fix: Some defensive codes didn't work in `PercentileFunction combine`.
 * CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
 * Fix: MAL function would miss samples name after creating new samples.
+
 #### UI
 * Add logo for kong plugin.
 * Add apisix logo.
