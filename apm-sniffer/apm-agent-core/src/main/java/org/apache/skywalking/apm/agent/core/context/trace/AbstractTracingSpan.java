@@ -233,6 +233,11 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override
+    public int getComponentId() {
+        return componentId;
+    }
+
+    @Override
     public AbstractTracingSpan setLayer(SpanLayer layer) {
         this.layer = layer;
         return this;
