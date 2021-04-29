@@ -16,6 +16,7 @@ Release Notes.
 * resolve agent has no retries if connect kafka cluster failed when bootstrap
 * Add Seata in the component definition. Seata plugin hosts on Seata project.
 * Extended Kafka plugin to properly trace consumers that have topic partitions directly assigned.
+* Support Kafka consumer 2.8.0.
 * Support print SkyWalking context to logs.
 * Add `MessageListener` enhancement in pulsar plugin.
 * fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface.
