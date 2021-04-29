@@ -16,16 +16,17 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.implinterface;
+package org.apache.skywalking.apm.plugin.kafka;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-@RequestMapping("/impl")
-public interface TestCaseInterface {
-    @RequestMapping(path = "/requestmapping")
-    String implRequestMappingAnnotationTestCase();
+public abstract class AbstractConstructorInterceptPoint<T> implements InstanceConstructorInterceptor {
 
-    @GetMapping("/restmapping")
-    String implRestAnnotationTestCase();
+    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        ConsumerEnhanceRequiredInfo requiredInfo = resolveConsumerEnhanceRequiredInfo((T) allArguments[0]);
+        objInst.setSkyWalkingDynamicField(requiredInfo);
+    }
+
+    protected abstract ConsumerEnhanceRequiredInfo resolveConsumerEnhanceRequiredInfo(T allArgument);
 }
