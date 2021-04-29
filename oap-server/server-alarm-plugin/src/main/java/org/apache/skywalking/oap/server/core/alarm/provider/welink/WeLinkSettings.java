@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider.welink;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,5 +57,17 @@ public class WeLinkSettings {
         private final String robotName;
         // The groupIds message to send
         private final String groupIds;
+
+        public static WebHookUrl generateFromMap(Map<String, String> params) {
+            String clientId = params.get("client_id");
+            String clientSecret = params.get("client_secret");
+            String accessTokenUrl = params.get("access_token_url");
+            String messageUrl = params.get("message_url");
+            String groupIds = params.get("group_ids");
+            String robotName = params.getOrDefault("robot_name", "robot");
+            return new WebHookUrl(clientId, clientSecret, accessTokenUrl, messageUrl,
+                                  robotName, groupIds
+            );
+        }
     }
 }

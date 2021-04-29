@@ -74,7 +74,7 @@ public class WeLinkHookCallbackTest implements Servlet {
         webHooks.add(new WeLinkSettings.WebHookUrl("clientId", "clientSecret",
                                                    "http://127.0.0.1:" + port + "/welinkhook/api/auth/v2/tickets",
                                                    "http://127.0.0.1:" + port + "/welinkhook/api/welinkim/v1/im-service/chat/group-chat",
-                                                   "rebootName", "1,2,3"
+                                                   "robotName", "1,2,3"
         ));
         Rules rules = new Rules();
         String template = "Apache SkyWalking Alarm: \n %s.";
