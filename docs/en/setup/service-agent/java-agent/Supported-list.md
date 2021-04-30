@@ -30,7 +30,7 @@ metrics based on the tracing data.
   * [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) 2.x
   * JRE HttpURLConnection (Optional²)
 * HTTP Gateway
-  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 3.x (Optional²)
 * JDBC
   * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
