@@ -31,6 +31,7 @@ Release Notes.
 * Fix: Some defensive codes didn't work in `PercentileFunction combine`.
 * CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
 * Fix: MAL function would miss samples name after creating new samples.
+* perf: use iterator.remove() to remove modulesWithoutProvider
 
 #### UI
 * Add logo for kong plugin.
