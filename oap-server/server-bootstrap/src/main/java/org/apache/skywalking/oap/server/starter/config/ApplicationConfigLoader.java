@@ -20,10 +20,9 @@ package org.apache.skywalking.oap.server.starter.config;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
@@ -133,8 +132,9 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     }
 
     private void selectConfig(final Map<String, Map<String, Object>> moduleConfiguration) {
-        final Set<String> modulesWithoutProvider = new HashSet<>();
-        for (final Map.Entry<String, Map<String, Object>> entry : moduleConfiguration.entrySet()) {
+        Iterator<Map.Entry<String, Map<String, Object>>> moduleIterator = moduleConfiguration.entrySet().iterator();
+        while (moduleIterator.hasNext()) {
+            Map.Entry<String, Map<String, Object>> entry = moduleIterator.next();
             final String moduleName = entry.getKey();
             final Map<String, Object> providerConfig = entry.getValue();
             if (!providerConfig.containsKey(SELECTOR)) {
@@ -159,19 +159,9 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             }
 
             // now the module can be safely removed
-            modulesWithoutProvider.add(moduleName);
+            moduleIterator.remove();
+            log.info("Remove module {} without any provider", moduleName);
         }
-
-        moduleConfiguration.entrySet().removeIf(e -> {
-            final String module = e.getKey();
-            final boolean shouldBeRemoved = modulesWithoutProvider.contains(module);
-
-            if (shouldBeRemoved) {
-                log.info("Remove module {} without any provider", module);
-            }
-
-            return shouldBeRemoved;
-        });
     }
 
     private void overrideModuleSettings(ApplicationConfiguration configuration, String key, String value) {
