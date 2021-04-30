@@ -47,6 +47,17 @@ public class HttpClientFinalizerInstrumentation extends AbstractGateway210Enhanc
                 public String getConstructorInterceptor() {
                     return Constants.CLIENT_FINALIZER_CONSTRUCTOR_INTERCEPTOR;
                 }
+            },
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, "reactor.netty.http.client.HttpClientConfig");
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return Constants.CLIENT_FINALIZER_CONSTRUCTOR_INTERCEPTOR;
+                }
             }
         };
     }

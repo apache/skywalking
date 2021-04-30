@@ -19,16 +19,11 @@ package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.EnhanceObjectCache;
 
-public class HttpClientFinalizerConstructorInterceptor implements InstanceConstructorInterceptor {
+public class HttpClientConfigConstructorInterceptor implements InstanceConstructorInterceptor {
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        EnhancedInstance enhancedInstance = (EnhancedInstance) allArguments[0];
-        if (enhancedInstance.getSkyWalkingDynamicField() == null) {
-            enhancedInstance.setSkyWalkingDynamicField(new EnhanceObjectCache());
-        }
 
-        objInst.setSkyWalkingDynamicField(enhancedInstance.getSkyWalkingDynamicField());
     }
 }

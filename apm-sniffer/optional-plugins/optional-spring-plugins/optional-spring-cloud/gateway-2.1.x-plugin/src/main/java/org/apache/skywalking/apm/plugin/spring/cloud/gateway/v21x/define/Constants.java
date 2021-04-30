@@ -33,4 +33,8 @@ public interface Constants {
     String INTERCEPT_CLASS_TCP_CLIENT = "reactor.netty.tcp.TcpClient";
     String TCP_CLIENT_CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.TcpClientConstructorInterceptor";
 
+    // HttpClientConfig
+    String INTERCEPT_CLASS_HTTP_CLIENT_CONFIG = "reactor.netty.http.client.HttpClientConfig";
+    String HTTP_CLIENT_CONFIG_CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.HttpClientConfigConstructorInterceptor";
+
 }
