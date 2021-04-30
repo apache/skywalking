@@ -148,7 +148,7 @@ Webhook requires the peer is a web container. The alarm message will send throug
 - **ruleName**. The rule name you configured in `alarm-settings.yml`.
 - **alarmMessage**. Alarm text message.
 - **startTime**. Alarm time measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
-- **tags**. The tags you configured in `alarm-settings.yml`
+- **tags**. The tags you configured in `alarm-settings.yml`.
 
 Example as following
 ```json
