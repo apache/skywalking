@@ -42,6 +42,7 @@ Release Notes.
 * Fix style of endpoint dependency.
 * Support search and visualize alarms with tags.
 * Fix configurations on dashboard.
+* Support to configure the maximum number of displayed items.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
