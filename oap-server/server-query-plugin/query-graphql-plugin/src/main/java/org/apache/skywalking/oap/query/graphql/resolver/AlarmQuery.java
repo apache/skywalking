@@ -22,7 +22,6 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +37,6 @@ import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.event.Event;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
-import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -91,8 +89,6 @@ public class AlarmQuery implements GraphQLQueryResolver {
             endSecondTB = duration.getEndTimeBucketInSec();
             condition.setTime(duration);
         }
-        condition.setType(EventType.Error);
-        condition.setName("Alarm");
         Alarms alarms = getQueryService().getAlarm(
                 scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
         Events events = null;
@@ -106,7 +102,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
     }
 
     private Alarms includeEvents2Alarms(Alarms alarms, Events events) {
-        if (alarms.getTotal() < 1 || CollectionUtils.isEmpty(alarms.getMsgs()) || events.getTotal() < 1 || CollectionUtils.isEmpty(events.getEvents())) {
+        if (alarms.getTotal() < 1 || events.getTotal() < 1) {
             return alarms;
         }
         Map<String, List<Event>> mappingMap = events.getEvents().stream().collect(Collectors.groupingBy(Event::getServiceInSource));
@@ -115,37 +111,17 @@ public class AlarmQuery implements GraphQLQueryResolver {
                 case DefaultScopeDefine.SERVICE :
                     List<Event> serviceEvent = mappingMap.get(IDManager.ServiceID.analysisId(a.getId()).getName());
                     if (CollectionUtils.isNotEmpty(serviceEvent)) {
-                        if (serviceEvent.size() == 1) {
-                            a.setEvents(serviceEvent);
-                        } else {
-                            Event event = serviceEvent.stream().filter(e -> StringUtils.equals(a.getMessage(), e.getMessage())).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(0, event);
-                            }
-                        }
+                        a.setEvents(serviceEvent);
                     }
                     break;
                 case DefaultScopeDefine.SERVICE_RELATION :
                     List<Event> sourceServiceEvent = mappingMap.get(IDManager.ServiceID.analysisId(a.getId()));
                     List<Event> destServiceEvent = mappingMap.get(IDManager.ServiceID.analysisId(a.getId1()));
-                    if (CollectionUtils.isNotEmpty(sourceServiceEvent) && CollectionUtils.isNotEmpty(destServiceEvent)) {
-                        if (sourceServiceEvent.size() != 1) {
-                            Event event = sourceServiceEvent.stream().filter(e -> StringUtils.equals(a.getMessage(), e.getMessage())).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(0, event);
-                            }
-                        } else {
-                            a.getEvents().set(0, sourceServiceEvent.get(0));
-                        }
-
-                        if (destServiceEvent.size() != 1) {
-                            Event event = destServiceEvent.stream().filter(e -> StringUtils.equals(a.getMessage(), e.getMessage())).findAny().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(1, event);
-                            }
-                        } else {
-                            a.getEvents().set(1, destServiceEvent.get(0));
-                        }
+                    if (CollectionUtils.isNotEmpty(sourceServiceEvent)) {
+                        a.setEvents(sourceServiceEvent);
+                    }
+                    if (CollectionUtils.isNotEmpty(destServiceEvent)) {
+                        a.getEvents().addAll(destServiceEvent);
                     }
                     break;
                 case DefaultScopeDefine.SERVICE_INSTANCE :
@@ -154,14 +130,8 @@ public class AlarmQuery implements GraphQLQueryResolver {
                     String serviceName = IDManager.ServiceID.analysisId(instanceIDDefinition.getServiceId()).getName();
                     List<Event> serviceInstanceEvent = mappingMap.get(serviceName);
                     if (CollectionUtils.isNotEmpty(serviceInstanceEvent)) {
-                        if (serviceInstanceEvent.size() == 1) {
-                            a.setEvents(serviceInstanceEvent);
-                        } else {
-                            Event event = serviceInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), serviceInstanceName) && StringUtils.equals(e.getMessage(), a.getMessage())).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(0, event);
-                            }
-                        }
+                        List<Event> filterEvents = serviceInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), serviceInstanceName)).collect(Collectors.toList());
+                        a.setEvents(filterEvents);
                     }
                     break;
                 case DefaultScopeDefine.SERVICE_INSTANCE_RELATION :
@@ -175,24 +145,14 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
                     List<Event> sourceInstanceEvent = mappingMap.get(sourceServiceName);
                     List<Event> destInstanceEvent = mappingMap.get(destServiceName);
-                    if (CollectionUtils.isNotEmpty(sourceInstanceEvent) && CollectionUtils.isNotEmpty(destInstanceEvent)) {
-                        if (sourceInstanceEvent.size() != 1) {
-                            Event event = sourceInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), sourceServiceInstanceName) && StringUtils.equals(e.getMessage(), a.getMessage())).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(0, event);
-                            }
-                        } else {
-                            a.getEvents().set(0, sourceInstanceEvent.get(0));
-                        }
 
-                        if (destInstanceEvent.size() != 1) {
-                            Event event = destInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), destServiceInstanceName) && StringUtils.equals(e.getMessage(), a.getMessage())).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(1, event);
-                            }
-                        } else {
-                            a.getEvents().set(1, destInstanceEvent.get(0));
-                        }
+                    if (CollectionUtils.isNotEmpty(sourceInstanceEvent)) {
+                        List<Event> filterEvents = sourceInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), sourceServiceInstanceName)).collect(Collectors.toList());
+                        a.setEvents(filterEvents);
+                    }
+                    if (CollectionUtils.isNotEmpty(destInstanceEvent)) {
+                        List<Event> filterEvents = destInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), destServiceInstanceName)).collect(Collectors.toList());
+                        a.getEvents().addAll(filterEvents);
                     }
                     break;
                 case DefaultScopeDefine.ENDPOINT :
@@ -201,14 +161,8 @@ public class AlarmQuery implements GraphQLQueryResolver {
                     String endpointServiceName = IDManager.ServiceID.analysisId(endpointIDDefinition.getServiceId()).getName();
                     List<Event> serviceEndpointEvent = mappingMap.get(endpointServiceName);
                     if (CollectionUtils.isNotEmpty(serviceEndpointEvent)) {
-                        if (serviceEndpointEvent.size() == 1) {
-                            a.setEvents(serviceEndpointEvent);
-                        } else {
-                            Event event = serviceEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), endpointName) && StringUtils.equals(e.getMessage(), a.getMessage())).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(0, event);
-                            }
-                        }
+                        List<Event> filterEvents = serviceEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), endpointName)).collect(Collectors.toList());
+                        a.setEvents(filterEvents);
                     }
                     break;
                 case DefaultScopeDefine.ENDPOINT_RELATION :
@@ -223,24 +177,13 @@ public class AlarmQuery implements GraphQLQueryResolver {
                     List<Event> sourceEndpointEvent = mappingMap.get(sourceEndpointServiceName);
                     List<Event> destEndpointEvent = mappingMap.get(destEndpointServiceName);
 
-                    if (CollectionUtils.isNotEmpty(sourceEndpointEvent) && CollectionUtils.isNotEmpty(destEndpointEvent)) {
-                        if (sourceEndpointEvent.size() != 1) {
-                            Event event = sourceEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), sourceEndpointName) && (StringUtils.equals(e.getMessage(), a.getMessage()))).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(0, event);
-                            }
-                        } else {
-                            a.getEvents().set(0, sourceEndpointEvent.get(0));
-                        }
-
-                        if (destEndpointEvent.size() != 1) {
-                            Event event = destEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), destEndpointName) && (StringUtils.equals(e.getMessage(), a.getMessage()))).findFirst().orElse(null);
-                            if (Objects.nonNull(event)) {
-                                a.getEvents().set(1, event);
-                            }
-                        } else {
-                            a.getEvents().set(1, destEndpointEvent.get(0));
-                        }
+                    if (CollectionUtils.isNotEmpty(sourceEndpointEvent)) {
+                        List<Event> filterEvents = sourceEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), sourceEndpointName)).collect(Collectors.toList());
+                        a.setEvents(filterEvents);
+                    }
+                    if (CollectionUtils.isNotEmpty(destEndpointEvent)) {
+                        List<Event> filterEvents = destEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), destEndpointName)).collect(Collectors.toList());
+                        a.getEvents().addAll(filterEvents);
                     }
                     break;
             }
