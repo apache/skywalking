@@ -128,6 +128,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
                 while (resultSet.next()) {
                     AlarmMessage message = new AlarmMessage();
                     message.setId(resultSet.getString(AlarmRecord.ID0));
+                    message.setId1(resultSet.getString(AlarmRecord.ID1));
                     message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
                     message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));

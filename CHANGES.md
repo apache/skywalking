@@ -43,6 +43,7 @@ Release Notes.
 * Allow multiple definitions as fallback in metadata-service-mapping.yaml file.
 * Fix: NPE when configmap has no data.
 * Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
+* Include events of the entity(s) in the alarm.
 
 #### UI
 * Add logo for kong plugin.
