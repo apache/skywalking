@@ -72,6 +72,7 @@ jobs:
           - thrift-scenario
           - dbcp-2.x-scenario
           - jsonrpc4j-1.x-scenario
+          - gateway-3.x-scenario
     steps:
       - uses: actions/checkout@v2
         with:
