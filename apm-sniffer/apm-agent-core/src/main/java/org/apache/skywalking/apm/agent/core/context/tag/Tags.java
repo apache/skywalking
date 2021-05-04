@@ -85,6 +85,11 @@ public final class Tags {
     public static final StringTag MYBATIS_MAPPER = new StringTag(17, "mybatis.mapper");
 
     /**
+     * the origin span name before rename in naming control
+     */
+    public static final StringTag BEFORE_NAMING_CONTROL = new StringTag(18, "before_naming_control");
+
+    /**
      * The latency of transmission. When there are more than one downstream parent/segment-ref(s), multiple tags will be
      * recorded, such as a batch consumption in MQ.
      */
@@ -98,6 +103,13 @@ public final class Tags {
         public static final StringTag BODY = new StringTag(13, "http.body");
 
         public static final StringTag HEADERS = new StringTag(14, "http.headers");
+
+        public static final StringTag SERVLET_CONTEXT_PATH = new StringTag(19, "servlet.context.path");
+
+        public static final StringTag SERVLET_PATH = new StringTag(20, "servlet.path");
+
+        public static final StringTag SERVLET_PATH_INFO = new StringTag(21, "servlet.path.info");
+
     }
 
     public static final StringTag LOGIC_ENDPOINT = new StringTag(12, "x-le");

@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.v3;
 
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.NamingRuleRegisterUtil;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -43,5 +44,6 @@ public class ControllerConstructorInterceptor implements InstanceConstructorInte
         EnhanceRequireObjectCache enhanceCache = new EnhanceRequireObjectCache();
         enhanceCache.setPathMappingCache(new PathMappingCache(basePath));
         objInst.setSkyWalkingDynamicField(enhanceCache);
+        NamingRuleRegisterUtil.prepare4Register(objInst);
     }
 }

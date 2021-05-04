@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -33,9 +29,17 @@ import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.apache.skywalking.apm.agent.core.naming.EndpointNamingControl;
+import org.apache.skywalking.apm.agent.core.naming.SpanOutline;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.network.trace.component.Component;
+import org.apache.skywalking.apm.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The <code>AbstractTracingSpan</code> represents a group of {@link AbstractSpan} implementations, which belongs a real
@@ -263,6 +267,20 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     public SpanObject.Builder transform() {
         SpanObject.Builder spanBuilder = SpanObject.newBuilder();
 
+        EndpointNamingControl endpointNamingControl = ServiceManager.INSTANCE.findService(EndpointNamingControl.class);
+        SpanOutline spanOutline = new SpanOutline();
+        spanOutline.setEntry(isEntry());
+        spanOutline.setExit(isExit());
+        spanOutline.setOperationName(operationName);
+        spanOutline.setComponentId(componentId);
+        if (tags != null) {
+            spanOutline.setTags(new LinkedList<>(tags));
+        }
+        String endpointName = endpointNamingControl.resolve(spanOutline);
+        if (endpointName != null && !StringUtil.isEmpty(endpointName)) {
+            Tags.BEFORE_NAMING_CONTROL.set(this, operationName);
+            operationName = endpointName;
+        }
         spanBuilder.setSpanId(this.spanId);
         spanBuilder.setParentSpanId(parentSpanId);
         spanBuilder.setStartTime(startTime);

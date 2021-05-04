@@ -33,6 +33,7 @@
         <module>spring-tx-plugin</module>
         <module>optional-spring-cloud</module>
         <module>spring-webflux-5.x-plugin</module>
+        <module>spring-mvc-annotation-naming-plugin</module>
     </modules>
 
     <properties>

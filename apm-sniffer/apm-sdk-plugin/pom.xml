@@ -73,7 +73,7 @@
         <module>elasticsearch-5.x-plugin</module>
         <module>elasticsearch-6.x-plugin</module>
         <module>elasticsearch-7.x-plugin</module>
-        <module>undertow-plugins</module>
+`        <module>undertow-servlet-2.x-plugin</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
         <module>canal-1.x-plugin</module>
@@ -110,6 +110,7 @@
         <module>mssql-jdbc-plugin</module>
         <module>cxf-3.x-plugin</module>
         <module>jsonrpc4j-1.x-plugin</module>
+        <module>servlet-container-commons</module>
     </modules>
     <packaging>pom</packaging>
 

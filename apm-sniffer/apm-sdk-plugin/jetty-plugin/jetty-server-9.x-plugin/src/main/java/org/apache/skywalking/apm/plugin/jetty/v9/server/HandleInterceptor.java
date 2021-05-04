@@ -18,71 +18,41 @@
 
 package org.apache.skywalking.apm.plugin.jetty.v9.server;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
+import org.apache.skywalking.apm.plugin.servlet.ServletRequestInterceptor;
 import org.eclipse.jetty.server.HttpChannel;
 
-public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
-    private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
-    private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
-    private static final String GET_STATUS_METHOD = "getStatus";
-
-    static {
-        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(HandleInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
+public class HandleInterceptor extends ServletRequestInterceptor {
+    @Override
+    protected boolean isCollectHTTPParams() {
+        return false;
     }
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+    protected int httpParamsLengthThreshold() {
+        return 1500;
+    }
+
+    @Override
+    protected HttpServletRequest obtainServletRequest(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes) {
         HttpChannel httpChannel = (HttpChannel) objInst;
-        HttpServletRequest servletRequest = httpChannel.getRequest();
-
-        ContextCarrier contextCarrier = new ContextCarrier();
-
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(servletRequest.getHeader(next.getHeadKey()));
-        }
-
-        AbstractSpan span = ContextManager.createEntrySpan(servletRequest.getRequestURI(), contextCarrier);
-        Tags.URL.set(span, servletRequest.getRequestURL().toString());
-        Tags.HTTP.METHOD.set(span, servletRequest.getMethod());
-        span.setComponent(ComponentsDefine.JETTY_SERVER);
-        SpanLayer.asHttp(span);
+        return httpChannel.getRequest();
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+    protected HttpServletResponse obtainServletResponse(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) {
         HttpChannel httpChannel = (HttpChannel) objInst;
-        HttpServletResponse servletResponse = httpChannel.getResponse();
-        AbstractSpan span = ContextManager.activeSpan();
-        if (IS_SERVLET_GET_STATUS_METHOD_EXIST && servletResponse.getStatus() >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(servletResponse.getStatus()));
-        }
-        ContextManager.stopSpan();
-        ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
-        return ret;
+        return httpChannel.getResponse();
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().log(t);
+    protected OfficialComponent getComponentsDefine() {
+        return ComponentsDefine.JETTY_SERVER;
     }
 }

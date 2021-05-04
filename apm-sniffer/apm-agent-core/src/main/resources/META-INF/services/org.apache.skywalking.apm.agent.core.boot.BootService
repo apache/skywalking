@@ -36,3 +36,4 @@ org.apache.skywalking.apm.agent.core.remote.LogReportServiceClient
 org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService
 org.apache.skywalking.apm.agent.core.remote.EventReportServiceClient
 org.apache.skywalking.apm.agent.core.ServiceInstanceGenerator
+org.apache.skywalking.apm.agent.core.naming.EndpointNamingControl
