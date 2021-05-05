@@ -73,7 +73,7 @@
         <module>elasticsearch-5.x-plugin</module>
         <module>elasticsearch-6.x-plugin</module>
         <module>elasticsearch-7.x-plugin</module>
-`        <module>undertow-servlet-2.x-plugin</module>
+        <module>undertow-servlet-2.x-plugin</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
         <module>canal-1.x-plugin</module>
