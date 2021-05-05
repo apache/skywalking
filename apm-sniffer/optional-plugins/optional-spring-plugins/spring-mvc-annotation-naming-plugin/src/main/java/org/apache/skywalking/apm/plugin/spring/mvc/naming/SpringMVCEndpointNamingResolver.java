@@ -51,6 +51,9 @@ public class SpringMVCEndpointNamingResolver implements EndpointNameNamingResolv
         return RESOLVER;
     }
 
+    private SpringMVCEndpointNamingResolver() {
+    }
+
     private final MultiValueMap<String, SimpleRequestMappingInfo> directPath = new LinkedMultiValueMap<>();
     private final List<SimpleRequestMappingInfo> mappingInfos = new LinkedList<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
