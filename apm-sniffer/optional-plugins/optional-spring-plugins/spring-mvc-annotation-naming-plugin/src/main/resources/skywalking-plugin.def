@@ -15,3 +15,4 @@
 # limitations under the License.
 
 spring-mvc-naming-control=org.apache.skywalking.apm.plugin.spring.mvc.naming.define.DispatcherServletInstrumentation
+spring-mvc-naming-control=org.apache.skywalking.apm.plugin.spring.mvc.naming.define.MappingRegistryInstrumentation

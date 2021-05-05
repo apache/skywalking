@@ -21,42 +21,26 @@ package org.apache.skywalking.apm.agent.core.naming;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 public class EndpointNamingControl implements BootService {
     private static final ILog LOGGER = LogManager.getLogger(EndpointNamingControl.class);
-    private Map<OfficialComponent, EndpointNameNamingResolver> resolvers = new HashMap<>();
+    private final List<EndpointNameNamingResolver> resolvers = new LinkedList<>();
 
     public void addResolver(EndpointNameNamingResolver resolver) {
         if (resolver == null) {
             return;
         }
-        resolvers.put(resolver.component(), resolver);
-    }
-
-    public void addNamingRule(NamingRule namingRule) {
-
-        OfficialComponent component = namingRule.getComponent();
-        EndpointNameNamingResolver resolver = resolvers.get(component);
-        if (resolver == null) {
-            LOGGER.warn("can not find endpoint naming resolver for official component {}, make sure you have this resolver plugin", component.getName());
-            return;
-        }
-        try {
-            resolver.addRule(namingRule);
-        } catch (Throwable t) {
-            LOGGER.error(t, "accept naming rule error {}", namingRule);
-        }
+        resolvers.add(resolver);
     }
 
     public String resolve(SpanOutline spanOutline) {
         if (spanOutline == null) {
             return null;
         }
-        for (EndpointNameNamingResolver resolver : resolvers.values()) {
+        for (EndpointNameNamingResolver resolver : resolvers) {
             String result = null;
             try {
                 result = resolver.resolve(spanOutline);

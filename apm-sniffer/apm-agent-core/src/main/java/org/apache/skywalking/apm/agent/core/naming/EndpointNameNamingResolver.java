@@ -18,14 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.naming;
 
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
-
 public interface EndpointNameNamingResolver {
 
     String resolve(SpanOutline spanOutline);
-
-    void addRule(NamingRule namingRule);
-
-    OfficialComponent component();
 
 }

@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.spring.mvc.naming;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class PatternsRequestCondition {
@@ -28,20 +27,9 @@ public class PatternsRequestCondition {
     private Set<String> patterns;
     private PathMatcher pathMatcher;
 
-    public PatternsRequestCondition(Set<String> basePath, Set<String> patterns) {
+    public PatternsRequestCondition(Set<String> patterns) {
         pathMatcher = new AntPathMatcher();
-        if (basePath == null || basePath.isEmpty()) {
-            this.patterns = patterns;
-            return;
-        }
-        //org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.combine
-        Set<String> result = new LinkedHashSet<>();
-        for (String pattern1 : basePath) {
-            for (String pattern2 : patterns) {
-                result.add(this.pathMatcher.combine(pattern1, pattern2));
-            }
-        }
-        this.patterns = result;
+        this.patterns = patterns;
     }
 
     public String match(String lookupPath) {

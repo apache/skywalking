@@ -18,22 +18,22 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.naming;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class RequestMethodsRequestCondition {
     private List<String> methods;
     private final String result;
 
-    public RequestMethodsRequestCondition(String[] methods) {
+    public RequestMethodsRequestCondition(Set<String> methods) {
         this.methods = new LinkedList<>();
-        this.methods.addAll(Arrays.asList(methods));
+        this.methods.addAll(methods);
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        for (int i = 0; i < methods.length; i++) {
-            sb.append(methods[i].toUpperCase());
-            if (methods.length > (i + 1)) {
+        for (int i = 0; i < this.methods.size(); i++) {
+            sb.append(this.methods.get(i).toUpperCase());
+            if (this.methods.size() > (i + 1)) {
                 sb.append(",");
             }
         }

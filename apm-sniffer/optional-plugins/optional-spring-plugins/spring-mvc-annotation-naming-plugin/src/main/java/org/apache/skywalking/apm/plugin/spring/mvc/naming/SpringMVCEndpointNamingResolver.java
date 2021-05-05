@@ -24,11 +24,8 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.naming.EndpointNameNamingResolver;
 import org.apache.skywalking.apm.agent.core.naming.EndpointNamingControl;
-import org.apache.skywalking.apm.agent.core.naming.NamingRule;
 import org.apache.skywalking.apm.agent.core.naming.SpanOutline;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -50,36 +47,25 @@ public class SpringMVCEndpointNamingResolver implements EndpointNameNamingResolv
         ServiceManager.INSTANCE.findService(EndpointNamingControl.class).addResolver(RESOLVER);
     }
 
-    private final MultiValueMap<String, RequestMappingInfo> directPath = new LinkedMultiValueMap<>();
-    private final List<RequestMappingInfo> mappingInfos = new LinkedList<>();
+    public static SpringMVCEndpointNamingResolver getResolver() {
+        return RESOLVER;
+    }
+
+    private final MultiValueMap<String, SimpleRequestMappingInfo> directPath = new LinkedMultiValueMap<>();
+    private final List<SimpleRequestMappingInfo> mappingInfos = new LinkedList<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     public static final String IGNORE_HTTP_STATUS = "404";
 
-    @Override
-    public void addRule(NamingRule namingRule) {
+    public void addMappingInfo(SimpleRequestMappingInfo info) {
         try {
             lock.writeLock().lock();
-            if (namingRule == null) {
+            if (info == null) {
                 return;
             }
-            Object details = namingRule.getDetails();
-            if (details == null) {
-                return;
-            }
-            if (!(details instanceof EnhancedInstance)) {
-                return;
-            }
-
-            List<RequestMappingInfo> infos = RequestMappingInfoUtil.collectRequestMappingInfo((EnhancedInstance) details);
-            if (infos == null) {
-                return;
-            }
-            for (RequestMappingInfo requestMappingInfo : infos) {
-                mappingInfos.add(requestMappingInfo);
-                Set<String> paths = requestMappingInfo.getDirectPaths();
-                if (paths != null && !paths.isEmpty()) {
-                    paths.forEach(v -> directPath.add(v, requestMappingInfo));
-                }
+            mappingInfos.add(info);
+            Set<String> paths = info.getDirectPaths();
+            if (paths != null && !paths.isEmpty()) {
+                paths.forEach(v -> directPath.add(v, info));
             }
         } finally {
             lock.writeLock().unlock();
@@ -117,14 +103,14 @@ public class SpringMVCEndpointNamingResolver implements EndpointNameNamingResolv
             String lookupPath = UrlPathHelper.getLookupPath(originName, tagsMap.get(Tags.HTTP.SERVLET_CONTEXT_PATH), tagsMap.get(Tags.HTTP.SERVLET_PATH), tagsMap.get(Tags.HTTP.SERVLET_PATH_INFO));
             String method = tagsMap.get(Tags.HTTP.METHOD);
             if (directPath.containsKey(lookupPath)) {
-                for (RequestMappingInfo info : directPath.get(lookupPath)) {
+                for (SimpleRequestMappingInfo info : directPath.get(lookupPath)) {
                     String endpointName = info.lookup(lookupPath, method);
                     if (endpointName != null) {
                         return endpointName;
                     }
                 }
             }
-            for (RequestMappingInfo info : mappingInfos) {
+            for (SimpleRequestMappingInfo info : mappingInfos) {
                 String endpointName = info.lookup(lookupPath, method);
                 if (endpointName != null) {
                     return endpointName;
@@ -135,10 +121,4 @@ public class SpringMVCEndpointNamingResolver implements EndpointNameNamingResolv
             lock.readLock().unlock();
         }
     }
-
-    @Override
-    public OfficialComponent component() {
-        return ComponentsDefine.SPRING_MVC_ANNOTATION;
-    }
-
 }

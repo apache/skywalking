@@ -18,17 +18,15 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.naming;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
-public class RequestMappingInfo {
+public class SimpleRequestMappingInfo {
     private final PatternsRequestCondition patternsRequestCondition;
     private RequestMethodsRequestCondition requestMethodsRequestCondition;
 
-    RequestMappingInfo(String[] basePath, String[] patterns, String[] method) {
-        this.patternsRequestCondition = new PatternsRequestCondition(basePath == null ? null : new HashSet<>(Arrays.asList(basePath)), new HashSet<>(Arrays.asList(patterns)));
-        if (method != null && method.length > 0) {
+    public SimpleRequestMappingInfo(Set<String> patterns, Set<String> method) {
+        this.patternsRequestCondition = new PatternsRequestCondition(patterns);
+        if (method != null && method.size() > 0) {
             this.requestMethodsRequestCondition = new RequestMethodsRequestCondition(method);
         }
     }
