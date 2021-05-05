@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,7 @@ public class MappingRegistryInterceptor implements InstanceMethodsAroundIntercep
         RequestMappingInfo requestMappingInfo = (RequestMappingInfo) allArguments[0];
         Set<String> pattern = requestMappingInfo.getPatternsCondition().getPatterns();
         Set<RequestMethod> requestMethods = requestMappingInfo.getMethodsCondition().getMethods();
-        SpringMVCEndpointNamingResolver.getResolver().addMappingInfo(new SimpleRequestMappingInfo(pattern, requestMethods.size() == 0 ? null : requestMethods.stream().map(Enum::name).collect(Collectors.toSet())));
+        SpringMVCEndpointNamingResolver.getResolver().addMappingInfo(new SimpleRequestMappingInfo(new HashSet<>(pattern), requestMethods.size() == 0 ? null : requestMethods.stream().map(Enum::name).collect(Collectors.toSet())));
     }
 
     @Override
