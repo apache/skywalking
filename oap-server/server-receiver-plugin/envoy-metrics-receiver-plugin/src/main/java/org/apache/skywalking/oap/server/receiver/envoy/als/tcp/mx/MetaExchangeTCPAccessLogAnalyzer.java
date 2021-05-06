@@ -53,7 +53,7 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
 
     @Override
     public String name() {
-        return "tcp-mx-mesh";
+        return "mx-mesh";
     }
 
     @Override

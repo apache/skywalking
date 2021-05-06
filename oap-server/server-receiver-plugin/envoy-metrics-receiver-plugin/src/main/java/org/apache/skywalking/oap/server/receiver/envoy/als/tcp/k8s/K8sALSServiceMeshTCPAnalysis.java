@@ -48,7 +48,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
 
     @Override
     public String name() {
-        return "tcp-k8s-mesh";
+        return "k8s-mesh";
     }
 
     @Override
