@@ -31,7 +31,7 @@ On Istio version 1.6.0+, if Istio is installed with [`demo` profile](https://ist
 
 - Choose an ALS analyzer. There are two available analyzers, `k8s-mesh` and `mx-mesh` for both HTTP access logs and TCP access logs.
   Set the system environment variable **SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS** and **SW_ENVOY_METRIC_ALS_TCP_ANALYSIS**
-  such as `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh`, `SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=k8s-mesh`
+  such as `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=mx-mesh`, `SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=mx-mesh`
   or in the `application.yaml` to activate the analyzer. For more about the analyzers, see [SkyWalking ALS Analyzers](#skywalking-als-analyzers)
 
    ```yaml
@@ -63,13 +63,13 @@ helm repo add elastic https://helm.elastic.co
 helm dep up skywalking
 
 helm install 8.1.0 skywalking -n istio-system \
-  --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
-  --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=k8s-mesh \
+  --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=mx-mesh \
+  --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=mx-mesh \
   --set fullnameOverride=skywalking \
   --set oap.envoy.als.enabled=true
 ```
 
-You can use `kubectl -n istio-system logs -l app=skywalking | grep "K8sALSServiceMeshHTTPAnalysis"` to ensure OAP ALS `k8s-mesh` analyzer has been activated.
+You can use `kubectl -n istio-system logs -l app=skywalking | grep "K8sALSServiceMeshHTTPAnalysis"` to ensure OAP ALS `mx-mesh` analyzer has been activated.
 
 ## SkyWalking ALS Analyzers
 
