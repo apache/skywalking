@@ -33,6 +33,7 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
     private boolean acceptMetricsService = false;
     private String alsHTTPAnalysis;
+    private String alsTCPAnalysis;
     @Getter
     private String k8sServiceNameRule;
 
@@ -43,6 +44,13 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
             return Collections.emptyList();
         }
         return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    }
+
+    public List<String> getAlsTCPAnalysis() {
+        if (Strings.isNullOrEmpty(alsTCPAnalysis)) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(alsTCPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
     }
 
     public List<Rule> rules() throws ModuleStartException {

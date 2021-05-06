@@ -234,6 +234,8 @@ public class TelemetryDataDispatcher {
                 return RequestType.gRPC;
             case HTTP:
                 return RequestType.HTTP;
+            case TCP:
+                return RequestType.TCP;
             case UNRECOGNIZED:
             default:
                 return RequestType.RPC;
@@ -248,6 +250,9 @@ public class TelemetryDataDispatcher {
             case HTTP:
                 // HTTP in component-libraries.yml
                 return 49;
+            case TCP:
+                // TCP in component-libraries.yml
+                return 110;
             case UNRECOGNIZED:
             default:
                 // RPC in component-libraries.yml

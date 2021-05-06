@@ -264,7 +264,7 @@ public class K8SServiceRegistry {
                      .collect(Collectors.toList());
     }
 
-    protected ServiceMetaInfo findService(final String ip) {
+    public ServiceMetaInfo findService(final String ip) {
         final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
         if (isNull(service)) {
             log.debug("Unknown ip {}, ip -> service is null", ip);
@@ -311,7 +311,7 @@ public class K8SServiceRegistry {
         });
     }
 
-    protected boolean isEmpty() {
+    public boolean isEmpty() {
         return ipServiceMetaInfoMap.isEmpty();
     }
 }

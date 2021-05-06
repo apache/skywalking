@@ -327,6 +327,7 @@ envoy-metric:
   default:
     acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
+    alsTCPAnalysis: ${SW_ENVOY_METRIC_ALS_TCP_ANALYSIS:""}
     # `k8sServiceNameRule` allows you to customize the service name in ALS via Kubernetes metadata,
     # the available variables are `pod`, `service`, f.e., you can use `${service.metadata.name}-${pod.metadata.labels.version}`
     # to append the version number to the service name.

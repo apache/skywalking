@@ -359,6 +359,9 @@ seata:
 MyBatis:
   id: 109
   languages: Java
+tcp:
+  id: 110
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
