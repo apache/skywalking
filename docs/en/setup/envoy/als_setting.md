@@ -1,6 +1,6 @@
 # Observe Service Mesh through ALS
 
-[Envoy Access Log Service (ALS)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) provides
+[Envoy Access Log Service (ALS)](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/service/accesslog/v2/als.proto) provides
 full logs about RPC routed, including HTTP and TCP.
 
 ## Background
