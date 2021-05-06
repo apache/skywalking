@@ -29,8 +29,9 @@ On Istio version 1.6.0+, if Istio is installed with [`demo` profile](https://ist
     
 - Activate SkyWalking [Envoy Receiver](../backend/backend-receivers.md). This is activated by default. 
 
-- Choose an ALS analyzer. There are two available analyzers, `k8s-mesh` and `mx-mesh`.
-  Set the system environment variable **SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS** such as `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh`
+- Choose an ALS analyzer. There are two available analyzers, `k8s-mesh` and `mx-mesh` for both HTTP access logs and TCP access logs.
+  Set the system environment variable **SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS** and **SW_ENVOY_METRIC_ALS_TCP_ANALYSIS**
+  such as `SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh`, `SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=k8s-mesh`
   or in the `application.yaml` to activate the analyzer. For more about the analyzers, see [SkyWalking ALS Analyzers](#skywalking-als-analyzers)
 
    ```yaml
@@ -39,6 +40,7 @@ On Istio version 1.6.0+, if Istio is installed with [`demo` profile](https://ist
      default:
        acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
        alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""} # Setting the system env variable would override this. 
+       alsTCPAnalysis: ${SW_ENVOY_METRIC_ALS_TCP_ANALYSIS:""}
    ```
 
    To use multiple analyzers as a fallback，please use `,` to concatenate.
@@ -62,6 +64,7 @@ helm dep up skywalking
 
 helm install 8.1.0 skywalking -n istio-system \
   --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
+  --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=k8s-mesh \
   --set fullnameOverride=skywalking \
   --set oap.envoy.als.enabled=true
 ```
