@@ -24,7 +24,7 @@ rules:
           abort {}
         }
         extractor {
-          tag 'status.code': parsed?.response?.responseCode as int
+          tag 'status.code': parsed?.response?.responseCode as Integer
           tag 'response.flag': parsed?.commonProperties?.responseFlags?.keySet()
         }
         sink {

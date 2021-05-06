@@ -16,6 +16,9 @@
  *
  */
 
+// For services using protocols HTTP 1/2, gRPC, RPC, etc., the cpm metrics means "calls per minute",
+// for services that are built on top of TCP, the cpm means "packages per minute".
+
 // All scope metrics
 all_percentile = from(All.latency).percentile(10);  // Multiple values including p50, p75, p90, p95, p99
 all_heatmap = from(All.latency).histogram(100, 20);
@@ -68,18 +71,3 @@ database_access_resp_time = from(DatabaseAccess.latency).longAvg();
 database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
-
-// TCP services' metrics
-service_throughput_received = from(Service.tcpInfo.receivedBytes).filter(type == RequestType.TCP).longAvg();
-service_throughput_sent = from(Service.tcpInfo.sentBytes).filter(type == RequestType.TCP).longAvg();
-service_relation_client_received = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_relation_client_sent = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_relation_server_received = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_relation_server_sent = from(ServiceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
-
-service_instance_throughput_received = from(ServiceInstance.tcpInfo.receivedBytes).filter(type == RequestType.TCP).longAvg();
-service_instance_throughput_sent = from(ServiceInstance.tcpInfo.sentBytes).filter(type == RequestType.TCP).longAvg();
-service_instance_relation_client_received = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_instance_relation_client_sent = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_instance_relation_server_received = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_instance_relation_server_sent = from(ServiceInstanceRelation.tcpInfo.sentBytes).filter(type == RequestType.TCP).filter(detectPoint == DetectPoint.SERVER).longAvg();
