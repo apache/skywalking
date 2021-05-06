@@ -127,6 +127,7 @@ public class KafkaProducerManager implements BootService, Runnable {
             producer = new KafkaProducer<>(properties, new StringSerializer(), new BytesSerializer());
         } catch (Exception e) {
             LOGGER.error(e, "connect to kafka cluster '{}' failed", KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
+            return;
         }
         //notify listeners to send data if no exception been throw
         notifyListeners(KafkaConnectionStatus.CONNECTED);

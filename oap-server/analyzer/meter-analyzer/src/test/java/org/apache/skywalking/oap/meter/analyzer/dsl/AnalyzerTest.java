@@ -77,10 +77,10 @@ public class AnalyzerTest {
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
             "http_success_request", SampleFamilyBuilder.newBuilder(
                 Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
             ).build()
         );
 
@@ -120,10 +120,10 @@ public class AnalyzerTest {
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
             "http_success_request", SampleFamilyBuilder.newBuilder(
                 Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
             ).build()
         );
 
@@ -170,20 +170,24 @@ public class AnalyzerTest {
                 Sample.builder()
                       .labels(of("le", "0.025", "service", "service1", "instance", "instance1"))
                       .value(100)
+                      .name("instance_cpu_percentage")
                       .build(),
                 Sample.builder()
                       .labels(of("le", "1.25", "service", "service1", "instance", "instance1"))
                       .value(300)
+                      .name("instance_cpu_percentage")
                       .build(),
                 Sample.builder()
                       .labels(of("le", "0.75", "service", "service1", "instance", "instance2"))
                       .value(122)
+                      .name("instance_cpu_percentage")
                       .build(),
                 Sample.builder()
                       .labels(of("le", String.valueOf(Integer.MAX_VALUE), "service", "service1", "instance",
                                  "instance2"
                       ))
                       .value(410)
+                      .name("instance_cpu_percentage")
                       .build()
             ).build()
         );

@@ -21,10 +21,11 @@ package test.apache.skywalking.apm.testcase.implinterface;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+@RequestMapping("/impl")
 public interface TestCaseInterface {
-    @RequestMapping("/impl/requestmapping")
+    @RequestMapping(path = "/requestmapping")
     String implRequestMappingAnnotationTestCase();
 
-    @GetMapping("/impl/restmapping")
+    @GetMapping("/restmapping")
     String implRestAnnotationTestCase();
 }

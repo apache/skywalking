@@ -63,9 +63,9 @@ public class TagFilterTest {
             },
             {
                 "single-value",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).build()).build()),
+                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).name("instance_cpu_percentage").build()).build()),
                 "instance_cpu_percentage",
-                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).build()).build()),
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).name("instance_cpu_percentage").build()).build()),
                 false,
             },
         });

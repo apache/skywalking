@@ -19,21 +19,19 @@
 package org.apache.skywalking.apm.plugin.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- *
- **/
-public class ConsumerConstructorInterceptor implements InstanceConstructorInterceptor {
+public class ConstructorWithConsumerConfigInterceptPoint extends AbstractConstructorInterceptPoint<ConsumerConfig> {
 
     @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        ConsumerConfig config = (ConsumerConfig) allArguments[0];
-        // set the bootstrap server address
+    protected ConsumerEnhanceRequiredInfo resolveConsumerEnhanceRequiredInfo(ConsumerConfig configArgument) {
         ConsumerEnhanceRequiredInfo requiredInfo = new ConsumerEnhanceRequiredInfo();
-        requiredInfo.setBrokerServers(config.getList("bootstrap.servers"));
-        requiredInfo.setGroupId(config.getString("group.id"));
-        objInst.setSkyWalkingDynamicField(requiredInfo);
+
+        if (configArgument != null) {
+            // set the bootstrap server address
+            requiredInfo.setBrokerServers(configArgument.getList("bootstrap.servers"));
+            requiredInfo.setGroupId(configArgument.getString("group.id"));
+        }
+
+        return requiredInfo;
     }
 }

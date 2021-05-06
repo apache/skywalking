@@ -46,6 +46,7 @@
 - mongodb-3.x
 - mongodb-4.x
 - motan-0.x
+- mybatis-3.x
 - mysql-5.x
 - mysql-6.x
 - mysql-8.x
@@ -116,3 +117,4 @@
 - mssql-jdbc
 - apache-cxf-3.x
 - jsonrpc4j
+- spring-cloud-gateway-3.x
