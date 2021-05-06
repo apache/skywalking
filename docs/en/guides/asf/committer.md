@@ -1,25 +1,20 @@
 # Apache SkyWalking committer
-SkyWalking Project Management Committee(PMC) takes the responsibilities to assess the contributions of candidates.
+SkyWalking Project Management Committee (PMC) is responsible for assessing the contributions of candidates.
 
-In the SkyWalking, like many Apache projects, we treat contributions including, but not limited to, code contributions.
-Such as writing blog, guiding new users, give public speak, prompting project in various ways, are all treated as significant 
-contributions.
+Like many Apache projects, SkyWalking welcome all contributions, including code contributions, blog entries, guides for new users, public speeches, and enhancement of the project in various ways.
 
 ## Committer
 ### New committer nomination
-In the SkyWalking, **new committer nomination** could only be started by existing PMC members officially. The new contributor
-could contact any existing PMC member if he/she feels he/she is qualified. Talk with the PMC member, if some members agree,
-they could start the process.
+In SkyWalking, **new committer nomination** could only be officially started by existing PMC members. If a new committer feels that he/she is qualified, he/she should contact any existing PMC member and discuss. If this is agreed among some members of the PMC, the process will kick off.
 
-The following steps are recommended, and could only be started by existing PMC member.
-1. Send the `[DISCUSS] Promote xxx as new committer` mail to `private@skywalking.a.o`. List the important contributions of the candidates,
-in order to help the PMC members supporting your proposal.
-1. Keep discussion open in more than 3 days, but not more than 1 week, unless there is any explicit objection or concern.
-1. Send the `[VOTE] Promote xxx as new committer` mail to `private@skywalking.a.o`, when the PMC seems to agree the proposal.
-1. Keep vote more than 3 days, but not more than 1 week. Consider the result as `Consensus Approval` if there 3 +1 votes and
-+1 votes > -1 votes
-1. Send the `[RESULT][VOTE] Promote xxx as new committer` mail to `private@skywalking.a.o`, and list the vote detail including
-the voters.
+The following steps are recommended (to be initiated only by an existing PMC member):
+1. Send a mail titled `[DISCUSS] Promote xxx as new committer` to `private@skywalking.a.o`. List the important contributions of the candidate,
+so you could gather support from other PMC members for your proposal.
+1. Keep the discussion open for more than 3 days but no more than 1 week, unless there is any express objection or concern.
+1. If the PMC generally agrees to the proposal, send a mail titled `[VOTE] Promote xxx as new committer` to `private@skywalking.a.o`.
+1. Keep the voting process open for more than 3 days, but no more than 1 week. Consider the result as `Consensus Approval` if there are three +1 votes and
++1 votes > -1 votes.
+1. Send a mail titled `[RESULT][VOTE] Promote xxx as new committer` to `private@skywalking.a.o`, and list the voting details, including who the voters are.
 
 ### Invite new committer
 The PMC member, who start the promotion, takes the responsibilities to send the invitation to new committer and guide him/her to set
