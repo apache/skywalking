@@ -22,6 +22,7 @@ Release Notes.
 * fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface.
 * Add an optional agent plugin to support mybatis.
 * Add `spring-cloud-gateway-3.x` optional plugin.
+* Add `okhttp-4.x` plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
