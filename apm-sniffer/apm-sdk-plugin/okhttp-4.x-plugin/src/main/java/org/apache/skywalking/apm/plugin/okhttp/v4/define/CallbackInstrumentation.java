@@ -16,51 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3.define;
+package org.apache.skywalking.apm.plugin.okhttp.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
-
-    /**
-     * Enhance class.
-     */
-    private static final String ENHANCE_CLASS = "okhttp3.RealCall";
-
-    /**
-     * Intercept class.
-     */
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.okhttp.common.RealCallInterceptor";
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
-    }
-
+public class CallbackInstrumentation extends AbstractOkhttpInstrumentation {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
-                }
-
-                @Override
-                public String getConstructorInterceptor() {
-                    return INTERCEPT_CLASS;
-                }
-            }
-        };
+        return new ConstructorInterceptPoint[0];
     }
 
     @Override
@@ -69,12 +39,12 @@ public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
+                    return named("onFailure");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.OnFailureInterceptor";
                 }
 
                 @Override
@@ -85,12 +55,12 @@ public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("enqueue").and(takesArguments(1));
+                    return named("onResponse");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.common.EnqueueInterceptor";
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.OnResponseInterceptor";
                 }
 
                 @Override
@@ -99,5 +69,10 @@ public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
                 }
             }
         };
+    }
+
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byHierarchyMatch(new String[] {"okhttp3.Callback"});
     }
 }

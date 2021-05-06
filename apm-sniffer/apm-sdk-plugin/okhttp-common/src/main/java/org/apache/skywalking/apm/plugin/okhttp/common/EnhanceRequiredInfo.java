@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3;
+package org.apache.skywalking.apm.plugin.okhttp.common;
 
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

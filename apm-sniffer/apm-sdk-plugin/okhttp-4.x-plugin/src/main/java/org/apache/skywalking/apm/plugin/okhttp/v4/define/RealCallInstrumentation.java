@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3.define;
+package org.apache.skywalking.apm.plugin.okhttp.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -34,7 +34,7 @@ public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
     /**
      * Enhance class.
      */
-    private static final String ENHANCE_CLASS = "okhttp3.RealCall";
+    private static final String ENHANCE_CLASS = "okhttp3.internal.connection.RealCall";
 
     /**
      * Intercept class.
