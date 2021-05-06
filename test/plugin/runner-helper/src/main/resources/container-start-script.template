@@ -49,6 +49,7 @@ if [[ -z ${container_name} ]]; then
     status=1
 else
     [[ $status -ne 0 ]] && docker logs ${container_name} >&2
+    mkdir ${SCENARIO_HOME}/logs
     docker logs ${container_name} >${SCENARIO_HOME}/logs/container.log
     docker container rm -f $container_name
 fi
