@@ -55,9 +55,5 @@ metricsRules:
   - name: worker_threads_max
     exp: server_concurrency.max(['cluster', 'instance'])
 
-  - name: connection_established_duration_percentile
-    exp: cluster_upstream_cx_connect_ms.sum(['le', 'cluster', 'instance']).increase('PT1M').histogram().histogram_percentile([50,70,90,95,99])
-
-
   - name: bug_failures
     exp: server_envoy_bug_failures
