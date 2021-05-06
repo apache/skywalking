@@ -76,6 +76,10 @@ public class ServiceInstance extends Source {
     @Setter
     private SideCar sideCar = new SideCar();
 
+    @Getter
+    @Setter
+    private TCPInfo tcpInfo = new TCPInfo();
+
     @Override
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, nodeType);

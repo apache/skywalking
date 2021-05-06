@@ -18,17 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-/**
- * RPC request type.
- */
-public enum RequestType {
-    DATABASE,
-    HTTP,
-    RPC,
-    gRPC,
-    /**
-     * Logic request only.
-     */
-    LOGIC,
-    TCP
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class TCPInfo {
+    @Getter
+    @Setter
+    private long receivedBytes;
+
+    @Getter
+    @Setter
+    private long sentBytes;
 }
