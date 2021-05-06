@@ -23,6 +23,9 @@ on:
       - '!**.md'
   schedule:
     - cron: '0 18 * * *'
+  push:
+    branches:
+      - mytest
 
 env:
   SKIP_TEST: true
