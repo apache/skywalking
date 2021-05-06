@@ -16,10 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3;
+package org.apache.skywalking.apm.plugin.okhttp.common;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -34,6 +32,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * {@link AsyncCallInterceptor} get the `EnhanceRequiredInfo` instance from `SkyWalkingDynamicField` and then put it

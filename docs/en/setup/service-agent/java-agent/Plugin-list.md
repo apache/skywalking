@@ -54,6 +54,7 @@
 - nutz-http-1.x
 - nutz-mvc-annotation-1.x
 - okhttp-3.x
+- okhttp-4.x
 - play-2.x
 - postgresql-8.x
 - pulsar

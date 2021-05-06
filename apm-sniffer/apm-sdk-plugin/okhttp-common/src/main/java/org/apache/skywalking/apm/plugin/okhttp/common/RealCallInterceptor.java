@@ -16,10 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3;
+package org.apache.skywalking.apm.plugin.okhttp.common;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -36,6 +34,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 /**
  * {@link RealCallInterceptor} intercept the synchronous http calls by the discovery of okhttp.
  */
@@ -47,9 +48,9 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
     }
 
     /**
-     * Get the {@link okhttp3.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host,
-     * port, kind, component, url from {@link okhttp3.Request}. Through the reflection of the way, set the http header
-     * of context data into {@link okhttp3.Request#headers}.
+     * Get the {@link Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host,
+     * port, kind, component, url from {@link Request}. Through the reflection of the way, set the http header
+     * of context data into {@link Request#headers}.
      *
      * @param result change this result, if you want to truncate the method.
      */

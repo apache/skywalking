@@ -39,6 +39,8 @@
         <module>mongodb-4.x-plugin</module>
         <module>feign-default-http-9.x-plugin</module>
         <module>okhttp-3.x-plugin</module>
+        <module>okhttp-4.x-plugin</module>
+        <module>okhttp-common</module>
         <module>spring-plugins</module>
         <module>struts2-2.x-plugin</module>
         <module>nutz-plugins</module>
