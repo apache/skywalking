@@ -16,13 +16,14 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.okhttp.v3;
+package org.apache.skywalking.apm.plugin.okhttp.common;
 
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+
+import java.lang.reflect.Method;
 
 public class OnFailureInterceptor implements InstanceMethodsAroundInterceptor {
     @Override

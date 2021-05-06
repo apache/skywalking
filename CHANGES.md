@@ -21,6 +21,8 @@ Release Notes.
 * Add `MessageListener` enhancement in pulsar plugin.
 * fix a bug that spring-mvc set an error endpoint name if the controller class annotation implements an interface.
 * Add an optional agent plugin to support mybatis.
+* Add `spring-cloud-gateway-3.x` optional plugin.
+* Add `okhttp-4.x` plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -41,7 +43,8 @@ Release Notes.
 * Add tooltip for dashboard component.
 * Fix style of endpoint dependency.
 * Support search and visualize alarms with tags.
-* Update configuration on dashboard.
+* Fix configurations on dashboard.
+* Support to configure the maximum number of displayed items.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
