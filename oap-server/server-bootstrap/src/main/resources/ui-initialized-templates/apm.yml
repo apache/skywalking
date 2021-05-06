@@ -236,7 +236,8 @@ templates:
                   "metricName": "service_throughput_received,service_throughput_sent",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
-                  "unit": "Bytes"
+                  "unit": "Bytes",
+                  "tips": "This metrics is only avaible for TCP services"
                 },
                 {
                   "width": "3",
