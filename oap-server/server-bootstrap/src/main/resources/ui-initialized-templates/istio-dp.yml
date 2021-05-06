@@ -58,7 +58,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "envoy_total_connections,envoy_active_connections,envoy_parent_connections_used",
+                  "metricName": "envoy_total_connections,envoy_total_connections_used,envoy_parent_connections_used",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine"
                 },

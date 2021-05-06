@@ -16,6 +16,29 @@
 expSuffix: tag({tags -> tags.app = "istio-dp::" + tags.app}).service(['app']).instance(['app'], ['kubernetes_pod_name'])
 metricPrefix: envoy
 metricsRules:
+  # memory
+  - name: heap_memory_used
+    exp: envoy_server_memory_heap_size.sum(['app', 'kubernetes_pod_name'])
+  - name: heap_memory_max_used
+    exp: envoy_server_memory_heap_size.max(['app', 'kubernetes_pod_name'])
+
+  - name: memory_allocated
+    exp: envoy_server_memory_allocated.sum(['app', 'kubernetes_pod_name'])
+  - name: memory_allocated_max
+    exp: envoy_server_memory_allocated.max(['app', 'kubernetes_pod_name'])
+
+  - name: memory_physical_size
+    exp: envoy_server_memory_physical_size.sum(['app', 'kubernetes_pod_name'])
+  - name: memory_physical_size_max
+    exp: envoy_server_memory_physical_size.max(['app', 'kubernetes_pod_name'])
+
+  # Concurrency
+  - name: worker_threads
+    exp: envoy_server_concurrency.sum(['app', 'kubernetes_pod_name'])
+  - name: worker_threads_max
+    exp: envoy_server_concurrency.max(['app', 'kubernetes_pod_name'])
+
+  # Requests
   - name: request_reset_remote
     exp: envoy_cluster_upstream_rq_rx_reset.sum(['app', 'kubernetes_pod_name'])
   - name: request_reset_local
@@ -31,10 +54,17 @@ metricsRules:
   - name: request_retry_count_success
     exp: envoy_cluster_upstream_rq_retry_success.sum(['app', 'kubernetes_pod_name'])
 
+  # Connections
   - name: total_connections
     exp: envoy_cluster_upstream_cx_total.sum(['app', 'kubernetes_pod_name'])
-  - name: active_connections # total_connections_used
-    exp: envoy_cluster_upstream_cx_active.sum(['app', 'kubernetes_pod_name'])
+#  - name: total_connections_used
+#    exp: envoy_server_total_connections.sum(['app', 'kubernetes_pod_name'])
+  - name: parent_connections_used
+    exp: envoy_server_parent_connections.max(['app', 'kubernetes_pod_name'])
 
   - name: connection_established_duration_percentile
     exp: envoy_cluster_upstream_cx_connect_ms.sum(['le', 'app', 'kubernetes_pod_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,95,99])
+
+  # Miscellaneous
+  - name: bug_failures
+    exp: envoy_server_envoy_bug_failures.sum(['app', 'kubernetes_pod_name'])
