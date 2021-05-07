@@ -38,6 +38,7 @@ Release Notes.
 * perf: use iterator.remove() to remove modulesWithoutProvider
 * Support analyzing Envoy TCP access logs and persist error TCP logs.
 * Fix: Envoy error logs are not persisted when no metrics are generated
+* Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
 
 #### UI
 * Add logo for kong plugin.
