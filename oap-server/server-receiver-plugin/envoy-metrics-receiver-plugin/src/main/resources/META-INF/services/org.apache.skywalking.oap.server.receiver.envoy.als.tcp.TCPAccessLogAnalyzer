@@ -18,3 +18,4 @@
 
 org.apache.skywalking.oap.server.receiver.envoy.als.tcp.k8s.K8sALSServiceMeshTCPAnalysis
 org.apache.skywalking.oap.server.receiver.envoy.als.tcp.mx.MetaExchangeTCPAccessLogAnalyzer
+org.apache.skywalking.oap.server.receiver.envoy.persistence.TCPLogsPersistence

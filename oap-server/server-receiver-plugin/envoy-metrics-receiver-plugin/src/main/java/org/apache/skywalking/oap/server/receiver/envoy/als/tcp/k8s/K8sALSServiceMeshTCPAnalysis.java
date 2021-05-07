@@ -24,7 +24,6 @@ import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -59,36 +58,36 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(
-        final List<ServiceMeshMetric.Builder> result,
+    public Result analysis(
+        final Result previousResult,
         final StreamAccessLogsMessage.Identifier identifier,
         final TCPAccessLogEntry entry,
         final Role role
     ) {
-        if (isNotEmpty(result)) {
-            return result;
+        if (isNotEmpty(previousResult.getMetrics())) {
+            return previousResult;
         }
         if (serviceRegistry.isEmpty()) {
-            return Collections.emptyList();
+            return previousResult;
         }
         switch (role) {
             case PROXY:
-                return analyzeProxy(entry);
+                return analyzeProxy(previousResult, entry);
             case SIDECAR:
-                return analyzeSideCar(entry);
+                return analyzeSideCar(previousResult, entry);
         }
 
-        return Collections.emptyList();
+        return previousResult;
     }
 
-    protected List<ServiceMeshMetric.Builder> analyzeSideCar(final TCPAccessLogEntry entry) {
+    protected Result analyzeSideCar(final Result previousResult, final TCPAccessLogEntry entry) {
         final AccessLogCommon properties = entry.getCommonProperties();
         if (properties == null) {
-            return Collections.emptyList();
+            return previousResult;
         }
         final String cluster = properties.getUpstreamCluster();
         if (cluster == null) {
-            return Collections.emptyList();
+            return previousResult;
         }
 
         final List<ServiceMeshMetric.Builder> sources = new ArrayList<>();
@@ -128,20 +127,20 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             sources.add(metric);
         }
 
-        return sources;
+        return Result.builder().metrics(sources).service(localService).build();
     }
 
-    protected List<ServiceMeshMetric.Builder> analyzeProxy(final TCPAccessLogEntry entry) {
+    protected Result analyzeProxy(final Result previousResult, final TCPAccessLogEntry entry) {
         final AccessLogCommon properties = entry.getCommonProperties();
         if (properties == null) {
-            return Collections.emptyList();
+            return previousResult;
         }
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
             properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
         final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
         if (downstreamLocalAddress == null || downstreamRemoteAddress == null || upstreamRemoteAddress == null) {
-            return Collections.emptyList();
+            return previousResult;
         }
 
         final List<ServiceMeshMetric.Builder> result = new ArrayList<>(2);
@@ -168,7 +167,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
         log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
         result.add(outboundMetric);
 
-        return result;
+        return Result.builder().metrics(result).service(ingress).build();
     }
 
     /**

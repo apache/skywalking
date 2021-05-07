@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.JSONLog;
@@ -30,10 +30,10 @@ import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
-import org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.TCPAccessLogAnalyzer;
+import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.TCPLogEntry2MetricsAdapter;
 
 import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
 
@@ -41,7 +41,7 @@ import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.to
  * {@code LogsPersistence} analyzes the error logs and persists them to the log system.
  */
 @Slf4j
-public class LogsPersistence implements ALSHTTPAnalysis {
+public class TCPLogsPersistence implements TCPAccessLogAnalyzer {
     private ILogAnalyzerService logAnalyzerService;
 
     @Override
@@ -60,7 +60,7 @@ public class LogsPersistence implements ALSHTTPAnalysis {
     public Result analysis(
         final Result result,
         final StreamAccessLogsMessage.Identifier identifier,
-        final HTTPAccessLogEntry entry,
+        final TCPAccessLogEntry entry,
         final Role role
     ) {
         try {
@@ -77,12 +77,12 @@ public class LogsPersistence implements ALSHTTPAnalysis {
         return prev;
     }
 
-    public LogData convertToLogData(final HTTPAccessLogEntry logEntry,
+    public LogData convertToLogData(final TCPAccessLogEntry logEntry,
                                     final Result result) throws Exception {
 
         final ServiceMetaInfo service = result.getService();
 
-        final ServiceMeshMetric.Builder metrics = new LogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
+        final ServiceMeshMetric.Builder metrics = new TCPLogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
 
         return LogData
             .newBuilder()

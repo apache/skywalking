@@ -36,7 +36,8 @@ Release Notes.
 * CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
 * Fix: MAL function would miss samples name after creating new samples.
 * perf: use iterator.remove() to remove modulesWithoutProvider
-* Support analyzing Envoy TCP access logs.
+* Support analyzing Envoy TCP access logs and persist error TCP logs.
+* Fix: Envoy error logs are not persisted when no metrics are generated
 * Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
 
 #### UI
