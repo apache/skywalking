@@ -24,6 +24,7 @@ Release Notes.
 * Add `spring-cloud-gateway-3.x` optional plugin.
 * Add `okhttp-4.x` plugin.
 * Fix NPE when thrift field is nested in plugin `thrift`
+* Fix possible NullPointerException in agent's ES plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
