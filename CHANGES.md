@@ -37,6 +37,7 @@ Release Notes.
 * Fix: MAL function would miss samples name after creating new samples.
 * perf: use iterator.remove() to remove modulesWithoutProvider
 * Support analyzing Envoy TCP access logs.
+* Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
 
 #### UI
 * Add logo for kong plugin.

@@ -38,7 +38,7 @@ elasticsearch-rest-high-level-client-6.3.2.jar
 elasticsearch-secure-sm-6.3.2.jar
 elasticsearch-x-content-6.3.2.jar
 error_prone_annotations-2.3.2.jar
-etcd4j-2.17.0.jar
+etcd4j-2.18.0.jar
 failureaccess-1.0.1.jar
 flatbuffers-java-1.12.0.jar
 freemarker-2.3.28.jar
