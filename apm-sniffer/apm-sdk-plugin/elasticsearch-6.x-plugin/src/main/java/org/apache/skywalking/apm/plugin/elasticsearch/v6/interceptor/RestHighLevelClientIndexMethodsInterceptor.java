@@ -56,19 +56,13 @@ public class RestHighLevelClientIndexMethodsInterceptor implements InstanceMetho
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            ContextManager.activeSpan().log(t);
-        }
+        ContextManager.activeSpan().log(t);
     }
 }
