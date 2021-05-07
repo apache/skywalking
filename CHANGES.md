@@ -24,6 +24,7 @@ Release Notes.
 * Add `spring-cloud-gateway-3.x` optional plugin.
 * Add `okhttp-4.x` plugin.
 * Fix bug that failed to create ExitSpan when thrift transport is not enhanced
+* Fix NPE when thrift field is nested in plugin `thrift`
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
