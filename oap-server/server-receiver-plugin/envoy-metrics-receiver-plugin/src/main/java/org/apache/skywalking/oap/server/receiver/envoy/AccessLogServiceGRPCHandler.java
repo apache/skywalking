@@ -31,7 +31,9 @@ import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
+import org.apache.skywalking.oap.server.receiver.envoy.als.AccessLogAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.TCPAccessLogAnalyzer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -129,11 +131,13 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                             StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
 
                             for (final HTTPAccessLogEntry log : logs.getLogEntryList()) {
-                                List<ServiceMeshMetric.Builder> result = new ArrayList<>();
+                                AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
                                 for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
                                     result = analysis.analysis(result, identifier, log, role);
                                 }
-                                sourceResult.addAll(result);
+                                if (CollectionUtils.isNotEmpty(result.getMetrics())) {
+                                    sourceResult.addAll(result.getMetrics());
+                                }
                             }
 
                             break;
@@ -141,11 +145,13 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                             StreamAccessLogsMessage.TCPAccessLogEntries tcpLogs = message.getTcpLogs();
 
                             for (final TCPAccessLogEntry tcpLog : tcpLogs.getLogEntryList()) {
-                                List<ServiceMeshMetric.Builder> result = new ArrayList<>();
+                                AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
                                 for (TCPAccessLogAnalyzer analyzer : envoyTCPAnalysisList) {
                                     result = analyzer.analysis(result, identifier, tcpLog, role);
                                 }
-                                sourceResult.addAll(result);
+                                if (CollectionUtils.isNotEmpty(result.getMetrics())) {
+                                    sourceResult.addAll(result.getMetrics());
+                                }
                             }
 
                             break;

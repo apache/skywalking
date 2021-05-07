@@ -24,7 +24,6 @@ import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -60,17 +59,17 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     }
 
     @Override
-    public List<ServiceMeshMetric.Builder> analysis(
-        final List<ServiceMeshMetric.Builder> result,
+    public Result analysis(
+        final Result result,
         final StreamAccessLogsMessage.Identifier identifier,
         final HTTPAccessLogEntry entry,
         final Role role
     ) {
-        if (isNotEmpty(result)) {
+        if (isNotEmpty(result.getMetrics())) {
             return result;
         }
         if (serviceRegistry.isEmpty()) {
-            return Collections.emptyList();
+            return Result.builder().build();
         }
         switch (role) {
             case PROXY:
@@ -79,17 +78,17 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
                 return analyzeSideCar(entry);
         }
 
-        return Collections.emptyList();
+        return Result.builder().build();
     }
 
-    protected List<ServiceMeshMetric.Builder> analyzeSideCar(final HTTPAccessLogEntry entry) {
+    protected Result analyzeSideCar(final HTTPAccessLogEntry entry) {
         if (!entry.hasCommonProperties()) {
-            return Collections.emptyList();
+            return Result.builder().build();
         }
         final AccessLogCommon properties = entry.getCommonProperties();
         final String cluster = properties.getUpstreamCluster();
         if (isBlank(cluster)) {
-            return Collections.emptyList();
+            return Result.builder().build();
         }
 
         final List<ServiceMeshMetric.Builder> sources = new ArrayList<>();
@@ -101,7 +100,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         final ServiceMetaInfo downstreamService = find(downstreamRemoteAddress.getSocketAddress().getAddress());
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         if (!isValid(downstreamRemoteAddress) || !isValid(downstreamLocalAddress)) {
-            return Collections.emptyList();
+            return Result.builder().build();
         }
         final ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
 
@@ -125,7 +124,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
             if (!isValid(upstreamRemoteAddress)) {
-                return sources;
+                return Result.builder().metrics(sources).service(localService).build();
             }
             final ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());
 
@@ -135,12 +134,12 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             sources.add(metric);
         }
 
-        return sources;
+        return Result.builder().metrics(sources).service(localService).build();
     }
 
-    protected List<ServiceMeshMetric.Builder> analyzeProxy(final HTTPAccessLogEntry entry) {
+    protected Result analyzeProxy(final HTTPAccessLogEntry entry) {
         if (!entry.hasCommonProperties()) {
-            return Collections.emptyList();
+            return Result.builder().build();
         }
         final AccessLogCommon properties = entry.getCommonProperties();
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
@@ -148,7 +147,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
         final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
         if (!isValid(downstreamLocalAddress) || !isValid(downstreamRemoteAddress) || !isValid(upstreamRemoteAddress)) {
-            return Collections.emptyList();
+            return Result.builder().build();
         }
 
         final List<ServiceMeshMetric.Builder> result = new ArrayList<>(2);
@@ -175,7 +174,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
         result.add(outboundMetric);
 
-        return result;
+        return Result.builder().metrics(result).service(ingress).build();
     }
 
     /**
