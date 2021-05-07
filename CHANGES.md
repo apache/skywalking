@@ -23,6 +23,7 @@ Release Notes.
 * Add an optional agent plugin to support mybatis.
 * Add `spring-cloud-gateway-3.x` optional plugin.
 * Add `okhttp-4.x` plugin.
+* Fix bug that failed to create ExitSpan when thrift transport is not enhanced
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
