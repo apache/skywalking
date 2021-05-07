@@ -43,39 +43,31 @@ public class RestHighLevelClientSearchTemplateMethodsInterceptor implements Inst
         SearchTemplateRequest searchTemplateRequest = (SearchTemplateRequest) allArguments[0];
 
         RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            AbstractSpan span = ContextManager.createExitSpan(
-                Constants.SEARCH_TEMPLATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
-            span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
+        AbstractSpan span = ContextManager.createExitSpan(
+            Constants.SEARCH_TEMPLATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
+        span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
-            Tags.DB_TYPE.set(span, DB_TYPE);
-            if (searchTemplateRequest.getRequest() != null) {
-                Tags.DB_INSTANCE.set(span, Arrays.asList(searchTemplateRequest.getRequest().indices()).toString());
-            }
-            if (TRACE_DSL) {
-                Tags.DB_STATEMENT.set(span, searchTemplateRequest.getScript());
-            }
-
-            SpanLayer.asDB(span);
+        Tags.DB_TYPE.set(span, DB_TYPE);
+        if (searchTemplateRequest.getRequest() != null) {
+            Tags.DB_INSTANCE.set(span, Arrays.asList(searchTemplateRequest.getRequest().indices()).toString());
         }
+        if (TRACE_DSL) {
+            Tags.DB_STATEMENT.set(span, searchTemplateRequest.getScript());
+        }
+
+        SpanLayer.asDB(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            ContextManager.activeSpan().log(t);
-        }
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -43,41 +43,33 @@ public class RestHighLevelClientDeleteByQueryMethodsInterceptor implements Insta
         DeleteByQueryRequest deleteByQueryRequest = (DeleteByQueryRequest) allArguments[0];
 
         RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            AbstractSpan span = ContextManager.createExitSpan(Constants.DELETE_BY_QUERY_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
-            span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
+        AbstractSpan span = ContextManager.createExitSpan(Constants.DELETE_BY_QUERY_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
+        span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
-            Tags.DB_TYPE.set(span, DB_TYPE);
-            Tags.DB_INSTANCE.set(span, Arrays.asList(deleteByQueryRequest.indices()).toString());
+        Tags.DB_TYPE.set(span, DB_TYPE);
+        Tags.DB_INSTANCE.set(span, Arrays.asList(deleteByQueryRequest.indices()).toString());
 
-            if (TRACE_DSL) {
-                if (deleteByQueryRequest.getSearchRequest() != null) {
-                    Tags.DB_STATEMENT.set(span, deleteByQueryRequest.getSearchRequest().toString());
-                } else {
-                    Tags.DB_STATEMENT.set(span, deleteByQueryRequest.toString());
-                }
+        if (TRACE_DSL) {
+            if (deleteByQueryRequest.getSearchRequest() != null) {
+                Tags.DB_STATEMENT.set(span, deleteByQueryRequest.getSearchRequest().toString());
+            } else {
+                Tags.DB_STATEMENT.set(span, deleteByQueryRequest.toString());
             }
-
-            SpanLayer.asDB(span);
         }
+
+        SpanLayer.asDB(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            ContextManager.activeSpan().log(t);
-        }
+        ContextManager.activeSpan().log(t);
     }
 }

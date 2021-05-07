@@ -48,38 +48,30 @@ public class TransportActionNodeProxyExecuteMethodsInterceptor implements Instan
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         TransportClientEnhanceInfo enhanceInfo = (TransportClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (enhanceInfo != null) {
-            ActionRequest request = (ActionRequest) allArguments[1];
-            String opType = request.getClass().getSimpleName();
-            String operationName = Constants.DB_TYPE + "/" + opType;
-            AbstractSpan span = ContextManager.createExitSpan(operationName, enhanceInfo.transportAddresses());
-            span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
-            Tags.DB_TYPE.set(span, Constants.DB_TYPE);
-            Tags.DB_INSTANCE.set(span, enhanceInfo.getClusterName());
-            span.tag(Constants.ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
-            parseRequestInfo(request, span);
+        ActionRequest request = (ActionRequest) allArguments[1];
+        String opType = request.getClass().getSimpleName();
+        String operationName = Constants.DB_TYPE + "/" + opType;
+        AbstractSpan span = ContextManager.createExitSpan(operationName, enhanceInfo.transportAddresses());
+        span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
+        Tags.DB_TYPE.set(span, Constants.DB_TYPE);
+        Tags.DB_INSTANCE.set(span, enhanceInfo.getClusterName());
+        span.tag(Constants.ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
+        parseRequestInfo(request, span);
 
-            SpanLayer.asDB(span);
-        }
+        SpanLayer.asDB(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        TransportClientEnhanceInfo enhanceInfo = (TransportClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (enhanceInfo != null) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        TransportClientEnhanceInfo enhanceInfo = (TransportClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (enhanceInfo != null) {
-            ContextManager.activeSpan().log(t);
-        }
+        ContextManager.activeSpan().log(t);
     }
 
     @Override

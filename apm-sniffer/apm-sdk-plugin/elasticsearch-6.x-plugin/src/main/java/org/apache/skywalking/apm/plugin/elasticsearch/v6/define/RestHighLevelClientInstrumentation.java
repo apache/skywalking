@@ -257,4 +257,9 @@ public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[0];
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[] {Constants.TASK_TRANSPORT_CHANNEL_WITNESS_CLASSES};
+    }
 }

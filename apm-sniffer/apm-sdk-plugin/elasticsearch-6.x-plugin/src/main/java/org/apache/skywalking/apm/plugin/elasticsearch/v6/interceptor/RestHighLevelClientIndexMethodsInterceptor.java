@@ -41,19 +41,17 @@ public class RestHighLevelClientIndexMethodsInterceptor implements InstanceMetho
         IndexRequest indexRequest = (IndexRequest) (allArguments[0]);
 
         RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
-        if (restClientEnhanceInfo != null) {
-            AbstractSpan span = ContextManager.createExitSpan(
-                Constants.INDEX_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
-            span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
+        AbstractSpan span = ContextManager.createExitSpan(
+            Constants.INDEX_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
+        span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
-            Tags.DB_TYPE.set(span, DB_TYPE);
-            Tags.DB_INSTANCE.set(span, indexRequest.index());
-            if (TRACE_DSL) {
-                Tags.DB_STATEMENT.set(span, indexRequest.toString());
-            }
-
-            SpanLayer.asDB(span);
+        Tags.DB_TYPE.set(span, DB_TYPE);
+        Tags.DB_INSTANCE.set(span, indexRequest.index());
+        if (TRACE_DSL) {
+            Tags.DB_STATEMENT.set(span, indexRequest.toString());
         }
+
+        SpanLayer.asDB(span);
     }
 
     @Override
