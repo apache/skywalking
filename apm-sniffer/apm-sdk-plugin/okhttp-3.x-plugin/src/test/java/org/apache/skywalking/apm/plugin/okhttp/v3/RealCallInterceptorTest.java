@@ -25,6 +25,7 @@ import okhttp3.Response;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.plugin.okhttp.common.RealCallInterceptor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

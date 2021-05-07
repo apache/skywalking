@@ -24,3 +24,5 @@ services:
     label: e2e::details
   - key: not null
     label: e2e::istio-ingressgateway
+  - key: not null
+    label: e2e::mongodb

@@ -41,7 +41,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
 
     public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerConfig";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ConsumerConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPT_MAP_TYPE = "java.util.Map";
+    public static final String CONSUMER_CONFIG_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ConstructorWithConsumerConfigInterceptPoint";
+    public static final String MAP_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ConstructorWithMapInterceptPoint";
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.KafkaConsumerInterceptor";
     public static final String ENHANCE_METHOD = "pollOnce";
     public static final String ENHANCE_COMPATIBLE_METHOD = "pollForFetches";
@@ -65,9 +67,21 @@ public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return CONSTRUCTOR_INTERCEPTOR_CLASS;
+                    return CONSUMER_CONFIG_CONSTRUCTOR_INTERCEPTOR_CLASS;
                 }
-            }
+            },
+              new ConstructorInterceptPoint() {
+                  @Override
+                  public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                      return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_MAP_TYPE);
+                  }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return MAP_CONSTRUCTOR_INTERCEPTOR_CLASS;
+                }
+            },
+
         };
     }
 

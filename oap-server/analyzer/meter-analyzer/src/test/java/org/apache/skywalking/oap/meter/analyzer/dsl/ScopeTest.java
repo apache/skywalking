@@ -59,11 +59,11 @@ public class ScopeTest {
             {
                 "sum_service",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['idc']).service(['idc'])",
                 false,
@@ -71,11 +71,11 @@ public class ScopeTest {
                     {
                         put(
                             MeterEntity.newService("t1"),
-                            new Sample[] {Sample.builder().labels(of()).value(200).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(200).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newService("t3"),
-                            new Sample[] {Sample.builder().labels(of()).value(54).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                     }
                 }
@@ -83,11 +83,11 @@ public class ScopeTest {
             {
                 "sum_service_labels",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['region', 'idc']).service(['idc'])",
                 false,
@@ -96,13 +96,13 @@ public class ScopeTest {
                         put(
                             MeterEntity.newService("t1"),
                             new Sample[] {
-                                Sample.builder().labels(of("region", "")).value(50).build(),
-                                Sample.builder().labels(of("region", "us")).value(150).build()
+                                Sample.builder().labels(of("region", "")).value(50).name("http_success_request").build(),
+                                Sample.builder().labels(of("region", "us")).value(150).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newService("t3"),
-                            new Sample[] {Sample.builder().labels(of("region", "cn")).value(54).build()}
+                            new Sample[] {Sample.builder().labels(of("region", "cn")).value(54).name("http_success_request").build()}
                         );
                     }
                 }
@@ -110,11 +110,11 @@ public class ScopeTest {
             {
                 "sum_service_m",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['idc', 'region']).service(['idc' , 'region'])",
                 false,
@@ -122,15 +122,15 @@ public class ScopeTest {
                     {
                         put(
                             MeterEntity.newService("t1.us"),
-                            new Sample[] {Sample.builder().labels(of()).value(150).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newService("t3.cn"),
-                            new Sample[] {Sample.builder().labels(of()).value(54).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newService("t1"),
-                            new Sample[] {Sample.builder().labels(of()).value(50).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
                 }
@@ -138,11 +138,11 @@ public class ScopeTest {
             {
                 "sum_service_endpiont",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['region', 'idc']).endpoint(['idc'] , ['region'])",
                 false,
@@ -150,15 +150,15 @@ public class ScopeTest {
                     {
                         put(
                             MeterEntity.newEndpoint("t1", "us"),
-                            new Sample[] {Sample.builder().labels(of()).value(150).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newEndpoint("t3", "cn"),
-                            new Sample[] {Sample.builder().labels(of()).value(54).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newEndpoint("t1", ""),
-                            new Sample[] {Sample.builder().labels(of()).value(50).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
                 }
@@ -167,11 +167,11 @@ public class ScopeTest {
             {
                 "sum_service_endpiont_labels",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['region', 'idc' , 'instance']).endpoint(['idc'] , ['region'])",
                 false,
@@ -180,20 +180,20 @@ public class ScopeTest {
                         put(
                             MeterEntity.newEndpoint("t1", "us"),
                             new Sample[] {
-                                Sample.builder().labels(of("instance", "")).value(50).build(),
-                                Sample.builder().labels(of("instance", "10.0.0.1")).value(100).build()
+                                Sample.builder().labels(of("instance", "")).value(50).name("http_success_request").build(),
+                                Sample.builder().labels(of("instance", "10.0.0.1")).value(100).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newEndpoint("t3", "cn"),
                             new Sample[] {
-                                Sample.builder().labels(of("instance", "")).value(51).build(),
-                                Sample.builder().labels(of("instance", "10.0.0.1")).value(3).build()
+                                Sample.builder().labels(of("instance", "")).value(51).name("http_success_request").build(),
+                                Sample.builder().labels(of("instance", "10.0.0.1")).value(3).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newEndpoint("t1", ""),
-                            new Sample[] {Sample.builder().labels(of("instance", "")).value(50).build()}
+                            new Sample[] {Sample.builder().labels(of("instance", "")).value(50).name("http_success_request").build()}
                         );
                     }
                 }
@@ -201,16 +201,18 @@ public class ScopeTest {
             {
                 "sum_service_endpiont_labels_m",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "product")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "catalog")).value(50).build(),
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "product")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "catalog")).value(50).name("http_success_request").build(),
                     Sample.builder()
                           .labels(of("idc", "t1", "region", "us", "svc", "catalog", "instance", "10.0.0.1"))
                           .value(100)
+                          .name("http_success_request")
                           .build(),
                     Sample.builder()
                           .labels(of("idc", "t3", "region", "cn", "svc", "product", "instance", "10.0.0.1"))
                           .value(3)
+                          .name("http_success_request")
                           .build()
                 ).build()),
                 "http_success_request.sum(['region', 'idc' , 'svc' , 'instance']).endpoint(['idc'] , ['region','svc'])",
@@ -220,20 +222,20 @@ public class ScopeTest {
                         put(
                             MeterEntity.newEndpoint("t1", "us.catalog"),
                             new Sample[] {
-                                Sample.builder().labels(of("instance", "")).value(50).build(),
-                                Sample.builder().labels(of("instance", "10.0.0.1")).value(100).build()
+                                Sample.builder().labels(of("instance", "")).value(50).name("http_success_request").build(),
+                                Sample.builder().labels(of("instance", "10.0.0.1")).value(100).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newEndpoint("t3", "cn.product"),
                             new Sample[] {
-                                Sample.builder().labels(of("instance", "")).value(51).build(),
-                                Sample.builder().labels(of("instance", "10.0.0.1")).value(3).build()
+                                Sample.builder().labels(of("instance", "")).value(51).name("http_success_request").build(),
+                                Sample.builder().labels(of("instance", "10.0.0.1")).value(3).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newEndpoint("t1", ""),
-                            new Sample[] {Sample.builder().labels(of("instance", "")).value(50).build()}
+                            new Sample[] {Sample.builder().labels(of("instance", "")).value(50).name("http_success_request").build()}
                         );
                     }
                 }
@@ -241,11 +243,11 @@ public class ScopeTest {
             {
                 "sum_service_instance",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['region', 'idc']).instance(['idc'] , ['region'])",
                 false,
@@ -253,15 +255,15 @@ public class ScopeTest {
                     {
                         put(
                             MeterEntity.newServiceInstance("t1", "us"),
-                            new Sample[] {Sample.builder().labels(of()).value(150).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newServiceInstance("t3", "cn"),
-                            new Sample[] {Sample.builder().labels(of()).value(54).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
                             MeterEntity.newServiceInstance("t1", ""),
-                            new Sample[] {Sample.builder().labels(of()).value(50).build()}
+                            new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
                 }
@@ -269,11 +271,11 @@ public class ScopeTest {
             {
                 "sum_service_instance_labels",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("idc", "t1")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).build(),
-                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).build(),
-                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).build()
+                    Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "svc", "catalog")).value(51).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "svc", "product")).value(50).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1")).value(3).name("http_success_request").build()
                 ).build()),
                 "http_success_request.sum(['region', 'idc' , 'instance']).instance(['idc'] , ['region'])",
                 false,
@@ -282,20 +284,20 @@ public class ScopeTest {
                         put(
                             MeterEntity.newServiceInstance("t1", "us"),
                             new Sample[] {
-                                Sample.builder().labels(of("instance", "")).value(50).build(),
-                                Sample.builder().labels(of("instance", "10.0.0.1")).value(100).build()
+                                Sample.builder().labels(of("instance", "")).value(50).name("http_success_request").build(),
+                                Sample.builder().labels(of("instance", "10.0.0.1")).value(100).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newServiceInstance("t3", "cn"),
                             new Sample[] {
-                                Sample.builder().labels(of("instance", "")).value(51).build(),
-                                Sample.builder().labels(of("instance", "10.0.0.1")).value(3).build()
+                                Sample.builder().labels(of("instance", "")).value(51).name("http_success_request").build(),
+                                Sample.builder().labels(of("instance", "10.0.0.1")).value(3).name("http_success_request").build()
                             }
                         );
                         put(
                             MeterEntity.newServiceInstance("t1", ""),
-                            new Sample[] {Sample.builder().labels(of("instance", "")).value(50).build()}
+                            new Sample[] {Sample.builder().labels(of("instance", "")).value(50).name("http_success_request").build()}
                         );
                     }
                 }

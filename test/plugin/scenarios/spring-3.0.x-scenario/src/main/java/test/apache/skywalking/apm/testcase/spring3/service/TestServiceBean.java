@@ -20,11 +20,14 @@ package test.apache.skywalking.apm.testcase.spring3.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import test.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean;
 import test.apache.skywalking.apm.testcase.spring3.component.TestComponentBean;
 
 @Service
 public class TestServiceBean {
+    public static final String URL = "http://localhost:8080/spring-3.0.x-scenario";
+
     @Autowired
     private TestComponentBean componentBean;
 
@@ -34,5 +37,11 @@ public class TestServiceBean {
     public void doSomeBusiness(String name) {
         componentBean.componentMethod(name);
         repositoryBean.doSomeStuff(name);
+    }
+
+    public void doInvokeImplCase() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getForObject(URL + "/impl/requestmapping", String.class);
+        restTemplate.getForObject(URL + "/impl/restmapping", String.class);
     }
 }
