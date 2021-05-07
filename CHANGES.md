@@ -46,6 +46,7 @@ Release Notes.
 * Support search and visualize alarms with tags.
 * Fix configurations on dashboard.
 * Support to configure the maximum number of displayed items.
+* After changing the durationTime, the topology shows the originally selected group or service.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
