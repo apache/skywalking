@@ -194,9 +194,6 @@ do
     # testcase working directory, there are logs, data and packages.
     case_work_base=${workspace}/${version}
     mkdir -p ${case_work_base}/{data,logs}
-    if [ ! -d "${SCENARIO_HOME}/logs" ]; then
-            mkdir -p ${SCENARIO_HOME}/logs
-    fi
 
     case_work_logs_dir=${case_work_base}/logs
 
@@ -223,6 +220,10 @@ do
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
+
+    if [ ! -d "${case_work_base}/logs" ]; then
+            mkdir -p ${case_work_base}/logs
+    fi
     bash ${case_work_base}/scenario.sh $debug_mode 1>${case_work_logs_dir}/${testcase_name}.log
     status=$?
     if [[ $status == 0 ]]; then
