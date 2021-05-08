@@ -31,6 +31,9 @@ else
     status=`docker wait ${container_id}`
 
     [[ $status -ne 0 ]] && docker logs ${container_id} >&2
+    if [ ! -d "${SCENARIO_HOME}/logs" ]; then
+            mkdir ${SCENARIO_HOME}/logs
+    fi
     docker logs ${container_id} >${SCENARIO_HOME}/logs/container.log
 
     docker-compose -p ${project_name} -f ${compose_file} kill

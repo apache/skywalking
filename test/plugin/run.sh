@@ -220,10 +220,6 @@ do
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
-
-    if [ ! -d "${case_work_base}/logs" ]; then
-            mkdir -p ${case_work_base}/logs
-    fi
     bash ${case_work_base}/scenario.sh $debug_mode 1>${case_work_logs_dir}/${testcase_name}.log
     status=$?
     if [[ $status == 0 ]]; then
