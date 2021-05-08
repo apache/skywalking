@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -30,7 +31,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String MYBATIS_ENTRY_METHOD_NAME = "mybatis_entry_method_name";
+    private static final String MYBATIS_ENTRY_METHOD_NAME = "mybatis_entry_method_name";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -40,7 +41,8 @@ public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInte
         if (ContextManager.isActive()) {
             lastSpan = ContextManager.activeSpan();
         }
-        if (lastSpan == null || lastSpan.getComponentId() != ComponentsDefine.MYBATIS.getId()) {
+        boolean isMyBatisEntryMethod = !(lastSpan instanceof NoopSpan) && (lastSpan == null || lastSpan.getComponentId() != ComponentsDefine.MYBATIS.getId());
+        if (isMyBatisEntryMethod) {
             AbstractSpan span = ContextManager.createLocalSpan(operationName);
             span.setComponent(ComponentsDefine.MYBATIS);
             if (allArguments != null && allArguments.length != 0) {
