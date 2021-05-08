@@ -194,6 +194,9 @@ do
     # testcase working directory, there are logs, data and packages.
     case_work_base=${workspace}/${version}
     mkdir -p ${case_work_base}/{data,logs}
+    if [ ! -d "${SCENARIO_HOME}/logs" ]; then
+            mkdir -p ${SCENARIO_HOME}/logs
+    fi
 
     case_work_logs_dir=${case_work_base}/logs
 
