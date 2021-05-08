@@ -148,6 +148,8 @@ public class TelemetryDataDispatcher {
         service.setResponseCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        service.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
+        service.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
         SOURCE_RECEIVER.receive(service);
     }
@@ -170,6 +172,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceRelation.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
+        serviceRelation.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -186,6 +190,8 @@ public class TelemetryDataDispatcher {
         serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
         serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceInstance.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
+        serviceInstance.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceInstance);
     }
@@ -208,6 +214,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
+        serviceRelation.getTcpInfo().setReceivedBytes(metrics.getTcp().getReceivedBytes());
+        serviceRelation.getTcpInfo().setSentBytes(metrics.getTcp().getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -234,6 +242,8 @@ public class TelemetryDataDispatcher {
                 return RequestType.gRPC;
             case HTTP:
                 return RequestType.HTTP;
+            case TCP:
+                return RequestType.TCP;
             case UNRECOGNIZED:
             default:
                 return RequestType.RPC;
@@ -248,6 +258,9 @@ public class TelemetryDataDispatcher {
             case HTTP:
                 // HTTP in component-libraries.yml
                 return 49;
+            case TCP:
+                // TCP in component-libraries.yml
+                return 110;
             case UNRECOGNIZED:
             default:
                 // RPC in component-libraries.yml

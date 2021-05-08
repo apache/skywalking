@@ -16,6 +16,9 @@
  *
  */
 
+// For services using protocols HTTP 1/2, gRPC, RPC, etc., the cpm metrics means "calls per minute",
+// for services that are built on top of TCP, the cpm means "packages per minute".
+
 // All scope metrics
 all_percentile = from(All.latency).percentile(10);  // Multiple values including p50, p75, p90, p95, p99
 all_heatmap = from(All.latency).histogram(100, 20);

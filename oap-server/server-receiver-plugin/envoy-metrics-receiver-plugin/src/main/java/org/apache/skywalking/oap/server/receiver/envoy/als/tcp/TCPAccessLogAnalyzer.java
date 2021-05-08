@@ -16,19 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.receiver.envoy.als.tcp;
 
-/**
- * RPC request type.
- */
-public enum RequestType {
-    DATABASE,
-    HTTP,
-    RPC,
-    gRPC,
-    /**
-     * Logic request only.
-     */
-    LOGIC,
-    TCP
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
+import org.apache.skywalking.oap.server.receiver.envoy.als.AccessLogAnalyzer;
+
+public interface TCPAccessLogAnalyzer extends AccessLogAnalyzer<TCPAccessLogEntry> {
 }

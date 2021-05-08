@@ -23,6 +23,8 @@ Release Notes.
 * Add an optional agent plugin to support mybatis.
 * Add `spring-cloud-gateway-3.x` optional plugin.
 * Add `okhttp-4.x` plugin.
+* Fix NPE when thrift field is nested in plugin `thrift`
+* Fix possible NullPointerException in agent's ES plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -34,6 +36,9 @@ Release Notes.
 * CVE: fix Jetty vulnerability. https://nvd.nist.gov/vuln/detail/CVE-2019-17638
 * Fix: MAL function would miss samples name after creating new samples.
 * perf: use iterator.remove() to remove modulesWithoutProvider
+* Support analyzing Envoy TCP access logs and persist error TCP logs.
+* Fix: Envoy error logs are not persisted when no metrics are generated
+* Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
 
 #### UI
 * Add logo for kong plugin.
@@ -45,6 +50,7 @@ Release Notes.
 * Support search and visualize alarms with tags.
 * Fix configurations on dashboard.
 * Support to configure the maximum number of displayed items.
+* After changing the durationTime, the topology shows the originally selected group or service.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.

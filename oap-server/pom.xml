@@ -84,7 +84,7 @@
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
         <curator.version>4.0.1</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
-        <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd4j.version>2.18.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
         <netty.version>4.1.42.Final</netty.version>
         <jackson-module-afterburner.version>2.9.5</jackson-module-afterburner.version>

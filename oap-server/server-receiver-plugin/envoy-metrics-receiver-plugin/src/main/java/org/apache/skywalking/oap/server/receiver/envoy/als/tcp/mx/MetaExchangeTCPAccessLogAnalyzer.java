@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
+package org.apache.skywalking.oap.server.receiver.envoy.als.tcp.mx;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.TextFormat;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -33,21 +33,20 @@ import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.mx.FieldsHelper;
+import org.apache.skywalking.oap.server.receiver.envoy.als.mx.ServiceMetaInfoAdapter;
+import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.AbstractTCPAccessLogAnalyzer;
 
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.UNKNOWN;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.DOWNSTREAM_KEY;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.UPSTREAM_KEY;
 
 @Slf4j
-public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
-
-    public static final String UPSTREAM_KEY = "wasm.upstream_peer";
-
-    public static final String DOWNSTREAM_KEY = "wasm.downstream_peer";
-
+public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyzer {
     protected String fieldMappingFile = "metadata-service-mapping.yaml";
 
     protected EnvoyMetricReceiverConfig config;
@@ -71,7 +70,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
     public Result analysis(
         final Result previousResult,
         final StreamAccessLogsMessage.Identifier identifier,
-        final HTTPAccessLogEntry entry,
+        final TCPAccessLogEntry entry,
         final Role role
     ) {
         if (isNotEmpty(previousResult.getMetrics())) {

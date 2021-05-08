@@ -16,14 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als;
+package org.apache.skywalking.oap.server.receiver.envoy.als.tcp;
 
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 @Slf4j
-public abstract class AbstractALSAnalyzer implements ALSHTTPAnalysis {
+public abstract class AbstractTCPAccessLogAnalyzer implements TCPAccessLogAnalyzer {
 
     /**
      * Create an adapter to adapt the {@link HTTPAccessLogEntry log entry} into a {@link ServiceMeshMetric.Builder}.
@@ -33,11 +35,11 @@ public abstract class AbstractALSAnalyzer implements ALSHTTPAnalysis {
      * @param targetService the target/destination service.
      * @return an adapter that adapts {@link HTTPAccessLogEntry log entry} into a {@link ServiceMeshMetric.Builder}.
      */
-    protected LogEntry2MetricsAdapter newAdapter(
-        final HTTPAccessLogEntry entry,
+    protected TCPLogEntry2MetricsAdapter newAdapter(
+        final TCPAccessLogEntry entry,
         final ServiceMetaInfo sourceService,
         final ServiceMetaInfo targetService) {
-        return new LogEntry2MetricsAdapter(entry, sourceService, targetService);
+        return new TCPLogEntry2MetricsAdapter(entry, sourceService, targetService);
     }
 
 }
