@@ -5,7 +5,7 @@ Release Notes.
 8.6.0
 ------------------
 #### Project
-
+* Add OpenSearch as storage option.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
