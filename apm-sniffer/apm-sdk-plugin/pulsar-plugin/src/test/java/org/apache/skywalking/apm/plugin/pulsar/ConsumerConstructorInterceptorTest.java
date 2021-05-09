@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.LookupService;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.conf.ConsumerConfigurationData;

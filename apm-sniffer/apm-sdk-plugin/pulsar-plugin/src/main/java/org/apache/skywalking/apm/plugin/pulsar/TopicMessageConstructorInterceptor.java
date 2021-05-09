@@ -23,17 +23,23 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * Interceptor of pulsar message constructor.
+ * Interceptor of pulsar topic message constructor.
  * <p>
  * The interceptor create {@link MessageEnhanceRequiredInfo} which is required by passing message span across
  * threads. Another purpose of this interceptor is to make {@link ClassEnhancePluginDefine} enable enhanced class
  * to implement {@link EnhancedInstance} interface. Because if {@link ClassEnhancePluginDefine} class will not create
  * SkyWalkingDynamicField without any constructor or method interceptor.
  */
-public class MessageConstructorInterceptor implements InstanceConstructorInterceptor {
+public class TopicMessageConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        objInst.setSkyWalkingDynamicField(new MessageEnhanceRequiredInfo());
+        final Object msgArgument = allArguments[2];
+        if (msgArgument instanceof EnhancedInstance) {
+            objInst.setSkyWalkingDynamicField(((EnhancedInstance) msgArgument).getSkyWalkingDynamicField());
+        } else {
+            objInst.setSkyWalkingDynamicField(new MessageEnhanceRequiredInfo());
+        }
+
     }
 }
