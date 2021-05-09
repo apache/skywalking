@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   es:
-    image: opensearch
+    image: opensearch:test
     expose:
       - 9200
     networks:

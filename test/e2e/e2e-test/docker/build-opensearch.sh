@@ -18,16 +18,10 @@
 
 set -ex
 
-cd /tmp
+wd=$(mktemp -d -t opensearch-XXXXXXXXXX) && cd "$wd"
 
-git clone https://github.com/opensearch-project/OpenSearch.git && cd OpenSearch
+curl -L https://github.com/opensearch-project/OpenSearch/archive/1.0.0-beta1.tar.gz -o opensearch.tgz
 
-git checkout 1.0.0-beta1
+tar -zxf opensearch.tgz --strip-components=1 -C .
 
-./gradlew assemble -x test
-
-cd distribution/docker/build/docker
-
-docker build . -t opensearch
-
-docker images -a
+./gradlew clean distribution:docker:assemble -x test -x javadoc
