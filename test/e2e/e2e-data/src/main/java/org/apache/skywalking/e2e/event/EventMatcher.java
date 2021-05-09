@@ -93,7 +93,7 @@ public class EventMatcher extends AbstractMatcher<Event> {
                     }
                 }
                 if (!matched) {
-                    fail("\nExpected: %s\n Actual: %s", getParameters(), event.getParameters());
+                    fail("\nEventMatcher Parameters Expected: %s\n Actual EventMatcher Parameters: %s", getParameters(), event.getParameters());
                 }
             }
         }

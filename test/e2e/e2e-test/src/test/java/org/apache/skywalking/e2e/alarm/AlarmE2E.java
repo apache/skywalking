@@ -23,6 +23,8 @@ import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.event.Event;
+import org.apache.skywalking.e2e.event.EventsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
@@ -99,10 +101,11 @@ public class AlarmE2E extends SkyWalkingTestAdapter {
 
     private void validate(String alarmFileWarn, String alarmFileCritical, String hookFile) throws Exception {
         // validate graphql
-        GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "WARNING").addTag("receivers", "lisi"));
+        final List<Event> events = graphql.events(new EventsQuery().start(startTime).end(now()).uuid("abcde").name("test link"));
+        GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "WARNING").addTag("receivers", "lisi").addEvents(events));
         LOGGER.info("alarms query: {}", alarms);
         load(alarmFileWarn).as(AlarmsMatcher.class).verify(alarms);
-        alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "CRITICAL").addTag("receivers", "zhangsan"));
+        alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "CRITICAL").addTag("receivers", "zhangsan").addEvents(events));
         LOGGER.info("alarms query: {}", alarms);
         load(alarmFileCritical).as(AlarmsMatcher.class).verify(alarms);
 

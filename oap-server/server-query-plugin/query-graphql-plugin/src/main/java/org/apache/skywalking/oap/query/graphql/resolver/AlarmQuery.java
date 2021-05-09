@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveTask;
+
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -32,26 +35,24 @@ import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.AlarmTrend;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.event.Event;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
-import org.apache.skywalking.oap.server.core.query.type.event.Events;
+import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 
 public class AlarmQuery implements GraphQLQueryResolver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlarmQuery.class);
-
     private final ModuleManager moduleManager;
     private AlarmQueryService queryService;
     private EventQueryService eventQueryService;
+    private ForkJoinPool forkJoinPool;
 
     public AlarmQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -71,12 +72,19 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return eventQueryService;
     }
 
+    private ForkJoinPool getForkJoinPool() {
+        if (forkJoinPool == null) {
+            this.forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+        }
+        return forkJoinPool;
+    }
+
     public AlarmTrend getAlarmTrend(final Duration duration) {
         return new AlarmTrend();
     }
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
-                           final Pagination paging, final List<Tag> tags) throws IOException {
+                           final Pagination paging, final List<Tag> tags) throws Throwable {
         Integer scopeId = null;
         if (scope != null) {
             scopeId = scope.getScopeId();
@@ -91,103 +99,165 @@ public class AlarmQuery implements GraphQLQueryResolver {
         }
         Alarms alarms = getQueryService().getAlarm(
                 scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
-        Events events = null;
-        try {
-            events = getEventQueryService().queryEvents(condition);
-        } catch (Throwable e) {
-            LOGGER.error(e.getMessage(), e);
-            return alarms;
-        }
-        return includeEvents2Alarms(alarms, events);
+        return includeEvents2AlarmsByCondition(alarms, condition);
     }
 
-    private Alarms includeEvents2Alarms(Alarms alarms, Events events) {
-        if (alarms.getTotal() < 1 || events.getTotal() < 1) {
+    private Alarms includeEvents2AlarmsByCondition(Alarms alarms, EventQueryCondition condition) throws Throwable {
+        if (alarms.getTotal() < 1) {
             return alarms;
         }
-        Map<String, List<Event>> mappingMap = events.getEvents().stream().collect(Collectors.groupingBy(Event::getServiceInSource));
-        alarms.getMsgs().forEach(a -> {
-            switch (a.getScopeId()) {
-                case DefaultScopeDefine.SERVICE :
-                    List<Event> serviceEvent = mappingMap.get(IDManager.ServiceID.analysisId(a.getId()).getName());
-                    if (CollectionUtils.isNotEmpty(serviceEvent)) {
-                        a.setEvents(serviceEvent);
+        SearchEventTask searchEventTask = new SearchEventTask(alarms.getMsgs(), condition);
+        ForkJoinTask<List<AlarmMessage>> queryEventTask = getForkJoinPool().submit(searchEventTask);
+        List<AlarmMessage> msgs = queryEventTask.get();
+        if (queryEventTask.isCompletedAbnormally()) {
+            Throwable exception = queryEventTask.getException();
+            if (Objects.nonNull(exception)) {
+                throw exception;
+            } else {
+                throw new RuntimeException("Unknown Exception In Current SearchEventTask!");
+            }
+        }
+        if (CollectionUtils.isNotEmpty(msgs)) {
+            Alarms results = new Alarms();
+            results.getMsgs().addAll(msgs);
+            results.setTotal(alarms.getTotal());
+            return results;
+        }
+        return alarms;
+    }
+
+    /**
+     * I/O intensive Task. Too many threads are waiting on I/0 processing.
+     */
+    class SearchEventTask extends RecursiveTask<List<AlarmMessage>> {
+        private EventQueryCondition condition;
+        private final Integer threshold = Math.min(Runtime.getRuntime().availableProcessors(), 4);
+        private List<AlarmMessage> msgs;
+
+        SearchEventTask(List<AlarmMessage> msgs, EventQueryCondition condition) {
+            this.msgs = msgs;
+            this.condition = condition;
+        }
+
+        @SneakyThrows
+        @Override
+        protected List<AlarmMessage> compute() {
+            int gap = msgs.size();
+            if (gap <= threshold) {
+                includeEvents2AlarmMsgs(this.msgs, gap, this.condition);
+                return this.msgs;
+            } else if (gap <= (threshold << 1)) {
+                int mid = gap >> 1;
+                SearchEventTask leftTask = new SearchEventTask(this.msgs.subList(0, mid), this.condition);
+                SearchEventTask rightTask = new SearchEventTask(this.msgs.subList(mid, gap), this.condition);
+                invokeAll(leftTask, rightTask);
+
+                List<AlarmMessage> leftParts = leftTask.join();
+                List<AlarmMessage> rightParts = rightTask.join();
+
+                List<AlarmMessage> results = new ArrayList<>();
+                results.addAll(leftParts);
+                results.addAll(rightParts);
+                return results;
+            } else {
+                int mid = gap >> 1;
+                int leftMid = mid >> 1;
+                int rightMid = mid + leftMid;
+
+                SearchEventTask firstTask = new SearchEventTask(this.msgs.subList(0, leftMid), this.condition);
+                SearchEventTask secondTask = new SearchEventTask(this.msgs.subList(leftMid, mid), this.condition);
+                SearchEventTask thirdTask = new SearchEventTask(this.msgs.subList(mid, rightMid), this.condition);
+                SearchEventTask fourthTask = new SearchEventTask(this.msgs.subList(rightMid, gap), this.condition);
+                invokeAll(firstTask, secondTask, thirdTask, fourthTask);
+
+                List<AlarmMessage> firstParts = firstTask.join();
+                List<AlarmMessage> secondParts = secondTask.join();
+                List<AlarmMessage> thirdParts = thirdTask.join();
+                List<AlarmMessage> fourthParts = fourthTask.join();
+
+                List<AlarmMessage> results = new ArrayList<>();
+                results.addAll(firstParts);
+                results.addAll(secondParts);
+                results.addAll(thirdParts);
+                results.addAll(fourthParts);
+                return results;
+            }
+        }
+
+        private void includeEvents2AlarmMsgs(List<AlarmMessage> msgs, int end, EventQueryCondition condition) throws Exception {
+            for (int index = 0; index < end; index++) {
+                AlarmMessage alarm = msgs.get(index);
+                List<Source> sources = constructCurrentSource(alarm);
+                List<Event> events = new ArrayList<>(sources.size());
+                if (CollectionUtils.isNotEmpty(sources)) {
+                    for (int i = 0; i < sources.size(); i++) {
+                        condition.setSource(sources.get(i));
+                        events.addAll(getEventQueryService().queryEvents(condition).getEvents());
                     }
+                    msgs.get(index).setEvents(events);
+                }
+            }
+        }
+
+        private List<Source> constructCurrentSource(AlarmMessage msg) {
+            List<Source> sources = new ArrayList<>(2);
+            switch (msg.getScopeId()) {
+                case DefaultScopeDefine.SERVICE :
+                    IDManager.ServiceID.ServiceIDDefinition serviceIdDef = IDManager.ServiceID.analysisId(msg.getId());
+                    Source serviceSource = new Source();
+                    serviceSource.setService(serviceIdDef.getName());
+                    sources.add(serviceSource);
                     break;
                 case DefaultScopeDefine.SERVICE_RELATION :
-                    List<Event> sourceServiceEvent = mappingMap.get(IDManager.ServiceID.analysisId(a.getId()));
-                    List<Event> destServiceEvent = mappingMap.get(IDManager.ServiceID.analysisId(a.getId1()));
-                    if (CollectionUtils.isNotEmpty(sourceServiceEvent)) {
-                        a.setEvents(sourceServiceEvent);
-                    }
-                    if (CollectionUtils.isNotEmpty(destServiceEvent)) {
-                        a.getEvents().addAll(destServiceEvent);
-                    }
+                    IDManager.ServiceID.ServiceIDDefinition sourceServiceIdDef = IDManager.ServiceID.analysisId(msg.getId());
+                    Source sourceSource = new Source();
+                    sourceSource.setService(sourceServiceIdDef.getName());
+                    sources.add(sourceSource);
+
+                    IDManager.ServiceID.ServiceIDDefinition destServiceIdDef = IDManager.ServiceID.analysisId(msg.getId1());
+                    Source destSource = new Source();
+                    sourceSource.setService(destServiceIdDef.getName());
+                    sources.add(destSource);
                     break;
                 case DefaultScopeDefine.SERVICE_INSTANCE :
-                    IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(a.getId());
-                    String serviceInstanceName = instanceIDDefinition.getName();
-                    String serviceName = IDManager.ServiceID.analysisId(instanceIDDefinition.getServiceId()).getName();
-                    List<Event> serviceInstanceEvent = mappingMap.get(serviceName);
-                    if (CollectionUtils.isNotEmpty(serviceInstanceEvent)) {
-                        List<Event> filterEvents = serviceInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), serviceInstanceName)).collect(Collectors.toList());
-                        a.setEvents(filterEvents);
-                    }
+                    IDManager.ServiceInstanceID.InstanceIDDefinition instanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId());
+                    Source serviceInstanceSource = new Source();
+                    serviceInstanceSource.setServiceInstance(instanceIdDef.getName());
+                    serviceInstanceSource.setService(IDManager.ServiceID.analysisId(instanceIdDef.getServiceId()).getName());
+                    sources.add(serviceInstanceSource);
                     break;
                 case DefaultScopeDefine.SERVICE_INSTANCE_RELATION :
-                    IDManager.ServiceInstanceID.InstanceIDDefinition sourceInstanceIDDefinition = IDManager.ServiceInstanceID.analysisId(a.getId());
-                    String sourceServiceInstanceName = sourceInstanceIDDefinition.getName();
-                    String sourceServiceName = IDManager.ServiceID.analysisId(sourceInstanceIDDefinition.getServiceId()).getName();
+                    IDManager.ServiceInstanceID.InstanceIDDefinition sourceInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId());
+                    Source sourceServiceInstanceSource = new Source();
+                    sourceServiceInstanceSource.setServiceInstance(sourceInstanceIdDef.getName());
+                    sourceServiceInstanceSource.setService(IDManager.ServiceID.analysisId(sourceInstanceIdDef.getServiceId()).getName());
+                    sources.add(sourceServiceInstanceSource);
 
-                    IDManager.ServiceInstanceID.InstanceIDDefinition destInstanceIDDefinition = IDManager.ServiceInstanceID.analysisId(a.getId1());
-                    String destServiceInstanceName = destInstanceIDDefinition.getName();
-                    String destServiceName = IDManager.ServiceID.analysisId(destInstanceIDDefinition.getServiceId()).getName();
-
-                    List<Event> sourceInstanceEvent = mappingMap.get(sourceServiceName);
-                    List<Event> destInstanceEvent = mappingMap.get(destServiceName);
-
-                    if (CollectionUtils.isNotEmpty(sourceInstanceEvent)) {
-                        List<Event> filterEvents = sourceInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), sourceServiceInstanceName)).collect(Collectors.toList());
-                        a.setEvents(filterEvents);
-                    }
-                    if (CollectionUtils.isNotEmpty(destInstanceEvent)) {
-                        List<Event> filterEvents = destInstanceEvent.stream().filter(e -> StringUtils.equals(e.getSource().getServiceInstance(), destServiceInstanceName)).collect(Collectors.toList());
-                        a.getEvents().addAll(filterEvents);
-                    }
+                    IDManager.ServiceInstanceID.InstanceIDDefinition destInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId1());
+                    Source destServiceInstanceSource = new Source();
+                    destServiceInstanceSource.setServiceInstance(destInstanceIdDef.getName());
+                    destServiceInstanceSource.setService(IDManager.ServiceID.analysisId(destInstanceIdDef.getServiceId()).getName());
+                    sources.add(destServiceInstanceSource);
                     break;
                 case DefaultScopeDefine.ENDPOINT :
-                    IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(a.getId());
-                    String endpointName = endpointIDDefinition.getEndpointName();
-                    String endpointServiceName = IDManager.ServiceID.analysisId(endpointIDDefinition.getServiceId()).getName();
-                    List<Event> serviceEndpointEvent = mappingMap.get(endpointServiceName);
-                    if (CollectionUtils.isNotEmpty(serviceEndpointEvent)) {
-                        List<Event> filterEvents = serviceEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), endpointName)).collect(Collectors.toList());
-                        a.setEvents(filterEvents);
-                    }
+                    IDManager.EndpointID.EndpointIDDefinition endpointIDDef = IDManager.EndpointID.analysisId(msg.getId());
+                    Source endpointSource = new Source();
+                    endpointSource.setService(IDManager.ServiceID.analysisId(endpointIDDef.getServiceId()).getName());
+                    sources.add(endpointSource);
                     break;
                 case DefaultScopeDefine.ENDPOINT_RELATION :
-                    IDManager.EndpointID.EndpointIDDefinition sourceEndpointIDDefinition = IDManager.EndpointID.analysisId(a.getId());
-                    String sourceEndpointName = sourceEndpointIDDefinition.getEndpointName();
-                    String sourceEndpointServiceName = IDManager.ServiceID.analysisId(sourceEndpointIDDefinition.getServiceId()).getName();
+                    IDManager.EndpointID.EndpointIDDefinition sourceEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId());
+                    Source sourceEndpointSource = new Source();
+                    sourceEndpointSource.setService(IDManager.ServiceID.analysisId(sourceEndpointIDDef.getServiceId()).getName());
+                    sources.add(sourceEndpointSource);
 
-                    IDManager.EndpointID.EndpointIDDefinition destEndpointIDDefinition = IDManager.EndpointID.analysisId(a.getId1());
-                    String destEndpointName = destEndpointIDDefinition.getEndpointName();
-                    String destEndpointServiceName = IDManager.ServiceID.analysisId(destEndpointIDDefinition.getServiceId()).getName();
-
-                    List<Event> sourceEndpointEvent = mappingMap.get(sourceEndpointServiceName);
-                    List<Event> destEndpointEvent = mappingMap.get(destEndpointServiceName);
-
-                    if (CollectionUtils.isNotEmpty(sourceEndpointEvent)) {
-                        List<Event> filterEvents = sourceEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), sourceEndpointName)).collect(Collectors.toList());
-                        a.setEvents(filterEvents);
-                    }
-                    if (CollectionUtils.isNotEmpty(destEndpointEvent)) {
-                        List<Event> filterEvents = destEndpointEvent.stream().filter(e -> StringUtils.equals(e.getSource().getEndpoint(), destEndpointName)).collect(Collectors.toList());
-                        a.getEvents().addAll(filterEvents);
-                    }
+                    IDManager.EndpointID.EndpointIDDefinition destEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId1());
+                    Source destEndpointSource = new Source();
+                    destEndpointSource.setService(IDManager.ServiceID.analysisId(destEndpointIDDef.getServiceId()).getName());
+                    sources.add(destEndpointSource);
                     break;
             }
-        });
-        return alarms;
+            return sources;
+        }
     }
 }

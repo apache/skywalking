@@ -18,15 +18,20 @@
 package org.apache.skywalking.e2e.alarm;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.common.KeyValue;
 import org.apache.skywalking.e2e.common.KeyValueMatcher;
+import org.apache.skywalking.e2e.event.Event;
+import org.apache.skywalking.e2e.event.EventMatcher;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.fail;
 
+@Slf4j
 @Data
 public class AlarmMatcher extends AbstractMatcher<Alarm> {
     private String startTime;
@@ -34,6 +39,7 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
     private String id;
     private String message;
     private List<KeyValueMatcher> tags;
+    private List<EventMatcher> events;
 
     @Override
     public void verify(Alarm alarm) {
@@ -53,7 +59,32 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                     }
                 }
                 if (!matched) {
-                    fail("\nExpected: %s\n Actual: %s", getTags(), alarm.getTags());
+                    fail("\nAlarmMatcher Tags Expected: %s\n Actual AlarmMatcher Tags: %s", getTags(), alarm.getTags());
+                }
+            }
+        }
+        int eventCounter = 0;
+        if (!CollectionUtils.isEmpty(getEvents())) {
+            for (final EventMatcher matcher : getEvents()) {
+                boolean matched = false;
+                for (final Event event : alarm.getEvents()) {
+                    try {
+                        if (event == null || "".equals(event.getName())) {
+                            continue;
+                        }
+                        ++eventCounter;
+                        if (!"test link".equals(event.getName())) {
+                            continue;
+                        }
+                        matcher.verify(event);
+                        matched = true;
+                    } catch (Throwable ignore) {
+                        //ignore.
+                    }
+                }
+                LOGGER.info("Actual Non-Null Event Size: {}", eventCounter);
+                if (!matched) {
+                    fail("\nAlarmMatcher Events Expected: %s\n Actual AlarmMatcher Events: %s", getEvents(), alarm.getEvents());
                 }
             }
         }

@@ -40,7 +40,7 @@ public class AlarmsMatcher {
     }
 
     public void verify(final GetAlarm alarms) {
-        LOGGER.info("alarms:{} matchers:{}", alarms, this.matchers);
+        LOGGER.info("AlarmsMatcher alarms:{} ,AlarmsMatcher matchers:{}", alarms, this.matchers);
         Assert.assertEquals(this.total, alarms.getTotal());
 
         assertThat(this.matchers).hasSameSizeAs(alarms.getMsgs());
@@ -55,7 +55,7 @@ public class AlarmsMatcher {
                 }
             }
             if (!matched) {
-                fail("\nExpected: %s\nActual: %s", this.matchers, alarms);
+                fail("\nAlarmsMatcher matchers Expected: %s\n,Actual AlarmsMatcher matchers: %s", this.matchers, alarms);
             }
         }
     }

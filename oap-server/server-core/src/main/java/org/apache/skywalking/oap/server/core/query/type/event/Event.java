@@ -58,8 +58,4 @@ public class Event {
             this.parameters = map.entrySet().stream().map(e -> new KeyValue(e.getKey(), e.getValue())).collect(Collectors.toList());
         }
     }
-    
-    public String getServiceInSource() {
-        return source.getService();
-    }
 }
