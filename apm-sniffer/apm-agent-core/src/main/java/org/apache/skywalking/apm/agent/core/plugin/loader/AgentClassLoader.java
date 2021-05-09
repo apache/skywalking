@@ -57,7 +57,7 @@ public class AgentClassLoader extends ClassLoader {
     /**
      * The default class loader for the agent.
      */
-    private static AgentClassLoader DEFAULT_LOADER;
+    private static volatile AgentClassLoader DEFAULT_LOADER;
 
     private List<File> classpath;
     private List<Jar> allJars;
