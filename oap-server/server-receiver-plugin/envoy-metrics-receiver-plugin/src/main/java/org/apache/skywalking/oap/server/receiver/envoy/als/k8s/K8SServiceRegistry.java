@@ -107,7 +107,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -141,7 +142,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -175,7 +177,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
