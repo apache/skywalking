@@ -96,7 +96,6 @@ public class PulsarConsumerListenerInterceptorTest {
         consumerEnhanceRequiredInfo.setTopic("persistent://my-tenant/my-ns/my-topic");
         consumerEnhanceRequiredInfo.setServiceUrl("pulsar://localhost:6650");
         consumerEnhanceRequiredInfo.setSubscriptionName("my-sub");
-        consumerEnhanceRequiredInfo.setHasMessageListener(true);
         msg = new MockMessage();
         msg.getMessageBuilder()
                 .addProperties(PulsarApi.KeyValue.newBuilder()

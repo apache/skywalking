@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
+import org.apache.pulsar.client.impl.TopicMessageImpl;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
@@ -34,6 +35,12 @@ public class MessageConstructorInterceptor implements InstanceConstructorInterce
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        objInst.setSkyWalkingDynamicField(new MessageEnhanceRequiredInfo());
+        final Object msgArgument = allArguments[2];
+        if (objInst instanceof TopicMessageImpl && msgArgument instanceof EnhancedInstance) {
+            objInst.setSkyWalkingDynamicField(((EnhancedInstance) msgArgument).getSkyWalkingDynamicField());
+        } else {
+            objInst.setSkyWalkingDynamicField(new MessageEnhanceRequiredInfo());
+        }
+
     }
 }
