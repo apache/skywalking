@@ -9,6 +9,7 @@ storage:
 
 Native supported storage
 - H2
+- OpenSearch
 - ElasticSearch 6, 7
 - MySQL
 - TiDB
@@ -31,14 +32,25 @@ storage:
     user: sa
 ```
 
+## OpenSearch
+
+OpenSearch storage shares the same configurations as ElasticSearch 7.
+In order to activate ElasticSearch 7 as storage, set storage provider to **elasticsearch7**.
+Please download the `apache-skywalking-bin-es7.tar.gz` if you want to use OpenSearch as storage.
+
 ## ElasticSearch
+
+**NOTICE:** Elastic announced through their blog that Elasticsearch will be moving over to a Server Side Public
+License (SSPL), which is incompatible with Apache License 2.0. This license change is effective from Elasticsearch
+version 7.11. So please choose the suitable ElasticSearch version according to your usage.
+
 - In order to activate ElasticSearch 6 as storage, set storage provider to **elasticsearch**
 - In order to activate ElasticSearch 7 as storage, set storage provider to **elasticsearch7**
 
 **Required ElasticSearch 6.3.2 or higher. HTTP RestHighLevelClient is used to connect server.**
 
-- For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz` or `apache-skywalking-bin.zip`,
-- For ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-bin-es7.tar.gz` or `apache-skywalking-bin-es7.zip`.
+- For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz`,
+- For ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-bin-es7.tar.gz`.
 
 For now, ElasticSearch 6 and ElasticSearch 7 share the same configurations, as follows:
 
