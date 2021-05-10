@@ -59,7 +59,6 @@ public class CaseController {
         String topicMultiPartition = "testMultiPartition";
 
         try {
-            createTopic(topicOnePartition, 1);
             doSendAndReceiveMessage(topicOnePartition);
 
             createTopic(topicMultiPartition, 2);
