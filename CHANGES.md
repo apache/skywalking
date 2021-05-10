@@ -5,7 +5,8 @@ Release Notes.
 8.6.0
 ------------------
 #### Project
-
+* Add OpenSearch as storage option.
+* Upgrade Kubernetes Java client dependency to 11.0.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
