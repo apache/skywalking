@@ -15,4 +15,4 @@
 # limitations under the License.
 
 mybatis-3.x=org.apache.skywalking.apm.plugin.mybatis.define.MyBatisInstrumentation
-mybatis-3.x=org.apache.skywalking.apm.plugin.mybatis.define.MyBatisSpringInstrumentation
+mybatis-3.x=org.apache.skywalking.apm.plugin.mybatis.define.MyBatisShellMethodInstrumentation

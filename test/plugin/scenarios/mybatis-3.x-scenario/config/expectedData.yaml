@@ -35,23 +35,7 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: ''}
         - {key: db.statement, value: 'insert into test.table_demo (name) values (?)'}
-      - operationName: Mysql/JDBI/Connection/close
-        operationId: 0
-        parentSpanId: 1
-        spanId: 3
-        spanLayer: Database
-        startTime: not null
-        endTime: not null
-        componentId: 33
-        isError: false
-        spanType: Exit
-        peer: mysql:3306
-        skipAnalysis: 'false'
-        tags:
-        - {key: db.type, value: sql}
-        - {key: db.instance, value: ''}
-        - {key: db.statement, value: ''}
-      - operationName: org.mybatis.spring.SqlSessionTemplate.insert(java.lang.String,java.lang.Object)
+      - operationName: org.apache.ibatis.session.defaults.DefaultSqlSession.insert(java.lang.String,java.lang.Object)
         operationId: 0
         parentSpanId: 0
         spanId: 1
@@ -65,6 +49,22 @@ segmentItems:
         skipAnalysis: 'false'
         tags:
         - {key: mybatis.mapper, value: test.apache.skywalking.apm.testcase.mybatis.mapper.DemoMapper.insert}
+      - operationName: Mysql/JDBI/Connection/close
+        operationId: 0
+        parentSpanId: 0
+        spanId: 3
+        spanLayer: Database
+        startTime: not null
+        endTime: not null
+        componentId: 33
+        isError: false
+        spanType: Exit
+        peer: mysql:3306
+        skipAnalysis: 'false'
+        tags:
+          - {key: db.type, value: sql}
+          - {key: db.instance, value: ''}
+          - {key: db.statement, value: ''}
       - operationName: Mysql/JDBI/PreparedStatement/execute
         operationId: 0
         parentSpanId: 4
@@ -81,23 +81,7 @@ segmentItems:
         - {key: db.type, value: sql}
         - {key: db.instance, value: ''}
         - {key: db.statement, value: 'insert into test.table_demo (name) values (?)'}
-      - operationName: Mysql/JDBI/Connection/close
-        operationId: 0
-        parentSpanId: 4
-        spanId: 6
-        spanLayer: Database
-        startTime: not null
-        endTime: not null
-        componentId: 33
-        isError: false
-        spanType: Exit
-        peer: mysql:3306
-        skipAnalysis: 'false'
-        tags:
-        - {key: db.type, value: sql}
-        - {key: db.instance, value: ''}
-        - {key: db.statement, value: ''}
-      - operationName: org.mybatis.spring.SqlSessionTemplate.insert(java.lang.String,java.lang.Object)
+      - operationName: org.apache.ibatis.session.defaults.DefaultSqlSession.insert(java.lang.String,java.lang.Object)
         operationId: 0
         parentSpanId: 0
         spanId: 4
@@ -111,6 +95,22 @@ segmentItems:
         skipAnalysis: 'false'
         tags:
         - {key: mybatis.mapper, value: test.apache.skywalking.apm.testcase.mybatis.mapper.DemoMapper.insert}
+      - operationName: Mysql/JDBI/Connection/close
+        operationId: 0
+        parentSpanId: 0
+        spanId: 6
+        spanLayer: Database
+        startTime: not null
+        endTime: not null
+        componentId: 33
+        isError: false
+        spanType: Exit
+        peer: mysql:3306
+        skipAnalysis: 'false'
+        tags:
+        - {key: db.type, value: sql}
+        - {key: db.instance, value: ''}
+        - {key: db.statement, value: ''}
       - operationName: /case/mybatis-case
         operationId: 0
         parentSpanId: -1
