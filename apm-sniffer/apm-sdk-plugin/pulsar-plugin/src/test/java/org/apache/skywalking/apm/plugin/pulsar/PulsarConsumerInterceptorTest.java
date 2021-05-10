@@ -122,7 +122,6 @@ public class PulsarConsumerInterceptorTest {
 
     @Test
     public void testConsumerWithMessageListener() throws Throwable {
-        consumerEnhanceRequiredInfo.setHasMessageListener(true);
         consumerInterceptor.beforeMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
         consumerInterceptor.afterMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
 

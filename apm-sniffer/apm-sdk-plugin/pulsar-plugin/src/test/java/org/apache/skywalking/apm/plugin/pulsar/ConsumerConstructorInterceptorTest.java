@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.LookupService;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.conf.ConsumerConfigurationData;
@@ -71,13 +70,6 @@ public class ConsumerConstructorInterceptorTest {
         when(lookupService.getServiceUrl()).thenReturn(SERVICE_URL);
         when(pulsarClient.getLookup()).thenReturn(lookupService);
         when(consumerConfigurationData.getSubscriptionName()).thenReturn(SUBSCRIPTION_NAME);
-        when(consumerConfigurationData.getMessageListener()).thenReturn((consumer, message) -> {
-            try {
-                consumer.acknowledge(message);
-            } catch (PulsarClientException e) {
-                e.printStackTrace();
-            }
-        });
         constructorInterceptor = new ConsumerConstructorInterceptor();
     }
 
@@ -92,6 +84,5 @@ public class ConsumerConstructorInterceptorTest {
         assertThat(requiredInfo.getServiceUrl(), is(SERVICE_URL));
         assertThat(requiredInfo.getTopic(), is(TOPIC_NAME));
         assertThat(requiredInfo.getSubscriptionName(), is(SUBSCRIPTION_NAME));
-        assertThat(requiredInfo.isHasMessageListener(), is(true));
     }
 }
