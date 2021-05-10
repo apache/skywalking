@@ -46,7 +46,7 @@ public class MyBatisInstrumentation extends ClassInstanceMethodsEnhancePluginDef
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.mybatis.SqlSessionOperationInterceptor";
+                    return "org.apache.skywalking.apm.plugin.mybatis.MyBatisInterceptor";
                 }
 
                 @Override

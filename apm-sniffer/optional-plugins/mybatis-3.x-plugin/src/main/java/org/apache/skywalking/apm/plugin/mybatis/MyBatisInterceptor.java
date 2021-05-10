@@ -22,53 +22,39 @@ import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-public class SqlSessionOperationInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final String MYBATIS_ENTRY_METHOD_NAME = "mybatis_entry_method_name";
+public class MyBatisInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        String operationName = MethodUtil.generateOperationName(method);
-        AbstractSpan lastSpan = null;
-        if (ContextManager.isActive()) {
-            lastSpan = ContextManager.activeSpan();
+        String operationName;
+        if (ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME) != null) {
+            operationName = String.valueOf(ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME));
+            ContextManager.getRuntimeContext().remove(Constants.MYBATIS_SHELL_METHOD_NAME);
+        } else {
+            operationName = MethodUtil.generateOperationName(method);
         }
-        boolean isMyBatisEntryMethod = !(lastSpan instanceof NoopSpan) && (lastSpan == null || lastSpan.getComponentId() != ComponentsDefine.MYBATIS.getId());
-        if (isMyBatisEntryMethod) {
-            AbstractSpan span = ContextManager.createLocalSpan(operationName);
-            span.setComponent(ComponentsDefine.MYBATIS);
-            if (allArguments != null && allArguments.length != 0) {
-                Tags.MYBATIS_MAPPER.set(span, (String) allArguments[0]);
-            }
-            ContextManager.getRuntimeContext().put(MYBATIS_ENTRY_METHOD_NAME, operationName);
-        }
+        AbstractSpan span = ContextManager.createLocalSpan(operationName);
+        span.setComponent(ComponentsDefine.MYBATIS);
+        Tags.MYBATIS_MAPPER.set(span, (String) allArguments[0]);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        String operationName = MethodUtil.generateOperationName(method);
-        if (String.valueOf(ContextManager.getRuntimeContext().get(MYBATIS_ENTRY_METHOD_NAME)).equals(operationName)) {
-            ContextManager.getRuntimeContext().remove(MYBATIS_ENTRY_METHOD_NAME);
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        String operationName = MethodUtil.generateOperationName(method);
-        if (String.valueOf(ContextManager.getRuntimeContext().get(MYBATIS_ENTRY_METHOD_NAME)).equals(operationName)) {
-            ContextManager.activeSpan().log(t);
-        }
+        ContextManager.activeSpan().log(t);
     }
 }
