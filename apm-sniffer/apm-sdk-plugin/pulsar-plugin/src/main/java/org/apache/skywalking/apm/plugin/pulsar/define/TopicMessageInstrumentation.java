@@ -29,18 +29,18 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Pulsar message instrumentation.
+ * Pulsar topic message instrumentation.
  * <p>
- * The message enhanced object is only for passing message reception span across threads.
+ * The topic message enhanced object is only for passing message reception span across threads.
  * <p>
  * Enhanced message object will be injected {@link org.apache.skywalking.apm.plugin.pulsar.MessageEnhanceRequiredInfo}
  * after message process method if consumer has a message listener.
  * </p>
  */
-public class MessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TopicMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.MessageImpl";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.MessageConstructorInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.TopicMessageImpl";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.TopicMessageConstructorInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

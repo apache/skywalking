@@ -31,6 +31,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -48,10 +53,24 @@ public class CaseController {
 
     @RequestMapping("/pulsar-case")
     @ResponseBody
-    public String pulsarCase() throws PulsarClientException, InterruptedException {
+    public String pulsarCase() {
 
-        String topic = "test";
+        String topicOnePartition = "test";
+        String topicMultiPartition = "testMultiPartition";
 
+        try {
+            doSendAndReceiveMessage(topicOnePartition);
+
+            createTopic(topicMultiPartition, 2);
+            doSendAndReceiveMessage(topicMultiPartition);
+        } catch (IOException e) {
+            LOGGER.error("test error", e);
+        }
+
+        return "Success";
+    }
+
+    private void doSendAndReceiveMessage(String topic) throws PulsarClientException {
         CountDownLatch latch = new CountDownLatch(2);
 
         PulsarClient pulsarClient = PulsarClient.builder().serviceUrl(PULSAR_DOMAIN + serviceUrl).build();
@@ -60,7 +79,7 @@ public class CaseController {
 
         Consumer<byte[]> consumer = pulsarClient.newConsumer().topic(topic).subscriptionName("test").subscribe();
 
-        pulsarClient.newConsumer().topic(topic)
+        final Consumer<byte[]> consumerWithListener = pulsarClient.newConsumer().topic(topic)
                 .subscriptionName("testWithListener")
                 .messageListener((c, msg) -> {
                     try {
@@ -70,7 +89,8 @@ public class CaseController {
                             msg.getProperties()
                                     .forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v))
                                             .append(", "));
-                            LOGGER.info("Received message with messageId = {}, key = {}, value = {}, properties = {}",
+                            LOGGER.info(
+                                    "Received message with messageId = {}, key = {}, value = {}, properties = {}",
                                     msg.getMessageId(), msg
                                             .getKey(), new String(msg.getValue()), builder.toString());
 
@@ -113,13 +133,24 @@ public class CaseController {
         } catch (InterruptedException e) {
             LOGGER.error("Can get message from consumer", e);
             t.interrupt();
-            throw e;
         }
 
         producer.close();
         consumer.close();
+        consumerWithListener.close();
+    }
 
-        return "Success";
+    private void createTopic(String topic, int numOfPartitions) throws IOException {
+        final URL url = new URL("http://pulsar-standalone:8080/admin/v2/persistent/public/default/" + topic + "/partitions");
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.setDoOutput(true);
+
+        final OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(String.valueOf(numOfPartitions).getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
+
+        LOGGER.info("Create topic result:{}", connection.getResponseCode());
     }
 
     @RequestMapping("/healthCheck")
