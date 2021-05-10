@@ -68,10 +68,10 @@
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <joda-time.version>2.10.5</joda-time.version>
-        <kubernetes.version>10.0.0</kubernetes.version>
+        <kubernetes.version>11.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
-        <okhttp.version>3.9.0</okhttp.version>
+        <okhttp.version>3.14.9</okhttp.version>
         <jackson-core.version>2.9.5</jackson-core.version>
         <jackson-annotations.version>2.9.5</jackson-annotations.version>
         <jackson-databind.version>2.9.5</jackson-databind.version>
