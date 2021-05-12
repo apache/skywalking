@@ -52,6 +52,7 @@ Release Notes.
 * Fix configurations on dashboard.
 * Support to configure the maximum number of displayed items.
 * After changing the durationTime, the topology shows the originally selected group or service.
+* remove the no use maxItemNum for labeled-value metric, etc.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
