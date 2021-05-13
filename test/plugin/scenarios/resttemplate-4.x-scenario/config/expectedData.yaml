@@ -1,0 +1,131 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: resttemplate-4.x-scenario
+  segmentSize: ge 4
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /resttemplate-4.x-scenario/resttemplate/case/healthcheck
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/case/healthcheck'}
+      - {key: http.method, value: HEAD}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: /resttemplate-4.x-scenario/resttemplate/asyncback
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/asyncback'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: /resttemplate-4.x-scenario/resttemplate/case/resttemplate,
+        networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
+        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: resttemplate-4.x-scenario,
+        traceId: not null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: /resttemplate-4.x-scenario/resttemplate/syncback
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/syncback'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: /resttemplate-4.x-scenario/resttemplate/case/resttemplate,
+        networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 3,
+        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: resttemplate-4.x-scenario,
+        traceId: not null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: /resttemplate-4.x-scenario/resttemplate/asyncback
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/asyncback'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+    - {operationName: 'future/get:/resttemplate-4.x-scenario/resttemplate/asyncback',
+      operationId: 0, parentSpanId: 0, spanId: 2, spanLayer: Unknown, startTime: nq
+        0, endTime: nq 0, componentId: 0, isError: false, spanType: Local, peer: '',
+      skipAnalysis: 'false'}
+    - operationName: /resttemplate-4.x-scenario/resttemplate/syncback
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/syncback'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+    - operationName: /resttemplate-4.x-scenario/resttemplate/case/resttemplate
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/case/resttemplate'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

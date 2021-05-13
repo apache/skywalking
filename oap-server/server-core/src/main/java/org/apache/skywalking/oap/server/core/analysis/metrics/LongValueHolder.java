@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 /**
  * LongValueHolder always holds a value of long.
- *
- * @author wusheng
  */
 public interface LongValueHolder {
     long getValue();

@@ -16,12 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.description.type.TypeList;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -33,8 +33,6 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * Match the class by the given super class or interfaces.
- *
- * @author wusheng
  */
 public class HierarchyMatch implements IndirectMatch {
     private String[] parentTypes;
@@ -77,11 +75,8 @@ public class HierarchyMatch implements IndirectMatch {
             matchHierarchyClass(typeDescription.getSuperClass(), parentTypes);
         }
 
-        if (parentTypes.size() == 0) {
-            return true;
-        }
+        return parentTypes.size() == 0;
 
-        return false;
     }
 
     private void matchHierarchyClass(TypeDescription.Generic clazz, List<String> parentTypes) {
@@ -101,7 +96,7 @@ public class HierarchyMatch implements IndirectMatch {
 
     }
 
-    public static ClassMatch byHierarchyMatch(String[] parentTypes) {
+    public static IndirectMatch byHierarchyMatch(String... parentTypes) {
         return new HierarchyMatch(parentTypes);
     }
 }

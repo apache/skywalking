@@ -18,20 +18,23 @@
 
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.toolkit.logging.common.log.SkyWalkingContext;
 
 /**
- * Log4jLogEvent implements LogEvent,
- * which is a message in the Disruptor Array of the AsyncLoggerConfigDisruptor.class, appended by AsyncLoggerConfig.class.
- * The Log4jLogEvent is enhanced to carry the tid in the synchronization thread using `dynamicField`.
- *
- * @author xuhe
+ * Log4jLogEvent implements LogEvent, which is a message in the Disruptor Array of the AsyncLoggerConfigDisruptor.class,
+ * appended by AsyncLoggerConfig.class. The Log4jLogEvent is enhanced to carry the tid in the synchronization thread
+ * using `dynamicField`.
  */
 
 public class Log4jLogEventConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        SkyWalkingContext skyWalkingContext = new SkyWalkingContext(ContextManager.getGlobalTraceId(),
+                ContextManager.getSegmentId(), ContextManager.getSpanId());
+        objInst.setSkyWalkingDynamicField(skyWalkingContext);
     }
 }

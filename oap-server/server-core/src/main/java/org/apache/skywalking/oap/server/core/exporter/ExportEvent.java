@@ -22,10 +22,8 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 
 /**
- * The event for exporter {@link MetricValuesExportService} implementation processes.
- * {@link #metrics} should not be changed in any case.
- *
- * @author wusheng
+ * The event for exporter {@link MetricValuesExportService} implementation processes. {@link #metrics} should not be
+ * changed in any case.
  */
 @Getter
 public class ExportEvent {

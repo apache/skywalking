@@ -20,15 +20,15 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author wusheng
- */
 public class TopNRecordsQueryService implements Service {
     private final ModuleManager moduleManager;
     private ITopNRecordsQueryDAO topNRecordsQueryDAO;
@@ -39,13 +39,15 @@ public class TopNRecordsQueryService implements Service {
 
     private ITopNRecordsQueryDAO getTopNRecordsQueryDAO() {
         if (topNRecordsQueryDAO == null) {
-            this.topNRecordsQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITopNRecordsQueryDAO.class);
+            this.topNRecordsQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                    .provider()
+                                                    .getService(ITopNRecordsQueryDAO.class);
         }
         return topNRecordsQueryDAO;
     }
 
-    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order) throws IOException {
-        return getTopNRecordsQueryDAO().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
+    public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
+        return getTopNRecordsQueryDAO().readSampledRecords(
+            condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
 }

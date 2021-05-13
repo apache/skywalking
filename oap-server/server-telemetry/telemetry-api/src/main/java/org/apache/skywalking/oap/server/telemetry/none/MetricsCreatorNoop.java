@@ -18,22 +18,27 @@
 
 package org.apache.skywalking.oap.server.telemetry.none;
 
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * A no-op metrics create, just create nut shell metrics instance.
- *
- * @author wusheng
  */
 public class MetricsCreatorNoop implements MetricsCreator {
     @Override
-    public CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
+    public CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys,
+        MetricsTag.Values tagValues) {
         return new CounterMetrics() {
-            @Override public void inc() {
+            @Override
+            public void inc() {
 
             }
 
-            @Override public void inc(double value) {
+            @Override
+            public void inc(double value) {
 
             }
         };
@@ -42,24 +47,34 @@ public class MetricsCreatorNoop implements MetricsCreator {
     @Override
     public GaugeMetrics createGauge(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
         return new GaugeMetrics() {
-            @Override public void inc() {
+            @Override
+            public void inc() {
 
             }
 
-            @Override public void inc(double value) {
+            @Override
+            public void inc(double value) {
 
             }
 
-            @Override public void dec() {
+            @Override
+            public void dec() {
 
             }
 
-            @Override public void dec(double value) {
+            @Override
+            public void dec(double value) {
 
             }
 
-            @Override public void setValue(double value) {
+            @Override
+            public void setValue(double value) {
 
+            }
+
+            @Override
+            public double getValue() {
+                return 0;
             }
         };
     }
@@ -68,7 +83,8 @@ public class MetricsCreatorNoop implements MetricsCreator {
     public HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys,
         MetricsTag.Values tagValues, double... buckets) {
         return new HistogramMetrics() {
-            @Override public void observe(double value) {
+            @Override
+            public void observe(double value) {
 
             }
         };

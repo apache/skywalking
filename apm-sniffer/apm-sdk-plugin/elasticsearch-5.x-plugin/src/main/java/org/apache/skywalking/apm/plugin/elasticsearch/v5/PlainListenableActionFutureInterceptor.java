@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -28,26 +29,26 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.search.SearchResponse;
 
-import java.lang.reflect.Method;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.BASE_FUTURE_METHOD;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.DB_TYPE;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ELASTICSEARCH_DB_OP_PREFIX;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_INGEST_TOOK_MILLIS;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_TOOK_MILLIS;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_TOTAL_HITS;
 
-import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.*;
-
-/**
- * @author oatiz.
- */
 public class PlainListenableActionFutureInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         AbstractSpan span = ContextManager.createLocalSpan(ELASTICSEARCH_DB_OP_PREFIX + BASE_FUTURE_METHOD);
         span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
         Tags.DB_TYPE.set(span, DB_TYPE);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         AbstractSpan span = ContextManager.activeSpan();
         if (ret instanceof SearchResponse) {
             SearchResponse response = (SearchResponse) ret;
@@ -64,7 +65,7 @@ public class PlainListenableActionFutureInterceptor implements InstanceMethodsAr
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 }

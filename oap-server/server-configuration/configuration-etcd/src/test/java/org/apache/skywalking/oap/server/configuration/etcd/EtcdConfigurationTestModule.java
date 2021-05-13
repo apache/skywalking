@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.configuration.etcd;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author Alan Lau
- */
 public class EtcdConfigurationTestModule extends ModuleDefine {
 
     public static final String NAME = "test-module";
@@ -31,7 +28,8 @@ public class EtcdConfigurationTestModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

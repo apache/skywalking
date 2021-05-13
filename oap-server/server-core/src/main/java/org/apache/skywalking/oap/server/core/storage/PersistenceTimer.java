@@ -18,26 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.*;
-import java.util.concurrent.*;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
-import org.apache.skywalking.oap.server.core.analysis.worker.*;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.PersistenceWorker;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-/**
- * @author peng-yongsheng
- */
+@Slf4j
 public enum PersistenceTimer {
     INSTANCE;
-
-    private static final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
-
     private Boolean isStarted = false;
     private final Boolean debug;
     private CounterMetrics errorCounter;
@@ -45,35 +50,51 @@ public enum PersistenceTimer {
     private HistogramMetrics executeLatency;
     private long lastTime = System.currentTimeMillis();
     private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
+    private int syncOperationThreadsNum;
+    private int maxSyncoperationNum;
+    private ExecutorService executorService;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
     }
 
     public void start(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
-        logger.info("persistence timer start");
+        log.info("persistence timer start");
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
 
-        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        errorCounter = metricsCreator.createCounter("persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        prepareLatency = metricsCreator.createHistogramMetric("persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        executeLatency = metricsCreator.createHistogramMetric("persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        errorCounter = metricsCreator.createCounter(
+            "persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        prepareLatency = metricsCreator.createHistogramMetric(
+            "persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        executeLatency = metricsCreator.createHistogramMetric(
+            "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        syncOperationThreadsNum = moduleConfig.getSyncThreads();
+        maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
+        executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         if (!isStarted) {
-            Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(
-                new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO),
-                    t -> logger.error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
+            Executors.newSingleThreadScheduledExecutor()
+                     .scheduleWithFixedDelay(
+                         new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> log
+                             .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
+                         TimeUnit.SECONDS
+                     );
 
             this.isStarted = true;
         }
     }
 
     private void extractDataAndSave(IBatchDAO batchDAO) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Extract data and save");
+        if (log.isDebugEnabled()) {
+            log.debug("Extract data and save");
         }
 
         long startTime = System.currentTimeMillis();
@@ -87,19 +108,17 @@ public enum PersistenceTimer {
                 persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
                 persistenceWorkers.forEach(worker -> {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("extract {} worker data and save", worker.getClass().getName());
+                    if (log.isDebugEnabled()) {
+                        log.debug("extract {} worker data and save", worker.getClass().getName());
                     }
 
-                    if (worker.flushAndSwitch()) {
-                        worker.buildBatchRequests(prepareRequests);
-                    }
+                    worker.buildBatchRequests(prepareRequests);
 
                     worker.endOfRound(System.currentTimeMillis() - lastTime);
                 });
 
                 if (debug) {
-                    logger.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+                    log.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
                 }
             } finally {
                 timer.finish();
@@ -107,18 +126,31 @@ public enum PersistenceTimer {
 
             HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
             try {
-                if (CollectionUtils.isNotEmpty(prepareRequests)) {
-                    batchDAO.synchronous(prepareRequests);
+                List<List<PrepareRequest>> partitions = Lists.partition(prepareRequests, maxSyncoperationNum);
+                CountDownLatch countDownLatch = new CountDownLatch(partitions.size());
+                for (final List<PrepareRequest> partition : partitions) {
+                    executorService.submit(() -> {
+                        try {
+                            if (CollectionUtils.isNotEmpty(partition)) {
+                                batchDAO.synchronous(partition);
+                            }
+                        } catch (Throwable e) {
+                            log.error(e.getMessage(), e);
+                        } finally {
+                            countDownLatch.countDown();
+                        }
+                    });
                 }
+                countDownLatch.await();
             } finally {
                 executeLatencyTimer.finish();
             }
         } catch (Throwable e) {
             errorCounter.inc();
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Persistence data save finish");
+            if (log.isDebugEnabled()) {
+                log.debug("Persistence data save finish");
             }
 
             prepareRequests.clear();
@@ -126,7 +158,7 @@ public enum PersistenceTimer {
         }
 
         if (debug) {
-            logger.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+            log.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
         }
     }
 }

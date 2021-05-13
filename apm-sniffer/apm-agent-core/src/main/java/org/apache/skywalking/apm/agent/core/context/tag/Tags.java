@@ -16,16 +16,19 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.tag;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The span tags are supported by sky-walking engine. As default, all tags will be stored, but these ones have
  * particular meanings.
  * <p>
- * Created by wusheng on 2017/2/17.
  */
 public final class Tags {
+    private static final Map<String, StringTag> TAG_PROTOTYPES = new ConcurrentHashMap<>();
+
     private Tags() {
     }
 
@@ -60,21 +63,55 @@ public final class Tags {
     public static final StringTag DB_BIND_VARIABLES = new StringTag(6, "db.bind_vars");
 
     /**
-     * MQ_QUEUE records the queue name of message-middleware
+     * MQ_QUEUE records the queue name of message-middleware.
      */
     public static final StringTag MQ_QUEUE = new StringTag(7, "mq.queue");
 
     /**
-     * MQ_BROKER records the broker address of message-middleware
+     * MQ_BROKER records the broker address of message-middleware.
      */
     public static final StringTag MQ_BROKER = new StringTag(8, "mq.broker");
 
     /**
-     * MQ_TOPIC records the topic name of message-middleware
+     * MQ_TOPIC records the topic name of message-middleware.
      */
     public static final StringTag MQ_TOPIC = new StringTag(9, "mq.topic");
 
+    /**
+     * MQ_STATUS records the send/consume message status of message-middleware.
+     */
+    public static final StringTag MQ_STATUS = new StringTag(16, "mq_status");
+
+    public static final StringTag MYBATIS_MAPPER = new StringTag(17, "mybatis.mapper");
+
+    /**
+     * The latency of transmission. When there are more than one downstream parent/segment-ref(s), multiple tags will be
+     * recorded, such as a batch consumption in MQ.
+     */
+    public static final StringTag TRANSMISSION_LATENCY = new StringTag(15, "transmission.latency", false);
+
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag(10, "http.method");
+
+        public static final StringTag PARAMS = new StringTag(11, "http.params", true);
+
+        public static final StringTag BODY = new StringTag(13, "http.body");
+
+        public static final StringTag HEADERS = new StringTag(14, "http.headers");
+    }
+
+    public static final StringTag LOGIC_ENDPOINT = new StringTag(12, "x-le");
+
+    public static final String VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT = "{\"logic-span\":true}";
+
+    /**
+     * Creates a {@code StringTag} with the given key and cache it, if it's created before, simply return it without
+     * creating a new one.
+     *
+     * @param key the {@code key} of the tag
+     * @return the {@code StringTag}
+     */
+    public static AbstractTag<String> ofKey(final String key) {
+        return TAG_PROTOTYPES.computeIfAbsent(key, StringTag::new);
     }
 }

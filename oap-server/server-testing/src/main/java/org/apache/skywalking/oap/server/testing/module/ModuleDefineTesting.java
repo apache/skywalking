@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.testing.module;
 
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 
-/**
- * @author peng-yongsheng
- */
 public class ModuleDefineTesting implements ModuleProviderHolder {
 
     private final ModuleProviderTesting moduleProvider;
@@ -31,7 +29,8 @@ public class ModuleDefineTesting implements ModuleProviderHolder {
         this.moduleProvider = new ModuleProviderTesting();
     }
 
-    @Override public ModuleServiceHolder provider() {
+    @Override
+    public ModuleServiceHolder provider() {
         return moduleProvider;
     }
 }

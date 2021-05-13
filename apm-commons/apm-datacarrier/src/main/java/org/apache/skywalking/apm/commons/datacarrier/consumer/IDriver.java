@@ -22,11 +22,11 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
  * The driver of consumer.
- *
- * @author wusheng
  */
 public interface IDriver {
     boolean isRunning(Channels channels);
+
     void close(Channels channels);
+
     void begin(Channels channels);
 }

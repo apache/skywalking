@@ -1,18 +1,40 @@
-Please answer these questions before submitting pull request
+<!--
+    ⚠️ Please make sure to read this template first, pull requests that don't accord with this template
+    maybe closed without notice.
+    Texts surrounded by `<` and `>` are meant to be replaced by you, e.g. <framework name>, <issue number>.
+    Put an `x` in the `[ ]` to mark the item as CHECKED. `[x]`
+-->
 
-- Why submit this pull request?
-- [ ] Bug fix
-- [ ] New feature provided
-- [ ] Improve performance
+<!-- ==== 🐛 Remove this line WHEN AND ONLY WHEN you're fixing a bug, follow the checklist 👇 ====
+### Fix <bug description or the bug issue number or bug issue link>
+- [ ] Add a unit test to verify that the fix works.
+- [ ] Explain briefly why the bug exists and how to fix it.
+     ==== 🐛 Remove this line WHEN AND ONLY WHEN you're fixing a bug, follow the checklist 👆 ==== -->
 
-- Related issues
+<!-- ==== 🔌 Remove this line WHEN AND ONLY WHEN you're adding a new plugin, follow the checklist 👇 ====
+### Add an agent plugin to support <framework name>
+- [ ] Add a test case for the new plugin, refer to [the doc](https://github.com/apache/skywalking/blob/master/docs/en/guides/Plugin-test.md)
+- [ ] Add a component id in [the component-libraries.yml](https://github.com/apache/skywalking/blob/master/oap-server/server-bootstrap/src/main/resources/component-libraries.yml)
+- [ ] Add a logo in [the UI repo](https://github.com/apache/skywalking-rocketbot-ui/tree/master/src/views/components/topology/assets)
+     ==== 🔌 Remove this line WHEN AND ONLY WHEN you're adding a new plugin, follow the checklist 👆 ==== -->
 
-___
-### Bug fix
-- Bug description.
+<!-- ==== 📈 Remove this line WHEN AND ONLY WHEN you're improving the performance, follow the checklist 👇 ====
+### Improve the performance of <class or module or ...>
+- [ ] Add a benchmark for the improvement, refer to [the existing ones](https://github.com/apache/skywalking/blob/master/apm-commons/apm-datacarrier/src/test/java/org/apache/skywalking/apm/commons/datacarrier/LinkedArrayBenchmark.java)
+- [ ] The benchmark result.
+```text
+<Paste the benchmark results here>
+```
+- [ ] Links/URLs to the theory proof or discussion articles/blogs. <links/URLs here>
+     ==== 📈 Remove this line WHEN AND ONLY WHEN you're improving the performance, follow the checklist 👆 ==== -->
 
-- How to fix?
+<!-- ==== 🆕 Remove this line WHEN AND ONLY WHEN you're adding a new feature, follow the checklist 👇 ====
+### <Feature description>
+- [ ] If this is non-trivial feature, paste the links/URLs to the design doc.
+- [ ] Update the documentation to include this new feature.
+- [ ] Tests(including UT, IT, E2E) are added to verify the new feature.
+- [ ] If it's UI related, attach the screenshots below.
+     ==== 🆕 Remove this line WHEN AND ONLY WHEN you're adding a new feature, follow the checklist 👆 ==== -->
 
-___
-### New feature or improvement
-- Describe the details and related test reports.
+- [ ] If this pull request closes/resolves/fixes an existing issue, replace the issue number. Closes #<issue number>.
+- [ ] Update the [`CHANGES` log](https://github.com/apache/skywalking/blob/master/CHANGES.md).

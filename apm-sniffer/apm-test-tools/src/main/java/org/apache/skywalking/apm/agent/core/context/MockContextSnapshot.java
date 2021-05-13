@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 
 public enum MockContextSnapshot {
@@ -30,15 +26,14 @@ public enum MockContextSnapshot {
     private ContextSnapshot contextSnapshot;
 
     MockContextSnapshot() {
-        List<DistributedTraceId> distributedTraceIds = new ArrayList<DistributedTraceId>();
-        distributedTraceIds.add(new NewDistributedTraceId());
-
-        contextSnapshot = new ContextSnapshot(new ID(1, 2, 3), 1, distributedTraceIds);
-        contextSnapshot.setEntryApplicationInstanceId(1);
-        contextSnapshot.setEntryOperationId(0);
-        contextSnapshot.setEntryOperationName("/for-test-entryOperationName");
-        contextSnapshot.setParentOperationId(0);
-        contextSnapshot.setParentOperationName("/for-test-parentOperationName");
+        contextSnapshot = new ContextSnapshot(
+            "1, 2, 3",
+            1,
+            new NewDistributedTraceId(),
+            "/for-test-entryOperationName",
+            new CorrelationContext(),
+            new ExtensionContext()
+        );
     }
 
     public ContextSnapshot mockContextSnapshot() {

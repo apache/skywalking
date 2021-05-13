@@ -36,12 +36,7 @@ message RemoteData {
     repeated int64 dataLongs = 2;
     repeated double dataDoubles = 3;
     repeated int32 dataIntegers = 4;
-    repeated IntKeyLongValuePair dataIntLongPairList = 5;
-}
-
-message IntKeyLongValuePair {
-    int32 key = 1;
-    int64 value = 2;
+    repeated string dataObjectStrings = 5;
 }
 
 message Empty {

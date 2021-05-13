@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.opentracing;
 
 import io.opentracing.ActiveSpan;
@@ -24,10 +23,8 @@ import io.opentracing.SpanContext;
 import java.util.Map;
 
 /**
- * The <code>SkywalkingActiveSpan</code> is an extension of {@link SkywalkingSpan},
- * but because of Java inheritance restrict, only can do with a facade mode.
- *
- * @author wusheng
+ * The <code>SkywalkingActiveSpan</code> is an extension of {@link SkywalkingSpan}, but because of Java inheritance
+ * restrict, only can do with a facade mode.
  */
 public class SkywalkingActiveSpan implements ActiveSpan {
     private SkywalkingSpan span;

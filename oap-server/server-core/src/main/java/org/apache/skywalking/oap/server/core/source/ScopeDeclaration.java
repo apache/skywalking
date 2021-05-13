@@ -18,17 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 
 /**
- * DefaultScopeDefine id declaration.
+ * ScopeDeclaration includes
  *
- * @author wusheng
+ * 1.Source entity used in OAL script, such as Service as a Scope could be used like this in the OAL script.
+ *
+ * service_resp_time = from(Service.latency).longAvg();
+ *
+ * 2. Manual source such as {@link Segment}
+ * 
+ * 3. None stream entity like {@link ProfileTaskRecord}.
+ *
+ * NOTICE, in OAL script, `disable` is for stream, rather than source, it doesn't require this annotation.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ScopeDeclaration {
     int id();
+
     String name();
+
     String catalog() default "";
 }

@@ -18,33 +18,73 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@Slf4j
 public class Endpoint extends Source {
-    @Override public int scope() {
+    private String entityId;
+
+    @Override
+    public int scope() {
         return DefaultScopeDefine.ENDPOINT;
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(id);
+    @Override
+    public String getEntityId() {
+        if (StringUtil.isEmpty(entityId)) {
+            entityId = IDManager.EndpointID.buildId(serviceId, name);
+        }
+        return entityId;
     }
 
-    @Getter @Setter private int id;
-    @Getter @Setter private String name;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
-    @Getter @Setter private String serviceName;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id") private int serviceInstanceId;
-    @Getter @Setter private String serviceInstanceName;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    private String name;
+    @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    private String serviceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
+    private String serviceName;
+    @Setter
+    private NodeType serviceNodeType;
+    @Getter
+    @Setter
+    private String serviceInstanceName;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
+    @Getter
+    @Setter
+    private List<String> tags;
+    @Getter
+    @Setter
+    private SideCar sideCar = new SideCar();
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
+    }
 }

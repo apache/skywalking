@@ -18,29 +18,29 @@
 
 package org.apache.skywalking.oap.server.core.remote.health;
 
-import grpc.health.v1.*;
+import grpc.health.v1.HealthCheckService;
+import grpc.health.v1.HealthGrpc;
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class HealthCheckServiceHandler extends HealthGrpc.HealthImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckServiceHandler.class);
 
     /**
      * By my test, consul didn't send the service.
      *
-     * @param request service
+     * @param request          service
      * @param responseObserver status
      */
-    @Override public void check(HealthCheckService.HealthCheckRequest request,
+    @Override
+    public void check(HealthCheckService.HealthCheckRequest request,
         StreamObserver<HealthCheckService.HealthCheckResponse> responseObserver) {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received the gRPC server health check with the service name of {}", request.getService());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Received the gRPC server health check with the service name of {}", request.getService());
         }
 
         HealthCheckService.HealthCheckResponse.Builder response = HealthCheckService.HealthCheckResponse.newBuilder();

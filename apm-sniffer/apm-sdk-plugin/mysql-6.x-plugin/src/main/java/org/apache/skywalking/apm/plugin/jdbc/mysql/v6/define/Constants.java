@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
-/**
- *
- * @author: dingshaocheng
- */
 public class Constants {
     public static final String WITNESS_MYSQL_6X_CLASS = "com.mysql.cj.api.MysqlConnection";
 }

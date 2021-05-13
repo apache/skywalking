@@ -16,13 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.remote;
 
-/**
- * @author wusheng
- */
 public enum GRPCChannelStatus {
-    CONNECTED,
-    DISCONNECT
+    CONNECTED, DISCONNECT
 }

@@ -20,17 +20,23 @@ package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
-import org.apache.skywalking.oap.server.core.server.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.server.auth.AuthenticationInterceptor;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
 
-/**
- * @author peng-yongsheng
- */
 public class SharingServerModuleProvider extends ModuleProvider {
 
     private final SharingServerConfig config;
@@ -38,27 +44,46 @@ public class SharingServerModuleProvider extends ModuleProvider {
     private JettyServer jettyServer;
     private ReceiverGRPCHandlerRegister receiverGRPCHandlerRegister;
     private ReceiverJettyHandlerRegister receiverJettyHandlerRegister;
+    private AuthenticationInterceptor authenticationInterceptor;
 
     public SharingServerModuleProvider() {
         super();
         this.config = new SharingServerConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return SharingServerModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() {
-        if (config.getRestPort() != 0) {
-            jettyServer = new JettyServer(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost(), config.getRestPort(), config.getRestContextPath());
+    @Override
+    public void prepare() {
+        if (config.getRestPort() > 0) {
+            JettyServerConfig jettyServerConfig =
+                JettyServerConfig.builder()
+                                 .host(config.getRestHost()).port(config.getRestPort())
+                                 .contextPath(config.getRestContextPath())
+                                 .jettyMinThreads(config.getRestMinThreads())
+                                 .jettyMaxThreads(config.getRestMaxThreads())
+                                 .jettyAcceptQueueSize(config.getRestAcceptQueueSize())
+                                 .jettyAcceptorPriorityDelta(
+                                     config.getRestAcceptorPriorityDelta())
+                                 .jettyIdleTimeOut(config.getRestIdleTimeOut()).build();
+            jettyServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
+            jettyServerConfig.setPort(config.getRestPort());
+            jettyServerConfig.setContextPath(config.getRestContextPath());
+
+            jettyServer = new JettyServer(jettyServerConfig);
             jettyServer.initialize();
 
             this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
@@ -67,8 +92,24 @@ public class SharingServerModuleProvider extends ModuleProvider {
             this.registerServiceImplementation(JettyHandlerRegister.class, receiverJettyHandlerRegister);
         }
 
+        if (StringUtil.isNotEmpty(config.getAuthentication())) {
+            authenticationInterceptor = new AuthenticationInterceptor(config.getAuthentication());
+        }
+
         if (config.getGRPCPort() != 0) {
-            grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(), config.getGRPCPort());
+            if (config.isGRPCSslEnabled()) {
+                grpcServer = new GRPCServer(
+                    Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                    config.getGRPCPort(),
+                    config.getGRPCSslCertChainPath(),
+                    config.getGRPCSslKeyPath()
+                );
+            } else {
+                grpcServer = new GRPCServer(
+                    Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                    config.getGRPCPort()
+                );
+            }
             if (config.getMaxMessageSize() > 0) {
                 grpcServer.setMaxMessageSize(config.getMaxMessageSize());
             }
@@ -83,27 +124,40 @@ public class SharingServerModuleProvider extends ModuleProvider {
             }
             grpcServer.initialize();
 
-            this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
+            GRPCHandlerRegisterImpl grpcHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);
+            if (Objects.nonNull(authenticationInterceptor)) {
+                grpcHandlerRegister.addFilter(authenticationInterceptor);
+            }
+            this.registerServiceImplementation(GRPCHandlerRegister.class, grpcHandlerRegister);
         } else {
             this.receiverGRPCHandlerRegister = new ReceiverGRPCHandlerRegister();
+            if (Objects.nonNull(authenticationInterceptor)) {
+                receiverGRPCHandlerRegister.addFilter(authenticationInterceptor);
+            }
             this.registerServiceImplementation(GRPCHandlerRegister.class, receiverGRPCHandlerRegister);
         }
     }
 
-    @Override public void start() {
+    @Override
+    public void start() {
         if (Objects.nonNull(grpcServer)) {
             grpcServer.addHandler(new HealthCheckServiceHandler());
         }
 
         if (Objects.nonNull(receiverGRPCHandlerRegister)) {
-            receiverGRPCHandlerRegister.setGrpcHandlerRegister(getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class));
+            receiverGRPCHandlerRegister.setGrpcHandlerRegister(getManager().find(CoreModule.NAME)
+                                                                           .provider()
+                                                                           .getService(GRPCHandlerRegister.class));
         }
         if (Objects.nonNull(receiverJettyHandlerRegister)) {
-            receiverJettyHandlerRegister.setJettyHandlerRegister(getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class));
+            receiverJettyHandlerRegister.setJettyHandlerRegister(getManager().find(CoreModule.NAME)
+                                                                             .provider()
+                                                                             .getService(JettyHandlerRegister.class));
         }
     }
 
-    @Override public void notifyAfterCompleted() throws ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ModuleStartException {
         try {
             if (Objects.nonNull(grpcServer)) {
                 grpcServer.start();
@@ -116,7 +170,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
         }
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
     }
 }

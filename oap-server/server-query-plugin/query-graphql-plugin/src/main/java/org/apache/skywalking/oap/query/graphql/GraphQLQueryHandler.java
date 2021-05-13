@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class GraphQLQueryHandler extends JettyJsonHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GraphQLQueryHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLQueryHandler.class);
 
     private static final String QUERY = "query";
     private static final String VARIABLES = "variables";
@@ -59,16 +59,18 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
 
     private final GraphQL graphQL;
 
-
-    @Override public String pathSpec() {
+    @Override
+    public String pathSpec() {
         return path;
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) {
+    @Override
+    protected JsonElement doGet(HttpServletRequest req) {
         throw new UnsupportedOperationException("GraphQL only supports POST method");
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws IOException {
+    @Override
+    protected JsonElement doPost(HttpServletRequest req) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()));
         String line;
         StringBuilder request = new StringBuilder();
@@ -78,14 +80,18 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
 
         JsonObject requestJson = gson.fromJson(request.toString(), JsonObject.class);
 
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapOfStringObjectType));
+        return execute(requestJson.get(QUERY)
+                                  .getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapOfStringObjectType));
     }
 
     private JsonObject execute(String request, Map<String, Object> variables) {
         try {
-            ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).variables(variables).build();
+            ExecutionInput executionInput = ExecutionInput.newExecutionInput()
+                                                          .query(request)
+                                                          .variables(variables)
+                                                          .build();
             ExecutionResult executionResult = graphQL.execute(executionInput);
-            logger.debug("Execution result is {}", executionResult);
+            LOGGER.debug("Execution result is {}", executionResult);
             Object data = executionResult.getData();
             List<GraphQLError> errors = executionResult.getErrors();
             JsonObject jsonObject = new JsonObject();
@@ -104,7 +110,7 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
             }
             return jsonObject;
         } catch (final Throwable e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             JsonObject jsonObject = new JsonObject();
             JsonArray errorArray = new JsonArray();
             JsonObject errorJson = new JsonObject();

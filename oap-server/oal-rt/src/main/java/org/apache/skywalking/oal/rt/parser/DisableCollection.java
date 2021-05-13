@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 
-/**
- * @author wusheng
- */
 @Getter
 public class DisableCollection {
     private List<String> allDisableSources = new ArrayList<>();

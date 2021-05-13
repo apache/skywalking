@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;
@@ -48,6 +47,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
@@ -93,7 +93,7 @@ public class MotanConsumerInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertMotanConsumerSpan(spans.get(0));
-        verify(request).setAttachment(anyString(), anyString());
+        verify(request, times(3)).setAttachment(anyString(), anyString());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class MotanConsumerInterceptorTest {
 
     private void assertTraceSegmentWhenOccurException(AbstractTracingSpan tracingSpan) {
         assertMotanConsumerSpan(tracingSpan);
-        verify(request).setAttachment(anyString(), anyString());
+        verify(request, times(3)).setAttachment(anyString(), anyString());
         List<LogDataEntity> logDataEntities = SpanHelper.getLogs(tracingSpan);
         assertThat(logDataEntities.size(), is(1));
         SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);

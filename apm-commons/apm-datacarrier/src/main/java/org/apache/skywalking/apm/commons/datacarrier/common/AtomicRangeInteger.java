@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.common;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-/**
- * Created by lkxiaolou
- */
 public class AtomicRangeInteger extends Number implements Serializable {
     private static final long serialVersionUID = -4099792402691141643L;
     private AtomicIntegerArray values;
@@ -48,7 +44,8 @@ public class AtomicRangeInteger extends Number implements Serializable {
             if (next > endValue && this.values.compareAndSet(VALUE_OFFSET, next, startValue)) {
                 return endValue;
             }
-        } while (next > endValue);
+        }
+        while (next > endValue);
 
         return next - 1;
     }
@@ -57,18 +54,22 @@ public class AtomicRangeInteger extends Number implements Serializable {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public int intValue() {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public long longValue() {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public float floatValue() {
         return this.values.get(VALUE_OFFSET);
     }
 
+    @Override
     public double doubleValue() {
         return this.values.get(VALUE_OFFSET);
     }

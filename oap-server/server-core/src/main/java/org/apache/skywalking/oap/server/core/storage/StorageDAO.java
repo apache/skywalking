@@ -18,19 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * StorageDAO is a DAO factory for storage layer. Provide the implementations of typical DAO interfaces.
  */
 public interface StorageDAO extends Service {
 
-    IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+    IMetricsDAO newMetricsDao(StorageBuilder storageBuilder);
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
+    IRecordDAO newRecordDao(StorageBuilder storageBuilder);
 
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
+    INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder);
+
+    IManagementDAO newManagementDao(StorageBuilder storageBuilder);
 }

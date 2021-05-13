@@ -1,34 +1,31 @@
 # Welcome
-**Here are SkyWalking 6 official documents. Welcome to join us**
+**This is the official documentation of SkyWalking 8. Welcome to the SkyWalking community!**
 
-From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, also develop based on SkyWalking.
+Here you can learn all you need to know about **SkyWalking**’s architecture, understand how to deploy and use SkyWalking, and contribute to the project based on SkyWalking's contributing guidelines.
 
-- [Concepts and Designs](en/concepts-and-designs/README.md). Concepts and designs explain the most important core ideas about
-SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
-- [Setup](en/setup/README.md). Setup contains guides for installing SkyWalking in different scenarios. As a platform, it provides
-several ways to provide observability, including monitoring and alarm of course. 
-- [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can know how to contribute from beginning.
-- [Protocols](en/protocols/README.md). Protocols show the communication ways between agents/probes and backend. Anyone, interested
-in uplink telemetry data, definitely should read this.
-- [FAQs](en/FAQ/README.md). Include a manifest, including already known setup problems, secondary developments experiments. When 
-you are facing a problem, check here first.
+**NOTE: SkyWalking 8 uses brand new tracing APIs which are incompatible with all previous releases.**
+
+- **Concepts and Designs**. You'll find the core logic behind SkyWalking. You may start from here if you want to understand what is going on under our cool features and visualization.
+
+- **Setup**. A guide to installing SkyWalking for different use cases. It is an observability platform that supports multiple observability modes.
+
+- **UI Introduction**. An introduction to the UI components and their features. 
+
+- **Contributing Guides**. If you are a PMC member, a committer, or a new contributor, learn how to start contributing with these guides!
+
+- **Protocols**. The protocols show how agents/probes and the backend communicate with one another. Anyone interested in uplink telemetry data should definitely read this.
+
+- **FAQs**. A manifest of known issues with setup and secondary developments processes. Should you encounter any problems, check here first.
 
 
-In addition, you might find these links interesting:
+You might also find these links interesting:
 
-- The latest and old releases are all available at [Apache SkyWalking release page](http://skywalking.apache.org/downloads/). The change logs are [here](../CHANGES.md).
-- You can find the speaking schedules at Conf, online videos and articles about SkyWalking in [Community resource catalog](https://github.com/OpenSkywalking/Community).
-Also, if you have some related to us, welcome to submit a pull request to add.
-- We’re always looking for help improving our documentation and codes, so please don’t hesitate to [file an issue](https://github.com/apache/skywalking/issues/new) 
-if you see some problem. 
-Or better yet, submit your own contributions through pull request to help make them better.
+- The latest and old releases are all available at [Apache SkyWalking release page](https://skywalking.apache.org/downloads/). The change logs can be found [here](https://github.com/apache/skywalking/tree/master/changes).
 
-___
-### Users from 5.x
-SkyWalking 5.x is still supported by the community. For the user plans to upgrade from 5.x to 6.x, you should know there are some definitions of concepts changed.
+- [SkyWalking WIKI](https://cwiki.apache.org/confluence/display/SKYWALKING/Home) hosts the context of some changes and events.
 
-The most important two changed concepts are
-1. Application(in 5.x) is changed to **Service**(in 6.x), also Application Instance is changed to **Service Instance**.
-1. Service(in 5.x) is changed to **Endpoint**(in 6.x).
+- You can find the conference schedules, video recordings, and articles about SkyWalking in the [community resource catalog](https://github.com/OpenSkywalking/Community).
 
+We're always looking for help to improve our documentation and codes, so please don’t hesitate to [file an issue](https://github.com/apache/skywalking/issues/new) if you see any problems. 
+Or better yet, directly contribute by submitting a pull request to help us get better!
 

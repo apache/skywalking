@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
  * Pool of consumers <p> Created by wusheng on 2016/10/25.
@@ -35,7 +35,7 @@ public class ConsumeDriver<T> implements IDriver {
         long consumeCycle) {
         this(channels, num);
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumser." + i + ".Thread", getNewConsumerInstance(consumerClass), consumeCycle);
+            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumer." + i + ".Thread", getNewConsumerInstance(consumerClass), consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
     }
@@ -44,7 +44,7 @@ public class ConsumeDriver<T> implements IDriver {
         this(channels, num);
         prototype.init();
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumser." + i + ".Thread", prototype, consumeCycle);
+            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumer." + i + ".Thread", prototype, consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
 
@@ -59,12 +59,16 @@ public class ConsumeDriver<T> implements IDriver {
 
     private IConsumer<T> getNewConsumerInstance(Class<? extends IConsumer<T>> consumerClass) {
         try {
-            IConsumer<T> inst = consumerClass.newInstance();
+            IConsumer<T> inst = consumerClass.getDeclaredConstructor().newInstance();
             inst.init();
             return inst;
         } catch (InstantiationException e) {
             throw new ConsumerCannotBeCreatedException(e);
         } catch (IllegalAccessException e) {
+            throw new ConsumerCannotBeCreatedException(e);
+        } catch (NoSuchMethodException e) {
+            throw new ConsumerCannotBeCreatedException(e);
+        } catch (InvocationTargetException e) {
             throw new ConsumerCannotBeCreatedException(e);
         }
     }
@@ -74,8 +78,8 @@ public class ConsumeDriver<T> implements IDriver {
         if (running) {
             return;
         }
+        lock.lock();
         try {
-            lock.lock();
             this.allocateBuffer2Thread();
             for (ConsumerThread consumerThread : consumerThreads) {
                 consumerThread.start();
@@ -93,52 +97,27 @@ public class ConsumeDriver<T> implements IDriver {
 
     private void allocateBuffer2Thread() {
         int channelSize = this.channels.getChannelSize();
-        if (channelSize < consumerThreads.length) {
-            /**
-             * if consumerThreads.length > channelSize
-             * each channel will be process by several consumers.
-             */
-            ArrayList<Integer>[] threadAllocation = new ArrayList[channelSize];
-            for (int threadIndex = 0; threadIndex < consumerThreads.length; threadIndex++) {
-                int index = threadIndex % channelSize;
-                if (threadAllocation[index] == null) {
-                    threadAllocation[index] = new ArrayList<Integer>();
-                }
-                threadAllocation[index].add(threadIndex);
-            }
-
-            for (int channelIndex = 0; channelIndex < channelSize; channelIndex++) {
-                ArrayList<Integer> threadAllocationPerChannel = threadAllocation[channelIndex];
-                Buffer<T> channel = this.channels.getBuffer(channelIndex);
-                int bufferSize = channel.getBufferSize();
-                int step = bufferSize / threadAllocationPerChannel.size();
-                for (int i = 0; i < threadAllocationPerChannel.size(); i++) {
-                    int threadIndex = threadAllocationPerChannel.get(i);
-                    int start = i * step;
-                    int end = i == threadAllocationPerChannel.size() - 1 ? bufferSize : (i + 1) * step;
-                    consumerThreads[threadIndex].addDataSource(channel, start, end);
-                }
-            }
-        } else {
-            /**
-             * if consumerThreads.length < channelSize
-             * each consumer will process several channels.
-             *
-             * if consumerThreads.length == channelSize
-             * each consumer will process one channel.
-             */
-            for (int channelIndex = 0; channelIndex < channelSize; channelIndex++) {
-                int consumerIndex = channelIndex % consumerThreads.length;
-                consumerThreads[consumerIndex].addDataSource(channels.getBuffer(channelIndex));
-            }
+        /**
+         * if consumerThreads.length < channelSize
+         * each consumer will process several channels.
+         *
+         * if consumerThreads.length == channelSize
+         * each consumer will process one channel.
+         *
+         * if consumerThreads.length > channelSize
+         * there will be some threads do nothing.
+         */
+        for (int channelIndex = 0; channelIndex < channelSize; channelIndex++) {
+            int consumerIndex = channelIndex % consumerThreads.length;
+            consumerThreads[consumerIndex].addDataSource(channels.getBuffer(channelIndex));
         }
 
     }
 
     @Override
     public void close(Channels channels) {
+        lock.lock();
         try {
-            lock.lock();
             this.running = false;
             for (ConsumerThread consumerThread : consumerThreads) {
                 consumerThread.shutdown();

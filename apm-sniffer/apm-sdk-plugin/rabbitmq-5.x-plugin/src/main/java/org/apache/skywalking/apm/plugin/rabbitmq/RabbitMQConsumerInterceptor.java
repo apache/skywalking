@@ -36,15 +36,18 @@ import java.lang.reflect.Method;
 public class RabbitMQConsumerInterceptor implements InstanceMethodsAroundInterceptor {
     public static final String OPERATE_NAME_PREFIX = "RabbitMQ/";
     public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
         String url = (String) objInst.getSkyWalkingDynamicField();
-        Envelope envelope = (Envelope) allArguments[2];
-        AMQP.BasicProperties  properties = (AMQP.BasicProperties) allArguments[3];
-        AbstractSpan  activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + envelope.getExchange() + "Queue/" + envelope.getRoutingKey() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
-        Tags.MQ_BROKER.set(activeSpan,url);
-        Tags.MQ_TOPIC.set(activeSpan,envelope.getExchange());
+        Envelope envelope = (Envelope) allArguments[1];
+        AMQP.BasicProperties properties = (AMQP.BasicProperties) allArguments[2];
+        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + envelope.getExchange() + "Queue/" + envelope
+            .getRoutingKey() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+        Tags.MQ_BROKER.set(activeSpan, url);
+        Tags.MQ_TOPIC.set(activeSpan, envelope.getExchange());
         Tags.MQ_QUEUE.set(activeSpan, envelope.getRoutingKey());
         activeSpan.setComponent(ComponentsDefine.RABBITMQ_CONSUMER);
         SpanLayer.asMQ(activeSpan);
@@ -57,19 +60,19 @@ public class RabbitMQConsumerInterceptor implements InstanceMethodsAroundInterce
         }
         ContextManager.extract(contextCarrier);
 
-
     }
 
-
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
 
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 }

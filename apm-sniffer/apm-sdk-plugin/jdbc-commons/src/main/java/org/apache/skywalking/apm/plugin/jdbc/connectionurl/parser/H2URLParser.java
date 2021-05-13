@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -24,12 +23,9 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link H2URLParser} presents that skywalking how to parse the connection url of H2 database.
- *
- * {@link H2URLParser} check the connection url if contains "file" or "mem". if yes. the database
- * name substring the connection url from the index after "file" index or the "mem" index to the
- * index of first charset ";".
- *
- * @author zhangxin
+ * <p>
+ * {@link H2URLParser} check the connection url if contains "file" or "mem". if yes. the database name substring the
+ * connection url from the index after "file" index or the "mem" index to the index of first charset ";".
  */
 public class H2URLParser extends AbstractURLParser {
 
@@ -99,7 +95,10 @@ public class H2URLParser extends AbstractURLParser {
         }
 
         if (fileLabelIndex != -1) {
-            return new int[] {fileLabelIndex + FILE_MODE_FLAG.length() + 1, parameterLabelIndex};
+            return new int[] {
+                fileLabelIndex + FILE_MODE_FLAG.length() + 1,
+                parameterLabelIndex
+            };
         } else {
             return null;
         }
@@ -118,7 +117,10 @@ public class H2URLParser extends AbstractURLParser {
         }
 
         if (fileLabelIndex != -1) {
-            return new int[] {fileLabelIndex + MEMORY_MODE_FLAG.length() + 1, parameterLabelIndex};
+            return new int[] {
+                fileLabelIndex + MEMORY_MODE_FLAG.length() + 1,
+                parameterLabelIndex
+            };
         } else {
             return null;
         }

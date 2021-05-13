@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**
- * @author peng-yongsheng
- */
 public class CollectionUtils {
 
     public static boolean isEmpty(Map map) {

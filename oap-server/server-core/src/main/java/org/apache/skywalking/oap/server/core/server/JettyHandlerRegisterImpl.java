@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.server;
 
-import org.apache.skywalking.oap.server.library.server.jetty.*;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 
-/**
- * @author peng-yongsheng
- */
 public class JettyHandlerRegisterImpl implements JettyHandlerRegister {
 
     private final JettyServer server;
@@ -31,7 +29,8 @@ public class JettyHandlerRegisterImpl implements JettyHandlerRegister {
         this.server = server;
     }
 
-    @Override public void addHandler(JettyHandler serverHandler) {
+    @Override
+    public void addHandler(JettyHandler serverHandler) {
         server.addHandler(serverHandler);
     }
 }

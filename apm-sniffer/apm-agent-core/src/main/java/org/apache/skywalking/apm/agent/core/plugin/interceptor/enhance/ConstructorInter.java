@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
@@ -28,18 +27,16 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoa
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 
 /**
- * The actual byte-buddy's interceptor to intercept constructor methods.
- * In this class, it provide a bridge between byte-buddy and sky-walking plugin.
- *
- * @author wusheng
+ * The actual byte-buddy's interceptor to intercept constructor methods. In this class, it provide a bridge between
+ * byte-buddy and sky-walking plugin.
  */
 public class ConstructorInter {
-    private static final ILog logger = LogManager.getLogger(ConstructorInter.class);
+    private static final ILog LOGGER = LogManager.getLogger(ConstructorInter.class);
 
     /**
-     * An {@link InstanceConstructorInterceptor}
-     * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
-     * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
+     * An {@link InstanceConstructorInterceptor} This name should only stay in {@link String}, the real {@link Class}
+     * type will trigger classloader failure. If you want to know more, please check on books about Classloader or
+     * Classloader appointment mechanism.
      */
     private InstanceConstructorInterceptor interceptor;
 
@@ -57,18 +54,17 @@ public class ConstructorInter {
     /**
      * Intercept the target constructor.
      *
-     * @param obj target class instance.
+     * @param obj          target class instance.
      * @param allArguments all constructor arguments
      */
     @RuntimeType
-    public void intercept(@This Object obj,
-        @AllArguments Object[] allArguments) {
+    public void intercept(@This Object obj, @AllArguments Object[] allArguments) {
         try {
-            EnhancedInstance targetObject = (EnhancedInstance)obj;
+            EnhancedInstance targetObject = (EnhancedInstance) obj;
 
             interceptor.onConstruct(targetObject, allArguments);
         } catch (Throwable t) {
-            logger.error("ConstructorInter failure.", t);
+            LOGGER.error("ConstructorInter failure.", t);
         }
 
     }

@@ -16,26 +16,24 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3;
 
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * {@link ControllerConstructorInterceptor} cache the value of {@link RequestMapping} annotation with method in class
  * annotation with {@link org.springframework.stereotype.Controller}.
- *
- * @author zhangxin
  */
 public class ControllerConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         String basePath = "";
-        RequestMapping basePathRequestMapping = objInst.getClass().getAnnotation(RequestMapping.class);
+        RequestMapping basePathRequestMapping = AnnotationUtils.findAnnotation(objInst.getClass(), RequestMapping.class);
         if (basePathRequestMapping != null) {
             if (basePathRequestMapping.value().length > 0) {
                 basePath = basePathRequestMapping.value()[0];

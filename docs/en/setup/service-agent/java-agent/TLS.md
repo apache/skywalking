@@ -11,13 +11,16 @@ at the same time, the SkyWalking backend is in another region (VPC).
 Only support **no mutual auth**.
 - Use this [script](../../../../../tools/TLS/tls_key_generate.sh) if you are not familiar with how to generate key files.
 - Find `ca.crt`, and use it at client side
-- Find `server.crt` and `server.pem`. Use them at server side.
+- Find `server.crt` ,`server.pem` and `ca.crt`. Use them at server side. Please refer to [gRPC SSL](../../backend/grpc-ssl.md) 
+  for more details.
 
 ## Open and config TLS
 
 ### Agent config
 - Place `ca.crt` into `/ca` folder in agent package. Notice, `/ca` is not created in distribution, please create it by yourself.
 
-Agent open TLS automatically after the `/ca/ca.crt` file detected.
-
-o make sure can't access other ports out of region (VPC), such as firewall, proxy.
+- Agent open TLS automatically after the `/ca/ca.crt` file detected.
+- TLS with no CA mode could be activated by this setting.
+```
+agent.force_tls=${SW_AGENT_FORCE_TLS:false}
+```

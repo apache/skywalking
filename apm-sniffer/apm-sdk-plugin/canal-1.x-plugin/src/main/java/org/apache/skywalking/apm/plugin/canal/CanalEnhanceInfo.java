@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.canal;
 
-/**
- * @author withlin
- */
 public class CanalEnhanceInfo {
 
     public String getUrl() {
@@ -40,12 +37,14 @@ public class CanalEnhanceInfo {
         this.destination = destination;
         return this;
     }
-   /**
-    * canal-server address
-    */
+
+    /**
+     * canal-server address
+     */
     private String url;
-   /**
-    * canal destination
-    */
+
+    /**
+     * canal destination
+     */
     private String destination;
 }

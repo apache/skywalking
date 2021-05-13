@@ -1,0 +1,51 @@
+/* Copyright 2020 Istio Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Original File Location:
+//   https://github.com/istio/proxy/blob/bcdc1684df0839a612526f688ff7b475902f2feb/extensions/common/node_info.fbs
+
+namespace Wasm.Common;
+
+table KeyVal {
+  key:string (key);
+  value:string;
+}
+
+// NodeInfo represents the information extracted from proxy node metadata.
+table FlatNode {
+  // Name of the node. e.g. in k8s, name is the pod name.
+  name:string;
+  // Namespace that the node runs in.
+  namespace:string;
+  // K8s or vm workload attributes.
+  labels:[KeyVal];
+  owner:string;
+  workload_name:string;
+  // Platform metadata uses prefixed keys
+  // GCP uses gcp_* keys
+  platform_metadata:[KeyVal];
+  // Version identifier for the proxy.
+  istio_version:string;
+  // Unique identifier for the mesh. Taken from global mesh id parameter (or
+  // the configured trust domain when not specified).
+  mesh_id:string;
+  // List of short names for application containers that are using this proxy.
+  // This is only used for kubernetes, and is populated by the sidecar injector.
+  app_containers:[string];
+  // Identifier for the cluster to which this workload belongs (for k8s workloads).
+  cluster_id:string;
+}
+
+root_type FlatNode;

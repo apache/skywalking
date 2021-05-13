@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<enhanced>
+    <class class_name="test.apache.skywalking.apm.testcase.customize.service.TestService1">
+        <method method="staticMethod()" operation_name="/is_static_method" static="true"></method>
+        <method method="staticMethod(java.lang.String,int.class,java.util.Map,java.util.List,[Ljava.lang.Object;)"
+                operation_name="/is_static_method_args" static="true">
+            <operation_name_suffix>arg[0]</operation_name_suffix>
+            <operation_name_suffix>arg[1]</operation_name_suffix>
+            <operation_name_suffix>arg[3].[0]</operation_name_suffix>
+            <tag key="tag_1">arg[2].['k1']</tag>
+            <tag key="tag_2">arg[4].[1]</tag>
+            <log key="log_1">arg[4].[2]</log>
+        </method>
+        <method method="method()" static="false"></method>
+        <method method="method(java.lang.String,int.class)" operation_name="/method_2" static="false">
+            <operation_name_suffix>arg[0]</operation_name_suffix>
+            <tag key="tag_1">arg[0]</tag>
+            <log key="log_1">arg[1]</log>
+        </method>
+        <method
+            method="method(test.apache.skywalking.apm.testcase.customize.model.Model0,java.lang.String,int.class)"
+            operation_name="/method_3" static="false">
+            <operation_name_suffix>arg[0].id</operation_name_suffix>
+            <operation_name_suffix>arg[0].model1.name</operation_name_suffix>
+            <operation_name_suffix>arg[0].model1.getId()</operation_name_suffix>
+            <tag key="tag_os">arg[0].os.[1]</tag>
+            <log key="log_map">arg[0].getM().['k1']</log>
+        </method>
+    </class>
+    <class class_name="test.apache.skywalking.apm.testcase.customize.service.TestService2">
+        <method method="staticMethod(java.lang.String,int.class)" operation_name="/is_2_static_method" static="true">
+            <tag key="tag_2_1">arg[0]</tag>
+            <log key="log_1_1">arg[1]</log>
+        </method>
+        <method method="method([Ljava.lang.Object;)" operation_name="/method_4" static="false">
+            <tag key="tag_4_1">arg[0].[0]</tag>CustomizeController
+        </method>
+        <method method="method(java.util.List,int.class)" operation_name="/method_5" static="false">
+            <tag key="tag_5_1">arg[0].[0]</tag>
+            <log key="log_5_1">arg[1]</log>
+        </method>
+    </class>
+</enhanced>

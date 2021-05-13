@@ -18,27 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
 
-/**
- * @author wusheng
- */
 @ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
 public class DatabaseSlowStatement extends Source {
-    @Getter @Setter private String id;
-    @Getter @Setter private int databaseServiceId;
-    @Getter @Setter private String statement;
-    @Getter @Setter private long latency;
-    @Getter @Setter private String traceId;
+    @Getter
+    @Setter
+    private String id;
+    @Getter
+    @Setter
+    private String databaseServiceId;
+    @Getter
+    @Setter
+    private String statement;
+    @Getter
+    @Setter
+    private long latency;
+    @Getter
+    @Setter
+    private String traceId;
 
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
     }
 
-    @Override public String getEntityId() {
+    @Override
+    public String getEntityId() {
         return Const.EMPTY_STRING;
     }
 

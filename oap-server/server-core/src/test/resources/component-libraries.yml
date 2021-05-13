@@ -215,6 +215,75 @@ spring-webflux:
 Play:
   id: 68
   languages: Java,Scala
+cassandra-java-driver:
+  id: 69
+  languages: Java
+Cassandra:
+  id: 70
+  languages: Java
+Light4J:
+  id: 71
+  languages: Java
+Ehcache:
+  id: 75
+  languages: Java
+SocketIO:
+  id: 76
+  languages: Java
+rest-high-level-client:
+  id: 77
+  languages: Java
+spring-tx:
+  id: 78
+  languages: Java
+Armeria:
+  id: 79
+  languages: Java
+JdkThreading:
+  id: 80
+  languages: Java
+AvroServer:
+  id: 82
+  languages: Java
+AvroClient:
+  id: 83
+  languages: Java
+Finagle:
+  id: 85
+  languages: Java,Scala
+Mariadb:
+  id: 86
+  languages: Java
+mariadb-jdbc:
+  id: 87
+  languages: Java
+quasar:
+  id: 88
+  languages: Java
+InfluxDB:
+  id: 89
+  languages: Java
+influxdb-java:
+  id: 90
+  languages: Java
+SpringScheduled:
+  id: 96
+  languages: Java
+quartz-scheduler:
+  id: 97
+  languages: Java
+xxl-job:
+  id: 98
+  languages: Java
+spring-webflux-webclient:
+  id: 99
+  languages: Java
+thrift-server:
+  id: 100
+  languages: Java
+thrift-client:
+  id: 101
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -312,4 +381,7 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
+  rest-high-level-client: Elasticsearch
   SolrJ: Solr
+  cassandra-java-driver: Cassandra
+  mariadb-jdbc: Mariadb

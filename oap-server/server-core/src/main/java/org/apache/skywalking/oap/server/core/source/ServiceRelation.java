@@ -18,37 +18,94 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.Const;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME;
 
-/**
- * @author peng-yongsheng
- */
-@ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation")
+@ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation", catalog = SERVICE_RELATION_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceRelation extends Source {
+    private String entityId;
 
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.SERVICE_RELATION;
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(sourceServiceId) + Const.ID_SPLIT + String.valueOf(destServiceId);
+    @Override
+    public String getEntityId() {
+        if (StringUtil.isEmpty(entityId)) {
+            entityId = IDManager.ServiceID.buildRelationId(
+                new IDManager.ServiceID.ServiceRelationDefine(
+                    sourceServiceId,
+                    destServiceId
+                )
+            );
+        }
+        return entityId;
     }
 
-    @Getter @Setter private int sourceServiceId;
-    @Getter @Setter private String sourceServiceName;
-    @Getter @Setter private String sourceServiceInstanceName;
-    @Getter @Setter private int destServiceId;
-    @Getter @Setter private String destServiceName;
-    @Getter @Setter private String destServiceInstanceName;
-    @Getter @Setter private String endpoint;
-    @Getter @Setter private int componentId;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
-    @Getter @Setter private DetectPoint detectPoint;
+    @Getter
+    private String sourceServiceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_name", requireDynamicActive = true)
+    private String sourceServiceName;
+    @Setter
+    private NodeType sourceServiceNodeType;
+    @Getter
+    @Setter
+    private String sourceServiceInstanceName;
+    @Getter
+    private String destServiceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_name", requireDynamicActive = true)
+    private String destServiceName;
+    @Setter
+    private NodeType destServiceNodeType;
+    @Getter
+    @Setter
+    private String destServiceInstanceName;
+    @Getter
+    @Setter
+    private String endpoint;
+    @Getter
+    @Setter
+    private int componentId;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
+    @Getter
+    @Setter
+    private DetectPoint detectPoint;
+    @Getter
+    @Setter
+    private String tlsMode;
+    @Getter
+    @Setter
+    private SideCar sideCar = new SideCar();
+    @Getter
+    @Setter
+    private TCPInfo tcpInfo = new TCPInfo();
+
+    @Override
+    public void prepare() {
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceServiceNodeType);
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceNodeType);
+    }
 }

@@ -17,9 +17,11 @@
 # limitations under the License.
 #
 
+tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist
+
 # List all modules(jars) that belong to the SkyWalking itself, these will be ignored
 # when checking the dependency licenses
-./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
+./mvnw --batch-mode -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
 
 ls dist/apache-skywalking-apm-bin/oap-libs > all-dependencies.txt
 
@@ -33,3 +35,17 @@ grep -vf self-modules.txt all-dependencies.txt > third-party-dependencies.txt
 # used to sort the file `known-oap-backend-dependencies.txt`,
 # i.e. "sort the two file using the same command (and default arguments)"
 diff -w -B -U0 <(cat tools/dependencies/known-oap-backend-dependencies.txt | sort) <(cat third-party-dependencies.txt | sort)
+
+status=$?
+
+[[ ${status} -ne 0 ]] && exit ${status}
+
+# Check ES7 distribution package
+
+tar -zxf dist/apache-skywalking-apm-bin-es7.tar.gz -C dist
+
+ls dist/apache-skywalking-apm-bin-es7/oap-libs > all-dependencies-es7.txt
+
+grep -vf self-modules.txt all-dependencies-es7.txt > third-party-dependencies-es7.txt
+
+diff -w -B -U0 <(cat tools/dependencies/known-oap-backend-dependencies-es7.txt | sort) <(cat third-party-dependencies-es7.txt | sort)

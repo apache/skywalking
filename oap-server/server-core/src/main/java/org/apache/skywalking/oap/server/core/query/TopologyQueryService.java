@@ -18,44 +18,38 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.type.Call;
+import org.apache.skywalking.oap.server.core.query.type.EndpointNode;
+import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
+import org.apache.skywalking.oap.server.core.query.type.Node;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
+import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.query.*;
+import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.common.Strings;
-import org.slf4j.*;
 
-/**
- * @author peng-yongsheng
- */
+@Slf4j
 public class TopologyQueryService implements Service {
-
-    private static final Logger logger = LoggerFactory.getLogger(TopologyQueryService.class);
-
     private final ModuleManager moduleManager;
     private ITopologyQueryDAO topologyQueryDAO;
-    private IMetadataQueryDAO metadataQueryDAO;
-    private EndpointInventoryCache endpointInventoryCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TopologyQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-    }
-
-    private IMetadataQueryDAO getMetadataQueryDAO() {
-        if (metadataQueryDAO == null) {
-            metadataQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetadataQueryDAO.class);
-        }
-        return metadataQueryDAO;
     }
 
     private ITopologyQueryDAO getTopologyQueryDAO() {
@@ -67,48 +61,55 @@ public class TopologyQueryService implements Service {
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
         if (componentLibraryCatalogService == null) {
-            componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
+            componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(IComponentLibraryCatalogService.class);
         }
         return componentLibraryCatalogService;
     }
 
-    private EndpointInventoryCache getEndpointInventoryCache() {
-        if (endpointInventoryCache == null) {
-            endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
-        }
-        return endpointInventoryCache;
+    public Topology getGlobalTopology(final long startTB,
+                                      final long endTB) throws IOException {
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
+            startTB, endTB);
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadServiceRelationDetectedAtClientSide(
+            startTB, endTB);
+
+        ServiceTopologyBuilder builder = new ServiceTopologyBuilder(moduleManager);
+        return builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
     }
 
-    public Topology getGlobalTopology(final Downsampling downsampling, final long startTB, final long endTB, final long startTimestamp,
-        final long endTimestamp) throws IOException {
-        logger.debug("Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", downsampling, startTB, endTB);
-        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(downsampling, startTB, endTB);
-        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(downsampling, startTB, endTB);
+    public Topology getServiceTopology(final long startTB, final long endTB,
+                                       final List<String> serviceIds) throws IOException {
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadServiceRelationDetectedAtClientSide(
+            startTB, endTB, serviceIds);
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
+            startTB, endTB, serviceIds);
 
-        TopologyBuilder builder = new TopologyBuilder(moduleManager);
+        ServiceTopologyBuilder builder = new ServiceTopologyBuilder(moduleManager);
         Topology topology = builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
 
-        return topology;
-    }
-
-    public Topology getServiceTopology(final Downsampling downsampling, final long startTB, final long endTB, final int serviceId) throws IOException {
-        List<Integer> serviceIds = new ArrayList<>();
-        serviceIds.add(serviceId);
-
-        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(downsampling, startTB, endTB, serviceIds);
-        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(downsampling, startTB, endTB, serviceIds);
-
-        TopologyBuilder builder = new TopologyBuilder(moduleManager);
-        Topology topology = builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
-
-        List<Integer> sourceServiceIds = new ArrayList<>();
-        serviceRelationClientCalls.forEach(call -> sourceServiceIds.add(call.getSource()));
-        if (CollectionUtils.isNotEmpty(sourceServiceIds)) {
-            List<Call.CallDetail> sourceCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(downsampling, startTB, endTB, sourceServiceIds);
+        /**
+         * The topology built above is complete.
+         * There is a special case, there may be a node of the `serviceIds` call these services as and only as a client, so it is included in the topology,
+         * its component name could be missed as not being queried before. We add another query about this.
+         */
+        List<String> outScopeSourceServiceIds = new ArrayList<>();
+        serviceRelationClientCalls.forEach(call -> {
+            // Client side relationships exclude the given services(#serviceIds)
+            // The given services(#serviceIds)'s component names have been included inside `serviceRelationServerCalls`
+            if (!serviceIds.contains(call.getSource())) {
+                outScopeSourceServiceIds.add(call.getSource());
+            }
+        });
+        if (CollectionUtils.isNotEmpty(outScopeSourceServiceIds)) {
+            // If exist, query them as the server side to get the target's component.
+            List<Call.CallDetail> sourceCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
+                startTB, endTB, outScopeSourceServiceIds);
             topology.getNodes().forEach(node -> {
                 if (Strings.isNullOrEmpty(node.getType())) {
                     for (Call.CallDetail call : sourceCalls) {
-                        if (node.getId() == call.getTarget()) {
+                        if (node.getId().equals(call.getTarget())) {
                             node.setType(getComponentLibraryCatalogService().getComponentName(call.getComponentId()));
                             break;
                         }
@@ -120,8 +121,24 @@ public class TopologyQueryService implements Service {
         return topology;
     }
 
-    public Topology getEndpointTopology(final Downsampling downsampling, final long startTB, final long endTB, final int endpointId) throws IOException {
-        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(downsampling, startTB, endTB, endpointId);
+    public ServiceInstanceTopology getServiceInstanceTopology(final String clientServiceId,
+                                                              final String serverServiceId,
+                                                              final long startTB,
+                                                              final long endTB) throws IOException {
+        List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtClientSide(
+            clientServiceId, serverServiceId, startTB, endTB);
+        List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtServerSide(
+            clientServiceId, serverServiceId, startTB, endTB);
+
+        ServiceInstanceTopologyBuilder builder = new ServiceInstanceTopologyBuilder(moduleManager);
+        return builder.build(serviceInstanceRelationClientCalls, serviceInstanceRelationServerCalls);
+    }
+
+    @Deprecated
+    public Topology getEndpointTopology(final long startTB, final long endTB,
+                                        final String endpointId) throws IOException {
+        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadEndpointRelation(
+            startTB, endTB, endpointId);
 
         Topology topology = new Topology();
         serverSideCalls.forEach(callDetail -> {
@@ -133,7 +150,7 @@ public class TopologyQueryService implements Service {
             topology.getCalls().add(call);
         });
 
-        Set<Integer> nodeIds = new HashSet<>();
+        Set<String> nodeIds = new HashSet<>();
         serverSideCalls.forEach(call -> {
             if (!nodeIds.contains(call.getSource())) {
                 topology.getNodes().add(buildEndpointNode(call.getSource()));
@@ -148,12 +165,59 @@ public class TopologyQueryService implements Service {
         return topology;
     }
 
-    private Node buildEndpointNode(int endpointId) {
+    public EndpointTopology getEndpointDependencies(final long startTB, final long endTB,
+                                                    final String endpointId) throws IOException {
+        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadEndpointRelation(
+            startTB, endTB, endpointId);
+
+        EndpointTopology topology = new EndpointTopology();
+        serverSideCalls.forEach(callDetail -> {
+            Call call = new Call();
+            call.setId(callDetail.getId());
+            call.setSource(callDetail.getSource());
+            call.setTarget(callDetail.getTarget());
+            call.addDetectPoint(DetectPoint.SERVER);
+            topology.getCalls().add(call);
+        });
+
+        Set<String> nodeIds = new HashSet<>();
+        serverSideCalls.forEach(call -> {
+            if (!nodeIds.contains(call.getSource())) {
+                topology.getNodes().add(buildEndpointDependencyNode(call.getSource()));
+                nodeIds.add(call.getSource());
+            }
+            if (!nodeIds.contains(call.getTarget())) {
+                topology.getNodes().add(buildEndpointDependencyNode(call.getTarget()));
+                nodeIds.add(call.getTarget());
+            }
+        });
+
+        return topology;
+    }
+
+    @Deprecated
+    private Node buildEndpointNode(String endpointId) {
         Node node = new Node();
         node.setId(endpointId);
-        node.setName(getEndpointInventoryCache().get(endpointId).getName());
+        final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+            endpointId);
+        node.setName(endpointIDDefinition.getEndpointName());
         node.setType(Const.EMPTY_STRING);
         node.setReal(true);
         return node;
+    }
+
+    private EndpointNode buildEndpointDependencyNode(String endpointId) {
+        final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+            endpointId);
+        EndpointNode instanceNode = new EndpointNode();
+        instanceNode.setId(endpointId);
+        instanceNode.setName(endpointIDDefinition.getEndpointName());
+        instanceNode.setServiceId(endpointIDDefinition.getServiceId());
+        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+            endpointIDDefinition.getServiceId());
+        instanceNode.setServiceName(serviceIDDefinition.getName());
+        instanceNode.setReal(serviceIDDefinition.isReal());
+        return instanceNode;
     }
 }

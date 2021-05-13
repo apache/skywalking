@@ -16,16 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.mvc;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.nutz.mvc.annotation.At;
 
-/**
- * @author wendal
- */
 public class ActionConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override

@@ -19,43 +19,64 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.jvm.module.JVMModule;
-import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.*;
+import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMMetricReportServiceHandler;
+import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMMetricReportServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
-/**
- * @author peng-yongsheng
- */
 public class JVMModuleProvider extends ModuleProvider {
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return JVMModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public void prepare() {
+    @Override
+    public void prepare() {
     }
 
-    @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new JVMMetricsServiceHandler(getManager()));
-        grpcHandlerRegister.addHandler(new JVMMetricReportServiceHandler(getManager()));
+    @Override
+    public void start() throws ModuleStartException {
+        // load official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(JVMOALDefine.INSTANCE);
+
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
+        JVMMetricReportServiceHandler jvmMetricReportServiceHandler = new JVMMetricReportServiceHandler(getManager());
+        grpcHandlerRegister.addHandler(jvmMetricReportServiceHandler);
+        grpcHandlerRegister.addHandler(new JVMMetricReportServiceHandlerCompat(jvmMetricReportServiceHandler));
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
 
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME, SharingServerModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            CoreModule.NAME,
+            SharingServerModule.NAME
+        };
     }
 }

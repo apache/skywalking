@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import java.lang.reflect.Method;
@@ -30,23 +29,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link ConnectionServiceMethodInterceptor} create an exit span when the following methods execute:
- * 1. close
- * 2. rollback
- * 3. releaseSavepoint
- * 4. commit
- *
- * @author zhangxin
+ * {@link ConnectionServiceMethodInterceptor} create an exit span when the following methods execute: 1. close 2.
+ * rollback 3. releaseSavepoint 4. commit
  */
 public class ConnectionServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        ConnectionInfo connectInfo = (ConnectionInfo)objInst.getSkyWalkingDynamicField();
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        ConnectionInfo connectInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
         if (connectInfo != null) {
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), connectInfo.getDatabasePeer());
+            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), connectInfo
+                .getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, "");
@@ -57,18 +51,18 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        ConnectionInfo connectInfo = (ConnectionInfo)objInst.getSkyWalkingDynamicField();
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        ConnectionInfo connectInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
         if (connectInfo != null) {
             ContextManager.stopSpan();
         }
         return ret;
     }
 
-    @Override public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
 }

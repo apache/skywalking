@@ -44,8 +44,6 @@ import static com.alibaba.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARA
  * com.alibaba.rocketmq.client.impl.producer.TopicPublishInfo, com.alibaba.rocketmq.client.impl.factory.MQClientInstance,
  * int, com.alibaba.rocketmq.client.hook.SendMessageContext, com.alibaba.rocketmq.client.impl.producer.DefaultMQProducerImpl)}
  * execute.
- *
- * @author carlvine500
  */
 public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -54,16 +52,17 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        Message message = (Message)allArguments[2];
+        Message message = (Message) allArguments[2];
         ContextCarrier contextCarrier = new ContextCarrier();
         String namingServiceAddress = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
         span.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
-        Tags.MQ_BROKER.set(span, (String)allArguments[0]);
+        Tags.MQ_BROKER.set(span, (String) allArguments[0]);
         Tags.MQ_TOPIC.set(span, message.getTopic());
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(span);
 
-        SendMessageRequestHeader requestHeader = (SendMessageRequestHeader)allArguments[3];
+        SendMessageRequestHeader requestHeader = (SendMessageRequestHeader) allArguments[3];
         StringBuilder properties = new StringBuilder(requestHeader.getProperties());
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -78,7 +77,8 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         requestHeader.setProperties(properties.toString());
 
         if (allArguments[6] != null) {
-            ((EnhancedInstance)allArguments[6]).setSkyWalkingDynamicField(new SendCallBackEnhanceInfo(message.getTopic(), ContextManager.capture()));
+            ((EnhancedInstance) allArguments[6]).setSkyWalkingDynamicField(new SendCallBackEnhanceInfo(message.getTopic(), ContextManager
+                .capture()));
         }
     }
 
@@ -89,9 +89,10 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private String buildOperationName(String topicName) {

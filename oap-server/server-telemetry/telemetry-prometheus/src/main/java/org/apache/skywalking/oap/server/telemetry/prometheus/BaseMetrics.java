@@ -19,14 +19,14 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.SimpleCollector;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
- * BaseMetrics parent class represents the me
- *
- * @author wusheng
+ * BaseMetrics parent class represents the metrics
  */
 public abstract class BaseMetrics<T extends SimpleCollector, C> {
     private static Map<String, Object> ALL_METRICS = new HashMap<>();
@@ -38,8 +38,7 @@ public abstract class BaseMetrics<T extends SimpleCollector, C> {
     protected final MetricsTag.Values values;
     private ReentrantLock lock = new ReentrantLock();
 
-    public BaseMetrics(String name, String tips, MetricsTag.Keys labels,
-        MetricsTag.Values values) {
+    public BaseMetrics(String name, String tips, MetricsTag.Keys labels, MetricsTag.Values values) {
         this.name = name;
         this.tips = tips;
         this.labels = labels;
@@ -50,6 +49,12 @@ public abstract class BaseMetrics<T extends SimpleCollector, C> {
         return TelemetryRelatedContext.INSTANCE.getId() != null;
     }
 
+    /**
+     * Create real prometheus metrics with SkyWalking native labels, and provide to all metrics implementation. Metrics
+     * name should be unique.
+     *
+     * @return metric reference if the service instance id has been initialized. Or NULL.
+     */
     protected C getMetric() {
         if (metricsInstance == null) {
             if (isIDReady()) {
@@ -76,9 +81,9 @@ public abstract class BaseMetrics<T extends SimpleCollector, C> {
                             }
                         }
 
-                        T metrics = (T)ALL_METRICS.get(name);
+                        T metrics = (T) ALL_METRICS.get(name);
 
-                        metricsInstance = (C)metrics.labels(labelValues);
+                        metricsInstance = (C) metrics.labels(labelValues);
                     }
                 } finally {
                     lock.unlock();

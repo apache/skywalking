@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author peng-yongsheng
- */
 public interface ModuleServiceHolder {
 
     void registerServiceImplementation(Class<? extends Service> serviceType,

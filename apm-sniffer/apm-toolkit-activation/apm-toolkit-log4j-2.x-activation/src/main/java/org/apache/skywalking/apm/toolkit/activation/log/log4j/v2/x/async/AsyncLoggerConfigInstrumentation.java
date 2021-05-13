@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,11 +29,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Instrument to intercept AsyncLoggerConfig of log4j2, .
- * Finally I choose populateLazilyInitializedFields as the intercept point, which all versions of AsyncAppender will actually work with
- * What's more, I choose callAppenders as the intercept point before, while it never works after log4j2 2.11.1+
- *
- * @author xuhe
+ * Instrument to intercept AsyncLoggerConfig of log4j2, . Finally I choose populateLazilyInitializedFields as the
+ * intercept point, which all versions of AsyncAppender will actually work with What's more, I choose callAppenders as
+ * the intercept point before, while it never works after log4j2 2.11.1+
  */
 
 public class AsyncLoggerConfigInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
@@ -50,7 +47,7 @@ public class AsyncLoggerConfigInstrumentation extends ClassInstanceMethodsEnhanc
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

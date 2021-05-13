@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -24,14 +23,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.plugin.sjdbc.ExecuteEventListener;
 
 /**
- * {@link ExecutorEngineConstructorInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine}'s constructor,
- * initializing {@link ExecuteEventListener}
- * 
- * @author gaohongtao
+ * {@link ExecutorEngineConstructorInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine}'s
+ * constructor, initializing {@link ExecuteEventListener}
  */
 public class ExecutorEngineConstructorInterceptor implements InstanceConstructorInterceptor {
-    
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         ExecuteEventListener.init();
     }
 }

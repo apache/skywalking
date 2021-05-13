@@ -19,20 +19,19 @@
 package org.apache.skywalking.oap.server.core.remote.selector;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class ForeverFirstSelector implements RemoteClientSelector {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ForeverFirstSelector.class);
 
-    @Override public RemoteClient select(List<RemoteClient> clients, StreamData streamData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("clients size: {}", clients.size());
+    @Override
+    public RemoteClient select(List<RemoteClient> clients, StreamData streamData) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("clients size: {}", clients.size());
         }
         return clients.get(0);
     }

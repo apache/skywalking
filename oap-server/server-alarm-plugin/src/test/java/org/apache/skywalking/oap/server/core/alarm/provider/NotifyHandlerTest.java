@@ -20,28 +20,46 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.*;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import static junit.framework.TestCase.*;
-import static org.mockito.Mockito.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Created by dengming, 2019.04.22
- */
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 @PrepareForTest(DefaultScopeDefine.class)
 public class NotifyHandlerTest {
 
@@ -53,17 +71,9 @@ public class NotifyHandlerTest {
 
     private ModuleServiceHolder moduleServiceHolder;
 
-    private ServiceInventoryCache serviceInventoryCache;
-
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-
-    private EndpointInventoryCache endpointInventoryCache;
-
     private MockMetrics metrics;
 
     private MetricsMetaInfo metadata;
-
-    private int mockId = 1;
 
     private RunningRule rule;
 
@@ -77,16 +87,13 @@ public class NotifyHandlerTest {
         when(DefaultScopeDefine.inEndpointCatalog(0)).thenReturn(true);
 
         String endpointInventoryName = "endpoint-inventory-name";
-        EndpointInventory endpointInventory = mock(EndpointInventory.class);
-        when(endpointInventory.getName()).thenReturn(endpointInventoryName);
+        EndpointTraffic endpointTraffic = mock(EndpointTraffic.class);
+        when(endpointTraffic.getName()).thenReturn(endpointInventoryName);
 
         String serviceInventoryName = "service-inventory-name";
-        ServiceInventory serviceInventory = mock(ServiceInventory.class);
-        when(serviceInventory.getName()).thenReturn(serviceInventoryName);
-
-        when(serviceInventoryCache.get(anyInt())).thenReturn(serviceInventory);
-
-        when(endpointInventoryCache.get(anyInt())).thenReturn(endpointInventory);
+        final String serviceId = IDManager.ServiceID.buildId(serviceInventoryName, NodeType.Normal);
+        final String endpointId = IDManager.EndpointID.buildId(serviceId, endpointInventoryName);
+        when(metadata.getId()).thenReturn(endpointId);
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
@@ -96,7 +103,8 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof EndpointMetaInAlarm);
-        assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals("c2VydmljZS1pbnZlbnRvcnktbmFtZQ==.1_ZW5kcG9pbnQtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
+        assertEquals(DefaultScopeDefine.ENDPOINT_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(endpointInventoryName + " in " + serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.ENDPOINT, metaInAlarm.getScopeId());
@@ -113,11 +121,10 @@ public class NotifyHandlerTest {
 
         when(DefaultScopeDefine.inServiceInstanceCatalog(0)).thenReturn(true);
 
-        ServiceInstanceInventory instanceInventory = mock(ServiceInstanceInventory.class);
         String instanceInventoryName = "instance-inventory-name";
-        when(instanceInventory.getName()).thenReturn(instanceInventoryName);
-
-        when(serviceInstanceInventoryCache.get(anyInt())).thenReturn(instanceInventory);
+        final String serviceId = IDManager.ServiceID.buildId("service", NodeType.Normal);
+        final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceInventoryName);
+        when(metadata.getId()).thenReturn(instanceId);
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
@@ -128,8 +135,9 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof ServiceInstanceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals(mockId, metaInAlarm.getId0());
-        assertEquals(instanceInventoryName, metaInAlarm.getName());
+        assertEquals("c2VydmljZQ==.1_aW5zdGFuY2UtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
+        assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("instance-inventory-name of service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE, metaInAlarm.getScopeId());
     }
 
@@ -140,12 +148,8 @@ public class NotifyHandlerTest {
         String metricsName = "service-metrics";
         when(metadata.getMetricsName()).thenReturn(metricsName);
         when(DefaultScopeDefine.inServiceCatalog(0)).thenReturn(true);
-
-        ServiceInventory serviceInventory = mock(ServiceInventory.class);
-        String serviceInventoryName = "service-inventory";
-        when(serviceInventory.getName()).thenReturn(serviceInventoryName);
-
-        when(serviceInventoryCache.get(anyInt())).thenReturn(serviceInventory);
+        final String serviceId = IDManager.ServiceID.buildId("service", NodeType.Normal);
+        when(metadata.getId()).thenReturn(serviceId);
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
@@ -156,17 +160,103 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof ServiceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals(mockId, metaInAlarm.getId0());
-        assertEquals(serviceInventoryName, metaInAlarm.getName());
+        assertEquals("c2VydmljZQ==.1", metaInAlarm.getId0());
+        assertEquals(DefaultScopeDefine.SERVICE_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE, metaInAlarm.getScopeId());
     }
 
-    private void prepareNotify() {
-        notifyHandler.initCache(moduleManager);
+    @Test
+    public void testNotifyWithServiceRelationCatalog() {
+        prepareNotify();
 
+        String metricsName = "service-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inServiceRelationCatalog(0)).thenReturn(true);
+        final String serviceRelationId = IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
+            IDManager.ServiceID.buildId("from-service", true),
+            IDManager.ServiceID.buildId("dest-service", true)
+        ));
+        when(metadata.getId()).thenReturn(serviceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof ServiceRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("from-service to dest-service", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.SERVICE_RELATION, metaInAlarm.getScopeId());
+    }
+
+    @Test
+    public void testNotifyWithServiceInstanceRelationCatalog() {
+        prepareNotify();
+
+        String metricsName = "service-instance-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inServiceInstanceRelationCatalog(0)).thenReturn(true);
+        final String serviceInstanceRelationId = IDManager.ServiceInstanceID.buildRelationId(new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
+            IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("from-service", true), "from-service-instance"),
+            IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("dest-service", true), "dest-service-instance")
+        ));
+        when(metadata.getId()).thenReturn(serviceInstanceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof ServiceInstanceRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1_ZnJvbS1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1_ZGVzdC1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("from-service-instance of from-service to dest-service-instance of dest-service", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION, metaInAlarm.getScopeId());
+    }
+
+    @Test
+    public void testNotifyWithEndpointRelationCatalog() {
+        prepareNotify();
+
+        String metricsName = "endpoint-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inEndpointRelationCatalog(0)).thenReturn(true);
+        final String serviceInstanceRelationId = IDManager.EndpointID.buildRelationId(new IDManager.EndpointID.EndpointRelationDefine(
+            IDManager.ServiceID.buildId("from-service", true), "/source-path",
+            IDManager.ServiceID.buildId("dest-service", true), "/dest-path"
+        ));
+        when(metadata.getId()).thenReturn(serviceInstanceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof EndpointRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1_L3NvdXJjZS1wYXRo", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1_L2Rlc3QtcGF0aA==", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("/source-path in from-service to /dest-path in dest-service", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.ENDPOINT_RELATION, metaInAlarm.getScopeId());
+    }
+
+    private void prepareNotify() {
         metadata = mock(MetricsMetaInfo.class);
         when(metadata.getScope()).thenReturn(DefaultScopeDefine.ALL);
-        when(metadata.getId()).thenReturn(String.valueOf(mockId));
+        when(metadata.getId()).thenReturn("");
 
         metrics = mock(MockMetrics.class);
         when(metrics.getMeta()).thenReturn(metadata);
@@ -186,18 +276,14 @@ public class NotifyHandlerTest {
         notifyHandler.notify(mockMetrics);
     }
 
-    @Test
-    public void initCache() {
-
-        notifyHandler.initCache(moduleManager);
-    }
-
     @Before
     public void setUp() throws Exception {
 
         Rules rules = new Rules();
 
-        notifyHandler = new NotifyHandler(rules);
+        moduleManager = mock(ModuleManager.class);
+
+        notifyHandler = new NotifyHandler(new AlarmRulesWatcher(rules, null), moduleManager);
 
         notifyHandler.init(alarmMessageList -> {
             for (AlarmMessage message : alarmMessageList) {
@@ -205,22 +291,12 @@ public class NotifyHandlerTest {
             }
         });
 
-        moduleManager = mock(ModuleManager.class);
-
         moduleProviderHolder = mock(ModuleProviderHolder.class);
 
         moduleServiceHolder = mock(ModuleServiceHolder.class);
 
         when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
         when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
-
-        serviceInventoryCache = mock(ServiceInventoryCache.class);
-        serviceInstanceInventoryCache = mock(ServiceInstanceInventoryCache.class);
-        endpointInventoryCache = mock(EndpointInventoryCache.class);
-
-        when(moduleServiceHolder.getService(ServiceInventoryCache.class)).thenReturn(serviceInventoryCache);
-        when(moduleServiceHolder.getService(ServiceInstanceInventoryCache.class)).thenReturn(serviceInstanceInventoryCache);
-        when(moduleServiceHolder.getService(EndpointInventoryCache.class)).thenReturn(endpointInventoryCache);
 
         AlarmCore core = mock(AlarmCore.class);
 

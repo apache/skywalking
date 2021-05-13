@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
-/**
- * @author wusheng
- */
 public class TableMetaInfo {
     private static Map<String, Model> TABLES = new HashMap<>();
 

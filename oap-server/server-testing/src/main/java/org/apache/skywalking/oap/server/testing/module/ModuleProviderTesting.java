@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.testing.module;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-/**
- * @author peng-yongsheng
- */
 public class ModuleProviderTesting implements ModuleServiceHolder {
 
     private final Map<Class<? extends Service>, Service> services = new HashMap<>();
 
-    @Override public void registerServiceImplementation(Class<? extends Service> serviceType,
-        Service service) throws ServiceNotProvidedException {
+    @Override
+    public void registerServiceImplementation(Class<? extends Service> serviceType,
+                                              Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
             this.services.put(serviceType, service);
         } else {
@@ -37,7 +38,8 @@ public class ModuleProviderTesting implements ModuleServiceHolder {
         }
     }
 
-    @Override public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
-        return (T)services.get(serviceType);
+    @Override
+    public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
+        return (T) services.get(serviceType);
     }
 }

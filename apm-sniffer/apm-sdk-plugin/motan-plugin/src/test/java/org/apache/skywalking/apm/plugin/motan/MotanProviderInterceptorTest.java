@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;
@@ -24,21 +23,23 @@ import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,16 +47,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -83,7 +80,6 @@ public class MotanProviderInterceptorTest {
 
     @Before
     public void setUp() {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         invokeInterceptor = new MotanProviderInterceptor();
         url = URL.valueOf("motan://127.0.0.1:34000/org.apache.skywalking.apm.test.TestService");
 
@@ -95,12 +91,6 @@ public class MotanProviderInterceptorTest {
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");
     }
 
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
-    }
-
     @Test
     public void testInvokerWithoutRefSegment() throws Throwable {
         invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
@@ -110,14 +100,16 @@ public class MotanProviderInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertMotanProviderSpan(spans.get(0));
-        assertTrue(traceSegment.getRefs() == null);
-
+        assertNull(traceSegment.getRef());
     }
 
     @Test
     public void testInvokerWithRefSegment() throws Throwable {
         HashMap attachments = new HashMap();
-        attachments.put(SW3CarrierItem.HEADER_NAME, "1.123.456|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        attachments.put(
+            SW8CarrierItem.HEADER_NAME,
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="
+        );
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
@@ -127,7 +119,7 @@ public class MotanProviderInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertMotanProviderSpan(spans.get(0));
-        assertRefSegment(traceSegment.getRefs().get(0));
+        assertRefSegment(traceSegment.getRef());
     }
 
     @Test
@@ -144,7 +136,8 @@ public class MotanProviderInterceptorTest {
     public void testOccurException() throws Throwable {
 
         invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);
-        invokeInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
+        invokeInterceptor.handleMethodException(
+            enhancedInstance, null, arguments, argumentType, new RuntimeException());
         invokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, response);
 
         assertTraceSegmentWhenOccurException();
@@ -161,14 +154,17 @@ public class MotanProviderInterceptorTest {
     }
 
     private void assertRefSegment(TraceSegmentRef primaryRef) {
-        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.123.456"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("3.4.5"));
         assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(primaryRef), is(1));
-        assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
+        MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(primaryRef), is("instance"));
+        assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("127.0.0.1:8080"));
     }
 
     private void assertMotanProviderSpan(AbstractTracingSpan span) {
-        assertThat(span.getOperationName(), is("org.apache.skywalking.apm.test.TestService.test(java.lang.String, java.lang.Object)"));
+        assertThat(
+            span.getOperationName(),
+            is("org.apache.skywalking.apm.test.TestService.test(java.lang.String, java.lang.Object)")
+        );
         assertComponent(span, ComponentsDefine.MOTAN);
         assertThat(span.isEntry(), is(true));
         SpanAssert.assertLayer(span, SpanLayer.RPC_FRAMEWORK);

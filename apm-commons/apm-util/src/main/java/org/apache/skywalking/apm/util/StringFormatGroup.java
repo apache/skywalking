@@ -18,31 +18,36 @@
 
 package org.apache.skywalking.apm.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Group patterns use {@link java.util.regex.Pattern} as core, could group the input strings to matched group or return
  * original string.
- *
- * @author wusheng
  */
+@ToString
 public class StringFormatGroup {
     private final List<PatternRule> rules;
 
     public StringFormatGroup() {
-        rules = new ArrayList<PatternRule>();
+        rules = new ArrayList<>();
     }
 
     /**
      * Add a new match rule. The rule will follow the order of being added.
      *
-     * @param name will be used when ruleRegex matched.
+     * @param name      will be used when ruleRegex matched.
      * @param ruleRegex to match target string.
      */
     public void addRule(String name, String ruleRegex) {
-        if (rules.contains(name)) {
-            return;
+        for (PatternRule rule : rules) {
+            if (rule.name.equals(name)) {
+                return;
+            }
         }
         PatternRule rule = new PatternRule(name, ruleRegex);
         rules.add(rule);
@@ -57,58 +62,29 @@ public class StringFormatGroup {
     public FormatResult format(String string) {
         for (PatternRule rule : rules) {
             if (rule.getPattern().matcher(string).matches()) {
-                return new FormatResult(true, rule.getName());
+                return new FormatResult(true, rule.getName(), string);
             }
         }
-        return new FormatResult(false, string);
+        return new FormatResult(false, string, string);
     }
 
-    @Override public String toString() {
-        return "StringFormatGroup{" +
-            "rules=" + rules +
-            '}';
+    @Getter
+    @RequiredArgsConstructor
+    public static class FormatResult {
+        private final boolean match;
+        private final String name;
+        private final String replacedName;
     }
 
-    public class FormatResult {
-        private boolean match;
-        private String name;
-
-        public FormatResult(boolean match, String name) {
-            this.match = match;
-            this.name = name;
-        }
-
-        public boolean isMatch() {
-            return match;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    private class PatternRule {
-        private String name;
-        private Pattern pattern;
+    @Getter
+    @ToString
+    private static class PatternRule {
+        private final String name;
+        private final Pattern pattern;
 
         private PatternRule(String name, String ruleRegex) {
             this.name = name;
             pattern = Pattern.compile(ruleRegex);
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Pattern getPattern() {
-            return pattern;
-        }
-
-        @Override public String toString() {
-            return "PatternRule{" +
-                "name='" + name + '\'' +
-                ", pattern=" + pattern +
-                '}';
         }
     }
 }

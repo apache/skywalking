@@ -21,16 +21,13 @@ package org.apache.skywalking.apm.agent.core.remote;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
 
-/**
- * @author zhang xin
- */
 public class StandardChannelBuilder implements ChannelBuilder {
     private final static int MAX_INBOUND_MESSAGE_SIZE = 1024 * 1024 * 50;
-    private final static boolean USE_PLAIN_TEXT = true;
 
-    @Override public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) throws Exception {
+    @Override
+    public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) {
         return managedChannelBuilder.nameResolverFactory(new DnsNameResolverProvider())
-            .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
-            .usePlaintext(USE_PLAIN_TEXT);
+                                    .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
+                                    .usePlaintext();
     }
 }

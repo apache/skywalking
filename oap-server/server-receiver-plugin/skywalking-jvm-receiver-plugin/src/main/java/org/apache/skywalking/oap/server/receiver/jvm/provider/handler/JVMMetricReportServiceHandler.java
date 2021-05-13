@@ -19,33 +19,43 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.v2.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
+import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricReportServiceGrpc;
+import org.apache.skywalking.oap.server.analyzer.provider.jvm.JVMSourceDispatcher;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.slf4j.*;
 
+@Slf4j
 public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JVMMetricReportServiceImplBase implements GRPCHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(JVMMetricReportServiceHandler.class);
-
     private final JVMSourceDispatcher jvmSourceDispatcher;
+    private final NamingControl namingControl;
 
     public JVMMetricReportServiceHandler(ModuleManager moduleManager) {
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
+        this.namingControl = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
     }
 
-    @Override public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
-        int serviceInstanceId = request.getServiceInstanceId();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("receive the jvm metrics from service instance, id: {}", serviceInstanceId);
+    @Override
+    public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
+        if (log.isDebugEnabled()) {
+            log.debug(
+                "receive the jvm metrics from service instance, name: {}, instance: {}",
+                request.getService(),
+                request.getServiceInstance()
+            );
         }
+        final JVMMetricCollection.Builder builder = request.toBuilder();
+        builder.setService(namingControl.formatServiceName(builder.getService()));
+        builder.setServiceInstance(namingControl.formatInstanceName(builder.getServiceInstance()));
 
-        request.getMetricsList().forEach(metrics -> {
-            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
-            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
+        builder.getMetricsList().forEach(jvmMetric -> {
+            jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());

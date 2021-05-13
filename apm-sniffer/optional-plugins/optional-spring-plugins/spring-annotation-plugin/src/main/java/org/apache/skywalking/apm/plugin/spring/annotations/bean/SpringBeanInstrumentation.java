@@ -18,19 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.spring.annotations.bean;
 
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanInstrumentation;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
-
-/**
- *
- */
 public class SpringBeanInstrumentation extends AbstractSpringBeanInstrumentation {
 
     public static final String ENHANCE_ANNOTATION = "org.springframework.context.annotation.Bean";
 
-    @Override protected ClassMatch enhanceClass() {
-        return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
+    @Override
+    protected String getEnhanceAnnotation() {
+        return ENHANCE_ANNOTATION;
     }
 }

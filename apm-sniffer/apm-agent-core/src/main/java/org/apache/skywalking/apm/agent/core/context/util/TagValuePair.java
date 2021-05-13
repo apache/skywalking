@@ -17,8 +17,9 @@
 
 package org.apache.skywalking.apm.agent.core.context.util;
 
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
-import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 public class TagValuePair {
     private AbstractTag key;
@@ -52,5 +53,21 @@ public class TagValuePair {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof TagValuePair))
+            return false;
+        final TagValuePair that = (TagValuePair) o;
+        return Objects.equals(getKey(), that.getKey()) &&
+            Objects.equals(getValue(), that.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getKey(), getValue());
     }
 }

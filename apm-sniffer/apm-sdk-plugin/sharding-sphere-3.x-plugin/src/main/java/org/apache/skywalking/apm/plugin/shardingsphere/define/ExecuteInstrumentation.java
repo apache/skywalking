@@ -30,29 +30,27 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link io.shardingsphere.core.executor.sql.execute.SQLExecuteCallback}.
- *
- * @author zhangyonglun
  */
 public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+
     private static final String ENHANCE_CLASS = "io.shardingsphere.core.executor.sql.execute.SQLExecuteCallback";
-    
+
     private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.ExecuteInterceptor";
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute0");
                 }
-                
+
                 @Override
                 public String getMethodsInterceptor() {
                     return EXECUTE_INTERCEPTOR_CLASS;
                 }
-                
+
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -60,12 +58,12 @@ public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDef
             }
         };
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

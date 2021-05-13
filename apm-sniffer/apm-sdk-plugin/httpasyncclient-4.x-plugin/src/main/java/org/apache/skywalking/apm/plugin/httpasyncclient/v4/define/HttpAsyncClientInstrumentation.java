@@ -25,14 +25,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link HttpAsyncClientInstrumentation} indicates that the execute method in both org.apache.http.impl.nio.client.MinimalHttpAsyncClient#execute(HttpAsyncRequestProducer, HttpAsyncResponseConsumer, HttpContext, FutureCallback)
- * and InternalHttpAsyncClient#execute(HttpAsyncRequestProducer, HttpAsyncResponseConsumer, HttpContext, FutureCallback) can be instrumented for single request.pipeline is not support now for some
- * complex situation.this is run in main thread.
- *
- * @author lican
+ * {@link HttpAsyncClientInstrumentation} indicates that the execute method in both
+ * org.apache.http.impl.nio.client.MinimalHttpAsyncClient#execute(HttpAsyncRequestProducer, HttpAsyncResponseConsumer,
+ * HttpContext, FutureCallback) and InternalHttpAsyncClient#execute(HttpAsyncRequestProducer, HttpAsyncResponseConsumer,
+ * HttpContext, FutureCallback) can be instrumented for single request.pipeline is not support now for some complex
+ * situation.this is run in main thread.
  */
 public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -49,23 +51,23 @@ public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhanceP
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(METHOD).and(takesArguments(4)
-                        .and(takesArgument(0, named(FIRST_ARG_TYPE))));
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(METHOD).and(takesArguments(4).and(takesArgument(0, named(FIRST_ARG_TYPE))));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return true;
+                @Override
+                public boolean isOverrideArgs() {
+                    return true;
+                }
             }
-        }
         };
     }
 

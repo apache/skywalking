@@ -20,9 +20,6 @@ package org.apache.skywalking.apm.agent.core.commands;
 import java.util.Deque;
 import java.util.concurrent.LinkedBlockingDeque;
 
-/**
- * @author Zhang Xin
- */
 public class CommandSerialNumberCache {
     private static final int DEFAULT_MAX_CAPACITY = 64;
     private final Deque<String> queue;

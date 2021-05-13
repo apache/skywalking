@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-
 public class Constants {
     public static final String WITNESS_MYSQL_8X_CLASS = "com.mysql.cj.interceptors.QueryInterceptor";
 }

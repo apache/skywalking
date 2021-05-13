@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import java.util.Arrays;
@@ -28,8 +27,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * Match class with a given set of classes.
- *
- * @author zhangxin
  */
 public class MultiClassNameMatch implements IndirectMatch {
 
@@ -60,7 +57,7 @@ public class MultiClassNameMatch implements IndirectMatch {
         return matchClassNames.contains(typeDescription.getTypeName());
     }
 
-    public static ClassMatch byMultiClassMatch(String... classNames) {
+    public static IndirectMatch byMultiClassMatch(String... classNames) {
         return new MultiClassNameMatch(classNames);
     }
 }

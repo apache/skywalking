@@ -1,6 +1,6 @@
 # ElasticSearch 
-Some new users may face
-* ElasticSearch performance is not as good as expected. Such as, can't have latest data after a while.
+Some new users may encounter the following issues:
+* The performance of ElasticSearch is not as good as expected. For instance, the latest data cannot be accessed after some time.
 
 Or 
 * ERROR CODE 429.
@@ -13,9 +13,9 @@ Or
         at org.elasticsearch.client.RestHighLevelClient.performRequest(RestHighLevelClient.java:522) ~[elasticsearch
 ```
 
-You could add following config to `elasticsearch.yml`, set the value based on your env.
+You could add the following config to `elasticsearch.yml`, and set the value based on your environment variable.
 ```yml
-# In tracing scenario, consider to set more than this at least.
+# In the case of tracing, consider setting a value higher than this.
 thread_pool.index.queue_size: 1000
 thread_pool.write.queue_size: 1000
 
@@ -23,4 +23,4 @@ thread_pool.write.queue_size: 1000
 index.max_result_window: 1000000
 ```
 
-Read ElasticSearch official documents to get more information.
+For more information, see ElasticSearch's official documentation.

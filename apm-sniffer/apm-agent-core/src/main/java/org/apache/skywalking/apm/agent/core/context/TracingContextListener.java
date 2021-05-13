@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;

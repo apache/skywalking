@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4;
 
 import java.lang.reflect.Method;
@@ -45,8 +44,6 @@ import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARAT
  * org.apache.rocketmq.client.impl.producer.TopicPublishInfo, org.apache.rocketmq.client.impl.factory.MQClientInstance,
  * int, org.apache.rocketmq.client.hook.SendMessageContext, org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl)}
  * execute.
- *
- * @author zhang xin
  */
 public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -55,16 +52,17 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        Message message = (Message)allArguments[2];
+        Message message = (Message) allArguments[2];
         ContextCarrier contextCarrier = new ContextCarrier();
         String namingServiceAddress = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
         span.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
-        Tags.MQ_BROKER.set(span, (String)allArguments[0]);
+        Tags.MQ_BROKER.set(span, (String) allArguments[0]);
         Tags.MQ_TOPIC.set(span, message.getTopic());
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(span);
 
-        SendMessageRequestHeader requestHeader = (SendMessageRequestHeader)allArguments[3];
+        SendMessageRequestHeader requestHeader = (SendMessageRequestHeader) allArguments[3];
         StringBuilder properties = new StringBuilder(requestHeader.getProperties());
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -79,7 +77,8 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         requestHeader.setProperties(properties.toString());
 
         if (allArguments[6] != null) {
-            ((EnhancedInstance)allArguments[6]).setSkyWalkingDynamicField(new SendCallBackEnhanceInfo(message.getTopic(), ContextManager.capture()));
+            ((EnhancedInstance) allArguments[6]).setSkyWalkingDynamicField(new SendCallBackEnhanceInfo(message.getTopic(), ContextManager
+                .capture()));
         }
     }
 
@@ -90,9 +89,10 @@ public class MessageSendInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private String buildOperationName(String topicName) {

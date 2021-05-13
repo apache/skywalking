@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * DynamicConfigurationService provides API to register config change watcher.
- *
- * @author wusheng
  */
 public interface DynamicConfigurationService extends Service {
     /**

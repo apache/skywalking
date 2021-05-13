@@ -18,22 +18,17 @@
 
 package org.apache.skywalking.apm.plugin.jdbc;
 
+import java.util.Set;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
-
-import java.util.Set;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PS_IGNORABLE_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PS_SETTERS;
 
-/**
- * @author kezhenxu94
- */
 public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsInterceptPoint {
     private final boolean ignorable;
 
@@ -45,7 +40,7 @@ public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsI
     public ElementMatcher<MethodDescription> getMethodsMatcher() {
         ElementMatcher.Junction<MethodDescription> matcher = none();
 
-        if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+        if (JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS) {
             final Set<String> setters = ignorable ? PS_IGNORABLE_SETTERS : PS_SETTERS;
             for (String setter : setters) {
                 matcher = matcher.or(named(setter));
@@ -57,9 +52,7 @@ public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsI
 
     @Override
     public String getMethodsInterceptor() {
-        return ignorable
-            ? Constants.PREPARED_STATEMENT_IGNORABLE_SETTER_METHODS_INTERCEPTOR
-            : Constants.PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR;
+        return ignorable ? Constants.PREPARED_STATEMENT_IGNORABLE_SETTER_METHODS_INTERCEPTOR : Constants.PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR;
     }
 
     @Override

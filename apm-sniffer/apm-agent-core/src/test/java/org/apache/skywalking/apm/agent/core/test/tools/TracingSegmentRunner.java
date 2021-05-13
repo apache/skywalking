@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.test.tools;
 
 import java.lang.reflect.Field;
@@ -54,9 +53,11 @@ public class TracingSegmentRunner extends BlockJUnit4ClassRunner {
         return targetObject;
     }
 
-    @Override protected Statement withAfters(FrameworkMethod method, Object target, final Statement statement) {
+    @Override
+    protected Statement withAfters(FrameworkMethod method, Object target, final Statement statement) {
         return new Statement() {
-            @Override public void evaluate() throws Throwable {
+            @Override
+            public void evaluate() throws Throwable {
                 if (field != null) {
                     try {
                         tracingData = new SegmentStorage();

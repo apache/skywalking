@@ -86,7 +86,8 @@ public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePlug
                     return METHOD_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

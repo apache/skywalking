@@ -18,15 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.clr.provider.handler;
 
-import java.util.Objects;
-import org.apache.skywalking.apm.network.common.CPU;
-import org.apache.skywalking.apm.network.language.agent.CLRMetric;
-import org.apache.skywalking.apm.network.language.agent.ClrGC;
-import org.apache.skywalking.apm.network.language.agent.ClrThread;
+import org.apache.skywalking.apm.network.common.v3.CPU;
+import org.apache.skywalking.apm.network.language.agent.v3.CLRMetric;
+import org.apache.skywalking.apm.network.language.agent.v3.ClrGC;
+import org.apache.skywalking.apm.network.language.agent.v3.ClrThread;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRThread;
@@ -36,28 +35,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author liuhaoyang
+ *
  **/
 public class CLRSourceDispatcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(CLRSourceDispatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CLRSourceDispatcher.class);
     private final SourceReceiver sourceReceiver;
-    private final ServiceInstanceInventoryCache instanceInventoryCache;
 
     public CLRSourceDispatcher(ModuleManager moduleManager) {
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
-    void sendMetric(int serviceInstanceId, long minuteTimeBucket, CLRMetric metrics) {
-        ServiceInstanceInventory serviceInstanceInventory = instanceInventoryCache.get(serviceInstanceId);
-        int serviceId;
-        if (Objects.nonNull(serviceInstanceInventory)) {
-            serviceId = serviceInstanceInventory.getServiceId();
-        } else {
-            logger.warn("Can't find service by service instance id from cache, service instance id is: {}", serviceInstanceId);
-            return;
-        }
+    void sendMetric(String service, String serviceInstance, long minuteTimeBucket, CLRMetric metrics) {
+        final String serviceId = IDManager.ServiceID.buildId(service, NodeType.Normal);
+        final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, serviceInstance);
 
         CPU cpu = metrics.getCpu();
         ServiceInstanceCLRCPU serviceInstanceCLRCPU = new ServiceInstanceCLRCPU();
@@ -66,7 +57,7 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRCPU.setId(serviceInstanceId);
         serviceInstanceCLRCPU.setName(Const.EMPTY_STRING);
         serviceInstanceCLRCPU.setServiceId(serviceId);
-        serviceInstanceCLRCPU.setServiceName(Const.EMPTY_STRING);
+        serviceInstanceCLRCPU.setServiceName(service);
         sourceReceiver.receive(serviceInstanceCLRCPU);
 
         ClrGC gc = metrics.getGc();
@@ -77,9 +68,9 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRGC.setHeapMemory(gc.getHeapMemory());
         serviceInstanceCLRGC.setTimeBucket(minuteTimeBucket);
         serviceInstanceCLRGC.setId(serviceInstanceId);
-        serviceInstanceCLRGC.setName(Const.EMPTY_STRING);
+        serviceInstanceCLRGC.setName(serviceInstance);
         serviceInstanceCLRGC.setServiceId(serviceId);
-        serviceInstanceCLRGC.setServiceName(Const.EMPTY_STRING);
+        serviceInstanceCLRGC.setServiceName(service);
         sourceReceiver.receive(serviceInstanceCLRGC);
 
         ClrThread thread = metrics.getThread();
@@ -90,9 +81,9 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRThread.setMaxWorkerThreads(thread.getMaxWorkerThreads());
         serviceInstanceCLRThread.setTimeBucket(minuteTimeBucket);
         serviceInstanceCLRThread.setId(serviceInstanceId);
-        serviceInstanceCLRThread.setName(Const.EMPTY_STRING);
+        serviceInstanceCLRThread.setName(service);
         serviceInstanceCLRThread.setServiceId(serviceId);
-        serviceInstanceCLRThread.setServiceName(Const.EMPTY_STRING);
+        serviceInstanceCLRThread.setServiceName(serviceInstance);
         sourceReceiver.receive(serviceInstanceCLRThread);
     }
 }

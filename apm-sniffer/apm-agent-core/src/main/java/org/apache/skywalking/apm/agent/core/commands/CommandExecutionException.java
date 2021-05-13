@@ -17,20 +17,16 @@
 
 package org.apache.skywalking.apm.agent.core.commands;
 
-import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.v3.Command;
 
 /**
  * Indicates that the execution of a command failed
- *
- * @author Zhang Xin
- * @author kezhenxu94
  */
 public class CommandExecutionException extends Throwable {
     private final Command command;
 
     /**
-     * Constructs a new {@code ExecuteFailedException} with null detail message
-     * and the command whose execution failed
+     * Constructs a new {@code ExecuteFailedException} with null detail message and the command whose execution failed
      *
      * @param command the command whose execution failed
      */
@@ -39,8 +35,7 @@ public class CommandExecutionException extends Throwable {
     }
 
     /**
-     * Constructs a new {@code ExecuteFailedException} with given detail message
-     * and the command whose execution failed
+     * Constructs a new {@code ExecuteFailedException} with given detail message and the command whose execution failed
      *
      * @param message the detail message of the exception
      * @param command the command whose execution failed

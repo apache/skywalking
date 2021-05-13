@@ -27,12 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.util.ReflectionUtils;
 
-/**
- * @author lican
- */
 @RunWith(MockitoJUnitRunner.class)
 public class AopExpressionMatchInterceptorTest {
-
 
     private AopExpressionMatchInterceptor interceptor;
     @Mock
@@ -49,12 +45,12 @@ public class AopExpressionMatchInterceptorTest {
 
     @Test
     public void afterMethod() {
-        Object ret = interceptor.afterMethod(
-                Object.class,
-                null,
-                new Object[]{methodMatcher, ReflectionUtils.findMethod(MockClass.class, "getSkyWalkingDynamicField"), MockClass.class, false},
-                new Class[0],
-                true);
+        Object ret = interceptor.afterMethod(Object.class, null, new Object[] {
+            methodMatcher,
+            ReflectionUtils.findMethod(MockClass.class, "getSkyWalkingDynamicField"),
+            MockClass.class,
+            false
+        }, new Class[0], true);
         Assert.assertEquals(false, ret);
     }
 

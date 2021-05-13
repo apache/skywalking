@@ -18,33 +18,52 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author zhangwei
- */
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"javax.security.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class ITClusterModuleZookeeperProviderFunctionalTest {
 
     private String zkAddress;
 
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
+
     @Before
-    public void before() {
+    public void init() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         zkAddress = System.getProperty("zk.address");
         assertFalse(StringUtil.isEmpty(zkAddress));
     }
@@ -68,8 +87,7 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
     @Test
     public void registerRemoteOfInternal() throws Exception {
         final String namespace = "register_remote_internal";
-        ModuleProvider provider =
-            createProvider(namespace, "127.0.1.2", 1000);
+        ModuleProvider provider = createProvider(namespace, "127.0.1.2", 1000);
 
         Address selfAddress = new Address("127.0.0.2", 1000, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
@@ -164,9 +182,10 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
         return createProvider(namespace, null, 0);
     }
 
-    private ClusterModuleZookeeperProvider createProvider(String namespace, String internalComHost, int internalComPort) throws Exception {
+    private ClusterModuleZookeeperProvider createProvider(String namespace, String internalComHost,
+        int internalComPort) throws Exception {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
-
+        provider.setManager(moduleManager);
         ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
         moduleConfig.setHostPort(zkAddress);
         moduleConfig.setBaseSleepTimeMs(3000);
@@ -203,7 +222,8 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
         return queryRemoteNodes(provider, goals, 20);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals, int cyclic) throws InterruptedException {
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals,
+        int cyclic) throws InterruptedException {
         do {
             List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
             if (instances.size() == goals) {
@@ -211,7 +231,8 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
             } else {
                 Thread.sleep(1000);
             }
-        } while (--cyclic > 0);
+        }
+        while (--cyclic > 0);
         return Collections.EMPTY_LIST;
     }
 

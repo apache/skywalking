@@ -18,34 +18,75 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.joda.time.format.*;
 
 /**
- * @author peng-yongsheng
+ * Metrics represents the statistic data, which analysis by OAL script or hard code. It has the lifecycle controlled by
+ * TTL(time to live).
  */
+@EqualsAndHashCode(of = {
+    "timeBucket"
+})
 public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
 
-    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
-    @Getter @Setter private long survivalTime = 0L;
+    /**
+     * Time attribute
+     */
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    private long timeBucket;
 
-    public abstract String id();
+    /**
+     * Time in the cache, only work when MetricsPersistentWorker#enableDatabaseSession == true.
+     */
+    @Getter
+    private long survivalTime = 0L;
 
-    public abstract void combine(Metrics metrics);
+    /**
+     * Merge the given metrics instance, these two must be the same metrics type.
+     *
+     * @param metrics to be merged
+     * @return {@code true} if the combined metrics should be continuously processed. {@code false} means it should be abandoned, and the implementation needs to keep the data unaltered in this case.
+     */
+    public abstract boolean combine(Metrics metrics);
 
+    /**
+     * Calculate the metrics final value when required.
+     */
     public abstract void calculate();
 
+    /**
+     * Downsampling the metrics to hour precision.
+     *
+     * @return the metrics in hour precision in the clone mode.
+     */
     public abstract Metrics toHour();
 
+    /**
+     * Downsampling the metrics to day precision.
+     *
+     * @return the metrics in day precision in the clone mode.
+     */
     public abstract Metrics toDay();
 
-    public abstract Metrics toMonth();
+    /**
+     * Extend the {@link #survivalTime}
+     *
+     * @param value to extend
+     */
+    public void extendSurvivalTime(long value) {
+        survivalTime += value;
+    }
 
     public long toTimeBucketInHour() {
         if (isMinuteBucket()) {
@@ -65,22 +106,8 @@ public abstract class Metrics extends StreamData implements StorageData {
         }
     }
 
-    public long toTimeBucketInMonth() {
-        if (isMinuteBucket()) {
-            return timeBucket / 1000000;
-        } else if (isHourBucket()) {
-            return timeBucket / 10000;
-        } else if (isDayBucket()) {
-            return timeBucket / 100;
-        } else {
-            throw new IllegalStateException("Current time bucket is not in minute dimensionality");
-        }
-    }
-
     /**
      * Always get the duration for this time bucket in minute.
-     *
-     * @return minutes.
      */
     protected long getDurationInMinute() {
         if (isMinuteBucket()) {
@@ -89,29 +116,19 @@ public abstract class Metrics extends StreamData implements StorageData {
             return 60;
         } else if (isDayBucket()) {
             return 24 * 60;
-        } else {
-            /*
-             * In month time bucket status.
-             * Usually after {@link #toTimeBucketInMonth()} called.
-             */
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMM");
-            int dayOfMonth = formatter.parseLocalDate(timeBucket + "").getDayOfMonth();
-            return dayOfMonth * 24 * 60;
         }
+        throw new IllegalStateException("Time bucket (" + timeBucket + ") can't be recognized.");
     }
 
-    /**
-     * timeBucket in minute 201809120511 min 100000000000 max 999999999999
-     */
     private boolean isMinuteBucket() {
-        return timeBucket < 999999999999L && timeBucket > 100000000000L;
+        return TimeBucket.isMinuteBucket(timeBucket);
     }
 
     private boolean isHourBucket() {
-        return timeBucket < 9999999999L && timeBucket > 1000000000L;
+        return TimeBucket.isHourBucket(timeBucket);
     }
 
     private boolean isDayBucket() {
-        return timeBucket < 99999999L && timeBucket > 10000000L;
+        return TimeBucket.isDayBucket(timeBucket);
     }
 }

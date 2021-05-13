@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletRequestHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -32,8 +33,6 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQU
 /**
  * {@link GetBeanInterceptor} pass the {@link NativeWebRequest} object into the {@link
  * org.springframework.stereotype.Controller} object.
- *
- * @author zhangxin
  */
 public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -45,7 +44,9 @@ public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
-            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest());
+            ContextManager.getRuntimeContext()
+                          .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new JavaxServletRequestHolder(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                              .getRequest()));
         }
         return ret;
     }

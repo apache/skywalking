@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;
@@ -110,7 +109,10 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
     private JdbcConnection jdbcConnection;
     private SWConnection swConnection;
     private SWConnection multiHostConnection;
-    private byte[] bytesParam = new byte[] {1, 2};
+    private byte[] bytesParam = new byte[] {
+        1,
+        2
+    };
 
     @Before
     public void setUp() throws Exception {
@@ -125,11 +127,7 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
 
     @Test
     public void testSetParam() throws SQLException, MalformedURLException {
-        PreparedStatement preparedStatement = multiHostConnection.prepareStatement("SELECT * FROM test WHERE a = ? or b = ? or c=? or d = ? or e = ?" +
-            " or e = ? or f = ? or g = ? or h = ? or i = ? or j = ? or k = ? or l = ? or m = ?  or n = ? or o = ? or p = ? " +
-            " or r = ?  or s = ? or t = ?  or u = ?  or v = ?  or w = ?  or x = ?  or y = ? or z = ? or a1 = ? or a2 = ? or a3 = ?" +
-            " or a4 = ? or a5 = ? or a6 = ?  or a7 = ?  or a8 = ?  or a9 = ? or b1 = ? or b2 = ? or b3 = ? or b4 = ? or b5 = ?" +
-            " or b6 = ? or b7 = ? or b8  = ? or b9 = ? or c1 = ?  or c2 = ? or c3 = ?");
+        PreparedStatement preparedStatement = multiHostConnection.prepareStatement("SELECT * FROM test WHERE a = ? or b = ? or c=? or d = ? or e = ?" + " or e = ? or f = ? or g = ? or h = ? or i = ? or j = ? or k = ? or l = ? or m = ?  or n = ? or o = ? or p = ? " + " or r = ?  or s = ? or t = ?  or u = ?  or v = ?  or w = ?  or x = ?  or y = ? or z = ? or a1 = ? or a2 = ? or a3 = ?" + " or a4 = ? or a5 = ? or a6 = ?  or a7 = ?  or a8 = ?  or a9 = ? or b1 = ? or b2 = ? or b3 = ? or b4 = ? or b5 = ?" + " or b6 = ? or b7 = ? or b8  = ? or b9 = ? or c1 = ?  or c2 = ? or c3 = ?");
         preparedStatement.clearParameters();
         preparedStatement.setAsciiStream(1, inputStream);
         preparedStatement.setAsciiStream(2, inputStream, 10);
@@ -137,14 +135,14 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
         preparedStatement.setCharacterStream(4, reader);
         preparedStatement.setCharacterStream(4, reader, 10);
         preparedStatement.setCharacterStream(5, reader, 10L);
-        preparedStatement.setShort(6, (short)12);
+        preparedStatement.setShort(6, (short) 12);
         preparedStatement.setInt(7, 1);
         preparedStatement.setString(8, "test");
         preparedStatement.setBoolean(9, true);
         preparedStatement.setLong(10, 100L);
         preparedStatement.setDouble(11, 12.0);
         preparedStatement.setFloat(12, 12.0f);
-        preparedStatement.setByte(13, (byte)1);
+        preparedStatement.setByte(13, (byte) 1);
         preparedStatement.setBytes(14, bytesParam);
         preparedStatement.setDate(15, new Date(System.currentTimeMillis()));
         preparedStatement.setNull(16, 1);
@@ -208,10 +206,10 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
         verify(mysqlPreparedStatement).setBlob(anyInt(), any(InputStream.class), anyLong());
         verify(mysqlPreparedStatement).setClob(anyInt(), any(Clob.class));
         verify(mysqlPreparedStatement).setClob(anyInt(), any(Reader.class));
-        verify(mysqlPreparedStatement).setClob(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlPreparedStatement).setClob(anyInt(), any(Reader.class), anyLong());
         verify(mysqlPreparedStatement).setNString(anyInt(), anyString());
         verify(mysqlPreparedStatement).setNCharacterStream(anyInt(), any(Reader.class));
-        verify(mysqlPreparedStatement).setNCharacterStream(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlPreparedStatement).setNCharacterStream(anyInt(), any(Reader.class), anyLong());
         verify(mysqlPreparedStatement).setNClob(27, nClob);
         verify(mysqlPreparedStatement).setNClob(28, reader, 1);
         verify(mysqlPreparedStatement).setObject(anyInt(), Matchers.anyObject());
@@ -366,7 +364,10 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
     @Test
     public void testInsertWithIntColumnIndexes() throws SQLException {
         PreparedStatement preparedStatement = swConnection.prepareStatement("INSERT INTO test VALUES(?)", 1);
-        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[] {1, 2});
+        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[] {
+            1,
+            2
+        });
         preparedStatement.close();
 
         verify(mysqlPreparedStatement).close();
@@ -380,7 +381,10 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
     @Test
     public void testInsertWithStringColumnIndexes() throws SQLException {
         PreparedStatement preparedStatement = swConnection.prepareStatement("INSERT INTO test VALUES(?)", 1);
-        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[] {"1", "2"});
+        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[] {
+            "1",
+            "2"
+        });
         preparedStatement.close();
 
         verify(mysqlPreparedStatement).close();
@@ -491,7 +495,7 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
     @Test
     public void testBatch() throws SQLException, MalformedURLException {
         PreparedStatement preparedStatement = multiHostConnection.prepareStatement("UPDATE test SET a = ? WHERE b = ?");
-        preparedStatement.setShort(1, (short)12);
+        preparedStatement.setShort(1, (short) 12);
         preparedStatement.setTime(2, new Time(System.currentTimeMillis()));
         preparedStatement.addBatch();
         int[] resultSet = preparedStatement.executeBatch();
@@ -531,8 +535,11 @@ public class SwPreparedStatementTest extends AbstractStatementTest {
             preparedStatement.setBigDecimal(1, new BigDecimal(10000));
             preparedStatement.setBlob(2, inputStream);
             preparedStatement.setBlob(3, inputStream, 1000000L);
-            preparedStatement.setByte(3, (byte)1);
-            preparedStatement.setBytes(4, new byte[] {1, 2});
+            preparedStatement.setByte(3, (byte) 1);
+            preparedStatement.setBytes(4, new byte[] {
+                1,
+                2
+            });
             preparedStatement.setLong(5, 100L);
 
             ResultSet resultSet = preparedStatement.executeQuery();

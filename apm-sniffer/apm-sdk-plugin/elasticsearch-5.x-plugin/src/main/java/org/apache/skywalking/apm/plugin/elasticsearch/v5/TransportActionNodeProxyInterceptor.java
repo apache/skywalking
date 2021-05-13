@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.ElasticsearchPluginConfig.Plugin.Elasticsearch.TRACE_DSL;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.DB_TYPE;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ELASTICSEARCH_DB_OP_PREFIX;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_INDEX;
@@ -38,16 +38,14 @@ import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_NOD
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_TYPE;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Util.wrapperNullStringValue;
 
-/**
- * @author oatiz.
- */
 public class TransportActionNodeProxyInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
 
-        ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo)((EnhancedInstance)objInst.getSkyWalkingDynamicField()).getSkyWalkingDynamicField();
+        ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo) ((EnhancedInstance) objInst.getSkyWalkingDynamicField())
+            .getSkyWalkingDynamicField();
         String opType = allArguments[1].getClass().getSimpleName();
         String operationName = ELASTICSEARCH_DB_OP_PREFIX + opType;
         AbstractSpan span = ContextManager.createExitSpan(operationName, enhanceInfo.transportAddresses());
@@ -57,15 +55,15 @@ public class TransportActionNodeProxyInterceptor implements InstanceConstructorI
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, enhanceInfo.getSource());
         }
-        span.tag(ES_NODE, ((DiscoveryNode)allArguments[0]).getAddress().toString());
+        span.tag(ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
         span.tag(ES_INDEX, wrapperNullStringValue(enhanceInfo.getIndices()));
         span.tag(ES_TYPE, wrapperNullStringValue(enhanceInfo.getTypes()));
         SpanLayer.asDB(span);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
@@ -73,12 +71,12 @@ public class TransportActionNodeProxyInterceptor implements InstanceConstructorI
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        EnhancedInstance actions = (EnhancedInstance)allArguments[1];
+        EnhancedInstance actions = (EnhancedInstance) allArguments[1];
         objInst.setSkyWalkingDynamicField(actions);
     }
 }

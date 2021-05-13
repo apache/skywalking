@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import com.google.common.collect.Lists;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -27,6 +29,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -42,47 +45,47 @@ import org.apache.zookeeper.server.auth.DigestAuthenticationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
 /**
  * Use Zookeeper to manage all instances in SkyWalking cluster.
- *
- * @author peng-yongsheng, Wu Sheng
  */
 public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClusterModuleZookeeperProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterModuleZookeeperProvider.class);
 
     private static final String BASE_PATH = "/skywalking";
 
     private final ClusterModuleZookeeperConfig config;
     private CuratorFramework client;
     private ServiceDiscovery<RemoteInstance> serviceDiscovery;
+    private ZookeeperCoordinator coordinator;
 
     public ClusterModuleZookeeperProvider() {
         super();
         this.config = new ClusterModuleZookeeperConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "zookeeper";
     }
 
-    @Override public Class module() {
+    @Override
+    public Class module() {
         return ClusterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(), config.getMaxRetries());
 
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-            .retryPolicy(retryPolicy)
-            .connectString(config.getHostPort());
+                                                                         .retryPolicy(retryPolicy)
+                                                                         .connectString(config.getHostPort());
 
         if (config.isEnableACL()) {
             String authInfo = config.getExpression();
@@ -117,19 +120,19 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
         String path = BASE_PATH + (StringUtil.isEmpty(config.getNameSpace()) ? "" : "/" + config.getNameSpace());
 
-        serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class).client(client)
-            .basePath(path)
-            .watchInstances(true)
-            .serializer(new SWInstanceSerializer()).build();
-
-        ZookeeperCoordinator coordinator;
+        serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class)
+                                                  .client(client)
+                                                  .basePath(path)
+                                                  .watchInstances(true)
+                                                  .serializer(new SWInstanceSerializer())
+                                                  .build();
         try {
             client.start();
             client.blockUntilConnected();
             serviceDiscovery.start();
-            coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
+            coordinator = new ZookeeperCoordinator(getManager(), config, serviceDiscovery);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);
         }
 
@@ -137,14 +140,16 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
-    @Override public void start() {
+    @Override
+    public void start() {
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[0];
+        return new String[]{CoreModule.NAME};
     }
 }

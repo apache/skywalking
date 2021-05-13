@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.tomcat78x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,9 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhangxin
- */
 public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**
@@ -40,12 +36,12 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     private static final String ENHANCE_CLASS = "org.apache.catalina.core.StandardHostValve";
 
     /**
-     * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardWrapperValve"
+     * The intercept class for "invoke" method in the class "org.apache.catalina.core.StandardHostValve"
      */
     private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatInvokeInterceptor";
 
     /**
-     * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardWrapperValve"
+     * The intercept class for "exception" method in the class "org.apache.catalina.core.StandardHostValve"
      */
     private static final String EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.TomcatExceptionInterceptor";
 
@@ -79,15 +75,18 @@ public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("throwable");
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return EXCEPTION_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

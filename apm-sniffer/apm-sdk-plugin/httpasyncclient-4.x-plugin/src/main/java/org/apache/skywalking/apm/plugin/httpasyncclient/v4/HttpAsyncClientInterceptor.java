@@ -32,14 +32,12 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 
 /**
  * in main thread,hold the context in thread local so we can read in the same thread.
- *
- * @author lican
  */
 public class HttpAsyncClientInterceptor implements InstanceMethodsAroundInterceptor {
 
-
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         HttpAsyncResponseConsumer consumer = (HttpAsyncResponseConsumer) allArguments[1];
         HttpContext context = (HttpContext) allArguments[2];
         FutureCallback callback = (FutureCallback) allArguments[3];
@@ -49,12 +47,14 @@ public class HttpAsyncClientInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

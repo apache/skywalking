@@ -29,8 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
  * {@link HystrixCommandConstructorInterceptor} get <code>CommandKey</code> or <code>CollapserKey</code> as the
  * operation name prefix of span when the constructor that the class hierarchy <code>com.netflix.hystrix.HystrixCommand</code>
  * invoked.
- *
- * @author zhang xin
  */
 public class HystrixCommandConstructorInterceptor implements InstanceConstructorInterceptor {
 
@@ -41,16 +39,16 @@ public class HystrixCommandConstructorInterceptor implements InstanceConstructor
         String commandIdentify = "";
 
         if (HystrixCommand.class.isAssignableFrom(objInst.getClass())) {
-            HystrixCommand hystrixCommand = (HystrixCommand)objInst;
+            HystrixCommand hystrixCommand = (HystrixCommand) objInst;
             commandIdentify = hystrixCommand.getCommandKey().name();
         } else if (HystrixCollapser.class.isAssignableFrom(objInst.getClass())) {
-            HystrixCollapser hystrixCollapser = (HystrixCollapser)objInst;
+            HystrixCollapser hystrixCollapser = (HystrixCollapser) objInst;
             commandIdentify = hystrixCollapser.getCollapserKey().name();
         } else if (HystrixObservableCollapser.class.isAssignableFrom(objInst.getClass())) {
-            HystrixObservableCollapser hystrixObservableCollapser = (HystrixObservableCollapser)objInst;
+            HystrixObservableCollapser hystrixObservableCollapser = (HystrixObservableCollapser) objInst;
             commandIdentify = hystrixObservableCollapser.getCollapserKey().name();
         } else if (HystrixObservableCommand.class.isAssignableFrom(objInst.getClass())) {
-            HystrixObservableCommand hystrixObservableCommand = (HystrixObservableCommand)objInst;
+            HystrixObservableCommand hystrixObservableCommand = (HystrixObservableCommand) objInst;
             commandIdentify = hystrixObservableCommand.getCommandKey().name();
         }
 

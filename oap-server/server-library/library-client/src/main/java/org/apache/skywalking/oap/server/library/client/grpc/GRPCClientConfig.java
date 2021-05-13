@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.client.grpc;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class GRPCClientConfig {
 
     private String host;

@@ -16,11 +16,7 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author wu-sheng
- */
 public class ModuleBBusiness2Impl implements BaseModuleB.ServiceBBusiness2 {
 }

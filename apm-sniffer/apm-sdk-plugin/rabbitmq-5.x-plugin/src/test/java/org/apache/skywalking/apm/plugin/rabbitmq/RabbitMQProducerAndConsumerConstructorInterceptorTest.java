@@ -18,7 +18,18 @@
 
 package org.apache.skywalking.apm.plugin.rabbitmq;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.BlockedCallback;
+import com.rabbitmq.client.BlockedListener;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ExceptionHandler;
+import com.rabbitmq.client.ShutdownListener;
+import com.rabbitmq.client.ShutdownSignalException;
+import com.rabbitmq.client.UnblockedCallback;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.Before;
@@ -27,11 +38,6 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -39,12 +45,11 @@ import static org.hamcrest.core.Is.is;
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
 
-
-
     private RabbitMQProducerAndConsumerConstructorInterceptor rabbitMQProducerAndConsumerConstructorInterceptor;
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private String test;
+
         @Override
         public Object getSkyWalkingDynamicField() {
             return test;
@@ -52,25 +57,25 @@ public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            test = (String)value;
+            test = (String) value;
         }
     };
 
-    public  class  TestConnection implements  Connection {
+    public class TestConnection implements Connection {
 
         @Override
         public InetAddress getAddress() {
             try {
-                return  InetAddress.getByName("127.0.0.1");
+                return InetAddress.getByName("127.0.0.1");
             } catch (UnknownHostException e) {
                 e.printStackTrace();
-                return  null;
+                return null;
             }
         }
 
         @Override
         public int getPort() {
-            return  5672;
+            return 5672;
         }
 
         @Override
@@ -159,7 +164,8 @@ public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
         }
 
         @Override
-        public BlockedListener addBlockedListener(BlockedCallback blockedCallback, UnblockedCallback unblockedCallback) {
+        public BlockedListener addBlockedListener(BlockedCallback blockedCallback,
+            UnblockedCallback unblockedCallback) {
             return null;
         }
 
@@ -214,10 +220,7 @@ public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
         }
     }
 
-
-
-
-    private  Connection testConnection;
+    private Connection testConnection;
 
     @Before
     public void setUp() throws Exception {
@@ -227,8 +230,8 @@ public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
 
     @Test
     public void TestRabbitMQConsumerAndProducerConstructorInterceptor() {
-        rabbitMQProducerAndConsumerConstructorInterceptor =  new RabbitMQProducerAndConsumerConstructorInterceptor();
-        rabbitMQProducerAndConsumerConstructorInterceptor.onConstruct(enhancedInstance,new Object[] {testConnection});
+        rabbitMQProducerAndConsumerConstructorInterceptor = new RabbitMQProducerAndConsumerConstructorInterceptor();
+        rabbitMQProducerAndConsumerConstructorInterceptor.onConstruct(enhancedInstance, new Object[] {testConnection});
         assertThat((String) enhancedInstance.getSkyWalkingDynamicField(), is("127.0.0.1:5672"));
     }
 }

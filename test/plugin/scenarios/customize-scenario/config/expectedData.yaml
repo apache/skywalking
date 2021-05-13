@@ -1,0 +1,123 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: customize-scenario
+  segmentSize: gt 1
+  segments:
+  - segmentId: not null
+    spans:
+    - {operationName: /is_static_method, operationId: 0, parentSpanId: 0, spanId: 1,
+      startTime: nq 0, endTime: nq 0, isError: false, spanType: Local, skipAnalysis: 'false'}
+    - operationName: /is_static_method_args/id/123/a
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanType: Local
+      tags:
+      - {key: tag_1, value: v1}
+      - {key: tag_2, value: '2'}
+      logs:
+      - logEvent:
+        - {key: log_1, value: '3'}
+      skipAnalysis: 'false'
+    - {operationName: test.apache.skywalking.apm.testcase.customize.service.TestService1.method(),
+      operationId: 0, parentSpanId: 0, spanId: 3, startTime: nq 0, endTime: nq 0,
+      isError: false, spanType: Local, skipAnalysis: 'false'}
+    - operationName: /method_2/str0
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanType: Local
+      tags:
+      - {key: tag_1, value: str0}
+      logs:
+      - logEvent:
+        - {key: log_1, value: '123'}
+      skipAnalysis: 'false'
+    - operationName: /method_3/id/name/100
+      operationId: 0
+      parentSpanId: 0
+      spanId: 5
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanType: Local
+      tags:
+      - {key: tag_os, value: '2'}
+      logs:
+      - logEvent:
+        - {key: log_map, value: v1}
+      skipAnalysis: 'false'
+    - operationName: /is_2_static_method
+      operationId: 0
+      parentSpanId: 0
+      spanId: 6
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanType: Local
+      tags:
+      - {key: tag_2_1, value: s}
+      logs:
+      - logEvent:
+        - {key: log_1_1, value: '123'}
+      skipAnalysis: 'false'
+    - operationName: /method_4
+      operationId: 0
+      parentSpanId: 0
+      spanId: 7
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanType: Local
+      tags:
+      - {key: tag_4_1, value: '1'}
+      skipAnalysis: 'false'
+    - operationName: /method_5
+      operationId: 0
+      parentSpanId: 0
+      spanId: 8
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanType: Local
+      tags:
+      - {key: tag_5_1, value: a2}
+      logs:
+      - logEvent:
+        - {key: log_5_1, value: '123'}
+      skipAnalysis: 'false'
+    - operationName: /case/customize
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 14
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/customize-scenario/case/customize'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

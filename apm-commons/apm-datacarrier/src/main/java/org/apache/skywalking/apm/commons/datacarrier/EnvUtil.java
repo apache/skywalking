@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.commons.datacarrier;
 
 /**
  * Read value from system env.
- *
- * @author wusheng
  */
 public class EnvUtil {
     public static int getInt(String envName, int defaultValue) {

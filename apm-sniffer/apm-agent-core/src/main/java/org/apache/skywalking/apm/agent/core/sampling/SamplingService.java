@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.sampling;
 
 import java.util.concurrent.Executors;
@@ -27,7 +26,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService;
+import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SamplingRateWatcher;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -39,71 +41,51 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  * send all of them to collector, if SAMPLING is on.
  * <p>
  * By default, SAMPLING is on, and  {@link Config.Agent#SAMPLE_N_PER_3_SECS }
- *
- * @author wusheng
  */
 @DefaultImplementor
 public class SamplingService implements BootService {
-    private static final ILog logger = LogManager.getLogger(SamplingService.class);
+    private static final ILog LOGGER = LogManager.getLogger(SamplingService.class);
 
     private volatile boolean on = false;
     private volatile AtomicInteger samplingFactorHolder;
     private volatile ScheduledFuture<?> scheduledFuture;
 
+    private SamplingRateWatcher samplingRateWatcher;
+
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
+    }
+
+    @Override
+    public void boot() {
+        samplingRateWatcher = new SamplingRateWatcher("agent.sample_n_per_3_secs", this);
+        ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
+                               .registerAgentConfigChangeWatcher(samplingRateWatcher);
+
+        handleSamplingRateChanged();
+    }
+
+    @Override
+    public void onComplete() {
 
     }
 
     @Override
-    public void boot() throws Throwable {
-        if (scheduledFuture != null) {
-            /**
-             * If {@link #boot()} invokes twice, mostly in test cases,
-             * cancel the old one.
-             */
-            scheduledFuture.cancel(true);
-        }
-        if (Config.Agent.SAMPLE_N_PER_3_SECS > 0) {
-            on = true;
-            this.resetSamplingFactor();
-            ScheduledExecutorService service = Executors
-                .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("SamplingService"));
-            scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {
-                @Override
-                public void run() {
-                    resetSamplingFactor();
-                }
-            }, new RunnableWithExceptionProtection.CallbackWhenException() {
-                @Override public void handle(Throwable t) {
-                    logger.error("unexpected exception.", t);
-                }
-            }), 0, 3, TimeUnit.SECONDS);
-            logger.debug("Agent sampling mechanism started. Sample {} traces in 3 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
-        }
-    }
-
-    @Override
-    public void onComplete() throws Throwable {
-
-    }
-
-    @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
     }
 
     /**
+     * @param operationName The first operation name of the new tracing context.
      * @return true, if sampling mechanism is on, and getDefault the sampling factor successfully.
      */
-    public boolean trySampling() {
+    public boolean trySampling(String operationName) {
         if (on) {
             int factor = samplingFactorHolder.get();
-            if (factor < Config.Agent.SAMPLE_N_PER_3_SECS) {
-                boolean success = samplingFactorHolder.compareAndSet(factor, factor + 1);
-                return success;
+            if (factor < samplingRateWatcher.getSamplingRate()) {
+                return samplingFactorHolder.compareAndSet(factor, factor + 1);
             } else {
                 return false;
             }
@@ -112,10 +94,8 @@ public class SamplingService implements BootService {
     }
 
     /**
-     * Increase the sampling factor by force,
-     * to avoid sampling too many traces.
-     * If many distributed traces require sampled,
-     * the trace beginning at local, has less chance to be sampled.
+     * Increase the sampling factor by force, to avoid sampling too many traces. If many distributed traces require
+     * sampled, the trace beginning at local, has less chance to be sampled.
      */
     public void forceSampled() {
         if (on) {
@@ -125,5 +105,32 @@ public class SamplingService implements BootService {
 
     private void resetSamplingFactor() {
         samplingFactorHolder = new AtomicInteger(0);
+    }
+
+    /**
+     * Handle the samplingRate changed.
+     */
+    public void handleSamplingRateChanged() {
+        if (samplingRateWatcher.getSamplingRate() > 0) {
+            if (!on) {
+                on = true;
+                this.resetSamplingFactor();
+                ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(
+                    new DefaultNamedThreadFactory("SamplingService"));
+                scheduledFuture = service.scheduleAtFixedRate(new RunnableWithExceptionProtection(
+                    this::resetSamplingFactor, t -> LOGGER.error("unexpected exception.", t)), 0, 3, TimeUnit.SECONDS);
+                LOGGER.debug(
+                    "Agent sampling mechanism started. Sample {} traces in 3 seconds.",
+                    samplingRateWatcher.getSamplingRate()
+                );
+            }
+        } else {
+            if (on) {
+                if (scheduledFuture != null) {
+                    scheduledFuture.cancel(true);
+                }
+                on = false;
+            }
+        }
     }
 }

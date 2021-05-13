@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.telemetry.api;
 
 /**
  * A gauge is a metrics that represents a single numerical value that can arbitrarily go up and down.
- *
- * @author wusheng
  */
 public interface GaugeMetrics {
     /**
@@ -31,8 +29,6 @@ public interface GaugeMetrics {
 
     /**
      * Increase the given value to the gauge
-     *
-     * @param value
      */
     void inc(double value);
 
@@ -43,15 +39,16 @@ public interface GaugeMetrics {
 
     /**
      * Decrease the given value to the gauge
-     *
-     * @param value
      */
     void dec(double value);
 
     /**
      * Set the given value to the gauge
-     *
-     * @param value
      */
     void setValue(double value);
+
+    /**
+     * Get the current value of the gauge
+     */
+    double getValue();
 }

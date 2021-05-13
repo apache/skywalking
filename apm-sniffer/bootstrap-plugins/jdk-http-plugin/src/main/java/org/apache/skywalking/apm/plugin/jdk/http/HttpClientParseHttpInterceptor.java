@@ -29,22 +29,17 @@ import sun.net.www.MessageHeader;
 
 import java.lang.reflect.Method;
 
-/**
- * @author lican
- */
 public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInterceptor {
-
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
 
     }
 
-
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         MessageHeader responseHeader = (MessageHeader) allArguments[0];
         String statusLine = responseHeader.getValue(0);
         Integer responseCode = parseResponseCode(statusLine);
@@ -59,19 +54,16 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred().log(t);
+        span.log(t);
     }
-
 
     /**
      * <PRE>
-     * HTTP/1.0 200 OK
-     * HTTP/1.0 401 Unauthorized
+     * HTTP/1.0 200 OK HTTP/1.0 401 Unauthorized
      * </PRE>
-     * It will return 200 and 401 respectively.
-     * Returns -1 if no code can be discerned
+     * It will return 200 and 401 respectively. Returns -1 if no code can be discerned
      */
     private Integer parseResponseCode(String statusLine) {
         if (!StringUtil.isEmpty(statusLine)) {
@@ -85,6 +77,5 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
         }
         return -1;
     }
-
 
 }

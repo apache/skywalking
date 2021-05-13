@@ -58,8 +58,7 @@ public class CanalInterceptorTest {
 
     private Class[] argumentType;
 
-
-    private  class  CanalConnector extends SimpleCanalConnector implements EnhancedInstance {
+    private class CanalConnector extends SimpleCanalConnector implements EnhancedInstance {
 
         public CanalConnector(SocketAddress address, String username, String password, String destination) {
             super(address, username, password, destination);
@@ -76,7 +75,6 @@ public class CanalInterceptorTest {
         }
     }
 
-
     private EnhancedInstance enhancedInstance = new CanalConnector(new InetSocketAddress(AddressUtils.getHostIp(), 11111), "example", "", "") {
         @Override
         public Object getSkyWalkingDynamicField() {
@@ -89,7 +87,6 @@ public class CanalInterceptorTest {
         @Override
         public void setSkyWalkingDynamicField(Object value) {
         }
-
 
     };
 

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
 import io.undertow.Undertow;
@@ -34,10 +35,6 @@ import java.lang.reflect.Method;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
-/**
- * @author AI
- * 2019-08-10
- */
 public class UndertowBuilderMethodMatcherTest {
 
     @Test

@@ -20,16 +20,14 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public class ElasticSearchUpdateRequest extends UpdateRequest implements org.apache.skywalking.oap.server.library.client.request.UpdateRequest {
 
     public ElasticSearchUpdateRequest(String index, String type, String id) {
         super(index, type, id);
     }
 
-    @Override public ElasticSearchUpdateRequest doc(XContentBuilder source) {
+    @Override
+    public ElasticSearchUpdateRequest doc(XContentBuilder source) {
         super.doc(source);
         return this;
     }

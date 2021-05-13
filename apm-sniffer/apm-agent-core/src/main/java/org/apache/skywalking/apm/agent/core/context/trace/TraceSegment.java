@@ -16,41 +16,35 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
-import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.apache.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
-import org.apache.skywalking.apm.network.language.agent.*;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
 /**
  * {@link TraceSegment} is a segment or fragment of the distributed trace. See https://github.com/opentracing/specification/blob/master/specification.md#the-opentracing-data-model
  * A {@link TraceSegment} means the segment, which exists in current {@link Thread}. And the distributed trace is formed
  * by multi {@link TraceSegment}s, because the distributed trace crosses multi-processes, multi-threads. <p>
- *
- * @author wusheng
  */
 public class TraceSegment {
     /**
      * The id of this trace segment. Every segment has its unique-global-id.
      */
-    private ID traceSegmentId;
+    private String traceSegmentId;
 
     /**
-     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #refs} contains only one
+     * The refs of parent trace segments, except the primary one. For most RPC call, {@link #ref} contains only one
      * element, but if this segment is a start span of batch process, the segment faces multi parents, at this moment,
-     * we use this {@link #refs} to link them.
-     *
+     * we only cache the first parent segment reference.
+     * <p>
      * This field will not be serialized. Keeping this field is only for quick accessing.
      */
-    private List<TraceSegmentRef> refs;
+    private TraceSegmentRef ref;
 
     /**
      * The spans belong to this trace segment. They all have finished. All active spans are hold and controlled by
@@ -59,14 +53,11 @@ public class TraceSegment {
     private List<AbstractTracingSpan> spans;
 
     /**
-     * The <code>relatedGlobalTraces</code> represent a set of all related trace. Most time it contains only one
+     * The <code>relatedGlobalTraceId</code> represent the related trace. Most time it related only one
      * element, because only one parent {@link TraceSegment} exists, but, in batch scenario, the num becomes greater
-     * than 1, also meaning multi-parents {@link TraceSegment}. <p> The difference between
-     * <code>relatedGlobalTraces</code> and {@link #refs} is: {@link #refs} targets this {@link TraceSegment}'s direct
-     * parent, <p> and <p> <code>relatedGlobalTraces</code> targets this {@link TraceSegment}'s related call chain, a
-     * call chain contains multi {@link TraceSegment}s, only using {@link #refs} is not enough for analysis and ui.
+     * than 1, also meaning multi-parents {@link TraceSegment}. But we only related the first parent TraceSegment.
      */
-    private DistributedTraceIds relatedGlobalTraces;
+    private DistributedTraceId relatedGlobalTraceId;
 
     private boolean ignore = false;
 
@@ -79,9 +70,8 @@ public class TraceSegment {
      */
     public TraceSegment() {
         this.traceSegmentId = GlobalIdGenerator.generate();
-        this.spans = new LinkedList<AbstractTracingSpan>();
-        this.relatedGlobalTraces = new DistributedTraceIds();
-        this.relatedGlobalTraces.append(new NewDistributedTraceId());
+        this.spans = new LinkedList<>();
+        this.relatedGlobalTraceId = new NewDistributedTraceId();
         this.createTime = System.currentTimeMillis();
     }
 
@@ -91,26 +81,23 @@ public class TraceSegment {
      * @param refSegment {@link TraceSegmentRef}
      */
     public void ref(TraceSegmentRef refSegment) {
-        if (refs == null) {
-            refs = new LinkedList<TraceSegmentRef>();
-        }
-        if (!refs.contains(refSegment)) {
-            refs.add(refSegment);
+        if (null == ref) {
+            this.ref = refSegment;
         }
     }
 
     /**
-     * Establish the line between this segment and all relative global trace ids.
+     * Establish the line between this segment and the relative global trace id.
      */
-    public void relatedGlobalTraces(DistributedTraceId distributedTraceId) {
-        relatedGlobalTraces.append(distributedTraceId);
+    public void relatedGlobalTrace(DistributedTraceId distributedTraceId) {
+        if (relatedGlobalTraceId instanceof NewDistributedTraceId) {
+            this.relatedGlobalTraceId = distributedTraceId;
+        }
     }
 
     /**
      * After {@link AbstractSpan} is finished, as be controller by "skywalking-api" module, notify the {@link
      * TraceSegment} to archive it.
-     *
-     * @param finishedSpan
      */
     public void archive(AbstractTracingSpan finishedSpan) {
         spans.add(finishedSpan);
@@ -124,24 +111,19 @@ public class TraceSegment {
         return this;
     }
 
-    public ID getTraceSegmentId() {
+    public String getTraceSegmentId() {
         return traceSegmentId;
     }
 
-    public int getServiceId() {
-        return RemoteDownstreamConfig.Agent.SERVICE_ID;
+    /**
+     * Get the first parent segment reference.
+     */
+    public TraceSegmentRef getRef() {
+        return ref;
     }
 
-    public boolean hasRef() {
-        return !(refs == null || refs.size() == 0);
-    }
-
-    public List<TraceSegmentRef> getRefs() {
-        return refs;
-    }
-
-    public List<DistributedTraceId> getRelatedGlobalTraces() {
-        return relatedGlobalTraces.getRelatedGlobalTraces();
+    public DistributedTraceId getRelatedGlobalTrace() {
+        return relatedGlobalTraceId;
     }
 
     public boolean isSingleSpanSegment() {
@@ -161,42 +143,29 @@ public class TraceSegment {
      *
      * @return the segment as GRPC service parameter
      */
-    public UpstreamSegment transform() {
-        UpstreamSegment.Builder upstreamBuilder = UpstreamSegment.newBuilder();
-        for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
-            upstreamBuilder = upstreamBuilder.addGlobalTraceIds(distributedTraceId.toUniqueId());
-        }
+    public SegmentObject transform() {
         SegmentObject.Builder traceSegmentBuilder = SegmentObject.newBuilder();
-        /**
+        traceSegmentBuilder.setTraceId(getRelatedGlobalTrace().getId());
+        /*
          * Trace Segment
          */
-        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId.transform());
+        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId);
         // Don't serialize TraceSegmentReference
 
         // SpanObject
         for (AbstractTracingSpan span : this.spans) {
             traceSegmentBuilder.addSpans(span.transform());
         }
-        traceSegmentBuilder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID);
-        traceSegmentBuilder.setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
+        traceSegmentBuilder.setService(Config.Agent.SERVICE_NAME);
+        traceSegmentBuilder.setServiceInstance(Config.Agent.INSTANCE_NAME);
         traceSegmentBuilder.setIsSizeLimited(this.isSizeLimited);
 
-        upstreamBuilder.setSegment(traceSegmentBuilder.build().toByteString());
-        return upstreamBuilder.build();
+        return traceSegmentBuilder.build();
     }
 
     @Override
     public String toString() {
-        return "TraceSegment{" +
-            "traceSegmentId='" + traceSegmentId + '\'' +
-            ", refs=" + refs +
-            ", spans=" + spans +
-            ", relatedGlobalTraces=" + relatedGlobalTraces +
-            '}';
-    }
-
-    public int getApplicationInstanceId() {
-        return RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
+        return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", ref=" + ref + ", spans=" + spans + "}";
     }
 
     public long createTime() {

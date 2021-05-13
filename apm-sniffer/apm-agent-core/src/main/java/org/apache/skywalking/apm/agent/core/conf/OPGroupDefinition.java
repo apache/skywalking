@@ -18,8 +18,5 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-/**
- * @author wusheng
- */
 public interface OPGroupDefinition {
 }

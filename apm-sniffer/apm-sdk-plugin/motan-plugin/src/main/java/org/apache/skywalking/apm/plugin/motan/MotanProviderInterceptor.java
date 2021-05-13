@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;
@@ -38,14 +37,13 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * <p>
  * {@link MotanConsumerInterceptor} intercept all constructor of {@link com.weibo.api.motan.rpc.AbstractProvider} for
  * record the request url from consumer side.
- *
- * @author zhangxin
  */
 public class MotanProviderInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Request request = (Request)allArguments[0];
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        Request request = (Request) allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -58,23 +56,23 @@ public class MotanProviderInterceptor implements InstanceMethodsAroundIntercepto
         span.setComponent(ComponentsDefine.MOTAN);
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Response response = (Response)ret;
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        Response response = (Response) ret;
         if (response != null && response.getException() != null) {
             AbstractSpan span = ContextManager.activeSpan();
             span.log(response.getException());
-            span.errorOccurred();
         }
 
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
         activeSpan.log(t);
     }
 

@@ -18,22 +18,20 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
  * Consumer Pool Factory provides global management for all Consumer Pool.
- *
- * @author wusheng
  */
 public enum ConsumerPoolFactory {
     INSTANCE;
 
-    private Map<String, ConsumerPool> pools;
+    private final Map<String, ConsumerPool> pools;
 
     ConsumerPoolFactory() {
-        pools = new HashMap<String, ConsumerPool>();
+        pools = new HashMap<>();
     }
 
     public synchronized boolean createIfAbsent(String poolName, Callable<ConsumerPool> creator) throws Exception {
@@ -49,41 +47,4 @@ public enum ConsumerPoolFactory {
         return pools.get(poolName);
     }
 
-    /**
-     * Default pool provides the same capabilities as DataCarrier#consume(IConsumer, 1), which alloc one thread for one
-     * DataCarrier.
-     */
-    public static final ConsumerPool DEFAULT_POOL = new ConsumerPool() {
-        private Map<Channels, ConsumeDriver> allDrivers = new HashMap<Channels, ConsumeDriver>();
-
-        @Override synchronized public void add(String name, Channels channels, IConsumer consumer) {
-            if (!allDrivers.containsKey(channels)) {
-                ConsumeDriver consumeDriver = new ConsumeDriver(name, channels, consumer, 1, 20);
-                allDrivers.put(channels, consumeDriver);
-            }
-        }
-
-        /**
-         * Always return true.
-         * @param channels
-         * @return
-         */
-        @Override public boolean isRunning(Channels channels) {
-            return true;
-        }
-
-        @Override public void close(Channels channels) {
-            ConsumeDriver driver = allDrivers.get(channels);
-            if (driver != null) {
-                driver.close(channels);
-            }
-        }
-
-        @Override public void begin(Channels channels) {
-            ConsumeDriver driver = allDrivers.get(channels);
-            if (driver != null) {
-                driver.begin(channels);
-            }
-        }
-    };
 }

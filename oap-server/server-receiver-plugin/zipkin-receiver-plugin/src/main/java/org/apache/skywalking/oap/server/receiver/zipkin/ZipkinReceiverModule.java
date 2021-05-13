@@ -22,12 +22,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * Zipkin receiver module provides the HTTP, protoc serve for any SDK or agent by following Zipkin format.
- *
+ * <p>
  * At this moment, Zipkin format is not compatible with SkyWalking, especially HEADERs. Please don't consider this as a
  * Zipkin-SkyWalking integration, it is provided for adding analysis, aggregation and visualization capabilities to
  * zipkin backend.
- *
- * @author wusheng
  */
 public class ZipkinReceiverModule extends ModuleDefine {
     public static final String NAME = "receiver_zipkin";
@@ -36,7 +34,8 @@ public class ZipkinReceiverModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

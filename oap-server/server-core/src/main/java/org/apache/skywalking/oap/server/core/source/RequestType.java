@@ -19,8 +19,16 @@
 package org.apache.skywalking.oap.server.core.source;
 
 /**
- * @author peng-yongsheng
+ * RPC request type.
  */
 public enum RequestType {
-    DATABASE, HTTP, RPC, gRPC
+    DATABASE,
+    HTTP,
+    RPC,
+    gRPC,
+    /**
+     * Logic request only.
+     */
+    LOGIC,
+    TCP
 }

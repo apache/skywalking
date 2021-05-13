@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
 import static org.mockito.Mockito.verify;
@@ -49,7 +48,15 @@ public class XMemcachedConstructorWithComplexArgInterceptorTest {
     public void onConstructWithComplex() {
         Map<InetSocketAddress, InetSocketAddress> inetSocketAddressMap = new HashMap<InetSocketAddress, InetSocketAddress>();
         inetSocketAddressMap.put(new InetSocketAddress("127.0.0.1", 11211), new InetSocketAddress("127.0.0.2", 11211));
-        interceptor.onConstruct(enhancedInstance, new Object[]{null, null, null, null, null, null, inetSocketAddressMap});
+        interceptor.onConstruct(enhancedInstance, new Object[] {
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            inetSocketAddressMap
+        });
 
         verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211");
     }

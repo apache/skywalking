@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.patch;
 
 import java.lang.reflect.Constructor;
@@ -34,8 +33,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 /**
  * {@link AutowiredAnnotationProcessorInterceptor} return the correct constructor when the bean class is enhanced by
  * skywalking.
- *
- * @author zhangxin
  */
 public class AutowiredAnnotationProcessorInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
@@ -48,13 +45,13 @@ public class AutowiredAnnotationProcessorInterceptor implements InstanceMethodsA
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        Class<?> beanClass = (Class<?>)allArguments[0];
+        Class<?> beanClass = (Class<?>) allArguments[0];
         if (EnhancedInstance.class.isAssignableFrom(beanClass)) {
-            Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = (Map<Class<?>, Constructor<?>[]>)objInst.getSkyWalkingDynamicField();
+            Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = (Map<Class<?>, Constructor<?>[]>) objInst.getSkyWalkingDynamicField();
 
             Constructor<?>[] candidateConstructors = candidateConstructorsCache.get(beanClass);
             if (candidateConstructors == null) {
-                Constructor<?>[] returnCandidateConstructors = (Constructor<?>[])ret;
+                Constructor<?>[] returnCandidateConstructors = (Constructor<?>[]) ret;
 
                 /**
                  * The return for the method {@link org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor#determineCandidateConstructors(Class, String)
@@ -80,7 +77,8 @@ public class AutowiredAnnotationProcessorInterceptor implements InstanceMethodsA
                         }
                     }
 
-                    if (candidateRawConstructors.size() == 1 && candidateRawConstructors.get(0).getParameterTypes().length > 0) {
+                    if (candidateRawConstructors.size() == 1 && candidateRawConstructors.get(0)
+                                                                                        .getParameterTypes().length > 0) {
                         candidateConstructors = new Constructor<?>[] {candidateRawConstructors.get(0)};
                     } else {
                         candidateConstructors = new Constructor<?>[0];
@@ -98,12 +96,14 @@ public class AutowiredAnnotationProcessorInterceptor implements InstanceMethodsA
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<Class<?>, Constructor<?>[]>(20);
         objInst.setSkyWalkingDynamicField(candidateConstructorsCache);
     }

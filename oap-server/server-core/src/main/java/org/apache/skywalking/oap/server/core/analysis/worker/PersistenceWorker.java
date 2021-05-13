@@ -18,65 +18,59 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import java.util.Collection;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
 
 /**
- * @author peng-yongsheng
+ * PersistenceWorker take the responsibility to pushing data to the final storage. The target storage is based on the
+ * activate storage implementation. This worker controls the persistence flow.
+ *
+ * @param <INPUT> The type of worker input. All inputs will be merged and saved.
  */
-public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends Window<INPUT>> extends AbstractWorker<INPUT> {
+@Slf4j
+public abstract class PersistenceWorker<INPUT extends StorageData> extends AbstractWorker<INPUT> {
+    @Getter(AccessLevel.PROTECTED)
+    private final ReadWriteSafeCache<INPUT> cache;
 
-    private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
-
-    PersistenceWorker(ModuleDefineHolder moduleDefineHolder) {
+    PersistenceWorker(ModuleDefineHolder moduleDefineHolder, ReadWriteSafeCache<INPUT> cache) {
         super(moduleDefineHolder);
+        this.cache = cache;
     }
 
-    void onWork(INPUT input) {
-        cacheData(input);
+    /**
+     * Accept the input, and push the data into the cache.
+     */
+    void onWork(List<INPUT> input) {
+        cache.write(input);
     }
 
-    public abstract void cacheData(INPUT input);
-
-    public abstract CACHE getCache();
-
+    /**
+     * The persistence process is driven by the {@link org.apache.skywalking.oap.server.core.storage.PersistenceTimer}.
+     * This is a notification method for the worker when every round finished.
+     *
+     * @param tookTime The time costs in this round.
+     */
     public abstract void endOfRound(long tookTime);
 
-    public boolean flushAndSwitch() {
-        boolean isSwitch;
-        try {
-            if (isSwitch = getCache().trySwitchPointer()) {
-                getCache().switchPointer();
-            }
-        } finally {
-            getCache().trySwitchPointerFinally();
-        }
-        return isSwitch;
-    }
-
+    /**
+     * Prepare the batch persistence, transfer all prepared data to the executable data format based on the storage
+     * implementations.
+     *
+     * @param lastCollection  the source of transformation, they are in memory object format.
+     * @param prepareRequests data in the formats for the final persistence operations.
+     */
     public abstract void prepareBatch(Collection<INPUT> lastCollection, List<PrepareRequest> prepareRequests);
 
-    public final void buildBatchRequests(List<PrepareRequest> prepareRequests) {
-        try {
-            SWCollection<INPUT> last = getCache().getLast();
-            while (last.isWriting()) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    logger.warn("thread wake up");
-                }
-            }
-
-            if (last.collection() != null) {
-                prepareBatch(last.collection(), prepareRequests);
-            }
-        } finally {
-            getCache().finishReadingLast();
-        }
+    public void buildBatchRequests(List<PrepareRequest> prepareRequests) {
+        final List<INPUT> dataList = getCache().read();
+        prepareBatch(dataList, prepareRequests);
     }
 }

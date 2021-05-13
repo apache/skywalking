@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;

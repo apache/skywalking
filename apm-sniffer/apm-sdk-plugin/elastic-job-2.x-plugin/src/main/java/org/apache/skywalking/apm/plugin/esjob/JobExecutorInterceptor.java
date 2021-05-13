@@ -16,14 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.esjob;
 
-import com.dangdang.ddframe.job.api.ShardingContext;
+import com.dangdang.ddframe.job.event.type.JobExecutionEvent;
 import com.dangdang.ddframe.job.executor.ShardingContexts;
-import com.google.common.base.Strings;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -31,25 +31,31 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link JobExecutorInterceptor} enhances {@link com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor#process(ShardingContext)}
+ * {@link JobExecutorInterceptor} enhances {@link com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor#process(ShardingContexts, int, JobExecutionEvent)}
  * ,creating a local span that records job execution.
- * 
- * @author gaohongtao
  */
 public class JobExecutorInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final AbstractTag<String> TAG_ITEM = Tags.ofKey("item");
+    private static final AbstractTag<String> TAG_TASK_ID = Tags.ofKey("taskId");
+    private static final AbstractTag<String> TAG_SHARDING_TOTAL_COUNT = Tags.ofKey("shardingTotalCount");
+    private static final AbstractTag<String> TAG_SHARDING_ITEM_PARAMETERS = Tags.ofKey("shardingItemParameters");
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        ShardingContexts shardingContexts = (ShardingContexts)allArguments[0];
-        Integer item = (Integer)allArguments[1];
-        ShardingContext shardingContext = new ShardingContext(shardingContexts, item);
-        String operateName = shardingContext.getJobName();
-        if (!Strings.isNullOrEmpty(shardingContext.getShardingParameter())) {
-            operateName += "-" + shardingContext.getShardingParameter();
-        }
+        ShardingContexts shardingContexts = (ShardingContexts) allArguments[0];
+        Integer item = (Integer) allArguments[1];
+        String operateName = ComponentsDefine.ELASTIC_JOB.getName() + "/" + shardingContexts.getJobName();
+
         AbstractSpan span = ContextManager.createLocalSpan(operateName);
         span.setComponent(ComponentsDefine.ELASTIC_JOB);
-        span.tag("sharding_context", shardingContext.toString());
+        Tags.LOGIC_ENDPOINT.set(span, Tags.VAL_LOCAL_SPAN_AS_LOGIC_ENDPOINT);
+
+        span.tag(TAG_ITEM, item == null ? "" : String.valueOf(item));
+        span.tag(TAG_TASK_ID, shardingContexts.getTaskId());
+        span.tag(TAG_SHARDING_TOTAL_COUNT, Integer.toString(shardingContexts.getShardingTotalCount()));
+        span.tag(TAG_SHARDING_ITEM_PARAMETERS, shardingContexts.getShardingItemParameters() == null ? "" : shardingContexts.getShardingItemParameters().toString());
     }
 
     @Override
@@ -59,8 +65,9 @@ public class JobExecutorInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

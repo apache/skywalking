@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint;
 
-/**
- * @author kezhenxu94
- */
 public class PreparedStatementNullSetterInstrumentation extends PreparedStatementInstrumentation {
 
     @Override

@@ -15,14 +15,14 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.query.graphql.type;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 
-/**
- * @author liu-xinyuan
- **/
+@Deprecated
 @Getter
 public class BatchMetricConditions {
     private String name;

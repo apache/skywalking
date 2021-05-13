@@ -21,11 +21,9 @@ package org.apache.skywalking.apm.agent.core.jvm.gc;
 import java.lang.management.GarbageCollectorMXBean;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v3.GC;
+import org.apache.skywalking.apm.network.language.agent.v3.GCPhrase;
 
-/**
- * @author wusheng
- */
 public abstract class GCModule implements GCMetricAccessor {
     private List<GarbageCollectorMXBean> beans;
 
@@ -68,12 +66,7 @@ public abstract class GCModule implements GCMetricAccessor {
                 continue;
             }
 
-            gcList.add(
-                GC.newBuilder().setPhrase(phrase)
-                    .setCount(gcCount)
-                    .setTime(gcTime)
-                    .build()
-            );
+            gcList.add(GC.newBuilder().setPhrase(phrase).setCount(gcCount).setTime(gcTime).build());
         }
 
         return gcList;

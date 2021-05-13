@@ -18,26 +18,25 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import org.slf4j.*;
 
-/**
- * @author wusheng, peng-yongsheng
- */
+@Slf4j
 public class H2BatchDAO implements IBatchDAO {
-
-    private static final Logger logger = LoggerFactory.getLogger(H2BatchDAO.class);
-
     private JDBCHikariCPClient h2Client;
     private final DataCarrier<PrepareRequest> dataCarrier;
 
@@ -56,31 +55,33 @@ public class H2BatchDAO implements IBatchDAO {
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new H2BatchDAO.H2BatchConsumer(this));
     }
 
-    @Override public void synchronous(List<PrepareRequest> prepareRequests) {
+    @Override
+    public void synchronous(List<PrepareRequest> prepareRequests) {
         if (CollectionUtils.isEmpty(prepareRequests)) {
             return;
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("batch sql statements execute, data size: {}", prepareRequests.size());
+        if (log.isDebugEnabled()) {
+            log.debug("batch sql statements execute, data size: {}", prepareRequests.size());
         }
 
         try (Connection connection = h2Client.getConnection()) {
             for (PrepareRequest prepareRequest : prepareRequests) {
                 try {
-                    SQLExecutor sqlExecutor = (SQLExecutor)prepareRequest;
+                    SQLExecutor sqlExecutor = (SQLExecutor) prepareRequest;
                     sqlExecutor.invoke(connection);
                 } catch (SQLException e) {
                     // Just avoid one execution failure makes the rest of batch failure.
-                    logger.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
             }
         } catch (SQLException | JDBCClientException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
-    @Override public void asynchronous(InsertRequest insertRequest) {
+    @Override
+    public void asynchronous(InsertRequest insertRequest) {
         this.dataCarrier.produce(insertRequest);
     }
 
@@ -92,19 +93,23 @@ public class H2BatchDAO implements IBatchDAO {
             this.h2BatchDAO = h2BatchDAO;
         }
 
-        @Override public void init() {
+        @Override
+        public void init() {
 
         }
 
-        @Override public void consume(List<PrepareRequest> prepareRequests) {
+        @Override
+        public void consume(List<PrepareRequest> prepareRequests) {
             h2BatchDAO.synchronous(prepareRequests);
         }
 
-        @Override public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
-            logger.error(t.getMessage(), t);
+        @Override
+        public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
+            log.error(t.getMessage(), t);
         }
 
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
         }
     }
 }

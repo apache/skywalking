@@ -18,58 +18,64 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.core.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
 
 /**
- * @author peng-yongsheng
+ * The core module installation controller.
  */
-public abstract class ModelInstaller {
-
-    private static final Logger logger = LoggerFactory.getLogger(ModelInstaller.class);
-
+@RequiredArgsConstructor
+@Slf4j
+public abstract class ModelInstaller implements ModelCreator.CreatingListener {
+    protected final Client client;
     private final ModuleManager moduleManager;
 
-    public ModelInstaller(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-    }
-
-    public final void install(Client client) throws StorageException {
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
-
-        List<Model> models = modelGetter.getModels();
-
+    @Override
+    public void whenCreating(Model model) throws StorageException {
         if (RunningMode.isNoInitMode()) {
-            for (Model model : models) {
-                while (!isExists(client, model)) {
-                    try {
-                        logger.info("table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.", model.getName());
-                        Thread.sleep(3000L);
-                    } catch (InterruptedException e) {
-                        logger.error(e.getMessage());
-                    }
+            while (!isExists(model)) {
+                try {
+                    log.info(
+                        "table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.",
+                        model
+                            .getName()
+                    );
+                    Thread.sleep(3000L);
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage());
                 }
             }
         } else {
-            for (Model model : models) {
-                if (!isExists(client, model)) {
-                    logger.info("table: {} does not exist", model.getName());
-                    createTable(client, model);
-                }
+            if (!isExists(model)) {
+                log.info("table: {} does not exist", model.getName());
+                createTable(model);
             }
         }
     }
 
-    public final void overrideColumnName(String columnName, String newName) {
-        IModelOverride modelOverride = moduleManager.find(CoreModule.NAME).provider().getService(IModelOverride.class);
+    /**
+     * Installer implementation could use this API to request a column name replacement. This method delegates for
+     * {@link ModelManipulator}.
+     */
+    protected final void overrideColumnName(String columnName, String newName) {
+        ModelManipulator modelOverride = moduleManager.find(CoreModule.NAME)
+                                                      .provider()
+                                                      .getService(ModelManipulator.class);
         modelOverride.overrideColumnName(columnName, newName);
     }
 
-    protected abstract boolean isExists(Client client, Model model) throws StorageException;
+    /**
+     * Check whether the storage entity exists. Need to implement based on the real storage.
+     */
+    protected abstract boolean isExists(Model model) throws StorageException;
 
-    protected abstract void createTable(Client client, Model model) throws StorageException;
+    /**
+     * Create the storage entity. All creations should be after the {@link #isExists(Model)} check.
+     */
+    protected abstract void createTable(Model model) throws StorageException;
 }

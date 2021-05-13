@@ -19,40 +19,45 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
-/**
- * @author wusheng
- */
 public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
 
     private JDBCHikariCPClient h2Client;
-    private StorageBuilder<Metrics> storageBuilder;
+    private StorageHashMapBuilder<Metrics> storageBuilder;
 
-    public H2MetricsDAO(JDBCHikariCPClient h2Client, StorageBuilder<Metrics> storageBuilder) {
+    public H2MetricsDAO(JDBCHikariCPClient h2Client, StorageHashMapBuilder<Metrics> storageBuilder) {
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        List<StorageData> storageDataList = getByIDs(h2Client, model.getName(), ids.toArray(new String[0]), storageBuilder);
+    @Override
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+        String[] ids = metrics.stream().map(Metrics::id).collect(Collectors.toList()).toArray(new String[] {});
+        List<StorageData> storageDataList = getByIDs(h2Client, model.getName(), ids, storageBuilder);
         List<Metrics> result = new ArrayList<>(storageDataList.size());
         for (StorageData storageData : storageDataList) {
-            result.add((Metrics)storageData);
+            result.add((Metrics) storageData);
         }
         return result;
     }
 
-    @Override public SQLExecutor prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    @Override
+    public SQLExecutor prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         return getInsertExecutor(model.getName(), metrics, storageBuilder);
     }
 
-    @Override public SQLExecutor prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    @Override
+    public SQLExecutor prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         return getUpdateExecutor(model.getName(), metrics, storageBuilder);
     }
 }

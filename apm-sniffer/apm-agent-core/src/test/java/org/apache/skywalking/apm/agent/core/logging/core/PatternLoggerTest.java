@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import com.google.common.collect.Lists;
@@ -26,16 +25,13 @@ import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 
-/**
- * @author alvin
- */
 public class PatternLoggerTest {
 
     public static final String PATTERN = "%timestamp+0800 %level [%agent_name,,,] [%thread] %class:-1 %msg %throwable";
@@ -44,7 +40,6 @@ public class PatternLoggerTest {
     public static void initAndHoldOut() {
         Config.Agent.SERVICE_NAME = "testAppFromConfig";
     }
-
 
     @Test
     public void testLog() {
@@ -62,19 +57,38 @@ public class PatternLoggerTest {
         Assert.assertTrue(logger.isWarnEnable());
         Assert.assertTrue(logger.isErrorEnable());
 
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         logger.debug("hello world");
+        Mockito.verify(output, times(1)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("DEBUG [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
         logger.debug("hello {}", "world");
+        Mockito.verify(output, times(2)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("DEBUG [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
+
         logger.info("hello world");
+        Mockito.verify(output, times(3)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
         logger.info("hello {}", "world");
+        Mockito.verify(output, times(4)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
 
         logger.warn("hello {}", "world");
+        Mockito.verify(output, times(5)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("WARN [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
         logger.warn("hello world");
-        logger.error("hello world");
-        logger.error("hello world", new NullPointerException());
-        logger.error(new NullPointerException(), "hello {}", "world");
+        Mockito.verify(output, times(6)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("WARN [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
 
-        Mockito.verify(output, times(9))
-                .write(anyString());
+        logger.error("hello world");
+        Mockito.verify(output, times(7)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("ERROR [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
+        logger.error("hello world", new NullPointerException());
+        Mockito.verify(output, times(8)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("ERROR [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world"));
+        Assert.assertThat(argument.getValue(), StringContains.containsString("java.lang.NullPointerException"));
+        logger.error(new NullPointerException(), "hello {}", "world");
+        Mockito.verify(output, times(9)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("java.lang.NullPointerException"));
     }
 
     @Test
@@ -92,19 +106,37 @@ public class PatternLoggerTest {
         Assert.assertTrue(logger.isWarnEnable());
         Assert.assertTrue(logger.isErrorEnable());
 
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         logger.debug("$^!@#*()");
+        Mockito.verify(output, times(1)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("DEBUG [testAppFromConfig,,,] [main] PatternLoggerTest:-1 $^!@#*()"));
         logger.debug("hello {}", "!@#$%^&*(),./[]:;");
+        Mockito.verify(output, times(2)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("DEBUG [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello !@#$%^&*(),./[]:;"));
+
         logger.info("{}{}");
+        Mockito.verify(output, times(3)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 {}{}"));
         logger.info("hello {}", "{}{}");
+        Mockito.verify(output, times(4)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello {}{}"));
 
         logger.warn("hello {}", "\\");
+        Mockito.verify(output, times(5)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("WARN [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello \\"));
         logger.warn("hello \\");
-        logger.error("hello <>..");
-        logger.error("hello ///\\\\", new NullPointerException());
-        logger.error(new NullPointerException(), "hello {}", "&&&**%%");
+        Mockito.verify(output, times(6)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("WARN [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello \\"));
 
-        Mockito.verify(output, times(9))
-                .write(anyString());
+        logger.error("hello <>..");
+        Mockito.verify(output, times(7)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("ERROR [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello <>.."));
+        logger.error("hello ///\\\\", new NullPointerException());
+        Mockito.verify(output, times(8)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("ERROR [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello ///\\\\"));
+        logger.error(new NullPointerException(), "hello {}", "&&&**%%");
+        Mockito.verify(output, times(9)).write(argument.capture());
+        Assert.assertThat(argument.getValue(), StringContains.containsString("ERROR [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello &&&**%%"));
     }
 
     @Test
@@ -141,6 +173,5 @@ public class PatternLoggerTest {
         Assert.assertThat(lines[2], StringContains.containsString("PatternLoggerTest.testLogFormat"));
         Assert.assertEquals(strings.get(1).split(Constants.LINE_SEPARATOR).length, 1);
     }
-
 
 }

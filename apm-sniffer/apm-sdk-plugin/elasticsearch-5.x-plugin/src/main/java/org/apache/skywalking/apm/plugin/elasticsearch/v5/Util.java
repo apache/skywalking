@@ -20,9 +20,6 @@ package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 
 import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
-/**
- * @author oatiz.
- */
 class Util {
 
     static String wrapperNullStringValue(String value) {

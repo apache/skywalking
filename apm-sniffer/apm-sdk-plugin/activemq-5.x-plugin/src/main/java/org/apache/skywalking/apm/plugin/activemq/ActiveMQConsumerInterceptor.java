@@ -31,9 +31,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author withlin
- */
 public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
@@ -47,15 +44,22 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-        String url = (String)objInst.getSkyWalkingDynamicField();
-        MessageDispatch messageDispatch = (MessageDispatch)allArguments[0];
+        String url = (String) objInst.getSkyWalkingDynamicField();
+        MessageDispatch messageDispatch = (MessageDispatch) allArguments[0];
         AbstractSpan activeSpan = null;
-        if (messageDispatch.getDestination().getDestinationType() == QUEUE_TYPE || messageDispatch.getDestination().getDestinationType() == TEMP_QUEUE_TYPE) {
-            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Queue/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+        if (messageDispatch.getDestination().getDestinationType() == QUEUE_TYPE || messageDispatch.getDestination()
+                                                                                                  .getDestinationType() == TEMP_QUEUE_TYPE) {
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Queue/" + messageDispatch.getDestination()
+                                                                                                        .getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null)
+                                       .start(System.currentTimeMillis());
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_QUEUE.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
-        } else if (messageDispatch.getDestination().getDestinationType() == TOPIC_TYPE || messageDispatch.getDestination().getDestinationType() == TEMP_TOPIC_TYPE) {
-            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + messageDispatch.getDestination().getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
+        } else if (messageDispatch.getDestination()
+                                  .getDestinationType() == TOPIC_TYPE || messageDispatch.getDestination()
+                                                                                        .getDestinationType() == TEMP_TOPIC_TYPE) {
+            activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + messageDispatch.getDestination()
+                                                                                                        .getPhysicalName() + CONSUMER_OPERATE_NAME_SUFFIX, null)
+                                       .start(System.currentTimeMillis());
             Tags.MQ_BROKER.set(activeSpan, url);
             Tags.MQ_TOPIC.set(activeSpan, messageDispatch.getDestination().getPhysicalName());
         }
@@ -84,6 +88,6 @@ public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -25,14 +25,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author oatiz.
- */
 public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginDefine {
 
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.TransportActionNodeProxyInterceptor";
@@ -40,13 +38,15 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
             }
@@ -55,7 +55,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -84,4 +84,10 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
     protected ClassMatch enhanceClass() {
         return byName(ENHANC_CLASS);
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{Constants.INET_SOCKET_TRANSPORT_ADDRESS_WITNESS_CLASS};
+    }
+
 }

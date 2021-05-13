@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import java.sql.Array;
@@ -62,18 +61,15 @@ public class SWConnection implements Connection {
     }
 
     public Statement createStatement() throws SQLException {
-        return new SWStatement(this, realConnection.createStatement(),
-            this.connectInfo);
+        return new SWStatement(this, realConnection.createStatement(), this.connectInfo);
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return new SWPreparedStatement(this,
-            realConnection.prepareStatement(sql), this.connectInfo, sql);
+        return new SWPreparedStatement(this, realConnection.prepareStatement(sql), this.connectInfo, sql);
     }
 
     public CallableStatement prepareCall(String sql) throws SQLException {
-        return new SWCallableStatement(this, realConnection.prepareCall(sql),
-            this.connectInfo, sql);
+        return new SWCallableStatement(this, realConnection.prepareCall(sql), this.connectInfo, sql);
     }
 
     public String nativeSQL(String sql) throws SQLException {
@@ -89,36 +85,30 @@ public class SWConnection implements Connection {
     }
 
     public void commit() throws SQLException {
-        ConnectionTracing.execute(realConnection, connectInfo, "commit", "",
-            new ConnectionTracing.Executable<String>() {
-                public String exe(java.sql.Connection realConnection,
-                    String sql) throws SQLException {
-                    realConnection.commit();
-                    return null;
-                }
-            });
+        ConnectionTracing.execute(realConnection, connectInfo, "commit", "", new ConnectionTracing.Executable<String>() {
+            public String exe(java.sql.Connection realConnection, String sql) throws SQLException {
+                realConnection.commit();
+                return null;
+            }
+        });
     }
 
     public void rollback() throws SQLException {
-        ConnectionTracing.execute(realConnection, connectInfo, "rollback", "",
-            new ConnectionTracing.Executable<String>() {
-                public String exe(java.sql.Connection realConnection,
-                    String sql) throws SQLException {
-                    realConnection.rollback();
-                    return null;
-                }
-            });
+        ConnectionTracing.execute(realConnection, connectInfo, "rollback", "", new ConnectionTracing.Executable<String>() {
+            public String exe(java.sql.Connection realConnection, String sql) throws SQLException {
+                realConnection.rollback();
+                return null;
+            }
+        });
     }
 
     public void close() throws SQLException {
-        ConnectionTracing.execute(realConnection, connectInfo, "close", "",
-            new ConnectionTracing.Executable<String>() {
-                public String exe(java.sql.Connection realConnection,
-                    String sql) throws SQLException {
-                    realConnection.close();
-                    return null;
-                }
-            });
+        ConnectionTracing.execute(realConnection, connectInfo, "close", "", new ConnectionTracing.Executable<String>() {
+            public String exe(java.sql.Connection realConnection, String sql) throws SQLException {
+                realConnection.close();
+                return null;
+            }
+        });
     }
 
     public boolean isClosed() throws SQLException {
@@ -161,23 +151,17 @@ public class SWConnection implements Connection {
         realConnection.clearWarnings();
     }
 
-    public Statement createStatement(int resultSetType, int resultSetConcurrency)
-        throws SQLException {
-        return new SWStatement(this, realConnection.createStatement(
-            resultSetType, resultSetConcurrency), this.connectInfo);
+    public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+        return new SWStatement(this, realConnection.createStatement(resultSetType, resultSetConcurrency), this.connectInfo);
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType,
         int resultSetConcurrency) throws SQLException {
-        return new SWPreparedStatement(this, realConnection.prepareStatement(
-            sql, resultSetType, resultSetConcurrency), this.connectInfo,
-            sql);
+        return new SWPreparedStatement(this, realConnection.prepareStatement(sql, resultSetType, resultSetConcurrency), this.connectInfo, sql);
     }
 
-    public CallableStatement prepareCall(String sql, int resultSetType,
-        int resultSetConcurrency) throws SQLException {
-        return new SWCallableStatement(this, realConnection.prepareCall(sql,
-            resultSetType, resultSetConcurrency), this.connectInfo, sql);
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+        return new SWCallableStatement(this, realConnection.prepareCall(sql, resultSetType, resultSetConcurrency), this.connectInfo, sql);
     }
 
     public Map<String, Class<?>> getTypeMap() throws SQLException {
@@ -205,67 +189,48 @@ public class SWConnection implements Connection {
     }
 
     public void rollback(final Savepoint savepoint) throws SQLException {
-        ConnectionTracing.execute(realConnection, connectInfo,
-            "rollback to savepoint", "", new ConnectionTracing.Executable<String>() {
-                public String exe(java.sql.Connection realConnection,
-                    String sql) throws SQLException {
-                    realConnection.rollback(savepoint);
-                    return null;
-                }
-            });
+        ConnectionTracing.execute(realConnection, connectInfo, "rollback to savepoint", "", new ConnectionTracing.Executable<String>() {
+            public String exe(java.sql.Connection realConnection, String sql) throws SQLException {
+                realConnection.rollback(savepoint);
+                return null;
+            }
+        });
     }
 
     public void releaseSavepoint(final Savepoint savepoint) throws SQLException {
-        ConnectionTracing.execute(realConnection, connectInfo,
-            "releaseSavepoint savepoint", "", new ConnectionTracing.Executable<String>() {
-                public String exe(java.sql.Connection realConnection,
-                    String sql) throws SQLException {
-                    realConnection.releaseSavepoint(savepoint);
-                    return null;
-                }
-            });
+        ConnectionTracing.execute(realConnection, connectInfo, "releaseSavepoint savepoint", "", new ConnectionTracing.Executable<String>() {
+            public String exe(java.sql.Connection realConnection, String sql) throws SQLException {
+                realConnection.releaseSavepoint(savepoint);
+                return null;
+            }
+        });
     }
 
-    public Statement createStatement(int resultSetType,
-        int resultSetConcurrency, int resultSetHoldability)
-        throws SQLException {
-        return new SWStatement(this, realConnection.createStatement(
-            resultSetType, resultSetConcurrency, resultSetHoldability),
-            this.connectInfo);
+    public Statement createStatement(int resultSetType, int resultSetConcurrency,
+        int resultSetHoldability) throws SQLException {
+        return new SWStatement(this, realConnection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), this.connectInfo);
     }
 
-    public PreparedStatement prepareStatement(String sql, int resultSetType,
-        int resultSetConcurrency, int resultSetHoldability)
-        throws SQLException {
-        return new SWPreparedStatement(this,
-            realConnection.prepareStatement(sql, resultSetType,
-                resultSetConcurrency, resultSetHoldability),
-            this.connectInfo, sql);
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
+        int resultSetHoldability) throws SQLException {
+        return new SWPreparedStatement(this, realConnection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this.connectInfo, sql);
     }
 
-    public CallableStatement prepareCall(String sql, int resultSetType,
-        int resultSetConcurrency, int resultSetHoldability)
-        throws SQLException {
-        return new SWCallableStatement(this, realConnection.prepareCall(sql,
-            resultSetType, resultSetConcurrency, resultSetHoldability), this.connectInfo, sql);
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
+        int resultSetHoldability) throws SQLException {
+        return new SWCallableStatement(this, realConnection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), this.connectInfo, sql);
     }
 
-    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
-        throws SQLException {
-        return new SWPreparedStatement(this, realConnection.prepareStatement(
-            sql, autoGeneratedKeys), this.connectInfo, sql);
+    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+        return new SWPreparedStatement(this, realConnection.prepareStatement(sql, autoGeneratedKeys), this.connectInfo, sql);
     }
 
-    public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
-        throws SQLException {
-        return new SWPreparedStatement(this, realConnection.prepareStatement(
-            sql, columnIndexes), this.connectInfo, sql);
+    public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
+        return new SWPreparedStatement(this, realConnection.prepareStatement(sql, columnIndexes), this.connectInfo, sql);
     }
 
-    public PreparedStatement prepareStatement(String sql, String[] columnNames)
-        throws SQLException {
-        return new SWPreparedStatement(this, realConnection.prepareStatement(
-            sql, columnNames), this.connectInfo, sql);
+    public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
+        return new SWPreparedStatement(this, realConnection.prepareStatement(sql, columnNames), this.connectInfo, sql);
     }
 
     public Clob createClob() throws SQLException {
@@ -288,13 +253,11 @@ public class SWConnection implements Connection {
         return realConnection.isValid(timeout);
     }
 
-    public void setClientInfo(String name, String value)
-        throws SQLClientInfoException {
+    public void setClientInfo(String name, String value) throws SQLClientInfoException {
         realConnection.setClientInfo(name, value);
     }
 
-    public void setClientInfo(Properties properties)
-        throws SQLClientInfoException {
+    public void setClientInfo(Properties properties) throws SQLClientInfoException {
         realConnection.setClientInfo(properties);
     }
 
@@ -306,13 +269,11 @@ public class SWConnection implements Connection {
         return realConnection.getClientInfo();
     }
 
-    public Array createArrayOf(String typeName, Object[] elements)
-        throws SQLException {
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         return realConnection.createArrayOf(typeName, elements);
     }
 
-    public Struct createStruct(String typeName, Object[] attributes)
-        throws SQLException {
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
         return realConnection.createStruct(typeName, attributes);
     }
 
@@ -328,8 +289,7 @@ public class SWConnection implements Connection {
         realConnection.abort(executor);
     }
 
-    public void setNetworkTimeout(Executor executor, int milliseconds)
-        throws SQLException {
+    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         realConnection.setNetworkTimeout(executor, milliseconds);
     }
 

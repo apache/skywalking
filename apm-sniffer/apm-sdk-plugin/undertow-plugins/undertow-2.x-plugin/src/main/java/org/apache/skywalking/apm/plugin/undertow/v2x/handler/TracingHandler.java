@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x.handler;
 
 import io.undertow.server.ExchangeCompletionListener;
@@ -30,10 +31,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.undertow.v2x.Constants;
 
-/**
- * @author AI
- * 2019-08-06
- */
 public class TracingHandler implements HttpHandler {
     private final String template;
     private final HttpHandler next;
@@ -41,7 +38,6 @@ public class TracingHandler implements HttpHandler {
     public TracingHandler(HttpHandler handler) {
         this(null, handler);
     }
-
 
     public TracingHandler(String template, HttpHandler handler) {
         this.next = handler;
@@ -87,7 +83,7 @@ public class TracingHandler implements HttpHandler {
         try {
             next.handleRequest(exchange);
         } catch (Throwable e) {
-            span.errorOccurred().log(e);
+            span.log(e);
         } finally {
             ContextManager.stopSpan(span);
             ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);

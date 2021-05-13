@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.zookeeper;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -31,19 +30,17 @@ import org.apache.zookeeper.WatchedEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-/**
- * @author zhaoyuguang
- */
 public class EventThreadMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         if (isWatchedEvent(allArguments[0])) {
             Field field = allArguments[0].getClass().getDeclaredField("event");
             field.setAccessible(true);
             WatchedEvent event = (WatchedEvent) field.get(allArguments[0]);
-            AbstractSpan span = ContextManager.createEntrySpan("Zookeeper/WatchedEvent/" + event.getType().name(), null);
+            AbstractSpan span = ContextManager.createEntrySpan("Zookeeper/WatchedEvent/" + event.getType()
+                                                                                                .name(), null);
             ZooOpt.setTags(span, event);
             span.setComponent(ComponentsDefine.ZOOKEEPER);
             Tags.DB_TYPE.set(span, "Zookeeper");
@@ -51,8 +48,8 @@ public class EventThreadMethodInterceptor implements InstanceMethodsAroundInterc
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         if (isWatchedEvent(allArguments[0])) {
             ContextManager.stopSpan();
         }
@@ -61,13 +58,14 @@ public class EventThreadMethodInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         if (isWatchedEvent(allArguments[0])) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 
     private boolean isWatchedEvent(Object event) {
-        return event != null && "org.apache.zookeeper.ClientCnxn$WatcherSetEventPair".equals(event.getClass().getName());
+        return event != null && "org.apache.zookeeper.ClientCnxn$WatcherSetEventPair".equals(event.getClass()
+                                                                                                  .getName());
     }
 }

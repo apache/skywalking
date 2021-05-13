@@ -35,8 +35,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * {@link AbstractMessageConsumeInterceptor} create entry span when the <code>consumeMessage</code> in the {@link
  * com.alibaba.rocketmq.client.consumer.listener.MessageListenerConcurrently} and {@link
  * com.alibaba.rocketmq.client.consumer.listener.MessageListenerOrderly} class.
- *
- * @author carlvine500
  */
 public abstract class AbstractMessageConsumeInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -44,12 +42,12 @@ public abstract class AbstractMessageConsumeInterceptor implements InstanceMetho
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        List<MessageExt> msgs = (List<MessageExt>)allArguments[0];
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        List<MessageExt> msgs = (List<MessageExt>) allArguments[0];
 
         ContextCarrier contextCarrier = getContextCarrierFromMessage(msgs.get(0));
-        AbstractSpan span = ContextManager.createEntrySpan(CONSUMER_OPERATION_NAME_PREFIX + msgs.get(0).getTopic() + "/Consumer", contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(CONSUMER_OPERATION_NAME_PREFIX + msgs.get(0)
+                                                                                                .getTopic() + "/Consumer", contextCarrier);
 
         span.setComponent(ComponentsDefine.ROCKET_MQ_CONSUMER);
         span.setLayer(SpanLayer.MQ);
@@ -59,9 +57,10 @@ public abstract class AbstractMessageConsumeInterceptor implements InstanceMetho
 
     }
 
-    @Override public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     private ContextCarrier getContextCarrierFromMessage(MessageExt message) {

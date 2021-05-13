@@ -31,20 +31,22 @@ public class FailureCallbackInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects) objInst.getSkyWalkingDynamicField();
         if (cacheValues == null) {
             return;
         }
 
         AbstractSpan span = ContextManager.createLocalSpan("future/failureCallback:" + cacheValues.getOperationName());
-        span.errorOccurred().log((Throwable)allArguments[0]).setComponent(cacheValues.getComponent()).setLayer(cacheValues.getSpanLayer());
+        span.log((Throwable) allArguments[0])
+            .setComponent(cacheValues.getComponent())
+            .setLayer(cacheValues.getSpanLayer());
         ContextManager.continued(cacheValues.getContextSnapshot());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects) objInst.getSkyWalkingDynamicField();
         if (cacheValues == null) {
             return ret;
         }
@@ -52,12 +54,13 @@ public class FailureCallbackInterceptor implements InstanceMethodsAroundIntercep
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects) objInst.getSkyWalkingDynamicField();
         if (cacheValues == null) {
             return;
         }
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

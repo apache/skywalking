@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author peng-yongsheng
- */
 @MetricsFunction(functionName = "longAvg")
 public abstract class LongAvgMetrics extends Metrics implements LongValueHolder {
 
@@ -33,9 +34,18 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     protected static final String COUNT = "count";
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = SUMMATION) private long summation;
-    @Getter @Setter @Column(columnName = COUNT) private long count;
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private long value;
+    @Getter
+    @Setter
+    @Column(columnName = SUMMATION, storageOnly = true)
+    protected long summation;
+    @Getter
+    @Setter
+    @Column(columnName = COUNT, storageOnly = true)
+    protected long count;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    private long value;
 
     @Entrance
     public final void combine(@SourceFrom long summation, @ConstOne long count) {
@@ -43,12 +53,15 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
         this.count += count;
     }
 
-    @Override public final void combine(Metrics metrics) {
-        LongAvgMetrics longAvgMetrics = (LongAvgMetrics)metrics;
+    @Override
+    public final boolean combine(Metrics metrics) {
+        LongAvgMetrics longAvgMetrics = (LongAvgMetrics) metrics;
         combine(longAvgMetrics.summation, longAvgMetrics.count);
+        return true;
     }
 
-    @Override public final void calculate() {
+    @Override
+    public final void calculate() {
         this.value = this.summation / this.count;
     }
 }

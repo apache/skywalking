@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import java.util.ArrayList;
@@ -27,18 +26,15 @@ import net.bytebuddy.description.annotation.AnnotationList;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 
 import static net.bytebuddy.matcher.ElementMatchers.declaresMethod;
 import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * Match the class, which has methods with the certain annotations.
- * This is a very complex match.
- *
- * @author wusheng
+ * Match the class, which has methods with the certain annotations. This is a very complex match.
  */
 public class MethodAnnotationMatch implements IndirectMatch {
     private String[] annotations;
@@ -60,7 +56,7 @@ public class MethodAnnotationMatch implements IndirectMatch {
                 junction = junction.and(buildEachAnnotation(annotation));
             }
         }
-        junction = declaresMethod(junction).and(not(isInterface()));
+        junction = declaresMethod(junction).and(ElementMatchers.not(isInterface()));
         return junction;
     }
 
@@ -85,7 +81,7 @@ public class MethodAnnotationMatch implements IndirectMatch {
         return isAnnotatedWith(named(annotationName));
     }
 
-    public static ClassMatch byMethodAnnotationMatch(String[] annotations) {
+    public static IndirectMatch byMethodAnnotationMatch(String... annotations) {
         return new MethodAnnotationMatch(annotations);
     }
 }

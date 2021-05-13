@@ -26,16 +26,13 @@ import org.jboss.resteasy.spi.HttpRequest;
 
 import java.lang.reflect.Method;
 
-/**
- * @author yan-fucheng
- */
 public class SynchronousDispatcherExceptionInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         if (ContextManager.isActive() && !((HttpRequest) allArguments[0]).getAsyncContext().isSuspended()) {
-            ContextManager.activeSpan().errorOccurred().log((Throwable)allArguments[2]);
+            ContextManager.activeSpan().log((Throwable) allArguments[2]);
         }
     }
 
@@ -47,7 +44,7 @@ public class SynchronousDispatcherExceptionInterceptor implements InstanceMethod
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-          Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 }

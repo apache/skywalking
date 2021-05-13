@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.orbitz.consul.AgentClient;
@@ -24,22 +25,27 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.Service;
 import com.orbitz.consul.model.health.ServiceHealth;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.powermock.reflect.Whitebox;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Created by dengming, 2019.05.02
- */
 public class ConsulCoordinatorTest {
 
     private Consul consul = mock(Consul.class);
@@ -47,7 +53,7 @@ public class ConsulCoordinatorTest {
     private ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
 
     private ConsulCoordinator coordinator;
-
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
     private ConsulResponse<List<ServiceHealth>> consulResponse;
 
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
@@ -61,11 +67,10 @@ public class ConsulCoordinatorTest {
 
     @Before
     public void setUp() {
-
         consulConfig.setServiceName(SERVICE_NAME);
-
-        coordinator = new ConsulCoordinator(consulConfig, consul);
-
+        ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
+        coordinator = new ConsulCoordinator(manager, consulConfig, consul);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
         consulResponse = mock(ConsulResponse.class);
 
         HealthClient healthClient = mock(HealthClient.class);
@@ -73,8 +78,9 @@ public class ConsulCoordinatorTest {
 
         when(consul.healthClient()).thenReturn(healthClient);
         when(consul.agentClient()).thenReturn(agentClient);
-    }
 
+        doNothing().when(healthChecker).health();
+    }
 
     @Test
     @SuppressWarnings("unchecked")

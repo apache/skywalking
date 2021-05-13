@@ -23,14 +23,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 
-/**
- * @author: dingshaocheng
- */
 public abstract class AbstractMysqlInstrumentation extends ClassEnhancePluginDefine {
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
+
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return null;
@@ -43,6 +42,6 @@ public abstract class AbstractMysqlInstrumentation extends ClassEnhancePluginDef
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{Constants.WITNESS_MYSQL_5X_CLASS};
+        return new String[] {Constants.WITNESS_MYSQL_5X_CLASS};
     }
 }

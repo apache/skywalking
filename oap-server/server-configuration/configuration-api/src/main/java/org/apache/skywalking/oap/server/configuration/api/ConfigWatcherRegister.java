@@ -18,19 +18,22 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The default implementor of Config Watcher register.
- *
- * @author wusheng
  */
 public abstract class ConfigWatcherRegister implements DynamicConfigurationService {
-    private static final Logger logger = LoggerFactory.getLogger(ConfigWatcherRegister.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigWatcherRegister.class);
     public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
 
     private Register register = new Register();
@@ -45,7 +48,8 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         this.syncPeriod = syncPeriod;
     }
 
-    @Override synchronized public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
+    @Override
+    synchronized public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
         if (isStarted) {
             throw new IllegalStateException("Config Register has been started. Can't register new watcher.");
         }
@@ -61,45 +65,55 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         isStarted = true;
 
         configSync();
-        logger.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + register.toString());
+        LOGGER.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + register.toString());
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(this::configSync,
-                t -> logger.error("Sync config center error.", t)), syncPeriod, syncPeriod, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleAtFixedRate(
+                     new RunnableWithExceptionProtection(
+                         this::configSync,
+                         t -> LOGGER.error("Sync config center error.", t)
+                     ), syncPeriod, syncPeriod, TimeUnit.SECONDS);
     }
 
     void configSync() {
-        ConfigTable configTable = readConfig(register.keys());
+        Optional<ConfigTable> configTable = readConfig(register.keys());
 
-        configTable.getItems().forEach(item -> {
-            String itemName = item.getName();
-            WatcherHolder holder = register.get(itemName);
-            if (holder != null) {
-                ConfigChangeWatcher watcher = holder.getWatcher();
-                String newItemValue = item.getValue();
-                if (newItemValue == null) {
-                    if (watcher.value() != null) {
-                        // Notify watcher, the new value is null with delete event type.
-                        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
+        // Config table would be null if no change detected from the implementation.
+        configTable.ifPresent(config -> {
+            config.getItems().forEach(item -> {
+                String itemName = item.getName();
+                WatcherHolder holder = register.get(itemName);
+                if (holder != null) {
+                    ConfigChangeWatcher watcher = holder.getWatcher();
+                    String newItemValue = item.getValue();
+                    if (newItemValue == null) {
+                        if (watcher.value() != null) {
+                            // Notify watcher, the new value is null with delete event type.
+                            watcher.notify(
+                                new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
+                        } else {
+                            // Don't need to notify, stay in null.
+                        }
                     } else {
-                        // Don't need to notify, stay in null.
+                        if (!newItemValue.equals(watcher.value())) {
+                            watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
+                                newItemValue,
+                                ConfigChangeWatcher.EventType.MODIFY
+                            ));
+                        } else {
+                            // Don't need to notify, stay in the same config value.
+                        }
                     }
                 } else {
-                    if (!newItemValue.equals(watcher.value())) {
-                        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(newItemValue, ConfigChangeWatcher.EventType.MODIFY));
-                    } else {
-                        // Don't need to notify, stay in the same config value.
-                    }
+                    LOGGER.warn("Config {} from configuration center, doesn't match any watcher, ignore.", itemName);
                 }
-            } else {
-                logger.warn("Config {} from configuration center, doesn't match any watcher, ignore.", itemName);
-            }
-        });
+            });
 
-        logger.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
+            LOGGER.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
+        });
     }
 
-    public abstract ConfigTable readConfig(Set<String> keys);
+    public abstract Optional<ConfigTable> readConfig(Set<String> keys);
 
     public class Register {
         private Map<String, WatcherHolder> register = new HashMap<>();
@@ -120,17 +134,22 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
             return register.keySet();
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             StringBuilder registerTableDescription = new StringBuilder();
             registerTableDescription.append("Following dynamic config items are available.").append(LINE_SEPARATOR);
             registerTableDescription.append("---------------------------------------------").append(LINE_SEPARATOR);
             register.forEach((key, holder) -> {
                 ConfigChangeWatcher watcher = holder.getWatcher();
-                registerTableDescription.append("key:").append(key)
-                    .append("    module:").append(watcher.getModule())
-                    .append("    provider:").append(watcher.getProvider().name())
-                    .append("    value(current):").append(watcher.value())
-                    .append(LINE_SEPARATOR);
+                registerTableDescription.append("key:")
+                                        .append(key)
+                                        .append("    module:")
+                                        .append(watcher.getModule())
+                                        .append("    provider:")
+                                        .append(watcher.getProvider().name())
+                                        .append("    value(current):")
+                                        .append(watcher.value())
+                                        .append(LINE_SEPARATOR);
             });
             return registerTableDescription.toString();
         }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -24,15 +25,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-/**
- * @author carlvine500
- */
 public class CallableOrRunnableInvokeInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         ContextManager.createLocalSpan("Thread/" + objInst.getClass().getName() + "/" + method.getName());
-        ContextSnapshot cachedObjects = (ContextSnapshot)objInst.getSkyWalkingDynamicField();
+        ContextSnapshot cachedObjects = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
         if (cachedObjects != null) {
             ContextManager.continued(cachedObjects);
         }
@@ -47,8 +45,9 @@ public class CallableOrRunnableInvokeInterceptor implements InstanceMethodsAroun
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

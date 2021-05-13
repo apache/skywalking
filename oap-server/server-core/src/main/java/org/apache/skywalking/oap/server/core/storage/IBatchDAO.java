@@ -19,14 +19,29 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 
 /**
- * @author peng-yongsheng
+ * IBatchDAO provides two modes of data persistence supported by most databases, including synchronous and
+ * asynchronous.
  */
 public interface IBatchDAO extends DAO {
-
+    /**
+     * Push data into the database in async mode. This method is driven by streaming process. This method doesn't
+     * request the data queryable immediately after the method finished.
+     *
+     * All data are in the additional mode, no modification.
+     *
+     * @param insertRequest data to insert.
+     */
     void asynchronous(InsertRequest insertRequest);
 
+    /**
+     * Make all given PrepareRequest efficient in the sync mode. All requests could be confirmed by the database. All
+     * changes are required queryable after method returns.
+     *
+     * @param prepareRequests data to insert or update. No delete happens in streaming mode.
+     */
     void synchronous(List<PrepareRequest> prepareRequests);
 }

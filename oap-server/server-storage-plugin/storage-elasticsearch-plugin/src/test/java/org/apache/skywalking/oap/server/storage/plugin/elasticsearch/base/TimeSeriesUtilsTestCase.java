@@ -17,15 +17,32 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.junit.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
 public class TimeSeriesUtilsTestCase {
 
     @Test
     public void indexTimeSeries() {
-        Assert.assertEquals(20190602, TimeSeriesUtils.indexTimeSeries("Index_Test-20190602"));
+        Assert.assertEquals(20190602, TimeSeriesUtils.isolateTimeFromIndexName("Index_Test-20190602"));
+    }
+
+    @Test
+    public void querySuperDatasetIndices() {
+        String[] indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        Assert.assertEquals(indices.length, 5);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
+        Assert.assertEquals(indices.length, 1);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
+        Assert.assertEquals(indices.length, 1);
+        TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(2);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        Assert.assertEquals(indices.length, 3);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
+        Assert.assertEquals(indices.length, 1);
+        indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
+        Assert.assertEquals(indices.length, 1);
+
     }
 }

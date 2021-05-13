@@ -19,10 +19,8 @@
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
 /**
- * {@link SWHystrixPluginsWrapperCache} record the {@link SWExecutionHookWrapper} and {@link SWHystrixConcurrencyStrategyWrapper} object for
- * storing in EnhancedInstance#dynamicField together.
- *
- * @author chenpengfei
+ * {@link SWHystrixPluginsWrapperCache} record the {@link SWExecutionHookWrapper} and {@link
+ * SWHystrixConcurrencyStrategyWrapper} object for storing in EnhancedInstance#dynamicField together.
  */
 public class SWHystrixPluginsWrapperCache {
     private volatile SWExecutionHookWrapper swExecutionHookWrapper;
@@ -40,7 +38,8 @@ public class SWHystrixPluginsWrapperCache {
         return swHystrixConcurrencyStrategyWrapper;
     }
 
-    public void setSwHystrixConcurrencyStrategyWrapper(SWHystrixConcurrencyStrategyWrapper swHystrixConcurrencyStrategyWrapper) {
+    public void setSwHystrixConcurrencyStrategyWrapper(
+        SWHystrixConcurrencyStrategyWrapper swHystrixConcurrencyStrategyWrapper) {
         this.swHystrixConcurrencyStrategyWrapper = swHystrixConcurrencyStrategyWrapper;
     }
 }

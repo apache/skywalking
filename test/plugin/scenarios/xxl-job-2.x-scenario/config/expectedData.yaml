@@ -1,0 +1,189 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: xxl-job-2.x-scenario
+  segmentSize: ge 7
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /xxl-job-2.x-scenario/case/simpleJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/simpleJob'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: xxl-job/SimpleJob/test.apache.skywalking.apm.testcase.xxljob.job.BeanJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+  - segmentId: not null
+    spans:
+    - operationName: /xxl-job-2.x-scenario/case/simpleJob
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 12
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      skipAnalysis: false
+      tags:
+      - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/simpleJob'}
+    - operationName: xxl-job/SimpleJob/test.apache.skywalking.apm.testcase.xxljob.job.BeanJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 98
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
+      - {key: jobParam, value: 'k=1'}
+  - segmentId: not null
+    spans:
+    - operationName: /xxl-job-2.x-scenario/case/methodJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/methodJob'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: xxl-job/MethodJob/org.apache.skywalking.apm.testcase.xxljob.job.MethodJob.work, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+  - segmentId: not null
+    spans:
+    - operationName: /xxl-job-2.x-scenario/case/methodJob
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 12
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      skipAnalysis: false
+      tags:
+      - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/methodJob'}
+    - operationName: xxl-job/MethodJob/org.apache.skywalking.apm.testcase.xxljob.job.MethodJob.work
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 98
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
+      - {key: jobParam, value: 'k=2'}
+  - segmentId: not null
+    spans:
+    - operationName: /xxl-job-2.x-scenario/case/glueJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/glueJob'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: xxl-job/SimpleJob/com.xxl.job.service.handler.GlueJob, networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
+  - segmentId: not null
+    spans:
+    - operationName: /xxl-job-2.x-scenario/case/glueJob
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 12
+      isError: false
+      spanType: Exit
+      peer: localhost:8080
+      skipAnalysis: false
+      tags:
+      - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:8080/xxl-job-2.x-scenario/case/glueJob'}
+    - operationName: xxl-job/SimpleJob/com.xxl.job.service.handler.GlueJob
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 98
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
+      - {key: jobParam, value: 'k=3'}
+  - segmentId: not null
+    spans:
+    - operationName: xxl-job/ScriptJob/GLUE_SHELL/id/4
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 98
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{"logic-span":true}'}
+      - {key: jobParam, value: 'k=4'}

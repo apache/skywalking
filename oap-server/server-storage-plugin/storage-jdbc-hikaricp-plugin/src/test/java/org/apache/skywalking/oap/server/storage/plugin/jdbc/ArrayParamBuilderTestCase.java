@@ -17,11 +17,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
 public class ArrayParamBuilderTestCase {
 
     @Test
@@ -29,10 +27,17 @@ public class ArrayParamBuilderTestCase {
         String param = ArrayParamBuilder.build(new String[] {"1"});
         Assert.assertEquals("'1'", param);
 
-        param = ArrayParamBuilder.build(new String[] {"1", "2"});
+        param = ArrayParamBuilder.build(new String[] {
+            "1",
+            "2"
+        });
         Assert.assertEquals("'1','2'", param);
 
-        param = ArrayParamBuilder.build(new String[] {"1", "2", "3"});
+        param = ArrayParamBuilder.build(new String[] {
+            "1",
+            "2",
+            "3"
+        });
         Assert.assertEquals("'1','2','3'", param);
     }
 }

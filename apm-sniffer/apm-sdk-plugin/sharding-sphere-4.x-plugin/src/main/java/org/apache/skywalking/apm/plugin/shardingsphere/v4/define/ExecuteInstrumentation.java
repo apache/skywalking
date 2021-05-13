@@ -22,7 +22,6 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
@@ -30,29 +29,27 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback}.
- *
- * @author zhangyonglun
  */
-public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+public class ExecuteInstrumentation extends AbstractShardingSphereV4Instrumentation {
+
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback";
-    
+
     private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ExecuteInterceptor";
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute0");
                 }
-                
+
                 @Override
                 public String getMethodsInterceptor() {
                     return EXECUTE_INTERCEPTOR_CLASS;
                 }
-                
+
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -60,12 +57,12 @@ public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDef
             }
         };
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

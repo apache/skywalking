@@ -43,12 +43,10 @@ import org.slf4j.LoggerFactory;
  * This class is Server-side streaming RPC implementation. It's a common service for OAP servers to receive message from
  * each others. The stream data id is used to find the object to deserialize message. The next worker id is used to find
  * the worker to process message.
- *
- * @author peng-yongsheng
  */
 public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RemoteServiceHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteServiceHandler.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
     private IWorkerInstanceGetter workerInstanceGetter;
@@ -60,31 +58,58 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     public RemoteServiceHandler(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
 
-        remoteInCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
-            .createCounter("remote_in_count", "The number(server side) of inside remote inside aggregate rpc.",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
-            .createCounter("remote_in_error_count", "The error number(server side) of inside remote inside aggregate rpc.",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        remoteInTargetNotFoundCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
-            .createCounter("remote_in_target_not_found_count", "The error number(server side) of inside remote handler target worker not found. May be caused by unmatched OAL scrips.",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
-            .createHistogramMetric("remote_in_latency", "The latency(server side) of inside remote inside aggregate rpc.",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        remoteInCounter = moduleDefineHolder.find(TelemetryModule.NAME)
+                                            .provider()
+                                            .getService(MetricsCreator.class)
+                                            .createCounter(
+                                                "remote_in_count",
+                                                "The number(server side) of inside remote inside aggregate rpc.",
+                                                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                            );
+        remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                 .provider()
+                                                 .getService(MetricsCreator.class)
+                                                 .createCounter(
+                                                     "remote_in_error_count",
+                                                     "The error number(server side) of inside remote inside aggregate rpc.",
+                                                     MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                                 );
+        remoteInTargetNotFoundCounter = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class)
+                                                          .createCounter(
+                                                              "remote_in_target_not_found_count",
+                                                              "The error number(server side) of inside remote handler target worker not found. May be caused by unmatched OAL scrips.",
+                                                              MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                                          );
+        remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME)
+                                              .provider()
+                                              .getService(MetricsCreator.class)
+                                              .createHistogramMetric(
+                                                  "remote_in_latency",
+                                                  "The latency(server side) of inside remote inside aggregate rpc.",
+                                                  MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                              );
     }
 
-    @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
+    /**
+     * gRPC handler of {@link RemoteServiceGrpc}. Continue the distributed aggregation at the current OAP node.
+     */
+    @Override
+    public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
         if (Objects.isNull(workerInstanceGetter)) {
             synchronized (RemoteServiceHandler.class) {
                 if (Objects.isNull(workerInstanceGetter)) {
-                    workerInstanceGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceGetter.class);
+                    workerInstanceGetter = moduleDefineHolder.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(IWorkerInstanceGetter.class);
                 }
             }
         }
 
         return new StreamObserver<RemoteMessage>() {
-            @Override public void onNext(RemoteMessage message) {
+            @Override
+            public void onNext(RemoteMessage message) {
                 remoteInCounter.inc();
                 HistogramMetrics.Timer timer = remoteInHistogram.createTimer();
                 try {
@@ -93,29 +118,34 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
                     try {
                         RemoteHandleWorker handleWorker = workerInstanceGetter.get(nextWorkerName);
-                        AbstractWorker nextWorker = handleWorker.getWorker();
-                        StreamData streamData = handleWorker.getStreamDataClass().newInstance();
-                        streamData.deserialize(remoteData);
-                        if (nextWorker != null) {
+                        if (handleWorker != null) {
+                            AbstractWorker nextWorker = handleWorker.getWorker();
+                            StreamData streamData = handleWorker.getStreamDataClass().newInstance();
+                            streamData.deserialize(remoteData);
                             nextWorker.in(streamData);
                         } else {
                             remoteInTargetNotFoundCounter.inc();
-                            logger.warn("Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.", nextWorkerName);
+                            LOGGER.warn(
+                                "Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.",
+                                nextWorkerName
+                            );
                         }
                     } catch (Throwable t) {
                         remoteInErrorCounter.inc();
-                        logger.error(t.getMessage(), t);
+                        LOGGER.error(t.getMessage(), t);
                     }
                 } finally {
                     timer.finish();
                 }
             }
 
-            @Override public void onError(Throwable throwable) {
-                logger.error(throwable.getMessage(), throwable);
+            @Override
+            public void onError(Throwable throwable) {
+                LOGGER.error(throwable.getMessage(), throwable);
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
                 responseObserver.onNext(Empty.newBuilder().build());
                 responseObserver.onCompleted();
             }

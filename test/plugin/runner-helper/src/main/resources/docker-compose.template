@@ -1,0 +1,109 @@
+<#--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+-->
+version: '2.1'
+
+networks:
+   default:
+     name: ${network_name}
+
+services:
+    ${docker_container_name}:
+        image: ${docker_image_name}:${docker_image_version}
+        <#if hostname??>
+        hostname: ${hostname}
+        </#if>
+        <#if links??>
+        links:
+        <#list links as link>
+            - ${link}
+        </#list>
+        </#if>
+        environment:
+        <#if environments??>
+        <#list environments as env>
+            - ${env}
+        </#list>
+        </#if>
+        <#if start_script??>
+            - SCENARIO_START_SCRIPT=${start_script}
+        </#if>
+            - SCENARIO_NAME=${scenario_name}
+            - SCENARIO_VERSION=${scenario_version}
+            - SCENARIO_ENTRY_SERVICE=${entry_service}
+            - SCENARIO_HEALTH_CHECK_URL=${health_check}
+            - SCENARIO_EXTEND_ENTRY_HEADER=${extend_entry_header}
+            - DEBUG_MODE=${debug_mode}
+        volumes:
+            - ${agent_home}:/usr/local/skywalking/scenario/agent
+            - ${scenario_home}:/usr/local/skywalking/scenario
+            - ${jacoco_home}:/jacoco
+        <#if depends_on??>
+        depends_on:
+        <#list depends_on as item>
+            - ${item}
+        </#list>
+        </#if>
+<#list services as service>
+    ${service.name}:
+        image: ${service.imageName}
+        hostname: ${service.hostname}
+        <#if service.remoteOnExit??>
+        remoteOnExit: ${service.remoteOnExit}
+        </#if>
+        <#if service.volumes??>
+        volumes:
+        <#list service.volumes as volume>
+            - ${volume}
+        </#list>
+        </#if>
+        <#if service.environment??>
+        environment:
+        <#list service.environment as environment>
+            - ${environment}
+        </#list>
+        </#if>
+        <#if service.expose??>
+        expose:
+        <#list service.expose as expose>
+            - ${expose}
+        </#list>
+        </#if>
+        <#if service.startScript??>
+        command:
+        <#list service.startScript as startScript>
+            - ${startScript}
+        </#list>
+        </#if>
+        <#if service.depends_on??>
+        depends_on:
+        <#list service.depends_on as item>
+            - ${item}
+        </#list>
+        </#if>
+        <#if service.entrypoint??>
+        entrypoint:
+        <#list service.entrypoint as item>
+            - ${item}
+        </#list>
+        </#if>
+        <#if service.healthcheck??>
+        healthcheck:
+        <#list service.healthcheck as item>
+            ${item}
+        </#list>
+        </#if>
+</#list>

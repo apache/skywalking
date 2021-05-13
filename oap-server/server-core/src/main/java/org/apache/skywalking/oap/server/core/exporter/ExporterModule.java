@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.exporter;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author wusheng
- */
 public class ExporterModule extends ModuleDefine {
     public static final String NAME = "exporter";
 
@@ -30,7 +27,8 @@ public class ExporterModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[] {MetricValuesExportService.class};
     }
 }

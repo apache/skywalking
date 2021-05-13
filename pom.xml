@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>6.4.0-SNAPSHOT</version>
+    <version>8.6.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -110,6 +110,7 @@
             </activation>
             <modules>
                 <module>apm-dist</module>
+                <module>apm-dist-es7</module>
             </modules>
         </profile>
         <profile>
@@ -123,6 +124,7 @@
                 <module>oap-server</module>
                 <module>apm-webapp</module>
                 <module>apm-dist</module>
+                <module>apm-dist-es7</module>
             </modules>
             <build>
                 <plugins>
@@ -180,33 +182,51 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <powermock.version>1.6.4</powermock.version>
+        <powermock.version>2.0.7</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
-        <mockito-all.version>1.10.19</mockito-all.version>
+        <mockito-core.version>3.5.13</mockito-core.version>
+        <lombok.version>1.18.16</lombok.version>
+
+        <!-- core lib dependency -->
+        <bytebuddy.version>1.10.19</bytebuddy.version>
+        <grpc.version>1.32.1</grpc.version>
+        <gson.version>2.8.6</gson.version>
+        <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <com.google.protobuf.protoc.version>3.12.0</com.google.protobuf.protoc.version>
+        <protoc-gen-grpc-java.plugin.version>1.32.1</protoc-gen-grpc-java.plugin.version>
+        <netty-tcnative-boringssl-static.version>2.0.26.Final</netty-tcnative-boringssl-static.version>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
+        <objenesis.version>3.1</objenesis.version>
+        <!-- necessary for Java 9+ -->
+        <org.apache.tomcat.annotations-api.version>6.0.53</org.apache.tomcat.annotations-api.version>
 
         <!-- Plugin versions -->
         <docker.plugin.version>0.4.13</docker.plugin.version>
         <takari-maven-plugin.version>0.6.1</takari-maven-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
+        <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
-        <apache-rat-plugin.version>0.12</apache-rat-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
         <jmh.version>1.21</jmh.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
+        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
+
     </properties>
 
     <dependencies>
@@ -216,18 +236,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -237,11 +262,18 @@
             <version>${jmh.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>${jmh.version}</version>
-            <scope>test</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>${javax.annotation-api.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -255,8 +287,8 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito-all.version}</version>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito-core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -267,8 +299,26 @@
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
+                <artifactId>powermock-api-mockito2</artifactId>
                 <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${bytebuddy.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${objenesis.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -302,6 +352,9 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
+                    <configuration>
+                        <forceCreation>true</forceCreation>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-shade-plugin</artifactId>
@@ -328,10 +381,26 @@
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>${maven-docker-plugin.version}</version>
+                    <configuration>
+                        <containerNamePattern>%a-%t-%i</containerNamePattern>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${maven-enforcer-plugin.version}</version>
@@ -341,99 +410,18 @@
                         <goals>
                             <goal>enforce</goal>
                         </goals>
+                        <phase>validate</phase>
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
                                     <!-- Build has not yet been updated for Java 9+ -->
                                     <version>1.8</version>
                                 </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>3.6</version>
+                                </requireMavenVersion>
                             </rules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <version>${apache-rat-plugin.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>**/target/**</exclude>
-                        <exclude>**/licenses/**</exclude>
-                        <exclude>**/ui-licenses/**</exclude>
-                        <exclude>**/codeStyle.xml</exclude>
-
-                        <!-- IDE files -->
-                        <exclude>**/*.iml</exclude>
-                        <exclude>**/.idea/**</exclude>
-                        <exclude>**/*.classpath</exclude>
-                        <exclude>**/.project</exclude>
-                        <exclude>**/.settings/**</exclude>
-                        <exclude>**/dependency-reduced-pom.xml</exclude>
-
-                        <!-- UI IDE configs -->
-                        <exclude>**/skywalking-ui/.editorconfig</exclude>
-                        <!-- UI ignore -->
-                        <exclude>**/skywalking-ui/.browserslistrc</exclude>
-
-                        <!-- git files -->
-                        <exclude>**/.gitignore</exclude>
-                        <exclude>**/.gitmodules</exclude>
-                        <exclude>**/.git/**</exclude>
-
-                        <!-- CI files -->
-                        <exclude>**/.travis.yml</exclude>
-
-                        <!-- GitHub files -->
-                        <exclude>**/.github/**</exclude>
-
-                        <!-- document files -->
-                        <exclude>**/*.md</exclude>
-                        <excldue>**/*.MD</excldue>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/docs/**</exclude>
-
-                        <!-- Test cases data in JSON format -->
-                        <exclude>**/src/test/resources/json/*.json</exclude>
-
-                        <!-- front end libary and generated files -->
-                        <exclude>**/skywalking-ui/node_modules/**</exclude>
-                        <exclude>**/skywalking-ui/node/**</exclude>
-                        <exclude>**/skywalking-ui/dist/**</exclude>
-
-                        <!-- web UI dependencies descriptions -->
-                        <exclude>skywalking-ui/package.json</exclude>
-                        <exclude>skywalking-ui/package-lock.json</exclude>
-
-                        <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
-                        <exclude>**/src/main/proto/envoy/**</exclude>
-                        <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
-                        <exclude>**/src/main/proto/google/**</exclude>
-                        <exclude>**/src/main/proto/istio/**</exclude>
-                        <exclude>**/src/main/proto/jaeger/**</exclude>
-                        <exclude>**/src/main/proto/policy/**</exclude>
-                        <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
-                        <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
-                        <exclude>**/src/main/proto/validate/validate.proto</exclude>
-
-                        <!-- generated file from oal grammar and rt template -->
-                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/OALLexer.tokens</exclude>
-                        <exclude>**/src/main/resources/code-templates/*/*.ftl</exclude>
-
-                        <!-- Maven Wrapper generated files -->
-                        <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
-                        <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
-                        <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
-
-                        <exclude>.m2/**</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -479,36 +467,26 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>${coveralls-maven-plugin.version}</version>
                 <configuration>
-                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
+                    <repoToken>${COVERALLS_REPO_TOKEN}</repoToken>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
-                    <configLocation>apm-checkstyle/checkStyle.xml</configLocation>
-                    <headerLocation>apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
+                    <configLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/checkStyle.xml</configLocation>
+                    <headerLocation>${maven.multiModuleProjectDirectory}/apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <failsOnError>true</failsOnError>
-                    <includes>org/apache/skywalking/**/*.java</includes>
+                    <failOnViolation>${checkstyle.fails.on.error}</failOnViolation>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
                         **/*.sh,
@@ -517,7 +495,12 @@
                         **/*.yaml,
                         **/*.xml
                     </resourceIncludes>
+                    <resourceExcludes>
+                        **/.asf.yaml,
+                        **/.github/**
+                    </resourceExcludes>
                     <excludes>
+                        **/target/generated-test-sources/**,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
                         org/apache/skywalking/apm/network/servicemesh/**/*.java,
@@ -525,8 +508,13 @@
                         org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
                         org/apache/skywalking/oal/rt/grammar/*.java,
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
-                        org/apache/skywalking/oap/server/configuration/service/*.java
+                        org/apache/skywalking/oap/server/configuration/service/*.java,
+                        **/generated/*_jmhType*.java,
+                        **/generated/*_jmhTest.java
                     </excludes>
+                    <propertyExpansion>
+                        import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
+                    </propertyExpansion>
                 </configuration>
                 <executions>
                     <execution>
@@ -537,6 +525,44 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura-maven-plugin.version}</version>
+                <configuration>
+                    <check />
+                    <aggregate>true</aggregate>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <quiet>true</quiet>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                    <instrumentation>
+                        <ignoreTrivial>true</ignoreTrivial>
+                        <ignoreMethodAnnotations>
+                            <ignoreMethodAnnotation>lombok.Generated</ignoreMethodAnnotation>
+                        </ignoreMethodAnnotations>
+                        <includes>
+                            <include>org/apache/skywalking/**/*.class</include>
+                        </includes>
+                        <excludes>
+                            <exclude>org/apache/skywalking/**/*Test.class</exclude>
+                            <exclude>org/apache/skywalking/**/Test*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/register/v2/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/common/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/servicemesh/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/language/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/oap/server/core/remote/grpc/proto/*.class</exclude>
+                            <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
+                            <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>
+                        </excludes>
+                    </instrumentation>
+                </configuration>
             </plugin>
         </plugins>
     </build>

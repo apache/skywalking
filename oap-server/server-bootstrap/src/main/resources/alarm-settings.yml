@@ -1,0 +1,112 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Sample alarm rules.
+rules:
+  # Rule unique name, must be ended with `_rule`.
+#  endpoint_percent_rule:
+#    # Metrics value need to be long, double or int
+#    metrics-name: endpoint_percent
+#    threshold: 75
+#    op: <
+#    # The length of time to evaluate the metrics
+#    period: 10
+#    # How many times after the metrics match the condition, will trigger alarm
+#    count: 3
+#    # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
+#    silence-period: 10
+#    message: Successful rate of endpoint {name} is lower than 75%
+  service_resp_time_rule:
+    metrics-name: service_resp_time
+    # [Optional] Default, match all services in this metrics
+    include-names:
+      - dubbox-provider
+      - dubbox-consumer
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 1
+    tags:
+      level: WARNING
+
+webhooks:
+#  - http://127.0.0.1/notify/
+#  - http://127.0.0.1/go-wechat/
+
+gRPCHook:
+#  target_host: 127.0.0.1
+#  target_port: 9888
+
+slackHooks:
+  textTemplate: |-
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+      }
+    }
+  webhooks:
+#    - https://hooks.slack.com/services/x/y/zssss
+
+wechatHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
+
+dingtalkHooks:
+  textTemplate: |-
+    {
+      "msgtype": "text",
+      "text": {
+        "content": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
+#      secret: dummysecret
+
+feishuHooks:
+  textTemplate: |-
+    {
+    "msg_type": "text",
+    # at someone with feishu_user_ids
+    # "ats": "feishu_user_id_1,feishu_user_id_2",
+    "content": {
+      "text": "Apache SkyWalking Alarm: \n %s."
+      }
+    }
+  webhooks:
+#    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
+#      secret: dummysecret
+
+welinkHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  webhooks:
+#    # you may find your own client_id and client_secret in your app, below are dummy, need to change.
+#    - client_id: "dummy_client_id"
+#      client_secret: dummy_secret_key
+#      access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+#      message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+#      # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
+#      group_ids: "dummy_group_id"
+#      # make a name you like for the robot, it will display in group
+#      robot_name: robot

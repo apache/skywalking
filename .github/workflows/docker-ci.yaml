@@ -1,0 +1,90 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: docker-ci
+
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+  schedule:
+    - cron: '0 18 * * *'
+
+env:
+  SKIP_TEST: true
+  DOCKER_DIR: ./docker
+  LOG_DIR: /tmp/skywalking
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        es: [es6, es7]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build docker image
+        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && (make docker || make docker)
+      - name: Bootstrap cluster
+        run: |
+          case ${{ matrix.es }} in
+          es6) export ES_TAG=6.8.1 ;;
+          es7) export ES_TAG=7.5.0 ;;
+          esac
+
+          export TAG=${{ matrix.es }}
+          cd ${DOCKER_DIR} && docker-compose up -d
+      - name: Check port available
+        run: |
+          source ./test/scripts/env.sh
+          echo "Waiting for OAP ready"
+          export PORT=11800
+          check_sw_port
+          echo "OAP is ready"
+          echo "Waiting for UI ready"
+          PORT=8080
+          check_sw_port
+          echo "UI is ready"
+      - name: Collect logs
+        run: |
+          mkdir -p ${LOG_DIR}
+          cd ${DOCKER_DIR}
+          docker-compose logs oap > ${LOG_DIR}/oap.txt
+          docker-compose logs ui > ${LOG_DIR}/ui.txt
+          docker-compose logs elasticsearch > ${LOG_DIR}/es.txt
+        continue-on-error: true
+      - uses: actions/upload-artifact@v1.0.0
+        continue-on-error: true
+        with:
+          name: logs
+          path: /tmp/skywalking

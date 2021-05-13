@@ -19,38 +19,42 @@
 package org.apache.skywalking.oap.server.receiver.clr.provider.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricCollection;
-import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricReportServiceGrpc;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.CLRMetricCollection;
+import org.apache.skywalking.apm.network.language.agent.v3.CLRMetricReportServiceGrpc;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * @author liuhaoyang
- **/
+@Slf4j
 public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CLRMetricReportServiceImplBase implements GRPCHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(CLRMetricReportServiceHandler.class);
-
     private final CLRSourceDispatcher clrSourceDispatcher;
+    private final NamingControl namingControl;
 
     public CLRMetricReportServiceHandler(ModuleManager moduleManager) {
         clrSourceDispatcher = new CLRSourceDispatcher(moduleManager);
+        this.namingControl = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
     }
 
-    @Override public void collect(CLRMetricCollection request, StreamObserver<Commands> responseObserver) {
-        int serviceInstanceId = request.getServiceInstanceId();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("receive the clr metrics from service instance, id: {}", serviceInstanceId);
+    @Override
+    public void collect(CLRMetricCollection request, StreamObserver<Commands> responseObserver) {
+        if (log.isDebugEnabled()) {
+            log.debug("receive the clr metrics from service instance, id: {}", request.getServiceInstance());
         }
+
+        final CLRMetricCollection.Builder builder = request.toBuilder();
+        builder.setService(namingControl.formatServiceName(builder.getService()));
+        builder.setServiceInstance(namingControl.formatInstanceName(builder.getServiceInstance()));
 
         request.getMetricsList().forEach(metrics -> {
             long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
-            clrSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
+            clrSourceDispatcher.sendMetric(
+                request.getService(), request.getServiceInstance(), minuteTimeBucket, metrics);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());

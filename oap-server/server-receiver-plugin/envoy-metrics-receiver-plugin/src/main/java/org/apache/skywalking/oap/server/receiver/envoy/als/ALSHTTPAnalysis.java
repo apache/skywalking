@@ -18,25 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 
 /**
  * Analysis source metrics from ALS
- *
- * @author wusheng
  */
-public interface ALSHTTPAnalysis {
-    String name();
-
-    void init(EnvoyMetricReceiverConfig config);
-
-    List<Source> analysis(StreamAccessLogsMessage.Identifier identifier,
-        HTTPAccessLogEntry entry, Role role);
-
-    Role identify(StreamAccessLogsMessage.Identifier alsIdentifier,
-        Role prev);
+public interface ALSHTTPAnalysis extends AccessLogAnalyzer<HTTPAccessLogEntry> {
 }

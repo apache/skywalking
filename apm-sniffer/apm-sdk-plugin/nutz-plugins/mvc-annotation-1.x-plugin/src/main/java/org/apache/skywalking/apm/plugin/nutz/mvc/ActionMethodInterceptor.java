@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.mvc;
 
 import java.lang.reflect.Method;
@@ -37,14 +36,12 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * The <code>ActionMethodInterceptor</code> only use the first mapping value.
- *
- * @author wendal
  */
 public class ActionMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        PathMappingCache pathMappingCache = (PathMappingCache)objInst.getSkyWalkingDynamicField();
+        PathMappingCache pathMappingCache = (PathMappingCache) objInst.getSkyWalkingDynamicField();
         String requestURL = pathMappingCache.findPathMapping(method);
         if (requestURL == null) {
             At methodRequestMapping = method.getAnnotation(At.class);
@@ -85,8 +82,9 @@ public class ActionMethodInterceptor implements InstanceMethodsAroundInterceptor
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.zookeeper;
 
 import org.apache.jute.Record;
@@ -41,16 +40,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @author zhaoyuguang
- */
 public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(ClientCnxnInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(ClientCnxnInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         String peer = (String) objInst.getSkyWalkingDynamicField();
         RequestHeader header = (RequestHeader) allArguments[0];
         String operationName = ZooOpt.getOperationName(header.getType());
@@ -62,17 +58,16 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 
@@ -82,8 +77,7 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
         try {
             Field field = StaticHostProvider.class.getDeclaredField("serverAddresses");
             field.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
+            @SuppressWarnings("unchecked") List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
             List<String> addresses = new ArrayList<String>();
             for (InetSocketAddress address : serverAddresses) {
                 addresses.add(address.getHostName() + ":" + address.getPort());
@@ -95,9 +89,9 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
             }
             objInst.setSkyWalkingDynamicField(peer.toString());
         } catch (NoSuchFieldException e) {
-            logger.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
+            LOGGER.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
         } catch (IllegalAccessException e) {
-            logger.warn("IllegalAccessException, not be compatible with this version of zookeeper", e);
+            LOGGER.warn("IllegalAccessException, not be compatible with this version of zookeeper", e);
         }
     }
 }

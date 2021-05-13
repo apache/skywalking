@@ -168,12 +168,11 @@ public class LinkedArrayBenchmark {
     }
 
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(LinkedArrayBenchmark.class.getName())
-                .addProfiler(GCProfiler.class)
-                .jvmArgsAppend("-Xmx512m", "-Xms512m")
-                .forks(1)
-                .build();
+        Options opt = new OptionsBuilder().include(LinkedArrayBenchmark.class.getName())
+                                          .addProfiler(GCProfiler.class)
+                                          .jvmArgsAppend("-Xmx512m", "-Xms512m")
+                                          .forks(1)
+                                          .build();
         new Runner(opt).run();
     }
     /*

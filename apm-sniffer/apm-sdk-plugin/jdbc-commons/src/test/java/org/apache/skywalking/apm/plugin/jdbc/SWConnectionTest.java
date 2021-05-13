@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;

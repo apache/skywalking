@@ -32,15 +32,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author lytscu
- */
 public class TransportClientHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Invocation invocation = (Invocation)allArguments[0];
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        Invocation invocation = (Invocation) allArguments[0];
         if (!checkRegisterStatus(invocation)) {
             return;
         }
@@ -60,9 +57,10 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
         SpanLayer.asRPCFramework(span);
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Invocation invocation = (Invocation)allArguments[0];
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        Invocation invocation = (Invocation) allArguments[0];
         if (!checkRegisterStatus(invocation)) {
             return ret;
         }
@@ -76,14 +74,14 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        Invocation invocation = (Invocation)allArguments[0];
+        Invocation invocation = (Invocation) allArguments[0];
         if (!checkRegisterStatus(invocation)) {
             return;
         }
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 
@@ -92,10 +90,7 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
      * registered then return false.
      */
     private Boolean checkRegisterStatus(Invocation invocation) {
-        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
-            return false;
-        }
-        return true;
+        return null != invocation.getOperationMeta() && null != invocation.getEndpoint();
     }
 
 }

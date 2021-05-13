@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import com.mysql.cj.api.jdbc.JdbcConnection;
@@ -112,7 +111,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     private JdbcConnection jdbcConnection;
     private SWConnection swConnection;
     private SWConnection multiHostConnection;
-    private byte[] bytesParam = new byte[] {1, 2};
+    private byte[] bytesParam = new byte[] {
+        1,
+        2
+    };
 
     @Before
     public void setUp() throws Exception {
@@ -125,11 +127,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
 
     @Test
     public void testSetParam() throws SQLException, MalformedURLException {
-        CallableStatement callableStatement = multiHostConnection.prepareCall("SELECT * FROM test WHERE a = ? OR b = ? OR c=? OR d = ? OR e = ?" +
-            " OR e = ? OR f = ? OR g = ? OR h = ? OR i = ? OR j = ? OR k = ? OR l = ? OR m = ?  OR n = ? OR o = ? OR p = ? " +
-            " OR r = ?  OR s = ? OR t = ?  OR u = ?  OR v = ?  OR w = ?  OR x = ?  OR y = ? OR z = ? OR a1 = ? OR a2 = ? OR a3 = ?" +
-            " OR a4 = ? OR a5 = ? OR a6 = ?  OR a7 = ?  OR a8 = ?  OR a9 = ? OR b1 = ? OR b2 = ? OR b3 = ? OR b4 = ? OR b5 = ?" +
-            " OR b6 = ? OR b7 = ? OR b8  = ? OR b9 = ? OR c1 = ?  OR c2 = ? OR c3 = ?");
+        CallableStatement callableStatement = multiHostConnection.prepareCall("SELECT * FROM test WHERE a = ? OR b = ? OR c=? OR d = ? OR e = ?" + " OR e = ? OR f = ? OR g = ? OR h = ? OR i = ? OR j = ? OR k = ? OR l = ? OR m = ?  OR n = ? OR o = ? OR p = ? " + " OR r = ?  OR s = ? OR t = ?  OR u = ?  OR v = ?  OR w = ?  OR x = ?  OR y = ? OR z = ? OR a1 = ? OR a2 = ? OR a3 = ?" + " OR a4 = ? OR a5 = ? OR a6 = ?  OR a7 = ?  OR a8 = ?  OR a9 = ? OR b1 = ? OR b2 = ? OR b3 = ? OR b4 = ? OR b5 = ?" + " OR b6 = ? OR b7 = ? OR b8  = ? OR b9 = ? OR c1 = ?  OR c2 = ? OR c3 = ?");
         callableStatement.clearParameters();
         callableStatement.setAsciiStream(1, inputStream);
         callableStatement.setAsciiStream(2, inputStream, 10);
@@ -137,14 +135,14 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         callableStatement.setCharacterStream(4, reader);
         callableStatement.setCharacterStream(4, reader, 10);
         callableStatement.setCharacterStream(5, reader, 10L);
-        callableStatement.setShort(6, (short)12);
+        callableStatement.setShort(6, (short) 12);
         callableStatement.setInt(7, 1);
         callableStatement.setString(8, "test");
         callableStatement.setBoolean(9, true);
         callableStatement.setLong(10, 100L);
         callableStatement.setDouble(11, 12.0);
         callableStatement.setFloat(12, 12.0f);
-        callableStatement.setByte(13, (byte)1);
+        callableStatement.setByte(13, (byte) 1);
         callableStatement.setBytes(14, bytesParam);
         callableStatement.setDate(15, new Date(System.currentTimeMillis()));
         callableStatement.setNull(16, 1);
@@ -251,14 +249,14 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         callableStatement.setCharacterStream("d", reader);
         callableStatement.setCharacterStream("e", reader, 10);
         callableStatement.setCharacterStream("f", reader, 10L);
-        callableStatement.setShort("g", (short)12);
+        callableStatement.setShort("g", (short) 12);
         callableStatement.setInt("h", 1);
         callableStatement.setString("i", "test");
         callableStatement.setBoolean("j", true);
         callableStatement.setLong("k", 100L);
         callableStatement.setDouble("l", 12.0);
         callableStatement.setFloat("m", 12.0f);
-        callableStatement.setByte("n", (byte)1);
+        callableStatement.setByte("n", (byte) 1);
         callableStatement.setBytes("o", bytesParam);
         callableStatement.setDate("p", new Date(System.currentTimeMillis()));
         callableStatement.setNull("q", 1);
@@ -327,10 +325,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         verify(mysqlCallableStatement).setBlob(anyInt(), any(InputStream.class), anyLong());
         verify(mysqlCallableStatement).setClob(anyInt(), any(Clob.class));
         verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNString(anyInt(), anyString());
         verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNClob(27, nClob);
         verify(mysqlCallableStatement).setNClob(28, reader, 1);
         verify(mysqlCallableStatement).setObject(anyInt(), Matchers.anyObject());
@@ -379,10 +377,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         verify(mysqlCallableStatement).setBlob(anyString(), any(InputStream.class), anyLong());
         verify(mysqlCallableStatement).setClob(anyString(), any(Clob.class));
         verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNString(anyString(), anyString());
         verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class), anyLong());
         verify(mysqlCallableStatement).setNClob(27, nClob);
         verify(mysqlCallableStatement).setNClob(28, reader, 1);
         verify(mysqlCallableStatement).setObject(anyString(), Matchers.anyObject());
@@ -521,7 +519,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Test
     public void testInsertWithIntColumnIndexes() throws SQLException {
         CallableStatement preparedStatement = swConnection.prepareCall("INSERT INTO test VALUES(?)");
-        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[] {1, 2});
+        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[] {
+            1,
+            2
+        });
         preparedStatement.close();
 
         verify(mysqlCallableStatement).close();
@@ -535,7 +536,10 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Test
     public void testInsertWithStringColumnIndexes() throws SQLException {
         CallableStatement preparedStatement = swConnection.prepareCall("INSERT INTO test VALUES(?)");
-        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[] {"1", "2"});
+        boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[] {
+            "1",
+            "2"
+        });
         preparedStatement.close();
 
         verify(mysqlCallableStatement).close();
@@ -648,7 +652,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
     @Test
     public void testBatch() throws SQLException, MalformedURLException {
         CallableStatement preparedStatement = multiHostConnection.prepareCall("UPDATE test SET a = ? WHERE b = ?");
-        preparedStatement.setShort(1, (short)12);
+        preparedStatement.setShort(1, (short) 12);
         preparedStatement.setTime(2, new Time(System.currentTimeMillis()));
         preparedStatement.addBatch();
         int[] resultSet = preparedStatement.executeBatch();
@@ -688,7 +692,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
             preparedStatement.setBigDecimal(1, new BigDecimal(10000));
             preparedStatement.setBlob(2, inputStream);
             preparedStatement.setBlob(3, inputStream, 1000000L);
-            preparedStatement.setByte(3, (byte)1);
+            preparedStatement.setByte(3, (byte) 1);
             preparedStatement.setBytes(4, bytesParam);
             preparedStatement.setLong(5, 100L);
 

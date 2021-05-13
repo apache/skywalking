@@ -27,8 +27,6 @@ import java.util.Map;
 
 /**
  * Default custom enhancement configuration.
- *
- * @author zhaoyuguang
  */
 
 public class MethodConfiguration {
@@ -55,14 +53,6 @@ public class MethodConfiguration {
 
     static void setOperationName(Map<String, Object> configuration, String operationName) {
         configuration.put(Constants.CONFIGURATION_ATTRIBUTE_OPERATION_NAME, operationName);
-    }
-
-    static void setCloseBeforeMethod(Map<String, Object> configuration, Boolean closeBeforeMethod) {
-        configuration.put(Constants.CONFIGURATION_ATTRIBUTE_CLOSE_BEFORE_METHOD, closeBeforeMethod);
-    }
-
-    static void setCloseAfterMethod(Map<String, Object> configuration, Boolean closeAfterMethod) {
-        configuration.put(Constants.CONFIGURATION_ATTRIBUTE_CLOSE_AFTER_METHOD, closeAfterMethod);
     }
 
     static void setStatic(Map<String, Object> configuration, Boolean isStatic) {
@@ -123,14 +113,6 @@ public class MethodConfiguration {
 
     public static String getOperationName(Map<String, Object> configuration) {
         return (String) configuration.get(Constants.CONFIGURATION_ATTRIBUTE_OPERATION_NAME);
-    }
-
-    public static boolean isCloseBeforeMethod(Map<String, Object> configuration) {
-        return (Boolean) configuration.get(Constants.CONFIGURATION_ATTRIBUTE_CLOSE_BEFORE_METHOD);
-    }
-
-    public static boolean isCloseAfterMethod(Map<String, Object> configuration) {
-        return (Boolean) configuration.get(Constants.CONFIGURATION_ATTRIBUTE_CLOSE_AFTER_METHOD);
     }
 
     @SuppressWarnings("unchecked")

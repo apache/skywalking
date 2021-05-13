@@ -18,42 +18,11 @@
 
 package org.apache.skywalking.oap.server.starter;
 
-import org.apache.skywalking.oap.server.core.RunningMode;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
-
 /**
- * @author peng-yongsheng
+ * OAP starter
  */
 public class OAPServerStartUp {
-
-    private static final Logger logger = LoggerFactory.getLogger(OAPServerStartUp.class);
-
     public static void main(String[] args) {
-        String mode = System.getProperty("mode");
-        RunningMode.setMode(mode);
-
-        ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
-        ModuleManager manager = new ModuleManager();
-        try {
-            ApplicationConfiguration applicationConfiguration = configLoader.load();
-            manager.init(applicationConfiguration);
-
-            manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class).createGauge("uptime",
-                "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
-                // Set uptime to second
-                .setValue(System.currentTimeMillis() / 1000d);
-
-            if (RunningMode.isInitMode()) {
-                logger.info("OAP starts up in init mode successfully, exit now...");
-                System.exit(0);
-            }
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
-            System.exit(1);
-        }
+        OAPServerBootstrap.start();
     }
 }

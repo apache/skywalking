@@ -27,8 +27,6 @@ import java.util.ServiceLoader;
 
 /**
  * The plugin can be inserted into the kernel by implementing this spi return PluginDefine list.
- *
- * @author zhaoyuguang
  */
 
 public enum DynamicPluginLoader {

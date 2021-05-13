@@ -17,9 +17,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-/**
- * @author peng-yongsheng
- */
 public class ArrayParamBuilder {
 
     public static String build(String[] values) {

@@ -19,10 +19,16 @@
 package org.apache.skywalking.apm.util;
 
 import java.util.concurrent.TimeUnit;
-import org.junit.*;
-import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.runner.*;
-import org.openjdk.jmh.runner.options.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 public class StringFormatGroupTest {
     @Benchmark
@@ -49,20 +55,16 @@ public class StringFormatGroupTest {
     }
 
     /**
-     * The report below shows this pattern match performance is much about rule numbers.
-     * This is a single thread test.
-     *
-     * @throws RunnerException
+     * The report below shows this pattern match performance is much about rule numbers. This is a single thread test.
      */
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void performanceBenchmark() throws RunnerException {
-        Options opt = new OptionsBuilder()
-            .include(StringFormatGroupTest.class.getSimpleName())
-            .forks(1)
-            .warmupIterations(0)
-            .measurementIterations(5)
-            .build();
+        Options opt = new OptionsBuilder().include(StringFormatGroupTest.class.getSimpleName())
+                                          .forks(1)
+                                          .warmupIterations(0)
+                                          .measurementIterations(5)
+                                          .build();
 
         new Runner(opt).run();
     }

@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class DataColumn {
     private String fieldName;
     private String columnName;

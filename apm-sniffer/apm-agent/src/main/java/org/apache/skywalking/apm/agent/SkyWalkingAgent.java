@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.apm.agent;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
@@ -33,7 +35,6 @@ import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -44,6 +45,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
+import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
@@ -52,84 +54,89 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * The main entrance of sky-walking agent, based on javaagent mechanism.
- *
- * @author wusheng
  */
 public class SkyWalkingAgent {
-    private static final ILog logger = LogManager.getLogger(SkyWalkingAgent.class);
+    private static ILog LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
 
     /**
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
-     *
-     * @param agentArgs
-     * @param instrumentation
-     * @throws PluginException
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException, IOException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
-            SnifferConfigInitializer.initialize(agentArgs);
-
-            pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
-
-        } catch (ConfigNotFoundException ce) {
-            logger.error(ce, "SkyWalking agent could not find config. Shutting down.");
+            SnifferConfigInitializer.initializeCoreConfig(agentArgs);
+        } catch (Exception e) {
+            // try to resolve a new logger, and use the new logger to write the error log here
+            LogManager.getLogger(SkyWalkingAgent.class)
+                    .error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
+        } finally {
+            // refresh logger again after initialization finishes
+            LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
+        }
+
+        try {
+            pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
         } catch (AgentPackageNotFoundException ape) {
-            logger.error(ape, "Locate agent.jar failure. Shutting down.");
+            LOGGER.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent initialized failure. Shutting down.");
+            LOGGER.error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         }
 
-        final ByteBuddy byteBuddy = new ByteBuddy()
-            .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
+        final ByteBuddy byteBuddy = new ByteBuddy().with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
-        AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy)
-            .ignore(
+        AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy).ignore(
                 nameStartsWith("net.bytebuddy.")
-                    .or(nameStartsWith("org.slf4j."))
-                    .or(nameStartsWith("org.groovy."))
-                    .or(nameContains("javassist"))
-                    .or(nameContains(".asm."))
-                    .or(nameStartsWith("sun.reflect"))
-                    .or(allSkyWalkingAgentExcludeToolkit())
-                    .or(ElementMatchers.<TypeDescription>isSynthetic()));
+                        .or(nameStartsWith("org.slf4j."))
+                        .or(nameStartsWith("org.groovy."))
+                        .or(nameContains("javassist"))
+                        .or(nameContains(".asm."))
+                        .or(nameContains(".reflectasm."))
+                        .or(nameStartsWith("sun.reflect"))
+                        .or(allSkyWalkingAgentExcludeToolkit())
+                        .or(ElementMatchers.isSynthetic()));
 
         JDK9ModuleExporter.EdgeClasses edgeClasses = new JDK9ModuleExporter.EdgeClasses();
         try {
             agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
+            LOGGER.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
             return;
         }
 
         try {
             agentBuilder = JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
+            LOGGER.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
             return;
         }
 
-        agentBuilder
-            .type(pluginFinder.buildMatch())
-            .transform(new Transformer(pluginFinder))
-            .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-            .with(new Listener())
-            .installOn(instrumentation);
+        if (Config.Agent.IS_CACHE_ENHANCED_CLASS) {
+            try {
+                agentBuilder = agentBuilder.with(new CacheableTransformerDecorator(Config.Agent.CLASS_CACHE_MODE));
+                LOGGER.info("SkyWalking agent class cache [{}] activated.", Config.Agent.CLASS_CACHE_MODE);
+            } catch (Exception e) {
+                LOGGER.error(e, "SkyWalking agent can't active class cache.");
+            }
+        }
+
+        agentBuilder.type(pluginFinder.buildMatch())
+                    .transform(new Transformer(pluginFinder))
+                    .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                    .with(new RedefinitionListener())
+                    .with(new Listener())
+                    .installOn(instrumentation);
 
         try {
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
-            logger.error(e, "Skywalking agent boot failure.");
+            LOGGER.error(e, "Skywalking agent boot failure.");
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override public void run() {
-                ServiceManager.INSTANCE.shutdown();
-            }
-        }, "skywalking service shutdown thread"));
+        Runtime.getRuntime()
+                .addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown, "skywalking service shutdown thread"));
     }
 
     private static class Transformer implements AgentBuilder.Transformer {
@@ -140,26 +147,29 @@ public class SkyWalkingAgent {
         }
 
         @Override
-        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
-            ClassLoader classLoader, JavaModule module) {
+        public DynamicType.Builder<?> transform(final DynamicType.Builder<?> builder,
+                                                final TypeDescription typeDescription,
+                                                final ClassLoader classLoader,
+                                                final JavaModule module) {
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
                 EnhanceContext context = new EnhanceContext();
                 for (AbstractClassEnhancePluginDefine define : pluginDefines) {
-                    DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription, newBuilder, classLoader, context);
+                    DynamicType.Builder<?> possibleNewBuilder = define.define(
+                            typeDescription, newBuilder, classLoader, context);
                     if (possibleNewBuilder != null) {
                         newBuilder = possibleNewBuilder;
                     }
                 }
                 if (context.isEnhanced()) {
-                    logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
+                    LOGGER.debug("Finish the prepare stage for {}.", typeDescription.getName());
                 }
 
                 return newBuilder;
             }
 
-            logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
+            LOGGER.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
             return builder;
         }
     }
@@ -175,29 +185,56 @@ public class SkyWalkingAgent {
         }
 
         @Override
-        public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-            boolean loaded, DynamicType dynamicType) {
-            if (logger.isDebugEnable()) {
-                logger.debug("On Transformation class {}.", typeDescription.getName());
+        public void onTransformation(final TypeDescription typeDescription,
+                                     final ClassLoader classLoader,
+                                     final JavaModule module,
+                                     final boolean loaded,
+                                     final DynamicType dynamicType) {
+            if (LOGGER.isDebugEnable()) {
+                LOGGER.debug("On Transformation class {}.", typeDescription.getName());
             }
 
             InstrumentDebuggingClass.INSTANCE.log(dynamicType);
         }
 
         @Override
-        public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-            boolean loaded) {
+        public void onIgnored(final TypeDescription typeDescription,
+                              final ClassLoader classLoader,
+                              final JavaModule module,
+                              final boolean loaded) {
 
         }
 
         @Override
-        public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
-            Throwable throwable) {
-            logger.error("Enhance class " + typeName + " error.", throwable);
+        public void onError(final String typeName,
+                            final ClassLoader classLoader,
+                            final JavaModule module,
+                            final boolean loaded,
+                            final Throwable throwable) {
+            LOGGER.error("Enhance class " + typeName + " error.", throwable);
         }
 
         @Override
         public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
+        }
+    }
+
+    private static class RedefinitionListener implements AgentBuilder.RedefinitionStrategy.Listener {
+
+        @Override
+        public void onBatch(int index, List<Class<?>> batch, List<Class<?>> types) {
+            /* do nothing */
+        }
+
+        @Override
+        public Iterable<? extends List<Class<?>>> onError(int index, List<Class<?>> batch, Throwable throwable, List<Class<?>> types) {
+            LOGGER.error(throwable, "index={}, batch={}, types={}", index, batch, types);
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void onComplete(int amount, List<Class<?>> types, Map<List<Class<?>>, Throwable> failures) {
+            /* do nothing */
         }
     }
 }

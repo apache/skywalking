@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.http.sync.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -74,5 +73,6 @@ public abstract class AbstractNutzHttpInstrumentation extends ClassInstanceMetho
         };
     }
 
+    @Override
     protected abstract ClassMatch enhanceClass();
 }

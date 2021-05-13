@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
 import java.net.InetSocketAddress;
@@ -26,16 +25,12 @@ import java.util.Map.Entry;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- * @author IluckySi
- */
 public class XMemcachedConstructorWithComplexArgInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         StringBuilder memcachConnInfo = new StringBuilder();
-        @SuppressWarnings("unchecked")
-        Map<InetSocketAddress, InetSocketAddress> inetSocketAddressMap = (Map<InetSocketAddress, InetSocketAddress>)allArguments[6];
+        @SuppressWarnings("unchecked") Map<InetSocketAddress, InetSocketAddress> inetSocketAddressMap = (Map<InetSocketAddress, InetSocketAddress>) allArguments[6];
         for (Entry<InetSocketAddress, InetSocketAddress> entry : inetSocketAddressMap.entrySet()) {
             memcachConnInfo = append(memcachConnInfo, entry.getKey());
             memcachConnInfo = append(memcachConnInfo, entry.getValue());
@@ -49,9 +44,6 @@ public class XMemcachedConstructorWithComplexArgInterceptor implements InstanceC
 
     /**
      * Parse InetSocketAddress in specified format
-     * @param sb
-     * @param inetSocketAddress
-     * @return
      */
     private StringBuilder append(StringBuilder sb, InetSocketAddress inetSocketAddress) {
         if (inetSocketAddress != null) {

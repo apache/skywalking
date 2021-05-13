@@ -18,34 +18,44 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
+import java.util.Collections;
+import java.util.List;
 import mousio.etcd4j.EtcdClient;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
-/**
- * @author zhangwei
- */
 public class ITClusterModuleEtcdProviderFunctionalTest {
 
     private String etcdAddress;
+    private ModuleManager moduleManager = mock(ModuleManager.class);
+    private NoneTelemetryProvider telemetryProvider = mock(NoneTelemetryProvider.class);
 
     @Before
     public void before() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         String etcdHost = System.getProperty("etcd.host");
         String port = System.getProperty("etcd.port");
         assertTrue(!StringUtil.isEmpty(etcdHost) && !StringUtil.isEmpty(port));
@@ -71,8 +81,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
     @Test
     public void registerRemoteOfInternal() throws Exception {
         final String serviceName = "register_remote_internal";
-        ModuleProvider provider =
-            createProvider(serviceName, "127.0.1.2", 1000);
+        ModuleProvider provider = createProvider(serviceName, "127.0.1.2", 1000);
 
         Address selfAddress = new Address("127.0.0.2", 1000, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
@@ -166,7 +175,8 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         return createProvider(serviceName, null, 0);
     }
 
-    private ClusterModuleEtcdProvider createProvider(String serviceName, String internalComHost, int internalComPort) throws ModuleStartException {
+    private ClusterModuleEtcdProvider createProvider(String serviceName, String internalComHost,
+        int internalComPort) throws ModuleStartException {
         ClusterModuleEtcdProvider provider = new ClusterModuleEtcdProvider();
 
         ClusterModuleEtcdConfig config = (ClusterModuleEtcdConfig) provider.createConfigBeanIfAbsent();
@@ -181,7 +191,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-
+        provider.setManager(moduleManager);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();
@@ -200,7 +210,8 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         return queryRemoteNodes(provider, goals, 20);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals, int cyclic) throws InterruptedException {
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals,
+        int cyclic) throws InterruptedException {
         do {
             List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
             if (instances.size() == goals) {
@@ -208,7 +219,8 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
             } else {
                 Thread.sleep(1000);
             }
-        } while (--cyclic > 0);
+        }
+        while (--cyclic > 0);
         return Collections.EMPTY_LIST;
     }
 

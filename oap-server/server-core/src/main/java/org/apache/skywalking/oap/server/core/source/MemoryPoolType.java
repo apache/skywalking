@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-/**
- * @author peng-yongsheng
- */
 public enum MemoryPoolType {
     CODE_CACHE_USAGE, NEWGEN_USAGE, OLDGEN_USAGE, SURVIVOR_USAGE, PERMGEN_USAGE, METASPACE_USAGE
 }

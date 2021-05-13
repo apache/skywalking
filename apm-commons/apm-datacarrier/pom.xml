@@ -21,10 +21,18 @@
     <parent>
         <artifactId>apm-commons</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-datacarrier</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

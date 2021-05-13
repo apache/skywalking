@@ -37,8 +37,7 @@ public class EnhanceCacheObjects {
         contextSnapshot = snapshot;
     }
 
-    public EnhanceCacheObjects(String operationName, OfficialComponent component,
-        ContextSnapshot snapshot) {
+    public EnhanceCacheObjects(String operationName, OfficialComponent component, ContextSnapshot snapshot) {
         this(operationName, component, null, snapshot);
     }
 

@@ -19,20 +19,45 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import com.google.common.base.Strings;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
-/**
- * @author wusheng, gaohongtao
- */
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
+    @Getter
+    private boolean acceptMetricsService = false;
     private String alsHTTPAnalysis;
+    private String alsTCPAnalysis; // TODO: add to doc
+    @Getter
+    private String k8sServiceNameRule;
+
+    private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
 
     public List<String> getAlsHTTPAnalysis() {
         if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    }
+
+    public List<String> getAlsTCPAnalysis() {
+        if (Strings.isNullOrEmpty(alsTCPAnalysis)) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(alsTCPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    }
+
+    public List<Rule> rules() throws ModuleStartException {
+        return Rules.loadRules("envoy-metrics-rules", Collections.singletonList("envoy"));
+    }
+
+    public ServiceMetaInfoFactory serviceMetaInfoFactory() {
+        return serviceMetaInfoFactory;
     }
 }

@@ -18,26 +18,23 @@
 
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
+import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
-import org.redisson.config.*;
+import org.apache.skywalking.apm.plugin.redisson.v3.util.ClassUtil;
+import org.redisson.config.Config;
 import org.redisson.connection.ConnectionManager;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collection;
 
-/**
- * @author zhaoyuguang
- */
 public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(ConnectionManagerInterceptor.class);
+    private static final ILog LOGGER = LogManager.getLogger(ConnectionManagerInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -45,59 +42,79 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
         try {
             ConnectionManager connectionManager = (ConnectionManager) objInst;
             Config config = connectionManager.getCfg();
 
-            SentinelServersConfig sentinelServersConfig = (SentinelServersConfig) getServersConfig(config, "sentinelServersConfig");
-            MasterSlaveServersConfig masterSlaveServersConfig = (MasterSlaveServersConfig) getServersConfig(config, "masterSlaveServersConfig");
-            ClusterServersConfig clusterServersConfig = (ClusterServersConfig) getServersConfig(config, "clusterServersConfig");
-            ReplicatedServersConfig replicatedServersConfig = (ReplicatedServersConfig) getServersConfig(config, "replicatedServersConfig");
+            Object singleServerConfig = ClassUtil.getObjectField(config, "singleServerConfig");
+            Object sentinelServersConfig = ClassUtil.getObjectField(config, "sentinelServersConfig");
+            Object masterSlaveServersConfig = ClassUtil.getObjectField(config, "masterSlaveServersConfig");
+            Object clusterServersConfig = ClassUtil.getObjectField(config, "clusterServersConfig");
+            Object replicatedServersConfig = ClassUtil.getObjectField(config, "replicatedServersConfig");
 
             StringBuilder peer = new StringBuilder();
             EnhancedInstance retInst = (EnhancedInstance) ret;
 
+            if (singleServerConfig != null) {
+                Object singleAddress = ClassUtil.getObjectField(singleServerConfig, "address");
+                peer.append(getPeer(singleAddress));
+                retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
+                return ret;
+            }
             if (sentinelServersConfig != null) {
-                appendAddresses(peer, sentinelServersConfig.getSentinelAddresses());
+                appendAddresses(peer, (Collection) ClassUtil.getObjectField(sentinelServersConfig, "sentinelAddresses"));
                 retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
             if (masterSlaveServersConfig != null) {
-                URI masterAddress = masterSlaveServersConfig.getMasterAddress();
-                peer.append(masterAddress.getHost()).append(":").append(masterAddress.getPort());
-                appendAddresses(peer, masterSlaveServersConfig.getSlaveAddresses());
+                Object masterAddress = ClassUtil.getObjectField(masterSlaveServersConfig, "masterAddress");
+                peer.append(getPeer(masterAddress));
+                appendAddresses(peer, (Collection) ClassUtil.getObjectField(masterSlaveServersConfig, "slaveAddresses"));
                 retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
             if (clusterServersConfig != null) {
-                appendAddresses(peer, clusterServersConfig.getNodeAddresses());
+                appendAddresses(peer, (Collection) ClassUtil.getObjectField(clusterServersConfig, "nodeAddresses"));
                 retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
             if (replicatedServersConfig != null) {
-                appendAddresses(peer, replicatedServersConfig.getNodeAddresses());
+                appendAddresses(peer, (Collection) ClassUtil.getObjectField(replicatedServersConfig, "nodeAddresses"));
                 retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
         } catch (Exception e) {
-            logger.warn("redisClient set peer error: ", e);
+            LOGGER.warn("redisClient set peer error: ", e);
         }
         return ret;
     }
 
-    private Object getServersConfig(Config config, String fieldName) throws NoSuchFieldException, IllegalAccessException {
-        Field field = config.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(config);
+    private void appendAddresses(StringBuilder peer, Collection nodeAddresses) {
+        if (nodeAddresses != null && !nodeAddresses.isEmpty()) {
+            for (Object uri : nodeAddresses) {
+                peer.append(getPeer(uri)).append(";");
+            }
+        }
     }
 
-    private void appendAddresses(StringBuilder peer, Collection<URI> nodeAddresses) {
-        if (nodeAddresses != null && !nodeAddresses.isEmpty()) {
-            for (URI uri : nodeAddresses) {
-                peer.append(uri.getHost()).append(":").append(uri.getPort()).append(";");
-            }
+    /**
+     * In some high versions of redisson, such as 3.11.1. The attribute address in the RedisClientConfig class is
+     * changed from the lower version of the URI to the String. So use the following code for compatibility.
+     *
+     * @param obj Address object
+     * @return the sw peer
+     */
+    static String getPeer(Object obj) {
+        if (obj instanceof String) {
+            return ((String) obj).replace("redis://", "");
+        } else if (obj instanceof URI) {
+            URI uri = (URI) obj;
+            return uri.getHost() + ":" + uri.getPort();
+        } else {
+            LOGGER.warn("redisson not support this version");
+            return null;
         }
     }
 

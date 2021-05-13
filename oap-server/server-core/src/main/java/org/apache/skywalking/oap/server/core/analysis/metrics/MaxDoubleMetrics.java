@@ -18,19 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author wusheng
- */
 @MetricsFunction(functionName = "maxDouble")
 public abstract class MaxDoubleMetrics extends Metrics implements DoubleValueHolder {
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private double value;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
+    private double value;
 
     @Entrance
     public final void combine(@SourceFrom double count) {
@@ -39,11 +42,14 @@ public abstract class MaxDoubleMetrics extends Metrics implements DoubleValueHol
         }
     }
 
-    @Override public final void combine(Metrics metrics) {
-        MaxDoubleMetrics maxDoubleMetrics = (MaxDoubleMetrics)metrics;
+    @Override
+    public final boolean combine(Metrics metrics) {
+        MaxDoubleMetrics maxDoubleMetrics = (MaxDoubleMetrics) metrics;
         combine(maxDoubleMetrics.value);
+        return true;
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
     }
 }

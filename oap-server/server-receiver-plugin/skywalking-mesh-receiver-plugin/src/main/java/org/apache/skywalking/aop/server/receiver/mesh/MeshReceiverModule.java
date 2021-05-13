@@ -27,7 +27,8 @@ public class MeshReceiverModule extends ModuleDefine {
         super("service-mesh");
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

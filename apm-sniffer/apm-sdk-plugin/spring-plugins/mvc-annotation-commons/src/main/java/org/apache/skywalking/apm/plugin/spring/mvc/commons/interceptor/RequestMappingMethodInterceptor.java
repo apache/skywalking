@@ -18,34 +18,37 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.ParsePathUtil;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
 
 /**
- * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value.
- * it will interceptor with <code>@RequestMapping</code>
- *
- * @author clevertension
+ * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value. it will interceptor with
+ * <code>@RequestMapping</code>
  */
 public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
-        String requestURL = "";
-        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
-        if (methodRequestMapping.value().length > 0) {
-            requestURL = methodRequestMapping.value()[0];
-        } else if (methodRequestMapping.path().length > 0) {
-            requestURL = methodRequestMapping.path()[0];
-        }
-        return requestURL;
+        return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
+            String requestURL = null;
+            RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(m, RequestMapping.class);
+            if (methodRequestMapping != null) {
+                requestURL = methodRequestMapping.value().length > 0 ? methodRequestMapping.value()[0] : "";
+            }
+            return requestURL;
+        });
     }
 
     @Override
     public String getAcceptedMethodTypes(Method method) {
-        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
-        StringBuilder methodTypes = new StringBuilder();
-        if (methodRequestMapping.method().length > 0) {
+        return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
+            RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(m, RequestMapping.class);
+            if (methodRequestMapping == null || methodRequestMapping.method().length == 0) {
+                return null;
+            }
+            StringBuilder methodTypes = new StringBuilder();
             methodTypes.append("{");
             for (int i = 0; i < methodRequestMapping.method().length; i++) {
                 methodTypes.append(methodRequestMapping.method()[i].toString());
@@ -54,7 +57,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
                 }
             }
             methodTypes.append("}");
-        }
-        return methodTypes.toString();
+            return methodTypes.toString();
+        });
     }
 }

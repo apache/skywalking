@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
 import java.util.HashMap;
@@ -24,8 +23,6 @@ import java.util.Properties;
 
 /**
  * Modulization configurations. The {@link ModuleManager} is going to start, lookup, start modules based on this.
- *
- * @author wu-sheng, peng-yongsheng
  */
 public class ApplicationConfiguration {
     private HashMap<String, ModuleConfiguration> modules = new HashMap<>();
@@ -51,7 +48,7 @@ public class ApplicationConfiguration {
     /**
      * The configurations about a certain module.
      */
-    public class ModuleConfiguration {
+    public static class ModuleConfiguration {
         private HashMap<String, ProviderConfiguration> providers = new HashMap<>();
 
         private ModuleConfiguration() {
@@ -75,7 +72,7 @@ public class ApplicationConfiguration {
     /**
      * The configuration about a certain provider of a module.
      */
-    public class ProviderConfiguration {
+    public static class ProviderConfiguration {
         private Properties properties;
 
         ProviderConfiguration(Properties properties) {

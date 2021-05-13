@@ -25,8 +25,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * entity wrapps the etcd cluster configuration.
- *
- * @author Alan Lau
  */
 @ToString
 @Getter

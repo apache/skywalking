@@ -35,15 +35,11 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * @author lican
- */
 public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundInterceptor {
-
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         HttpURLConnection connection = (HttpURLConnection) objInst.getSkyWalkingDynamicField();
         MessageHeader headers = (MessageHeader) allArguments[0];
         URL url = connection.getURL();
@@ -56,22 +52,21 @@ public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundI
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            headers.add(next.getHeadKey(), next.getHeadValue());
+            headers.set(next.getHeadKey(), next.getHeadValue());
         }
     }
 
-
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred().log(t);
+        span.log(t);
     }
 
     private String getPeer(URL url) {

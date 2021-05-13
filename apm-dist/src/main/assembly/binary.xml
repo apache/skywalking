@@ -22,13 +22,12 @@
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
     <id>dist</id>
     <formats>
-        <format>zip</format>
         <format>tar.gz</format>
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <directory>${project.basedir}/../dist-material/bin</directory>
+            <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
                 <include>*.bat</include>
@@ -36,50 +35,72 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/config</directory>
-            <outputDirectory>/config</outputDirectory>
+            <directory>${project.basedir}/../dist-material</directory>
+            <outputDirectory>config</outputDirectory>
             <includes>
-                <include>*.yml</include>
-                <include>*.xml</include>
-                <include>*.properties</include>
-                <include>*.oal</include>
+                <include>log4j2.xml</include>
+                <include>alarm-settings.yml</include>
             </includes>
         </fileSet>
         <fileSet>
+            <directory>${project.basedir}/../dist-material</directory>
+            <outputDirectory/>
+            <includes>
+                <include>config-examples/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
+            <includes>
+                <include>application.yml</include>
+                <include>component-libraries.yml</include>
+                <include>gateways.yml</include>
+                <include>service-apdex-threshold.yml</include>
+                <include>endpoint-name-grouping.yml</include>
+                <include>metadata-service-mapping.yaml</include>
+                <include>oal/*.oal</include>
+                <include>fetcher-prom-rules/*.yaml</include>
+                <include>envoy-metrics-rules/*.yaml</include>
+                <include>meter-analyzer-config/*.yaml</include>
+                <include>zabbix-rules/*.yaml</include>
+                <include>otel-oc-rules/*</include>
+                <include>ui-initialized-templates/*</include>
+                <include>lal/*</include>
+                <include>log-mal-rules/*</include>
+            </includes>
+            <outputDirectory>config</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
-            <outputDirectory>/oap-libs</outputDirectory>
+            <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
         <!-- Agent repackage into the dist -->
         <fileSet>
             <directory>${project.basedir}/../skywalking-agent</directory>
-            <outputDirectory>/agent</outputDirectory>
+            <outputDirectory>agent</outputDirectory>
         </fileSet>
 
-        <!-- Release docs and licenses -->
+        <!-- Profile exporter tools -->
         <fileSet>
-            <directory>${project.basedir}/../</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>DISCLAIMER</include>
-                <include>CHANGES</include>
-            </includes>
+            <directory>${project.basedir}/../tools/profile-exporter</directory>
+            <outputDirectory>tools/profile-exporter</outputDirectory>
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/release-docs</directory>
-            <outputDirectory>/</outputDirectory>
+            <directory>${project.basedir}/../dist-material/release-docs</directory>
+            <outputDirectory/>
         </fileSet>
     </fileSets>
     <files>
         <file>
             <source>${project.basedir}/../apm-webapp/target/skywalking-webapp.jar</source>
-            <outputDirectory>/webapp</outputDirectory>
+            <outputDirectory>webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
             <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
-            <outputDirectory>/webapp</outputDirectory>
+            <outputDirectory>webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
     </files>

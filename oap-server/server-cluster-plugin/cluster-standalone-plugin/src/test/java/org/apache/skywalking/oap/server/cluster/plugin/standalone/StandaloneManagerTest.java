@@ -20,7 +20,8 @@ package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class StandaloneManagerTest {
     @Test

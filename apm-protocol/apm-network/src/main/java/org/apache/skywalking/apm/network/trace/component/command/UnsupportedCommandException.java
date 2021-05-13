@@ -17,11 +17,8 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.v3.Command;
 
-/**
- * @author kezhenxu94
- */
 public class UnsupportedCommandException extends RuntimeException {
     private final Command command;
 

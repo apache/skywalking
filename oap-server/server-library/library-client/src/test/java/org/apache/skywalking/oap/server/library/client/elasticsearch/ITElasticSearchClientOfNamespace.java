@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-/**
- * @author: zhangwei
- */
 public class ITElasticSearchClientOfNamespace extends ITElasticSearchClient {
-
 
     public ITElasticSearchClientOfNamespace() {
         super("test");

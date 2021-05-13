@@ -1,50 +1,44 @@
 # Protocols
-There are two types of protocols list here. 
+There are two different types of protocols.
 
-- [**Probe Protocol**](#probe-protocols). Include the descriptions and definitions about how agent send collected metrics data and traces, also the formats of each entities.
+- [**Probe Protocol**](#probe-protocols). It includes descriptions and definitions on how agents send collected metrics data and traces, as well as the format of each entity.
 
-- [**Query Protocol**](#query-protocol). The backend provide query capability to SkyWalking own UI and others. These queries are based on GraphQL.
+- [**Query Protocol**](#query-protocol). The backend enables the query function in SkyWalking's own UI and other UIs. These queries are based on GraphQL.
 
 
 ## Probe Protocols
-They also related to the probe group, for understand that, look [Concepts and Designs](../concepts-and-designs/README.md) document.
-These groups are **Language based native agent protocol**, **Service Mesh protocol** and **3rd-party instrument protocol**.
+They also related to the probe group. For more information, see [Concepts and Designs](../concepts-and-designs/overview.md).
+These groups are **language-based native agent protocol**, **service mesh protocol** and **3rd-party instrument protocol**.
 
-## Register Protocol
-Include service, service instance, network address and endpoint meta data register.
-Purposes of register are
-1. For service, network address and endpoint, register returns the unique ID of register object, usually an integer. Probe
-can use that to represent the literal String for data compression. Further, some protocols accept IDs only.
-1. For service instance, register returns a new unique ID for every new instance. Every service instance register must contain the 
-service ID.
- 
+### Language-based native agent protocol
+There are two types of protocols that help language agents work in distributed environments.
+1. **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** come in in-wire data format. Agent/SDK usually uses HTTP/MQ/HTTP2 headers
+to carry the data with the RPC request. The remote agent will receive this in the request handler, and bind the context with this specific request.
+1. **Trace Data Protocol** is in out-of-wire data format. Agent/SDK uses this to send traces and metrics to SkyWalking or other compatible backends. 
 
+[Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md) has been the new protocol for in-wire context propagation since the version 8.0.0 release.
 
-### Language based native agent protocol
-There is two types of protocols to make language agents work in distributed environments.
-1. **Cross Process Propagation Headers Protocol** is in wire data format, agent/SDK usually uses HTTP/MQ/HTTP2 headers
-to carry the data with rpc request. The remote agent will receive this in the request handler, and bind the context 
-with this specific request.
-1. **Trace Data Protocol** is out of wire data, agent/SDK uses this to send traces and metrics to skywalking or other
-compatible backend. 
+[Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation protocol which is additional and optional. 
+Please read SkyWalking language agents documentation to see whether it is supported. 
+This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol`.
+It has been supported by the SkyWalking javaagent since 8.0.0, 
 
-Header protocol have two formats for compatible. Using v2 in default.
-* [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
-in-wire context propagation, started in 6.0.0-beta release. It will replace the old **SW3** protocol in the future, now both of them are supported.
-* [Cross Process Propagation Headers Protocol v1](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md) is for in-wire propagation.
-By following this protocol, the trace segments in different processes could be linked.
+[SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md) defines the communication method and format between the agent and backend.
 
-Since SkyWalking v6.0.0-beta, SkyWalking agent and backend are using Trace Data Protocol v2, and v1 is still supported in backend.
-* [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) define the communication way and format between agent and backend
-* [SkyWalking Trace Data Protocol v1](Trace-Data-Protocol-v1.md). This protocol is used in old version. Still supported.
+[SkyWalking Log Data Protocol](Log-Data-Protocol.md) defines the communication method and format between the agent and backend.
 
+### Browser probe protocol
+
+The browser probe, such as  [skywalking-client-js](https://github.com/apache/skywalking-client-js), could use this protocol to send data to the backend. This service is provided by gRPC.
+
+[SkyWalking Browser Protocol](Browser-Protocol.md) defines the communication method and format between `skywalking-client-js` and backend.
 
 ### Service Mesh probe protocol
-The probe in sidecar or proxy could use this protocol to send data to backendEnd. This service provided by gRPC, requires 
-the following key info:
+The probe in sidecar or proxy could use this protocol to send data to the backend. This service provided by gRPC requires 
+the following key information:
 
-1. Service Name or ID at both sides.
-1. Service Instance Name or ID at both sides.
+1. Service Name or ID on both sides.
+1. Service Instance Name or ID on both sides.
 1. Endpoint. URI in HTTP, service method full signature in gRPC.
 1. Latency. In milliseconds.
 1. Response code in HTTP
@@ -52,88 +46,15 @@ the following key info:
 1. Protocol. HTTP, gRPC
 1. DetectPoint. In Service Mesh sidecar, `client` or `server`. In normal L7 proxy, value is `proxy`.
 
+### Events Report Protocol
+
+The protocol is used to report events to the backend. The [doc](../concepts-and-designs/event.md) introduces the definition of an event, and [the protocol repository](https://github.com/apache/skywalking-data-collect-protocol/blob/master/event) defines gRPC services and message formats of events.
 
 ### 3rd-party instrument protocol
-3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats, which SkyWalking is compatible and
-could receive from their existed libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
+3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats with which SkyWalking is compatible, and SkyWalking could receive them from their existing libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
 
-Backend is based on modularization principle, so very easy to extend a new receiver to support new protocol/format.
+The backend has a modular design, so it is very easy to extend a new receiver to support a new protocol/format.
 
 ## Query Protocol
-Query protocol follows GraphQL grammar, provides data query capabilities, which depends on your analysis metrics.
-
-There are 5 dimensionality data is provided.
-1. Metadata. Metadata includes the brief info of the whole under monitoring services and their instances, endpoints, etc.
-Use multiple ways to query this meta data.
-1. Topology. Show the topology and dependency graph of services or endpoints. Including direct relationship or global map.
-1. Metrics. Metrics query targets all the objects defined in [OAL script](../concepts-and-designs/oal.md). You could get the 
-metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
-1. Aggregation. Aggregation query means the metrics data need a secondary aggregation in query stage, which makes the query 
-interfaces have some different arguments. Such as, `TopN` list of services is a very typical aggregation query, 
-metrics stream aggregation just calculates the metrics values of each service, but the expected list needs ordering metrics data
-by the values.
-1. Trace. Query distributed traces by this.
-1. Alarm. Through alarm query, you can have alarm trend and details.
-
-The actual query GraphQL scrips could be found inside `query-protocol` folder in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
-
-Here is the list of all existing metrics names, based on [official_analysis.oal](../../../oap-server/generated-analysis/src/main/resources/official_analysis.oal)
-
-**Global metrics**
-- all_p99, p99 response time of all services
-- all_p95
-- all_p90
-- all_p75
-- all_p70
-- all_heatmap, the response time heatmap of all services 
-
-**Service metrics**
-- service_resp_time, avg response time of service
-- service_sla, successful rate of service
-- service_cpm, calls per minute of service
-- service_p99, p99 response time of service
-- service_p95
-- service_p90
-- service_p75
-- service_p50
-
-**Service instance metrics**
-- service_instance_sla, successful rate of service instance
-- service_instance_resp_time, avg response time of service instance
-- service_instance_cpm, calls per minute of service instance
-
-**Endpoint metrics**
-- endpoint_cpm, calls per minute of endpoint
-- endpoint_avg, avg response time of endpoint
-- endpoint_sla, successful rate of endpoint
-- endpoint_p99, p99 response time of endpoint
-- endpoint_p95
-- endpoint_p90
-- endpoint_p75
-- endpoint_p50
-
-**JVM metrics**, JVM related metrics, only work when javaagent is active
-- instance_jvm_cpu
-- instance_jvm_memory_heap
-- instance_jvm_memory_noheap
-- instance_jvm_memory_heap_max
-- instance_jvm_memory_noheap_max
-- instance_jvm_young_gc_time
-- instance_jvm_old_gc_time
-- instance_jvm_young_gc_count
-- instance_jvm_old_gc_count
-
-**Service relation metrics**, represents the metrics of calls between service. 
-The metrics ID could be
-got in topology query only.
-- service_relation_client_cpm, calls per minute detected at client side
-- service_relation_server_cpm, calls per minute detected at server side
-- service_relation_client_call_sla, successful rate detected at client side
-- service_relation_server_call_sla, successful rate detected at server side
-- service_relation_client_resp_time, avg response time detected at client side
-- service_relation_server_resp_time, avg response time detected at server side
-
-**Endpoint relation metrics**, represents the metrics between dependency endpoints. Only work when tracing agent.
-The metrics ID could be got in topology query only.
-- endpoint_relation_cpm
-- endpoint_relation_resp_time
+The query protocol follows GraphQL grammar, and provides data query capabilities, which depends on your analysis metrics.
+Read [query protocol doc](query-protocol.md) for more details.

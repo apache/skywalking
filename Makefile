@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SHELL := /bin/bash -o pipefail
 
 export SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -21,22 +22,22 @@ export SW_OUT:=${SW_ROOT}/dist
 
 SKIP_TEST?=false
 
+init:
+	cd $(SW_ROOT) && git submodule update --init --recursive
+
 .PHONY: build.all build.agent build.backend build.ui build.docker
 
 build.all:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST)
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
 
 build.agent:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pagent,dist
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pagent,dist
 
 build.backend:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
 
 build.ui:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
-
-build.docker:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,ui,dist
+	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
 
 DOCKER_BUILD_TOP:=${SW_OUT}/docker_build
 
@@ -44,17 +45,31 @@ HUB?=skywalking
 
 TAG?=latest
 
+ES_VERSION?=es6
+
 .SECONDEXPANSION: #allow $@ to be used in dependency list
 
 .PHONY: docker docker.all docker.oap
 
-docker: build.docker docker.all
+docker: init build.all docker.all
 
-DOCKER_TARGETS:=docker.oap docker.ui
+DOCKER_TARGETS:=docker.oap docker.ui docker.agent
 
 docker.all: $(DOCKER_TARGETS)
 
-docker.oap: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
+ifeq ($(ES_VERSION),es7)
+  DIST_NAME := apache-skywalking-apm-bin-es7
+else
+  DIST_NAME := apache-skywalking-apm-bin
+endif
+
+ifneq ($(SW_OAP_BASE_IMAGE),)
+  BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
+endif
+
+BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST_NAME=$(DIST_NAME)
+
+docker.oap: $(SW_OUT)/$(DIST_NAME).tar.gz
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
@@ -64,6 +79,10 @@ docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
 docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
 docker.ui: $(SW_ROOT)/docker/ui/logback.xml
+		$(DOCKER_RULE)
+
+docker.agent: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
+docker.agent: $(SW_ROOT)/docker/agent/Dockerfile.agent
 		$(DOCKER_RULE)
 
 

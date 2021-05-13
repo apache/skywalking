@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
 import io.undertow.server.HttpHandler;
@@ -56,10 +57,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author AI
- * 2019-07-29
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class RoutingHandlerInterceptorTest {
@@ -89,7 +86,11 @@ public class RoutingHandlerInterceptorTest {
     @Test
     public void testBindArguments() throws Throwable {
         Method method = RoutingHandler.class.getMethod("add", HttpString.class, String.class, HttpHandler.class);
-        Object[] arguments = new Object[]{Methods.GET, template, httpHandler};
+        Object[] arguments = new Object[] {
+            Methods.GET,
+            template,
+            httpHandler
+        };
         interceptor.beforeMethod(enhancedInstance, method, arguments, method.getParameterTypes(), methodInterceptResult);
         interceptor.afterMethod(enhancedInstance, method, arguments, method.getParameterTypes(), null);
         assertTrue(arguments[2] instanceof TracingHandler);

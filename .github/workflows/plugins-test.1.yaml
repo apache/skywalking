@@ -1,0 +1,81 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: PluginsTest
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/plugins-*.yaml'
+      - 'apm-application-toolkit/**'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - '**/pom.xml'
+      - '!test/e2e/**'
+      - '!apm-webapp/**'
+      - '!apm-dist/**'
+      - '!apm-dist-es7/**'
+      - '!apm-docker/**'
+      - '!oap-server/**'
+      - '!**.md'
+
+jobs:
+  PluginsTest:
+    name: Plugin
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        case:
+          - h2-scenario
+          - httpasyncclient-scenario
+          - httpclient-3.x-scenario
+          - httpclient-4.3.x-scenario
+          - hystrix-scenario
+          - influxdb-scenario
+          - jdk-http-scenario
+          - jdk-threading-scenario
+          - jedis-scenario
+          - jetty-scenario
+          - kafka-scenario
+          - kotlin-coroutine-scenario
+          - lettuce-scenario
+          - mongodb-3.x-scenario
+          - mongodb-4.x-scenario
+          - netty-socketio-scenario
+          - postgresql-above9.4.1207-scenario
+          - mssql-jtds-scenario
+          - mssql-jdbc-scenario
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Run Plugin Test
+        uses: ./.github/actions/plugins-test
+        with:
+          test_case: ${{ matrix.case }}

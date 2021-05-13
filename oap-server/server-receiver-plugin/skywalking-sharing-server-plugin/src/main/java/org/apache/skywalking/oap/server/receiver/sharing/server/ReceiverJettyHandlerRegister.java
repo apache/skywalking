@@ -22,14 +22,13 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 
-/**
- * @author peng-yongsheng
- */
 public class ReceiverJettyHandlerRegister implements JettyHandlerRegister {
 
-    @Setter private JettyHandlerRegister jettyHandlerRegister;
+    @Setter
+    private JettyHandlerRegister jettyHandlerRegister;
 
-    @Override public void addHandler(JettyHandler serverHandler) {
+    @Override
+    public void addHandler(JettyHandler serverHandler) {
         jettyHandlerRegister.addHandler(serverHandler);
     }
 }

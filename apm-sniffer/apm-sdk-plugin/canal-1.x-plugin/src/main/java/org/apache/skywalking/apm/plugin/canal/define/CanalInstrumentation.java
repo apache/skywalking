@@ -29,10 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
-
-/**
- * @author withlin
- */
 public class CanalInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.canal.CanalInterceptor";
     public static final String ENHANCE_CLASS = "com.alibaba.otter.canal.client.impl.SimpleCanalConnector";
@@ -43,11 +39,13 @@ public class CanalInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return takesArgument(4, int.class);
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return CONSTRUCTOR_INTERCEPTOR_CLASS;
                 }
             }
@@ -58,16 +56,18 @@ public class CanalInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD_DISPATCH);
                 }
 
-
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

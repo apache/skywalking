@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import net.bytebuddy.description.annotation.AnnotationDescription;
@@ -24,13 +25,10 @@ import net.bytebuddy.matcher.DeclaringAnnotationMatcher;
 import net.bytebuddy.matcher.ElementMatcher;
 
 /**
- * Annotation Type match.
- * Similar with {@link net.bytebuddy.matcher.ElementMatchers#isAnnotatedWith},
- * the only different between them is this match use {@link String} to declare the type, instead of {@link Class}.
- * This can avoid the classloader risk.
+ * Annotation Type match. Similar with {@link net.bytebuddy.matcher.ElementMatchers#isAnnotatedWith}, the only different
+ * between them is this match use {@link String} to declare the type, instead of {@link Class}. This can avoid the
+ * classloader risk.
  * <p>
- *
- * @author AI
  * 2019-08-15
  */
 public class AnnotationTypeNameMatch<T extends AnnotationDescription> implements ElementMatcher<T> {
@@ -58,14 +56,15 @@ public class AnnotationTypeNameMatch<T extends AnnotationDescription> implements
     }
 
     /**
-     * The static method to create {@link AnnotationTypeNameMatch}
-     * This is a delegate method to follow byte-buddy {@link ElementMatcher}'s code style.
+     * The static method to create {@link AnnotationTypeNameMatch} This is a delegate method to follow byte-buddy {@link
+     * ElementMatcher}'s code style.
      *
      * @param annotationTypeName target annotation type
      * @param <T>                The type of the object that is being matched.
      * @return new {@link AnnotationTypeNameMatch} instance.
      */
-    public static <T extends AnnotationSource> ElementMatcher.Junction<T> isAnnotatedWithType(String annotationTypeName) {
+    public static <T extends AnnotationSource> ElementMatcher.Junction<T> isAnnotatedWithType(
+        String annotationTypeName) {
         final AnnotationTypeNameMatch<AnnotationDescription> matcher = new AnnotationTypeNameMatch<AnnotationDescription>(annotationTypeName);
         return new DeclaringAnnotationMatcher<T>(new CollectionItemMatcher<AnnotationDescription>(matcher));
     }

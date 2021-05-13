@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.plugin.customize.constants;
 
 /**
  * The constant of customize enhance.
- *
- * @author zhaoyuguang
  */
 
 public class Constants {
@@ -43,10 +41,6 @@ public class Constants {
     public static final String XML_ELEMENT_METHOD_IS_STATIC = "static";
 
     public static final String XML_ELEMENT_OPERATION_NAME = "operation_name";
-
-    public static final String XML_ELEMENT_CLOSE_BEFORE_METHOD = "close_before_method";
-
-    public static final String XML_ELEMENT_CLOSE_AFTER_METHOD = "close_after_method";
 
     public static final String XML_ELEMENT_OPERATION_NAME_SUFFIX = "operation_name_suffix";
 
@@ -71,10 +65,6 @@ public class Constants {
     public static final String CONFIGURATION_ATTRIBUTE_CLZ = "CONFIGURATION_ATTRIBUTE_CLZ";
 
     public static final String CONFIGURATION_ATTRIBUTE_OPERATION_NAME = "CONFIGURATION_ATTRIBUTE_OPERATION_NAME";
-
-    public static final String CONFIGURATION_ATTRIBUTE_CLOSE_BEFORE_METHOD = "CONFIGURATION_ATTRIBUTE_CLOSE_BEFORE_METHOD";
-
-    public static final String CONFIGURATION_ATTRIBUTE_CLOSE_AFTER_METHOD = "CONFIGURATION_ATTRIBUTE_CLOSE_AFTER_METHOD";
 
     public static final String CONFIGURATION_ATTRIBUTE_OPERATION_NAME_SUFFIXES = "CONFIGURATION_ATTRIBUTE_OPERATION_NAME_SUFFIXES";
 

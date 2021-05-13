@@ -18,19 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.client.request.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A SQL executor.
- *
- * @author wusheng
  */
 public class SQLExecutor implements InsertRequest, UpdateRequest {
 
-    private static final Logger logger = LoggerFactory.getLogger(SQLExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SQLExecutor.class);
 
     private String sql;
     private List<Object> param;
@@ -47,7 +49,9 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
             preparedStatement.setObject(i + 1, param.get(i));
         }
 
-        logger.debug("execute aql in batch: {}", sql);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("execute sql in batch: {}, parameters: {}", sql, param);
+        }
         preparedStatement.execute();
     }
 }

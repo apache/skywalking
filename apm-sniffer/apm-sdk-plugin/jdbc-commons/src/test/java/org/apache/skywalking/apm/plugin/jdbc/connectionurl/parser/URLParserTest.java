@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.junit.Test;
@@ -77,6 +76,14 @@ public class URLParserTest {
     @Test
     public void testParseOracleJDBCURLWithHostAndPort() {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522:orcl");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
+    }
+
+    @Test
+    public void testParseOracleSID() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522/orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
@@ -144,5 +151,13 @@ public class URLParserTest {
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("sample"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:8084"));
+    }
+
+    @Test
+    public void testParseMariadbJDBCURLWithHost() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mariadb//primaryhost/test");
+        assertThat(connectionInfo.getDBType(), is("Mariadb"));
+        assertThat(connectionInfo.getDatabaseName(), is("test"));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3306"));
     }
 }

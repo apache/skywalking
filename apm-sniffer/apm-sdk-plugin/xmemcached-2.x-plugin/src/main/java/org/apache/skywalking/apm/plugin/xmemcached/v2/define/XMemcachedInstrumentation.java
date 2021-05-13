@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.xmemcached.v2.define;
 
 import java.net.InetSocketAddress;
@@ -36,10 +35,8 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link XMemcachedInstrumentation} presents that skywalking intercept all constructors and methods of
- * {@link net.rubyeye.xmemcached.XMemcachedClient}.
- *
- * @author IluckySi
+ * {@link XMemcachedInstrumentation} presents that skywalking intercept all constructors and methods of {@link
+ * net.rubyeye.xmemcached.XMemcachedClient}.
  */
 public class XMemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -54,6 +51,7 @@ public class XMemcachedInstrumentation extends ClassInstanceMethodsEnhancePlugin
     public ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
@@ -110,9 +108,19 @@ public class XMemcachedInstrumentation extends ClassInstanceMethodsEnhancePlugin
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("get").or(named("set")) .or(named("add")).or(named("replace")).or(named("gets"))
-                             .or(named("append")) .or(named("prepend")).or(named("cas")).or(named("delete")).or(named("touch")).
-                             or(named("getAndTouch")).or(named("incr")) .or(named("decr"));
+                    return named("get").or(named("set"))
+                                       .or(named("add"))
+                                       .or(named("replace"))
+                                       .or(named("gets"))
+                                       .or(named("append"))
+                                       .or(named("prepend"))
+                                       .or(named("cas"))
+                                       .or(named("delete"))
+                                       .or(named("touch"))
+                                       .
+                                           or(named("getAndTouch"))
+                                       .or(named("incr"))
+                                       .or(named("decr"));
                 }
 
                 @Override
@@ -120,7 +128,8 @@ public class XMemcachedInstrumentation extends ClassInstanceMethodsEnhancePlugin
                     return METHOD_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

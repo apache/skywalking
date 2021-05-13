@@ -25,9 +25,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author peng-yongsheng zhangwei
- */
 public class ClusterModuleZookeeperProviderTest {
 
     private ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
@@ -51,6 +48,6 @@ public class ClusterModuleZookeeperProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = provider.requiredModules();
-        assertEquals(0, modules.length);
+        assertEquals(1, modules.length);
     }
 }

@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -28,15 +29,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import java.lang.reflect.Method;
-
-/**
- * @author brandon.fergerson
- */
 public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext().remove(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
@@ -50,7 +46,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
             AbstractSpan span;
             if (VertxContext.hasContext(message.replyAddress())) {
                 VertxContext context = VertxContext.peekContext(message.replyAddress());
-                span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
+                span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentEndpoint());
                 ContextManager.continued(context.getContextSnapshot());
             } else {
                 span = ContextManager.createLocalSpan(message.address());
@@ -59,8 +55,8 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
             SpanLayer.asRPCFramework(span);
 
             if (message.replyAddress() != null) {
-                VertxContext.pushContext(message.replyAddress(),
-                        new VertxContext(ContextManager.capture(), span.prepareForAsync()));
+                VertxContext.pushContext(
+                    message.replyAddress(), new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
             ContextManager.getRuntimeContext().put(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName(), true);
         }
@@ -69,8 +65,8 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext().get(
-                VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
+        Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext()
+                                                    .get(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
         if (Boolean.TRUE.equals(closeSpan)) {
             ContextManager.stopSpan();
         }
@@ -80,6 +76,6 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4;
 
 import java.lang.reflect.Method;
@@ -34,8 +33,6 @@ import org.apache.skywalking.apm.plugin.rocketMQ.v4.define.SendCallBackEnhanceIn
 /**
  * {@link OnSuccessInterceptor} create local span when the method {@link org.apache.rocketmq.client.producer.SendCallback#onSuccess(SendResult)}
  * execute.
- *
- * @author zhang xin
  */
 public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -44,13 +41,13 @@ public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo)objInst.getSkyWalkingDynamicField();
+        SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo) objInst.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createLocalSpan(CALLBACK_OPERATION_NAME_PREFIX + enhanceInfo.getTopicId() + "/Producer/Callback");
         activeSpan.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
-        SendStatus sendStatus = ((SendResult)allArguments[0]).getSendStatus();
+        SendStatus sendStatus = ((SendResult) allArguments[0]).getSendStatus();
         if (sendStatus != SendStatus.SEND_OK) {
             activeSpan.errorOccurred();
-            Tags.STATUS_CODE.set(activeSpan, sendStatus.name());
+            Tags.MQ_STATUS.set(activeSpan, sendStatus.name());
         }
         ContextManager.continued(enhanceInfo.getContextSnapshot());
     }
@@ -62,8 +59,9 @@ public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

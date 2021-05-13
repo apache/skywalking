@@ -1,15 +1,10 @@
 # Official OAL script
-First, read [OAL introduction](../concepts-and-designs/oal.md).
+First, read the [OAL introduction](../concepts-and-designs/oal.md).
 
-Here is the official scrips is the `generated-analysis-x.y.z.jar/official_analysis.oal` file in distribution,
-also the [official_analysis.oal](../../../oap-server/generated-analysis/src/main/resources/official_analysis.oal) in source code repository.
+From 8.0.0, you may find the OAL script at `/config/oal/*.oal` of the SkyWalking dist.
+You could change it, such as by adding filter conditions or new metrics. Then, reboot the OAP server and it will come into effect.
 
-**Notice**, this file doesn't effect anything in runtime, although included in distribution.
-You need to use OAL tool code generator to build the real analysis codes from it.
-All generated codes are under `oal` folder in **oap-server/generated-analysis/target/generated-sources**.
+All metrics named in this script may be used in alarm and UI query. 
 
-All metrics named in this script could be used in alarm and UI query. Of course, you can change this 
-scripts and re-generate the analysis process and metrics, such as adding filter condition. 
-
-If you try to add or remove some metrics, UI may break, we only recommend you to do this when you plan
+Note: If you try to add or remove certain metrics, there is a possibility that the UI would break. You should only do this when you plan
 to build your own UI based on the customization analysis core. 

@@ -19,13 +19,12 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
 /**
  * Disable definition scanner and register.
- *
- * @author wusheng
  */
 public class DisableRegister implements AnnotationListener {
     public static DisableRegister INSTANCE = new DisableRegister();
@@ -34,12 +33,14 @@ public class DisableRegister implements AnnotationListener {
     private DisableRegister() {
     }
 
-    @Override public Class<? extends Annotation> annotation() {
+    @Override
+    public Class<? extends Annotation> annotation() {
         return MultipleDisable.class;
     }
 
-    @Override public void notify(Class aClass) {
-        MultipleDisable annotation = (MultipleDisable)aClass.getAnnotation(MultipleDisable.class);
+    @Override
+    public void notify(Class aClass) {
+        MultipleDisable annotation = (MultipleDisable) aClass.getAnnotation(MultipleDisable.class);
         Disable[] valueList = annotation.value();
         if (valueList != null) {
             for (Disable disable : valueList) {
@@ -57,12 +58,14 @@ public class DisableRegister implements AnnotationListener {
     }
 
     public static class SingleDisableScanListener implements AnnotationListener {
-        @Override public Class<? extends Annotation> annotation() {
+        @Override
+        public Class<? extends Annotation> annotation() {
             return Disable.class;
         }
 
-        @Override public void notify(Class aClass) {
-            String name = ((Disable)aClass.getAnnotation(Disable.class)).value();
+        @Override
+        public void notify(Class aClass) {
+            String name = ((Disable) aClass.getAnnotation(Disable.class)).value();
             DisableRegister.INSTANCE.disableEntitySet.add(name);
         }
     }

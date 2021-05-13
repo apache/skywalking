@@ -19,14 +19,13 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import org.apache.skywalking.oap.server.core.alarm.AlarmEntrance;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * Alarm notify worker, do a simple route to alarm core after the aggregation persistence.
- *
- * @author wusheng
  */
 public class AlarmNotifyWorker extends AbstractWorker<Metrics> {
     private AlarmEntrance entrance;
@@ -36,7 +35,8 @@ public class AlarmNotifyWorker extends AbstractWorker<Metrics> {
         this.entrance = new AlarmEntrance(moduleDefineHolder);
     }
 
-    @Override public void in(Metrics metrics) {
+    @Override
+    public void in(Metrics metrics) {
         if (metrics instanceof WithMetadata) {
             entrance.forward(metrics);
         }

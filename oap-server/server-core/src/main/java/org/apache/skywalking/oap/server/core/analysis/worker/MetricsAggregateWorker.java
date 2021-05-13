@@ -18,126 +18,108 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
+import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
- * @author peng-yongsheng
+ * MetricsAggregateWorker provides an in-memory metrics merging capability. This aggregation is called L1 aggregation,
+ * it merges the data just after the receiver analysis. The metrics belonging to the same entity, metrics type and time
+ * bucket, the L1 aggregation will merge them into one metrics object to reduce the unnecessary memory and network
+ * payload.
  */
+@Slf4j
 public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
-
-    private static final Logger logger = LoggerFactory.getLogger(MetricsAggregateWorker.class);
-
     private AbstractWorker<Metrics> nextWorker;
     private final DataCarrier<Metrics> dataCarrier;
-    private final MergeDataCache<Metrics> mergeDataCache;
+    private final MergableBufferedData<Metrics> mergeDataCache;
     private CounterMetrics aggregationCounter;
 
-    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker, String modelName) {
+    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
+                           String modelName) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
-        this.mergeDataCache = new MergeDataCache<>();
+        this.mergeDataCache = new MergableBufferedData();
         String name = "METRICS_L1_AGGREGATION";
         this.dataCarrier = new DataCarrier<>("MetricsAggregateWorker." + modelName, name, 2, 10000);
 
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
+            name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer(this));
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer());
 
-        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        aggregationCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "min"));
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        aggregationCounter = metricsCreator.createCounter(
+            "metrics_aggregation", "The number of rows in aggregation",
+            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "minute")
+        );
     }
 
-    @Override public final void in(Metrics metrics) {
-        metrics.resetEndOfBatch();
+    /**
+     * MetricsAggregateWorker#in operation does include enqueue only
+     */
+    @Override
+    public final void in(Metrics metrics) {
         dataCarrier.produce(metrics);
     }
 
-    private void onWork(Metrics metrics) {
-        aggregationCounter.inc();
-        aggregate(metrics);
-
-        if (metrics.isEndOfBatch()) {
-            sendToNext();
-        }
-    }
-
-    private void sendToNext() {
-        mergeDataCache.switchPointer();
-        while (mergeDataCache.getLast().isWriting()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-
-        mergeDataCache.getLast().collection().forEach(data -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug(data.toString());
-            }
-
-            nextWorker.in(data);
+    /**
+     * Dequeue consuming. According to {@link IConsumer#consume(List)}, this is a serial operation for every work
+     * instance.
+     *
+     * @param metricsList from the queue.
+     */
+    private void onWork(List<Metrics> metricsList) {
+        metricsList.forEach(metrics -> {
+            aggregationCounter.inc();
+            mergeDataCache.accept(metrics);
         });
-        mergeDataCache.finishReadingLast();
-    }
 
-    private void aggregate(Metrics metrics) {
-        mergeDataCache.writing();
-        if (mergeDataCache.containsKey(metrics)) {
-            mergeDataCache.get(metrics).combine(metrics);
-        } else {
-            mergeDataCache.put(metrics);
-        }
-
-        mergeDataCache.finishWriting();
+        mergeDataCache.read().forEach(
+            data -> {
+                if (log.isDebugEnabled()) {
+                    log.debug(data.toString());
+                }
+                nextWorker.in(data);
+            }
+        );
     }
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
-
-        private final MetricsAggregateWorker aggregator;
-
-        private AggregatorConsumer(MetricsAggregateWorker aggregator) {
-            this.aggregator = aggregator;
+        @Override
+        public void init() {
         }
 
-        @Override public void init() {
-
+        @Override
+        public void consume(List<Metrics> data) {
+            MetricsAggregateWorker.this.onWork(data);
         }
 
-        @Override public void consume(List<Metrics> data) {
-            Iterator<Metrics> inputIterator = data.iterator();
-
-            int i = 0;
-            while (inputIterator.hasNext()) {
-                Metrics metrics = inputIterator.next();
-                i++;
-                if (i == data.size()) {
-                    metrics.asEndOfBatch();
-                }
-                aggregator.onWork(metrics);
-            }
+        @Override
+        public void onError(List<Metrics> data, Throwable t) {
+            log.error(t.getMessage(), t);
         }
 
-        @Override public void onError(List<Metrics> data, Throwable t) {
-            logger.error(t.getMessage(), t);
-        }
-
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
         }
     }
 }

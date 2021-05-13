@@ -20,12 +20,20 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author caoyixiong
- */
+@Getter
+@Setter
+@ToString
 public class ClusterModuleNacosConfig extends ModuleConfig {
-    @Setter @Getter private String serviceName;
-    @Setter @Getter private String hostPort;
+    private String serviceName;
+    private String hostPort;
+    private String namespace = "public";
+    private String internalComHost;
+    private int internalComPort = -1;
+    private String username;
+    private String password;
+    private String accessKey;
+    private String secretKey;
 }

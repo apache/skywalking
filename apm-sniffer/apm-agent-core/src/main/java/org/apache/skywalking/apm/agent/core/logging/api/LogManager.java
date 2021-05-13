@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.api;
 
 import org.apache.skywalking.apm.agent.core.logging.core.PatternLogResolver;

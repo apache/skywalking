@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.configuration.apollo;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author kezhenxu94
- */
+@Getter
+@ToString
 public class ApolloConfigurationCenterSettings extends ModuleConfig {
     private String apolloCluster = "default";
     private String apolloMeta;
@@ -32,66 +33,4 @@ public class ApolloConfigurationCenterSettings extends ModuleConfig {
     private String clusterName = "default";
     private int period = 60;
 
-    public String getApolloCluster() {
-        return this.apolloCluster;
-    }
-
-    public String getClusterName() {
-        return this.clusterName;
-    }
-
-    public String getApolloMeta() {
-        return apolloMeta;
-    }
-
-    public void setApolloMeta(String apolloMeta) {
-        this.apolloMeta = apolloMeta;
-    }
-
-    public String getApolloEnv() {
-        return apolloEnv;
-    }
-
-    public void setApolloEnv(String apolloEnv) {
-        this.apolloEnv = apolloEnv;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public int getPeriod() {
-        return this.period;
-    }
-
-    public void setApolloCluster(String apolloCluster) {
-        this.apolloCluster = apolloCluster;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public void setPeriod(int period) {
-        this.period = period;
-    }
-
-    public String toString() {
-        return "ApolloConfigurationCenterSettings(" +
-            "apolloCluster=" + this.getApolloCluster() +
-            ", clusterName=" + this.getClusterName() +
-            ", period=" + this.getPeriod() + ")";
-    }
 }

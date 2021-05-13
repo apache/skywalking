@@ -18,31 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author wusheng
- */
 @MetricsFunction(functionName = "sum")
 public abstract class SumMetrics extends Metrics implements LongValueHolder {
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Sum) private long value;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
+    private long value;
 
     @Entrance
     public final void combine(@SourceFrom long count) {
         this.value += count;
     }
 
-    @Override public final void combine(Metrics metrics) {
-        SumMetrics sumMetrics = (SumMetrics)metrics;
+    @Override
+    public final boolean combine(Metrics metrics) {
+        SumMetrics sumMetrics = (SumMetrics) metrics;
         combine(sumMetrics.value);
+        return true;
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
     }
 }

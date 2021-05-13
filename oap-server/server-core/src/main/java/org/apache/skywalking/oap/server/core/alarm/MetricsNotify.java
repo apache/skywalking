@@ -22,14 +22,12 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Metrics notify service should be provided by Alarm Module provider, which can receive the metrics value, driven
- * by storage core.
- *
+ * Metrics notify service should be provided by Alarm Module provider, which can receive the metrics value, driven by
+ * storage core.
+ * <p>
  * The alarm module provider could choose whether or how to do the alarm. Meanwhile, the storage core will provide the
  * standard persistence service for generated alarm, if the alarm engine wants the alarm to show in UI, please call
  * those to save.
- *
- * @author wusheng
  */
 public interface MetricsNotify extends Service {
     void notify(Metrics metrics);

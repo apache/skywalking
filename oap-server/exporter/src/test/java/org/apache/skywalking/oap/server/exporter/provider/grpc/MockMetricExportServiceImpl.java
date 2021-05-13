@@ -19,20 +19,27 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.oap.server.exporter.grpc.EventType;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionMetric;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 
-/**
- * Created by dengming, 2019.04.20
- */
 public class MockMetricExportServiceImpl extends MetricExportServiceGrpc.MetricExportServiceImplBase {
     @Override
     public void subscription(SubscriptionReq request, StreamObserver<SubscriptionsResp> responseObserver) {
         SubscriptionsResp resp = SubscriptionsResp.newBuilder()
-                .addMetricNames("first")
-                .addMetricNames("second")
-                .build();
+                                                  .addMetrics(
+                                                      SubscriptionMetric
+                                                          .newBuilder()
+                                                          .setMetricName("first")
+                                                          .setEventType(EventType.INCREMENT))
+                                                  .addMetrics(
+                                                      SubscriptionMetric
+                                                          .newBuilder()
+                                                          .setMetricName("second")
+                                                          .setEventType(EventType.INCREMENT))
+                                                  .build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
     }

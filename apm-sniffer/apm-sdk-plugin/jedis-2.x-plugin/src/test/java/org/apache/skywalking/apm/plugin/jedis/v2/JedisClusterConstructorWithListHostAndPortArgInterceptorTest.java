@@ -58,7 +58,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
 
     @Test
     public void onConstruct() throws Exception {
-        interceptor.onConstruct(enhancedInstance, new Object[]{hostAndPortSet});
+        interceptor.onConstruct(enhancedInstance, new Object[] {hostAndPortSet});
 
         verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:16379;");
     }
@@ -82,7 +82,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
                 this.v = value;
             }
         };
-        interceptor.onConstruct(enhancedInstance, new Object[]{hostAndPortSet});
+        interceptor.onConstruct(enhancedInstance, new Object[] {hostAndPortSet});
         Assert.assertTrue(enhancedInstance.getSkyWalkingDynamicField().toString().length() == 200);
     }
 

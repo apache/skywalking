@@ -1,0 +1,82 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+templates:
+  - name: "Istio Data Plane"
+    type: "DASHBOARD"
+    configuration: |-
+      [
+        {
+          "name": "Istio Data Plane",
+          "type": "service",
+          "serviceGroup": "istio-dp",
+          "children": [
+            {
+              "name": "Data Plane",
+              "children": [
+                {
+                  "width": "3",
+                  "title": "Heap Memory Used",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_heap_memory_max_used,envoy_heap_memory_used,envoy_memory_allocated_max,envoy_memory_allocated,envoy_memory_physical_size,envoy_memory_physical_size_max",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine",
+                  "unit": "MB",
+                  "aggregation": "/",
+                  "aggregationNum": "1048576"
+                },
+                {
+                  "width": "3",
+                  "title": "Connections Used",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_total_connections_used,envoy_parent_connections_used",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Concurrency",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_worker_threads,envoy_worker_threads_max",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                },
+                {
+                  "width": "3",
+                  "title": "Envoy Bug Failure",
+                  "height": 350,
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "metricName": "envoy_bug_failures",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartLine"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    activated: true
+    disabled: false

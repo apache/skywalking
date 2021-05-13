@@ -39,7 +39,24 @@ or
         }
     }));
 ```
-
+* usage 3.
+```java
+    @TraceCrossThread
+    public class MySupplier<String> implements Supplier<String> {
+        @Override
+        public String get() {
+            return null;
+        }
+    }
+...
+    CompletableFuture.supplyAsync(new MySupplier<String>());
+```
+or 
+```java
+    CompletableFuture.supplyAsync(SupplierWrapper.of(()->{
+            return "SupplierWrapper";
+    })).thenAccept(System.out::println);
+```
 _Sample codes only_
 
 

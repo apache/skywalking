@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.util;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by wusheng on 2017/2/27.
- */
 public class StringUtilTest {
     @Test
     public void testIsEmpty() {
@@ -32,6 +28,14 @@ public class StringUtilTest {
         Assert.assertTrue(StringUtil.isEmpty(""));
         Assert.assertFalse(StringUtil.isEmpty("   "));
         Assert.assertFalse(StringUtil.isEmpty("A String"));
+    }
+
+    @Test
+    public void testIsBlank() {
+        Assert.assertTrue(StringUtil.isBlank(null));
+        Assert.assertTrue(StringUtil.isBlank(""));
+        Assert.assertTrue(StringUtil.isBlank("   "));
+        Assert.assertFalse(StringUtil.isBlank("A String"));
     }
 
     @Test
@@ -61,4 +65,11 @@ public class StringUtilTest {
         Assert.assertEquals(2, StringUtil.cut(shortStr, 10).length());
     }
 
+    @Test
+    public void testTrim() {
+        Assert.assertEquals(StringUtil.trim("aaabcdefaaa", 'a'), "bcdef");
+        Assert.assertEquals(StringUtil.trim("bcdef", 'a'), "bcdef");
+        Assert.assertEquals(StringUtil.trim("abcdef", 'a'), "bcdef");
+        Assert.assertEquals(StringUtil.trim("abcdef", 'f'), "abcde");
+    }
 }

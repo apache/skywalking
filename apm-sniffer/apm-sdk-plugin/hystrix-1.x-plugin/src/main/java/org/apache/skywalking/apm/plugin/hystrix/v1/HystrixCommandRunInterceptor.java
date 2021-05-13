@@ -33,7 +33,7 @@ public class HystrixCommandRunInterceptor implements InstanceMethodsAroundInterc
         MethodInterceptResult result) throws Throwable {
         // create a local span, and continued, The `execution method` running in other thread if the
         // hystrix strategy is `THREAD`.
-        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
+        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField();
         ContextSnapshot snapshot = enhanceRequireObjectCache.getContextSnapshot();
 
         AbstractSpan activeSpan = ContextManager.createLocalSpan(enhanceRequireObjectCache.getOperationNamePrefix() + "/Execution");
@@ -52,8 +52,9 @@ public class HystrixCommandRunInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,8 +31,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * enhance the method prepareForDeferredProcessing of the logstash logback class "net.logstash.logback.appender.LogstashTcpSocketAppender".
- *
- * @author wuxingye
  */
 public class TcpSocketAppenderActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -65,7 +62,8 @@ public class TcpSocketAppenderActivation extends ClassInstanceMethodsEnhancePlug
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

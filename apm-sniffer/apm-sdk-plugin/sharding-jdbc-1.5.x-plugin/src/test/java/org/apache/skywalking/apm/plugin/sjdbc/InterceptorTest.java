@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc;
 
 import com.dangdang.ddframe.rdb.sharding.constant.SQLType;
@@ -95,7 +94,10 @@ public class InterceptorTest {
     public void setUp() throws SQLException {
         executeInterceptor = new ExecuteInterceptor();
         asyncExecuteInterceptor = new AsyncExecuteInterceptor();
-        allArguments = new Object[] {SQLType.DQL, null};
+        allArguments = new Object[] {
+            SQLType.DQL,
+            null
+        };
     }
 
     @Test
@@ -118,7 +120,8 @@ public class InterceptorTest {
         asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
         final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
         ES.submit(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 ExecutorDataMap.setDataMap(dataMap);
                 sendEvent("ds_1", "select * from t_order_1");
             }
@@ -129,8 +132,8 @@ public class InterceptorTest {
         assertThat(segmentStorage.getTraceSegments().size(), is(2));
         TraceSegment segment0 = segmentStorage.getTraceSegments().get(0);
         TraceSegment segment1 = segmentStorage.getTraceSegments().get(1);
-        assertThat(segment0.getRefs().size(), is(1));
-        assertNull(segment1.getRefs());
+        assertNotNull(segment0.getRef());
+        assertNull(segment1.getRef());
         List<AbstractTracingSpan> spans0 = SegmentHelper.getSpans(segment0);
         assertNotNull(spans0);
         assertThat(spans0.size(), is(1));
@@ -148,7 +151,8 @@ public class InterceptorTest {
         asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
         final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
         ES.submit(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 ExecutorDataMap.setDataMap(dataMap);
                 sendError();
             }

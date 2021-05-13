@@ -16,15 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.util;
 
-import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 /**
  * The <code>KeyValuePair</code> represents a object which contains a string key and a string value.
- *
- * @author wusheng
  */
 public class KeyValuePair {
     private String key;

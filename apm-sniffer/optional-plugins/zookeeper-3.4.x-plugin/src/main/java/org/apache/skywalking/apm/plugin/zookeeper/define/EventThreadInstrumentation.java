@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.zookeeper.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,9 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
 public class EventThreadInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.zookeeper.ClientCnxn$EventThread";
@@ -46,11 +42,11 @@ public class EventThreadInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("processEvent").and(takesArgumentWithType(0,"java.lang.Object"));
+                    return named("processEvent").and(takesArgumentWithType(0, "java.lang.Object"));
                 }
 
                 @Override

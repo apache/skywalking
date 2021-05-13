@@ -19,57 +19,65 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.Gauge;
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import java.util.Optional;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Gauge metrics in Prometheus implementor.
- *
- * @author wusheng
  */
 public class PrometheusGaugeMetrics extends BaseMetrics<Gauge, Gauge.Child> implements GaugeMetrics {
-    public PrometheusGaugeMetrics(String name, String tips,
-        MetricsTag.Keys labels,
-        MetricsTag.Values values) {
+    public PrometheusGaugeMetrics(String name, String tips, MetricsTag.Keys labels, MetricsTag.Values values) {
         super(name, tips, labels, values);
     }
 
-    @Override public void inc() {
+    @Override
+    public void inc() {
         Gauge.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.inc();
         }
     }
 
-    @Override public void inc(double value) {
+    @Override
+    public void inc(double value) {
         Gauge.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.inc(value);
         }
     }
 
-    @Override public void dec() {
+    @Override
+    public void dec() {
         Gauge.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.dec();
         }
     }
 
-    @Override public void dec(double value) {
+    @Override
+    public void dec(double value) {
         Gauge.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.dec(value);
         }
     }
 
-    @Override public void setValue(double value) {
+    @Override
+    public void setValue(double value) {
         Gauge.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.set(value);
         }
     }
 
-    @Override protected Gauge create(String[] labelNames) {
-        return Gauge.build()
-            .name(name).help(tips).labelNames(labelNames).register();
+    @Override
+    public double getValue() {
+        return Optional.ofNullable(this.getMetric()).orElse(new Gauge.Child()).get();
+    }
+
+    @Override
+    protected Gauge create(String[] labelNames) {
+        return Gauge.build().name(name).help(tips).labelNames(labelNames).register();
     }
 }

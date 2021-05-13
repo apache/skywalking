@@ -16,17 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc;
 
 import ch.qos.logback.classic.PatternLayout;
 
 /**
- * Override "X",SuperClass run before Subclass.
- * @author zhangkewei
+ * Override "X" and "mdc",SuperClass run before Subclass.
  */
 public class TraceIdMDCPatternLogbackLayout extends PatternLayout {
     static {
         defaultConverterMap.put("X", LogbackMDCPatternConverter.class.getName());
+        defaultConverterMap.put("mdc", LogbackMDCPatternConverter.class.getName());
     }
 }

@@ -18,25 +18,38 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
-import io.grpc.inprocess.*;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
-import org.apache.skywalking.oap.server.core.worker.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
+import org.apache.skywalking.oap.server.core.worker.WorkerInstancesService;
+import org.apache.skywalking.oap.server.library.module.DuplicateProviderException;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.apache.skywalking.oap.server.testing.module.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
+import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-/**
- * @author peng-yongsheng
- */
 public class RemoteServiceHandlerTestCase {
 
     @Rule
@@ -60,20 +73,24 @@ public class RemoteServiceHandlerTestCase {
         String serverName = InProcessServerBuilder.generateName();
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
         when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
-            @Override public void inc() {
+            @Override
+            public void inc() {
 
             }
 
-            @Override public void inc(double value) {
+            @Override
+            public void inc(double value) {
 
             }
         });
         when(metricsCreator.createHistogramMetric(any(), any(), any(), any())).thenReturn(new HistogramMetrics() {
-            @Override public Timer createTimer() {
+            @Override
+            public Timer createTimer() {
                 return super.createTimer();
             }
 
-            @Override public void observe(double value) {
+            @Override
+            public void observe(double value) {
 
             }
         });
@@ -82,22 +99,30 @@ public class RemoteServiceHandlerTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        gRPCCleanup.register(InProcessServerBuilder
-            .forName(serverName).directExecutor().addService(new RemoteServiceHandler(moduleManager)).build().start());
+        gRPCCleanup.register(InProcessServerBuilder.forName(serverName)
+                                                   .directExecutor()
+                                                   .addService(new RemoteServiceHandler(moduleManager))
+                                                   .build()
+                                                   .start());
 
-        RemoteServiceGrpc.RemoteServiceStub remoteServiceStub = RemoteServiceGrpc.newStub(
-            gRPCCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
+        RemoteServiceGrpc.RemoteServiceStub remoteServiceStub = RemoteServiceGrpc.newStub(gRPCCleanup.register(InProcessChannelBuilder
+            .forName(serverName)
+            .directExecutor()
+            .build()));
 
         StreamObserver<RemoteMessage> streamObserver = remoteServiceStub.call(new StreamObserver<Empty>() {
-            @Override public void onNext(Empty empty) {
+            @Override
+            public void onNext(Empty empty) {
 
             }
 
-            @Override public void onError(Throwable throwable) {
+            @Override
+            public void onError(Throwable throwable) {
 
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
 
             }
         });
@@ -124,11 +149,13 @@ public class RemoteServiceHandlerTestCase {
         private long long1;
         private long long2;
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 10;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
             str1 = remoteData.getDataStrings(0);
             str2 = remoteData.getDataStrings(1);
             long1 = remoteData.getDataLongs(0);
@@ -140,7 +167,8 @@ public class RemoteServiceHandlerTestCase {
             Assert.assertEquals(20, long2);
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
     }
@@ -151,8 +179,9 @@ public class RemoteServiceHandlerTestCase {
             super(moduleDefineHolder);
         }
 
-        @Override public void in(Object o) {
-            TestRemoteData data = (TestRemoteData)o;
+        @Override
+        public void in(Object o) {
+            TestRemoteData data = (TestRemoteData) o;
 
             Assert.assertEquals("test1", data.str1);
             Assert.assertEquals("test2", data.str2);

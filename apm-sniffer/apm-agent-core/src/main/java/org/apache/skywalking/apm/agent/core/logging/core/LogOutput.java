@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-/**
- * @author alvin
- */
 public enum LogOutput {
     FILE, CONSOLE
 }

@@ -23,9 +23,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author: dingshaocheng
- */
 public class ConnectionCache {
     private static final ConcurrentHashMap<String, ConnectionInfo> CONNECTIONS_MAP = new ConcurrentHashMap<String, ConnectionInfo>();
 

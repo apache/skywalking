@@ -28,15 +28,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DRIVER_CONNECT_INTERCEPTOR;
 
-/**
- * @author: dingshaocheng
- */
 public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String ENHANCE_CLASS_NON_REG_REP = "com.mysql.jdbc.NonRegisteringReplicationDriver";
     private static final String ENHANCE_CLASS = "com.mysql.jdbc.Driver";
     private static final String ENHANCE_CLASS_NON_REG = "com.mysql.jdbc.NonRegisteringDriver";
-
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -67,6 +63,6 @@ public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(ENHANCE_CLASS,ENHANCE_CLASS_NON_REG,ENHANCE_CLASS_NON_REG_REP);
+        return byMultiClassMatch(ENHANCE_CLASS, ENHANCE_CLASS_NON_REG, ENHANCE_CLASS_NON_REG_REP);
     }
 }

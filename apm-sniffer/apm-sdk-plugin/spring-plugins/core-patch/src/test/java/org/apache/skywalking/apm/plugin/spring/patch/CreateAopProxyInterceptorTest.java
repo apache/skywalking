@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.patch;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -62,11 +61,13 @@ public class CreateAopProxyInterceptorTest {
 
     private class MockClass implements EnhancedInstance {
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return null;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     }

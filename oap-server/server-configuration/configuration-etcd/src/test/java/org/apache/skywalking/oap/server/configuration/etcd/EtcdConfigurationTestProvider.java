@@ -29,29 +29,30 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Alan Lau
- */
 public class EtcdConfigurationTestProvider extends ModuleProvider {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(EtcdConfigurationTestProvider.class);
 
     ConfigChangeWatcher watcher;
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return EtcdConfigurationTestModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return new ModuleConfig() {
         };
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         watcher = new ConfigChangeWatcher(EtcdConfigurationTestModule.NAME, this, "testKey") {
             private volatile String testValue;
 
@@ -72,18 +73,21 @@ public class EtcdConfigurationTestProvider extends ModuleProvider {
         };
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         getManager().find(ConfigurationModule.NAME)
-            .provider()
-            .getService(DynamicConfigurationService.class)
-            .registerConfigChangeWatcher(watcher);
+                    .provider()
+                    .getService(DynamicConfigurationService.class)
+                    .registerConfigChangeWatcher(watcher);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[0];
     }
 }

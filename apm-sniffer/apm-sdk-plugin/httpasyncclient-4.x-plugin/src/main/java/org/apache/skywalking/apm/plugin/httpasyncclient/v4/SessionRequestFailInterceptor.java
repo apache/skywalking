@@ -27,26 +27,26 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 
 /**
  * when request fail to ready we should remove thread local in case of memory leak;
- *
- * @author lican
  */
 public class SessionRequestFailInterceptor implements InstanceMethodsAroundInterceptor {
 
-
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         //this means actual request will not started. so the span has not been created,we cannot log the status.
         CONTEXT_LOCAL.remove();
         objInst.setSkyWalkingDynamicField(null);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

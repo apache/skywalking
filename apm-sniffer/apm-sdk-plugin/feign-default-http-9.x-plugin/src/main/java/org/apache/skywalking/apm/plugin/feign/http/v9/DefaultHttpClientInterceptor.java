@@ -22,12 +22,12 @@ import feign.Request;
 import feign.Response;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
@@ -38,37 +38,46 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.util.StringUtil;
+
+import static feign.Util.valuesOrEmpty;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
- *
- * @author peng-yongsheng
  */
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String COMPONENT_NAME = "FeignDefaultHttp";
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
 
     /**
      * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host, port,
      * kind, component, url from {@link feign.Request}. Through the reflection of the way, set the http header of
      * context data into {@link feign.Request#headers}.
      *
-     * @param method
+     * @param method intercept method
      * @param result change this result, if you want to truncate the method.
-     * @throws Throwable
+     * @throws Throwable NoSuchFieldException or IllegalArgumentException
      */
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Request request = (Request)allArguments[0];
-
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
+        Request request = (Request) allArguments[0];
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
         int port = url.getPort() == -1 ? 80 : url.getPort();
         String remotePeer = url.getHost() + ":" + port;
         String operationName = url.getPath();
-        if (operationName == null || operationName.length() == 0) {
+        FeignResolvedURL feignResolvedURL = PathVarInterceptor.URL_CONTEXT.get();
+        if (feignResolvedURL != null) {
+            try {
+                operationName = operationName.replace(feignResolvedURL.getUrl(), feignResolvedURL.getOriginUrl());
+            } finally {
+                PathVarInterceptor.URL_CONTEXT.remove();
+            }
+        }
+        if (operationName.length() == 0) {
             operationName = "/";
         }
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
@@ -77,17 +86,28 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         Tags.URL.set(span, request.url());
         SpanLayer.asHttp(span);
 
-        Field headersField = Request.class.getDeclaredField("headers");
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(headersField, headersField.getModifiers() & ~Modifier.FINAL);
+        if (FeignPluginConfig.Plugin.Feign.COLLECT_REQUEST_BODY) {
+            boolean needCollectHttpBody = false;
+            Iterator<String> stringIterator = valuesOrEmpty(request.headers(), CONTENT_TYPE_HEADER).iterator();
+            String contentTypeHeaderValue = stringIterator.hasNext() ? stringIterator.next() : "";
+            for (String contentType : FeignPluginConfig.Plugin.Feign.SUPPORTED_CONTENT_TYPES_PREFIX.split(",")) {
+                if (contentTypeHeaderValue.startsWith(contentType)) {
+                    needCollectHttpBody = true;
+                    break;
+                }
+            }
+            if (needCollectHttpBody) {
+                collectHttpBody(request, span);
+            }
+        }
 
+        Field headersField = Request.class.getDeclaredField("headers");
         headersField.setAccessible(true);
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            List<String> contextCollection = new LinkedList<String>();
+            List<String> contextCollection = new ArrayList<String>(1);
             contextCollection.add(next.getHeadValue());
             headers.put(next.getHeadKey(), contextCollection);
         }
@@ -96,18 +116,29 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         headersField.set(request, Collections.unmodifiableMap(headers));
     }
 
+    private void collectHttpBody(final Request request, final AbstractSpan span) {
+        if (request.body() == null || request.charset() == null) {
+            return;
+        }
+        String tagValue = new String(request.body(), request.charset());
+        tagValue = FeignPluginConfig.Plugin.Feign.FILTER_LENGTH_LIMIT > 0 ?
+            StringUtil.cut(tagValue, FeignPluginConfig.Plugin.Feign.FILTER_LENGTH_LIMIT) : tagValue;
+
+        Tags.HTTP.BODY.set(span, tagValue);
+    }
+
     /**
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
      * the server. Finish the {@link AbstractSpan}.
      *
-     * @param method
-     * @param ret the method's original return value.
-     * @return
-     * @throws Throwable
+     * @param method intercept method
+     * @param ret    the method's original return value.
+     * @return origin ret
      */
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Response response = (Response)ret;
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) {
+        Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.status();
 
@@ -123,10 +154,10 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);
-        activeSpan.errorOccurred();
     }
 }

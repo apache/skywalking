@@ -18,17 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Address implements Comparable<Address> {
     private final String host;
     private final int port;
-    @Setter private volatile boolean isSelf;
+    @Setter
+    private volatile boolean isSelf;
 
     public Address(String host, int port, boolean isSelf) {
         this.host = host;
@@ -36,11 +35,13 @@ public class Address implements Comparable<Address> {
         this.isSelf = isSelf;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return toString().hashCode();
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -48,15 +49,17 @@ public class Address implements Comparable<Address> {
         if (getClass() != obj.getClass())
             return false;
 
-        Address address = (Address)obj;
+        Address address = (Address) obj;
         return host.equals(address.host) && port == address.port;
     }
 
-    @Override public String toString() {
-        return host + Const.ID_SPLIT + port;
+    @Override
+    public String toString() {
+        return host + Const.ID_CONNECTOR + port;
     }
 
-    @Override public int compareTo(Address o) {
+    @Override
+    public int compareTo(Address o) {
         return this.toString().compareTo(o.toString());
     }
 }

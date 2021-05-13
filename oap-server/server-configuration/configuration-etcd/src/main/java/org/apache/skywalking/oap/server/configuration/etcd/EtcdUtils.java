@@ -29,12 +29,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * a util for etcd serverAddr parse.
- *
- * @author Alan Lau
  */
 public class EtcdUtils {
 
-    private final static Logger logger = LoggerFactory.getLogger(EtcdUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EtcdUtils.class);
 
     public EtcdUtils() {
     }
@@ -42,7 +40,7 @@ public class EtcdUtils {
     public static List<URI> parse(EtcdServerSettings settings) {
         List<URI> uris = new ArrayList<>();
         try {
-            logger.info("etcd settings is {}", settings);
+            LOGGER.info("etcd settings is {}", settings);
             List<Address> addressList = ConnectUtils.parse(settings.getServerAddr());
             for (Address address : addressList) {
                 uris.add(new URI("http", null, address.getHost(), address.getPort(), null, null, null));
@@ -57,7 +55,7 @@ public class EtcdUtils {
     public static List<URI> parseProp(Properties properties) {
         List<URI> uris = new ArrayList<>();
         try {
-            logger.info("etcd server addr is {}", properties);
+            LOGGER.info("etcd server addr is {}", properties);
             List<Address> addressList = ConnectUtils.parse(properties.getProperty("serverAddr"));
             for (Address address : addressList) {
                 uris.add(new URI("http", null, address.getHost(), address.getPort(), null, null, null));

@@ -1,0 +1,41 @@
+<#--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+-->
+
+compose_file="${docker_compose_file}"
+project_name=$(echo "${build_id}" |sed -e "s/\.//g" |awk '{print tolower($0)}')
+docker_container_name="${docker_container_name}_1"
+
+<#noparse>
+container_name="${project_name}_${docker_container_name}"
+docker-compose -p ${project_name} -f ${compose_file} up -d
+
+container_id=`docker ps -qf "name=${container_name}"`
+if [[ -z "${container_id}" ]]; then
+    echo "docker startup failure!" >&2
+    status=1
+else
+    status=`docker wait ${container_id}`
+
+    [[ $status -ne 0 ]] && docker logs ${container_id} >&2
+    docker logs ${container_id} >${SCENARIO_HOME}/logs/container.log
+
+    docker-compose -p ${project_name} -f ${compose_file} kill
+    docker-compose -p ${project_name} -f ${compose_file} rm -f
+fi
+</#noparse>
+
+${removeImagesScript}

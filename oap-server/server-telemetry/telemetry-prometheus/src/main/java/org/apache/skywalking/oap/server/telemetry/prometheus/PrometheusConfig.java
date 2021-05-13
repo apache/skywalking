@@ -18,17 +18,19 @@
 
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * The Prometheus telemetry implementor settings.
- *
- * @author wusheng
  */
 @Setter
 @Getter
 public class PrometheusConfig extends ModuleConfig {
     private String host = "0.0.0.0";
     private int port = 1234;
+    private boolean sslEnabled = false;
+    private String sslKeyPath;
+    private String sslCertChainPath;
 }

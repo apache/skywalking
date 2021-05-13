@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.io.File;
@@ -31,13 +30,11 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 /**
  * The manipulated class output. Write the dynamic classes to the `debugging` folder, when we need to do some debug and
  * recheck.
- *
- * @author wu-sheng
  */
 public enum InstrumentDebuggingClass {
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(InstrumentDebuggingClass.class);
+    private static final ILog LOGGER = LogManager.getLogger(InstrumentDebuggingClass.class);
     private File debuggingClassesRootPath;
 
     public void log(DynamicType dynamicType) {
@@ -57,17 +54,17 @@ public enum InstrumentDebuggingClass {
                             debuggingClassesRootPath.mkdir();
                         }
                     } catch (AgentPackageNotFoundException e) {
-                        logger.error(e, "Can't find the root path for creating /debugging folder.");
+                        LOGGER.error(e, "Can't find the root path for creating /debugging folder.");
                     }
                 }
 
                 try {
                     dynamicType.saveIn(debuggingClassesRootPath);
                 } catch (IOException e) {
-                    logger.error(e, "Can't save class {} to file." + dynamicType.getTypeDescription().getActualName());
+                    LOGGER.error(e, "Can't save class {} to file." + dynamicType.getTypeDescription().getActualName());
                 }
             } catch (Throwable t) {
-                logger.error(t, "Save debugging classes fail.");
+                LOGGER.error(t, "Save debugging classes fail.");
             }
         }
     }

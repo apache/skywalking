@@ -16,22 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.LinkedList;
-
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -46,19 +46,15 @@ public class IgnoredTracerContextTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    @Before
-    public void setUp() throws Exception {
-        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
+    @BeforeClass
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
     }
 
     @AfterClass
     public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
         ServiceManager.INSTANCE.shutdown();
-    }
-
-    @After
-    public void tearDown() throws Exception {
     }
 
     @Test
@@ -99,9 +95,9 @@ public class IgnoredTracerContextTest {
         ContextManager.stopSpan();
 
         assertThat(abstractSpan.getClass().getName(), is(NoopSpan.class.getName()));
-        assertNull(contextCarrier.getEntryEndpointName());
+        assertNull(contextCarrier.getParentEndpoint());
         assertThat(contextCarrier.getSpanId(), is(-1));
-        assertNull(contextCarrier.getPeerHost());
+        assertNull(contextCarrier.getAddressUsedAtClient());
 
         LinkedList<IgnoredTracerContext> ignoredTracerContexts = storage.getIgnoredTracerContexts();
         assertThat(ignoredTracerContexts.size(), is(1));

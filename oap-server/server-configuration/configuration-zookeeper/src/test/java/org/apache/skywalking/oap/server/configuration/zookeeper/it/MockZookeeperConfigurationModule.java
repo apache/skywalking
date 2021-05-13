@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.configuration.zookeeper.it;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author zhaoyuguang
- */
 public class MockZookeeperConfigurationModule extends ModuleDefine {
     public static final String NAME = "test-module";
 

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.concurrent.match;
 
 import net.bytebuddy.description.type.TypeDescription;
@@ -31,8 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * {@link ListenableFutureCallbackMatch} match the class that inherited <code>org.springframework.util.concurrent.ListenableFutureCallback</code>.
- *
- * @author zhangxin
  */
 public class ListenableFutureCallbackMatch implements IndirectMatch {
 
@@ -45,7 +42,7 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
     @Override
     public ElementMatcher.Junction buildJunction() {
         return not(nameStartsWith("org.springframework")).
-                and(hasSuperType(named(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)));
+                                                             and(hasSuperType(named(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)));
     }
 
     @Override
@@ -54,7 +51,7 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
         for (TypeDescription.Generic generic : typeDescription.getInterfaces()) {
             isMatch = isMatch || matchExactClass(generic);
         }
-        
+
         if (typeDescription.getSuperClass() != null) {
             return isMatch || matchExactClass(typeDescription.getSuperClass());
         } else {

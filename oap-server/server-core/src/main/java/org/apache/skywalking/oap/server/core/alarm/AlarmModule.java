@@ -18,14 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * Alarm module define the main bridge entrance of the alarm implementor.
- *
+ * <p>
  * SkyWalking supports alarm implementation pluggable.
- *
- * @author wusheng
  */
 public class AlarmModule extends ModuleDefine {
     public static final String NAME = "alarm";
@@ -34,7 +32,8 @@ public class AlarmModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[] {MetricsNotify.class};
     }
 }

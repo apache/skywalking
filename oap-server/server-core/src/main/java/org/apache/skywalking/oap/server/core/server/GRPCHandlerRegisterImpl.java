@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.server;
 
-import io.grpc.*;
+import io.grpc.BindableService;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerServiceDefinition;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 
-/**
- * @author peng-yongsheng
- */
 public class GRPCHandlerRegisterImpl implements GRPCHandlerRegister {
 
     private final GRPCServer server;
@@ -32,11 +31,18 @@ public class GRPCHandlerRegisterImpl implements GRPCHandlerRegister {
         this.server = server;
     }
 
-    @Override public void addHandler(BindableService handler) {
+    @Override
+    public void addHandler(BindableService handler) {
         server.addHandler(handler);
     }
 
-    @Override public void addHandler(ServerServiceDefinition definition) {
+    @Override
+    public void addHandler(ServerServiceDefinition definition) {
         server.addHandler(definition);
+    }
+
+    @Override
+    public void addFilter(ServerInterceptor interceptor) {
+        server.addHandler(interceptor);
     }
 }

@@ -18,70 +18,97 @@
 
 package org.apache.skywalking.apm.plugin.customize.conf;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.plugin.customize.constants.Constants;
 import org.apache.skywalking.apm.plugin.customize.util.CustomizeUtil;
-import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.*;
-
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * The CustomizeConfiguration class is the core class for
- * parsing custom enhanced configuration files,
- * parsing configuration files,
- * and converting content into plugins for loading into the kernel.
- *
- * @author zhaoyuguang
+ * The CustomizeConfiguration class is the core class for parsing custom enhanced configuration files, parsing
+ * configuration files, and converting content into plugins for loading into the kernel.
  */
 
 public enum CustomizeConfiguration {
 
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
+    private static final ILog LOGGER = LogManager.getLogger(CustomizeConfiguration.class);
 
     /**
-     * The load method is resolver configuration file,
-     * and parse it to kernel.
+     * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+     * And using Map CONTEXT for avoiding classloader isolation issue.
      */
-    public void load() {
+    private static final Map<String, Map<String, Object>> CONTEXT_METHOD_CONFIGURATIONS = new HashMap<>();
+    private static final Map<String, ElementMatcher> CONTEXT_ENHANCE_CLASSES = new HashMap<>();
+    private static final AtomicBoolean LOAD_FOR_CONFIGURATION = new AtomicBoolean(false);
+
+    /**
+     * The loadForEnhance method is resolver configuration file, and parse it
+     */
+    public void loadForEnhance() {
         try {
-            parse(resolver());
+            for (Map<String, Object> configuration : resolver()) {
+                addContextEnhanceClass(configuration);
+            }
         } catch (Exception e) {
-            logger.error("CustomizeConfiguration load fail", e);
+            LOGGER.error("CustomizeConfiguration loadForAgent fail", e);
+        }
+    }
+
+    /**
+     * The loadForConfiguration method is resolver configuration file, and parse it
+     */
+    public synchronized void loadForConfiguration() {
+        if (LOAD_FOR_CONFIGURATION.get()) {
+            return;
+        }
+        try {
+            for (Map<String, Object> configuration : resolver()) {
+                addContextMethodConfiguration(configuration);
+            }
+        } catch (Exception e) {
+            LOGGER.error("CustomizeConfiguration loadForConfiguration fail", e);
+        } finally {
+            LOAD_FOR_CONFIGURATION.set(true);
         }
     }
 
     /**
      * Resolver custom enhancement file method total entry.
      *
-     * @return configurations is a bridge resolver method and parse method,
-     * mainly used for decoupling.
+     * @return configurations is a bridge resolver method and parse method, mainly used for decoupling.
      * @throws ParserConfigurationException link {@link ParserConfigurationException}
      * @throws IOException                  link {@link IOException}
      * @throws SAXException                 link {@link SAXException}
      */
     private List<Map<String, Object>> resolver() throws ParserConfigurationException, IOException, SAXException {
         List<Map<String, Object>> customizeMethods = new ArrayList<Map<String, Object>>();
-        File file = new File(Config.Plugin.Customize.ENHANCE_FILE);
+        File file = new File(CustomizePluginConfig.Plugin.Customize.ENHANCE_FILE);
         if (file.exists() && file.isFile()) {
             NodeList classNodeList = resolverFileClassDesc(file);
             resolverClassNodeList(classNodeList, customizeMethods);
@@ -118,7 +145,9 @@ public enum CustomizeConfiguration {
             for (int ms = 0; ms < methodNodeList.getLength(); ms++) {
                 Node methodDesc = methodNodeList.item(ms);
                 if (methodDesc.getNodeType() == Node.ELEMENT_NODE) {
-                    String className = classDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLASS_NAME).getNodeValue();
+                    String className = classDesc.getAttributes()
+                            .getNamedItem(Constants.XML_ELEMENT_CLASS_NAME)
+                            .getNodeValue();
                     Map<String, Object> configuration = resolverMethodNodeDesc(className, methodDesc);
                     if (configuration != null) {
                         customizeMethods.add(configuration);
@@ -133,31 +162,26 @@ public enum CustomizeConfiguration {
      *
      * @param className  class name.
      * @param methodDesc method node.
-     * @return configurations is a bridge resolver method and parse method,
-     * mainly used for decoupling.
+     * @return configurations is a bridge resolver method and parse method, mainly used for decoupling.
      */
     private Map<String, Object> resolverMethodNodeDesc(String className, Node methodDesc) {
         Map<String, Object> configuration = new HashMap<String, Object>();
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_OPERATION_NAME) != null) {
-            MethodConfiguration.setOperationName(configuration, methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_OPERATION_NAME).getNodeValue());
-        }
-        if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD) != null) {
-            MethodConfiguration.setCloseBeforeMethod(configuration, Boolean.valueOf(methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD).getNodeValue()));
-        } else {
-            MethodConfiguration.setCloseBeforeMethod(configuration, false);
-        }
-        if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_AFTER_METHOD) != null) {
-            MethodConfiguration.setCloseAfterMethod(configuration, Boolean.valueOf(methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_AFTER_METHOD).getNodeValue()));
-        } else {
-            MethodConfiguration.setCloseAfterMethod(configuration, false);
+            MethodConfiguration.setOperationName(configuration, methodDesc.getAttributes()
+                    .getNamedItem(
+                            Constants.XML_ELEMENT_OPERATION_NAME)
+                    .getNodeValue());
         }
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_METHOD_IS_STATIC) != null) {
-            MethodConfiguration.setStatic(configuration, Boolean.valueOf(methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_METHOD_IS_STATIC).getNodeValue()));
+            MethodConfiguration.setStatic(configuration, Boolean.valueOf(methodDesc.getAttributes()
+                    .getNamedItem(
+                            Constants.XML_ELEMENT_METHOD_IS_STATIC)
+                    .getNodeValue()));
         }
         setAdvancedField(configuration, methodDesc);
-        return resolverClassAndMethod(className,
-                methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_METHOD).getNodeValue(),
-                configuration);
+        return resolverClassAndMethod(className, methodDesc.getAttributes()
+                .getNamedItem(Constants.XML_ELEMENT_METHOD)
+                .getNodeValue(), configuration);
     }
 
     /**
@@ -175,66 +199,51 @@ public enum CustomizeConfiguration {
                     MethodConfiguration.addOperationNameSuffixes(configuration, methodContentNode.getTextContent());
                 }
                 if (Constants.XML_ELEMENT_TAG.equals(methodContentNode.getNodeName())) {
-                    MethodConfiguration.addTag(configuration, methodContentNode.getAttributes().getNamedItem(Constants.XML_ELEMENT_KEY).getNodeValue(), methodContentNode.getTextContent());
+                    MethodConfiguration.addTag(
+                            configuration, methodContentNode.getAttributes()
+                                    .getNamedItem(Constants.XML_ELEMENT_KEY)
+                                    .getNodeValue(), methodContentNode.getTextContent());
                 }
                 if (Constants.XML_ELEMENT_LOG.equals(methodContentNode.getNodeName())) {
-                    MethodConfiguration.addLog(configuration, methodContentNode.getAttributes().getNamedItem(Constants.XML_ELEMENT_KEY).getNodeValue(), methodContentNode.getTextContent());
+                    MethodConfiguration.addLog(
+                            configuration, methodContentNode.getAttributes()
+                                    .getNamedItem(Constants.XML_ELEMENT_KEY)
+                                    .getNodeValue(), methodContentNode.getTextContent());
                 }
             }
         }
     }
 
     /**
-     * Parse class and method,
-     * if no error log is printed in this JVM, and return null.
-     * primitive desc impl by {@link CustomizeUtil}
-     * At the bottom, the default operation name is added.
+     * Parse class and method, if no error log is printed in this JVM, and return null. primitive desc impl by {@link
+     * CustomizeUtil} At the bottom, the default operation name is added.
      *
      * @param className     class name.
      * @param methodDesc    method desc.
      * @param configuration {@link MethodConfiguration}.
      * @return configuration of method.
      */
-    private Map<String, Object> resolverClassAndMethod(String className, String methodDesc, Map<String, Object> configuration) {
+    private Map<String, Object> resolverClassAndMethod(String className, String methodDesc,
+                                                       Map<String, Object> configuration) {
         try {
             int openParen = methodDesc.indexOf(Constants.LEFT_PARENTHESIS);
             int closeParen = methodDesc.indexOf(Constants.RIGHT_PARENTHESIS);
             String methodName = methodDesc.substring(0, openParen);
             String[] arguments = methodDesc.substring(openParen + 1, closeParen).split(Constants.COMMA);
             MethodConfiguration.setClz(configuration, className);
-            MethodConfiguration.setMethod(configuration, CustomizeUtil.generateOperationName(className, methodName, arguments));
+            MethodConfiguration.setMethod(
+                    configuration, CustomizeUtil.generateOperationName(className, methodName, arguments));
             MethodConfiguration.setMethodName(configuration, methodName);
-            MethodConfiguration.setArguments(configuration, StringUtil.isEmpty(arguments[0]) ? new String[0] : arguments);
+            MethodConfiguration.setArguments(
+                    configuration, StringUtil.isEmpty(arguments[0]) ? new String[0] : arguments);
             if (StringUtil.isEmpty(MethodConfiguration.getOperationName(configuration))) {
                 MethodConfiguration.setOperationName(configuration, MethodConfiguration.getMethod(configuration));
             }
             return configuration;
         } catch (Exception e) {
-            logger.error(e, "Failed to resolver, className is {}, methodDesc is {}.", className, methodDesc);
+            LOGGER.error(e, "Failed to resolver, className is {}, methodDesc is {}.", className, methodDesc);
         }
         return null;
-    }
-
-    /**
-     * Put the plugin configuration into the kernel according to the configuration.
-     *
-     * @param configurations is a bridge resolver method and parse method,
-     *                       mainly used for decoupling.
-     */
-    private void parse(List<Map<String, Object>> configurations) {
-        init();
-        for (Map<String, Object> configuration : configurations) {
-            addContextMethodConfiguration(configuration);
-            addContextEnhanceClass(configuration);
-        }
-    }
-
-    /**
-     * In order to avoid the judgment of the useless null pointer exception.
-     */
-    private void init() {
-        Config.Plugin.Customize.CONTEXT.put(Constants.CONTEXT_METHOD_CONFIGURATIONS, new HashMap<String, Map<String, Object>>());
-        Config.Plugin.Customize.CONTEXT.put(Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<String, ElementMatcher>());
     }
 
     /**
@@ -246,7 +255,6 @@ public enum CustomizeConfiguration {
         getMethodConfigurations().put(MethodConfiguration.getMethod(configuration), configuration);
     }
 
-
     /**
      * The private method for get the configuration of this method.
      *
@@ -254,7 +262,7 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, Object>> getMethodConfigurations() {
-        return (Map<String, Map<String, Object>>) Config.Plugin.Customize.CONTEXT.get(Constants.CONTEXT_METHOD_CONFIGURATIONS);
+        return CONTEXT_METHOD_CONFIGURATIONS;
     }
 
     /**
@@ -263,10 +271,13 @@ public enum CustomizeConfiguration {
      * @param configuration {@link MethodConfiguration}
      */
     private void addContextEnhanceClass(Map<String, Object> configuration) {
-        String key = CustomizeUtil.generateClassDesc(MethodConfiguration.getClz(configuration), MethodConfiguration.isStatic(configuration));
+        String key = CustomizeUtil.generateClassDesc(
+                MethodConfiguration.getClz(configuration), MethodConfiguration.isStatic(configuration));
         HashMap<String, ElementMatcher> enhanceClasses = getEnhanceClasses();
         ElementMatcher matcher = enhanceClasses.get(key);
-        enhanceClasses.put(key, matcher == null ? parserMethodsMatcher(configuration) : ((ElementMatcher.Junction) matcher).or(parserMethodsMatcher(configuration)));
+        enhanceClasses.put(
+                key, matcher == null ? parserMethodsMatcher(configuration) : ((ElementMatcher.Junction) matcher)
+                        .or(parserMethodsMatcher(configuration)));
     }
 
     /**
@@ -277,13 +288,13 @@ public enum CustomizeConfiguration {
      */
     private ElementMatcher parserMethodsMatcher(Map<String, Object> configuration) {
         String[] arguments = MethodConfiguration.getArguments(configuration);
-        ElementMatcher matcher = named(MethodConfiguration.getMethodName(configuration)).and(takesArguments(arguments.length));
+        ElementMatcher matcher = named(MethodConfiguration.getMethodName(configuration)).and(
+                takesArguments(arguments.length));
         if (arguments.length > 0) {
             for (int i = 0; i < arguments.length; i++) {
                 matcher = ((ElementMatcher.Junction) matcher).and(
-                        CustomizeUtil.isJavaClass(arguments[i]) ?
-                                takesArgument(i, CustomizeUtil.getJavaClass(arguments[i])) :
-                                takesArgumentWithType(i, arguments[i]));
+                        CustomizeUtil.isJavaClass(arguments[i]) ? takesArgument(i, CustomizeUtil
+                                .getJavaClass(arguments[i])) : takesArgumentWithType(i, arguments[i]));
             }
         }
         return matcher;
@@ -293,9 +304,8 @@ public enum CustomizeConfiguration {
      * Get InterceptPoints, the input dimension is class and is static.
      *
      * @param enhanceClass Real enhancement class
-     * @param isStatic     Is it static, because static or not,
-     *                     logic is different in the SkyWalking kernel,
-     *                     so this dimension is abstracted out.
+     * @param isStatic     Is it static, because static or not, logic is different in the SkyWalking kernel, so this
+     *                     dimension is abstracted out.
      * @return all the interceptPoints.
      */
     public ElementMatcher getInterceptPoints(String enhanceClass, boolean isStatic) {
@@ -320,10 +330,13 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private HashMap<String, ElementMatcher> getEnhanceClasses() {
-        return (HashMap<String, ElementMatcher>) Config.Plugin.Customize.CONTEXT.get(Constants.CONTEXT_ENHANCE_CLASSES);
+        return (HashMap<String, ElementMatcher>) CONTEXT_ENHANCE_CLASSES;
     }
 
     public Map<String, Object> getConfiguration(Method method) {
+        if (!LOAD_FOR_CONFIGURATION.get()) {
+            loadForConfiguration();
+        }
         return getMethodConfigurations().get(MethodUtil.generateOperationName(method));
     }
 }

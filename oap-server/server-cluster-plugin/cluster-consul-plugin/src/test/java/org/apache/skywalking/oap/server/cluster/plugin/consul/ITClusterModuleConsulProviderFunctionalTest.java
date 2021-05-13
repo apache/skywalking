@@ -23,33 +23,50 @@ import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author zhangwei
- */
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.*"})
 public class ITClusterModuleConsulProviderFunctionalTest {
 
     private String consulAddress;
 
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
+
     @Before
     public void before() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         consulAddress = System.getProperty("consul.address");
         assertFalse(StringUtil.isEmpty(consulAddress));
     }
@@ -73,8 +90,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
     @Test
     public void registerRemoteOfInternal() throws Exception {
         final String serviceName = "register_remote_internal";
-        ModuleProvider provider =
-            createProvider(serviceName, "127.0.1.2", 1001);
+        ModuleProvider provider = createProvider(serviceName, "127.0.1.2", 1001);
 
         Address selfAddress = new Address("127.0.0.2", 1002, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
@@ -169,7 +185,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         return createProvider(serviceName, null, 0);
     }
 
-    private ClusterModuleConsulProvider createProvider(String serviceName, String internalComHost, int internalComPort) throws Exception {
+    private ClusterModuleConsulProvider createProvider(String serviceName, String internalComHost,
+        int internalComPort) throws Exception {
         ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();
 
         ClusterModuleConsulConfig config = (ClusterModuleConsulConfig) provider.createConfigBeanIfAbsent();
@@ -184,7 +201,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-
+        provider.setManager(moduleManager);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();
@@ -200,13 +217,12 @@ public class ITClusterModuleConsulProviderFunctionalTest {
             Consul client = Whitebox.getInternalState(consulCoordinator, "client");
             AgentClient agentClient = client.agentClient();
             Whitebox.setInternalState(consulCoordinator, "selfAddress", remoteInstance.getAddress());
-            TelemetryRelatedContext.INSTANCE.setId(remoteInstance.getAddress().toString());
             Registration registration = ImmutableRegistration.builder()
-                .id(remoteInstance.getAddress().toString())
-                .name(serviceName)
-                .address(remoteInstance.getAddress().getHost())
-                .port(remoteInstance.getAddress().getPort())
-                .build();
+                                                             .id(remoteInstance.getAddress().toString())
+                                                             .name(serviceName)
+                                                             .address(remoteInstance.getAddress().getHost())
+                                                             .port(remoteInstance.getAddress().getPort())
+                                                             .build();
 
             agentClient.register(registration);
         };
@@ -231,7 +247,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         return queryRemoteNodes(provider, goals, 20);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals, int cyclic) throws InterruptedException {
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals,
+        int cyclic) throws InterruptedException {
         do {
             List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
             if (instances.size() == goals) {
@@ -239,7 +256,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
             } else {
                 Thread.sleep(1000);
             }
-        } while (--cyclic > 0);
+        }
+        while (--cyclic > 0);
         return Collections.EMPTY_LIST;
     }
 

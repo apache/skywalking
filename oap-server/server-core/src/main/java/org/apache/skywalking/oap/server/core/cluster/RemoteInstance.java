@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.cluster;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class RemoteInstance implements Comparable<RemoteInstance> {
 
@@ -33,11 +30,13 @@ public class RemoteInstance implements Comparable<RemoteInstance> {
         this.address = address;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return address.toString();
     }
 
-    @Override public int compareTo(RemoteInstance o) {
+    @Override
+    public int compareTo(RemoteInstance o) {
         return this.address.compareTo(o.getAddress());
     }
 }

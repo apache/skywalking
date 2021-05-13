@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.configuration.zookeeper.it;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author zhaoyuguang
- */
 public class MockZookeeperConfigurationProvider extends ModuleProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(MockZookeeperConfigurationProvider.class);
 
@@ -74,9 +74,9 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException {
         getManager().find(ConfigurationModule.NAME)
-            .provider()
-            .getService(DynamicConfigurationService.class)
-            .registerConfigChangeWatcher(watcher);
+                    .provider()
+                    .getService(DynamicConfigurationService.class)
+                    .registerConfigChangeWatcher(watcher);
     }
 
     @Override

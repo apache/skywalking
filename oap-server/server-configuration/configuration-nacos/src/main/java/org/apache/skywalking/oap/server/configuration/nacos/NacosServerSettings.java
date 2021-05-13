@@ -18,62 +18,22 @@
 
 package org.apache.skywalking.oap.server.configuration.nacos;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author kezhenxu94
- */
+@Getter
+@Setter
+@ToString
 public class NacosServerSettings extends ModuleConfig {
-    private String clusterName = "default";
+    private String namespace = "";
     private String serverAddr;
     private int port = 8848;
     private String group;
     private int period = 60;
-
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public String getServerAddr() {
-        return serverAddr;
-    }
-
-    public void setServerAddr(String serverAddr) {
-        this.serverAddr = serverAddr;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public int getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(int period) {
-        this.period = period;
-    }
-
-    public String toString() {
-        return "NacosServerSettings(clusterName=" + this.getClusterName()
-            + ", serverAddr=" + this.getServerAddr()
-            + ", group=" + this.getGroup()
-            + ", period=" + this.getPeriod() + ")";
-    }
+    private String username;
+    private String password;
+    private String accessKey;
+    private String secretKey;
 }

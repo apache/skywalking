@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.server.library.util;
 
 import java.util.List;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
 public class ConnectUtilTestCase {
 
     @Test
@@ -63,6 +61,21 @@ public class ConnectUtilTestCase {
     @Test(expected = ConnectStringParseException.class)
     public void emptyTest() throws ConnectStringParseException {
         List<Address> list = ConnectUtils.parse("");
+    }
+
+    @Test(expected = ConnectStringParseException.class)
+    public void shouldThrowIfOnlyComma() throws ConnectStringParseException {
+        List<Address> list = ConnectUtils.parse(",,");
+    }
+
+    @Test(expected = ConnectStringParseException.class)
+    public void shouldThrowIfHostWithoutPort() throws ConnectStringParseException {
+        List<Address> list = ConnectUtils.parse("localhost");
+    }
+
+    @Test(expected = ConnectStringParseException.class)
+    public void shouldThrowIfPortIsNotNumber() throws ConnectStringParseException {
+        List<Address> list = ConnectUtils.parse("localhost:what");
     }
 
     @Test(expected = ConnectStringParseException.class)

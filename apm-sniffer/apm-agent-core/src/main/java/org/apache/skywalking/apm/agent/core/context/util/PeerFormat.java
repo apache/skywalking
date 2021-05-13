@@ -21,10 +21,6 @@ package org.apache.skywalking.apm.agent.core.context.util;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * @author zhaoyuguang
- */
-
 public class PeerFormat {
 
     private static final String ABBR = "...";

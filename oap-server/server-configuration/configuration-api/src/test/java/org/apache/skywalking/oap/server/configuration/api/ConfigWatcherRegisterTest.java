@@ -18,15 +18,19 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
-import org.apache.skywalking.oap.server.library.module.*;
-import org.junit.*;
+import java.util.Optional;
+import java.util.Set;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Set;
-
-/**
- * @author wusheng
- */
 public class ConfigWatcherRegisterTest {
     private ConfigWatcherRegister register;
 
@@ -45,11 +49,13 @@ public class ConfigWatcherRegisterTest {
         final String[] newValue = new String[1];
 
         register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
-            @Override public void notify(ConfigChangeEvent value) {
+            @Override
+            public void notify(ConfigChangeEvent value) {
                 newValue[0] = value.getNewValue();
             }
 
-            @Override public String value() {
+            @Override
+            public String value() {
                 return null;
             }
         });
@@ -62,10 +68,12 @@ public class ConfigWatcherRegisterTest {
     @Test
     public void testRegisterTableLog() {
         register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
-            @Override public void notify(ConfigChangeEvent value) {
+            @Override
+            public void notify(ConfigChangeEvent value) {
             }
 
-            @Override public String value() {
+            @Override
+            public String value() {
                 return null;
             }
         });
@@ -73,23 +81,22 @@ public class ConfigWatcherRegisterTest {
         register.configSync();
         ConfigWatcherRegister.Register registerTable = Whitebox.getInternalState(this.register, "register");
 
-        String expected = "Following dynamic config items are available." + ConfigWatcherRegister.LINE_SEPARATOR +
-            "---------------------------------------------" + ConfigWatcherRegister.LINE_SEPARATOR +
-            "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null" + ConfigWatcherRegister.LINE_SEPARATOR;
+        String expected = "Following dynamic config items are available." + ConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + ConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null" + ConfigWatcherRegister.LINE_SEPARATOR;
 
         Assert.assertEquals(expected, registerTable.toString());
     }
 
     public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
 
-        @Override public ConfigTable readConfig(Set<String> keys) {
+        @Override
+        public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("module.provider.prop1", "abc");
             ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("MockModule.provider.prop2", "abc2");
 
             ConfigTable table = new ConfigTable();
             table.add(item1);
             table.add(item2);
-            return table;
+            return Optional.of(table);
         }
     }
 
@@ -99,38 +106,46 @@ public class ConfigWatcherRegisterTest {
             super("MockModule");
         }
 
-        @Override public Class[] services() {
+        @Override
+        public Class[] services() {
             return new Class[0];
         }
     }
 
     public static class MockProvider extends ModuleProvider {
 
-        @Override public String name() {
+        @Override
+        public String name() {
             return "provider";
         }
 
-        @Override public Class<? extends ModuleDefine> module() {
+        @Override
+        public Class<? extends ModuleDefine> module() {
             return MockModule.class;
         }
 
-        @Override public ModuleConfig createConfigBeanIfAbsent() {
+        @Override
+        public ModuleConfig createConfigBeanIfAbsent() {
             return null;
         }
 
-        @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        @Override
+        public void prepare() throws ServiceNotProvidedException, ModuleStartException {
 
         }
 
-        @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+        @Override
+        public void start() throws ServiceNotProvidedException, ModuleStartException {
 
         }
 
-        @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+        @Override
+        public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
 
         }
 
-        @Override public String[] requiredModules() {
+        @Override
+        public String[] requiredModules() {
             return new String[0];
         }
     }

@@ -50,9 +50,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @author zhaoyuguang
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class ClientCnxnInterceptorTest {
@@ -82,7 +79,10 @@ public class ClientCnxnInterceptorTest {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({
+        "rawtypes",
+        "unchecked"
+    })
     @Before
     public void setUp() throws Exception {
         instance = new MockInstance();
@@ -95,10 +95,17 @@ public class ClientCnxnInterceptorTest {
         List<InetSocketAddress> serverAddresses = new ArrayList<InetSocketAddress>();
         serverAddresses.add(address);
         StaticHostProvider provider = new StaticHostProvider(serverAddresses);
-        interceptor.onConstruct(instance, new Object[]{null, provider});
+        interceptor.onConstruct(instance, new Object[] {
+            null,
+            provider
+        });
         RequestHeader header = new RequestHeader(1, 1);
         CreateRequest createRequest = new CreateRequest("/path", null, null, 0);
-        interceptor.beforeMethod(instance, null, new Object[]{header, null, createRequest}, null, null);
+        interceptor.beforeMethod(instance, null, new Object[] {
+            header,
+            null,
+            createRequest
+        }, null, null);
         interceptor.afterMethod(instance, null, null, null, null);
         MatcherAssert.assertThat((String) instance.getSkyWalkingDynamicField(), Is.is("localhost:2800;"));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

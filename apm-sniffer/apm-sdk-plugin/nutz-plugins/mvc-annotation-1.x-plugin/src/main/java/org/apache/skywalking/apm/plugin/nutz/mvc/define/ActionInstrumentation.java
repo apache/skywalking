@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.mvc.define;
 
 import net.bytebuddy.description.method.MethodDescription;

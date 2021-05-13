@@ -14,17 +14,19 @@
 # limitations under the License.
 
 cluster:
+  selector: ${SW_CLUSTER:standalone}
   standalone:
-#  zookeeper:
-#    hostPort: localhost:2181
-#    # Retry Policy
-#    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
-#    maxRetries: 3 # max number of times to retry
-#  kubernetes:
-#    watchTimeoutSeconds: 60
-#    namespace: default
-#    labelSelector: app=collector,release=skywalking
-#    uidEnvName: SKYWALKING_COLLECTOR_UID
+  zookeeper:
+    hostPort: localhost:2181
+    # Retry Policy
+    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+    maxRetries: 3 # max number of times to retry
+  kubernetes:
+    watchTimeoutSeconds: 60
+    namespace: default
+    labelSelector: app=collector,release=skywalking
+    uidEnvName: SKYWALKING_COLLECTOR_UID
+
 core:
   default:
     restHost: ${REST_HOST:0.0.0.0}
@@ -42,40 +44,43 @@ core:
     hourMetricsDataTTL: ${HOUR_METRIC_DATA_TTL:36} # Unit is hour
     dayMetricsDataTTL: ${DAY_METRIC_DATA_TTL:45} # Unit is day
     monthMetricsDataTTL: ${MONTH_METRIC_DATA_TTL:18} # Unit is month
+
 storage:
+  selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
     clusterNodes: ${ES_CLUSTER_ADDRESS:localhost:9200}
     indexShardsNumber: ${ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: ${ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
+    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
+    syncBulkActions: ${SW_STORAGE_ES_SYNC_BULK_ACTIONS:50000} # Execute the sync bulk metrics data every ${SW_STORAGE_ES_SYNC_BULK_ACTIONS} requests
     bulkSize: ${ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-#  h2:
-#    driver: org.h2.jdbcx.JdbcDataSource
-#    url: jdbc:h2:mem:skywalking-oap-db
-#    user: sa
+
+  h2:
+    driver: org.h2.jdbcx.JdbcDataSource
+    url: jdbc:h2:mem:skywalking-oap-db
+    user: sa
+
 receiver-register:
   default:
+
 receiver-trace:
   default:
-    bufferPath: ${RECEIVER_BUFFER_PATH:../trace-buffer/}  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: ${RECEIVER_BUFFER_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
-    bufferDataMaxFileSize: ${RECEIVER_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
-    bufferFileCleanWhenRestart: ${RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
+
 receiver-jvm:
   default:
+
+receiver-profile:
+  default:
+
 service-mesh:
   default:
-    bufferPath: ${SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: ${SERVICE_MESH_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
-    bufferDataMaxFileSize: ${SERVICE_MESH_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
-    bufferFileCleanWhenRestart: ${SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
-istio-telemetry:
-  default:
+
 query:
   graphql:
     path: ${QUERY_GRAPHQL_PATH:/graphql}
+
 alarm:
   default:

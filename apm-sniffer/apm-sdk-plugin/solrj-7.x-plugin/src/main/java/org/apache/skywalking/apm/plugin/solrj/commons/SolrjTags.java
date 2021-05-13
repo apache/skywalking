@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.solrj.commons;
 
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;

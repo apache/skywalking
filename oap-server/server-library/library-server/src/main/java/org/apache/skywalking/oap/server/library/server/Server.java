@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.server;
 
-/**
- * @author peng-yongsheng, wusheng
- */
 public interface Server {
 
     String hostPort();

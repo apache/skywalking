@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.resttemplate.helper.RestTemplateRuntimeContextHelper;
 import org.springframework.http.client.AsyncClientHttpRequest;
 
 public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor {
@@ -37,10 +38,9 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        AsyncClientHttpRequest clientHttpRequest = (AsyncClientHttpRequest)ret;
+        AsyncClientHttpRequest clientHttpRequest = (AsyncClientHttpRequest) ret;
         if (ret != null) {
-            Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
-            ContextCarrier contextCarrier = (ContextCarrier)cacheValues[1];
+            ContextCarrier contextCarrier = RestTemplateRuntimeContextHelper.getContextCarrier();
             CarrierItem next = contextCarrier.items();
             while (next.hasNext()) {
                 next = next.next();
@@ -50,7 +50,8 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

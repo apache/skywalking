@@ -18,24 +18,26 @@
 
 package org.apache.skywalking.oap.server.core;
 
-/**
- * @author peng-yongsheng
- */
 public class Const {
     public static final int NONE = 0;
-    public static final String ID_SPLIT = "_";
+    public static final String SERVICE_ID_CONNECTOR = ".";
+    public static final String SERVICE_ID_PARSER_SPLIT = "\\.";
+    public static final String ID_CONNECTOR = "_";
+    public static final String ID_PARSER_SPLIT = "\\_";
+    public static final String RELATION_ID_CONNECTOR = "-";
+    public static final String RELATION_ID_PARSER_SPLIT = "\\-";
     public static final String LINE = "-";
+    public static final String COMMA = ",";
     public static final String SPACE = " ";
     public static final String KEY_VALUE_SPLIT = ",";
     public static final String ARRAY_SPLIT = "|";
     public static final String ARRAY_PARSER_SPLIT = "\\|";
-    public static final int USER_SERVICE_ID = 1;
-    public static final int USER_INSTANCE_ID = 1;
-    public static final int USER_ENDPOINT_ID = 1;
-    public static final String USER_CODE = "User";
+    public static final String USER_SERVICE_NAME = "User";
+    public static final String USER_INSTANCE_NAME = "User";
+    public static final String USER_ENDPOINT_NAME = "User";
     public static final String SEGMENT_SPAN_SPLIT = "S";
     public static final String UNKNOWN = "Unknown";
     public static final String EMPTY_STRING = "";
-    public static final String EMPTY_JSON_OBJECT_STRING = "{}";
-    public static final String DOMAIN_OPERATION_NAME = "{domain}";
+    public static final String POINT = ".";
+    public static final String DOUBLE_COLONS_SPLIT = "::";
 }

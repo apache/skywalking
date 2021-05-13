@@ -42,24 +42,25 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-        AMQP.BasicProperties properties = (AMQP.BasicProperties)allArguments[4];
+        AMQP.BasicProperties properties = (AMQP.BasicProperties) allArguments[4];
         AMQP.BasicProperties.Builder propertiesBuilder;
 
         Map<String, Object> headers = new HashMap<String, Object>();
         if (properties != null) {
-            propertiesBuilder = properties.builder().appId(properties.getAppId())
-                .clusterId(properties.getClusterId())
-                .contentEncoding(properties.getContentEncoding())
-                .contentType(properties.getContentType())
-                .correlationId(properties.getCorrelationId())
-                .deliveryMode(properties.getDeliveryMode())
-                .expiration(properties.getExpiration())
-                .messageId(properties.getMessageId())
-                .priority(properties.getPriority())
-                .replyTo(properties.getReplyTo())
-                .timestamp(properties.getTimestamp())
-                .type(properties.getType())
-                .userId(properties.getUserId());
+            propertiesBuilder = properties.builder()
+                                          .appId(properties.getAppId())
+                                          .clusterId(properties.getClusterId())
+                                          .contentEncoding(properties.getContentEncoding())
+                                          .contentType(properties.getContentType())
+                                          .correlationId(properties.getCorrelationId())
+                                          .deliveryMode(properties.getDeliveryMode())
+                                          .expiration(properties.getExpiration())
+                                          .messageId(properties.getMessageId())
+                                          .priority(properties.getPriority())
+                                          .replyTo(properties.getReplyTo())
+                                          .timestamp(properties.getTimestamp())
+                                          .type(properties.getType())
+                                          .userId(properties.getUserId());
 
             // copy origin headers
             if (properties.getHeaders() != null) {
@@ -69,13 +70,14 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
             propertiesBuilder = new AMQP.BasicProperties.Builder();
         }
 
-        String exChangeName = (String)allArguments[0];
-        String queueName = (String)allArguments[1];
-        String url = (String)objInst.getSkyWalkingDynamicField();
+        String exChangeName = (String) allArguments[0];
+        String queueName = (String) allArguments[1];
+        String url = (String) objInst.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Topic/" + exChangeName + "Queue/" + queueName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
         Tags.MQ_BROKER.set(activeSpan, url);
         Tags.MQ_QUEUE.set(activeSpan, queueName);
         Tags.MQ_TOPIC.set(activeSpan, exChangeName);
+        contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.RABBITMQ_PRODUCER);
         CarrierItem next = contextCarrier.items();
@@ -98,6 +100,6 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

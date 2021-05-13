@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,8 +31,6 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.INVO
 /**
  * {@link InvocableHandlerInstrumentation} intercept the <code>invokeForRequest</code> method in the
  * <code>org.springframework.web.method.support.InvocableHandlerMethod</code> class.
- *
- * @author zhangxin
  */
 public class InvocableHandlerInstrumentation extends AbstractSpring4Instrumentation {
 

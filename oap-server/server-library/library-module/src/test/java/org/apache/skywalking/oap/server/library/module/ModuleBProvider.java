@@ -18,35 +18,39 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author wu-sheng
- */
 public class ModuleBProvider extends ModuleProvider {
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "P-B";
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return BaseModuleB.class;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(BaseModuleB.ServiceBBusiness1.class, new ModuleBBusiness1Impl());
         this.registerServiceImplementation(BaseModuleB.ServiceBBusiness2.class, new ModuleBBusiness2Impl());
     }
 
-    @Override public void start() {
+    @Override
+    public void start() {
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[0];
     }
 

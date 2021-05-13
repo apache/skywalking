@@ -25,34 +25,26 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 
 import java.lang.reflect.Method;
 
-/**
- * @author kezhenxu94
- */
 public class JDBCPreparedStatementSetterInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                   Class<?>[] argumentsTypes,
-                                   MethodInterceptResult result) throws Throwable {
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         final StatementEnhanceInfos statementEnhanceInfos = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
-        final int index = (Integer) allArguments[0];
-        final Object parameter = allArguments[1];
-        statementEnhanceInfos.setParameter(index, parameter);
+        if (statementEnhanceInfos != null) {
+          final int index = (Integer) allArguments[0];
+          final Object parameter = allArguments[1];
+          statementEnhanceInfos.setParameter(index, parameter);
+        }
     }
 
     @Override
-    public final Object afterMethod(EnhancedInstance objInst,
-                                    Method method,
-                                    Object[] allArguments,
-                                    Class<?>[] argumentsTypes,
-                                    Object ret) throws Throwable {
+    public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public final void handleMethodException(EnhancedInstance objInst,
-                                            Method method,
-                                            Object[] allArguments,
-                                            Class<?>[] argumentsTypes,
-                                            Throwable t) {
+    public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 }

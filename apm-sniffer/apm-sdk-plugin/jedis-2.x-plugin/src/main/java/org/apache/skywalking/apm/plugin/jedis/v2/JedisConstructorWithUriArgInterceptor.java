@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import java.net.URI;
@@ -27,7 +26,7 @@ public class JedisConstructorWithUriArgInterceptor implements InstanceConstructo
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        URI uri = (URI)allArguments[0];
+        URI uri = (URI) allArguments[0];
         objInst.setSkyWalkingDynamicField(uri.getHost() + ":" + uri.getPort());
     }
 }

@@ -23,14 +23,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 /**
  * {@link AbstractSpring3Instrumentation} define witness classes of the spring mvc 3 plugin. all Instrumentations
  * extends this class.
- *
- * @author zhangxin
  */
 public abstract class AbstractSpring3Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String WITHNESS_CLASSES = "org.springframework.web.servlet.view.xslt.AbstractXsltView";
 
-    @Override protected final String[] witnessClasses() {
+    @Override
+    protected final String[] witnessClasses() {
         return new String[] {WITHNESS_CLASSES};
     }
 }

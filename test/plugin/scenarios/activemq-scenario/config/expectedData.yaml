@@ -1,0 +1,73 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: activemq-scenario
+  segmentSize: ge 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: ActiveMQ/Queue/test/Producer
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: MQ
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 45
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: mq.broker, value: not null}
+      - {key: mq.queue, value: test}
+      skipAnalysis: 'false'
+    - operationName: /activemq-scenario/case/activemq
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/activemq-scenario/case/activemq'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: ActiveMQ/Queue/test/Consumer
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: MQ
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 46
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: mq.broker, value: not null}
+      - {key: mq.queue, value: test}
+      - {key: transmission.latency, value: not null}
+      refs:
+      - {parentEndpoint: /activemq-scenario/case/activemq, networkAddress: not null,
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+        parentServiceInstance: not null, parentService: not null, traceId: not null}
+      skipAnalysis: 'false'

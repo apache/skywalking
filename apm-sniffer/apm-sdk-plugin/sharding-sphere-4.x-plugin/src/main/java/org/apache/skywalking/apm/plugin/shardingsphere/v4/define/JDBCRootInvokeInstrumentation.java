@@ -22,37 +22,35 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}.
- *
- * @author zhangyonglun
+ * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link
+ * org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}.
  */
-public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV4Instrumentation {
+
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor";
-    
+
     private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.JDBCRootInvokeInterceptor";
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("executeCallback");
                 }
-                
+
                 @Override
                 public String getMethodsInterceptor() {
                     return JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS;
                 }
-                
+
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -60,12 +58,12 @@ public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePl
             }
         };
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

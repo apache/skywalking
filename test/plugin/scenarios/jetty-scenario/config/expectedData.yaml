@@ -1,0 +1,74 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+segmentItems:
+- serviceName: jettyserver-scenario
+  segmentSize: 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /jettyserver-case/case/receiveContext-0
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 19
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:18080/jettyserver-case/case/receiveContext-0'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: /jettyclient-case/case/jettyclient-case, networkAddress: 'localhost:18080',
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: jettyclient-scenario, traceId: not null}
+      skipAnalysis: 'false'
+- serviceName: jettyclient-scenario
+  segmentSize: 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /jettyserver-case/case/receiveContext-0
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 18
+      isError: false
+      spanType: Exit
+      peer: localhost:18080
+      tags:
+      - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:18080/jettyserver-case/case/receiveContext-0'}
+      skipAnalysis: 'false'
+    - operationName: /jettyclient-case/case/jettyclient-case
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: gt 0
+      isError: false
+      spanType: Entry
+      tags:
+      - {key: url, value: 'http://localhost:8080/jettyclient-case/case/jettyclient-case'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

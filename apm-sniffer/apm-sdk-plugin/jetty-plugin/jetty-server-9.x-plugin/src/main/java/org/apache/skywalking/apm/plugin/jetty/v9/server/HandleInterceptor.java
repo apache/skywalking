@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v9.server;
 
 import java.lang.reflect.Method;
@@ -48,7 +47,7 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HttpChannel httpChannel = (HttpChannel)objInst;
+        HttpChannel httpChannel = (HttpChannel) objInst;
         HttpServletRequest servletRequest = httpChannel.getRequest();
 
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -69,7 +68,7 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        HttpChannel httpChannel = (HttpChannel)objInst;
+        HttpChannel httpChannel = (HttpChannel) objInst;
         HttpServletResponse servletResponse = httpChannel.getResponse();
         AbstractSpan span = ContextManager.activeSpan();
         if (IS_SERVLET_GET_STATUS_METHOD_EXIST && servletResponse.getStatus() >= 400) {
@@ -81,8 +80,9 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

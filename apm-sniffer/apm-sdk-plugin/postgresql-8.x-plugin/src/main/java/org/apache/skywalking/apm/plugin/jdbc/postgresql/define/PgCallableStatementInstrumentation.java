@@ -31,30 +31,35 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
 
 public class PgCallableStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("executeWithFlags").and(takesArgumentWithType(0, "int"))
-                        .or(named("executeUpdate"));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("executeWithFlags").and(takesArgumentWithType(0, "int")).or(named("executeUpdate"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName("org.postgresql.jdbc.PgCallableStatement");
     }
 }

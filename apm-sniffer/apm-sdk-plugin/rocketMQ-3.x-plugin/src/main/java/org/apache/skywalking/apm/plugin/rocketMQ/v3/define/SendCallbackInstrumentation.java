@@ -30,12 +30,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
- * {@link SendCallbackInstrumentation} intercepts {@link com.alibaba.rocketmq.client.producer.SendCallback#onSuccess(com.alibaba.rocketmq.client.producer.SendResult sendResult)}
- * method by using {@link org.apache.skywalking.apm.plugin.rocketMQ.v3.OnSuccessInterceptor} and also intercepts {@link
- * com.alibaba.rocketmq.client.producer.SendCallback#onException(Throwable)} by using {@link
+ * {@link SendCallbackInstrumentation} intercepts {@link com.alibaba.rocketmq.client.producer.SendCallback#onSuccess(com.alibaba.rocketmq.client.producer.SendResult
+ * sendResult)} method by using {@link org.apache.skywalking.apm.plugin.rocketMQ.v3.OnSuccessInterceptor} and also
+ * intercepts {@link com.alibaba.rocketmq.client.producer.SendCallback#onException(Throwable)} by using {@link
  * org.apache.skywalking.apm.plugin.rocketMQ.v3.OnExceptionInterceptor}.
- *
- * @author carlvine500
  */
 public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -45,42 +43,51 @@ public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePlug
     private static final String ON_EXCEPTION_METHOD = "onException";
     private static final String ON_EXCEPTION_INTERCEPTOR = "org.apache.skywalking.apm.plugin.rocketMQ.v3.OnExceptionInterceptor";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ON_SUCCESS_ENHANCE_METHOD).and(takesArgumentWithType(0, "com.alibaba.rocketmq.client.producer.SendResult"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return ON_SUCCESS_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ON_EXCEPTION_METHOD).and(takesArgumentWithType(0, "java.lang.Throwable"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return ON_EXCEPTION_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byHierarchyMatch(new String[] {ENHANCE_CLASS});
     }
 }

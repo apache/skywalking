@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.SampleData;
 
-/**
- * Created by wusheng on 2016/10/26.
- */
 public class SampleConsumer implements IConsumer<SampleData> {
     public int i = 1;
 

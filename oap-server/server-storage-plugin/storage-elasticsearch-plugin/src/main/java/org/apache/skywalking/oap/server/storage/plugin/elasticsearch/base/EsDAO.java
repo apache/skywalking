@@ -20,50 +20,26 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.common.xcontent.*;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- * @author peng-yongsheng
- */
+import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+
 public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
     public EsDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    protected final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).gte(startTB).lte(endTB);
-        if (where.getKeyValues().isEmpty()) {
-            sourceBuilder.query(rangeQueryBuilder);
-        } else {
-            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            boolQuery.must().add(rangeQueryBuilder);
-
-            where.getKeyValues().forEach(keyValues -> {
-                if (keyValues.getValues().size() > 1) {
-                    boolQuery.must().add(QueryBuilders.termsQuery(keyValues.getKey(), keyValues.getValues()));
-                } else {
-                    boolQuery.must().add(QueryBuilders.termQuery(keyValues.getKey(), keyValues.getValues().get(0)));
-                }
-            });
-            sourceBuilder.query(boolQuery);
-        }
-        sourceBuilder.size(0);
-    }
-
     protected XContentBuilder map2builder(Map<String, Object> objectMap) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (String key : objectMap.keySet()) {
-            Object value = objectMap.get(key);
-            if (value instanceof StorageDataType) {
-                builder.field(key, ((StorageDataType)value).toStorageData());
+        for (Map.Entry<String, Object> entries: objectMap.entrySet()) {
+            Object value = entries.getValue();
+            String key = entries.getKey();
+            if (value instanceof StorageDataComplexObject) {
+                builder.field(key, ((StorageDataComplexObject) value).toStorageData());
             } else {
                 builder.field(key, value);
             }

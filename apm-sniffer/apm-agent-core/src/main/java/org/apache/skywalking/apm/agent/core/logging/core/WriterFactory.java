@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
@@ -25,9 +24,6 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * @author Alan Lau
- */
 public class WriterFactory {
 
     private static IWriter WRITER;

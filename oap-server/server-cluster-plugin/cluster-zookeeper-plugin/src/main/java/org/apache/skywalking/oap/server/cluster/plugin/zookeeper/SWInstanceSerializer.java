@@ -24,18 +24,17 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 
-/**
- * @author peng-yongsheng
- */
 public class SWInstanceSerializer implements InstanceSerializer<RemoteInstance> {
 
     private final Gson gson = new Gson();
 
-    @Override public byte[] serialize(ServiceInstance<RemoteInstance> instance) throws Exception {
+    @Override
+    public byte[] serialize(ServiceInstance<RemoteInstance> instance) throws Exception {
         return gson.toJson(instance).getBytes();
     }
 
-    @Override public ServiceInstance<RemoteInstance> deserialize(byte[] bytes) throws Exception {
+    @Override
+    public ServiceInstance<RemoteInstance> deserialize(byte[] bytes) throws Exception {
         return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<RemoteInstance>>() {
         }.getType());
     }

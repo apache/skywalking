@@ -26,14 +26,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
-
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * {@link ActiveMQConsumerInstrumentation} presents that skywalking intercepts {@link org.apache.activemq.ActiveMQMessageConsumer}.
- *
- * @author withlin
+ * {@link ActiveMQConsumerInstrumentation} presents that skywalking intercepts {@link
+ * org.apache.activemq.ActiveMQMessageConsumer}.
  */
 public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerInterceptor";
@@ -41,18 +39,21 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerConstructorInterceptor";
     public static final String ENHANCE_METHOD_DISPATCH = "dispatch";
     public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.activemq.ActiveMQSession";
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgumentWithType(0,CONSTRUCTOR_INTERCEPT_TYPE);
-                    }
-
-                    @Override public String getConstructorInterceptor() {
-                        return CONSTRUCTOR_INTERCEPTOR_CLASS;
-                    }
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_TYPE);
                 }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return CONSTRUCTOR_INTERCEPTOR_CLASS;
+                }
+            }
         };
     }
 
@@ -60,19 +61,21 @@ public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD_DISPATCH);
-                    }
-
-
-                    @Override public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
-
-                    @Override public boolean isOverrideArgs() {
-                        return false;
-                    }
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD_DISPATCH);
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 

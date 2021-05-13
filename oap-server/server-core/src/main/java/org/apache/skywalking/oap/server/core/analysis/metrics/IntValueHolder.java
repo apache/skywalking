@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 /**
  * IntValueHolder always holds a value of int.
- *
- * @author wusheng
  */
 public interface IntValueHolder {
     int getValue();

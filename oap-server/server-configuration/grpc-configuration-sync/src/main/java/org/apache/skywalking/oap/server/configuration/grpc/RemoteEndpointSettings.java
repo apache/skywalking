@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.configuration.grpc;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author wusheng
- */
 @Setter
 @Getter
 public class RemoteEndpointSettings extends ModuleConfig {
@@ -33,11 +31,8 @@ public class RemoteEndpointSettings extends ModuleConfig {
     // Sync configuration per 60 seconds.
     private int period = 60;
 
-    @Override public String toString() {
-        return "RemoteEndpointSettings{" +
-            "host='" + host + '\'' +
-            ", port=" + port +
-            ", clusterName='" + clusterName + '\'' +
-            '}';
+    @Override
+    public String toString() {
+        return "RemoteEndpointSettings{" + "host='" + host + '\'' + ", port=" + port + ", clusterName='" + clusterName + '\'' + '}';
     }
 }

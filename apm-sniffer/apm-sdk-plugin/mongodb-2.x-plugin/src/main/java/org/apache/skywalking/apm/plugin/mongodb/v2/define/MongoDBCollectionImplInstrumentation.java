@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -33,16 +32,8 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
  * {@link MongoDBCollectionImplInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the
- * following methods in the com.mongodb.DBCollectionImpl class:
- * 1. find 
- * 2. insert 
- * 3. insertImpl 
- * 4. update 
- * 5. updateImpl 
- * 6. remove 
- * 7. createIndex 
- *
- * @author liyuntao
+ * following methods in the com.mongodb.DBCollectionImpl class: 1. find 2. insert 3. insertImpl 4. update 5. updateImpl
+ * 6. remove 7. createIndex
  */
 public class MongoDBCollectionImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -120,7 +111,7 @@ public class MongoDBCollectionImplInstrumentation extends ClassInstanceMethodsEn
 
             },
 
-        };
+            };
     }
 
     @Override

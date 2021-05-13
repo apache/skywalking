@@ -20,10 +20,8 @@ package org.apache.skywalking.apm.agent.core.plugin.bootstrap;
 
 /**
  * The log interface used in bootstrap internal interceptors.
- *
+ * <p>
  * Never used in any plugin or tracing core.
- *
- * @author wusheng
  */
 public interface IBootstrapLog {
     void info(String format);

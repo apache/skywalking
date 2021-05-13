@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,11 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
-
-
-/**
- * @author xuhe
- */
 
 public class TraceIdConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -47,7 +41,7 @@ public class TraceIdConverterActivation extends ClassInstanceMethodsEnhancePlugi
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

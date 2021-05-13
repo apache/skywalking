@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 
 /**
  * P90
- *
- * @author wusheng
  */
 @MetricsFunction(functionName = "p90")
 public abstract class P90Metrics extends PxxMetrics {

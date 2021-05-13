@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.telemetry.api;
 
 /**
  * Tag for the target metrics.
- *
+ * <p>
  * The tag values should be set in putting value phase.
  */
 public class MetricsTag {

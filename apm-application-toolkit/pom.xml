@@ -20,15 +20,11 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>apm-application-toolkit</artifactId>
     <packaging>pom</packaging>
-
-    <properties>
-        <compiler.version>1.6</compiler.version>
-    </properties>
 
     <modules>
         <module>apm-toolkit-log4j-1.x</module>
@@ -36,5 +32,8 @@
         <module>apm-toolkit-logback-1.x</module>
         <module>apm-toolkit-opentracing</module>
         <module>apm-toolkit-trace</module>
+        <module>apm-toolkit-meter</module>
+        <module>apm-toolkit-micrometer-registry</module>
+        <module>apm-toolkit-kafka</module>
     </modules>
 </project>

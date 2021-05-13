@@ -21,10 +21,6 @@ package org.apache.skywalking.apm.plugin.customize.util;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author zhaoyuguang
- */
-
 public class CustomizeUtil {
 
     private static final Map<String, Class> JAVA_CLASS = new HashMap<String, Class>();
@@ -53,7 +49,8 @@ public class CustomizeUtil {
     public static String generateOperationName(String className, String methodName, String[] parameterTypes) {
         StringBuilder operationName = new StringBuilder(className + "." + methodName + "(");
         for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(CustomizeUtil.isJavaClass(parameterTypes[i]) ? CustomizeUtil.getJavaClass(parameterTypes[i]).getName() : parameterTypes[i]);
+            operationName.append(CustomizeUtil.isJavaClass(parameterTypes[i]) ? CustomizeUtil.getJavaClass(parameterTypes[i])
+                                                                                             .getName() : parameterTypes[i]);
             if (i < (parameterTypes.length - 1)) {
                 operationName.append(",");
             }

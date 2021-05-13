@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.library.server.jetty;
 
 import org.apache.skywalking.oap.server.library.server.ServerException;
 
-/**
- * @author peng-yongsheng
- */
 public class JettyServerException extends ServerException {
 
     public JettyServerException(String message) {

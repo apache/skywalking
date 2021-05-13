@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.okhttp.v3;
 
 import java.util.List;
@@ -26,6 +25,7 @@ import okhttp3.Response;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.plugin.okhttp.common.RealCallInterceptor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,9 +50,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 
-/**
- * @author peng-yongsheng
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest({Response.class})
@@ -83,7 +80,8 @@ public class RealCallInterceptorTest {
             return object;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
             this.object = value;
         }
     };
@@ -91,8 +89,16 @@ public class RealCallInterceptorTest {
     @Before
     public void setUp() throws Exception {
         request = new Request.Builder().url("http://skywalking.org").build();
-        allArguments = new Object[] {client, request, false};
-        argumentTypes = new Class[] {client.getClass(), request.getClass(), Boolean.class};
+        allArguments = new Object[] {
+            client,
+            request,
+            false
+        };
+        argumentTypes = new Class[] {
+            client.getClass(),
+            request.getClass(),
+            Boolean.class
+        };
         realCallInterceptor = new RealCallInterceptor();
     }
 
@@ -163,6 +169,7 @@ public class RealCallInterceptorTest {
         assertSpan(spans.get(0));
         SpanAssert.assertOccurException(spans.get(0), true);
         SpanAssert.assertLogSize(spans.get(0), 1);
-        SpanAssert.assertException(SpanHelper.getLogs(spans.get(0)).get(0), NullPointerException.class, "testException");
+        SpanAssert.assertException(SpanHelper.getLogs(spans.get(0))
+                                             .get(0), NullPointerException.class, "testException");
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.concurrent.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -34,8 +33,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * that class inherited <code>org.springframework.util.concurrent.ListenableFutureCallback</code> by
  * <code>SuccessCallbackInterceptor</code> and
  * <code>FailureCallbackInterceptor</code>.
- *
- * @author zhangxin
  */
 public class ListenableFutureCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override

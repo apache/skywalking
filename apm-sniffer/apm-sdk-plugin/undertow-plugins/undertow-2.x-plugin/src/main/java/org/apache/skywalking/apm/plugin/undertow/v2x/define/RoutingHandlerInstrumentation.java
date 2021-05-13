@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,11 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-
-/**
- * @author AI
- * 2019-07-26
- */
 public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_METHOD = "add";
@@ -46,7 +42,7 @@ public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePl
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -72,12 +68,15 @@ public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePl
     }
 
     public static ElementMatcher<MethodDescription> getRoutingHandlerMethodMatcher() {
-        final ElementMatcher.Junction<MethodDescription> basicMatcher = named(ENHANCE_METHOD)
-            .and(takesArgumentWithType(0, "io.undertow.util.HttpString"))
-            .and(takesArgumentWithType(1, "java.lang.String"));
+        final ElementMatcher.Junction<MethodDescription> basicMatcher = named(ENHANCE_METHOD).and(
+            takesArgumentWithType(0, "io.undertow.util.HttpString"))
+                                                                                             .and(takesArgumentWithType(
+                                                                                                 1,
+                                                                                                 "java.lang.String"
+                                                                                             ));
         final String httpHandlerClassName = "io.undertow.server.HttpHandler";
-        return (basicMatcher.and(takesArgumentWithType(2, httpHandlerClassName)))
-            .or(basicMatcher.and(takesArgumentWithType(3, httpHandlerClassName)));
+        return basicMatcher.and(takesArgumentWithType(2, httpHandlerClassName))
+                           .or(basicMatcher.and(takesArgumentWithType(3, httpHandlerClassName)));
     }
 
 }

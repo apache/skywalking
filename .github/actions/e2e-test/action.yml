@@ -1,0 +1,83 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+name: 'Run E2E Test'
+description: 'Common steps when running an E2E Test'
+inputs:
+  test_class:
+    description: 'The e2e test class name'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Check Unintended Changes
+      shell: bash
+      run: |
+        echo "::group::Check sw.version"
+        sudo apt install -y -q xmlstarlet
+        SW_VERSION=$(xmlstarlet sel -N pom=http://maven.apache.org/POM/4.0.0 -t -v "/pom:project/pom:properties/pom:sw.version" test/e2e/pom.xml)
+        if [[ "$(echo $(echo $SW_VERSION))" != "" ]]; then
+          echo "Please don't submit the change of sw.version in test/e2e/pom.xml"
+          exit 1
+        fi
+        echo "::endgroup::"
+    - name: Check License
+      shell: bash
+      run: |
+        echo "::group::Build License-Eye Binary"
+        git clone https://github.com/apache/skywalking-eyes.git
+        git -C skywalking-eyes reset --hard 9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+        make -C skywalking-eyes docker || make -C skywalking-eyes docker  # Retry if fail
+        rm -rf skywalking-eyes
+        docker run --rm -v $(pwd):/github/workspace license-eye:latest header check
+        echo "::endgroup::"
+    - name: Build Docker Image
+      shell: bash
+      env:
+        SKIP_TEST: "true"
+      run: |
+        echo "::group::Build Docker Image"
+        # Retry one more time due to frequent "maven connection reset"
+        (make docker || make docker) && (ES_VERSION=es7 TAG=latest-es7 make docker.oap || ES_VERSION=es7 TAG=latest-es7 make docker.oap)
+        echo "::endgroup::"
+    - name: Copy Dist Package
+      shell: bash
+      run: |
+        echo "::group::Copy Dist Package to test/e2e"
+        cp -R dist test/e2e/
+        echo "::endgroup::"
+    - name: Run E2E Test
+      shell: bash
+      run: |
+        echo "::group::Install SNAPSHOT apm-application-toolkit"
+        ./mvnw -DskipTests -N install
+        ./mvnw -f apm-application-toolkit -DskipTests -am install
+        echo "::endgroup::"
+
+        echo "::group::Run E2E Test ${{ inputs.test_class }}"
+        SW_VERSION=$(./mvnw -q -DforceStdout -N org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version)
+        ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false -Dsw.version=${SW_VERSION} verify -Dit.test=${{ inputs.test_class }}
+        echo "::endgroup::"
+    - name: Report Coverage
+      shell: bash
+      env:
+        CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
+      run: |
+        echo "::group::Uploading Code Coverage"
+        bash -x tools/coverage/report.sh
+        echo "::endgroup::"

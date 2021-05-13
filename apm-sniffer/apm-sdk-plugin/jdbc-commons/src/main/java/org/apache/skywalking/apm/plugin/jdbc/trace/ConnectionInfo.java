@@ -23,8 +23,6 @@ import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 /**
  * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database
  * name.
- *
- * @author zhangxin
  */
 public class ConnectionInfo {
     /**

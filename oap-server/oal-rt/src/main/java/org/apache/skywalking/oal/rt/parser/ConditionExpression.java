@@ -18,13 +18,50 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import lombok.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
+@NoArgsConstructor
 public class ConditionExpression {
     // original from script
     private String expressionType;
-    private String attribute;
+    private List<String> attributes = new ArrayList<>();
     private String value;
+    private List<String> values;
+    private boolean number;
+
+    public ConditionExpression(final String expressionType, final String attributes, final String value) {
+        this.expressionType = expressionType;
+        this.attributes = Arrays.asList(attributes.split("\\."));
+        this.value = value;
+    }
+
+    public void addValue(String value) {
+        if (values != null) {
+            values.add(value);
+        } else {
+            this.value = value;
+        }
+    }
+
+    public void isNumber() {
+        number = true;
+    }
+
+    public void enterMultiConditionValue() {
+        values = new LinkedList<>();
+    }
+
+    public void exitMultiConditionValue() {
+        value = number ?
+            "new long[]{" + String.join(",", values) + "}" :
+            "new Object[]{" + String.join(",", values) + "}";
+    }
 }

@@ -18,50 +18,39 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.oap.server.core.cache.*;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.ZipkinSkyWalkingTransfer;
 import org.apache.skywalking.oap.server.receiver.zipkin.trace.SpanForward;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
+@RequiredArgsConstructor
 public class SpanProcessor {
-    private SourceReceiver receiver;
-    private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
-    private int encode;
-
-    public SpanProcessor(SourceReceiver receiver,
-        ServiceInventoryCache serviceInventoryCache,
-        EndpointInventoryCache endpointInventoryCache, int encode) {
-        this.receiver = receiver;
-        this.serviceInventoryCache = serviceInventoryCache;
-        this.endpointInventoryCache = endpointInventoryCache;
-        this.encode = encode;
-    }
+    private final NamingControl namingControl;
+    private final SourceReceiver receiver;
 
     void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request) throws IOException {
-        InputStream inputStream = getInputStream(request);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[2048];
-        int readCntOnce;
+        try (InputStream inputStream = getInputStream(request)) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[2048];
+            int readCntOnce;
 
-        while ((readCntOnce = inputStream.read(buffer)) >= 0) {
-            out.write(buffer, 0, readCntOnce);
-        }
+            while ((readCntOnce = inputStream.read(buffer)) >= 0) {
+                out.write(buffer, 0, readCntOnce);
+            }
 
-        List<Span> spanList = decoder.decodeList(out.toByteArray());
+            List<Span> spanList = decoder.decodeList(out.toByteArray());
 
-        if (config.isNeedAnalysis()) {
-            ZipkinSkyWalkingTransfer transfer = new ZipkinSkyWalkingTransfer();
-            transfer.doTransfer(config, spanList);
-        } else {
-            SpanForward forward = new SpanForward(config, receiver, serviceInventoryCache, endpointInventoryCache, encode);
+            SpanForward forward = new SpanForward(namingControl, receiver, config);
             forward.send(spanList);
         }
     }

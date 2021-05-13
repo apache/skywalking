@@ -27,14 +27,11 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
- * Plugins finder.
- * Use {@link PluginResourcesResolver} to find all plugins,
- * and ask {@link PluginCfg} to load all plugin definitions.
- *
- * @author wusheng
+ * Plugins finder. Use {@link PluginResourcesResolver} to find all plugins, and ask {@link PluginCfg} to load all plugin
+ * definitions.
  */
 public class PluginBootstrap {
-    private static final ILog logger = LogManager.getLogger(PluginBootstrap.class);
+    private static final ILog LOGGER = LogManager.getLogger(PluginBootstrap.class);
 
     /**
      * load all plugins.
@@ -48,7 +45,7 @@ public class PluginBootstrap {
         List<URL> resources = resolver.getResources();
 
         if (resources == null || resources.size() == 0) {
-            logger.info("no plugin files (skywalking-plugin.def) found, continue to start application.");
+            LOGGER.info("no plugin files (skywalking-plugin.def) found, continue to start application.");
             return new ArrayList<AbstractClassEnhancePluginDefine>();
         }
 
@@ -56,7 +53,7 @@ public class PluginBootstrap {
             try {
                 PluginCfg.INSTANCE.load(pluginUrl.openStream());
             } catch (Throwable t) {
-                logger.error(t, "plugin file [{}] init failure.", pluginUrl);
+                LOGGER.error(t, "plugin file [{}] init failure.", pluginUrl);
             }
         }
 
@@ -65,15 +62,12 @@ public class PluginBootstrap {
         List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
         for (PluginDefine pluginDefine : pluginClassList) {
             try {
-                logger.debug("loading plugin class {}.", pluginDefine.getDefineClass());
-                AbstractClassEnhancePluginDefine plugin =
-                    (AbstractClassEnhancePluginDefine)Class.forName(pluginDefine.getDefineClass(),
-                        true,
-                        AgentClassLoader.getDefault())
-                        .newInstance();
+                LOGGER.debug("loading plugin class {}.", pluginDefine.getDefineClass());
+                AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(pluginDefine.getDefineClass(), true, AgentClassLoader
+                    .getDefault()).newInstance();
                 plugins.add(plugin);
             } catch (Throwable t) {
-                logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
+                LOGGER.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
             }
         }
 

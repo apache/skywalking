@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 
-/**
- * Created by dengming, 2019.04.20
- */
 public class MockLongValueMetrics extends MockMetrics implements LongValueHolder {
     @Override
     public long getValue() {

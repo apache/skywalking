@@ -22,9 +22,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/**
- * Created by SataQiu on 2019/5/8.
- */
 public class Base64Test {
 
     @Test

@@ -18,47 +18,65 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import java.util.*;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 
 /**
  * The <code>IgnoredTracerContext</code> represent a context should be ignored. So it just maintains the stack with an
  * integer depth field.
- *
+ * <p>
  * All operations through this will be ignored, and keep the memory and gc cost as low as possible.
- *
- * @author wusheng
  */
 public class IgnoredTracerContext implements AbstractTracerContext {
     private static final NoopSpan NOOP_SPAN = new NoopSpan();
+    private static final String IGNORE_TRACE = "Ignored_Trace";
+
+    private final CorrelationContext correlationContext;
+    private final ExtensionContext extensionContext;
 
     private int stackDepth;
 
     public IgnoredTracerContext() {
         this.stackDepth = 0;
+        this.correlationContext = new CorrelationContext();
+        this.extensionContext = new ExtensionContext();
     }
 
     @Override
     public void inject(ContextCarrier carrier) {
-
+        this.correlationContext.inject(carrier);
     }
 
     @Override
     public void extract(ContextCarrier carrier) {
-
-    }
-
-    @Override public ContextSnapshot capture() {
-        return new ContextSnapshot(null, -1, null);
-    }
-
-    @Override public void continued(ContextSnapshot snapshot) {
-
+        this.correlationContext.extract(carrier);
     }
 
     @Override
-    public String getReadableGlobalTraceId() {
-        return "[Ignored Trace]";
+    public ContextSnapshot capture() {
+        return new ContextSnapshot(null, -1, null, null, correlationContext, extensionContext);
+    }
+
+    @Override
+    public void continued(ContextSnapshot snapshot) {
+        this.correlationContext.continued(snapshot);
+    }
+
+    @Override
+    public String getReadablePrimaryTraceId() {
+        return IGNORE_TRACE;
+    }
+
+    @Override
+    public String getSegmentId() {
+        return IGNORE_TRACE;
+    }
+
+    @Override
+    public int getSpanId() {
+        return -1;
     }
 
     @Override
@@ -93,16 +111,23 @@ public class IgnoredTracerContext implements AbstractTracerContext {
         return stackDepth == 0;
     }
 
-    @Override public AbstractTracerContext awaitFinishAsync() {
+    @Override
+    public AbstractTracerContext awaitFinishAsync() {
         return this;
     }
 
-    @Override public void asyncStop(AsyncSpan span) {
+    @Override
+    public void asyncStop(AsyncSpan span) {
 
     }
 
+    @Override
+    public CorrelationContext getCorrelationContext() {
+        return this.correlationContext;
+    }
+
     public static class ListenerManager {
-        private static List<IgnoreTracerContextListener> LISTENERS = new LinkedList<IgnoreTracerContextListener>();
+        private static List<IgnoreTracerContextListener> LISTENERS = new LinkedList<>();
 
         /**
          * Add the given {@link IgnoreTracerContextListener} to {@link #LISTENERS} list.
@@ -117,8 +142,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
          * Notify the {@link IgnoredTracerContext.ListenerManager} about the given {@link IgnoredTracerContext} have
          * finished. And trigger {@link IgnoredTracerContext.ListenerManager} to notify all {@link #LISTENERS} 's {@link
          * IgnoreTracerContextListener#afterFinished(IgnoredTracerContext)}
-         *
-         * @param ignoredTracerContext
          */
         static void notifyFinish(IgnoredTracerContext ignoredTracerContext) {
             for (IgnoreTracerContextListener listener : LISTENERS) {

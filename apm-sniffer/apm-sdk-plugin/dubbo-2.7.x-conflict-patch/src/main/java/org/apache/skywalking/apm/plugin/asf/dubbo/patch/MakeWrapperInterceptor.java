@@ -44,13 +44,14 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         MethodInterceptResult result) {
-        Class wrapperClass = (Class<?>)allArguments[0];
+        Class wrapperClass = (Class<?>) allArguments[0];
         if (EnhancedInstance.class.isAssignableFrom(wrapperClass)) {
             result.defineReturnValue(makeWrapper(wrapperClass));
         }
     }
 
-    @Override public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+    @Override
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Object ret) {
         return ret;
     }
@@ -69,11 +70,21 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
 
         StringBuilder c1 = new StringBuilder("public void setPropertyValue(Object o, String n, Object v){ ");
         StringBuilder c2 = new StringBuilder("public Object getPropertyValue(Object o, String n){ ");
-        StringBuilder c3 = new StringBuilder("public Object invokeMethod(Object o, String n, Class[] p, Object[] v) throws " + InvocationTargetException.class.getName() + "{ ");
+        StringBuilder c3 = new StringBuilder("public Object invokeMethod(Object o, String n, Class[] p, Object[] v) throws " + InvocationTargetException.class
+            .getName() + "{ ");
 
-        c1.append(name).append(" w; try{ w = ((").append(name).append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
-        c2.append(name).append(" w; try{ w = ((").append(name).append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
-        c3.append(name).append(" w; try{ w = ((").append(name).append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
+        c1.append(name)
+          .append(" w; try{ w = ((")
+          .append(name)
+          .append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
+        c2.append(name)
+          .append(" w; try{ w = ((")
+          .append(name)
+          .append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
+        c3.append(name)
+          .append(" w; try{ w = ((")
+          .append(name)
+          .append(")$1); }catch(Throwable e){ throw new IllegalArgumentException(e); }");
 
         Map<String, Class<?>> pts = new HashMap<String, Class<?>>(); // <property name, property types>
         Map<String, Method> ms = new LinkedHashMap<String, Method>(); // <method desc, Method instance>
@@ -87,7 +98,13 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             if (Modifier.isStatic(f.getModifiers()) || Modifier.isTransient(f.getModifiers()))
                 continue;
 
-            c1.append(" if( $2.equals(\"").append(fn).append("\") ){ w.").append(fn).append("=").append(arg(ft, "$3")).append("; return; }");
+            c1.append(" if( $2.equals(\"")
+              .append(fn)
+              .append("\") ){ w.")
+              .append(fn)
+              .append("=")
+              .append(arg(ft, "$3"))
+              .append("; return; }");
             c2.append(" if( $2.equals(\"").append(fn).append("\") ){ return ($w)w.").append(fn).append("; }");
             pts.put(fn, ft);
         }
@@ -101,7 +118,8 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
         for (Method m : methods) {
             // ignore Object's method
             // ignore EnhanceInstance's method
-            if (m.getDeclaringClass() == Object.class || "getSkyWalkingDynamicField".equals(m.getName()) || "setSkyWalkingDynamicField".equals(m.getName())) {
+            if (m.getDeclaringClass() == Object.class || "getSkyWalkingDynamicField".equals(m.getName()) || "setSkyWalkingDynamicField"
+                .equals(m.getName())) {
                 continue;
             }
 
@@ -112,7 +130,7 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
 
             boolean override = false;
             for (Method m2 : methods) {
-                if (m != m2 && m.getName().equals(m2.getName())) {
+                if (!m.equals(m2) && m.getName().equals(m2.getName())) {
                     override = true;
                     break;
                 }
@@ -120,8 +138,12 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             if (override) {
                 if (len > 0) {
                     for (int l = 0; l < len; l++) {
-                        c3.append(" && ").append(" $3[").append(l).append("].getName().equals(\"")
-                            .append(m.getParameterTypes()[l].getName()).append("\")");
+                        c3.append(" && ")
+                          .append(" $3[")
+                          .append(l)
+                          .append("].getName().equals(\"")
+                          .append(m.getParameterTypes()[l].getName())
+                          .append("\")");
                     }
                 }
             }
@@ -129,9 +151,18 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             c3.append(" ) { ");
 
             if (m.getReturnType() == Void.TYPE)
-                c3.append(" w.").append(mn).append('(').append(args(m.getParameterTypes(), "$4")).append(");").append(" return null;");
+                c3.append(" w.")
+                  .append(mn)
+                  .append('(')
+                  .append(args(m.getParameterTypes(), "$4"))
+                  .append(");")
+                  .append(" return null;");
             else
-                c3.append(" return ($w)w.").append(mn).append('(').append(args(m.getParameterTypes(), "$4")).append(");");
+                c3.append(" return ($w)w.")
+                  .append(mn)
+                  .append('(')
+                  .append(args(m.getParameterTypes(), "$4"))
+                  .append(");");
 
             c3.append(" }");
 
@@ -146,30 +177,47 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             c3.append(" }");
         }
 
-        c3.append(" throw new " + NoSuchMethodException.class.getName() + "(\"Not found method \\\"\"+$2+\"\\\" in class " + c.getName() + ".\"); }");
+        c3.append(" throw new " + NoSuchMethodException.class.getName() + "(\"Not found method \\\"\"+$2+\"\\\" in class " + c
+            .getName() + ".\"); }");
 
         // deal with get/set method.
         Matcher matcher;
         for (Map.Entry<String, Method> entry : ms.entrySet()) {
             String md = entry.getKey();
-            Method method = (Method)entry.getValue();
+            Method method = (Method) entry.getValue();
             if ((matcher = ReflectUtils.GETTER_METHOD_DESC_PATTERN.matcher(md)).matches()) {
                 String pn = propertyName(matcher.group(1));
-                c2.append(" if( $2.equals(\"").append(pn).append("\") ){ return ($w)w.").append(method.getName()).append("(); }");
+                c2.append(" if( $2.equals(\"")
+                  .append(pn)
+                  .append("\") ){ return ($w)w.")
+                  .append(method.getName())
+                  .append("(); }");
                 pts.put(pn, method.getReturnType());
             } else if ((matcher = ReflectUtils.IS_HAS_CAN_METHOD_DESC_PATTERN.matcher(md)).matches()) {
                 String pn = propertyName(matcher.group(1));
-                c2.append(" if( $2.equals(\"").append(pn).append("\") ){ return ($w)w.").append(method.getName()).append("(); }");
+                c2.append(" if( $2.equals(\"")
+                  .append(pn)
+                  .append("\") ){ return ($w)w.")
+                  .append(method.getName())
+                  .append("(); }");
                 pts.put(pn, method.getReturnType());
             } else if ((matcher = ReflectUtils.SETTER_METHOD_DESC_PATTERN.matcher(md)).matches()) {
                 Class<?> pt = method.getParameterTypes()[0];
                 String pn = propertyName(matcher.group(1));
-                c1.append(" if( $2.equals(\"").append(pn).append("\") ){ w.").append(method.getName()).append("(").append(arg(pt, "$3")).append("); return; }");
+                c1.append(" if( $2.equals(\"")
+                  .append(pn)
+                  .append("\") ){ w.")
+                  .append(method.getName())
+                  .append("(")
+                  .append(arg(pt, "$3"))
+                  .append("); return; }");
                 pts.put(pn, pt);
             }
         }
-        c1.append(" throw new " + NoSuchPropertyException.class.getName() + "(\"Not found property \\\"\"+$2+\"\\\" filed or setter method in class " + c.getName() + ".\"); }");
-        c2.append(" throw new " + NoSuchPropertyException.class.getName() + "(\"Not found property \\\"\"+$2+\"\\\" filed or setter method in class " + c.getName() + ".\"); }");
+        c1.append(" throw new " + NoSuchPropertyException.class.getName() + "(\"Not found property \\\"\"+$2+\"\\\" filed or setter method in class " + c
+            .getName() + ".\"); }");
+        c2.append(" throw new " + NoSuchPropertyException.class.getName() + "(\"Not found property \\\"\"+$2+\"\\\" filed or setter method in class " + c
+            .getName() + ".\"); }");
 
         // make class
         long id = WRAPPER_CLASS_COUNTER.getAndIncrement();
@@ -204,7 +252,7 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             int ix = 0;
             for (Method m : ms.values())
                 wc.getField("mts" + ix++).set(null, m.getParameterTypes());
-            return (Wrapper)wc.newInstance();
+            return (Wrapper) wc.getDeclaredConstructor().newInstance();
         } catch (RuntimeException e) {
             throw e;
         } catch (Throwable e) {
@@ -239,7 +287,8 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             return false;
         }
         for (Method m : methods) {
-            if (m.getDeclaringClass() != Object.class && !"getSkyWalkingDynamicField".equals(m.getName()) && !"setSkyWalkingDynamicField".equals(m.getName())) {
+            if (m.getDeclaringClass() != Object.class && !"getSkyWalkingDynamicField".equals(m.getName()) && !"setSkyWalkingDynamicField"
+                .equals(m.getName())) {
                 return true;
             }
         }

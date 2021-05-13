@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.util;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
@@ -24,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 public class TraceSegmentRefHelper {
     public static String getPeerHost(TraceSegmentRef ref) {
         try {
-            return FieldGetter.getValue(ref, "peerHost");
+            return FieldGetter.getValue(ref, "addressUsedAtClient");
         } catch (Exception e) {
         }
 

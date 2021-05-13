@@ -16,25 +16,23 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.test.helper;
 
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 
 public class SegmentRefHelper {
     public static String getPeerHost(TraceSegmentRef ref) {
         try {
-            return FieldGetter.getValue(ref, "peerHost");
+            return FieldGetter.getValue(ref, "addressUsedAtClient");
         } catch (Exception e) {
         }
 
         return null;
     }
 
-    public static ID getTraceSegmentId(TraceSegmentRef ref) {
+    public static String getTraceSegmentId(TraceSegmentRef ref) {
         try {
-            return FieldGetter.getValue(ref, "traceSegmentId");
+            return FieldGetter.getValue(ref, "traceId");
         } catch (Exception e) {
         }
 
@@ -50,12 +48,12 @@ public class SegmentRefHelper {
         return -1;
     }
 
-    public static int getEntryServiceInstanceId(TraceSegmentRef ref) {
+    public static String getParentServiceInstance(TraceSegmentRef ref) {
         try {
-            return FieldGetter.getValue(ref, "entryServiceInstanceId");
+            return FieldGetter.getValue(ref, "parentServiceInstance");
         } catch (Exception e) {
         }
 
-        return -1;
+        return "Unknown";
     }
 }

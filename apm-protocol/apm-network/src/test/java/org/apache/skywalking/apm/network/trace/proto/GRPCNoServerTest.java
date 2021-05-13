@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.network.trace.proto;
 
 import io.grpc.ManagedChannel;
@@ -26,34 +25,33 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.junit.Assert;
-import org.apache.skywalking.apm.network.language.agent.Downstream;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentServiceGrpc;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
-/**
- * @author wusheng
- */
 public class GRPCNoServerTest {
     public static void main(String[] args) throws InterruptedException {
-        ManagedChannelBuilder<?> channelBuilder =
-            NettyChannelBuilder.forAddress("127.0.0.1", 8080)
-                .nameResolverFactory(new DnsNameResolverProvider())
-                .maxInboundMessageSize(1024 * 1024 * 50)
-                .usePlaintext(true);
+        ManagedChannelBuilder<?> channelBuilder = NettyChannelBuilder.forAddress("127.0.0.1", 8080)
+                                                                     .nameResolverFactory(new DnsNameResolverProvider())
+                                                                     .maxInboundMessageSize(1024 * 1024 * 50)
+                                                                     .usePlaintext();
         ManagedChannel channel = channelBuilder.build();
-        TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub = TraceSegmentServiceGrpc.newStub(channel);
+        TraceSegmentReportServiceGrpc.TraceSegmentReportServiceStub serviceStub = TraceSegmentReportServiceGrpc.newStub(channel);
         final Status[] status = {null};
-        StreamObserver<UpstreamSegment> streamObserver = serviceStub.collect(new StreamObserver<Downstream>() {
-            @Override public void onNext(Downstream value) {
+        StreamObserver<SegmentObject> streamObserver = serviceStub.collect(new StreamObserver<Commands>() {
+            @Override
+            public void onNext(Commands value) {
 
             }
 
-            @Override public void onError(Throwable t) {
-                status[0] = ((StatusRuntimeException)t).getStatus();
+            @Override
+            public void onError(Throwable t) {
+                status[0] = ((StatusRuntimeException) t).getStatus();
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
 
             }
         });

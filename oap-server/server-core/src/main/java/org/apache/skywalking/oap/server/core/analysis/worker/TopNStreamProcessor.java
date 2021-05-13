@@ -18,56 +18,81 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * TopN is a special process, which hold a certain size of windows, and cache all top N records, save to the persistence
  * in low frequency.
- *
- * @author wusheng
  */
 public class TopNStreamProcessor implements StreamProcessor<TopN> {
 
     private static final TopNStreamProcessor PROCESSOR = new TopNStreamProcessor();
 
-    @Getter private List<TopNWorker> persistentWorkers = new ArrayList<>();
+    @Getter
+    private List<TopNWorker> persistentWorkers = new ArrayList<>();
     private Map<Class<? extends Record>, TopNWorker> workers = new HashMap<>();
+    @Setter
+    @Getter
+    private int topNWorkerReportCycle = 10;
+    @Setter
+    @Getter
+    private int topSize = 50;
 
     public static TopNStreamProcessor getInstance() {
         return PROCESSOR;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends TopN> topNClass) {
-        if (DisableRegister.INSTANCE.include(stream.name())) {
-            return;
-        }
+    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends TopN> topNClass) throws StorageException {
+        final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
+                                                                              .provider()
+                                                                              .getService(StorageBuilderFactory.class);
+        final Class<? extends StorageBuilder> builder = storageBuilderFactory.builderOf(topNClass, stream.builder());
 
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRecordDAO recordDAO;
         try {
-            recordDAO = storageDAO.newRecordDao(stream.builder().newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " top n record DAO failure.", e);
+            recordDAO = storageDAO.newRecordDao(builder.getDeclaredConstructor().newInstance());
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            throw new UnexpectedException(
+                "Create " + stream.builder().getSimpleName() + " top n record DAO failure.", e);
         }
 
-        IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        Model model = modelSetter.putIfAbsent(topNClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second), true);
+        ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
+        Model model = modelSetter.add(
+            topNClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Second), true);
 
-        TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, model, 50, recordDAO);
+        TopNWorker persistentWorker = new TopNWorker(
+            moduleDefineHolder, model, topSize, topNWorkerReportCycle * 60 * 1000L, recordDAO);
         persistentWorkers.add(persistentWorker);
         workers.put(topNClass, persistentWorker);
     }
 
+    @Override
     public void in(TopN topN) {
         TopNWorker worker = workers.get(topN.getClass());
         if (worker != null) {

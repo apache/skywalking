@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc.define;
 
 import com.dangdang.ddframe.rdb.sharding.constant.SQLType;
@@ -31,16 +30,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link ExecuteInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine#execute(SQLType, Collection, List, ExecuteCallback)}
- * ,creating a local span that records the overall execution of sql
- * 
- * @author gaohongtao
+ * {@link ExecuteInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine#execute(SQLType,
+ * Collection, List, ExecuteCallback)} ,creating a local span that records the overall execution of sql
  */
 public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SQLType sqlType = (SQLType)allArguments[0];
+        SQLType sqlType = (SQLType) allArguments[0];
         ContextManager.createLocalSpan("/SJDBC/TRUNK/" + sqlType.name()).setComponent(ComponentsDefine.SHARDING_JDBC);
     }
 
@@ -51,8 +48,9 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

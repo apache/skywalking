@@ -47,9 +47,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * @author chenpengfei
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class ForwardInterceptorTest {
@@ -80,8 +77,14 @@ public class ForwardInterceptorTest {
     public void setUp() throws Exception {
         forwardInterceptor = new ForwardInterceptor();
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("http://localhost:8080/test/testRequestURL");
-        arguments = new Object[]{request, response};
-        argumentType = new Class[]{request.getClass(), response.getClass()};
+        arguments = new Object[] {
+            request,
+            response
+        };
+        argumentType = new Class[] {
+            request.getClass(),
+            response.getClass()
+        };
     }
 
     @Test
@@ -98,6 +101,7 @@ public class ForwardInterceptorTest {
         assertThat(logs.get(0).getKey(), is("forward-url"));
         assertThat(logs.get(0).getValue(), is("http://localhost:8080/test/testRequestURL"));
 
-        assertThat(ContextManager.getRuntimeContext().get(Constants.FORWARD_REQUEST_FLAG), CoreMatchers.<Object>is(true));
+        assertThat(ContextManager.getRuntimeContext()
+                                 .get(Constants.FORWARD_REQUEST_FLAG), CoreMatchers.<Object>is(true));
     }
 }

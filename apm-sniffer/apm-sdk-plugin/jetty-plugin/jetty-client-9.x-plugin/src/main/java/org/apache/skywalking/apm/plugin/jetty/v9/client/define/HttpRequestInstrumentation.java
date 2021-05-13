@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v9.client.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -35,8 +34,6 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  * <code>org.eclipse.jetty.client.HttpRequest</code> by <code>org.apache.skywalking.apm.plugin.jetty.client.SyncHttpRequestSendInterceptor</code>
  * and enhance the <code>send</code> with <code>org.eclipse.jetty.client.api.Response$CompleteListener</code> parameter
  * by <code>org.apache.skywalking.apm.plugin.jetty.client.AsyncHttpRequestSendInterceptor</code>
- *
- * @author zhangxin
  */
 public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -44,34 +41,41 @@ public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePlugi
     private static final String ENHANCE_CLASS_NAME = "send";
     public static final String SYNC_SEND_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jetty.v9.client.SyncHttpRequestSendInterceptor";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 //sync call interceptor point
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_CLASS_NAME).and(takesArguments(0));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SYNC_SEND_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 
-    @Override protected String[] witnessClasses() {
+    @Override
+    protected String[] witnessClasses() {
         return new String[] {"org.eclipse.jetty.client.AbstractHttpClientTransport"};
     }
 }

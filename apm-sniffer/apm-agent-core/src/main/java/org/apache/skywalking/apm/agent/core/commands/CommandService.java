@@ -17,22 +17,22 @@
 
 package org.apache.skywalking.apm.agent.core.commands;
 
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.network.common.Command;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
-import org.apache.skywalking.apm.network.trace.component.command.CommandDeserializer;
-import org.apache.skywalking.apm.network.trace.component.command.UnsupportedCommandException;
-import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.network.common.v3.Command;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
+import org.apache.skywalking.apm.network.trace.component.command.CommandDeserializer;
+import org.apache.skywalking.apm.network.trace.component.command.UnsupportedCommandException;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 @DefaultImplementor
 public class CommandService implements BootService, Runnable {
@@ -40,8 +40,10 @@ public class CommandService implements BootService, Runnable {
     private static final ILog LOGGER = LogManager.getLogger(CommandService.class);
 
     private volatile boolean isRunning = true;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private LinkedBlockingQueue<BaseCommand> commands = new LinkedBlockingQueue<BaseCommand>(64);
+    private ExecutorService executorService = Executors.newSingleThreadExecutor(
+        new DefaultNamedThreadFactory("CommandService")
+    );
+    private LinkedBlockingQueue<BaseCommand> commands = new LinkedBlockingQueue<>(64);
     private CommandSerialNumberCache serialNumberCache = new CommandSerialNumberCache();
 
     @Override
@@ -50,12 +52,9 @@ public class CommandService implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
-        executorService.submit(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-            @Override
-            public void handle(final Throwable t) {
-                LOGGER.error(t, "CommandService failed to execute commands");
-            }
-        }));
+        executorService.submit(
+            new RunnableWithExceptionProtection(this, t -> LOGGER.error(t, "CommandService failed to execute commands"))
+        );
     }
 
     @Override
@@ -94,7 +93,7 @@ public class CommandService implements BootService, Runnable {
     @Override
     public void shutdown() throws Throwable {
         isRunning = false;
-        commands.drainTo(new ArrayList<BaseCommand>());
+        commands.drainTo(new ArrayList<>());
         executorService.shutdown();
     }
 
@@ -111,8 +110,10 @@ public class CommandService implements BootService, Runnable {
                 boolean success = this.commands.offer(baseCommand);
 
                 if (!success && LOGGER.isWarnEnable()) {
-                    LOGGER.warn("Command[{}, {}] cannot add to command list. because the command list is full.",
-                        baseCommand.getCommand(), baseCommand.getSerialNumber());
+                    LOGGER.warn(
+                        "Command[{}, {}] cannot add to command list. because the command list is full.",
+                        baseCommand.getCommand(), baseCommand.getSerialNumber()
+                    );
                 }
             } catch (UnsupportedCommandException e) {
                 if (LOGGER.isWarnEnable()) {

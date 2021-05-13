@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-test-tools</artifactId>
@@ -46,6 +46,11 @@
             <artifactId>apm-agent-core</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

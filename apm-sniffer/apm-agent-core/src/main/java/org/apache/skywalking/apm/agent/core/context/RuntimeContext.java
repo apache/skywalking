@@ -25,16 +25,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.agent.core.conf.RuntimeContextConfiguration;
 
 /**
- * RuntimeContext is alive during the tracing context.
- * It will not be serialized to the collector, and always stays in the same context only.
- *
+ * RuntimeContext is alive during the tracing context. It will not be serialized to the collector, and always stays in
+ * the same context only.
+ * <p>
  * In most cases, it means it only stays in a single thread for context propagation.
- *
- * @author wusheng, ascrutae
  */
 public class RuntimeContext {
     private final ThreadLocal<RuntimeContext> contextThreadLocal;
-    private Map context = new ConcurrentHashMap(0);
+    private Map<Object, Object> context = new ConcurrentHashMap<>(0);
 
     public RuntimeContext(ThreadLocal<RuntimeContext> contextThreadLocal) {
         this.contextThreadLocal = contextThreadLocal;
@@ -48,8 +46,9 @@ public class RuntimeContext {
         return context.get(key);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T get(Object key, Class<T> type) {
-        return (T)context.get(key);
+        return (T) context.get(key);
     }
 
     public void remove(Object key) {
@@ -61,7 +60,7 @@ public class RuntimeContext {
     }
 
     public RuntimeContextSnapshot capture() {
-        Map runtimeContextMap = new HashMap();
+        Map<Object, Object> runtimeContextMap = new HashMap<>();
         for (String key : RuntimeContextConfiguration.NEED_PROPAGATE_CONTEXT_KEY) {
             Object value = this.get(key);
             if (value != null) {
@@ -73,9 +72,9 @@ public class RuntimeContext {
     }
 
     public void accept(RuntimeContextSnapshot snapshot) {
-        Iterator<Map.Entry> iterator = snapshot.iterator();
+        Iterator<Map.Entry<Object, Object>> iterator = snapshot.iterator();
         while (iterator.hasNext()) {
-            Map.Entry runtimeContextItem = iterator.next();
+            Map.Entry<Object, Object> runtimeContextItem = iterator.next();
             ContextManager.getRuntimeContext().put(runtimeContextItem.getKey(), runtimeContextItem.getValue());
         }
     }

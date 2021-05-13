@@ -20,11 +20,14 @@ package org.apache.skywalking.apm.plugin.httpClient.v4;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -35,17 +38,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.httpclient.HttpClientPluginConfig;
+import org.apache.skywalking.apm.util.StringUtil;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                       Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
         if (allArguments[0] == null || allArguments[1] == null) {
             // illegal args, can't trace. ignore.
             return;
         }
-        final HttpHost httpHost = (HttpHost)allArguments[0];
-        HttpRequest httpRequest = (HttpRequest)allArguments[1];
+        final HttpHost httpHost = (HttpHost) allArguments[0];
+        HttpRequest httpRequest = (HttpRequest) allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         String remotePeer = httpHost.getHostName() + ":" + port(httpHost);
@@ -56,7 +62,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
-        Tags.URL.set(span, buildSpanValue(httpHost,uri));
+        Tags.URL.set(span, buildSpanValue(httpHost, uri));
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
@@ -65,16 +71,20 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             next = next.next();
             httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
         }
+        if (HttpClientPluginConfig.Plugin.HttpClient.COLLECT_HTTP_PARAMS) {
+            collectHttpParam(httpRequest, span);
+        }
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
         if (allArguments[0] == null || allArguments[1] == null) {
             return ret;
         }
 
         if (ret != null) {
-            HttpResponse response = (HttpResponse)ret;
+            HttpResponse response = (HttpResponse) ret;
             StatusLine responseStatusLine = response.getStatusLine();
             if (responseStatusLine != null) {
                 int statusCode = responseStatusLine.getStatusCode();
@@ -83,6 +93,11 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
                     span.errorOccurred();
                     Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
                 }
+                HttpRequest httpRequest = (HttpRequest) allArguments[1];
+                // Active HTTP parameter collection automatically in the profiling context.
+                if (!HttpClientPluginConfig.Plugin.HttpClient.COLLECT_HTTP_PARAMS && span.isProfiling()) {
+                    collectHttpParam(httpRequest, span);
+                }
             }
         }
 
@@ -90,10 +105,10 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                                Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
         activeSpan.log(t);
     }
 
@@ -129,5 +144,18 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     private int port(HttpHost httpHost) {
         int port = httpHost.getPort();
         return port > 0 ? port : "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80;
+    }
+
+    private void collectHttpParam(HttpRequest httpRequest, AbstractSpan span) {
+        if (httpRequest instanceof HttpUriRequest) {
+            URI uri = ((HttpUriRequest) httpRequest).getURI();
+            String tagValue = uri.getQuery();
+            if (StringUtil.isNotEmpty(tagValue)) {
+                tagValue = HttpClientPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
+                        StringUtil.cut(tagValue, HttpClientPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) :
+                        tagValue;
+                Tags.HTTP.PARAMS.set(span, tagValue);
+            }
+        }
     }
 }

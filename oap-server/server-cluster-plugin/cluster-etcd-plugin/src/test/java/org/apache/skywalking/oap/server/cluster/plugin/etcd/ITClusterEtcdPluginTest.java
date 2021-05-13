@@ -18,25 +18,26 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
-import com.google.gson.Gson;
 import java.net.URI;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
-/**
- * @author Alan Lau
- */
 public class ITClusterEtcdPluginTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ITClusterEtcdPluginTest.class);
@@ -45,9 +46,9 @@ public class ITClusterEtcdPluginTest {
 
     private EtcdClient client;
 
-    private EtcdCoordinator coordinator;
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
-    private Gson gson = new Gson();
+    private EtcdCoordinator coordinator;
 
     private Address remoteAddress = new Address("10.0.0.1", 1000, false);
     private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
@@ -65,7 +66,10 @@ public class ITClusterEtcdPluginTest {
         etcdConfig = new ClusterModuleEtcdConfig();
         etcdConfig.setServiceName(SERVICE_NAME);
         client = new EtcdClient(URI.create(baseUrl));
-        coordinator = new EtcdCoordinator(etcdConfig, client);
+        doNothing().when(healthChecker).health();
+        ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
+        coordinator = new EtcdCoordinator(manager, etcdConfig, client);
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @After
@@ -141,7 +145,10 @@ public class ITClusterEtcdPluginTest {
 
     private EtcdEndpoint buildEndpoint(RemoteInstance instance) {
         Address address = instance.getAddress();
-        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().host(address.getHost()).port(address.getPort()).serviceName(SERVICE_NAME).build();
+        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().host(address.getHost())
+                                                          .port(address.getPort())
+                                                          .serviceName(SERVICE_NAME)
+                                                          .build();
         return endpoint;
     }
 

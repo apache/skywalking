@@ -18,27 +18,31 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
 import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 
 /**
- * Channels of Buffer It contains all buffer data which belongs to this channel. It supports several strategy when buffer
- * is full. The Default is BLOCKING <p> Created by wusheng on 2016/10/25.
+ * Channels of Buffer It contains all buffer data which belongs to this channel. It supports several strategy when
+ * buffer is full. The Default is BLOCKING <p> Created by wusheng on 2016/10/25.
  */
 public class Channels<T> {
-    private final Buffer<T>[] bufferChannels;
+    private final QueueBuffer<T>[] bufferChannels;
     private IDataPartitioner<T> dataPartitioner;
-    private BufferStrategy strategy;
+    private final BufferStrategy strategy;
     private final long size;
 
     public Channels(int channelSize, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
         this.dataPartitioner = partitioner;
         this.strategy = strategy;
-        bufferChannels = new Buffer[channelSize];
+        bufferChannels = new QueueBuffer[channelSize];
         for (int i = 0; i < channelSize; i++) {
-            bufferChannels[i] = new Buffer<T>(bufferSize, strategy);
+            if (BufferStrategy.BLOCKING.equals(strategy)) {
+                bufferChannels[i] = new ArrayBlockingQueueBuffer<>(bufferSize, strategy);
+            } else {
+                bufferChannels[i] = new Buffer<>(bufferSize, strategy);
+            }
         }
-        size = channelSize * bufferSize;
+        // noinspection PointlessArithmeticExpression
+        size = 1L * channelSize * bufferSize; // it's not pointless, it prevents numeric overflow before assigning an integer to a long
     }
 
     public boolean save(T data) {
@@ -65,19 +69,15 @@ public class Channels<T> {
     /**
      * override the strategy at runtime. Notice, this will override several channels one by one. So, when running
      * setStrategy, each channel may use different BufferStrategy
-     *
-     * @param strategy
      */
     public void setStrategy(BufferStrategy strategy) {
-        for (Buffer<T> buffer : bufferChannels) {
+        for (QueueBuffer<T> buffer : bufferChannels) {
             buffer.setStrategy(strategy);
         }
     }
 
     /**
      * get channelSize
-     *
-     * @return
      */
     public int getChannelSize() {
         return this.bufferChannels.length;
@@ -87,13 +87,7 @@ public class Channels<T> {
         return size;
     }
 
-    public Buffer<T> getBuffer(int index) {
+    public QueueBuffer<T> getBuffer(int index) {
         return this.bufferChannels[index];
-    }
-
-    public void addCallback(QueueBlockingCallback<T> callback) {
-        for (Buffer<T> channel : bufferChannels) {
-            channel.addCallback(callback);
-        }
     }
 }

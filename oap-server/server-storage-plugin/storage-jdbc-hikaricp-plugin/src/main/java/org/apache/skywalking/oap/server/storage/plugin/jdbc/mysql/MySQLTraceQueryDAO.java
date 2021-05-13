@@ -19,21 +19,25 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 
-/**
- * @author wusheng
- */
 public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
-    public MySQLTraceQueryDAO(JDBCHikariCPClient mysqlClient) {
-        super(mysqlClient);
+
+    public MySQLTraceQueryDAO(ModuleManager manager,
+                              JDBCHikariCPClient h2Client,
+                              final int maxSizeOfArrayColumn,
+                              final int numOfSearchableValuesPerTag) {
+        super(manager, h2Client, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
     }
 
-    @Override protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " ) AS TRACE";
+    @Override
+    protected String buildCountStatement(String sql) {
+        return "select count(1) total " + sql;
     }
 
-    @Override protected void buildLimit(StringBuilder sql, int from, int limit) {
+    @Override
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
         sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.resttemplate.sync;
 
 import java.lang.reflect.Method;
@@ -40,7 +39,7 @@ public class RestResponseInterceptor implements InstanceMethodsAroundInterceptor
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
 
-        ClientHttpResponse response = (ClientHttpResponse)allArguments[2];
+        ClientHttpResponse response = (ClientHttpResponse) allArguments[2];
         int statusCode = response.getStatusCode().value();
         AbstractSpan span = ContextManager.activeSpan();
         if (statusCode >= 400) {
@@ -50,8 +49,9 @@ public class RestResponseInterceptor implements InstanceMethodsAroundInterceptor
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

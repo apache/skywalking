@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4;
 
 import java.util.List;
@@ -66,13 +65,13 @@ public class OnExceptionInterceptorTest {
     @Before
     public void setUp() {
         exceptionInterceptor = new OnExceptionInterceptor();
-
-        enhanceInfo = new SendCallBackEnhanceInfo("test", contextSnapshot);
-        when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(enhanceInfo);
     }
 
     @Test
     public void testOnException() throws Throwable {
+        enhanceInfo = new SendCallBackEnhanceInfo("test", contextSnapshot);
+        when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(enhanceInfo);
+
         exceptionInterceptor.beforeMethod(enhancedInstance, null, new Object[] {new RuntimeException()}, null, null);
         exceptionInterceptor.afterMethod(enhancedInstance, null, new Object[] {new RuntimeException()}, null, null);
 
@@ -82,6 +81,22 @@ public class OnExceptionInterceptorTest {
         assertThat(spans.size(), is(1));
 
         AbstractTracingSpan exceptionSpan = spans.get(0);
+        SpanAssert.assertException(SpanHelper.getLogs(exceptionSpan).get(0), RuntimeException.class);
+        SpanAssert.assertOccurException(exceptionSpan, true);
+    }
+
+    @Test
+    public void testOnExceptionWithoutSkyWalkingDynamicField() throws Throwable {
+        exceptionInterceptor.beforeMethod(enhancedInstance, null, new Object[] {new RuntimeException()}, null, null);
+        exceptionInterceptor.afterMethod(enhancedInstance, null, new Object[] {new RuntimeException()}, null, null);
+
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+
+        AbstractTracingSpan exceptionSpan = spans.get(0);
+        assertThat(exceptionSpan.getOperationName(), is("RocketMQ/no_topic/Producer/Callback"));
         SpanAssert.assertException(SpanHelper.getLogs(exceptionSpan).get(0), RuntimeException.class);
         SpanAssert.assertOccurException(exceptionSpan, true);
     }

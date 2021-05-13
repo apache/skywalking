@@ -19,20 +19,24 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import com.google.protobuf.TextFormat;
-import io.envoyproxy.envoy.service.metrics.v2.*;
-import io.grpc.*;
+import io.envoyproxy.envoy.service.metrics.v2.MetricsServiceGrpc;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsMessage;
+import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsResponse;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Metrics;
-import java.io.*;
-import java.util.concurrent.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-/**
- * @author wusheng
- */
 public class MetricServiceGRPCHandlerTestMain {
 
     public static void main(String[] args) throws InterruptedException {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         MetricsServiceGrpc.MetricsServiceStub stub = MetricsServiceGrpc.newStub(channel);
 
@@ -53,15 +57,18 @@ public class MetricServiceGRPCHandlerTestMain {
     private static void send(
         final MetricsServiceGrpc.MetricsServiceStub stub) throws IOException, InterruptedException {
         StreamObserver<StreamMetricsMessage> messageStreamObserver = stub.streamMetrics(new StreamObserver<StreamMetricsResponse>() {
-            @Override public void onNext(StreamMetricsResponse response) {
+            @Override
+            public void onNext(StreamMetricsResponse response) {
 
             }
 
-            @Override public void onError(Throwable throwable) {
+            @Override
+            public void onError(Throwable throwable) {
 
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
 
             }
         });

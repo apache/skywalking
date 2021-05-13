@@ -24,14 +24,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
 
 /**
  * {@link CallableOrRunnableActivation} presents that skywalking intercepts all Class with annotation
  * "org.skywalking.apm.toolkit.trace.TraceCrossThread" and method named "call" or "run".
- *
- * @author carlvine500 lican
  */
 public class CallableOrRunnableActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -40,15 +40,19 @@ public class CallableOrRunnableActivation extends ClassInstanceMethodsEnhancePlu
     private static final String CALL_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableInvokeInterceptor";
     private static final String CALL_METHOD_NAME = "call";
     private static final String RUN_METHOD_NAME = "run";
+    private static final String GET_METHOD_NAME = "get";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return INIT_METHOD_INTERCEPTOR;
                 }
             }
@@ -59,23 +63,29 @@ public class CallableOrRunnableActivation extends ClassInstanceMethodsEnhancePlu
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return (named(CALL_METHOD_NAME).and(takesArguments(0)))
-                        .or(named(RUN_METHOD_NAME).and(takesArguments(0)));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(CALL_METHOD_NAME)
+                        .and(takesArguments(0))
+                        .or(named(RUN_METHOD_NAME).and(takesArguments(0)))
+                        .or(named(GET_METHOD_NAME).and(takesArguments(0)));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return CALL_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byClassAnnotationMatch(new String[] {ANNOTATION_NAME});
     }
 

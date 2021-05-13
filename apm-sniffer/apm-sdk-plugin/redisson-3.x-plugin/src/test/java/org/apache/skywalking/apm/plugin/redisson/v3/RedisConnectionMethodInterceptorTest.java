@@ -23,19 +23,17 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.redisson.v3.util.ClassUtil;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.redisson.config.Config;
 
-/**
- * @author zhaoyuguang
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class RedisConnectionMethodInterceptorTest {
@@ -46,9 +44,7 @@ public class RedisConnectionMethodInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    @Mock
     private MockInstance mockRedisClientInstance;
-    @Mock
     private MockInstance mockRedisConnectionInstance;
 
     private RedisConnectionMethodInterceptor interceptor;
@@ -67,7 +63,10 @@ public class RedisConnectionMethodInterceptorTest {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({
+        "rawtypes",
+        "unchecked"
+    })
     @Before
     public void setUp() throws Exception {
         mockRedisConnectionInstance = new MockInstance();
@@ -76,10 +75,20 @@ public class RedisConnectionMethodInterceptorTest {
         interceptor = new RedisConnectionMethodInterceptor();
     }
 
-
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.onConstruct(mockRedisConnectionInstance, new Object[]{mockRedisClientInstance});
-        MatcherAssert.assertThat((String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
+        interceptor.onConstruct(mockRedisConnectionInstance, new Object[] {mockRedisClientInstance});
+        MatcherAssert.assertThat(
+            (String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
+    }
+
+    @Test
+    public void testSingleServerMode() throws Throwable {
+        String redisAddress = "redis://127.0.0.1:6379";
+        Config config = new Config();
+        config.useSingleServer().setAddress(redisAddress);
+        Object singleServerConfig = ClassUtil.getObjectField(config, "singleServerConfig");
+        Object address = ClassUtil.getObjectField(singleServerConfig, "address");
+        MatcherAssert.assertThat("127.0.0.1:6379", Is.is(ConnectionManagerInterceptor.getPeer(address)));
     }
 }

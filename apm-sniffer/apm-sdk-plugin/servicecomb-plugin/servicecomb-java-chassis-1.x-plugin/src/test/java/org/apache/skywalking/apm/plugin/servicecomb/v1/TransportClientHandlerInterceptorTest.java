@@ -51,6 +51,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -90,7 +91,7 @@ public class TransportClientHandlerInterceptorTest {
         nextInterceptor = new TransportClientHandlerInterceptor();
         PowerMockito.mock(Invocation.class);
         when(operationMeta.getSchemaMeta()).thenReturn(schemaMeta);
-        when(endpoint.getAddress()).thenReturn("0.0.0.0:7777");
+        when(endpoint.toString()).thenReturn("/bmi");
         when(invocation.getEndpoint()).thenReturn(endpoint);
         when(invocation.getMicroserviceQualifiedName()).thenReturn("consumerTest");
         when(operationMeta.getOperationPath()).thenReturn("/bmi");
@@ -100,7 +101,7 @@ public class TransportClientHandlerInterceptorTest {
         when(invocation.getInvocationType()).thenReturn(InvocationType.CONSUMER);
         Config.Agent.SERVICE_NAME = "serviceComnTestCases-APP";
 
-        allArguments = new Object[] {invocation,};
+        allArguments = new Object[] {invocation};
         argumentsType = new Class[] {};
         swaggerArguments = new Class[] {};
     }
@@ -113,7 +114,7 @@ public class TransportClientHandlerInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertCombSpan(spans.get(0));
-        verify(invocation).getContext();
+        verify(invocation, times(3)).getContext();
     }
 
     private void assertCombSpan(AbstractTracingSpan span) {

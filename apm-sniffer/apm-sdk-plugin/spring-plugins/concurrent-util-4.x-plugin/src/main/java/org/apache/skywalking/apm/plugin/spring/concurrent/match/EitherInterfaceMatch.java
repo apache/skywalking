@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.concurrent.match;
 
 import net.bytebuddy.description.type.TypeDescription;
@@ -31,8 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 /**
  * {@link EitherInterfaceMatch} match the class inherited {@link #getMatchInterface() } and not inherited {@link
  * #getMutexInterface()}
- *
- * @author zhangxin
  */
 public abstract class EitherInterfaceMatch implements IndirectMatch {
 
@@ -46,8 +43,8 @@ public abstract class EitherInterfaceMatch implements IndirectMatch {
     @Override
     public ElementMatcher.Junction buildJunction() {
         return not(nameStartsWith(SPRING_PACKAGE_PREFIX)).
-            and(hasSuperType(named(getMatchInterface())))
-            .and(not(hasSuperType(named(getMutexInterface()))));
+                                                             and(hasSuperType(named(getMatchInterface())))
+                                                         .and(not(hasSuperType(named(getMutexInterface()))));
     }
 
     @Override

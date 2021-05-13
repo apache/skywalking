@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.opentracing.tracer;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,14 +29,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link SkywalkingTracerActivation} defines two interceptors to enhance the methods in
- * class <code>SkywalkingTracer</code>.
- *
- * 1. The <code>SkywalkingTracerInjectInterceptor</code>
- * interceptor enhance the <code>extract</code> method
- *
- * 2. The <code>SkywalkingTracerExtractInterceptor</code>
- * interceptor enhance the <code>inject</code> method
+ * {@link SkywalkingTracerActivation} defines two interceptors to enhance the methods in class
+ * <code>SkywalkingTracer</code>.
+ * <p>
+ * 1. The <code>SkywalkingTracerInjectInterceptor</code> interceptor enhance the <code>extract</code> method
+ * <p>
+ * 2. The <code>SkywalkingTracerExtractInterceptor</code> interceptor enhance the <code>inject</code> method
  **/
 public class SkywalkingTracerActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -45,39 +42,48 @@ public class SkywalkingTracerActivation extends ClassInstanceMethodsEnhancePlugi
     private static final String INJECT_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerInjectInterceptor";
     private static final String EXTRACT_INTERCEPTOR = "org.apache.skywalking.apm.toolkit.activation.opentracing.tracer.SkywalkingTracerExtractInterceptor";
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("inject");
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INJECT_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("extract");
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return EXTRACT_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

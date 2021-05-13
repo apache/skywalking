@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.http.sync;
 
 import java.lang.reflect.Method;

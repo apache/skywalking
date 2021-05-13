@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * @author kezhenxu94
- */
 public final class JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint implements InstanceMethodsInterceptPoint {
     @Override
     public ElementMatcher<MethodDescription> getMethodsMatcher() {

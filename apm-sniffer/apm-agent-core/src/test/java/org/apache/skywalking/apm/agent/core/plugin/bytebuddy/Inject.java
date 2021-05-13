@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import java.lang.annotation.Documented;
@@ -23,11 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author AI
- * 2019-08-15
- */
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD})
+@Target({
+    ElementType.METHOD,
+    ElementType.CONSTRUCTOR,
+    ElementType.FIELD
+})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Inject {

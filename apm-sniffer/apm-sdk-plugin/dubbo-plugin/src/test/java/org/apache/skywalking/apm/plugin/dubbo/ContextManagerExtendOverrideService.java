@@ -21,9 +21,6 @@ package org.apache.skywalking.apm.plugin.dubbo;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
 
-/**
- * @author wusheng
- */
 @OverrideImplementor(ContextManagerExtendService.class)
 public class ContextManagerExtendOverrideService extends ContextManagerExtendService {
 }

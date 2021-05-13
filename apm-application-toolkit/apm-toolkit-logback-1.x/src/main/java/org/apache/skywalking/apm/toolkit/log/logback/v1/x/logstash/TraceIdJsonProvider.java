@@ -20,28 +20,32 @@ package org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.fasterxml.jackson.core.JsonGenerator;
-import java.io.IOException;
-import java.util.Map;
 import net.logstash.logback.composite.AbstractFieldJsonProvider;
 import net.logstash.logback.composite.FieldNamesAware;
 import net.logstash.logback.composite.JsonWritingUtils;
 import net.logstash.logback.fieldnames.LogstashFieldNames;
 
-/**
- * @author wuxingye
- */
+import java.io.IOException;
+import java.util.Map;
+
 public class TraceIdJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> implements FieldNamesAware<LogstashFieldNames> {
 
     public static final String TRACING_ID = "TID";
 
     @Override
     public void writeTo(JsonGenerator generator, ILoggingEvent event) throws IOException {
-        Map<String, String> map = event.getLoggerContextVO().getPropertyMap();
-        JsonWritingUtils.writeStringField(generator, getFieldName(), map.get(TRACING_ID));
+        String tracingId = getTracingId(event);
+        JsonWritingUtils.writeStringField(generator, getFieldName(), tracingId);
     }
 
     @Override
     public void setFieldNames(LogstashFieldNames fieldNames) {
         setFieldName(TRACING_ID);
     }
+
+    public String getTracingId(ILoggingEvent event) {
+        Map<String, String> map = event.getLoggerContextVO().getPropertyMap();
+        return map.get(TRACING_ID);
+    }
+
 }

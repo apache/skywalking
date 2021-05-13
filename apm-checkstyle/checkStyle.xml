@@ -20,17 +20,29 @@
 <!DOCTYPE module PUBLIC
     "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
     "http://checkstyle.org/dtds/configuration_1_3.dtd">
-<!--Refer http://checkstyle.sourceforge.net/reports/google-java-style.html#s2.2-file-encoding -->
 <module name="Checker">
 
     <property name="localeLanguage" value="en"/>
 
-    <!--To configure the check to report on the first instance in each file-->
-    <module name="FileTabCharacter"/>
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="RegexpHeader">
+        <property name="headerFile" value="${checkstyle.header.file}"/>
+        <property name="multiLines" value="1, 2, 3, 18"/>
+    </module>
 
     <module name="RegexpSingleline">
         <property name="format" value="System\.out\.println"/>
         <property name="message" value="Prohibit invoking System.out.println in source code !"/>
+    </module>
+
+    <module name="RegexpSingleline">
+        <property name="format" value="^\s*\*\s*@author"/>
+        <property name="minimum" value="0"/>
+        <property name="maximum" value="0"/>
+        <property name="message" value="ASF project doesn't allow @author copyright."/>
     </module>
 
     <module name="RegexpSingleline">
@@ -45,10 +57,11 @@
 
     <module name="TreeWalker">
 
-        <module name="UnusedImports">
-            <property name="processJavadoc" value="true"/>
-        </module>
+        <module name="UnusedImports"/>
         <module name="RedundantImport"/>
+        <module name="AvoidStarImport"/>
+
+        <module name="NonEmptyAtclauseDescription"/>
 
         <!--Checks that classes that override equals() also override hashCode()-->
         <module name="EqualsHashCode"/>
@@ -66,7 +79,7 @@
         <!--Checks that long constants are defined with an upper ell-->
         <module name="UpperEll"/>
         <module name="ConstantName">
-            <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)|(^logger)"/>
+            <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
         <!--Checks that local, non-final variable names conform to producerGroup format specified by the format property-->
         <module name="LocalVariableName"/>
@@ -82,7 +95,9 @@
         <module name="MethodTypeParameterName">
             <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
-        <module name="PackageName"/>
+        <module name="PackageName">
+            <property name="format" value="^(org|test)\.apache\.skywalking(\.[a-zA-Z][a-zA-Z0-9]*)+$"/>
+        </module>
         <module name="ParameterName"/>
         <module name="StaticVariableName">
             <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
@@ -90,35 +105,29 @@
         <module name="TypeName">
             <property name="format" value="(^[A-Z][a-zA-Z0-9]*$)|(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
+        <module name="MissingOverride"/>
 
         <!--whitespace-->
         <module name="GenericWhitespace"/>
-        <module name="NoWhitespaceBefore"/>
-        <module name="NoWhitespaceAfter"/>
-        <module name="WhitespaceAround">
-            <property name="allowEmptyConstructors" value="true"/>
-            <property name="allowEmptyMethods" value="true"/>
-        </module>
-        <module name="Indentation"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
         <module name="MethodParamPad"/>
         <module name="ParenPad"/>
         <module name="TypecastParenPad"/>
-        <module name="TypecastParenPad"/>
-
-        <module name="ImportControl">
-            <property name="file" value="apm-checkstyle/importControl.xml" />
-            <property name="path" value="apm-sniffer/(apm-sdk-plugin|bootstrap-plugins|optional-plugins)/.+/src/main/.+Instrumentation.java$" />
+        <module name="EmptyLineSeparator">
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="allowMultipleEmptyLines" value="false"/>
+            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
         </module>
 
         <module name="ImportControl">
-            <property name="file" value="apm-checkstyle/importControl.xml" />
-            <property name="path" value="apm-sniffer/apm-toolkit-activation/.+/src/main/.+Activation.java$" />
+            <property name="file" value="${import.control}"/>
+            <property name="path" value="apm-sniffer/(apm-sdk-plugin|bootstrap-plugins|optional-plugins)/.+/src/main/.+Instrumentation.java$"/>
+        </module>
+
+        <module name="ImportControl">
+            <property name="file" value="${import.control}"/>
+            <property name="path" value="apm-sniffer/apm-toolkit-activation/.+/src/main/.+Activation.java$"/>
         </module>
     </module>
-
-    <module name="RegexpHeader">
-        <property name="headerFile" value="${checkstyle.header.file}"/>
-        <property name="multiLines" value="1, 2, 3, 18"/>
-    </module>
-
 </module>

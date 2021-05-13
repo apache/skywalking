@@ -33,8 +33,6 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 
 /**
  * etcd Provider.
- *
- * @author Alan Lau
  */
 public class ClusterModuleEtcdProvider extends ModuleProvider {
 
@@ -47,38 +45,42 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
         this.config = new ClusterModuleEtcdConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "etcd";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return ClusterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         List<URI> uris = EtcdUtils.parse(config);
-
         //TODO check isSSL
         client = new EtcdClient(uris.toArray(new URI[] {}));
-        EtcdCoordinator coordinator = new EtcdCoordinator(config, client);
+        EtcdCoordinator coordinator = new EtcdCoordinator(getManager(), config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
-    @Override public void start() throws ServiceNotProvidedException {
+    @Override
+    public void start() throws ServiceNotProvidedException {
+    }
+
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
 
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
-    }
-
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
     }
 }

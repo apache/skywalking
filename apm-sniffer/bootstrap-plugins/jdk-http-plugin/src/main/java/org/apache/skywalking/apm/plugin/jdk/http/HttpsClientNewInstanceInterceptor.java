@@ -24,19 +24,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMet
 
 import java.lang.reflect.Method;
 
-/**
- * @author lican
- */
 public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInterceptor {
 
-
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         if (ret instanceof EnhancedInstance) {
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[6]);
         }
@@ -44,7 +42,8 @@ public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInt
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
 
     }
 }

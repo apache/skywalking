@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v2;
 
 import com.mongodb.AggregationOutput;
@@ -37,20 +36,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author liyuntao
- */
-
 public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final String DB_TYPE = "MongoDB";
 
     private static final String MONGO_DB_OP_PREFIX = "MongoDB/";
 
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
 
-        String remotePeer = (String)objInst.getSkyWalkingDynamicField();
+        String remotePeer = (String) objInst.getSkyWalkingDynamicField();
         String operation = method.getName();
         AbstractSpan span = ContextManager.createExitSpan(MONGO_DB_OP_PREFIX + operation, new ContextCarrier(), remotePeer);
         span.setComponent(ComponentsDefine.MONGO_DRIVER);
@@ -59,15 +55,16 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
 
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         CommandResult cresult = null;
         if (ret instanceof WriteResult) {
-            WriteResult wresult = (WriteResult)ret;
+            WriteResult wresult = (WriteResult) ret;
             cresult = wresult.getCachedLastError();
         } else if (ret instanceof AggregationOutput) {
-            AggregationOutput aresult = (AggregationOutput)ret;
+            AggregationOutput aresult = (AggregationOutput) ret;
             cresult = aresult.getCommandResult();
         }
         if (null != cresult && !cresult.ok()) {
@@ -77,21 +74,20 @@ public class MongoDBCollectionMethodInterceptor implements InstanceMethodsAround
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
         activeSpan.log(t);
     }
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        List<ServerAddress> servers = null;
-        DB db = (DB)allArguments[0];
-        servers = db.getMongo().getAllAddress();
+        DB db = (DB) allArguments[0];
+        List<ServerAddress> servers = db.getMongo().getAllAddress();
         StringBuilder peers = new StringBuilder();
         for (ServerAddress address : servers) {
-            peers.append(address.getHost() + ":" + address.getPort() + ";");
+            peers.append(address.getHost()).append(":").append(address.getPort()).append(";");
         }
 
         objInst.setSkyWalkingDynamicField(peers.subSequence(0, peers.length() - 1).toString());

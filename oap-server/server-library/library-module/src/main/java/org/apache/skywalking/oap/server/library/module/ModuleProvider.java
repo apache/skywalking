@@ -18,19 +18,20 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Setter;
 
 /**
  * The <code>ModuleProvider</code> is an implementation of a {@link ModuleDefine}.
- *
+ * <p>
  * And each moduleDefine can have one or more implementation, which depends on `application.yml`
- *
- * @author wu-sheng, peng-yongsheng
  */
 public abstract class ModuleProvider implements ModuleServiceHolder {
-    @Setter private ModuleManager manager;
-    @Setter private ModuleDefine moduleDefine;
+    @Setter
+    private ModuleManager manager;
+    @Setter
+    private ModuleDefine moduleDefine;
     private final Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     public ModuleProvider() {
@@ -51,7 +52,7 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
     public abstract Class<? extends ModuleDefine> module();
 
     /**
-     * @return ModuleConfig
+     *
      */
     public abstract ModuleConfig createConfigBeanIfAbsent();
 
@@ -76,9 +77,10 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
     public abstract String[] requiredModules();
 
     /**
-     * Register a implementation for the service of this moduleDefine provider.
+     * Register an implementation for the service of this moduleDefine provider.
      */
-    @Override public final void registerServiceImplementation(Class<? extends Service> serviceType,
+    @Override
+    public final void registerServiceImplementation(Class<? extends Service> serviceType,
         Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
             this.services.put(serviceType, service);
@@ -108,11 +110,12 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
         }
     }
 
-    @Override public @SuppressWarnings("unchecked") <T extends Service> T getService(
-        Class<T> serviceType) throws ServiceNotProvidedException {
+    @Override
+    public @SuppressWarnings("unchecked")
+    <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
         Service serviceImpl = services.get(serviceType);
         if (serviceImpl != null) {
-            return (T)serviceImpl;
+            return (T) serviceImpl;
         }
 
         throw new ServiceNotProvidedException("Service " + serviceType.getName() + " should not be provided, based on moduleDefine define.");

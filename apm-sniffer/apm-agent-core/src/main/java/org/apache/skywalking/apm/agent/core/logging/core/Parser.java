@@ -16,10 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.logging.core.coverts.LiteralConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.converters.LiteralConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.Map;
 
 /**
  * Parser of LogPattern. It is used to parse a pattern to the List of Converter.
- * @author alvin
  */
 public class Parser {
     private final Map<String, Class<? extends Converter>> convertMaps;
@@ -36,7 +34,6 @@ public class Parser {
         LITERAL_STATE, KEYWORD_STATE
     }
 
-
     public static final char ESCAPE_CHAR = '\\';
     public static final char PERCENT_CHAR = '%';
 
@@ -44,7 +41,6 @@ public class Parser {
     private final int patternLength;
     private int pointer = 0;
     private State state = State.LITERAL_STATE;
-
 
     public Parser(String pattern, Map<String, Class<? extends Converter>> convertMaps) {
         if (pattern == null || pattern.length() == 0) {
@@ -190,6 +186,5 @@ public class Parser {
             }
         }
     }
-
 
 }

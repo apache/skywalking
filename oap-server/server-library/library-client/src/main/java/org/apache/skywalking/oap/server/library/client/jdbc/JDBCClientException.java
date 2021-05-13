@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.library.client.jdbc;
 
 import java.io.IOException;
 
-/**
- * @author wusheng
- */
 public class JDBCClientException extends IOException {
 
     public JDBCClientException(String message) {

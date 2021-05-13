@@ -15,20 +15,17 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-
 /**
- * Return Type match.
- * Similar with {@link net.bytebuddy.matcher.ElementMatchers#returns},
- * the only different between them is this match use {@link String} to declare the type, instead of {@link Class}.
- * This can avoid the classloader risk.
+ * Return Type match. Similar with {@link net.bytebuddy.matcher.ElementMatchers#returns}, the only different between
+ * them is this match use {@link String} to declare the type, instead of {@link Class}. This can avoid the classloader
+ * risk.
  * <p>
- *
- * @author AI
  * 2019-08-15
  */
 public class ReturnTypeNameMatch implements ElementMatcher<MethodDescription> {
@@ -56,8 +53,8 @@ public class ReturnTypeNameMatch implements ElementMatcher<MethodDescription> {
     }
 
     /**
-     * The static method to create {@link ReturnTypeNameMatch}
-     * This is a delegate method to follow byte-buddy {@link ElementMatcher}'s code style.
+     * The static method to create {@link ReturnTypeNameMatch} This is a delegate method to follow byte-buddy {@link
+     * ElementMatcher}'s code style.
      *
      * @param returnTypeName target return type
      * @return new {@link ReturnTypeNameMatch} instance.

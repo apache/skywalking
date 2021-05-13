@@ -18,106 +18,115 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.fixture.PlainWatch;
-import org.apache.skywalking.oap.server.core.*;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodStatus;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.testing.module.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
+import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.api.support.membermodification.MemberModifier;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+@PrepareForTest({NamespacedPodListInformer.class})
 public class KubernetesCoordinatorTest {
 
     private KubernetesCoordinator coordinator;
+    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
-    @Test
-    public void assertAdded() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(2, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+    public static final String LOCAL_HOST = "127.0.0.1";
+    public static final Integer GRPC_PORT = 8454;
+    public static final Integer SELF_UID = 12345;
+
+    private Address selfAddress;
+    private NamespacedPodListInformer informer;
+
+    @Before
+    public void prepare() throws IllegalAccessException {
+        coordinator = new KubernetesCoordinator(getManager(), new ClusterModuleKubernetesConfig());
+        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
+        MemberModifier.field(KubernetesCoordinator.class, "uid").set(coordinator, String.valueOf(SELF_UID));
+        selfAddress = new Address(LOCAL_HOST, GRPC_PORT, true);
+        informer = PowerMockito.mock(NamespacedPodListInformer.class);
+        Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
+        doNothing().when(healthChecker).health();
     }
 
     @Test
-    public void assertModified() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "MODIFIED", "1", "10.0.0.3");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.3"));
+    public void queryRemoteNodesWhenInformerNotwork() throws Exception {
+        PowerMockito.doReturn(Optional.empty()).when(NamespacedPodListInformer.INFORMER).listPods();
+        List<RemoteInstance> remoteInstances = Whitebox.invokeMethod(coordinator, "queryRemoteNodes");
+        Assert.assertEquals(1, remoteInstances.size());
+        Assert.assertEquals(selfAddress, remoteInstances.get(0).getAddress());
+
     }
 
     @Test
-    public void assertDeleted() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "DELETED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(1));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+    public void queryRemoteNodesWhenInformerWork() throws Exception {
+        PowerMockito.doReturn(Optional.of(mockPodList())).when(NamespacedPodListInformer.INFORMER).listPods();
+        List<RemoteInstance> remoteInstances = Whitebox.invokeMethod(coordinator, "queryRemoteNodes");
+        Assert.assertEquals(5, remoteInstances.size());
+        List<RemoteInstance> self = remoteInstances.stream()
+                                                   .filter(item -> item.getAddress().isSelf())
+                                                   .collect(Collectors.toList());
+        List<RemoteInstance> others = remoteInstances.stream()
+                                                     .filter(item -> !item.getAddress().isSelf())
+                                                     .collect(Collectors.toList());
+
+        Assert.assertEquals(1, self.size());
+        Assert.assertEquals(4, others.size());
+
     }
 
-    @Test
-    public void assertError() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ERROR", "X", "10.0.0.2", "ADDED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
-    }
-
-    @Test
-    public void assertModifiedInReceiverRole() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "MODIFIED", "1", "10.0.0.3");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.3"));
-    }
-
-    @Test
-    public void assertDeletedInReceiverRole() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "DELETED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(1));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
-    }
-
-    @Test
-    public void assertErrorInReceiverRole() throws InterruptedException {
-        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ERROR", "X", "10.0.0.2", "ADDED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
-        coordinator.start();
-        watch.await();
-        assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
-    }
-
-    public ModuleDefineHolder getManager() {
+    private ModuleManagerTesting getManager() {
         ModuleManagerTesting moduleManagerTesting = new ModuleManagerTesting();
         ModuleDefineTesting coreModuleDefine = new ModuleDefineTesting();
         moduleManagerTesting.put(CoreModule.NAME, coreModuleDefine);
-        CoreModuleConfig config = Mockito.mock(CoreModuleConfig.class);
-        when(config.getGRPCHost()).thenReturn("127.0.0.1");
-        when(config.getGRPCPort()).thenReturn(8454);
+        CoreModuleConfig config = PowerMockito.mock(CoreModuleConfig.class);
+        when(config.getGRPCHost()).thenReturn(LOCAL_HOST);
+        when(config.getGRPCPort()).thenReturn(GRPC_PORT);
+        moduleManagerTesting.put(TelemetryModule.NAME, coreModuleDefine);
         coreModuleDefine.provider().registerServiceImplementation(ConfigService.class, new ConfigService(config));
+        coreModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
         return moduleManagerTesting;
+    }
+
+    private List<V1Pod> mockPodList() {
+        List<V1Pod> pods = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            V1Pod v1Pod = new V1Pod();
+            v1Pod.setMetadata(new V1ObjectMeta());
+            v1Pod.setStatus(new V1PodStatus());
+            v1Pod.getMetadata().setUid(String.valueOf(SELF_UID + i));
+            v1Pod.getStatus().setPodIP(LOCAL_HOST);
+            pods.add(v1Pod);
+        }
+        return pods;
     }
 }

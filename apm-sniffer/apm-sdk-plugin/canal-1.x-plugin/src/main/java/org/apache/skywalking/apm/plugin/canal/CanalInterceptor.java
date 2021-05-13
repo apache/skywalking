@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.plugin.canal;
 
 import com.alibaba.otter.canal.client.impl.SimpleCanalConnector;
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -30,28 +32,25 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-/**
- * @author withlin
- */
 public class CanalInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        CanalEnhanceInfo canalEnhanceInfo = (CanalEnhanceInfo)objInst.getSkyWalkingDynamicField();
+        CanalEnhanceInfo canalEnhanceInfo = (CanalEnhanceInfo) objInst.getSkyWalkingDynamicField();
         SimpleCanalConnector connector = (SimpleCanalConnector) objInst;
 
-        String  url = canalEnhanceInfo.getUrl();
-        if (url == "" || url == null) {
-            InetSocketAddress address = (InetSocketAddress)connector.getNextAddress();
+        String url = canalEnhanceInfo.getUrl();
+        if (Objects.equals(url, "") || url == null) {
+            InetSocketAddress address = (InetSocketAddress) connector.getNextAddress();
             String runningAddress = address.getAddress().toString() + ":" + address.getPort();
-            runningAddress = runningAddress.replace('/',' ');
+            runningAddress = runningAddress.replace('/', ' ');
             url = runningAddress;
-            List<InetSocketAddress> socketAddressList = (List<InetSocketAddress>)ContextManager.getRuntimeContext().get("currentAddress");
+            List<InetSocketAddress> socketAddressList = (List<InetSocketAddress>) ContextManager.getRuntimeContext()
+                                                                                                .get("currentAddress");
             if (socketAddressList != null && socketAddressList.size() > 0) {
                 for (InetSocketAddress socketAddress : socketAddressList) {
                     String currentAddress = socketAddress.getAddress().toString() + ":" + socketAddress.getPort();
-                    currentAddress = currentAddress.replace('/',' ');
+                    currentAddress = currentAddress.replace('/', ' ');
                     if (!currentAddress.equals(runningAddress)) {
                         url = url + "," + currentAddress;
                     }
@@ -60,16 +59,16 @@ public class CanalInterceptor implements InstanceMethodsAroundInterceptor {
         }
         String batchSize = allArguments[0].toString();
         String destination = canalEnhanceInfo.getDestination();
-        AbstractSpan activeSpan = ContextManager.createExitSpan("Canal/" + destination,url).start(System.currentTimeMillis());
+        AbstractSpan activeSpan = ContextManager.createExitSpan("Canal/" + destination, url)
+                                                .start(System.currentTimeMillis());
         activeSpan.setComponent(ComponentsDefine.CANAL);
-        activeSpan.tag("batchSize",batchSize);
-        activeSpan.tag("destination",destination);
+        activeSpan.tag(Tags.ofKey("batchSize"), batchSize);
+        activeSpan.tag(Tags.ofKey("destination"), destination);
 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
@@ -77,9 +76,8 @@ public class CanalInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method,
-        Object[] allArguments,
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 }

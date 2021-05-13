@@ -20,13 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import org.apache.skywalking.oap.server.core.Const;
 
-/**
- * @author peng-yongsheng
- */
 public enum MatchCNameBuilder {
     INSTANCE;
 
     public String build(String termCName) {
-        return termCName + Const.ID_SPLIT + "match";
+        return termCName + Const.ID_CONNECTOR + "match";
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spymemcached.v2;
 
 import java.net.InetSocketAddress;
@@ -49,7 +48,10 @@ public class MemcachedConstructorWithInetSocketAddressListArgInterceptorTest {
         List<InetSocketAddress> inetSocketAddressList = new ArrayList<InetSocketAddress>();
         inetSocketAddressList.add(new InetSocketAddress("127.0.0.1", 11211));
         inetSocketAddressList.add(new InetSocketAddress("127.0.0.2", 11211));
-        interceptor.onConstruct(enhancedInstance, new Object[] {null, inetSocketAddressList});
+        interceptor.onConstruct(enhancedInstance, new Object[] {
+            null,
+            inetSocketAddressList
+        });
 
         verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211");
     }

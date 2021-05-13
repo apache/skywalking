@@ -18,22 +18,46 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import java.lang.reflect.Type;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class ModelColumn {
     private final ColumnName columnName;
     private final Class<?> type;
+    private final Type genericType;
     private final boolean matchQuery;
-    private final boolean content;
+    private final boolean storageOnly;
+    private final int length;
+    private final Column.AnalyzerType analyzer;
 
-    public ModelColumn(ColumnName columnName, Class<?> type, boolean matchQuery, boolean content) {
+    public ModelColumn(ColumnName columnName,
+                       Class<?> type,
+                       Type genericType,
+                       boolean matchQuery,
+                       boolean storageOnly,
+                       boolean isValue,
+                       int length,
+                       Column.AnalyzerType analyzer) {
         this.columnName = columnName;
         this.type = type;
+        this.genericType = genericType;
         this.matchQuery = matchQuery;
-        this.content = content;
+        this.length = length;
+        this.analyzer = analyzer;
+        /*
+         * byte[] and {@link IntKeyLongValueHashMap} could never be query.
+         */
+        if (type.equals(byte[].class) || type.equals(DataTable.class)) {
+            this.storageOnly = true;
+        } else {
+            if (storageOnly && isValue) {
+                throw new IllegalArgumentException(
+                    "The column " + columnName + " can't be defined as both isValue and storageOnly.");
+            }
+            this.storageOnly = storageOnly;
+        }
     }
 }

@@ -1,0 +1,139 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: CI AND IT
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 18 * * *'  # TimeZone: UTC 0
+
+env:
+  MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
+  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
+
+jobs:
+  CI:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Check License Header
+        if: env.SKIP_CI != 'true'
+        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache local Maven repository
+        if: env.SKIP_CI != 'true'
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        if: env.SKIP_CI != 'true'
+        with:
+          java-version: 8
+      - name: 'Check Javaagent Plugin List'
+        if: env.SKIP_CI != 'true'
+        run: tools/plugin/check-javaagent-plugin-list.sh
+      - name: 'Install & Test'
+        if: env.SKIP_CI != 'true'
+        run: |
+          ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
+          bash <(curl -s https://codecov.io/bash)
+      - name: 'Check Dependencies Licenses'
+        if: env.SKIP_CI != 'true'
+        run: tools/dependencies/check-LICENSE.sh
+
+  CI-on-JDK11:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Check License Header
+        if: env.SKIP_CI != 'true'
+        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+      - name: Cache local Maven repository
+        if: env.SKIP_CI != 'true'
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        if: env.SKIP_CI != 'true'
+        with:
+          java-version: 11
+      - name: 'Install & Test'
+        if: env.SKIP_CI != 'true'
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+
+  CI-on-Windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - uses: actions/setup-java@v1
+        if: env.SKIP_CI != 'true'
+        with:
+          java-version: 8
+      - name: 'Install & Test'
+        if: env.SKIP_CI != 'true'
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+
+
+  CI-on-MacOS:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Cache local Maven repository
+        if: env.SKIP_CI != 'true'
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        if: env.SKIP_CI != 'true'
+        with:
+          java-version: 8
+      - name: 'Install & Test'
+        if: env.SKIP_CI != 'true'
+        run: |
+          # Given packaging on Mac has a high possibility to fail, we retry one more time here
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install || \
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install

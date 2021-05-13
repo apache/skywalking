@@ -15,9 +15,15 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.solrj;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -42,13 +48,6 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.params.UpdateParams;
 import org.apache.solr.common.util.NamedList;
-
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     private static final String DB_TYPE = "Solr";
@@ -100,21 +99,21 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                             deleteBy = ur.getDeleteQuery();
                         }
                         if (deleteBy == null) {
-                            deleteBy = new ArrayList<String>();
+                            deleteBy = new ArrayList<>();
                         }
                         String operator = getOperatorNameWithAction(collection, request.getPath(), actionName);
                         span = getSpan(operator, instance.getRemotePeer());
-                        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+                        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
                             span.tag(Tags.DB_STATEMENT, deleteBy.toString());
                         }
                     } else {
                         String operator = getOperatorNameWithAction(collection, request.getPath(), "ADD");
                         span = getSpan(operator, instance.getRemotePeer());
-                        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+                        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
                             span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
                         }
                     }
-                    if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+                    if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
                         span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(ur.getCommitWithin()));
                     }
                 } else {
@@ -124,11 +123,12 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 String operator = getOperatorNameWithAction(collection, request.getPath(), action.name());
                 AbstractSpan span = getSpan(operator, instance.getRemotePeer());
 
-                if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+                if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
                     if (action == AbstractUpdateRequest.ACTION.COMMIT) {
                         span.tag(SolrjTags.TAG_SOFT_COMMIT, params.get(UpdateParams.SOFT_COMMIT, ""));
                     } else {
-                        span.tag(SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1"));
+                        span.tag(
+                            SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1"));
                     }
                 }
             }
@@ -138,7 +138,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
             span.tag(SolrjTags.TAG_START, params.get(CommonParams.START, "0"));
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, request.getPath()));
 
-            if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+            if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
                 span.tag(Tags.DB_STATEMENT, toQueryString(params));
             }
         } else {
@@ -148,8 +148,8 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
         if (!ContextManager.isActive()) {
             return ret;
         }
@@ -173,7 +173,8 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         if (ContextManager.isActive()) {
             AbstractSpan span = ContextManager.activeSpan();
             int code = 500;
@@ -181,15 +182,15 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 code = ((SolrException) t).code();
             }
             span.tag(SolrjTags.TAG_STATUS, String.valueOf(code));
-            span.errorOccurred().log(t);
+            span.log(t);
         }
     }
 
     private static final AbstractSpan getSpan(String operatorName, String remotePeer) {
         return ContextManager.createExitSpan(operatorName, remotePeer)
-                .setComponent(ComponentsDefine.SOLRJ)
-                .setLayer(SpanLayer.DB)
-                .tag(Tags.DB_TYPE, DB_TYPE);
+                             .setComponent(ComponentsDefine.SOLRJ)
+                             .setLayer(SpanLayer.DB)
+                             .tag(Tags.DB_TYPE, DB_TYPE);
     }
 
     private static final String getOperatorNameWithAction(String collection, String path, String action) {
@@ -217,7 +218,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     private static final String toQueryString(SolrParams params) {
         final StringBuilder sb = new StringBuilder(128);
         boolean first = true;
-        for (final Iterator<String> it = params.getParameterNamesIterator(); it.hasNext();) {
+        for (final Iterator<String> it = params.getParameterNamesIterator(); it.hasNext(); ) {
             final String name = it.next();
             for (String val : params.getParams(name)) {
                 sb.append(first ? '?' : '&').append(name).append('=').append(val);

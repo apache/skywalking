@@ -20,18 +20,16 @@ package org.apache.skywalking.oap.server.library.util;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class TimestampUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(TimestampUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimestampUtils.class);
 
     public static void main(String[] args) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Timestamp timestamp = new Timestamp(1483200061001L);
-        logger.info("time: {}", format.format(timestamp));
+        LOGGER.info("time: {}", format.format(timestamp));
     }
 }

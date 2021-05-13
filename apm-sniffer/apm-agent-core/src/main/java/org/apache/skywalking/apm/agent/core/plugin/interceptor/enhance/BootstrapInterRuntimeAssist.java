@@ -25,8 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
 
 /**
  * This assist help all bootstrap class core interceptor.
- *
- * @author wusheng
  */
 public class BootstrapInterRuntimeAssist {
     private static final String AGENT_CLASSLOADER_DEFAULT = "org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader";
@@ -44,7 +42,7 @@ public class BootstrapInterRuntimeAssist {
             Class<?> agentClassLoaderClass = Class.forName(AGENT_CLASSLOADER_DEFAULT, true, loader);
             Field defaultLoaderField = agentClassLoaderClass.getDeclaredField(DEFAULT_AGENT_CLASSLOADER_INSTANCE);
             defaultLoaderField.setAccessible(true);
-            ClassLoader defaultAgentClassLoader = (ClassLoader)defaultLoaderField.get(null);
+            ClassLoader defaultAgentClassLoader = (ClassLoader) defaultLoaderField.get(null);
 
             return defaultAgentClassLoader;
         } catch (Exception e) {
@@ -57,18 +55,17 @@ public class BootstrapInterRuntimeAssist {
         try {
             Class<?> logManagerClass = Class.forName(LOG_MANAGER_CLASS, true, defaultAgentClassLoader);
             Method getLogger = logManagerClass.getMethod(LOG_MANAGER_GET_LOGGER_METHOD, String.class);
-            return (IBootstrapLog)getLogger.invoke(null, interceptor + "_internal");
+            return (IBootstrapLog) getLogger.invoke(null, interceptor + "_internal");
         } catch (Exception e) {
             e.printStackTrace(OUT);
             return null;
         }
     }
 
-    public static <T> T createInterceptor(ClassLoader defaultAgentClassLoader,
-        String className, IBootstrapLog log) {
+    public static <T> T createInterceptor(ClassLoader defaultAgentClassLoader, String className, IBootstrapLog log) {
         try {
             Class<?> interceptor = Class.forName(className, true, defaultAgentClassLoader);
-            return (T)interceptor.newInstance();
+            return (T) interceptor.newInstance();
         } catch (Exception e) {
             log.error(e, "Interceptor[{}] not found", className);
         }

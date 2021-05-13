@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import java.lang.reflect.Method;
@@ -29,18 +28,16 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
- * The actual byte-buddy's interceptor to intercept class instance methods.
- * In this class, it provide a bridge between byte-buddy and sky-walking plugin.
- *
- * @author wusheng
+ * The actual byte-buddy's interceptor to intercept class instance methods. In this class, it provide a bridge between
+ * byte-buddy and sky-walking plugin.
  */
 public class StaticMethodsInterWithOverrideArgs {
-    private static final ILog logger = LogManager.getLogger(StaticMethodsInterWithOverrideArgs.class);
+    private static final ILog LOGGER = LogManager.getLogger(StaticMethodsInterWithOverrideArgs.class);
 
     /**
-     * A class full name, and instanceof {@link StaticMethodsAroundInterceptor}
-     * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
-     * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
+     * A class full name, and instanceof {@link StaticMethodsAroundInterceptor} This name should only stay in {@link
+     * String}, the real {@link Class} type will trigger classloader failure. If you want to know more, please check on
+     * books about Classloader or Classloader appointment mechanism.
      */
     private String staticMethodsAroundInterceptorClassName;
 
@@ -56,25 +53,25 @@ public class StaticMethodsInterWithOverrideArgs {
     /**
      * Intercept the target static method.
      *
-     * @param clazz target class
+     * @param clazz        target class
      * @param allArguments all method arguments
-     * @param method method description.
-     * @param zuper the origin call ref.
+     * @param method       method description.
+     * @param zuper        the origin call ref.
      * @return the return value of target static method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
-     * bug, if anything triggers this condition ).
+     *                   bug, if anything triggers this condition ).
      */
     @RuntimeType
     public Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method,
         @Morph OverrideCallable zuper) throws Throwable {
-        StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader
-            .load(staticMethodsAroundInterceptorClassName, clazz.getClassLoader());
+        StaticMethodsAroundInterceptor interceptor = InterceptorInstanceLoader.load(staticMethodsAroundInterceptorClassName, clazz
+            .getClassLoader());
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
             interceptor.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
-            logger.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
+            LOGGER.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
 
         Object ret = null;
@@ -88,14 +85,14 @@ public class StaticMethodsInterWithOverrideArgs {
             try {
                 interceptor.handleMethodException(clazz, method, allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
-                logger.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
+                LOGGER.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
             }
             throw t;
         } finally {
             try {
                 ret = interceptor.afterMethod(clazz, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
-                logger.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
+                LOGGER.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
             }
         }
         return ret;

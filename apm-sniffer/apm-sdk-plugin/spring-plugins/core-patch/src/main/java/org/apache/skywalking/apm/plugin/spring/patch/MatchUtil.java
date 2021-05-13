@@ -24,11 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author lican
- */
 public class MatchUtil {
-
 
     private static List<Method> METHODS = new ArrayList<Method>(2);
 
@@ -38,9 +34,9 @@ public class MatchUtil {
 
     static boolean isEnhancedMethod(Method targetMethod) {
         for (Method method : METHODS) {
-            if (method.getName().equals(targetMethod.getName())
-                    && method.getReturnType().equals(targetMethod.getReturnType())
-                    && equalParamTypes(method.getParameterTypes(), targetMethod.getParameterTypes())) {
+            if (method.getName().equals(targetMethod.getName()) && method.getReturnType()
+                                                                         .equals(targetMethod.getReturnType()) && equalParamTypes(method
+                .getParameterTypes(), targetMethod.getParameterTypes())) {
                 return true;
             }
         }

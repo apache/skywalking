@@ -1,0 +1,31 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FROM python:3.7
+
+ENV COMMIT_HASH=50388c55428d742d73d9733278f04173585de80d
+
+WORKDIR /app
+
+RUN git clone https://github.com/apache/skywalking-python.git $(pwd)
+
+RUN git reset --hard ${COMMIT_HASH} && git submodule update --init
+
+RUN make setup install
+RUN python3 -m pip install kafka-python
+
+ADD ./consumer.py /consumer.py
+ADD ./provider.py /provider.py
+ADD ./provider-kafka.py /provider-kafka.py

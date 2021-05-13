@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,22 +31,20 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ExecutorInstrumentation} presents that skywalking intercepts {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine}.
- * 
- * @author gaohongtao
  */
 public class ExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+
     private static final String ENHANCE_CLASS = "com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine";
-    
+
     private static final String EXECUTOR_ENGINE_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.ExecutorEngineConstructorInterceptor";
 
     private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.ExecuteInterceptor";
-    
+
     private static final String ASYNC_EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.AsyncExecuteInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return  new ConstructorInterceptPoint[] {
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -61,10 +58,10 @@ public class ExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDe
             }
         };
     }
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -99,7 +96,7 @@ public class ExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDe
             }
         };
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

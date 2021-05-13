@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
@@ -32,7 +31,10 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(value = {SnifferConfigInitializer.class, AgentPackagePath.class})
+@PrepareForTest(value = {
+    SnifferConfigInitializer.class,
+    AgentPackagePath.class
+})
 public class WriterFactoryTest {
 
     @Test
@@ -47,7 +49,6 @@ public class WriterFactoryTest {
         assertTrue(AgentPackagePath.isPathFound());
 
         IWriter logWriter = WriterFactory.getLogWriter();
-        PowerMockito.verifyStatic();
         assertTrue(logWriter instanceof SystemOutWriter);
     }
 
@@ -63,7 +64,6 @@ public class WriterFactoryTest {
         assertTrue(AgentPackagePath.isPathFound());
 
         IWriter logWriter = WriterFactory.getLogWriter();
-        PowerMockito.verifyStatic();
         assertTrue(logWriter instanceof FileWriter);
     }
 }

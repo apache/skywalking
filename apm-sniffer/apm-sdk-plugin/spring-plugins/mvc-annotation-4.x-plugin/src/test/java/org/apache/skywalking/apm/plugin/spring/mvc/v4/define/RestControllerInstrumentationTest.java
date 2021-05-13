@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -43,8 +42,8 @@ public class RestControllerInstrumentationTest {
 
     @Test
     public void testGetEnhanceAnnotations() throws Throwable {
-        Assert.assertArrayEquals(new String[] {restControllerInstrumentation.ENHANCE_ANNOTATION},
-            restControllerInstrumentation.getEnhanceAnnotations());
+        Assert.assertArrayEquals(new String[] {restControllerInstrumentation.ENHANCE_ANNOTATION}, restControllerInstrumentation
+            .getEnhanceAnnotations());
     }
 
     @Test

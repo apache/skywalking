@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.concurrent.match;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -24,8 +23,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 /**
  * {@link FailedCallbackMatch} match the class that inherited <code>org.springframework.util.concurrent.FailureCallback</code>
  * and not inherited <code>org.springframework.util.concurrent.SuccessCallback</code>
- *
- * @author zhangxin
  */
 public class FailedCallbackMatch extends EitherInterfaceMatch {
 
@@ -36,11 +33,13 @@ public class FailedCallbackMatch extends EitherInterfaceMatch {
 
     }
 
-    @Override public String getMatchInterface() {
+    @Override
+    public String getMatchInterface() {
         return MATCH_INTERFACE;
     }
 
-    @Override public String getMutexInterface() {
+    @Override
+    public String getMutexInterface() {
         return MUTEX_INTERFACE;
     }
 

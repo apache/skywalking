@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.storage;
 
 /**
  * Storage data with comparable capability.
- *
- * @author wusheng
  */
 public interface ComparableStorageData extends StorageData, Comparable {
 }

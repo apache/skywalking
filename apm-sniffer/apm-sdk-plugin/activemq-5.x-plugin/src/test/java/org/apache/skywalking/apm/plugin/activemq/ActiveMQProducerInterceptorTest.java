@@ -64,15 +64,11 @@ public class ActiveMQProducerInterceptorTest {
 
     private Class[] argumentType;
 
-
     private MQDestination mqDestination;
-
 
     private Message message;
 
-
-
-    private  class  MQDestination extends ActiveMQDestination {
+    private class MQDestination extends ActiveMQDestination {
 
         @Override
         protected String getQualifiedPrefix() {
@@ -90,7 +86,7 @@ public class ActiveMQProducerInterceptorTest {
         }
     }
 
-    public  class  Msg implements   Message {
+    public class Msg implements Message {
 
         @Override
         public String getJMSMessageID() throws JMSException {
@@ -329,14 +325,16 @@ public class ActiveMQProducerInterceptorTest {
         }
     };
 
-
     @Before
     public void setUp() {
         producerInterceptor = new ActiveMQProducerInterceptor();
         mqDestination = new MQDestination();
         mqDestination.setPhysicalName("test");
         message = new Msg();
-        arguments = new Object[] {mqDestination, message};
+        arguments = new Object[] {
+            mqDestination,
+            message
+        };
         argumentType = new Class[] {ActiveMQMessageProducer.class};
 
     }

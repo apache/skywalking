@@ -57,7 +57,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-@PrepareForTest({RpcInternalContext.class, SofaRequest.class, SofaResponse.class})
+@PrepareForTest({
+    RpcInternalContext.class,
+    SofaRequest.class,
+    SofaResponse.class
+})
 public class SofaRpcConsumerInterceptorTest {
 
     @SegmentStoragePoint
@@ -142,8 +146,7 @@ public class SofaRpcConsumerInterceptorTest {
         assertConsumerTraceSegmentInErrorCase(traceSegment);
     }
 
-    private void assertConsumerTraceSegmentInErrorCase(
-        TraceSegment traceSegment) {
+    private void assertConsumerTraceSegmentInErrorCase(TraceSegment traceSegment) {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
         assertConsumerSpan(spans.get(0));
@@ -169,7 +172,8 @@ public class SofaRpcConsumerInterceptorTest {
         assertThat(tags.size(), is(1));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.RPC_FRAMEWORK));
         assertThat(SpanHelper.getComponentId(span), is(43));
-        assertThat(tags.get(0).getValue(), is("bolt://127.0.0.1:12200/org.apache.skywalking.apm.test.TestSofaRpcService.test(String)"));
+        assertThat(tags.get(0)
+                       .getValue(), is("bolt://127.0.0.1:12200/org.apache.skywalking.apm.test.TestSofaRpcService.test(String)"));
         assertThat(span.getOperationName(), is("org.apache.skywalking.apm.test.TestSofaRpcService.test(String)"));
     }
 }

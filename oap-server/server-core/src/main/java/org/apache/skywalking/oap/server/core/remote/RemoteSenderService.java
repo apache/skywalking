@@ -18,16 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.remote.client.*;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.remote.selector.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.remote.selector.ForeverFirstSelector;
+import org.apache.skywalking.oap.server.core.remote.selector.HashCodeSelector;
+import org.apache.skywalking.oap.server.core.remote.selector.RollingSelector;
+import org.apache.skywalking.oap.server.core.remote.selector.Selector;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * RemoteSenderService represents a gRPC client to send metrics from one OAP node to another through network. It
+ * provides several routing mode to select target OAP node.
  */
 public class RemoteSenderService implements Service {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSenderService.class);
 
     private final ModuleManager moduleManager;
     private final HashCodeSelector hashCodeSelector;
@@ -41,23 +51,36 @@ public class RemoteSenderService implements Service {
         this.rollingSelector = new RollingSelector();
     }
 
+    /**
+     * Send data to the target based on the given selector
+     *
+     * @param nextWorkName points to the worker to process the data when {@link RemoteServiceHandler} received.
+     * @param streamData   data to be sent
+     * @param selector     strategy implementation to choose suitable OAP node.
+     */
     public void send(String nextWorkName, StreamData streamData, Selector selector) {
-        RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).provider().getService(RemoteClientManager.class);
+        RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(RemoteClientManager.class);
+        RemoteClient remoteClient = null;
 
-        RemoteClient remoteClient;
+        List<RemoteClient> clientList = clientManager.getRemoteClient();
+        if (clientList.size() == 0) {
+            LOGGER.warn(
+                "There is no available remote server for now, ignore the streaming data until the cluster metadata initialized.");
+            return;
+        }
         switch (selector) {
             case HashCode:
-                remoteClient = hashCodeSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkName, streamData);
+                remoteClient = hashCodeSelector.select(clientList, streamData);
                 break;
             case Rolling:
-                remoteClient = rollingSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkName, streamData);
+                remoteClient = rollingSelector.select(clientList, streamData);
                 break;
             case ForeverFirst:
-                remoteClient = foreverFirstSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkName, streamData);
+                remoteClient = foreverFirstSelector.select(clientList, streamData);
                 break;
         }
+        remoteClient.push(nextWorkName, streamData);
     }
 }

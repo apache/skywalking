@@ -28,14 +28,11 @@ import org.apache.skywalking.apm.plugin.undertow.v2x.handler.TracingHandler;
 
 import java.lang.reflect.Method;
 
-/**
- * @author chenpengfei
- * @author AI
- */
 public class RootHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         int handlerIndex = allArguments.length - 1;
         if (!(allArguments[handlerIndex] instanceof RoutingHandler)) {
             allArguments[handlerIndex] = new TracingHandler((HttpHandler) allArguments[handlerIndex]);
@@ -43,13 +40,15 @@ public class RootHandlerInterceptor implements InstanceMethodsAroundInterceptor 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 
 }

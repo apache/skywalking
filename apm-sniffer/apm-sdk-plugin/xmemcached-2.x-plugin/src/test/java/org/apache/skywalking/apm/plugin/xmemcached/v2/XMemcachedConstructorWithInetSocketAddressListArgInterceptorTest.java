@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
 import static org.mockito.Mockito.verify;
@@ -50,7 +49,7 @@ public class XMemcachedConstructorWithInetSocketAddressListArgInterceptorTest {
         List<InetSocketAddress> inetSocketAddressList = new ArrayList<InetSocketAddress>();
         inetSocketAddressList.add(new InetSocketAddress("127.0.0.1", 11211));
         inetSocketAddressList.add(new InetSocketAddress("127.0.0.2", 11211));
-        interceptor.onConstruct(enhancedInstance, new Object[]{inetSocketAddressList});
+        interceptor.onConstruct(enhancedInstance, new Object[] {inetSocketAddressList});
 
         verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211");
     }

@@ -20,23 +20,24 @@ package org.apache.skywalking.apm.plugin.dubbo;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 
-/**
- * @author wusheng
- */
 public class PluginBootService implements BootService {
-    @Override public void prepare() throws Throwable {
+    @Override
+    public void prepare() throws Throwable {
 
     }
 
-    @Override public void boot() throws Throwable {
+    @Override
+    public void boot() throws Throwable {
 
     }
 
-    @Override public void onComplete() throws Throwable {
+    @Override
+    public void onComplete() throws Throwable {
 
     }
 
-    @Override public void shutdown() throws Throwable {
+    @Override
+    public void shutdown() throws Throwable {
 
     }
 }

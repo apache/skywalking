@@ -16,47 +16,36 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.toolkit.trace.Trace;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
+
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 
 /**
  * {@link TraceAnnotationMethodInterceptor} create a local span and set the operation name which fetch from
- * <code>org.apache.skywalking.apm.toolkit.trace.annotation.Trace.operationName</code>. if the fetch value is blank string, and
- * the operation name will be the method name.
- *
- * @author zhangxin
+ * <code>org.apache.skywalking.apm.toolkit.trace.annotation.Trace.operationName</code>. if the fetch value is blank
+ * string, and the operation name will be the method name.
  */
-public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class TraceAnnotationMethodInterceptor extends BaseTraceAnnotationInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        Trace trace = method.getAnnotation(Trace.class);
-        String operationName = trace.operationName();
-        if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
-            operationName = MethodUtil.generateOperationName(method);
-        }
-
-        ContextManager.createLocalSpan(operationName);
+                             MethodInterceptResult result) throws Throwable {
+        super.beforeMethod(method, allArguments);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        ContextManager.stopSpan();
+                              Object ret) throws Throwable {
+        super.afterMethod(method, ret);
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        super.handleMethodException(t);
     }
 }

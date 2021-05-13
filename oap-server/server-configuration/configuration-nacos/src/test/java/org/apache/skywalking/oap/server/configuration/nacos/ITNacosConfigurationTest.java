@@ -21,6 +21,10 @@ package org.apache.skywalking.oap.server.configuration.nacos;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -32,19 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author kezhenxu94
- */
 public class ITNacosConfigurationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ITNacosConfigurationTest.class);
 
@@ -60,10 +56,7 @@ public class ITNacosConfigurationTest {
         final ModuleManager moduleManager = new ModuleManager();
         moduleManager.init(applicationConfiguration);
 
-        provider =
-            (NacosConfigurationTestProvider) moduleManager
-                .find(NacosConfigurationTestModule.NAME)
-                .provider();
+        provider = (NacosConfigurationTestProvider) moduleManager.find(NacosConfigurationTestModule.NAME).provider();
 
         assertNotNull(provider);
     }
@@ -108,8 +101,7 @@ public class ITNacosConfigurationTest {
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> {
                                 properties.put(key, value);
-                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE
-                                    .replacePlaceholders(value + "", properties));
+                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
                                 if (replaceValue != null) {
                                     properties.replace(key, replaceValue);
                                 }

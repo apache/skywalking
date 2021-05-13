@@ -26,8 +26,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 /**
  * Get configuration from Zookeeper.
- *
- * @author zhaoyuguang
  */
 public class ZookeeperConfigurationProvider extends AbstractConfigurationProvider {
     private ZookeeperServerSettings settings;

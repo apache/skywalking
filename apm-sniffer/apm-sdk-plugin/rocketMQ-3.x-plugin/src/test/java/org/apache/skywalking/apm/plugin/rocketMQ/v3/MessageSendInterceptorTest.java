@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v3;
 
 import java.util.List;
@@ -80,17 +79,35 @@ public class MessageSendInterceptorTest {
     public void setUp() {
         messageSendInterceptor = new MessageSendInterceptor();
         enhancedInstance = new EnhancedInstance() {
-            @Override public Object getSkyWalkingDynamicField() {
+            @Override
+            public Object getSkyWalkingDynamicField() {
                 return "127.0.0.1:6543";
             }
 
-            @Override public void setSkyWalkingDynamicField(Object value) {
+            @Override
+            public void setSkyWalkingDynamicField(Object value) {
 
             }
         };
 
-        arguments = new Object[] {"127.0.0.1", "test", message, messageRequestHeader, null, CommunicationMode.ASYNC, callBack};
-        argumentsWithoutCallback = new Object[] {"127.0.0.1", "test", message, messageRequestHeader, null, CommunicationMode.ASYNC, null};
+        arguments = new Object[] {
+            "127.0.0.1",
+            "test",
+            message,
+            messageRequestHeader,
+            null,
+            CommunicationMode.ASYNC,
+            callBack
+        };
+        argumentsWithoutCallback = new Object[] {
+            "127.0.0.1",
+            "test",
+            message,
+            messageRequestHeader,
+            null,
+            CommunicationMode.ASYNC,
+            null
+        };
         when(messageRequestHeader.getProperties()).thenReturn("");
         when(message.getTags()).thenReturn("TagA");
     }

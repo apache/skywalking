@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
 import java.lang.reflect.Method;
@@ -31,17 +30,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link XMemcachedMethodInterceptor} intercept the operation method,
- * record the memcached host, operation name and the key of the operation.
- *  
- * @author IluckySi
+ * {@link XMemcachedMethodInterceptor} intercept the operation method, record the memcached host, operation name and the
+ * key of the operation.
  */
 public class XMemcachedMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String XMEMCACHED = "XMemcached/";
-    
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan(XMEMCACHED + method.getName(), peer);
         span.setComponent(ComponentsDefine.XMEMCACHED);
@@ -50,16 +48,17 @@ public class XMemcachedMethodInterceptor implements InstanceMethodsAroundInterce
         Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(t);
     }
 }

@@ -16,14 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import net.bytebuddy.matcher.ElementMatcher;
 
-/**
- * Created by wusheng on 16/7/31.
- */
 public abstract class AbstractJunction<V> implements ElementMatcher.Junction<V> {
     @Override
     public <U extends V> Junction<U> and(ElementMatcher<? super U> other) {

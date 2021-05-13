@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.h2;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -24,15 +23,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link JdbcXAConnectionConstructorInterceptor } store {@link ConnectionInfo}
- * when the client new instance of {@link org.h2.jdbcx.JdbcXAConnection}.
- *
- * @author zhangxin
+ * {@link JdbcXAConnectionConstructorInterceptor } store {@link ConnectionInfo} when the client new instance of {@link
+ * org.h2.jdbcx.JdbcXAConnection}.
  */
 public class JdbcXAConnectionConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        objInst.setSkyWalkingDynamicField(((EnhancedInstance)allArguments[2]).getSkyWalkingDynamicField());
+        objInst.setSkyWalkingDynamicField(((EnhancedInstance) allArguments[2]).getSkyWalkingDynamicField());
     }
 }

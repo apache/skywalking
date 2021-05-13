@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.opentracing;
 
-/**
- * @author wusheng
- */
 public class Tag {
     private String key;
     private String value;

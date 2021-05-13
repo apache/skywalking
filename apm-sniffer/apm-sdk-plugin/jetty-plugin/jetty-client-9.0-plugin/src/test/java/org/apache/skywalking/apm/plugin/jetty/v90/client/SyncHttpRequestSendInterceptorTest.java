@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v90.client;
 
 import java.net.URI;
@@ -69,8 +68,14 @@ public class SyncHttpRequestSendInterceptorTest {
     @Before
     public void setUp() throws Exception {
         enhancedInstance = new MockHttpRequest(httpClient, uri);
-        allArguments = new Object[] {"OperationKey", "OperationValue"};
-        argumentTypes = new Class[] {String.class, String.class};
+        allArguments = new Object[] {
+            "OperationKey",
+            "OperationValue"
+        };
+        argumentTypes = new Class[] {
+            String.class,
+            String.class
+        };
 
         interceptor = new SyncHttpRequestSendInterceptor();
         allArguments = new Object[] {callBackEnhanceInstance};
@@ -122,19 +127,23 @@ public class SyncHttpRequestSendInterceptorTest {
             super(httpClient, uri);
         }
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return null;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
 
-        @Override public HttpMethod getMethod() {
+        @Override
+        public HttpMethod getMethod() {
             return HttpMethod.GET;
         }
 
-        @Override public URI getURI() {
+        @Override
+        public URI getURI() {
             return uri;
         }
     }

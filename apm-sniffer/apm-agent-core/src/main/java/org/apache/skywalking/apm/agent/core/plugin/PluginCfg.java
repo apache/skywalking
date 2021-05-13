@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import org.apache.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
@@ -33,25 +32,27 @@ import java.util.List;
 public enum PluginCfg {
     INSTANCE;
 
-    private static final ILog logger = LogManager.getLogger(PluginCfg.class);
+    private static final ILog LOGGER = LogManager.getLogger(PluginCfg.class);
 
     private List<PluginDefine> pluginClassList = new ArrayList<PluginDefine>();
+    private PluginSelector pluginSelector = new PluginSelector();
 
     void load(InputStream input) throws IOException {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String pluginDefine = null;
+            String pluginDefine;
             while ((pluginDefine = reader.readLine()) != null) {
                 try {
-                    if (pluginDefine == null || pluginDefine.trim().length() == 0 || pluginDefine.startsWith("#")) {
+                    if (pluginDefine.trim().length() == 0 || pluginDefine.startsWith("#")) {
                         continue;
                     }
                     PluginDefine plugin = PluginDefine.build(pluginDefine);
                     pluginClassList.add(plugin);
                 } catch (IllegalPluginDefineException e) {
-                    logger.error(e, "Failed to format plugin({}) define.", pluginDefine);
+                    LOGGER.error(e, "Failed to format plugin({}) define.", pluginDefine);
                 }
             }
+            pluginClassList = pluginSelector.select(pluginClassList);
         } finally {
             input.close();
         }

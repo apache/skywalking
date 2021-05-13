@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.util;
 
-/**
- * @author wusheng
- */
 public class RunnableWithExceptionProtection implements Runnable {
     private Runnable run;
     private CallbackWhenException callback;

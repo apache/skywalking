@@ -18,40 +18,33 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
-import java.net.InetSocketAddress;
 import java.util.Objects;
-import org.apache.skywalking.oap.server.library.server.*;
-import org.eclipse.jetty.servlet.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.server.Server;
+import org.apache.skywalking.oap.server.library.server.ServerException;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletMapping;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, wusheng
- */
 public class JettyServer implements Server {
 
-    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JettyServer.class);
 
-    private final String host;
-    private final int port;
-    private final String contextPath;
-    private final int selectorNum;
     private org.eclipse.jetty.server.Server server;
     private ServletContextHandler servletContextHandler;
+    private JettyServerConfig jettyServerConfig;
 
-    public JettyServer(String host, int port, String contextPath) {
-        this(host, port, contextPath, -1);
-    }
-
-    public JettyServer(String host, int port, String contextPath, int selectorNum) {
-        this.host = host;
-        this.port = port;
-        this.contextPath = contextPath;
-        this.selectorNum = selectorNum;
+    public JettyServer(JettyServerConfig config) {
+        this.jettyServerConfig = config;
     }
 
     @Override
     public String hostPort() {
-        return host + ":" + port;
+        return jettyServerConfig.getHost() + ":" + jettyServerConfig.getPort();
     }
 
     @Override
@@ -61,17 +54,32 @@ public class JettyServer implements Server {
 
     @Override
     public void initialize() {
-        server = new org.eclipse.jetty.server.Server(new InetSocketAddress(host, port));
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        threadPool.setMinThreads(jettyServerConfig.getJettyMinThreads());
+        threadPool.setMaxThreads(jettyServerConfig.getJettyMaxThreads());
+
+        server = new org.eclipse.jetty.server.Server(threadPool);
+
+        ServerConnector connector = new ServerConnector(server);
+        connector.setHost(jettyServerConfig.getHost());
+        connector.setPort(jettyServerConfig.getPort());
+        connector.setIdleTimeout(jettyServerConfig.getJettyIdleTimeOut());
+        connector.setAcceptorPriorityDelta(jettyServerConfig.getJettyAcceptorPriorityDelta());
+        connector.setAcceptQueueSize(jettyServerConfig.getJettyAcceptQueueSize());
+        server.setConnectors(new Connector[] {connector});
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-        servletContextHandler.setContextPath(contextPath);
-        logger.info("http server root context path: {}", contextPath);
+        servletContextHandler.setContextPath(jettyServerConfig.getContextPath());
+        LOGGER.info("http server root context path: {}", jettyServerConfig.getContextPath());
 
         server.setHandler(servletContextHandler);
     }
 
     public void addHandler(JettyHandler handler) {
-        logger.info("Bind handler {} into jetty server {}:{}", handler.getClass().getSimpleName(), host, port);
+        LOGGER.info(
+            "Bind handler {} into jetty server {}:{}",
+            handler.getClass().getSimpleName(), jettyServerConfig.getHost(), jettyServerConfig.getPort()
+        );
 
         ServletHolder servletHolder = new ServletHolder();
         servletHolder.setServlet(handler);
@@ -90,12 +98,16 @@ public class JettyServer implements Server {
 
     @Override
     public void start() throws ServerException {
-        logger.info("start server, host: {}, port: {}", host, port);
+        LOGGER.info("start server, host: {}, port: {}", jettyServerConfig.getHost(), jettyServerConfig.getPort());
         try {
-            if (logger.isDebugEnabled()) {
-                if (servletContextHandler.getServletHandler() != null && servletContextHandler.getServletHandler().getServletMappings() != null) {
-                    for (ServletMapping servletMapping : servletContextHandler.getServletHandler().getServletMappings()) {
-                        logger.debug("jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping.getServletName());
+            if (LOGGER.isDebugEnabled()) {
+                if (servletContextHandler.getServletHandler() != null && servletContextHandler.getServletHandler()
+                                                                                              .getServletMappings() != null) {
+                    for (ServletMapping servletMapping : servletContextHandler.getServletHandler()
+                                                                              .getServletMappings()) {
+                        LOGGER.debug(
+                            "jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping
+                                .getServletName());
                     }
                 }
             }
@@ -112,13 +124,13 @@ public class JettyServer implements Server {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        JettyServer that = (JettyServer)o;
-        return port == that.port &&
-            Objects.equals(host, that.host);
+        JettyServer that = (JettyServer) o;
+        return jettyServerConfig.getPort() == that.jettyServerConfig.getPort() && Objects.equals(
+            jettyServerConfig.getHost(), that.jettyServerConfig.getHost());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(host, port);
+        return Objects.hash(jettyServerConfig.getHost(), jettyServerConfig.getPort());
     }
 }

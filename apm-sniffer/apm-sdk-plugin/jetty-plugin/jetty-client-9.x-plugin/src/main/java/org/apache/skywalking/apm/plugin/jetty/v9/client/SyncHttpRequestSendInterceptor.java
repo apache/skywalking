@@ -37,9 +37,11 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HttpRequest request = (HttpRequest)objInst;
+        HttpRequest request = (HttpRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(request.getURI().getPath(), contextCarrier, request.getHost() + ":" + request.getPort());
+        AbstractSpan span = ContextManager.createExitSpan(request.getURI()
+                                                                 .getPath(), contextCarrier, request.getHost() + ":" + request
+            .getPort());
         span.setComponent(ComponentsDefine.JETTY_CLIENT);
 
         Tags.HTTP.METHOD.set(span, getHttpMethod(request));
@@ -61,9 +63,10 @@ public class SyncHttpRequestSendInterceptor implements InstanceMethodsAroundInte
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().log(t);
     }
 
     public String getHttpMethod(HttpRequest request) {

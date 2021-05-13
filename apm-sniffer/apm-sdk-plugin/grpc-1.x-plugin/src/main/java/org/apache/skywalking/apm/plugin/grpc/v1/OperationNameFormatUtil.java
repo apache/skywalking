@@ -22,12 +22,10 @@ import io.grpc.MethodDescriptor;
 
 /**
  * Operation Name utility
- *
- * @author zhangxin
  */
 public class OperationNameFormatUtil {
 
-    public static String formatOperationName(MethodDescriptor methodDescriptor) {
+    public static String formatOperationName(MethodDescriptor<?, ?> methodDescriptor) {
         String fullMethodName = methodDescriptor.getFullMethodName();
         return formatServiceName(fullMethodName) + "." + formatMethodName(fullMethodName);
     }

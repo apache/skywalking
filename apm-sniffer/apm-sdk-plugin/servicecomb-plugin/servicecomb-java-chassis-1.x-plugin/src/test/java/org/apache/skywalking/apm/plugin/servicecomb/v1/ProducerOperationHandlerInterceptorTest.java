@@ -51,6 +51,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -101,7 +102,7 @@ public class ProducerOperationHandlerInterceptorTest {
         when(invocation.getInvocationType()).thenReturn(InvocationType.PRODUCER);
         Config.Agent.SERVICE_NAME = "serviceComnTestCases-APP";
 
-        allArguments = new Object[] {invocation,};
+        allArguments = new Object[] {invocation};
         argumentsType = new Class[] {};
         swaggerArguments = new Class[] {};
 
@@ -118,7 +119,7 @@ public class ProducerOperationHandlerInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertCombSpan(spans.get(0));
-        verify(invocation).getContext();
+        verify(invocation, times(3)).getContext();
     }
 
     private void assertCombSpan(AbstractTracingSpan span) {

@@ -16,20 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
+import org.apache.skywalking.apm.agent.core.logging.core.ResolverType;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ClassCacheMode;
+import org.apache.skywalking.apm.util.Length;
 
 /**
  * This is the core config in sniffer agent.
- *
- * @author wusheng
  */
 public class Config {
 
@@ -43,6 +45,7 @@ public class Config {
          * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service, service instance
          * nodes share the same code
          */
+        @Length(50)
         public static String SERVICE_NAME = "";
 
         /**
@@ -52,53 +55,62 @@ public class Config {
         public static String AUTHENTICATION = "";
 
         /**
-         * Negative or zero means off, by default. {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
+         * Negative or zero means off, by default. {@code #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
          * 3 seconds tops.
          */
         public static int SAMPLE_N_PER_3_SECS = -1;
 
         /**
          * If the operation name of the first span is included in this set, this segment should be ignored.
+         * Multiple values should be separated by `,`.
          */
         public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
 
         /**
-         * The max number of spans in a single segment. Through this config item, skywalking keep your application
+         * The max number of TraceSegmentRef in a single span to keep memory cost estimatable.
+         */
+        public static int TRACE_SEGMENT_REF_LIMIT_PER_SPAN = 500;
+
+        /**
+         * The max number of spans in a single segment. Through this config item, SkyWalking keep your application
          * memory cost estimated.
          */
         public static int SPAN_LIMIT_PER_SEGMENT = 300;
 
         /**
-         * If true, skywalking agent will save all instrumented classes files in `/debugging` folder. Skywalking team
+         * If true, SkyWalking agent will save all instrumented classes files in `/debugging` folder. SkyWalking team
          * may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
         /**
-         * Active V2 header in default
+         * If true, SkyWalking agent will cache all instrumented classes to memory or disk files (decided by class cache
+         * mode), allow other javaagent to enhance those classes that enhanced by SkyWalking agent.
          */
-        public static boolean ACTIVE_V2_HEADER = true;
+        public static boolean IS_CACHE_ENHANCED_CLASS = false;
 
         /**
-         * Deactive V1 header in default
+         * The instrumented classes cache mode: MEMORY or FILE MEMORY: cache class bytes to memory, if instrumented
+         * classes is too many or too large, it may take up more memory FILE: cache class bytes in `/class-cache`
+         * folder, automatically clean up cached class files when the application exits
          */
-        public static boolean ACTIVE_V1_HEADER = false;
+        public static ClassCacheMode CLASS_CACHE_MODE = ClassCacheMode.MEMORY;
 
         /**
-         * The identify of the instance
+         * The identifier of the instance
          */
-        public static String INSTANCE_UUID = "";
+        @Length(50)
+        public volatile static String INSTANCE_NAME = "";
+
+        /**
+         * service instance properties e.g. agent.instance_properties[org]=apache
+         */
+        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<>();
 
         /**
          * How depth the agent goes, when log cause exceptions.
          */
         public static int CAUSE_EXCEPTION_DEPTH = 5;
-
-        /**
-         * How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset
-         * command
-         */
-        public static int COOL_DOWN_THRESHOLD = 10;
 
         /**
          * Force reconnection period of grpc, based on grpc_channel_check_interval. If count of check grpc channel
@@ -107,9 +119,29 @@ public class Config {
         public static long FORCE_RECONNECTION_PERIOD = 1;
 
         /**
-         * Limit the length of the operationName to prevent errors when inserting elasticsearch
-         **/
-        public static int OPERATION_NAME_THRESHOLD = 500;
+         * Limit the length of the operationName to prevent the overlength issue in the storage.
+         *
+         * <p>NOTICE</p>
+         * In the current practice, we don't recommend the length over 190.
+         */
+        public static int OPERATION_NAME_THRESHOLD = 150;
+
+        /**
+         * Keep tracing even the backend is not available.
+         */
+        public static boolean KEEP_TRACING = false;
+
+        /**
+         * Force open TLS for gRPC channel if true.
+         */
+        public static boolean FORCE_TLS = false;
+    }
+
+    public static class OsInfo {
+        /**
+         * Limit the length of the ipv4 list size.
+         */
+        public static int IPV4_LIST_SIZE = 10;
     }
 
     public static class Collector {
@@ -118,13 +150,78 @@ public class Config {
          */
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
-         * service and endpoint registry check interval
+         * The period in which the agent report a heartbeat to the backend.
          */
-        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
+        public static long HEARTBEAT_PERIOD = 30;
+        /**
+         * The agent sends the instance properties to the backend every `collector.heartbeat_period * collector.properties_report_period_factor` seconds
+         */
+        public static int PROPERTIES_REPORT_PERIOD_FACTOR = 10;
         /**
          * Collector skywalking trace receiver service addresses.
          */
         public static String BACKEND_SERVICE = "";
+        /**
+         * How long grpc client will timeout in sending data to upstream.
+         */
+        public static int GRPC_UPSTREAM_TIMEOUT = 30;
+        /**
+         * Get profile task list interval
+         */
+        public static int GET_PROFILE_TASK_INTERVAL = 20;
+        /**
+         * Get agent dynamic config interval
+         */
+        public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
+        /**
+         * If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses.
+         */
+        public static boolean IS_RESOLVE_DNS_PERIODICALLY = false;
+    }
+
+    public static class Profile {
+        /**
+         * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable
+         * profile.
+         */
+        public static boolean ACTIVE = true;
+
+        /**
+         * Parallel monitor segment count
+         */
+        public static int MAX_PARALLEL = 5;
+
+        /**
+         * Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.
+         */
+        public static int MAX_DURATION = 10;
+
+        /**
+         * Max dump thread stack depth
+         */
+        public static int DUMP_MAX_STACK_DEPTH = 500;
+
+        /**
+         * Snapshot transport to backend buffer size
+         */
+        public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 500;
+    }
+
+    public static class Meter {
+        /**
+         * If true, skywalking agent will enable sending meters. Otherwise disable meter report.
+         */
+        public static boolean ACTIVE = true;
+
+        /**
+         * Report meters interval
+         */
+        public static Integer REPORT_INTERVAL = 20;
+
+        /**
+         * Max size of the meter count, using {@link org.apache.skywalking.apm.agent.core.meter.MeterId} as identity
+         */
+        public static Integer MAX_METER_SIZE = 500;
     }
 
     public static class Jvm {
@@ -140,15 +237,6 @@ public class Config {
         public static int BUFFER_SIZE = 300;
     }
 
-    public static class Dictionary {
-        /**
-         * The buffer size of application codes and peer
-         */
-        public static int SERVICE_CODE_BUFFER_SIZE = 10 * 10000;
-
-        public static int ENDPOINT_NAME_BUFFER_SIZE = 1000 * 10000;
-    }
-
     public static class Logging {
         /**
          * Log file name.
@@ -156,8 +244,9 @@ public class Config {
         public static String FILE_NAME = "skywalking-api.log";
 
         /**
-         * Log files directory. Default is blank string, means, use "system.out" to output logs.
-         *
+         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs.
+         * {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located.
+         * <p>
          * Ref to {@link WriterFactory#getLogWriter()}
          */
         public static String DIR = "";
@@ -169,6 +258,12 @@ public class Config {
         public static int MAX_FILE_SIZE = 300 * 1024 * 1024;
 
         /**
+         * The max history log files. When rollover happened, if log files exceed this number, then the oldest file will
+         * be delete. Negative or zero means off, by default.
+         */
+        public static int MAX_HISTORY_FILES = -1;
+
+        /**
          * The log level. Default is debug.
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
@@ -177,6 +272,11 @@ public class Config {
          * The log output. Default is FILE.
          */
         public static LogOutput OUTPUT = LogOutput.FILE;
+
+        /**
+         * The log resolver type. Default is PATTERN which will create PatternLogResolver later.
+         */
+        public static ResolverType RESOLVER = ResolverType.PATTERN;
 
         /**
          * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable". Each conversion specifiers
@@ -190,95 +290,52 @@ public class Config {
         public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
     }
 
-    public static class Plugin {
+    public static class StatusCheck {
+        /**
+         * Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a
+         * way of controlling business flow.
+         */
+        public static String IGNORED_EXCEPTIONS = "";
 
+        /**
+         * The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend
+         * setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored,
+         * which means all exceptions would make the span tagged in error status.
+         */
+        public static Integer MAX_RECURSIVE_DEPTH = 1;
+    }
+
+    public static class Plugin {
         /**
          * Control the length of the peer field.
          */
         public static int PEER_MAX_LENGTH = 200;
 
-        public static class MongoDB {
-            /**
-             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not
-             * include parameters.
-             */
-            public static boolean TRACE_PARAM = false;
-        }
-
-        public static class Elasticsearch {
-            /**
-             * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
-             */
-            public static boolean TRACE_DSL = false;
-        }
-
-        public static class Customize {
-            /**
-             * Custom enhancement class configuration file path, recommended to use an absolute path.
-             */
-            public static String ENHANCE_FILE = "";
-
-            /**
-             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
-             * And using Map CONTEXT for avoiding classloader isolation issue.
-             */
-            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
-        }
-
-        public static class SpringMVC {
-            /**
-             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL,
-             * default is false.
-             */
-            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
-        }
-
-        public static class Toolkit {
-            /**
-             * If true, the fully qualified method name will be used as the operation name instead of the given
-             * operation name, default is false.
-             */
-            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
-        }
-
-        public static class MySQL {
-            /**
-             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
-             * collected.
-             */
-            public static boolean TRACE_SQL_PARAMETERS = false;
-            /**
-             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
-             * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
-             *
-             * Set a negative number to save the complete parameter string to the tag.
-             */
-            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
-        }
-
-        public static class SolrJ {
-            /**
-             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,
-             * default is false.
-             */
-            public static boolean TRACE_STATEMENT = false;
-
-            /**
-             * If true, trace all the operation parameters in Solr request, default is false.
-             */
-            public static boolean TRACE_OPS_PARAMS = false;
-        }
+        /**
+         * Exclude activated plugins
+         */
+        public static String EXCLUDE_PLUGINS = "";
 
         /**
-         * Operation name group rules
+         * Mount the folders of the plugins. The folder path is relative to agent.jar.
          */
-        public static class OPGroup {
-            /**
-             * Rules for RestTemplate plugin
-             */
-            public static class RestTemplate implements OPGroupDefinition {
-                public static Map<String, String> RULE = new HashMap<String, String>();
-            }
-        }
+        public static List<String> MOUNT = Arrays.asList("plugins", "activations");
+    }
+
+    public static class Correlation {
+        /**
+         * Max element count in the correlation context.
+         */
+        public static int ELEMENT_MAX_NUMBER = 3;
+
+        /**
+         * Max value length of each element.
+         */
+        public static int VALUE_MAX_LENGTH = 128;
+
+        /**
+         * Tag the span by the key/value in the correlation context, when the keys listed here exist.
+         */
+        public static String AUTO_TAG_KEYS = "";
     }
 }

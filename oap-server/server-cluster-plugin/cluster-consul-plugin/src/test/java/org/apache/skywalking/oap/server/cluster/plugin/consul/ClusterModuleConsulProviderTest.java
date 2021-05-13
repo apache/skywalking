@@ -15,39 +15,66 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
+import java.util.Collection;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Collection;
-import java.util.List;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyCollection;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-/**
- * Created by dengming, 2019.05.01
- */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Consul.class)
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class ClusterModuleConsulProviderTest {
 
     private ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();
+
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
+
+    @Before
+    public void before() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+                .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+        provider.setManager(moduleManager);
+    }
 
     @Test
     public void name() {
@@ -94,9 +121,7 @@ public class ClusterModuleConsulProviderTest {
 
         List<HostAndPort> address = (List<HostAndPort>) addressCaptor.getValue();
         assertEquals(2, address.size());
-        assertEquals(Lists.newArrayList(HostAndPort.fromParts("10.0.0.1", 1000),
-                HostAndPort.fromParts("10.0.0.2", 1001)
-        ), address);
+        assertEquals(Lists.newArrayList(HostAndPort.fromParts("10.0.0.1", 1000), HostAndPort.fromParts("10.0.0.2", 1001)), address);
     }
 
     @Test
@@ -137,6 +162,6 @@ public class ClusterModuleConsulProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = provider.requiredModules();
-        assertArrayEquals(new String[]{CoreModule.NAME}, modules);
+        assertArrayEquals(new String[] {CoreModule.NAME}, modules);
     }
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.spring.async;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -24,9 +25,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.util.concurrent.Callable;
 
-/**
- * @author zhaoyuguang
- */
 public class SWCallable<V> implements Callable<V> {
 
     private static final String OPERATION_NAME = "SpringAsync";
@@ -48,7 +46,7 @@ public class SWCallable<V> implements Callable<V> {
             ContextManager.continued(snapshot);
             return callable.call();
         } catch (Exception e) {
-            ContextManager.activeSpan().errorOccurred().log(e);
+            ContextManager.activeSpan().log(e);
             throw e;
         } finally {
             ContextManager.stopSpan();

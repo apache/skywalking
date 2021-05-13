@@ -1,0 +1,39 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+type: jvm
+entryService: http://localhost:8080/spring-kafka-2.3.x-scenario/case/spring-kafka-case
+healthCheck: http://localhost:8080/spring-kafka-2.3.x-scenario/case/healthCheck
+startScript: ./bin/startup.sh
+environment:
+  - BOOTSTRAP_SERVERS=kafka-server:9092
+depends_on:
+  - zookeeper-server
+  - kafka-server
+dependencies:
+  zookeeper-server:
+    image: zookeeper:3.4
+    hostname: zookeeper-server
+  kafka-server:
+    image: bitnami/kafka:2.1.1
+    hostname: kafka-server
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper-server:2181
+      - KAFKA_BROKER_ID=1
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+    depends_on:
+      - zookeeper-server

@@ -27,15 +27,29 @@ message ExportMetricValue {
     int64 timeBucket = 5;
     int64 longValue = 6;
     double doubleValue = 7;
+    repeated int64 longValues = 8;
 }
 
 message SubscriptionsResp {
-    repeated string metricNames = 1;
+    repeated SubscriptionMetric metrics = 1;
+}
+
+message SubscriptionMetric {
+    string metricName = 1;
+    EventType eventType = 2;
 }
 
 enum ValueType {
     LONG = 0;
     DOUBLE = 1;
+    MULTI_LONG = 2;
+}
+
+enum EventType {
+    // The metrics aggregated in this bulk, not include the existing persistent data.
+    INCREMENT = 0;
+    // Final result of the metrics at this moment.
+    TOTAL = 1;
 }
 
 message SubscriptionReq {
@@ -59,8 +73,8 @@ exporter:
 
 ## For target exporter service 
 ### subscription implementation
-Return the expected metrics name list, all the names must match the OAL script definition. Return empty list, if you want
-to export all metrics.
+Return the expected metrics name list with event type(increment or total), all the names must match the OAL/MAL script definition. 
+Return empty list, if you want to export all metrics in increment event type.
 
 ### export implementation
 Stream service, all subscribed metrics will be sent to here, based on OAP core schedule. Also, if the OAP deployed as cluster, 

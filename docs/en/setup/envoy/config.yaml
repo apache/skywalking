@@ -39,6 +39,9 @@ node:
   metadata:
     skywalking: iscool
     envoy: isawesome
+    LABELS:
+      app: test-app
+    NAME: service-instance-name
 
 static_resources:
   listeners:

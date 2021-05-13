@@ -28,26 +28,29 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * ProxyRootInvokeInterceptor enhances io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor, creating a local span that records the overall execution of sql.
- *
- * @author zhangyonglun
+ * ProxyRootInvokeInterceptor enhances io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor, creating a local
+ * span that records the overall execution of sql.
  */
 public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
-    
+
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) {
+        ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/")
+                      .setComponent(ComponentsDefine.SHARDING_SPHERE);
         ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
-    
+
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
-    
+
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().log(t);
     }
 }

@@ -22,6 +22,8 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletRequestHolder;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletResponseHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -32,28 +34,37 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
 /**
  * {@link GetBeanInterceptor} pass the {@link NativeWebRequest} object into the {@link
  * org.springframework.stereotype.Controller} object.
- *
- * @author zhangxin
  */
 public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
-            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest());
-            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getResponse());
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                ContextManager.getRuntimeContext()
+                              .put(
+                                  REQUEST_KEY_IN_RUNTIME_CONTEXT,
+                                  new JavaxServletRequestHolder(requestAttributes.getRequest())
+                              );
+                ContextManager.getRuntimeContext()
+                              .put(
+                                  RESPONSE_KEY_IN_RUNTIME_CONTEXT,
+                                  new JavaxServletResponseHolder(requestAttributes.getResponse())
+                              );
+            }
         }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

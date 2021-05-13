@@ -26,9 +26,6 @@ import org.apache.skywalking.oap.server.library.util.Address;
 import org.apache.skywalking.oap.server.library.util.ConnectStringParseException;
 import org.apache.skywalking.oap.server.library.util.ConnectUtils;
 
-/**
- * @author Alan Lau
- */
 public class EtcdUtils {
 
     public EtcdUtils() {
@@ -39,7 +36,10 @@ public class EtcdUtils {
         try {
             List<Address> addressList = ConnectUtils.parse(config.getHostPort());
             for (Address address : addressList) {
-                uris.add(URI.create(new StringBuilder("http://").append(address.getHost()).append(":").append(address.getPort()).toString()));
+                uris.add(URI.create(new StringBuilder("http://").append(address.getHost())
+                                                                .append(":")
+                                                                .append(address.getPort())
+                                                                .toString()));
             }
         } catch (ConnectStringParseException e) {
             throw new ModuleStartException(e.getMessage(), e);

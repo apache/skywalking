@@ -1,0 +1,59 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nodes:
+  - id: VXNlcg==.0
+    name: User
+    type: USER
+    isReal: false
+  - id: ZTJlLXNlcnZpY2UtamF2YS1jb25zdW1lcg==.1
+    name: e2e-service-java-consumer
+    type: Tomcat
+    isReal: true
+  - id: Z28yc2t5.1
+    name: go2sky
+    type: GoHttpServer
+    isReal: true
+  - id: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1
+    name: e2e-service-java-provider
+    type: Tomcat
+    isReal: true
+  - id: bG9jYWxob3N0Oi0x.0
+    name: localhost:-1
+    type: H2
+    isReal: false
+calls:
+  - id: VXNlcg==.0-ZTJlLXNlcnZpY2UtamF2YS1jb25zdW1lcg==.1
+    source: VXNlcg==.0
+    detectPoints:
+      - SERVER
+    target: ZTJlLXNlcnZpY2UtamF2YS1jb25zdW1lcg==.1
+  - id: ZTJlLXNlcnZpY2UtamF2YS1jb25zdW1lcg==.1-Z28yc2t5.1
+    source: ZTJlLXNlcnZpY2UtamF2YS1jb25zdW1lcg==.1
+    detectPoints:
+      - CLIENT
+      - SERVER
+    target: Z28yc2t5.1
+  - id: Z28yc2t5.1-ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1
+    source: Z28yc2t5.1
+    detectPoints:
+      - CLIENT
+      - SERVER
+    target: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1
+  - id: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1-bG9jYWxob3N0Oi0x.0
+    source: ZTJlLXNlcnZpY2UtamF2YS1wcm92aWRlcg==.1
+    detectPoints:
+      - CLIENT
+    target: bG9jYWxob3N0Oi0x.0

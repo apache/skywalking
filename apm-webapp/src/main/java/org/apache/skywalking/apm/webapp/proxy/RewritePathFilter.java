@@ -27,8 +27,6 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 
 /**
  * Rewrite url to rewritePath
- *
- * @author gaohongtao
  */
 @Component
 @ConfigurationProperties(prefix = "collector")
@@ -37,7 +35,7 @@ public class RewritePathFilter extends ZuulFilter {
     private static final String REQUEST_URI = "requestURI";
 
     private static final int ORDER = PRE_DECORATION_FILTER_ORDER + 2;
-    
+
     private String path;
 
     public String getPath() {

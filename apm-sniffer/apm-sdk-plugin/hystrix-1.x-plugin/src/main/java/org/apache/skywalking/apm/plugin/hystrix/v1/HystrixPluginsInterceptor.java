@@ -33,12 +33,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 /**
  * {@link HystrixPluginsInterceptor} wrapper the {@link HystrixCommandExecutionHook} object by using {@link
  * SWExecutionHookWrapper} when the {@link HystrixPlugins#getCommandExecutionHook()} method invoked.
- *
- * @author zhang xin
  */
 public class HystrixPluginsInterceptor implements InstanceMethodsAroundInterceptor {
-
-
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -84,7 +80,8 @@ public class HystrixPluginsInterceptor implements InstanceMethodsAroundIntercept
         HystrixPlugins.getInstance().registerPropertiesStrategy(propertiesStrategy);
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

@@ -18,43 +18,58 @@
 
 package org.apache.skywalking.oap.server.telemetry.api;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * Open API to telemetry module, allow to create metrics instance with different type. Types inherits from prometheus
  * project, and plan to move to openmetrics APIs after it is ready.
- *
- * @author wusheng
  */
 public interface MetricsCreator extends Service {
+
+    String HEALTH_METRIC_PREFIX = "health_check_";
     /**
      * Create a counter type metrics instance.
-     *
-     * @param name
-     * @param tips
-     * @param tagKeys
-     * @return
      */
     CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues);
 
     /**
      * Create a gauge type metrics instance.
-     *
-     * @param name
-     * @param tips
-     * @param tagKeys
-     * @return
      */
     GaugeMetrics createGauge(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues);
 
     /**
      * Create a Histogram type metrics instance.
      *
-     * @param name
-     * @param tips
-     * @param tagKeys
      * @param buckets Time bucket for duration.
-     * @return
      */
-    HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues, double... buckets);
+    HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys,
+        MetricsTag.Values tagValues, double... buckets);
+
+    /**
+     * Create a Health Check gauge.
+     */
+    default HealthCheckMetrics createHealthCheckerGauge(String name, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Require non-null or empty metric name");
+        return new HealthCheckMetrics(createGauge(Strings.lenientFormat("%s%s", HEALTH_METRIC_PREFIX, name),
+            Strings.lenientFormat("%s health check", name),
+            tagKeys, tagValues));
+    }
+
+    /**
+     * Find out whether it's a health check metric.
+     */
+    default boolean isHealthCheckerMetrics(String name) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Require non-null or empty metric name");
+        return name.startsWith(HEALTH_METRIC_PREFIX);
+    }
+
+    /**
+     * Extract the raw module name
+     */
+    default String extractModuleName(String metricName) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(metricName), "Require non-null or empty metric name");
+        return metricName.replace(HEALTH_METRIC_PREFIX, "");
+    }
 }

@@ -22,14 +22,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletRequestHolder;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletResponseHolder;
 
 public final class SpringTestCaseHelper {
 
     public final static void createCaseHandler(HttpServletRequest request, HttpServletResponse response,
         CaseHandler a) throws Throwable {
         ContextManager.createLocalSpan("For-Test");
-        ContextManager.getRuntimeContext().put(Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT, request);
-        ContextManager.getRuntimeContext().put(Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
+        ContextManager.getRuntimeContext().put(Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT, new JavaxServletRequestHolder(request));
+        ContextManager.getRuntimeContext().put(Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT, new JavaxServletResponseHolder(response));
         a.handleCase();
         ContextManager.stopSpan();
         ContextManager.getRuntimeContext().remove(Constants.CONTROLLER_METHOD_STACK_DEPTH);

@@ -33,10 +33,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
  * instrumentation.</p>
  * <p>Date, 24th July 2019</p>
  * -------------------------------
- *
+ * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
- *
- * @author wusheng
  */
 public class ConstructorInterTemplate {
     /**
@@ -50,16 +48,15 @@ public class ConstructorInterTemplate {
     /**
      * Intercept the target constructor.
      *
-     * @param obj target class instance.
+     * @param obj          target class instance.
      * @param allArguments all constructor arguments
      */
     @RuntimeType
-    public static void intercept(@This Object obj,
-        @AllArguments Object[] allArguments) {
+    public static void intercept(@This Object obj, @AllArguments Object[] allArguments) {
         try {
             prepare();
 
-            EnhancedInstance targetObject = (EnhancedInstance)obj;
+            EnhancedInstance targetObject = (EnhancedInstance) obj;
 
             if (INTERCEPTOR == null) {
                 return;

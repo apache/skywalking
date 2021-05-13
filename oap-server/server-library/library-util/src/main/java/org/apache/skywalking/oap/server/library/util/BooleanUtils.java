@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-/**
- * @author peng-yongsheng
- */
 public class BooleanUtils {
 
     public static final int TRUE = 1;

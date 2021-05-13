@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-sniffer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,7 +33,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <sdk.plugin.related.dir />
-        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent
+        </agent.package.dest.dir>
         <bootstrap.plugin.dest.dir>${agent.package.dest.dir}/bootstrap-plugins</bootstrap.plugin.dest.dir>
 
         <ant-contrib.version>1.0b3</ant-contrib.version>
@@ -42,6 +43,7 @@
 
     <modules>
         <module>jdk-http-plugin</module>
+        <module>jdk-threading-plugin</module>
     </modules>
 
     <dependencies>
@@ -99,7 +101,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
@@ -108,7 +110,7 @@
                                         <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${bootstrap.plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

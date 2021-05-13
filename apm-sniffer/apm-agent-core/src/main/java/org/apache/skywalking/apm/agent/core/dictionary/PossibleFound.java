@@ -16,13 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.dictionary;
 
 /**
  * The <code>PossibleFound</code> represents a value, which may needEnhance or not.
- *
- * @author wusheng
  */
 public abstract class PossibleFound {
     private boolean found;

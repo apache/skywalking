@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.remote;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
- * @author peng-yongsheng
+ * Covert the {@link RemoteData} received from the network to the current data entity.
  */
 public interface Deserializable {
     void deserialize(RemoteData remoteData);

@@ -20,17 +20,18 @@ package org.apache.skywalking.oap.server.core.oal.rt;
 
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 /**
  * OALEngine defines the main entrance of the oal script engine runtime.
- *
- * @author wusheng
  */
 public interface OALEngine {
     void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException;
 
     void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException;
+
+    void setStorageBuilderFactory(StorageBuilderFactory factory);
 
     void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException;
 

@@ -50,11 +50,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * If there is Bootstrap instrumentation plugin declared in plugin list, BootstrapInstrumentBoost inject the necessary
  * classes into bootstrap class loader, including generated dynamic delegate classes.
- *
- * @author wusheng
  */
 public class BootstrapInstrumentBoost {
-    private static final ILog logger = LogManager.getLogger(BootstrapInstrumentBoost.class);
+    private static final ILog LOGGER = LogManager.getLogger(BootstrapInstrumentBoost.class);
 
     private static final String[] HIGH_PRIORITY_CLASSES = {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist",
@@ -73,8 +71,8 @@ public class BootstrapInstrumentBoost {
     private static String STATIC_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterTemplate";
     private static String STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterWithOverrideArgsTemplate";
 
-    public static AgentBuilder inject(PluginFinder pluginFinder, Instrumentation instrumentation, AgentBuilder agentBuilder,
-        JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
+    public static AgentBuilder inject(PluginFinder pluginFinder, Instrumentation instrumentation,
+        AgentBuilder agentBuilder, JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
         Map<String, byte[]> classesTypeMap = new HashMap<String, byte[]>();
 
         if (!prepareJREInstrumentation(pluginFinder, classesTypeMap)) {
@@ -102,7 +100,6 @@ public class BootstrapInstrumentBoost {
         ClassInjector.UsingUnsafe.Factory factory = ClassInjector.UsingUnsafe.Factory.resolve(instrumentation);
         factory.make(null, null).injectRaw(classesTypeMap);
         agentBuilder = agentBuilder.with(new AgentBuilder.InjectionStrategy.UsingUnsafe.OfFactory(factory));
-
 
         return agentBuilder;
     }
@@ -134,7 +131,7 @@ public class BootstrapInstrumentBoost {
     /**
      * Generate dynamic delegate for ByteBuddy
      *
-     * @param pluginFinder gets the whole plugin list.
+     * @param pluginFinder   gets the whole plugin list.
      * @param classesTypeMap hosts the class binary.
      * @return true if have JRE instrumentation requirement.
      * @throws PluginException when generate failure.
@@ -146,7 +143,8 @@ public class BootstrapInstrumentBoost {
         for (AbstractClassEnhancePluginDefine define : bootstrapClassMatchDefines) {
             for (InstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
                 if (point.isOverrideArgs()) {
-                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point
+                        .getMethodsInterceptor());
                 } else {
                     generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
                 }
@@ -158,7 +156,8 @@ public class BootstrapInstrumentBoost {
 
             for (StaticMethodsInterceptPoint point : define.getStaticMethodsInterceptPoints()) {
                 if (point.isOverrideArgs()) {
-                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point
+                        .getMethodsInterceptor());
                 } else {
                     generateDelegator(classesTypeMap, typePool, STATIC_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
                 }
@@ -169,27 +168,26 @@ public class BootstrapInstrumentBoost {
 
     /**
      * Generate the delegator class based on given template class. This is preparation stage level code generation.
-     *
+     * <p>
      * One key step to avoid class confliction between AppClassLoader and BootstrapClassLoader
      *
-     * @param classesTypeMap hosts injected binary of generated class
-     * @param typePool to generate new class
+     * @param classesTypeMap    hosts injected binary of generated class
+     * @param typePool          to generate new class
      * @param templateClassName represents the class as template in this generation process. The templates are
-     * pre-defined in SkyWalking agent core.
-     * @param methodsInterceptor
+     *                          pre-defined in SkyWalking agent core.
      */
     private static void generateDelegator(Map<String, byte[]> classesTypeMap, TypePool typePool,
         String templateClassName, String methodsInterceptor) {
         String internalInterceptorName = internalDelegate(methodsInterceptor);
         try {
-            TypeDescription templateTypeDescription = typePool.describe(templateClassName)
-                .resolve();
+            TypeDescription templateTypeDescription = typePool.describe(templateClassName).resolve();
 
-            DynamicType.Unloaded interceptorType = new ByteBuddy()
-                .redefine(templateTypeDescription, ClassFileLocator.ForClassLoader.of(BootstrapInstrumentBoost.class.getClassLoader()))
-                .name(internalInterceptorName)
-                .field(named("TARGET_INTERCEPTOR")).value(methodsInterceptor)
-                .make();
+            DynamicType.Unloaded interceptorType = new ByteBuddy().redefine(templateTypeDescription, ClassFileLocator.ForClassLoader
+                .of(BootstrapInstrumentBoost.class.getClassLoader()))
+                                                                  .name(internalInterceptorName)
+                                                                  .field(named("TARGET_INTERCEPTOR"))
+                                                                  .value(methodsInterceptor)
+                                                                  .make();
 
             classesTypeMap.put(internalInterceptorName, interceptorType.getBytes());
 
@@ -204,7 +202,7 @@ public class BootstrapInstrumentBoost {
      * instrumentation active by any plugin
      *
      * @param loadedTypeMap hosts all injected class
-     * @param className to load
+     * @param className     to load
      */
     private static void loadHighPriorityClass(Map<String, byte[]> loadedTypeMap,
         String className) throws PluginException {

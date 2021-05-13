@@ -19,36 +19,36 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.Counter;
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Counter metrics in Prometheus implementor.
- *
- * @author wusheng
  */
 public class PrometheusCounterMetrics extends BaseMetrics<Counter, Counter.Child> implements CounterMetrics {
 
-    public PrometheusCounterMetrics(String name, String tips,
-        MetricsTag.Keys labels, MetricsTag.Values values) {
+    public PrometheusCounterMetrics(String name, String tips, MetricsTag.Keys labels, MetricsTag.Values values) {
         super(name, tips, labels, values);
     }
 
-    @Override public void inc() {
+    @Override
+    public void inc() {
         Counter.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.inc();
         }
     }
 
-    @Override public void inc(double value) {
+    @Override
+    public void inc(double value) {
         Counter.Child metrics = this.getMetric();
         if (metrics != null) {
             metrics.inc(value);
         }
     }
 
-    @Override protected Counter create(String[] labelNames) {
-        return Counter.build()
-            .name(name).help(tips).labelNames(labelNames).register();
+    @Override
+    protected Counter create(String[] labelNames) {
+        return Counter.build().name(name).help(tips).labelNames(labelNames).register();
     }
 }

@@ -41,13 +41,9 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmark                     Mode  Cnt     Score     Error   Units
- * ArbitrarySetTest.array       thrpt   10  2360.500 ± 138.279  ops/ms
- * ArbitrarySetTest.arrayList   thrpt   10  1080.005 ± 225.897  ops/ms
- * ArbitrarySetTest.linkedList  thrpt   10   188.007 ±  11.739  ops/ms
- * ArbitrarySetTest.treeMap     thrpt   10   214.384 ±  27.816  ops/ms
- *
- * @author kezhenxu94
+ * Benchmark                     Mode  Cnt     Score     Error   Units ArbitrarySetTest.array       thrpt   10  2360.500
+ * ± 138.279  ops/ms ArbitrarySetTest.arrayList   thrpt   10  1080.005 ± 225.897  ops/ms ArbitrarySetTest.linkedList
+ * thrpt   10   188.007 ±  11.739  ops/ms ArbitrarySetTest.treeMap     thrpt   10   214.384 ±  27.816  ops/ms
  */
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)

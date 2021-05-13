@@ -18,112 +18,103 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import com.google.common.util.concurrent.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodStatus;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
+import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
  * {@link RemoteInstance}.
- *
- * @author gaohongtao
  */
+@Slf4j
 public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery {
 
-    private static final Logger logger = LoggerFactory.getLogger(KubernetesCoordinator.class);
-
     private final ModuleDefineHolder manager;
-
     private final String uid;
-
-    private final Map<String, RemoteInstance> cache = new ConcurrentHashMap<>();
-
-    private final ReusableWatch<Event> watch;
-
     private volatile int port = -1;
+    private HealthCheckMetrics healthChecker;
 
-    KubernetesCoordinator(ModuleDefineHolder manager,
-        final ReusableWatch<Event> watch, final Supplier<String> uidSupplier) {
+    public KubernetesCoordinator(final ModuleDefineHolder manager,
+                                 final ClusterModuleKubernetesConfig config) {
+        this.uid = new UidEnvSupplier(config.getUidEnvName()).get();
         this.manager = manager;
-        this.watch = watch;
-        this.uid = uidSupplier.get();
-        TelemetryRelatedContext.INSTANCE.setId(uid);
     }
 
-    public void start() {
-        submitTask(MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-            .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build())));
-    }
-
-    @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
-        this.port = remoteInstance.getAddress().getPort();
-    }
-
-    private void submitTask(final ListeningExecutorService service) {
-        watch.initOrReset();
-        ListenableFuture<?> watchFuture = service.submit(newWatch());
-        Futures.addCallback(watchFuture, new FutureCallback<Object>() {
-            @Override public void onSuccess(@Nullable Object ignored) {
-                submitTask(service);
+    @Override
+    public List<RemoteInstance> queryRemoteNodes() {
+        try {
+            initHealthChecker();
+            List<V1Pod> pods = NamespacedPodListInformer.INFORMER.listPods().orElseGet(this::selfPod);
+            if (log.isDebugEnabled()) {
+                List<String> uidList = pods
+                    .stream()
+                    .map(item -> item.getMetadata().getUid())
+                    .collect(Collectors.toList());
+                log.debug("[kubernetes cluster pods uid list]:{}", uidList.toString());
             }
-
-            @Override public void onFailure(@Nullable Throwable throwable) {
-                logger.debug("Generate remote nodes error", throwable);
-                submitTask(service);
+            if (port == -1) {
+                port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
             }
-        });
-    }
-
-    private Callable<Object> newWatch() {
-        return () -> {
-            generateRemoteNodes();
-            return null;
-        };
-    }
-
-    private void generateRemoteNodes() {
-        for (Event event : watch) {
-            if (event == null) {
-                break;
-            }
-            logger.debug("Received event {} {}-{}", event.getType(), event.getUid(), event.getHost());
-            switch (event.getType()) {
-                case "ADDED":
-                case "MODIFIED":
-                    cache.put(event.getUid(), new RemoteInstance(new Address(event.getHost(), port, event.getUid().equals(this.uid))));
-                    break;
-                case "DELETED":
-                    cache.remove(event.getUid());
-                    break;
-                default:
-                    throw new RuntimeException(String.format("Unknown event %s", event.getType()));
-            }
+            List<RemoteInstance> remoteInstances =
+                pods.stream()
+                    .filter(pod -> StringUtil.isNotBlank(pod.getStatus().getPodIP()))
+                    .map(pod -> new RemoteInstance(
+                        new Address(pod.getStatus().getPodIP(), port, pod.getMetadata().getUid().equals(uid))))
+                    .collect(Collectors.toList());
+            healthChecker.health();
+            return remoteInstances;
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
+            throw new ServiceQueryException(e.getMessage());
         }
     }
 
-    @Override public List<RemoteInstance> queryRemoteNodes() {
-        final List<RemoteInstance> list = new ArrayList<>();
-        cache.values().forEach(instance -> {
-            Address address = instance.getAddress();
-            if (port == -1) {
-                logger.debug("Query kubernetes remote, port hasn't init, try to init");
-                ConfigService service = manager.find(CoreModule.NAME).provider().getService(ConfigService.class);
-                port = service.getGRPCPort();
-                logger.debug("Query kubernetes remote, port is set at {}", port);
-            }
-            list.add(new RemoteInstance(new Address(address.getHost(), port, address.isSelf())));
-        });
+    @Override
+    public void registerRemote(final RemoteInstance remoteInstance) throws ServiceRegisterException {
+        try {
+            initHealthChecker();
+            this.port = remoteInstance.getAddress().getPort();
+            healthChecker.health();
+        } catch (Throwable e) {
+            healthChecker.unHealth(e);
+            throw new ServiceRegisterException(e.getMessage());
+        }
+    }
 
-        logger.debug("Query kubernetes remote nodes: {}", list);
-        return list;
+    private void initHealthChecker() {
+        if (healthChecker == null) {
+            MetricsCreator metricCreator = manager.find(TelemetryModule.NAME)
+                                                  .provider()
+                                                  .getService(MetricsCreator.class);
+            healthChecker = metricCreator.createHealthCheckerGauge(
+                "cluster_k8s", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
+    }
+
+    private List<V1Pod> selfPod() {
+        V1Pod v1Pod = new V1Pod();
+        v1Pod.setMetadata(new V1ObjectMeta());
+        v1Pod.setStatus(new V1PodStatus());
+        v1Pod.getMetadata().setUid(uid);
+        v1Pod.getStatus().setPodIP("127.0.0.1");
+        return Collections.singletonList(v1Pod);
     }
 }

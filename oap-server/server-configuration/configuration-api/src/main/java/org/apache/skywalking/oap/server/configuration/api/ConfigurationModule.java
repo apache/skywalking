@@ -23,11 +23,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 /**
  * Configuration Module sync the settings from remote service, the remote service could be implemented by this module
  * provider.
- *
+ * <p>
  * Any configuration item in the whole OAP backend could register a watcher to configuration module, the item change
  * watcher will be called, if the value changed.
- *
- * @author wusheng
  */
 public class ConfigurationModule extends ModuleDefine {
     public static final String NAME = "configuration";
@@ -36,7 +34,8 @@ public class ConfigurationModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[] {DynamicConfigurationService.class};
     }
 }

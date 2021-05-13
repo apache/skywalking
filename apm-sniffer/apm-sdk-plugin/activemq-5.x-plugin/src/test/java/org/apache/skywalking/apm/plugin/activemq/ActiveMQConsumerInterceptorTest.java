@@ -18,31 +18,29 @@
 
 package org.apache.skywalking.apm.plugin.activemq;
 
+import java.io.IOException;
+import java.util.List;
+import javax.jms.JMSException;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.state.CommandVisitor;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import javax.jms.JMSException;
-import java.io.IOException;
-
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-
-import org.junit.Before;
-import org.junit.Test;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -126,7 +124,6 @@ public class ActiveMQConsumerInterceptorTest {
 
     @Before
     public void setUp() throws IOException {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         activeMQConsumerInterceptor = new ActiveMQConsumerInterceptor();
         messageDispatch = new MessageDispatch();
 
@@ -134,15 +131,9 @@ public class ActiveMQConsumerInterceptorTest {
         des.setPhysicalName("test");
         messageDispatch.setDestination(des);
         Message msg = new Msg();
-        msg.setProperty("sw3", "");
         messageDispatch.setMessage(msg);
         arguments = new Object[] {messageDispatch};
         argumentType = null;
-    }
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test

@@ -23,24 +23,23 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMet
 
 import java.lang.reflect.Method;
 
-/**
- * @author zhaoyuguang
- */
-
 public class CustomizeStaticInterceptor extends BaseInterceptorMethods implements StaticMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
         super.beforeMethod(method, allArguments);
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         super.afterMethod(method);
         return ret;
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
         super.handleMethodException(t);
     }
 }

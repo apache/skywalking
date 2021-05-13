@@ -18,3 +18,5 @@ toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanActiv
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotationActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceContextActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableActivation
+toolkit-tag=org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationActivation
+toolkit-exception=org.apache.skywalking.apm.toolkit.activation.trace.IgnoredExceptionAnnotationActivation

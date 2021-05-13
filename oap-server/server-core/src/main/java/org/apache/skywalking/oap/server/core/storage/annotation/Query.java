@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-/**
- * @author peng-yongsheng
- */
 public enum Query {
     Term, Match
 }

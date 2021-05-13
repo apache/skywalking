@@ -19,81 +19,73 @@
 package org.apache.skywalking.apm.plugin.customize.interceptor;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 import org.apache.skywalking.apm.plugin.customize.conf.MethodConfiguration;
 import org.apache.skywalking.apm.plugin.customize.constants.Constants;
-import org.apache.skywalking.apm.plugin.customize.util.CustomizeExpression;
+import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author zhaoyuguang
- */
-
 class BaseInterceptorMethods {
 
     void beforeMethod(Method method, Object[] allArguments) {
         Map<String, Object> configuration = CustomizeConfiguration.INSTANCE.getConfiguration(method);
-        if (!MethodConfiguration.isCloseBeforeMethod(configuration)) {
-            String operationName = MethodConfiguration.getOperationName(configuration);
-            Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
-            if (context == null || context.isEmpty()) {
-                ContextManager.createLocalSpan(operationName);
-            } else {
+        String operationName = MethodConfiguration.getOperationName(configuration);
+        Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
+        if (context == null || context.isEmpty()) {
+            ContextManager.createLocalSpan(operationName);
+        } else {
 
-                Map<String, String> tags = MethodConfiguration.getTags(configuration);
-                Map<String, String> spanTags = new HashMap<String, String>();
-                Map<String, String> logs = MethodConfiguration.getLogs(configuration);
-                Map<String, String> spanLogs = new HashMap<String, String>();
+            Map<String, String> tags = MethodConfiguration.getTags(configuration);
+            Map<String, String> spanTags = new HashMap<String, String>();
+            Map<String, String> logs = MethodConfiguration.getLogs(configuration);
+            Map<String, String> spanLogs = new HashMap<String, String>();
 
-                List<String> operationNameSuffixes = MethodConfiguration.getOperationNameSuffixes(configuration);
-                StringBuilder operationNameSuffix = new StringBuilder();
-                if (operationNameSuffixes != null && !operationNameSuffixes.isEmpty()) {
-                    for (String expression : operationNameSuffixes) {
-                        operationNameSuffix.append(Constants.OPERATION_NAME_SEPARATOR);
-                        operationNameSuffix.append(CustomizeExpression.parseExpression(expression, context));
-                    }
+            List<String> operationNameSuffixes = MethodConfiguration.getOperationNameSuffixes(configuration);
+            StringBuilder operationNameSuffix = new StringBuilder();
+            if (operationNameSuffixes != null && !operationNameSuffixes.isEmpty()) {
+                for (String expression : operationNameSuffixes) {
+                    operationNameSuffix.append(Constants.OPERATION_NAME_SEPARATOR);
+                    operationNameSuffix.append(CustomizeExpression.parseExpression(expression, context));
                 }
-                if (tags != null && !tags.isEmpty()) {
-                    for (String key : tags.keySet()) {
-                        String expression = tags.get(key);
-                        spanTags.put(key, CustomizeExpression.parseExpression(expression, context));
-                    }
+            }
+            if (tags != null && !tags.isEmpty()) {
+                for (Map.Entry<String, String> expression : tags.entrySet()) {
+                    spanTags.put(expression.getKey(), CustomizeExpression.parseExpression(expression.getValue(), context));
                 }
-                if (logs != null && !logs.isEmpty()) {
-                    for (String key : logs.keySet()) {
-                        String expression = logs.get(key);
-                        spanLogs.put(key, CustomizeExpression.parseExpression(expression, context));
-                    }
+            }
+            if (logs != null && !logs.isEmpty()) {
+                for (Map.Entry<String, String> entries : logs.entrySet()) {
+                    String expression = logs.get(entries.getKey());
+                    spanLogs.put(entries.getKey(), CustomizeExpression.parseExpression(expression, context));
                 }
-                operationName = operationNameSuffix.insert(0, operationName).toString();
+            }
+            operationName = operationNameSuffix.insert(0, operationName).toString();
 
-                AbstractSpan span = ContextManager.createLocalSpan(operationName);
-                if (!spanTags.isEmpty()) {
-                    for (Map.Entry<String, String> tag : spanTags.entrySet()) {
-                        span.tag(tag.getKey(), tag.getValue());
-                    }
+            AbstractSpan span = ContextManager.createLocalSpan(operationName);
+            if (!spanTags.isEmpty()) {
+                for (Map.Entry<String, String> tag : spanTags.entrySet()) {
+                    span.tag(Tags.ofKey(tag.getKey()), tag.getValue());
                 }
-                if (!spanLogs.isEmpty()) {
-                    span.log(System.currentTimeMillis(), spanLogs);
-                }
+            }
+            if (!spanLogs.isEmpty()) {
+                span.log(System.currentTimeMillis(), spanLogs);
             }
         }
     }
 
     void afterMethod(Method method) {
-        if (!MethodConfiguration.isCloseAfterMethod(CustomizeConfiguration.INSTANCE.getConfiguration(method))) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
     }
 
     void handleMethodException(Throwable t) {
         if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(t);
+            ContextManager.activeSpan().log(t);
         }
     }
 

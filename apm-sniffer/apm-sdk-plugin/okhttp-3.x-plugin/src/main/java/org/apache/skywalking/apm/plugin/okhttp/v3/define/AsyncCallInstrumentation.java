@@ -22,48 +22,55 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class AsyncCallInstrumentation extends AbstractOkhttpInstrumentation {
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
+                @Override
+                public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.AsyncCallInterceptor";
                 }
             }
         };
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute");
                 }
 
-                @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.v3.AsyncCallInterceptor";
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.AsyncCallInterceptor";
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName("okhttp3.RealCall$AsyncCall");
     }
 }

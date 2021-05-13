@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.clr.module;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- *  @author liuhaoyang
+ *
  **/
 public class CLRModule extends ModuleDefine {
 
@@ -29,7 +29,8 @@ public class CLRModule extends ModuleDefine {
         super("receiver-clr");
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

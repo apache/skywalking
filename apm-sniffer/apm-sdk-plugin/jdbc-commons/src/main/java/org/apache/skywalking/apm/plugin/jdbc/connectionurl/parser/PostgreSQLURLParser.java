@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -24,8 +23,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link PostgreSQLURLParser} parse connection url of mysql.
- *
- * @author zhangxin
  */
 public class PostgreSQLURLParser extends AbstractURLParser {
 

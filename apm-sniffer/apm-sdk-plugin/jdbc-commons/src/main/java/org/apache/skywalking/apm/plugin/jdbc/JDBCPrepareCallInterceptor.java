@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import java.lang.reflect.Method;
@@ -31,8 +30,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link JDBCPrepareCallInterceptor} return {@link SWCallableStatement} instance that wrapper the real CallStatement
  * instance when the client call <code>prepareCall</code> method.
- *
- * @author zhangxin
  */
 public class JDBCPrepareCallInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -47,10 +44,11 @@ public class JDBCPrepareCallInterceptor implements InstanceMethodsAroundIntercep
         if (objInst.getSkyWalkingDynamicField() == null) {
             return ret;
         }
-        return new SWCallableStatement((Connection)objInst, (CallableStatement)ret, (ConnectionInfo)objInst.getSkyWalkingDynamicField(), (String)allArguments[0]);
+        return new SWCallableStatement((Connection) objInst, (CallableStatement) ret, (ConnectionInfo) objInst.getSkyWalkingDynamicField(), (String) allArguments[0]);
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

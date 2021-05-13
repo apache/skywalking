@@ -31,7 +31,7 @@ public class SetCatalogInterceptor implements InstanceMethodsAroundInterceptor {
         MethodInterceptResult result) throws Throwable {
         Object dynamicField = objInst.getSkyWalkingDynamicField();
         if (dynamicField instanceof ConnectionInfo) {
-            ((ConnectionInfo)dynamicField).setDatabaseName(String.valueOf(allArguments[0]));
+            ((ConnectionInfo) dynamicField).setDatabaseName(String.valueOf(allArguments[0]));
         }
     }
 
@@ -41,7 +41,8 @@ public class SetCatalogInterceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
     }
 }

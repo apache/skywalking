@@ -18,30 +18,42 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 
-/**
- * @author peng-yongsheng
- */
 public class StorageEsDAO extends EsDAO implements StorageDAO {
 
     public StorageEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new MetricsEsDAO(getClient(), storageBuilder);
+    @Override
+    public IMetricsDAO newMetricsDao(StorageBuilder storageBuilder) {
+        return new MetricsEsDAO(getClient(), (StorageHashMapBuilder<Metrics>) storageBuilder);
     }
 
-    @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return new RegisterEsDAO(getClient(), storageBuilder);
+    @Override
+    public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
+        return new RecordEsDAO(getClient(), (StorageHashMapBuilder<Record>) storageBuilder);
     }
 
-    @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new RecordEsDAO(getClient(), storageBuilder);
+    @Override
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder storageBuilder) {
+        return new NoneStreamEsDAO(getClient(), (StorageHashMapBuilder<NoneStream>) storageBuilder);
+    }
+
+    @Override
+    public IManagementDAO newManagementDao(StorageBuilder storageBuilder) {
+        return new ManagementEsDAO(getClient(), (StorageHashMapBuilder<ManagementData>) storageBuilder);
     }
 }

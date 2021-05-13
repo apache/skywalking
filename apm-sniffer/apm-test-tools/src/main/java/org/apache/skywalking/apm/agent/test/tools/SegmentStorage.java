@@ -16,21 +16,20 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.test.tools;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 public class SegmentStorage {
-    private LinkedList<TraceSegment> traceSegments;
-    private LinkedList<IgnoredTracerContext> ignoredTracerContexts;
+    private List<TraceSegment> traceSegments;
+    private List<IgnoredTracerContext> ignoredTracerContexts;
 
     public SegmentStorage() {
-        traceSegments = new LinkedList<TraceSegment>();
-        ignoredTracerContexts = new LinkedList<IgnoredTracerContext>();
+        traceSegments = new ArrayList<TraceSegment>();
+        ignoredTracerContexts = new ArrayList<IgnoredTracerContext>();
     }
 
     void addTraceSegment(TraceSegment segment) {
@@ -45,7 +44,7 @@ public class SegmentStorage {
         this.ignoredTracerContexts.add(context);
     }
 
-    public LinkedList<IgnoredTracerContext> getIgnoredTracerContexts() {
+    public List<IgnoredTracerContext> getIgnoredTracerContexts() {
         return ignoredTracerContexts;
     }
 }

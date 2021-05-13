@@ -18,14 +18,47 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import java.util.Base64;
+import java.util.List;
+import org.apache.skywalking.apm.network.logging.v3.LogTags;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author wusheng
- */
 public interface ILogQueryDAO extends Service {
-    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        String traceId, LogState state, String stateCode, Pagination paging, int from, int limit, final long startTB, final long endTB) throws IOException;
+
+    default boolean supportQueryLogsByKeywords() {
+        return false;
+    }
+
+    Logs queryLogs(String serviceId,
+                   String serviceInstanceId,
+                   String endpointId,
+                   String endpointName,
+                   TraceScopeCondition relatedTrace,
+                   Order queryOrder,
+                   int from,
+                   int limit,
+                   final long startTB,
+                   final long endTB,
+                   final List<Tag> tags,
+                   final List<String> keywordsOfContent,
+                   final List<String> excludingKeywordsOfContent) throws IOException;
+
+    /**
+     * Parser the raw tags.
+     */
+    default void parserDataBinary(String dataBinaryBase64, List<KeyValue> tags) {
+        try {
+            LogTags logTags = LogTags.parseFrom(Base64.getDecoder().decode(dataBinaryBase64));
+            logTags.getDataList().forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -29,30 +29,29 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link io.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}.
- *
- * @author zhangyonglun
+ * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link
+ * io.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}.
  */
 public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+
     private static final String ENHANCE_CLASS = "io.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor";
-    
+
     private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.JDBCRootInvokeInterceptor";
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("executeCallback");
                 }
-                
+
                 @Override
                 public String getMethodsInterceptor() {
                     return JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS;
                 }
-                
+
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -60,12 +59,12 @@ public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePl
             }
         };
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

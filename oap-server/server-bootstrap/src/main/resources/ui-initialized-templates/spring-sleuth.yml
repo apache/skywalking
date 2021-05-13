@@ -1,0 +1,185 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# UI templates initialized file includes the default template when the SkyWalking OAP starts up at the first time.
+#
+# Also, SkyWalking would detect the existing templates in the database, once they are missing, all templates in this file
+# could be added automatically.
+
+templates:
+  - name: Spring-Sleuth
+    type: "DASHBOARD"
+    configuration: |-
+      [
+        {
+          "name":"Spring Sleuth",
+          "type":"service",
+          "children":[
+            {
+              "name":"Sleuth",
+              "children": [{
+                "width": "3",
+                "title": "HTTP Request",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_http_server_requests_count",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "HTTP Request Duration",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_http_server_requests_duration",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "ms"
+              }, {
+                "width": "3",
+                "title": "JDBC Connections",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "metricName": "meter_jdbc_connections_max,meter_jdbc_connections_active,meter_jdbc_connections_idle",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "Tomcat Session",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "metricName": "meter_tomcat_sessions_active_max,meter_tomcat_sessions_active_current,meter_tomcat_sessions_rejected",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "Instance CPU Usage",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_process_cpu_usage",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "+",
+                "aggregationNum": "",
+                "unit": "%"
+              }, {
+                "width": "3",
+                "title": "OS CPU Usage",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_system_cpu_usage",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "+",
+                "aggregationNum": "",
+                "unit": "%"
+              }, {
+                "width": "3",
+                "title": "OS System Load",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_system_load_average_1m",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "",
+                "aggregation": "+",
+                "aggregationNum": ""
+              }, {
+                "width": "3",
+                "title": "OS Process File",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_process_files_max,meter_process_files_open",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count",
+                "aggregation": "+",
+                "aggregationNum": ""
+              }, {
+                "width": "3",
+                "title": "JVM GC Pause Duration",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_gc_pause_duration",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "ms",
+                "aggregation": "+",
+                "aggregationNum": ""
+              }, {
+                "width": "3",
+                "title": "JVM Memory",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_memory_max,meter_jvm_memory_used,meter_jvm_memory_committed",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "aggregation": "/",
+                "aggregationNum": "1048576",
+                "unit": "MB"
+              }, {
+                "width": "3",
+                "title": "JVM Thread",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_threads_peak,meter_jvm_threads_live,meter_jvm_threads_daemon",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }, {
+                "width": "3",
+                "title": "JVM classes",
+                "height": "200",
+                "entityType": "ServiceInstance",
+                "independentSelector": false,
+                "metricType": "REGULAR_VALUE",
+                "metricName": "meter_jvm_classes_loaded,meter_jvm_classes_unloaded",
+                "queryMetricType": "readMetricsValues",
+                "chartType": "ChartLine",
+                "unit": "Count"
+              }]
+            }
+          ]
+      }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: false
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

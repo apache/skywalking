@@ -18,18 +18,22 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
-import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
+import java.util.Properties;
+
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-/**
- * @author caoyixiong
- */
 public class ClusterModuleNacosProvider extends ModuleProvider {
 
     private final ClusterModuleNacosConfig config;
@@ -58,18 +62,30 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            namingService = NamingFactory.createNamingService(config.getHostPort());
-        } catch (NacosException e) {
+            Properties properties = new Properties();
+            properties.put(PropertyKeyConst.SERVER_ADDR, config.getHostPort());
+            properties.put(PropertyKeyConst.NAMESPACE, config.getNamespace());
+            if (StringUtil.isNotEmpty(config.getUsername()) && StringUtil.isNotEmpty(config.getAccessKey())) {
+                throw new ModuleStartException("Nacos Auth method should choose either username or accessKey, not both");
+            }
+            if (StringUtil.isNotEmpty(config.getUsername())) {
+                properties.put(PropertyKeyConst.USERNAME, config.getUsername());
+                properties.put(PropertyKeyConst.PASSWORD, config.getPassword());
+            } else if (StringUtil.isNotEmpty(config.getAccessKey())) {
+                properties.put(PropertyKeyConst.ACCESS_KEY, config.getAccessKey());
+                properties.put(PropertyKeyConst.SECRET_KEY, config.getSecretKey());
+            }
+            namingService = NamingFactory.createNamingService(properties);
+        } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        NacosCoordinator coordinator = new NacosCoordinator(namingService, config);
+        NacosCoordinator coordinator = new NacosCoordinator(getManager(), namingService, config);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException {
-
     }
 
     @Override
@@ -79,6 +95,6 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[] {CoreModule.NAME};
     }
 }

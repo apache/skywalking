@@ -1,37 +1,62 @@
-# How to build project
-This document helps people to compile and build the project in your maven and set your IDE.
+# How to build a project
+This document will help you compile and build a project in your maven and set your IDE.
 
-## Build Project
-**Because we are using Git submodule, we recommend don't use `GitHub` tag or release page to download source codes for compiling.**
+## Building the Project
+**Since we are using Git submodule, we do not recommend using the `GitHub` tag or release page to download source codes for compiling.**
 
-### Build from GitHub
-1. Prepare git, JDK8 and maven3
-1. `git clone https://github.com/apache/skywalking.git`
-1. `cd skywalking/`
-1. Switch to the tag by using `git checkout [tagname]` (Optional, switch if want to build a release from source codes)
-1. `git submodule init`
-1. `git submodule update`
+### Maven behind the Proxy
+If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and set the follow properties:
+```properties
+-Dhttp.proxyHost=proxy_ip
+-Dhttp.proxyPort=proxy_port
+-Dhttps.proxyHost=proxy_ip
+-Dhttps.proxyPort=proxy_port 
+-Dhttp.proxyUser=username
+-Dhttp.proxyPassword=password
+```
+
+### Building from GitHub
+1. Prepare git, JDK8+, and Maven 3.6+.
+1. Clone the project.
+
+    If you want to build a release from source codes, set a `tag name` by using `git clone -b [tag_name] ...` while cloning.
+    
+    ```bash
+    git clone --recurse-submodules https://github.com/apache/skywalking.git
+    cd skywalking/
+    
+    OR
+    
+    git clone https://github.com/apache/skywalking.git
+    cd skywalking/
+    git submodule init
+    git submodule update
+    ```
+   
 1. Run `./mvnw clean package -DskipTests`
 1. All packages are in `/dist` (.tar.gz for Linux and .zip for Windows).
 
-### Build from Apache source code release
-- What is `Apache source code release`?
+### Building from Apache source code release
+- What is the `Apache source code release`?
 
-For each official Apache release, there is a complete and independent source code tar, which is including all source codes. You could download it from [SkyWalking Apache download page](http://skywalking.apache.org/downloads/). No git related stuff required when compiling this. Just follow these steps.
+For each official Apache release, there is a complete and independent source code tar, which includes all source codes. You could download it from [SkyWalking Apache download page](http://skywalking.apache.org/downloads/). There is no requirement related to git when compiling this. Just follow these steps.
 
-1. Prepare JDK8 and maven3
-1. Run `./mvnw clean package -DskipTests`
+1. Prepare JDK8+ and Maven 3.6+.
+1. Run `./mvnw clean package -DskipTests`.
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 
-### Advanced compile
-SkyWalking is a complex maven project, including many modules, which could cause long compiling time. 
-If you just want to recompile part of the project, you have following options
+### Advanced compiling
+SkyWalking is a complex maven project that has many modules. Therefore, the time to compile may be a bit longer than usual.
+If you just want to recompile part of the project, you have the following options:
 - Compile agent and package
 >  ./mvnw package -Pagent,dist
 
 or
 
 > make build.agent
+
+If you intend to compile a single plugin, such as one in the dev stage, you could
+>  cd plugin_module_dir & mvn clean package
 
 - Compile backend and package
 >  ./mvnw package -Pbackend,dist
@@ -48,102 +73,22 @@ or
 > make build.ui
 
 
-### Build docker images
-We can build docker images of `backend` and `ui` with `Makefile` located in root folder.
+### Building docker images
+You can build docker images of `backend` and `ui` with `Makefile` located in root folder.
 
-- Build all docker images
-> make docker.all
+Refer to [Build docker image](../../../docker) for more details.
 
-- Build oap server docker image
-> make docker.oap
+## Setting up your IntelliJ IDEA
+**NOTE**: If you clone the codes from GitHub, please make sure that you have finished steps 1 to 3 in section **[Build from GitHub](#build-from-github)**. If you download the source codes from the official website of SkyWalking, please make sure that you have followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
 
-- Build ui docker image
-> make docker.ui
-
-`HUB` and `TAG` variables ares used to setup `REPOSITORY` and `TAG` of a docker image. To get
-a oap image with name `bar/oap:foo`, run the following command
-> HUB=bar TAG=foo make docker.oap
-
-## Setup your IntelliJ IDEA
-**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
-
-1. Import the project as a maven project
-1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.
+1. Import the project as a maven project.
+1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. The reason is that we use gRPC and protobuf.
 1. Set **Generated Source Codes** folders.
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/receiver-proto/target/generated-sources/fbs**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/receiver-proto/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/exporter/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-configuration/grpc-configuration-sync/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-alarm-plugin/target/generated-sources/protobuf**
     * `antlr4` folder in **oap-server/oal-grammar/target/generated-sources**
-    
-## Setup your Eclipse IDE
-**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
-
-1. Import the project as a maven project
-2. For supporting multiple source directories, you need to add the following configuration in `skywalking/pom.xml` file:
-```
-<plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>build-helper-maven-plugin</artifactId>
-    <version>1.8</version>
-    <executions>
-        <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-                <goal>add-source</goal>
-            </goals>
-            <configuration>
-                <sources>
-                    <source>src/java/main</source>
-                    <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
-                    <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
-               </sources>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
-```
-3. Add the following configuration under to let eclipse's M2e plug-in supports execution's solution configuration
-```
-<pluginManagement>
-    <plugins>
-    <!--This plugin's configuration is used to store Eclipse m2e settings 
-    only. It has no influence on the Maven build itself. -->
-        <plugin>
-            <groupId>org.eclipse.m2e</groupId>
-            <artifactId>lifecycle-mapping</artifactId>
-            <version>1.0.0</version>
-            <configuration>
-                <lifecycleMappingMetadata>
-                    <pluginExecutions>
-                        <pluginExecution>
-                            <pluginExecutionFilter>
-                                <groupId>org.codehaus.mojo</groupId>
-                                <artifactId>build-helper-maven-plugin</artifactId>
-                                <versionRange>[1.8,)</versionRange>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                            </pluginExecutionFilter>
-                        </pluginExecution>
-                    </pluginExecutions>
-                </lifecycleMappingMetadata>
-            </configuration>
-        </plugin>
-    </plugins>
-</pluginManagement>
-```
-4. Adding Google guava dependency to apm-collector-remote/collector-remote-grpc-provider/pom.xml files
-```
-<dependency>
-   <groupId>com.google.guava</groupId>
-   <artifactId>guava</artifactId>
-   <version>24.0-jre</version>
-</dependency>
-```
-5. Run `./mvnw compile -Dmaven.test.skip=true`
-6. Run `maven update`. Must remove the clean projects item before maven update(This will be clear the proto conversion Java file generated by the complie)
-7. Run `./mvnw compile` compile collector-remote-grpc-provider and apm-protocol
-8. Refresh project

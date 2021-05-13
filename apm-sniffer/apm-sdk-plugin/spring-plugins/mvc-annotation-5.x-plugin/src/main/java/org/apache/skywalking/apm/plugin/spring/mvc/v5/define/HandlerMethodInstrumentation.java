@@ -29,8 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link HandlerMethodInstrumentation} intercept the <code>getBean</code> method in the
  * <code>org.springframework.web.method.HandlerMethod</code> class.
- *
- * @author zhangxin
  */
 public class HandlerMethodInstrumentation extends AbstractSpring5Instrumentation {
 

@@ -7,3 +7,6 @@
 [submodule "skywalking-ui"]
 	path = skywalking-ui
 	url = https://github.com/apache/skywalking-rocketbot-ui.git
+[submodule "test/e2e/e2e-protocol/src/main/proto"]
+	path = test/e2e/e2e-protocol/src/main/proto
+	url = https://github.com/apache/skywalking-data-collect-protocol.git

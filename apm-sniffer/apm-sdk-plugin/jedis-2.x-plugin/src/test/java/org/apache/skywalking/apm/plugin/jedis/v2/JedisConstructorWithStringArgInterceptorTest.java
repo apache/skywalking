@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -50,7 +49,10 @@ public class JedisConstructorWithStringArgInterceptorTest {
 
     @Test
     public void onConstructWithPort() {
-        interceptor.onConstruct(enhancedInstance, new Object[] {"127.0.0.1", 16379});
+        interceptor.onConstruct(enhancedInstance, new Object[] {
+            "127.0.0.1",
+            16379
+        });
 
         verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:16379");
     }

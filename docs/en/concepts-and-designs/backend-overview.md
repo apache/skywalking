@@ -1,34 +1,16 @@
 # Observability Analysis Platform
-OAP(Observability Analysis Platform) is a new concept, which starts in SkyWalking 6.x. OAP replaces the 
-old SkyWalking whole backend. The capabilities of the platform are following.
+SkyWalking is an Observability Analysis Platform that provides full observability to services running in both brown and green zones, as well as services using a hybrid model.
 
-## OAP capabilities
-OAP accepts data from more sources, which belongs two groups: **Tracing** and **Metrics**.
+## Capabilities
+SkyWalking covers all 3 areas of observability, including, **Tracing**, **Metrics** and **Logging**.
 
-- **Tracing**. Including, SkyWalking native data formats. Zipkin v1,v2 data formats and Jaeger data formats.
-- **Metrics**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, Linkerd, to provide observability from data panel 
-or control panel. Also, SkyWalking native agents can run in metrics mode, which highly improve the 
-performance.
+- **Tracing**. SkyWalking native data formats, including Zipkin v1 and v2, as well as Jaeger.
+- **Metrics**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, and Linkerd, to build observability into the data panel 
+or control panel. Also, SkyWalking native agents can run in the metrics mode, which greatly improves performances.
+- **Logging**. Includes logs collected from disk or through network. Native agents could bind the tracing context with logs automatically,
+or use SkyWalking to bind the trace and log through the text content.
 
-At the same time by using any integration solution provided, such as SkyWalking log plugin or toolkits, 
-SkyWalking provides visualization integration for binding tracing and logging together by using the 
-trace id and span id.
-
-As usual, all services provided by gRPC and HTTP protocol to make integration easier for unsupported ecosystem.
-
-## Tracing in OAP
-Tracing in OAP has two ways to process.
-1. Traditional way in SkyWalking 5 series. Format tracing data in SkyWalking trace segment and span formats, 
-even for Zipkin data format. The OAP analysis the segments to get metrics, and push the metrics data into
-the streaming aggregation.
-1. Consider tracing as some kinds of logging only. Just provide save and visualization capabilities for trace. 
-
-Also, SkyWalking accepts trace formats from other project, such as Zipkin, Jeager, OpenCensus.
-These formats could be processed in the two ways too.
-
-## Metrics in OAP
-Metrics in OAP is totally new feature in 6 series. Build observability for a distributed system based on metrics of connected nodes.
-No tracing data is required.
-
-Metrics data are aggregated inside OAP cluster in streaming mode. See about [Observability Analysis Language](oal.md),
-which provides the easy way to do aggregation and analysis in script style. 
+There are 3 powerful and native language engines designed to analyze observability data from the above areas.
+1. [Observability Analysis Language](oal.md) processes native traces and service mesh data.
+1. [Meter Analysis Language](mal.md) is responsible for metrics calculation for native meter data, and adopts a stable and widely used metrics system, such as Prometheus and OpenTelemetry.
+1. [Log Analysis Language](lal.md) focuses on log contents and collaborate with Meter Analysis Language.

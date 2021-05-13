@@ -22,8 +22,6 @@ import com.google.common.base.Strings;
 
 /**
  * The running mode of the OAP server.
- *
- * @author wusheng
  */
 public class RunningMode {
     private static String MODE = "";
@@ -40,17 +38,19 @@ public class RunningMode {
 
     /**
      * Init mode, do all initialization things, and process should exit.
+     *
      * @return true if in this status
      */
     public static boolean isInitMode() {
-        return MODE.equals("init");
+        return "init".equals(MODE);
     }
 
     /**
      * No-init mode, the oap just starts up, but wouldn't do storage init.
+     *
      * @return true if in this status.
      */
     public static boolean isNoInitMode() {
-        return MODE.equals("no-init");
+        return "no-init".equals(MODE);
     }
 }

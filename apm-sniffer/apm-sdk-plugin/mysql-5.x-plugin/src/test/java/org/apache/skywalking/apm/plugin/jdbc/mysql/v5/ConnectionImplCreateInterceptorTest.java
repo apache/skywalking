@@ -28,17 +28,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.verify;
 
-/**
- *
- * @author: dingshaocheng
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionImplCreateInterceptorTest {
     private ConnectionCreate5xInterceptor interceptor;
 
     @Mock
     private EnhancedInstance objectInstance;
-
 
     @Before
     public void setUp() {
@@ -47,7 +42,13 @@ public class ConnectionImplCreateInterceptorTest {
 
     @Test
     public void testResultIsEnhanceInstance() throws Throwable {
-        interceptor.afterMethod(null,null,new Object[]{"localhost",3360,null,"test","jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true"},null,objectInstance);
+        interceptor.afterMethod(null, null, new Object[] {
+            "localhost",
+            3360,
+            null,
+            "test",
+            "jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true"
+        }, null, objectInstance);
         verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
     }
 }

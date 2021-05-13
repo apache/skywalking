@@ -19,11 +19,8 @@
 package org.apache.skywalking.apm.agent.core.jvm.memorypool;
 
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.MemoryPool;
+import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 
-/**
- * @author wusheng
- */
 public interface MemoryPoolMetricsAccessor {
     List<MemoryPool> getMemoryPoolMetricsList();
 }

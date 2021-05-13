@@ -19,20 +19,26 @@
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link MysqlURLParser} parse connection url of mysql.
- *
- * @author zhangxin
  */
 public class MysqlURLParser extends AbstractURLParser {
 
     private static final int DEFAULT_PORT = 3306;
-    private static final String DB_TYPE = "Mysql";
+    private String dbType = "Mysql";
+    private OfficialComponent component = ComponentsDefine.MYSQL_JDBC_DRIVER;
 
     public MysqlURLParser(String url) {
         super(url);
+    }
+
+    public MysqlURLParser(String url, String dbType, OfficialComponent component) {
+        super(url);
+        this.dbType = dbType;
+        this.component = component;
     }
 
     @Override
@@ -89,13 +95,15 @@ public class MysqlURLParser extends AbstractURLParser {
                     sb.append(host).append(",");
                 }
             }
-            return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, sb.substring(0, sb.length() - 1), fetchDatabaseNameFromURL());
+            return new ConnectionInfo(component, dbType, sb.substring(0, sb.length() - 1), fetchDatabaseNameFromURL());
         } else {
             String[] hostAndPort = hostSegment[0].split(":");
             if (hostAndPort.length != 1) {
-                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL(location.endIndex()));
+                return new ConnectionInfo(component, dbType, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL(location
+                        .endIndex()));
             } else {
-                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL(location.endIndex()));
+                return new ConnectionInfo(component, dbType, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL(location
+                        .endIndex()));
             }
         }
     }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.opentracing;
 
 import io.opentracing.Span;
@@ -24,23 +23,15 @@ import io.opentracing.SpanContext;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author wusheng
- */
 public class SkywalkingSpan implements Span {
-    @NeedSnifferActivation(
-        "1.ContextManager#createSpan (Entry,Exit,Local based on builder)." +
-            "2.set the span reference to the dynamic field of enhanced SkywalkingSpan") SkywalkingSpan(
-        SkywalkingSpanBuilder builder) {
+    @NeedSnifferActivation("1.ContextManager#createSpan (Entry,Exit,Local based on builder)." + "2.set the span reference to the dynamic field of enhanced SkywalkingSpan")
+    SkywalkingSpan(SkywalkingSpanBuilder builder) {
     }
 
     /**
      * Create a shell span for {@link SkywalkingTracer#activeSpan()}
-     *
-     * @param tracer
      */
-    @NeedSnifferActivation(
-        "1. set the span reference to the dynamic field of enhanced SkywalkingSpan")
+    @NeedSnifferActivation("1. set the span reference to the dynamic field of enhanced SkywalkingSpan")
     public SkywalkingSpan(SkywalkingTracer tracer) {
 
     }
@@ -59,12 +50,8 @@ public class SkywalkingSpan implements Span {
 
     /**
      * Stop the active span
-     *
-     * @param finishMicros
      */
-    @NeedSnifferActivation(
-        "1.ContextManager#stopSpan(AbstractSpan span)" +
-            "2. The parameter of stop methed is from the dynamic field of enhanced SkywalkingSpan")
+    @NeedSnifferActivation("1.ContextManager#stopSpan(AbstractSpan span)" + "2. The parameter of stop methed is from the dynamic field of enhanced SkywalkingSpan")
     @Override
     public void finish(long finishMicros) {
 
@@ -87,18 +74,19 @@ public class SkywalkingSpan implements Span {
         return SkywalkingContext.INSTANCE;
     }
 
-    @NeedSnifferActivation(
-        "1. ContextManager#activeSpan()" +
-            "2. SkywalkingSpan#setTag(String, String)")
-    @Override public Span setTag(String key, String value) {
+    @NeedSnifferActivation("1. ContextManager#activeSpan()" + "2. SkywalkingSpan#setTag(String, String)")
+    @Override
+    public Span setTag(String key, String value) {
         return this;
     }
 
-    @Override public Span setTag(String key, boolean value) {
+    @Override
+    public Span setTag(String key, boolean value) {
         return setTag(key, String.valueOf(value));
     }
 
-    @Override public Span setTag(String key, Number value) {
+    @Override
+    public Span setTag(String key, Number value) {
         return setTag(key, String.valueOf(value));
     }
 

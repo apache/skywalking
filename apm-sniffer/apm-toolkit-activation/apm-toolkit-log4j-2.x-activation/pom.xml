@@ -21,11 +21,27 @@
     <parent>
         <artifactId>apm-toolkit-activation</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>8.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-toolkit-log4j-2.x-activation</artifactId>
+    <properties>
+        <log4j-core.version>2.7</log4j-core.version>
+    </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j-core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-logging-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

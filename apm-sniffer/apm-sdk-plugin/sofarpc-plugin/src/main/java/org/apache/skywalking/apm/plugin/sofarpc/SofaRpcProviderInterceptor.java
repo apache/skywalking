@@ -32,19 +32,14 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * @author leizhiyuan
- */
 public class SofaRpcProviderInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String SKYWALKING_PREFIX = "skywalking.";
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         SofaRequest sofaRequest = (SofaRequest) allArguments[0];
-
-        AbstractSpan span = null;
 
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
@@ -58,15 +53,15 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
                 next.setHeadValue("");
             }
         }
-        span = ContextManager.createEntrySpan(generateViewPoint(sofaRequest), contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(generateViewPoint(sofaRequest), contextCarrier);
 
         span.setComponent(ComponentsDefine.SOFARPC);
         SpanLayer.asRPCFramework(span);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         SofaResponse result = (SofaResponse) ret;
         if (result != null && result.isError()) {
             dealException((Throwable) result.getAppResponse());
@@ -78,7 +73,7 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         dealException(t);
     }
 
@@ -87,7 +82,6 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
      */
     private void dealException(Throwable throwable) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(throwable);
     }
 
@@ -99,9 +93,9 @@ public class SofaRpcProviderInterceptor implements InstanceMethodsAroundIntercep
     private String generateViewPoint(SofaRequest sofaRequest) {
         StringBuilder operationName = new StringBuilder();
         operationName.append(sofaRequest.getInterfaceName());
-        operationName.append("." + sofaRequest.getMethodName() + "(");
+        operationName.append(".").append(sofaRequest.getMethodName()).append("(");
         for (String arg : sofaRequest.getMethodArgSigs()) {
-            operationName.append(arg + ",");
+            operationName.append(arg).append(",");
         }
 
         if (sofaRequest.getMethodArgs().length > 0) {

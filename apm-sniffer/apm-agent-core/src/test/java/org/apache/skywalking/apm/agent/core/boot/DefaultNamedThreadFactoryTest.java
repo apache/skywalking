@@ -23,9 +23,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 
-/**
- * @author zhangkewei
- */
 public class DefaultNamedThreadFactoryTest {
 
     @Test

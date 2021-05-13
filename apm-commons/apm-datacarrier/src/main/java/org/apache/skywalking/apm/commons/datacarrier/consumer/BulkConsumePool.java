@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import org.apache.skywalking.apm.commons.datacarrier.EnvUtil;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
@@ -26,10 +27,8 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 /**
  * BulkConsumePool works for consuming data from multiple channels(DataCarrier instances), with multiple {@link
  * MultipleChannelsConsumer}s.
- *
+ * <p>
  * In typical case, the number of {@link MultipleChannelsConsumer} should be less than the number of channels.
- *
- * @author wusheng
  */
 public class BulkConsumePool implements ConsumerPool {
     private List<MultipleChannelsConsumer> allConsumers;
@@ -45,7 +44,8 @@ public class BulkConsumePool implements ConsumerPool {
         }
     }
 
-    @Override synchronized public void add(String name, Channels channels, IConsumer consumer) {
+    @Override
+    synchronized public void add(String name, Channels channels, IConsumer consumer) {
         MultipleChannelsConsumer multipleChannelsConsumer = getLowestPayload();
         multipleChannelsConsumer.addNewTarget(channels, consumer);
     }
@@ -67,20 +67,22 @@ public class BulkConsumePool implements ConsumerPool {
     }
 
     /**
-     * @param channels
-     * @return
+     *
      */
-    @Override public boolean isRunning(Channels channels) {
+    @Override
+    public boolean isRunning(Channels channels) {
         return isStarted;
     }
 
-    @Override public void close(Channels channels) {
+    @Override
+    public void close(Channels channels) {
         for (MultipleChannelsConsumer consumer : allConsumers) {
             consumer.shutdown();
         }
     }
 
-    @Override public void begin(Channels channels) {
+    @Override
+    public void begin(Channels channels) {
         if (isStarted) {
             return;
         }
@@ -104,7 +106,8 @@ public class BulkConsumePool implements ConsumerPool {
             this.consumeCycle = consumeCycle;
         }
 
-        @Override public ConsumerPool call() {
+        @Override
+        public ConsumerPool call() {
             return new BulkConsumePool(name, size, consumeCycle);
         }
 

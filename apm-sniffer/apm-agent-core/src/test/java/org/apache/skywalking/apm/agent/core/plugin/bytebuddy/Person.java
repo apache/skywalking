@@ -15,12 +15,9 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
-/**
- * @author AI
- * 2019-08-15
- */
 public class Person {
     private int age;
     private String name;

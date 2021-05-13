@@ -18,19 +18,22 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class PersistenceField {
     private String fieldName;
     private String setter;
     private String getter;
+    private String fieldType;
 
-    public PersistenceField(String fieldName) {
+    public PersistenceField(String fieldName, String fieldType) {
         this.fieldName = fieldName;
         this.setter = ClassMethodUtil.toSetMethod(fieldName);
         this.getter = ClassMethodUtil.toGetMethod(fieldName);
+        this.fieldType = fieldType;
     }
 }

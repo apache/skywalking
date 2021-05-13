@@ -22,11 +22,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * LoggingEvent implements ILoggingEvent,
- * which is a message in the blockingQueue of the AsyncAppenderBase.class.
- * The LoggingEvent is enhanced to carry the tid in the synchronization thread using `dynamicField`.
- *
- * @author zhaoyuguang
+ * LoggingEvent implements ILoggingEvent, which is a message in the blockingQueue of the AsyncAppenderBase.class. The
+ * LoggingEvent is enhanced to carry the tid in the synchronization thread using `dynamicField`.
  */
 
 public class LoggingEventConstructorInterceptor implements InstanceConstructorInterceptor {

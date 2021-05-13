@@ -18,33 +18,34 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PersistenceColumns {
     private List<PersistenceField> stringFields = new LinkedList<>();
     private List<PersistenceField> longFields = new LinkedList<>();
     private List<PersistenceField> doubleFields = new LinkedList<>();
     private List<PersistenceField> intFields = new LinkedList<>();
-    private List<PersistenceField> intKeyLongValueHashMap = new LinkedList<>();
+    private List<PersistenceField> objectFields = new LinkedList<>();
 
     public void addStringField(String fieldName) {
-        stringFields.add(new PersistenceField(fieldName));
+        stringFields.add(new PersistenceField(fieldName, "String"));
     }
 
     public void addLongField(String fieldName) {
-        longFields.add(new PersistenceField(fieldName));
+        longFields.add(new PersistenceField(fieldName, "long"));
     }
 
     public void addDoubleField(String fieldName) {
-        doubleFields.add(new PersistenceField(fieldName));
+        doubleFields.add(new PersistenceField(fieldName, "double"));
     }
 
     public void addIntField(String fieldName) {
-        intFields.add(new PersistenceField(fieldName));
+        intFields.add(new PersistenceField(fieldName, "int"));
     }
 
-    public void addIntKeyLongValueHashMapField(String fieldName) {
-        intKeyLongValueHashMap.add(new PersistenceField(fieldName));
+    public void addObjectField(String fieldName, String fieldType) {
+        objectFields.add(new PersistenceField(fieldName, fieldType));
     }
 
     public List<PersistenceField> getStringFields() {
@@ -63,7 +64,7 @@ public class PersistenceColumns {
         return intFields;
     }
 
-    public List<PersistenceField> getIntKeyLongValueHashMapFields() {
-        return intKeyLongValueHashMap;
+    public List<PersistenceField> getObjectFields() {
+        return objectFields;
     }
 }

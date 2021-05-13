@@ -22,6 +22,7 @@ import com.alipay.sofa.rpc.client.ProviderInfo;
 import com.alipay.sofa.rpc.context.RpcInternalContext;
 import com.alipay.sofa.rpc.core.request.SofaRequest;
 import com.alipay.sofa.rpc.core.response.SofaResponse;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -33,30 +34,23 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import java.lang.reflect.Method;
-
-/**
- * @author leizhiyuan
- */
 public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String SKYWALKING_PREFIX = "skywalking.";
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
         SofaRequest sofaRequest = (SofaRequest) allArguments[0];
         RpcInternalContext rpcContext = RpcInternalContext.getContext();
 
         ProviderInfo providerInfo = rpcContext.getProviderInfo();
 
-        AbstractSpan span = null;
-
         final String host = providerInfo.getHost();
         final int port = providerInfo.getPort();
         final ContextCarrier contextCarrier = new ContextCarrier();
         final String operationName = generateOperationName(providerInfo, sofaRequest);
-        span = ContextManager.createExitSpan(operationName, contextCarrier, host + ":" + port);
+        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, host + ":" + port);
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -71,8 +65,8 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
         SofaResponse result = (SofaResponse) ret;
         if (result != null && result.isError()) {
             dealException((Throwable) result.getAppResponse());
@@ -93,7 +87,6 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
      */
     private void dealException(Throwable throwable) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
         span.log(throwable);
     }
 
@@ -105,9 +98,9 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
     private String generateOperationName(ProviderInfo providerInfo, SofaRequest sofaRequest) {
         StringBuilder operationName = new StringBuilder();
         operationName.append(sofaRequest.getInterfaceName());
-        operationName.append("." + sofaRequest.getMethodName() + "(");
+        operationName.append(".").append(sofaRequest.getMethodName()).append("(");
         for (String arg : sofaRequest.getMethodArgSigs()) {
-            operationName.append(arg + ",");
+            operationName.append(arg).append(",");
         }
 
         if (sofaRequest.getMethodArgs().length > 0) {
@@ -120,16 +113,15 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
     }
 
     /**
-     * Format request url.
-     * e.g. bolt://127.0.0.1:20880/org.apache.skywalking.apm.plugin.test.Test.test(String).
+     * Format request url. e.g. bolt://127.0.0.1:20880/org.apache.skywalking.apm.plugin.test.Test.test(String).
      *
      * @return request url.
      */
     private String generateRequestURL(ProviderInfo providerInfo, SofaRequest sofaRequest) {
         StringBuilder requestURL = new StringBuilder();
-        requestURL.append(providerInfo.getProtocolType() + "://");
+        requestURL.append(providerInfo.getProtocolType()).append("://");
         requestURL.append(providerInfo.getHost());
-        requestURL.append(":" + providerInfo.getPort() + "/");
+        requestURL.append(":").append(providerInfo.getPort()).append("/");
         requestURL.append(generateOperationName(providerInfo, sofaRequest));
         return requestURL.toString();
     }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import java.lang.reflect.Method;
@@ -32,18 +31,16 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoa
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 
 /**
- * The actual byte-buddy's interceptor to intercept class instance methods.
- * In this class, it provide a bridge between byte-buddy and sky-walking plugin.
- *
- * @author wusheng
+ * The actual byte-buddy's interceptor to intercept class instance methods. In this class, it provide a bridge between
+ * byte-buddy and sky-walking plugin.
  */
 public class InstMethodsInter {
-    private static final ILog logger = LogManager.getLogger(InstMethodsInter.class);
+    private static final ILog LOGGER = LogManager.getLogger(InstMethodsInter.class);
 
     /**
-     * An {@link InstanceMethodsAroundInterceptor}
-     * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
-     * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
+     * An {@link InstanceMethodsAroundInterceptor} This name should only stay in {@link String}, the real {@link Class}
+     * type will trigger classloader failure. If you want to know more, please check on books about Classloader or
+     * Classloader appointment mechanism.
      */
     private InstanceMethodsAroundInterceptor interceptor;
 
@@ -61,28 +58,24 @@ public class InstMethodsInter {
     /**
      * Intercept the target instance method.
      *
-     * @param obj target class instance.
+     * @param obj          target class instance.
      * @param allArguments all method arguments
-     * @param method method description.
-     * @param zuper the origin call ref.
+     * @param method       method description.
+     * @param zuper        the origin call ref.
      * @return the return value of target instance method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
-     * bug, if anything triggers this condition ).
+     *                   bug, if anything triggers this condition ).
      */
     @RuntimeType
-    public Object intercept(@This Object obj,
-        @AllArguments Object[] allArguments,
-        @SuperCall Callable<?> zuper,
-        @Origin Method method
-    ) throws Throwable {
-        EnhancedInstance targetObject = (EnhancedInstance)obj;
+    public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @SuperCall Callable<?> zuper,
+        @Origin Method method) throws Throwable {
+        EnhancedInstance targetObject = (EnhancedInstance) obj;
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                result);
+            interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
-            logger.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
+            LOGGER.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
         }
 
         Object ret = null;
@@ -94,18 +87,16 @@ public class InstMethodsInter {
             }
         } catch (Throwable t) {
             try {
-                interceptor.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(),
-                    t);
+                interceptor.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
-                logger.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
+                LOGGER.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
             }
             throw t;
         } finally {
             try {
-                ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                    ret);
+                ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
-                logger.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
+                LOGGER.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
             }
         }
         return ret;

@@ -14,15 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.3'
+version: '3.5'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ES_TAG}
     container_name: elasticsearch
     restart: always
     ports:
       - 9200:9200
-      - 9300:9300
     environment:
       discovery.type: single-node
     ulimits:
@@ -30,7 +29,7 @@ services:
         soft: -1
         hard: -1
   oap:
-    image: skywalking/oap
+    image: skywalking/oap:${TAG}
     container_name: oap
     depends_on:
       - elasticsearch
@@ -43,8 +42,16 @@ services:
     environment:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+      SW_HEALTH_CHECKER: default
+      SW_TELEMETRY: prometheus
+    healthcheck:
+      test: ["CMD", "./bin/swctl", "ch"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
   ui:
-    image: skywalking/ui
+    image: skywalking/ui:${TAG}
     container_name: ui
     depends_on:
       - oap

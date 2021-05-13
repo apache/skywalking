@@ -27,12 +27,10 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.ByteBuddyCoreClasses;
 
 /**
- * Since JDK 9, module concept has been introduced. By supporting that, agent core needs to open the
- *
- * @author wusheng
+ * Since JDK 9, module concept has been introduced. By supporting that, agent core needs to open the read edge
  */
 public class JDK9ModuleExporter {
-    private static final ILog logger = LogManager.getLogger(JDK9ModuleExporter.class);
+    private static final ILog LOGGER = LogManager.getLogger(JDK9ModuleExporter.class);
 
     private static final String[] HIGH_PRIORITY_CLASSES = {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance",
@@ -43,12 +41,12 @@ public class JDK9ModuleExporter {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstMethodsInterWithOverrideArgs",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsInter",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsInterWithOverrideArgs",
-    };
+        };
 
     /**
      * Assures that all modules of the supplied types are read by the module of any instrumented type. JDK Module system
      * was introduced since JDK9.
-     *
+     * <p>
      * The following codes work only JDK Module system exist.
      */
     public static AgentBuilder openReadEdge(Instrumentation instrumentation, AgentBuilder agentBuilder,

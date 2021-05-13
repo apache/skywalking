@@ -16,34 +16,48 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc;
 
 import ch.qos.logback.classic.pattern.MDCConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.util.OptionHelper;
 
-/**
- * @author zhangkewei
- */
 public class LogbackMDCPatternConverter extends MDCConverter {
-    private static final  String CONVERT_KEY = "tid";
+    private static final String CONVERT_TRACE_ID_KEY = "tid";
+    private static final String CONVERT_SKYWALKING_CONTEXT_KEY = "sw_ctx";
 
     private boolean convert4TID = false;
+    private boolean convert4SWCTX = false;
+
     @Override
     public void start() {
         super.start();
         String[] key = OptionHelper.extractDefaultReplacement(getFirstOption());
-        if (null != key && key.length > 0 && CONVERT_KEY.equals(key[0])) {
-            convert4TID = true;
+        if (null != key && key.length > 0) {
+            String variableName = key[0];
+            if (CONVERT_TRACE_ID_KEY.equals(variableName)) {
+                convert4TID = true;
+            } else if (CONVERT_SKYWALKING_CONTEXT_KEY.equals(variableName)) {
+                convert4SWCTX = true;
+            }
         }
     }
+
     @Override
     public String convert(ILoggingEvent iLoggingEvent) {
-        return convert4TID ? convertTID(iLoggingEvent) : super.convert(iLoggingEvent);
+        if (convert4TID) {
+            return convertTID(iLoggingEvent);
+        } else if (convert4SWCTX) {
+            return convertSkyWalkingContext(iLoggingEvent);
+        }
+        return super.convert(iLoggingEvent);
     }
 
     public String convertTID(ILoggingEvent iLoggingEvent) {
         return "TID: N/A";
+    }
+
+    public String convertSkyWalkingContext(ILoggingEvent iLoggingEvent) {
+        return "SW_CTX: N/A";
     }
 }
