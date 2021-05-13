@@ -42,6 +42,8 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
@@ -62,7 +64,12 @@ public class BootstrapInstrumentBoost {
         "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideCallable",
-        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult"
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult",
+
+        // interceptor v2
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.enhance.InstanceMethodsAroundInterceptorV2",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.enhance.StaticMethodsAroundInterceptorV2",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.enhance.MethodInvocationContext",
     };
 
     private static String INSTANCE_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterTemplate";
@@ -71,12 +78,21 @@ public class BootstrapInstrumentBoost {
     private static String STATIC_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterTemplate";
     private static String STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterWithOverrideArgsTemplate";
 
+    private static String INSTANCE_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterV2Template";
+    private static String INSTANCE_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterV2WithOverrideArgsTemplate";
+    private static String STATIC_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterV2Template";
+    private static String STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterV2WithOverrideArgsTemplate";
+
     public static AgentBuilder inject(PluginFinder pluginFinder, Instrumentation instrumentation,
         AgentBuilder agentBuilder, JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
         Map<String, byte[]> classesTypeMap = new HashMap<String, byte[]>();
 
         if (!prepareJREInstrumentation(pluginFinder, classesTypeMap)) {
             return agentBuilder;
+        }
+
+        if (!prepareJREInstrumentationV2(pluginFinder, classesTypeMap)) {
+
         }
 
         for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
@@ -160,6 +176,32 @@ public class BootstrapInstrumentBoost {
                         .getMethodsInterceptor());
                 } else {
                     generateDelegator(classesTypeMap, typePool, STATIC_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                }
+            }
+        }
+        return bootstrapClassMatchDefines.size() > 0;
+    }
+
+    private static boolean prepareJREInstrumentationV2(PluginFinder pluginFinder,
+                                                     Map<String, byte[]> classesTypeMap) throws PluginException {
+        TypePool typePool = TypePool.Default.of(BootstrapInstrumentBoost.class.getClassLoader());
+        List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefines = pluginFinder.getBootstrapClassMatchDefine();
+        for (AbstractClassEnhancePluginDefine define : bootstrapClassMatchDefines) {
+            for (InstanceMethodsInterceptV2Point point : define.getInstanceMethodsInterceptV2Points()) {
+                if (point.isOverrideArgs()) {
+                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE,
+                                      point.getMethodsInterceptorV2());
+                } else {
+                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_V2_DELEGATE_TEMPLATE, point.getMethodsInterceptorV2());
+                }
+            }
+
+            for (StaticMethodsInterceptV2Point point : define.getStaticMethodsInterceptV2Points()) {
+                if (point.isOverrideArgs()) {
+                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE,
+                                      point.getMethodsInterceptorV2());
+                } else {
+                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_V2_DELEGATE_TEMPLATE, point.getMethodsInterceptorV2());
                 }
             }
         }

@@ -26,6 +26,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -40,6 +42,11 @@ import java.util.List;
  */
 public abstract class AbstractClassEnhancePluginDefine {
     private static final ILog LOGGER = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
+
+    /**
+     * New field name.
+     */
+    public static final String CONTEXT_ATTR_NAME = "_$EnhancedClassField_ws";
 
     /**
      * Main entrance of enhancing the class.
@@ -94,8 +101,43 @@ public abstract class AbstractClassEnhancePluginDefine {
         return newClassBuilder;
     }
 
-    protected abstract DynamicType.Builder<?> enhance(TypeDescription typeDescription,
-        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader, EnhanceContext context) throws PluginException;
+
+    /**
+     * Begin to define how to enhance class. After invoke this method, only means definition is finished.
+     *
+     * @param typeDescription target class description
+     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
+     * @return new byte-buddy's builder for further manipulation.
+     */
+    protected DynamicType.Builder<?> enhance(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
+                                             ClassLoader classLoader, EnhanceContext context) throws PluginException {
+        newClassBuilder = this.enhanceClass(typeDescription, newClassBuilder, classLoader);
+
+        newClassBuilder = this.enhanceInstance(typeDescription, newClassBuilder, classLoader, context);
+
+        return newClassBuilder;
+    }
+
+    /**
+     * Enhance a class to intercept constructors and class instance methods.
+     *
+     * @param typeDescription target class description
+     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
+     * @return new byte-buddy's builder for further manipulation.
+     */
+    protected abstract DynamicType.Builder<?> enhanceInstance(TypeDescription typeDescription,
+                                                     DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
+                                                     EnhanceContext context) throws PluginException;
+
+    /**
+     * Enhance a class to intercept class static methods.
+     *
+     * @param typeDescription target class description
+     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
+     * @return new byte-buddy's builder for further manipulation.
+     */
+    protected abstract DynamicType.Builder<?> enhanceClass(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
+                                                  ClassLoader classLoader) throws PluginException;
 
     /**
      * Define the {@link ClassMatch} for filtering class.
@@ -139,9 +181,23 @@ public abstract class AbstractClassEnhancePluginDefine {
     public abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
 
     /**
+     * Instance methods intercept v2 point. See {@link InstanceMethodsInterceptV2Point}
+     *
+     * @return collections of {@link InstanceMethodsInterceptV2Point}
+     */
+    public abstract InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points();
+
+    /**
      * Static methods intercept point. See {@link StaticMethodsInterceptPoint}
      *
      * @return collections of {@link StaticMethodsInterceptPoint}
      */
     public abstract StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints();
+
+    /**
+     * Instance methods intercept v2 point. See {@link InstanceMethodsInterceptV2Point}
+     *
+     * @return collections of {@link InstanceMethodsInterceptV2Point}
+     */
+    public abstract StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points();
 }
