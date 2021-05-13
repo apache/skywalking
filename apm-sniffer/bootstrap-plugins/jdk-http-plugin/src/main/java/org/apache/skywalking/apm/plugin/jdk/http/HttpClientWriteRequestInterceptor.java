@@ -27,6 +27,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.util.StringUtil;
 import sun.net.www.MessageHeader;
@@ -35,11 +37,11 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundInterceptorV2 {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result, MethodInvocationContext context) throws Throwable {
         HttpURLConnection connection = (HttpURLConnection) objInst.getSkyWalkingDynamicField();
         MessageHeader headers = (MessageHeader) allArguments[0];
         URL url = connection.getURL();
@@ -54,17 +56,20 @@ public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundI
             next = next.next();
             headers.set(next.getHeadKey(), next.getHeadValue());
         }
+        context.put("mic", "HttpClientWriteRequestInterceptor");
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+        Object ret, MethodInvocationContext context) throws Throwable {
+        AbstractSpan span = ContextManager.activeSpan();
+        span.tag("mic", String.valueOf(context.get("mic")));
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
     }

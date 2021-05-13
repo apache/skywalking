@@ -21,10 +21,10 @@ package org.apache.skywalking.apm.plugin.jdk.http.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassEnhancePluginDefineV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.DeclaredInstanceMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
@@ -32,7 +32,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
-public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
+public class HttpClientInstrumentation extends ClassEnhancePluginDefineV2 {
 
     private static final String ENHANCE_HTTP_CLASS = "sun.net.www.http.HttpClient";
 
@@ -54,16 +54,16 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
     }
 
     @Override
-    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new DeclaredInstanceMethodsInterceptPoint() {
+    public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
+        return new InstanceMethodsInterceptV2Point[] {
+            new DeclaredInstanceMethodsInterceptV2Point() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(AFTER_METHOD);
                 }
 
                 @Override
-                public String getMethodsInterceptor() {
+                public String getMethodsInterceptorV2() {
                     return INTERCEPT_PARSE_HTTP_CLASS;
                 }
 
@@ -72,14 +72,14 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
                     return false;
                 }
             },
-            new DeclaredInstanceMethodsInterceptPoint() {
+            new DeclaredInstanceMethodsInterceptV2Point() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(BEFORE_METHOD).and(takesArguments(2).or(takesArguments(1)));
                 }
 
                 @Override
-                public String getMethodsInterceptor() {
+                public String getMethodsInterceptorV2() {
                     return INTERCEPT_WRITE_REQUEST_CLASS;
                 }
 
@@ -92,17 +92,18 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
     }
 
     @Override
-    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[] {
-            new StaticMethodsInterceptPoint() {
+    public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
+        return new StaticMethodsInterceptV2Point[] {
+            new StaticMethodsInterceptV2Point() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(NEW_INSTANCE_METHOD).and(takesArguments(5).and(takesArgumentWithType(0, "java.net.URL"))
-                                                                           .and(takesArgumentWithType(4, "sun.net.www.protocol.http.HttpURLConnection")));
+                    return named(NEW_INSTANCE_METHOD).and(takesArguments(5)
+                                                              .and(takesArgumentWithType(0, "java.net.URL"))
+                                                              .and(takesArgumentWithType(4, "sun.net.www.protocol.http.HttpURLConnection")));
                 }
 
                 @Override
-                public String getMethodsInterceptor() {
+                public String getMethodsInterceptorV2() {
                     return INTERCEPT_HTTP_NEW_INSTANCE_CLASS;
                 }
 
