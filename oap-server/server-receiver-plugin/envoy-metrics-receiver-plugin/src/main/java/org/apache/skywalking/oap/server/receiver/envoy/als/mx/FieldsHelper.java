@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -39,9 +41,6 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.yaml.snakeyaml.Yaml;
 
 @Slf4j
-/**
- * FieldsHelper
- */
 public enum FieldsHelper {
     SINGLETON;
 
@@ -79,30 +78,33 @@ public enum FieldsHelper {
             final String serviceMetaInfoFieldName = entry.getKey();
             final String flatBuffersFieldName = entry.getValue();
 
-            final Pattern p = Pattern.compile("(\\$\\{(?<property>.+?)})");
+            final Pattern p = Pattern.compile("(\\$\\{(?<properties>.+?)})");
             final Matcher m = p.matcher(flatBuffersFieldName);
-            final List<List<String>> flatBuffersFieldNames = new ArrayList<>(m.groupCount());
+            final List<Property> flatBuffersFieldNames = new ArrayList<>(m.groupCount());
             final StringBuffer serviceNamePattern = new StringBuffer();
             while (m.find()) {
-                final String property = m.group("property");
-                List<String> tokens = Splitter.on('.').omitEmptyStrings().splitToList(property);
+                final String properties = m.group("properties");
+                final List<Field> fields = Splitter.on(',').omitEmptyStrings().splitToList(properties).stream().map(candidate -> {
+                    List<String> tokens = Splitter.on('.').omitEmptyStrings().splitToList(candidate);
 
-                StringBuilder tokenBuffer = new StringBuilder();
-                List<String> compactedTokens = new ArrayList<>(tokens.size());
-                for (String token : tokens) {
-                    if (tokenBuffer.length() == 0 && token.startsWith("\"")) {
-                       tokenBuffer.append(token);
-                    } else if (tokenBuffer.length() > 0) {
-                        tokenBuffer.append(".").append(token);
-                        if (token.endsWith("\"")) {
-                            compactedTokens.add(tokenBuffer.toString().replaceAll("\"", ""));
-                            tokenBuffer.setLength(0);
+                    StringBuilder tokenBuffer = new StringBuilder();
+                    List<String> candidateFields = new ArrayList<>(tokens.size());
+                    for (String token : tokens) {
+                        if (tokenBuffer.length() == 0 && token.startsWith("\"")) {
+                            tokenBuffer.append(token);
+                        } else if (tokenBuffer.length() > 0) {
+                            tokenBuffer.append(".").append(token);
+                            if (token.endsWith("\"")) {
+                                candidateFields.add(tokenBuffer.toString().replaceAll("\"", ""));
+                                tokenBuffer.setLength(0);
+                            }
+                        } else {
+                            candidateFields.add(token);
                         }
-                    } else {
-                        compactedTokens.add(token);
                     }
-                }
-                flatBuffersFieldNames.add(compactedTokens);
+                    return new Field(candidateFields);
+                }).collect(Collectors.toList());
+                flatBuffersFieldNames.add(new Property(fields));
                 m.appendReplacement(serviceNamePattern, "%s");
             }
 
@@ -136,12 +138,18 @@ public enum FieldsHelper {
             final ServiceNameFormat serviceNameFormat = entry.getValue();
             final Object[] values = new String[serviceNameFormat.properties.size()];
             for (int i = 0; i < serviceNameFormat.properties.size(); i++) {
-                final List<String> properties = serviceNameFormat.properties.get(i);
-                Value value = root;
-                for (final String property : properties) {
-                    value = value.getStructValue().getFieldsOrDefault(property, empty);
+                values[i] = "-"; // Give it a default value
+                final Property property = serviceNameFormat.properties.get(i);
+                for (final Field field : property) {
+                    Value value = root;
+                    for (final String segment : field.dsvSegments) {
+                        value = value.getStructValue().getFieldsOrDefault(segment, empty);
+                    }
+                    if (Strings.isNullOrEmpty(value.getStringValue()) || "-".equals(value.getStringValue())) {
+                        continue;
+                    }
+                    values[i] = value.getStringValue();
                 }
-                values[i] = value.getStringValue();
             }
             final String value = Strings.lenientFormat(serviceNameFormat.format, values);
             if (!Strings.isNullOrEmpty(value)) {
@@ -154,6 +162,26 @@ public enum FieldsHelper {
     private static class ServiceNameFormat {
         private final String format;
 
-        private final List<List<String>> properties;
+        private final List<Property> properties;
+    }
+
+    /**
+     * A property in the metadata map, it may have multiple candidates, of which the first is non empty will be used.
+     * For example, to look up the service name, you may set candidates like ${LABELS."service.istio.io/canonical-name",LABELS."app.kubernetes.io/name","app"}.
+     */
+    @RequiredArgsConstructor
+    private static class Property implements Iterable<Field> {
+        @Delegate
+        private final List<Field> candidateFields;
+    }
+
+    /**
+     * A field in the property, it may be nested such as LABELS.app, LABELS.revision, etc.
+     * {@link #dsvSegments} are the `.` separated segment list, such as ["LABELS", "app"], ["LABELS", "revision"].
+     */
+    @RequiredArgsConstructor
+    private static class Field implements Iterable<String> {
+        @Delegate
+        private final List<String> dsvSegments;
     }
 }
