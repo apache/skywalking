@@ -1,11 +1,11 @@
 # HTTP API Protocol
 
-HTTP API Protocol defines the API data format, including api request and response data format.
+HTTP API Protocol defines the API data format, including API request and response data format.
 They use the HTTP1.1 wrapper of the official [SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md). Read it for more details.
 
 ## Instance Management
 
-Detail information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/management/Management.proto).
+Detailed information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/management/Management.proto).
 
 - Report service instance properties
 
@@ -50,12 +50,12 @@ OutPut:
 
 ## Trace Report
 
-Detail information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Tracing.proto).
-There are two ways to report segment data, one segment per request or segment array in the bulk mode.
+Detailed information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Tracing.proto).
+There are two ways to report segment data: one segment per request or segment array in bulk mode.
 
 ### POST http://localhost:12800/v3/segment
 
-Send a single segment object with JSON format.
+Send a single segment object in JSON format.
 
 Input:
 
@@ -104,7 +104,7 @@ Input:
 
 ### POST http://localhost:12800/v3/segments
 
-Send a segment object list with JSON format.
+Send a segment object list in JSON format.
 
 Input:
 
