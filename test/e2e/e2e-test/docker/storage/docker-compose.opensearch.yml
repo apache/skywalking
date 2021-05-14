@@ -16,8 +16,8 @@
 version: '2.1'
 
 services:
-  es:
-    image: opensearch:test
+  opensearch:
+    image: opensearchproject/opensearch:1.0.0-beta1
     expose:
       - 9200
     networks:
@@ -40,7 +40,7 @@ services:
       SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
     depends_on:
-      es:
+      opensearch:
         condition: service_healthy
 
 networks:
