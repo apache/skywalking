@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
+import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -83,6 +84,92 @@ public class EventQueryDAO implements IEventQueryDAO {
             )
         );
 
+        return events;
+    }
+
+    @Override
+    public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
+        EventQueryCondition condition = conditionList.get(0);
+        final String topFunc = Order.DES.equals(conditionList.get(0).getOrder()) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC;
+        final WhereQueryImpl<SelectQueryImpl> recallQuery =
+                select().raw(ALL_FIELDS)
+                        .function(topFunc, Event.START_TIME, condition.getSize())
+                        .from(client.getDatabase(), Event.INDEX_NAME)
+                        .where();
+        final SelectQueryImpl countQuery = select().count(Event.UUID).from(client.getDatabase(), Event.INDEX_NAME);
+        final WhereQueryImpl<SelectQueryImpl> countWhere = countQuery.where();
+
+        conditionList.stream().forEach(c -> {
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> recallOrNested = recallQuery.orNested();
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> countOrNested = countWhere.orNested();
+            if (!isNullOrEmpty(c.getUuid())) {
+                recallOrNested.and(eq(Event.UUID, c.getUuid()));
+                countOrNested.and(eq(Event.UUID, c.getUuid()));
+            }
+
+            final Source source = c.getSource();
+            if (source != null) {
+                if (!isNullOrEmpty(source.getService())) {
+                    recallOrNested.and(eq(Event.SERVICE, source.getService()));
+                    countOrNested.and(eq(Event.SERVICE, source.getService()));
+                }
+                if (!isNullOrEmpty(source.getServiceInstance())) {
+                    recallOrNested.and(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
+                    countOrNested.and(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
+                }
+                if (!isNullOrEmpty(source.getEndpoint())) {
+                    recallOrNested.and(contains(Event.ENDPOINT, source.getEndpoint().replaceAll("/", "\\\\/")));
+                    countOrNested.and(contains(Event.ENDPOINT, source.getEndpoint().replaceAll("/", "\\\\/")));
+                }
+            }
+
+            if (!isNullOrEmpty(c.getName())) {
+                recallOrNested.and(eq(InfluxConstants.NAME, c.getName()));
+                countOrNested.and(eq(InfluxConstants.NAME, c.getName()));
+            }
+
+            if (c.getType() != null) {
+                recallOrNested.and(eq(Event.TYPE, c.getType().name()));
+                countOrNested.and(eq(Event.TYPE, c.getType().name()));
+            }
+
+            final Duration startTime = c.getTime();
+            if (startTime != null) {
+                if (startTime.getStartTimestamp() > 0) {
+                    recallOrNested.and(gt(Event.START_TIME, startTime.getStartTimestamp()));
+                    countOrNested.and(gt(Event.START_TIME, startTime.getStartTimestamp()));
+                }
+                if (startTime.getEndTimestamp() > 0) {
+                    recallOrNested.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
+                    countOrNested.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
+                }
+            }
+            recallOrNested.close();
+            countOrNested.close();
+        });
+
+        final Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
+        final List<QueryResult.Result> results = client.query(query);
+        if (log.isDebugEnabled()) {
+            log.debug("QueryEvents BY Conditions SQL: {}", query.getCommand());
+            log.debug("QueryEvents BY Conditions Result: {}", results);
+        }
+        if (results.size() != 2) {
+            throw new IOException("Expecting to get 2 Results, but it is " + results.size());
+        }
+
+        final QueryResult.Series counterSeries = results.get(0).getSeries().get(0);
+        final List<QueryResult.Series> recallSeries = results.get(1).getSeries();
+
+        final Events events = new Events();
+
+        events.setTotal(((Number) counterSeries.getValues().get(0).get(1)).longValue());
+
+        recallSeries.forEach(
+                series -> series.getValues().forEach(
+                        values -> events.getEvents().add(parseSeriesValues(series, values))
+                )
+        );
         return events;
     }
 

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query.type.event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +30,18 @@ public class Source {
     private String service;
     private String serviceInstance;
     private String endpoint;
+
+    public String getSourcesStr() {
+        String sourceStr = "";
+        if (StringUtils.isNotBlank(service)) {
+            sourceStr = service;
+        }
+        if (StringUtils.isNotBlank(serviceInstance)) {
+            sourceStr = sourceStr + serviceInstance;
+        }
+        if (StringUtils.isNotBlank(endpoint)) {
+            sourceStr = sourceStr + endpoint;
+        }
+        return sourceStr;
+    }
 }

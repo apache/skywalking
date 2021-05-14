@@ -19,12 +19,10 @@ package org.apache.skywalking.e2e.alarm;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @Data
@@ -41,9 +39,6 @@ public class AlarmsMatcher {
 
     public void verify(final GetAlarm alarms) {
         LOGGER.info("AlarmsMatcher alarms:{} ,AlarmsMatcher matchers:{}", alarms, this.matchers);
-        Assert.assertEquals(this.total, alarms.getTotal());
-
-        assertThat(this.matchers).hasSameSizeAs(alarms.getMsgs());
 
         for (int i = 0; i < this.matchers.size(); i++) {
             boolean matched = false;

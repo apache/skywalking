@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
@@ -57,5 +58,16 @@ public class Event {
             }.getType());
             this.parameters = map.entrySet().stream().map(e -> new KeyValue(e.getKey(), e.getValue())).collect(Collectors.toList());
         }
+    }
+
+    public String getSourcesString() {
+        String sourcesStr = this.source.getService();
+        if (StringUtils.isNotBlank(this.source.getServiceInstance())) {
+            sourcesStr = sourcesStr + this.source.getServiceInstance();
+        }
+        if (StringUtils.isNotBlank(this.source.getEndpoint())) {
+            sourcesStr = sourcesStr + this.source.getEndpoint();
+        }
+        return sourcesStr;
     }
 }

@@ -35,6 +35,9 @@ public class AlarmMessage {
     private String message;
     private Long startTime;
     private transient String id1;
+    private transient String id1SourcesStr;
+    private transient String id0SourcesStr;
+    private transient Boolean id0LinkId1Flag;
     private final List<KeyValue> tags;
     private List<Event> events = new ArrayList<>(2);
 
