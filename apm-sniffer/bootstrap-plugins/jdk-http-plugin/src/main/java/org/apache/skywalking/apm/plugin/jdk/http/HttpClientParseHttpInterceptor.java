@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.jdk.http;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -34,7 +35,7 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result, MethodInvocationContext context) throws Throwable {
-        context.put("mic", "HttpClientParseHttpInterceptor");
+        context.put("HttpClientParseHttpInterceptor", new Object());
     }
 
     @Override
@@ -48,7 +49,9 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
         }
-        span.tag("mic", String.valueOf(context.get("mic")));
+        if (Objects.isNull(context.get("HttpClientParseHttpInterceptor"))) {
+            ContextManager.activeSpan().errorOccurred().log(new Exception("Method invocation context lost."));
+        }
         ContextManager.stopSpan();
         return ret;
     }
