@@ -16,7 +16,7 @@
 version: '2.1'
 
 services:
-  opensearch:
+  es:
     image: opensearchproject/opensearch:1.0.0-beta1
     expose:
       - 9200
@@ -25,6 +25,7 @@ services:
     environment:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
+      - opendistro_security.ssl.http.enabled=false
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
@@ -39,8 +40,10 @@ services:
       SW_STORAGE: elasticsearch7
       SW_PROMETHEUS_FETCHER: "default"
       SW_TELEMETRY: prometheus
+      SW_ES_USER: admin
+      SW_ES_PASSWORD: admin
     depends_on:
-      opensearch:
+      es:
         condition: service_healthy
 
 networks:
