@@ -134,7 +134,7 @@ catalog:
           - name: "Group Parameterized Endpoints"
             path: "/en/setup/backend/endpoint-grouping-rules"
           - name: "OpenTelemetry Metrics Analysis"
-            path: "/en/backend-receivers#opentelemetry-receiver"
+            path: "/en/setup/backend/backend-receivers#opentelemetry-receiver"
           - name: "Meter Analysis"
             path: "/en/setup/backend/backend-meter"
           - name: "Spring Sleuth Metrics Analysis"
