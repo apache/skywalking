@@ -42,7 +42,7 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
         final ConfigTable configTable = new ConfigTable();
         Optional<V1ConfigMap> v1ConfigMap = informer.configMap();
         for (final String name : keys) {
-            final String value = v1ConfigMap.map(configMap -> configMap.getData().get(name)).orElse(null);
+            final String value = v1ConfigMap.map(V1ConfigMap::getData).map(data -> data.get(name)).orElse(null);
             if (log.isDebugEnabled()) {
                 log.debug("read config: name:{} ,value:{}", name, value);
             }
