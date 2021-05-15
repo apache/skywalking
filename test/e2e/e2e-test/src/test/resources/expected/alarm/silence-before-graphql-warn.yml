@@ -25,5 +25,5 @@ matchers:
       - key: receivers
         value: lisi
     events:
-        source:
+      - source:
           service: e2e-service-provider

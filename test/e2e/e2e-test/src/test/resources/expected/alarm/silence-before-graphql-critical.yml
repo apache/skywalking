@@ -25,5 +25,5 @@ matchers:
       - key: receivers
         value: zhangsan
     events:
-        source:
+      - source:
           service: e2e-service-provider

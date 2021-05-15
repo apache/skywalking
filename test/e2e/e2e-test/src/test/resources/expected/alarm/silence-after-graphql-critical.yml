@@ -25,7 +25,7 @@ matchers:
       - key: receivers
         value: zhangsan
     events:
-        source:
+      - source:
           service: e2e-service-provider
   - startTime: gt 0
     scope: Service
@@ -37,5 +37,5 @@ matchers:
       - key: receivers
         value: zhangsan
     events:
-        source:
+      - source:
           service: e2e-service-provider
