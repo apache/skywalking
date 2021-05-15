@@ -62,7 +62,7 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                 }
             }
         }
-        int eventCounter = 0;
+
         if (!CollectionUtils.isEmpty(getEvents())) {
             for (final EventMatcher matcher : getEvents()) {
                 boolean matched = false;
@@ -74,7 +74,6 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                         //ignore.
                     }
                 }
-                LOGGER.info("Actual Non-Null Event Size: {}", eventCounter);
                 if (!matched) {
                     fail("\nAlarmMatcher Events Expected: %s\n Actual AlarmMatcher Events: %s", getEvents(), alarm.getEvents());
                 }

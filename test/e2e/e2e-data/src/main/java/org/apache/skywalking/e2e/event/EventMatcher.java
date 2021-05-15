@@ -52,9 +52,6 @@ public class EventMatcher extends AbstractMatcher<Event> {
 
     @Override
     public void verify(final Event event) {
-        if (nonNull(getUuid())) {
-            doVerify(getUuid(), event.getUuid());
-        }
         if (nonNull(getSource())) {
             if (nonNull(getSource().getService())) {
                 doVerify(getSource().getService(), event.getSource().getService());
