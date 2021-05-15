@@ -101,7 +101,7 @@ public class AlarmE2E extends SkyWalkingTestAdapter {
 
     private void validate(String alarmFileWarn, String alarmFileCritical, String hookFile) throws Exception {
         // validate graphql
-        final List<Event> events = graphql.events(new EventsQuery().start(startTime).end(now()).uuid("abcde").name("test link"));
+        final List<Event> events = graphql.events(new EventsQuery().start(startTime).end(now()));
         GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "WARNING").addTag("receivers", "lisi").addEvents(events));
         LOGGER.info("alarms query: {}", alarms);
         load(alarmFileWarn).as(AlarmsMatcher.class).verify(alarms);

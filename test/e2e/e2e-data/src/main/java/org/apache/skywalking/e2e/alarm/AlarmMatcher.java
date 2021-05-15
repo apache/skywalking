@@ -43,7 +43,6 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
 
     @Override
     public void verify(Alarm alarm) {
-        doVerify(this.startTime, alarm.getStartTime());
         doVerify(this.scope, alarm.getScope());
         doVerify(this.id, alarm.getId());
         doVerify(this.message, alarm.getMessage());
@@ -69,13 +68,6 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                 boolean matched = false;
                 for (final Event event : alarm.getEvents()) {
                     try {
-                        if (event == null || "".equals(event.getName())) {
-                            continue;
-                        }
-                        ++eventCounter;
-                        if (!"test link".equals(event.getName())) {
-                            continue;
-                        }
                         matcher.verify(event);
                         matched = true;
                     } catch (Throwable ignore) {

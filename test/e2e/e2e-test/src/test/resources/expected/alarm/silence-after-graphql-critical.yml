@@ -25,13 +25,8 @@ matchers:
       - key: receivers
         value: zhangsan
     events:
-      - name: test link
         source:
           service: e2e-service-provider
-        startTime: gt 0
-        endTime: gt 0
-        message: test for e2e.
-        uuid: abcde
   - startTime: gt 0
     scope: Service
     id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
@@ -42,10 +37,5 @@ matchers:
       - key: receivers
         value: zhangsan
     events:
-      - name: test link
         source:
           service: e2e-service-provider
-        startTime: gt 0
-        endTime: gt 0
-        message: test for e2e.
-        uuid: abcde

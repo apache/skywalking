@@ -25,10 +25,5 @@ matchers:
       - key: receivers
         value: lisi
     events:
-      - name: test link
         source:
           service: e2e-service-provider
-        startTime: gt 0
-        endTime: gt 0
-        message: test for e2e.
-        uuid: abcde
