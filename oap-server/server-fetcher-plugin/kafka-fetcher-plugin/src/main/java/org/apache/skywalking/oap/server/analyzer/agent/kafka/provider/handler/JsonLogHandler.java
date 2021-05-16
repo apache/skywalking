@@ -17,23 +17,24 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 @Slf4j
-public class JonLogHandler extends LogHandler {
+public class JsonLogHandler extends LogHandler {
 
     private static final JsonFormat.Parser JSON_PARSER = JsonFormat.parser().ignoringUnknownFields();
 
     private final KafkaFetcherConfig config;
 
-    public JonLogHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
+    public JsonLogHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
         super(moduleManager, config);
         this.config = config;
     }
@@ -44,9 +45,9 @@ public class JonLogHandler extends LogHandler {
     }
 
     @Override
-    protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws InvalidProtocolBufferException {
+    protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws IOException {
         LogData.Builder logDataBuilder = LogData.newBuilder();
-        JSON_PARSER.merge(record.value().toString(), logDataBuilder);
+        ProtoBufJsonUtils.fromJSON(record.value().toString(), logDataBuilder);
         return logDataBuilder.build();
     }
 }

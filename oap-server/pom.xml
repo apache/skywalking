@@ -54,7 +54,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf-java.version>3.13.0</protobuf-java.version>
         <protobuf-java-util.version>3.12.4</protobuf-java-util.version>
-        <protobuf-java-format.version>1.4</protobuf-java-format.version>
         <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>2.9.0</log4j.version>
         <guava.version>28.1-jre</guava.version>
@@ -291,11 +290,6 @@
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java-util</artifactId>
                 <version>${protobuf-java-util.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.googlecode.protobuf-java-format</groupId>
-                <artifactId>protobuf-java-format</artifactId>
-                <version>${protobuf-java-format.version}</version>
             </dependency>
 
             <dependency>

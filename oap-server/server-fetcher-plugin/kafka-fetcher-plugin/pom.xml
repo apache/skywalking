@@ -50,10 +50,6 @@
             <version>${spring-kafka-test.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.googlecode.protobuf-java-format</groupId>
-            <artifactId>protobuf-java-format</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

@@ -61,7 +61,7 @@ services:
     networks:
       - e2e
     volumes:
-      - ./filebeat.yaml:/usr/share/filebeat/filebeat.yml
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - /tmp/skywalking-logs/:/tmp/skywalking-logs/
     healthcheck:
       test: ["CMD", "curl -sS 127.0.0.1:5066 || exit 1"]

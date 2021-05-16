@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandler
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JVMMetricsHandler;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JonLogHandler;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JsonLogHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.LogHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.MeterServiceHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ProfileTaskHandler;
@@ -82,7 +82,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
             handlerRegister.register(new LogHandler(getManager(), config));
         }
         if (config.isEnableNativeJsonLog()) {
-            handlerRegister.register(new JonLogHandler(getManager(), config));
+            handlerRegister.register(new JsonLogHandler(getManager(), config));
         }
 
         handlerRegister.start();
