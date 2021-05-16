@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -51,7 +50,6 @@ public class AlarmQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private AlarmQueryService queryService;
     private EventQueryService eventQueryService;
-    private ForkJoinPool forkJoinPool;
 
     public AlarmQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
