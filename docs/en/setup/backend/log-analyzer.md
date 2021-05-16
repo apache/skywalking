@@ -28,7 +28,7 @@ Log framework config examples:
 - [logback fileAppender](../../../../test/e2e/e2e-service-provider/src/main/resources/logback.xml)
 
 You can use [Filebeat](https://www.elastic.co/cn/beats/filebeat) 、[Fluentd](https://fluentd.org) to
-collect file logs including to use Kafka MQ to transport [native-json](../../protocols/Log-Data-Protocol.md#Native Json Protocol)
+collect file logs including to use Kafka MQ to transport [native-json](../../protocols/Log-Data-Protocol.md#Native-Json-Protocol)
 format logs. When use this, need to open [kafka-fetcher](backend-fetcher.md#kafka-fetcher)
 and enable configs `enableNativeJsonLog`.
 
