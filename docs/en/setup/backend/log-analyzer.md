@@ -35,6 +35,37 @@ Collector config examples:
 - [filebeat.yml](../../../../test/e2e/e2e-test/docker/kafka/filebeat.yml)
 - [fluentd.conf](../../../../test/e2e/e2e-test/docker/kafka/fluentd.conf)
 
+Collector output to kafka record examples:
+```json
+{
+    "timestamp":1618161813371,
+    "service":"Your_ApplicationName",
+    "serviceInstance":"3a5b8da5a5ba40c0b192e91b5c80f1a8@192.168.1.8",
+    "traceContext":{
+        "traceId":"ddd92f52207c468e9cd03ddd107cd530.69.16181331190470001",
+        "spanId":"0",
+        "traceSegmentId":"ddd92f52207c468e9cd03ddd107cd530.69.16181331190470000"
+    },
+    "tags":{
+        "data":[
+            {
+                "key":"level",
+                "value":"ERROR"
+            },
+            {
+                "key":"logger",
+                "value":"com.example.MyLogger"
+            }
+        ]
+    },
+    "body":{
+        "text":{
+            "text":"log message"
+        }
+    }
+}
+```
+
 ## Log Analyzer
 
 Log analyzer of OAP server supports native log data. OAP could use Log Analysis Language to
