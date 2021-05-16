@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.event.Event;
@@ -56,55 +58,128 @@ public class EventQueryDAO implements IEventQueryDAO {
 
     @Override
     public Events queryEvents(final EventQueryCondition condition) throws Exception {
-        final WhereQueryImpl<SelectQueryImpl> recallQuery = buildQuery(condition);
+        List<WhereQueryImpl<SelectQueryImpl>> whereQueries = buildWhereQueries(condition);
 
-        final SelectQueryImpl countQuery = select().count(Event.UUID).from(client.getDatabase(), Event.INDEX_NAME);
-        recallQuery.getClauses().forEach(countQuery::where);
+        buildQueryByCondition(whereQueries, condition);
 
-        final Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
-        final List<QueryResult.Result> results = client.query(query);
-        if (log.isDebugEnabled()) {
-            log.debug("SQL: {}", query.getCommand());
-            log.debug("Result: {}", results);
-        }
-        if (results.size() != 2) {
-            throw new IOException("Expecting to get 2 Results, but it is " + results.size());
-        }
+        List<QueryResult.Result> results = execute(whereQueries.get(0), whereQueries.get(1));
 
-        final QueryResult.Series counterSeries = results.get(0).getSeries().get(0);
-        final List<QueryResult.Series> recallSeries = results.get(1).getSeries();
-
-        final Events events = new Events();
-
-        events.setTotal(((Number) counterSeries.getValues().get(0).get(1)).longValue());
-
-        recallSeries.forEach(
-            series -> series.getValues().forEach(
-                values -> events.getEvents().add(parseSeriesValues(series, values))
-            )
-        );
-
-        return events;
+        return buildEventsByQueryResult(results);
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
-        EventQueryCondition condition = conditionList.get(0);
-        final String topFunc = Order.DES.equals(conditionList.get(0).getOrder()) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC;
-        final WhereQueryImpl<SelectQueryImpl> recallQuery =
+        List<WhereQueryImpl<SelectQueryImpl>> whereQueries = buildWhereQueries(conditionList.get(0));
+
+        buildQueryByCondition(whereQueries, conditionList);
+
+        List<QueryResult.Result> results = execute(whereQueries.get(0), whereQueries.get(1));
+
+        return buildEventsByQueryResult(results);
+    }
+
+    protected org.apache.skywalking.oap.server.core.query.type.event.Event parseSeriesValues(final QueryResult.Series series, final List<Object> values) {
+        final org.apache.skywalking.oap.server.core.query.type.event.Event event = new org.apache.skywalking.oap.server.core.query.type.event.Event();
+
+        final List<String> columns = series.getColumns();
+        final Map<String, Object> data = new HashMap<>();
+
+        for (int i = 1; i < columns.size(); i++) {
+            Object value = values.get(i);
+            if (value instanceof StorageDataComplexObject) {
+                value = ((StorageDataComplexObject) value).toStorageData();
+            }
+            data.put(columns.get(i), value);
+        }
+        event.setUuid((String) data.get(Event.UUID));
+
+        final String service = (String) data.get(Event.SERVICE);
+        final String serviceInstance = (String) data.get(Event.SERVICE_INSTANCE);
+        final String endpoint = (String) data.get(Event.ENDPOINT);
+
+        event.setSource(new Source(service, serviceInstance, endpoint));
+        event.setName((String) data.get(Event.NAME));
+        event.setType(EventType.parse((String) data.get(Event.TYPE)));
+        event.setMessage((String) data.get(Event.MESSAGE));
+        event.setParameters((String) data.get(Event.PARAMETERS));
+        event.setStartTime(((Number) data.get(Event.START_TIME)).longValue());
+        event.setEndTime(((Number) data.get(Event.END_TIME)).longValue());
+
+        return event;
+    }
+
+    protected List<WhereQueryImpl<SelectQueryImpl>> buildWhereQueries(final EventQueryCondition condition) {
+        List<WhereQueryImpl<SelectQueryImpl>> queries = new ArrayList<>(2);
+        final String topFunc = Order.DES.equals(condition.getOrder()) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC;
+        final WhereQueryImpl<SelectQueryImpl> recallWhereQuery =
                 select().raw(ALL_FIELDS)
                         .function(topFunc, Event.START_TIME, condition.getSize())
                         .from(client.getDatabase(), Event.INDEX_NAME)
                         .where();
         final SelectQueryImpl countQuery = select().count(Event.UUID).from(client.getDatabase(), Event.INDEX_NAME);
-        final WhereQueryImpl<SelectQueryImpl> countWhere = countQuery.where();
+        final WhereQueryImpl<SelectQueryImpl> countWhereQuery = countQuery.where();
+        queries.add(countWhereQuery);
+        queries.add(recallWhereQuery);
+        return queries;
+    }
 
-        conditionList.stream().forEach(c -> {
-            WhereNested<WhereQueryImpl<SelectQueryImpl>> recallOrNested = recallQuery.orNested();
-            WhereNested<WhereQueryImpl<SelectQueryImpl>> countOrNested = countWhere.orNested();
+    protected void buildQueryByCondition(List<WhereQueryImpl<SelectQueryImpl>> queries, EventQueryCondition condition) {
+        WhereQueryImpl<SelectQueryImpl> countWhereQuery = queries.get(0);
+        WhereQueryImpl<SelectQueryImpl> recallWhereQuery = queries.get(1);
+        if (!isNullOrEmpty(condition.getUuid())) {
+            recallWhereQuery.and(eq(Event.UUID, condition.getUuid()));
+            countWhereQuery.and(eq(Event.UUID, condition.getUuid()));
+        }
+
+        final Source source = condition.getSource();
+        if (source != null) {
+            if (!isNullOrEmpty(source.getService())) {
+                recallWhereQuery.and(eq(Event.SERVICE, source.getService()));
+                countWhereQuery.and(eq(Event.SERVICE, source.getService()));
+            }
+            if (!isNullOrEmpty(source.getServiceInstance())) {
+                recallWhereQuery.and(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
+                countWhereQuery.and(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
+            }
+            if (!isNullOrEmpty(source.getEndpoint())) {
+                recallWhereQuery.and(contains(Event.ENDPOINT, source.getEndpoint().replaceAll("/", "\\\\/")));
+                countWhereQuery.and(contains(Event.ENDPOINT, source.getEndpoint().replaceAll("/", "\\\\/")));
+            }
+        }
+
+        if (!isNullOrEmpty(condition.getName())) {
+            recallWhereQuery.and(eq(InfluxConstants.NAME, condition.getName()));
+            countWhereQuery.and(eq(InfluxConstants.NAME, condition.getName()));
+        }
+
+        if (condition.getType() != null) {
+            recallWhereQuery.and(eq(Event.TYPE, condition.getType().name()));
+            countWhereQuery.and(eq(Event.TYPE, condition.getType().name()));
+        }
+
+        final Duration startTime = condition.getTime();
+        if (startTime != null) {
+            if (startTime.getStartTimestamp() > 0) {
+                recallWhereQuery.and(gt(Event.START_TIME, startTime.getStartTimestamp()));
+                countWhereQuery.and(gt(Event.START_TIME, startTime.getStartTimestamp()));
+            }
+            if (startTime.getEndTimestamp() > 0) {
+                recallWhereQuery.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
+                countWhereQuery.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
+            }
+        }
+    }
+
+    protected void buildQueryByCondition(List<WhereQueryImpl<SelectQueryImpl>> queries, List<EventQueryCondition> conditions) {
+        WhereQueryImpl<SelectQueryImpl> countWhereQuery = queries.get(0);
+        WhereQueryImpl<SelectQueryImpl> recallWhereQuery = queries.get(1);
+        conditions.stream().forEach(c -> {
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> recallOrNested = recallWhereQuery.orNested();
+            WhereNested<WhereQueryImpl<SelectQueryImpl>> countOrNested = countWhereQuery.orNested();
+            // by current condition, we should not have uuid. If one day you need to use UUIDs as the query condition, this might be applied.
             if (!isNullOrEmpty(c.getUuid())) {
-                recallOrNested.and(eq(Event.UUID, c.getUuid()));
-                countOrNested.and(eq(Event.UUID, c.getUuid()));
+                recallWhereQuery.and(eq(Event.UUID, c.getUuid()));
+                countWhereQuery.and(eq(Event.UUID, c.getUuid()));
             }
 
             final Source source = c.getSource();
@@ -147,22 +222,26 @@ public class EventQueryDAO implements IEventQueryDAO {
             recallOrNested.close();
             countOrNested.close();
         });
+    }
 
-        final Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
+    protected List<QueryResult.Result> execute(WhereQueryImpl<SelectQueryImpl> countWhereQuery, WhereQueryImpl<SelectQueryImpl> recallWhereQuery) throws IOException {
+        final Query query = new Query(countWhereQuery.getCommand() + recallWhereQuery.getCommand());
         final List<QueryResult.Result> results = client.query(query);
         if (log.isDebugEnabled()) {
-            log.debug("QueryEvents BY Conditions SQL: {}", query.getCommand());
-            log.debug("QueryEvents BY Conditions Result: {}", results);
+            log.debug("SQL: {}", query.getCommand());
+            log.debug("Result: {}", results);
         }
         if (results.size() != 2) {
             throw new IOException("Expecting to get 2 Results, but it is " + results.size());
         }
+        return results;
+    }
 
+    protected Events buildEventsByQueryResult(List<QueryResult.Result> results) {
         final QueryResult.Series counterSeries = results.get(0).getSeries().get(0);
         final List<QueryResult.Series> recallSeries = results.get(1).getSeries();
 
         final Events events = new Events();
-
         events.setTotal(((Number) counterSeries.getValues().get(0).get(1)).longValue());
 
         recallSeries.forEach(
@@ -171,81 +250,5 @@ public class EventQueryDAO implements IEventQueryDAO {
                 )
         );
         return events;
-    }
-
-    protected org.apache.skywalking.oap.server.core.query.type.event.Event parseSeriesValues(final QueryResult.Series series, final List<Object> values) {
-        final org.apache.skywalking.oap.server.core.query.type.event.Event event = new org.apache.skywalking.oap.server.core.query.type.event.Event();
-
-        final List<String> columns = series.getColumns();
-        final Map<String, Object> data = new HashMap<>();
-
-        for (int i = 1; i < columns.size(); i++) {
-            Object value = values.get(i);
-            if (value instanceof StorageDataComplexObject) {
-                value = ((StorageDataComplexObject) value).toStorageData();
-            }
-            data.put(columns.get(i), value);
-        }
-        event.setUuid((String) data.get(Event.UUID));
-
-        final String service = (String) data.get(Event.SERVICE);
-        final String serviceInstance = (String) data.get(Event.SERVICE_INSTANCE);
-        final String endpoint = (String) data.get(Event.ENDPOINT);
-
-        event.setSource(new Source(service, serviceInstance, endpoint));
-        event.setName((String) data.get(Event.NAME));
-        event.setType(EventType.parse((String) data.get(Event.TYPE)));
-        event.setMessage((String) data.get(Event.MESSAGE));
-        event.setParameters((String) data.get(Event.PARAMETERS));
-        event.setStartTime(((Number) data.get(Event.START_TIME)).longValue());
-        event.setEndTime(((Number) data.get(Event.END_TIME)).longValue());
-
-        return event;
-    }
-
-    protected WhereQueryImpl<SelectQueryImpl> buildQuery(final EventQueryCondition condition) {
-        final String topFunc = Order.DES.equals(condition.getOrder()) ? InfluxConstants.SORT_DES : InfluxConstants.SORT_ASC;
-        final WhereQueryImpl<SelectQueryImpl> query =
-            select().raw(ALL_FIELDS)
-                    .function(topFunc, Event.START_TIME, condition.getSize())
-                    .from(client.getDatabase(), Event.INDEX_NAME)
-                    .where();
-
-        if (!isNullOrEmpty(condition.getUuid())) {
-            query.and(eq(Event.UUID, condition.getUuid()));
-        }
-
-        final Source source = condition.getSource();
-        if (source != null) {
-            if (!isNullOrEmpty(source.getService())) {
-                query.and(eq(Event.SERVICE, source.getService()));
-            }
-            if (!isNullOrEmpty(source.getServiceInstance())) {
-                query.and(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
-            }
-            if (!isNullOrEmpty(source.getEndpoint())) {
-                query.and(contains(Event.ENDPOINT, source.getEndpoint().replaceAll("/", "\\\\/")));
-            }
-        }
-
-        if (!isNullOrEmpty(condition.getName())) {
-            query.and(eq(InfluxConstants.NAME, condition.getName()));
-        }
-
-        if (condition.getType() != null) {
-            query.and(eq(Event.TYPE, condition.getType().name()));
-        }
-
-        final Duration startTime = condition.getTime();
-        if (startTime != null) {
-            if (startTime.getStartTimestamp() > 0) {
-                query.and(gt(Event.START_TIME, startTime.getStartTimestamp()));
-            }
-            if (startTime.getEndTimestamp() > 0) {
-                query.and(lt(Event.END_TIME, startTime.getEndTimestamp()));
-            }
-        }
-
-        return query;
     }
 }

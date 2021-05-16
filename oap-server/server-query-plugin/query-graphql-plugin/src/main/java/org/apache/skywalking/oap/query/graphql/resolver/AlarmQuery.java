@@ -71,13 +71,6 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return eventQueryService;
     }
 
-    private ForkJoinPool getForkJoinPool() {
-        if (forkJoinPool == null) {
-            this.forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
-        }
-        return forkJoinPool;
-    }
-
     public AlarmTrend getAlarmTrend(final Duration duration) {
         return new AlarmTrend();
     }
@@ -98,17 +91,17 @@ public class AlarmQuery implements GraphQLQueryResolver {
         }
         Alarms alarms = getQueryService().getAlarm(
                 scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
-        return includeEvents2AlarmsByCondition(alarms, condition);
+        return findReleventEvents(alarms, condition);
     }
 
-    private Alarms includeEvents2AlarmsByCondition(Alarms alarms, EventQueryCondition condition) throws Exception {
+    private Alarms findReleventEvents(Alarms alarms, EventQueryCondition condition) throws Exception {
         if (alarms.getTotal() < 1) {
             return alarms;
         }
 
         final List<EventQueryCondition> allConditions = new ArrayList<>(alarms.getTotal());
         alarms.getMsgs().stream().forEach(m -> {
-            constructCurrentSource(m).stream().forEach(c -> {
+            buildEventSources(m).stream().forEach(c -> {
                 final EventQueryCondition currentCondition = constructNewEventQueryCondition(condition);
                 currentCondition.setSource(c);
                 allConditions.add(currentCondition);
@@ -137,7 +130,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return alarms;
     }
 
-    private List<Source> constructCurrentSource(AlarmMessage msg) {
+    private List<Source> buildEventSources(AlarmMessage msg) {
         List<Source> sources = new ArrayList<>(2);
         switch (msg.getScopeId()) {
             case DefaultScopeDefine.SERVICE :
