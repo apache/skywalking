@@ -60,6 +60,7 @@ Release Notes.
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
 * Print SkyWalking context to logs configuration example.
+* Update doc about metrics v2 APIs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
 
