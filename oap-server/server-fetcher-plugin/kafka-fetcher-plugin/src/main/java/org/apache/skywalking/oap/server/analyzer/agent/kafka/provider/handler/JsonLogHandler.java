@@ -40,7 +40,12 @@ public class JsonLogHandler extends LogHandler {
     public String getTopic() {
         return config.getTopicNameOfJsonLogs();
     }
-
+    
+    @Override
+    protected String getProtocolName() {
+        return "kafka-fetcher-native-json";
+    }
+    
     @Override
     protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws IOException {
         LogData.Builder logDataBuilder = LogData.newBuilder();
