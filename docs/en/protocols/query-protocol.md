@@ -35,7 +35,7 @@ extend type Query {
 ```
 
 ### Topology
-The topology and dependency graphs of services and endpoints. Includes direct relationships or global maps.
+The topology and dependency graphs among services, instances and endpoints. Includes direct relationships or global maps.
 
 ```graphql
 extend type Query {
@@ -43,18 +43,51 @@ extend type Query {
     getGlobalTopology(duration: Duration!): Topology
     # Query the topology, based on the given service
     getServiceTopology(serviceId: ID!, duration: Duration!): Topology
+    # Query the topology, based on the given services.
+    # `#getServiceTopology` could be replaced by this.
+    getServicesTopology(serviceIds: [ID!]!, duration: Duration!): Topology
     # Query the instance topology, based on the given clientServiceId and serverServiceId
     getServiceInstanceTopology(clientServiceId: ID!, serverServiceId: ID!, duration: Duration!): ServiceInstanceTopology
     # Query the topology, based on the given endpoint
     getEndpointTopology(endpointId: ID!, duration: Duration!): Topology
+    # v2 of getEndpointTopology
+    getEndpointDependencies(endpointId: ID!, duration: Duration!): EndpointTopology
 }
 ```
 
 ### Metrics
-Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md). You may obtain the 
-metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
+Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md). 
+You may obtain the metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
 
-3 types of metrics can be queried:
+#### V2 APIs
+Provide Metrics V2 query APIs since 8.0.0, including metadata, single/multiple values, heatmap, and sampled records metrics.
+```graphql
+extend type Query {
+    # Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
+    typeOfMetrics(name: String!): MetricsType!
+    # Get the list of all available metrics in the current OAP server.
+    # Param, regex, could be used to filter the metrics by name.
+    listMetrics(regex: String): [MetricDefinition!]!
+
+    # Read metrics single value in the duration of required metrics
+    readMetricsValue(condition: MetricsCondition!, duration: Duration!): Long!
+    # Read time-series values in the duration of required metrics
+    readMetricsValues(condition: MetricsCondition!, duration: Duration!): MetricsValues!
+    # Read entity list of required metrics and parent entity type.
+    sortMetrics(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
+    # Read value in the given time duration, usually as a linear.
+    # labels: the labels you need to query.
+    readLabeledMetricsValues(condition: MetricsCondition!, labels: [String!]!, duration: Duration!): [MetricsValues!]!
+    # Heatmap is bucket based value statistic result.
+    readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
+    # Read the sampled records
+    # TopNCondition#scope is not required.
+    readSampledRecords(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
+}
+```
+
+#### V1 APIs
+3 types of metrics can be queried. V1 APIs were introduced since 6.x. Now they are a shell to V2 APIs.
 1. Single value. Most default metrics are in single value. `getValues` and `getLinearIntValues` are suitable for this purpose.
 1. Multiple value.  A metric defined in OAL includes multiple value calculations. Use `getMultipleLinearIntValues` to obtain all values. `percentile` is a typical multiple value function in OAL.
 1. Heatmap value. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map) for details. `thermodynamic` is the only OAL function. Use `getThermodynamic` to get the values.
