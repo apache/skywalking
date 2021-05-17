@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.util.JsonFormat;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -29,8 +28,6 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 @Slf4j
 public class JsonLogHandler extends LogHandler {
-
-    private static final JsonFormat.Parser JSON_PARSER = JsonFormat.parser().ignoringUnknownFields();
 
     private final KafkaFetcherConfig config;
 
