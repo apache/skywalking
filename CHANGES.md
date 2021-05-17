@@ -41,7 +41,8 @@ Release Notes.
 * Fix: Envoy error logs are not persisted when no metrics are generated
 * Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
 * Allow multiple definitions as fallback in metadata-service-mapping.yaml file.
-* Fix: NPE when configmap has no data. 
+* Fix: NPE when configmap has no data.
+* Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
 
 #### UI
 * Add logo for kong plugin.
