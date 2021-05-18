@@ -5,8 +5,8 @@ native visualization tool or 3rd party system, including Web UI, CLI or private 
 Query protocol official repository, https://github.com/apache/skywalking-query-protocol.
 
 ### Metadata  
-Metadata includes the brief info of the whole under monitoring services and their instances, endpoints, etc.
-Use multiple ways to query this meta data.
+Metadata contains concise information on all services and their instances, endpoints, etc. under monitoring.
+You may query the metadata in different ways.
 ```graphql
 extend type Query {
     getGlobalBrief(duration: Duration!): ClusterBrief
@@ -35,7 +35,7 @@ extend type Query {
 ```
 
 ### Topology
-Show the topology and dependency graph of services or endpoints. Including direct relationship or global map.
+The topology and dependency graphs among services, instances and endpoints. Includes direct relationships or global maps.
 
 ```graphql
 extend type Query {
@@ -43,21 +43,54 @@ extend type Query {
     getGlobalTopology(duration: Duration!): Topology
     # Query the topology, based on the given service
     getServiceTopology(serviceId: ID!, duration: Duration!): Topology
+    # Query the topology, based on the given services.
+    # `#getServiceTopology` could be replaced by this.
+    getServicesTopology(serviceIds: [ID!]!, duration: Duration!): Topology
     # Query the instance topology, based on the given clientServiceId and serverServiceId
     getServiceInstanceTopology(clientServiceId: ID!, serverServiceId: ID!, duration: Duration!): ServiceInstanceTopology
     # Query the topology, based on the given endpoint
     getEndpointTopology(endpointId: ID!, duration: Duration!): Topology
+    # v2 of getEndpointTopology
+    getEndpointDependencies(endpointId: ID!, duration: Duration!): EndpointTopology
 }
 ```
 
 ### Metrics
-Metrics query targets all the objects defined in [OAL script](../concepts-and-designs/oal.md). You could get the 
-metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
+Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md). 
+You may obtain the metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
 
-3 types of metrics could be query
-1. Single value. The type of most default metrics is single value, consider this as default. `getValues` and `getLinearIntValues` are suitable for this.
-1. Multiple value.  One metrics defined in OAL include multiple value calculations. Use `getMultipleLinearIntValues` to get all values. `percentile` is a typical multiple value func in OAL.
-1. Heatmap value. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map) for detail. `thermodynamic` is the only OAL func. Use `getThermodynamic` to get the values.
+#### V2 APIs
+Provide Metrics V2 query APIs since 8.0.0, including metadata, single/multiple values, heatmap, and sampled records metrics.
+```graphql
+extend type Query {
+    # Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
+    typeOfMetrics(name: String!): MetricsType!
+    # Get the list of all available metrics in the current OAP server.
+    # Param, regex, could be used to filter the metrics by name.
+    listMetrics(regex: String): [MetricDefinition!]!
+
+    # Read metrics single value in the duration of required metrics
+    readMetricsValue(condition: MetricsCondition!, duration: Duration!): Long!
+    # Read time-series values in the duration of required metrics
+    readMetricsValues(condition: MetricsCondition!, duration: Duration!): MetricsValues!
+    # Read entity list of required metrics and parent entity type.
+    sortMetrics(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
+    # Read value in the given time duration, usually as a linear.
+    # labels: the labels you need to query.
+    readLabeledMetricsValues(condition: MetricsCondition!, labels: [String!]!, duration: Duration!): [MetricsValues!]!
+    # Heatmap is bucket based value statistic result.
+    readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
+    # Read the sampled records
+    # TopNCondition#scope is not required.
+    readSampledRecords(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
+}
+```
+
+#### V1 APIs
+3 types of metrics can be queried. V1 APIs were introduced since 6.x. Now they are a shell to V2 APIs.
+1. Single value. Most default metrics are in single value. `getValues` and `getLinearIntValues` are suitable for this purpose.
+1. Multiple value.  A metric defined in OAL includes multiple value calculations. Use `getMultipleLinearIntValues` to obtain all values. `percentile` is a typical multiple value function in OAL.
+1. Heatmap value. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map) for details. `thermodynamic` is the only OAL function. Use `getThermodynamic` to get the values.
 ```graphql
 extend type Query {
     getValues(metric: BatchMetricConditions!, duration: Duration!): IntValues
@@ -74,10 +107,10 @@ extend type Query {
 Metrics are defined in the `config/oal/*.oal` files.
 
 ### Aggregation
-Aggregation query means the metrics data need a secondary aggregation in query stage, which makes the query 
-interfaces have some different arguments. Such as, `TopN` list of services is a very typical aggregation query, 
-metrics stream aggregation just calculates the metrics values of each service, but the expected list needs ordering metrics data
-by the values.
+Aggregation query means that the metrics data need a secondary aggregation at query stage, which causes the query 
+interfaces to have some different arguments. A typical example of aggregation query is the `TopN` list of services. 
+Metrics stream aggregation simply calculates the metrics values of each service, but the expected list requires ordering metrics data
+by their values.
 
 Aggregation query is for single value metrics only.
 
@@ -95,16 +128,16 @@ extend type Query {
 ```
 
 ### Others
-The following query(s) are for specific features, including trace, alarm or profile.
+The following queries are for specific features, including trace, alarm, and profile.
 1. Trace. Query distributed traces by this.
-1. Alarm. Through alarm query, you can have alarm trend and details.
+1. Alarm. Through alarm query, you can find alarm trends and their details.
 
-The actual query GraphQL scrips could be found inside `query-protocol` folder in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
+The actual query GraphQL scripts can be found in the `query-protocol` folder [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
 
 ## Condition
 ### Duration
-Duration is a widely used parameter type as the APM data is time related. The explanations are as following. 
-Step is related the precision. 
+Duration is a widely used parameter type as the APM data is time-related. See the following for more details. 
+Step relates to precision. 
 ```graphql
 # The Duration defines the start and end time for each query operation.
 # Fields: `start` and `end`

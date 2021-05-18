@@ -104,8 +104,6 @@ public interface AbstractSpan extends AsyncSpan {
 
     String getOperationName();
 
-    int getComponentId();
-
     /**
      * Reference other trace segment.
      *

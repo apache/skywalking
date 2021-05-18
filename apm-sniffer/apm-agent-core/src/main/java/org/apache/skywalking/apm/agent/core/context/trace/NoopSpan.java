@@ -101,11 +101,6 @@ public class NoopSpan implements AbstractSpan {
     }
 
     @Override
-    public int getComponentId() {
-        return 0;
-    }
-
-    @Override
     public void ref(TraceSegmentRef ref) {
     }
 

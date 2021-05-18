@@ -1,15 +1,15 @@
 # HTTP API Protocol
 
-HTTP API Protocol defines the API data format, including api request and response data format.
+HTTP API Protocol defines the API data format, including API request and response data format.
 They use the HTTP1.1 wrapper of the official [SkyWalking Browser Protocol](Browser-Protocol.md). Read it for more details.
 
 ## Performance Data Report
 
-Detail information about data format can be found in [BrowserPerf.proto](https://github.com/apache/skywalking-data-collect-protocol/blob/master/browser/BrowserPerf.proto).
+Detailed information about data format can be found in [BrowserPerf.proto](https://github.com/apache/skywalking-data-collect-protocol/blob/master/browser/BrowserPerf.proto).
 
 ### POST http://localhost:12800/browser/perfData
 
-Send a performance data object with JSON format.
+Send a performance data object in JSON format.
 
 Input:
 
@@ -41,11 +41,11 @@ Http Status: 204
 
 ## Error Log Report
 
-Detail information about data format can be found in [BrowserPerf.proto](https://github.com/apache/skywalking-data-collect-protocol/blob/master/browser/BrowserPerf.proto).
+Detailed information about data format can be found in [BrowserPerf.proto](https://github.com/apache/skywalking-data-collect-protocol/blob/master/browser/BrowserPerf.proto).
 
 ### POST http://localhost:12800/browser/errorLogs
 
-Send an error log object list with JSON format.
+Send an error log object list in JSON format.
 
 Input:
 
@@ -84,7 +84,7 @@ Http Status: 204
 
 ### POST http://localhost:12800/browser/errorLog
 
-Send a single error log object with JSON format.
+Send a single error log object in JSON format.
 
 Input:
 

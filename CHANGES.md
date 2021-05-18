@@ -6,6 +6,7 @@ Release Notes.
 ------------------
 #### Project
 * Add OpenSearch as storage option.
+* Upgrade Kubernetes Java client dependency to 11.0.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
@@ -39,6 +40,9 @@ Release Notes.
 * Support analyzing Envoy TCP access logs and persist error TCP logs.
 * Fix: Envoy error logs are not persisted when no metrics are generated
 * Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
+* Allow multiple definitions as fallback in metadata-service-mapping.yaml file.
+* Fix: NPE when configmap has no data.
+* Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
 
 #### UI
 * Add logo for kong plugin.
@@ -51,10 +55,12 @@ Release Notes.
 * Fix configurations on dashboard.
 * Support to configure the maximum number of displayed items.
 * After changing the durationTime, the topology shows the originally selected group or service.
+* remove the no use maxItemNum for labeled-value metric, etc.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
 * Print SkyWalking context to logs configuration example.
+* Update doc about metrics v2 APIs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/84?closed=1)
 
