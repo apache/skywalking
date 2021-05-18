@@ -58,7 +58,7 @@ public class PulsarConsumerListenerInterceptor implements InstanceMethodsAroundI
         return ret == null ? null : (MessageListener) (consumer, message) -> {
             final MessageEnhanceRequiredInfo requiredInfo = (MessageEnhanceRequiredInfo) ((EnhancedInstance) message)
                     .getSkyWalkingDynamicField();
-            if (requiredInfo == null) {
+            if (requiredInfo == null || requiredInfo.getContextSnapshot() == null) {
                 ((MessageListener) ret).received(consumer, message);
             } else {
                 AbstractSpan activeSpan = ContextManager

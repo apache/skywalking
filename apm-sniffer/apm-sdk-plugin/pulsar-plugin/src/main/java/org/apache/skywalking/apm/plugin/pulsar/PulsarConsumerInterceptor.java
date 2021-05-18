@@ -77,17 +77,15 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
         if (allArguments[0] != null) {
             final ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst
                     .getSkyWalkingDynamicField();
-            if (requiredInfo.isHasMessageListener()) {
-                EnhancedInstance msg = (EnhancedInstance) allArguments[0];
-                MessageEnhanceRequiredInfo messageEnhanceRequiredInfo = (MessageEnhanceRequiredInfo) msg
-                        .getSkyWalkingDynamicField();
-                if (messageEnhanceRequiredInfo == null) {
-                    messageEnhanceRequiredInfo = new MessageEnhanceRequiredInfo();
-                    msg.setSkyWalkingDynamicField(messageEnhanceRequiredInfo);
-                }
-                messageEnhanceRequiredInfo.setTopic(requiredInfo.getTopic());
-                messageEnhanceRequiredInfo.setContextSnapshot(ContextManager.capture());
+            EnhancedInstance msg = (EnhancedInstance) allArguments[0];
+            MessageEnhanceRequiredInfo messageEnhanceRequiredInfo = (MessageEnhanceRequiredInfo) msg
+                    .getSkyWalkingDynamicField();
+            if (messageEnhanceRequiredInfo == null) {
+                messageEnhanceRequiredInfo = new MessageEnhanceRequiredInfo();
+                msg.setSkyWalkingDynamicField(messageEnhanceRequiredInfo);
             }
+            messageEnhanceRequiredInfo.setTopic(requiredInfo.getTopic());
+            messageEnhanceRequiredInfo.setContextSnapshot(ContextManager.capture());
             ContextManager.stopSpan();
         }
         return ret;

@@ -64,6 +64,10 @@ public class LogsPersistence implements ALSHTTPAnalysis {
         final Role role
     ) {
         try {
+            if (result.getService() == null) {
+                return result;
+            }
+
             final LogData logData = convertToLogData(entry, result);
             logAnalyzerService.doAnalysis(logData);
         } catch (final Exception e) {

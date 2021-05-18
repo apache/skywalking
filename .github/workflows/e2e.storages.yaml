@@ -49,10 +49,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build OpenSearch
-        if: matrix.storage == 'opensearch'
-        run: bash test/e2e/e2e-test/docker/build-opensearch.sh
-
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test

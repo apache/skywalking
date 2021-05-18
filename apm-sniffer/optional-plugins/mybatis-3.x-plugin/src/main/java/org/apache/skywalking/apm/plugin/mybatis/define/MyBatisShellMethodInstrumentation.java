@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.plugin.mybatis.MyBatisMethodMatch;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class MyBatisSpringInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MyBatisShellMethodInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -41,12 +41,12 @@ public class MyBatisSpringInstrumentation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return MyBatisMethodMatch.INSTANCE.getMyBatisMethodMatcher();
+                    return MyBatisMethodMatch.INSTANCE.getMyBatisShellMethodMatcher();
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.mybatis.SqlSessionOperationInterceptor";
+                    return "org.apache.skywalking.apm.plugin.mybatis.MyBatisShellMethodInterceptor";
                 }
 
                 @Override
@@ -59,6 +59,6 @@ public class MyBatisSpringInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     @Override
     public ClassMatch enhanceClass() {
-        return byName("org.mybatis.spring.SqlSessionTemplate");
+        return byName("org.apache.ibatis.session.defaults.DefaultSqlSession");
     }
 }

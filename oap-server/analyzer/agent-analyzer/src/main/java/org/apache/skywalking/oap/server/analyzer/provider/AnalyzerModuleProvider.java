@@ -122,6 +122,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
         dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(traceSampleRateWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(traceLatencyThresholdsAndWatcher);
 
         segmentParserService.setListenerManager(listenerManager());
 
