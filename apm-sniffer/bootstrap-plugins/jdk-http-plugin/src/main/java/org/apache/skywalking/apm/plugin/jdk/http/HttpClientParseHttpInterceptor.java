@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.jdk.http;
 
-import com.google.common.collect.Maps;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -36,7 +36,7 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInvocationContext context) throws Throwable {
-        Map<String, Object> map = Maps.newHashMap();
+        Map<String, Object> map = new HashMap<>();
         map.put("HttpClientParseHttpInterceptor", "HttpClientParseHttpInterceptor");
         context.setContext(map);
     }
@@ -53,7 +53,10 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
             Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
         }
         Map<String, Object> map = (Map<String, Object>) context.getContext();
-        if (Objects.isNull(map.get("HttpClientParseHttpInterceptor"))) {
+        if (Objects.isNull(map)) {
+            ContextManager.activeSpan().errorOccurred().log(new Exception("Method invocation context lost."));
+        }
+        else if (Objects.isNull(map.get("HttpClientParseHttpInterceptor"))) {
             ContextManager.activeSpan().errorOccurred().log(new Exception("Method invocation context lost."));
         }
         ContextManager.stopSpan();

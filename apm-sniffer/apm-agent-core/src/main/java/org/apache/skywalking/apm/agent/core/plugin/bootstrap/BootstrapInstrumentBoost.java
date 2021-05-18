@@ -67,9 +67,9 @@ public class BootstrapInstrumentBoost {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult",
 
         // interceptor v2
-        "org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.enhance.InstanceMethodsAroundInterceptorV2",
-        "org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.enhance.StaticMethodsAroundInterceptorV2",
-        "org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.enhance.MethodInvocationContext",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.StaticMethodsAroundInterceptorV2",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext",
     };
 
     private static String INSTANCE_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterTemplate";
