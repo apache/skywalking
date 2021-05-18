@@ -58,7 +58,7 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                     }
                 }
                 if (!matched) {
-                    fail("\nAlarmMatcher Tags Expected: %s\n Actual AlarmMatcher Tags: %s", getTags(), alarm.getTags());
+                    fail("\nExpected: %s\n Actual: %s", getTags(), alarm.getTags());
                 }
             }
         }
@@ -75,7 +75,7 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                     }
                 }
                 if (!matched) {
-                    fail("\nAlarmMatcher Events Expected: %s\n Actual AlarmMatcher Events: %s", getEvents(), alarm.getEvents());
+                    fail("\nExpected: %s\n Actual: %s", getEvents(), alarm.getEvents());
                 }
             }
         }

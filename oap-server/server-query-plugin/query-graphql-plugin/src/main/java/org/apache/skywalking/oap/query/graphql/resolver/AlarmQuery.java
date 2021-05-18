@@ -41,14 +41,19 @@ import org.apache.skywalking.oap.server.core.query.type.event.Event;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 
 public class AlarmQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
+
     private AlarmQueryService queryService;
+
     private EventQueryService eventQueryService;
 
     public AlarmQuery(ModuleManager moduleManager) {
@@ -74,148 +79,113 @@ public class AlarmQuery implements GraphQLQueryResolver {
     }
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
-                           final Pagination paging, final List<Tag> tags) throws Throwable {
+                           final Pagination paging, final List<Tag> tags) throws Exception {
         Integer scopeId = null;
         if (scope != null) {
             scopeId = scope.getScopeId();
         }
         long startSecondTB = 0;
         long endSecondTB = 0;
-        EventQueryCondition condition = new EventQueryCondition();
+        final EventQueryCondition.EventQueryConditionBuilder conditionPrototype = EventQueryCondition.builder().size(IEventQueryDAO.MAX_SIZE);
         if (nonNull(duration)) {
             startSecondTB = duration.getStartTimeBucketInSec();
             endSecondTB = duration.getEndTimeBucketInSec();
-            condition.setTime(duration);
+            conditionPrototype.time(duration);
         }
         Alarms alarms = getQueryService().getAlarm(
-                scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
-        return findReleventEvents(alarms, condition);
+            scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
+        return findRelevantEvents(alarms, conditionPrototype);
     }
 
-    private Alarms findReleventEvents(Alarms alarms, EventQueryCondition condition) throws Exception {
+    private Alarms findRelevantEvents(
+        final Alarms alarms,
+        final EventQueryCondition.EventQueryConditionBuilder conditionPrototype
+    ) throws Exception {
+
         if (alarms.getTotal() < 1) {
             return alarms;
         }
 
-        final List<EventQueryCondition> allConditions = new ArrayList<>(alarms.getTotal());
-        alarms.getMsgs().stream().forEach(m -> {
-            buildEventSources(m).stream().forEach(c -> {
-                final EventQueryCondition currentCondition = constructNewEventQueryCondition(condition);
-                currentCondition.setSource(c);
-                allConditions.add(currentCondition);
-            });
-        });
+        final List<EventQueryCondition> allConditions =
+            alarms.getMsgs()
+                  .stream()
+                  .flatMap(m -> buildEventSources(m).stream().map(conditionPrototype::source))
+                  .map(EventQueryCondition.EventQueryConditionBuilder::build)
+                  .collect(Collectors.toList());
 
-        List<Event> events = getEventQueryService().queryEvents(allConditions).getEvents();
-        Map<String, List<Event>> mappingEvents = events.stream().collect(Collectors.toMap(Event::getSourcesString, e -> {
-            final List<Event> allEvents = new ArrayList<>();
-            allEvents.add(e);
-            return allEvents;
-        }, (List<Event> firstEvents, List<Event> secondEvents) -> {
-                if (CollectionUtils.isNotEmpty(firstEvents)) {
-                    firstEvents.addAll(secondEvents);
-                }
-                return firstEvents;
-        }));
-        alarms.getMsgs().stream().forEach(a -> {
-            if (CollectionUtils.isNotEmpty(mappingEvents.get(a.getId0SourcesStr()))) {
-                a.getEvents().addAll(mappingEvents.get(a.getId0SourcesStr()));
+        final List<Event> events = getEventQueryService().queryEvents(allConditions).getEvents();
+        final Map<String, List<Event>> eventsKeyedBySourceId =
+            events.stream()
+                  .filter(it -> !isNullOrEmpty(buildSourceID(it)))
+                  .collect(Collectors.groupingBy(this::buildSourceID));
+
+        alarms.getMsgs().forEach(a -> {
+            if (isNotEmpty(eventsKeyedBySourceId.get(a.getId()))) {
+                a.getEvents().addAll(eventsKeyedBySourceId.get(a.getId()));
             }
-            if (Boolean.TRUE.equals(a.getId0LinkId1Flag()) && CollectionUtils.isNotEmpty(mappingEvents.get(a.getId1SourcesStr()))) {
-                a.getEvents().addAll(mappingEvents.get(a.getId0SourcesStr()));
+            if (isNotEmpty(eventsKeyedBySourceId.get(a.getId1()))) {
+                a.getEvents().addAll(eventsKeyedBySourceId.get(a.getId1()));
             }
         });
         return alarms;
     }
 
     private List<Source> buildEventSources(AlarmMessage msg) {
-        List<Source> sources = new ArrayList<>(2);
+        final List<Source> sources = new ArrayList<>(2);
+        final Source.SourceBuilder sourcePrototype = Source.builder();
         switch (msg.getScopeId()) {
-            case DefaultScopeDefine.SERVICE :
-                IDManager.ServiceID.ServiceIDDefinition serviceIdDef = IDManager.ServiceID.analysisId(msg.getId());
-                Source serviceSource = new Source();
-                serviceSource.setService(serviceIdDef.getName());
-                msg.setId0SourcesStr(serviceIdDef.getName());
-                sources.add(serviceSource);
+            case DefaultScopeDefine.SERVICE_RELATION:
+                final IDManager.ServiceID.ServiceIDDefinition destServiceIdDef = IDManager.ServiceID.analysisId(msg.getId1());
+                sources.add(sourcePrototype.service(destServiceIdDef.getName()).build());
+                // fall through
+            case DefaultScopeDefine.SERVICE:
+                final IDManager.ServiceID.ServiceIDDefinition sourceServiceIdDef = IDManager.ServiceID.analysisId(msg.getId());
+                sources.add(sourcePrototype.service(sourceServiceIdDef.getName()).build());
                 break;
-            case DefaultScopeDefine.SERVICE_RELATION :
-                IDManager.ServiceID.ServiceIDDefinition sourceServiceIdDef = IDManager.ServiceID.analysisId(msg.getId());
-                Source sourceSource = new Source();
-                sourceSource.setService(sourceServiceIdDef.getName());
-                msg.setId0SourcesStr(sourceServiceIdDef.getName());
-                sources.add(sourceSource);
 
-                IDManager.ServiceID.ServiceIDDefinition destServiceIdDef = IDManager.ServiceID.analysisId(msg.getId1());
-                Source destSource = new Source();
-                sourceSource.setService(destServiceIdDef.getName());
-                msg.setId1SourcesStr(destServiceIdDef.getName());
-                msg.setId0LinkId1Flag(true);
-                sources.add(destSource);
-                break;
-            case DefaultScopeDefine.SERVICE_INSTANCE :
-                IDManager.ServiceInstanceID.InstanceIDDefinition instanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId());
-                Source serviceInstanceSource = new Source();
-                serviceInstanceSource.setServiceInstance(instanceIdDef.getName());
-                final String serviceName = IDManager.ServiceID.analysisId(instanceIdDef.getServiceId()).getName();
-                serviceInstanceSource.setService(serviceName);
-                msg.setId0SourcesStr(serviceName + instanceIdDef.getName());
-                sources.add(serviceInstanceSource);
-                break;
-            case DefaultScopeDefine.SERVICE_INSTANCE_RELATION :
-                IDManager.ServiceInstanceID.InstanceIDDefinition sourceInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId());
-                Source sourceServiceInstanceSource = new Source();
-                sourceServiceInstanceSource.setServiceInstance(sourceInstanceIdDef.getName());
-                final String sourceServiceName = IDManager.ServiceID.analysisId(sourceInstanceIdDef.getServiceId()).getName();
-                sourceServiceInstanceSource.setService(sourceServiceName);
-                msg.setId0SourcesStr(sourceServiceName + sourceInstanceIdDef.getName());
-                sources.add(sourceServiceInstanceSource);
-
-                IDManager.ServiceInstanceID.InstanceIDDefinition destInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId1());
-                Source destServiceInstanceSource = new Source();
-                destServiceInstanceSource.setServiceInstance(destInstanceIdDef.getName());
+            case DefaultScopeDefine.SERVICE_INSTANCE_RELATION:
+                final IDManager.ServiceInstanceID.InstanceIDDefinition destInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId1());
                 final String destServiceName = IDManager.ServiceID.analysisId(destInstanceIdDef.getServiceId()).getName();
-                destServiceInstanceSource.setService(destServiceName);
-                msg.setId1SourcesStr(destServiceName + destInstanceIdDef.getName());
-                msg.setId0LinkId1Flag(true);
-                sources.add(destServiceInstanceSource);
+                sources.add(sourcePrototype.service(destServiceName).serviceInstance(destInstanceIdDef.getName()).build());
+                // fall through
+            case DefaultScopeDefine.SERVICE_INSTANCE:
+                final IDManager.ServiceInstanceID.InstanceIDDefinition sourceInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId());
+                final String serviceName = IDManager.ServiceID.analysisId(sourceInstanceIdDef.getServiceId()).getName();
+                sources.add(sourcePrototype.serviceInstance(sourceInstanceIdDef.getName()).service(serviceName).build());
                 break;
-            case DefaultScopeDefine.ENDPOINT :
-                IDManager.EndpointID.EndpointIDDefinition endpointIDDef = IDManager.EndpointID.analysisId(msg.getId());
-                Source endpointSource = new Source();
-                final String endpointServiceName = IDManager.ServiceID.analysisId(endpointIDDef.getServiceId()).getName();
-                endpointSource.setService(endpointServiceName);
-                msg.setId0SourcesStr(endpointServiceName);
-                sources.add(endpointSource);
-                break;
-            case DefaultScopeDefine.ENDPOINT_RELATION :
-                IDManager.EndpointID.EndpointIDDefinition sourceEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId());
-                Source sourceEndpointSource = new Source();
-                final String sourceEndpointServiceName = IDManager.ServiceID.analysisId(sourceEndpointIDDef.getServiceId()).getName();
-                sourceEndpointSource.setService(sourceEndpointServiceName);
-                msg.setId0SourcesStr(sourceEndpointServiceName);
-                sources.add(sourceEndpointSource);
 
-                IDManager.EndpointID.EndpointIDDefinition destEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId1());
-                Source destEndpointSource = new Source();
+            case DefaultScopeDefine.ENDPOINT_RELATION:
+                final IDManager.EndpointID.EndpointIDDefinition destEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId1());
                 final String destEndpointServiceName = IDManager.ServiceID.analysisId(destEndpointIDDef.getServiceId()).getName();
-                destEndpointSource.setService(destEndpointServiceName);
-                msg.setId1SourcesStr(destEndpointServiceName);
-                msg.setId0LinkId1Flag(true);
-                sources.add(destEndpointSource);
+                sources.add(sourcePrototype.service(destEndpointServiceName).build());
+                // fall through
+            case DefaultScopeDefine.ENDPOINT:
+                final IDManager.EndpointID.EndpointIDDefinition endpointIDDef = IDManager.EndpointID.analysisId(msg.getId());
+                final String endpointServiceName = IDManager.ServiceID.analysisId(endpointIDDef.getServiceId()).getName();
+                sources.add(sourcePrototype.service(endpointServiceName).build());
                 break;
         }
+
         return sources;
     }
 
-    private EventQueryCondition constructNewEventQueryCondition(EventQueryCondition oldCondition) {
-        EventQueryCondition newCondition = new EventQueryCondition();
-        newCondition.setUuid(oldCondition.getUuid());
-        newCondition.setSource(oldCondition.getSource());
-        newCondition.setName(oldCondition.getName());
-        newCondition.setType(oldCondition.getType());
-        newCondition.setTime(oldCondition.getTime());
-        newCondition.setOrder(oldCondition.getOrder());
-        newCondition.setSize(oldCondition.getSize());
-        return newCondition;
+    protected String buildSourceID(final Event event) {
+        final Source source = event.getSource();
+
+        if (isNull(source)) {
+            return "";
+        }
+
+        final String service = source.getService();
+        if (isNullOrEmpty(service)) {
+            return "";
+        }
+
+        final String instance = source.getServiceInstance();
+        if (isNullOrEmpty(instance)) {
+            return IDManager.ServiceID.buildId(service, true);
+        }
+
+        return IDManager.ServiceInstanceID.buildId(service, instance);
     }
 }

@@ -388,8 +388,7 @@ public class SimpleQueryClient {
                                             .replace("{end}", query.end())
                                             .replace("{pageSize}", "20")
                                             .replace("{needTotal}", "true")
-                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()))
-                                            .replace("{events}", objectMapper.writeValueAsString(query.events()));
+                                            .replace("{tags}", objectMapper.writeValueAsString(query.tags()));
         LOGGER.info("Query: {}", queryString);
         final ResponseEntity<GQLResponse<GetAlarmData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),

@@ -52,6 +52,9 @@ public class EventMatcher extends AbstractMatcher<Event> {
 
     @Override
     public void verify(final Event event) {
+        if (nonNull(getUuid())) {
+            doVerify(getUuid(), event.getUuid());
+        }
         if (nonNull(getSource())) {
             if (nonNull(getSource().getService())) {
                 doVerify(getSource().getService(), event.getSource().getService());
@@ -90,7 +93,7 @@ public class EventMatcher extends AbstractMatcher<Event> {
                     }
                 }
                 if (!matched) {
-                    fail("\nEventMatcher Parameters Expected: %s\n Actual EventMatcher Parameters: %s", getParameters(), event.getParameters());
+                    fail("\nExpected: %s\n Actual: %s", getParameters(), event.getParameters());
                 }
             }
         }

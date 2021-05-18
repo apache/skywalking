@@ -17,14 +17,14 @@
 
 package org.apache.skywalking.e2e.alarm;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
-import org.apache.skywalking.e2e.event.Event;
-import org.apache.skywalking.e2e.event.EventsQuery;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
@@ -36,9 +36,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.DockerComposeContainer;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
@@ -101,11 +98,10 @@ public class AlarmE2E extends SkyWalkingTestAdapter {
 
     private void validate(String alarmFileWarn, String alarmFileCritical, String hookFile) throws Exception {
         // validate graphql
-        final List<Event> events = graphql.events(new EventsQuery().start(startTime).end(now()).uuid("abcde"));
-        GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "WARNING").addTag("receivers", "lisi").addEvents(events));
+        GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "WARNING").addTag("receivers", "lisi"));
         LOGGER.info("alarms query: {}", alarms);
         load(alarmFileWarn).as(AlarmsMatcher.class).verify(alarms);
-        alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "CRITICAL").addTag("receivers", "zhangsan").addEvents(events));
+        alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "CRITICAL").addTag("receivers", "zhangsan"));
         LOGGER.info("alarms query: {}", alarms);
         load(alarmFileCritical).as(AlarmsMatcher.class).verify(alarms);
 
