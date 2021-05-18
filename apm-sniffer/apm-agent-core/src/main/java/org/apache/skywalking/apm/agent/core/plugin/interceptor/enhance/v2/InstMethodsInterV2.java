@@ -28,7 +28,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoader;
 
 /**
@@ -53,18 +52,17 @@ public class InstMethodsInterV2 {
                             @Origin Method method) throws Throwable {
         EnhancedInstance targetObject = (EnhancedInstance) obj;
 
-        MethodInterceptResult result = new MethodInterceptResult();
         MethodInvocationContext context = new MethodInvocationContext();
         try {
-            interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result, context);
+            interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), context);
         } catch (Throwable t) {
             LOGGER.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
         }
 
         Object ret = null;
         try {
-            if (!result.isContinue()) {
-                ret = result._ret();
+            if (!context.isContinue()) {
+                ret = context._ret();
             } else {
                 ret = zuper.call();
             }

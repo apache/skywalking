@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.jdk.http;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.StaticMethodsAroundInterceptorV2;
 
@@ -28,7 +27,7 @@ public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInt
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                             MethodInterceptResult result, MethodInvocationContext context) {
+                             MethodInvocationContext context) {
 
     }
 

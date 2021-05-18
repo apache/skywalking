@@ -78,21 +78,21 @@ public class BootstrapInstrumentBoost {
     private static String STATIC_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterTemplate";
     private static String STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterWithOverrideArgsTemplate";
 
-    private static String INSTANCE_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterV2Template";
-    private static String INSTANCE_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterV2WithOverrideArgsTemplate";
-    private static String STATIC_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterV2Template";
-    private static String STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterV2WithOverrideArgsTemplate";
+    private static String INSTANCE_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.v2.InstanceMethodInterV2Template";
+    private static String INSTANCE_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.v2.InstanceMethodInterV2WithOverrideArgsTemplate";
+    private static String STATIC_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.v2.StaticMethodInterV2Template";
+    private static String STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.v2.StaticMethodInterV2WithOverrideArgsTemplate";
 
     public static AgentBuilder inject(PluginFinder pluginFinder, Instrumentation instrumentation,
         AgentBuilder agentBuilder, JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
-        Map<String, byte[]> classesTypeMap = new HashMap<String, byte[]>();
+        Map<String, byte[]> classesTypeMap = new HashMap<>();
 
         if (!prepareJREInstrumentation(pluginFinder, classesTypeMap)) {
             return agentBuilder;
         }
 
         if (!prepareJREInstrumentationV2(pluginFinder, classesTypeMap)) {
-
+            return agentBuilder;
         }
 
         for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
@@ -183,7 +183,7 @@ public class BootstrapInstrumentBoost {
     }
 
     private static boolean prepareJREInstrumentationV2(PluginFinder pluginFinder,
-                                                     Map<String, byte[]> classesTypeMap) throws PluginException {
+                                                       Map<String, byte[]> classesTypeMap) throws PluginException {
         TypePool typePool = TypePool.Default.of(BootstrapInstrumentBoost.class.getClassLoader());
         List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefines = pluginFinder.getBootstrapClassMatchDefine();
         for (AbstractClassEnhancePluginDefine define : bootstrapClassMatchDefines) {

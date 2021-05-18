@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.jdk.http;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -26,7 +28,6 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -41,7 +42,7 @@ public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundI
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result, MethodInvocationContext context) throws Throwable {
+                             MethodInvocationContext context) throws Throwable {
         HttpURLConnection connection = (HttpURLConnection) objInst.getSkyWalkingDynamicField();
         MessageHeader headers = (MessageHeader) allArguments[0];
         URL url = connection.getURL();
@@ -56,14 +57,17 @@ public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundI
             next = next.next();
             headers.set(next.getHeadKey(), next.getHeadValue());
         }
-        context.put("mic", "HttpClientWriteRequestInterceptor");
+        Map<String, Object> map = new HashMap<>(1);
+        map.put("mic", "HttpClientWriteRequestInterceptor");
+        context.setContext(map);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret, MethodInvocationContext context) throws Throwable {
         AbstractSpan span = ContextManager.activeSpan();
-        span.tag(new StringTag("mic"), String.valueOf(context.get("mic")));
+        Map<String, Object> map = (Map<String, Object>) context.getContext();
+        span.tag(new StringTag("mic"), String.valueOf(map.get("mic")));
         return ret;
     }
 

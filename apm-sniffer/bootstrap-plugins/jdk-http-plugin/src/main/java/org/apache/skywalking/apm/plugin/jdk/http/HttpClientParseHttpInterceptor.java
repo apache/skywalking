@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.jdk.http;
 
+import com.google.common.collect.Maps;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -34,8 +35,10 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result, MethodInvocationContext context) throws Throwable {
-        context.put("HttpClientParseHttpInterceptor", new Object());
+                             MethodInvocationContext context) throws Throwable {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("HttpClientParseHttpInterceptor", "HttpClientParseHttpInterceptor");
+        context.setContext(map);
     }
 
     @Override
@@ -49,7 +52,8 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
         }
-        if (Objects.isNull(context.get("HttpClientParseHttpInterceptor"))) {
+        Map<String, Object> map = (Map<String, Object>) context.getContext();
+        if (Objects.isNull(map.get("HttpClientParseHttpInterceptor"))) {
             ContextManager.activeSpan().errorOccurred().log(new Exception("Method invocation context lost."));
         }
         ContextManager.stopSpan();

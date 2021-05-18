@@ -18,17 +18,36 @@
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2;
 
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * A v2 interceptor, which intercept method's invocation. The target methods will be defined in {@link
+ * ClassEnhancePluginDefineV2}'s subclass, most likely in {@link ClassInstanceMethodsEnhancePluginDefine}
+ */
 public interface InstanceMethodsAroundInterceptorV2 {
-
+    /**
+     * called before target method invocation.
+     *
+     * @param context the method invocation context including result context.
+     */
     void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                      MethodInterceptResult result, MethodInvocationContext context) throws Throwable;
+                      MethodInvocationContext context) throws Throwable;
 
+    /**
+     * called after target method invocation. Even method's invocation triggers an exception.
+     *
+     * @param ret the method's original return value. May be null if the method triggers an exception.
+     * @return the method's actual return value.
+     */
     Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                        Object ret, MethodInvocationContext context) throws Throwable;
 
+    /**
+     * called when occur exception.
+     *
+     * @param t the exception occur.
+     */
     void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context);
 

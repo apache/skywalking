@@ -27,19 +27,11 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideCallable;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 
 /**
- * --------CLASS TEMPLATE---------
- * <p>Author, Wu Sheng </p>
- * <p>Comment, don't change this unless you are 100% sure the agent core mechanism for bootstrap class
- * instrumentation.</p>
- * <p>Date, 24th July 2019</p>
- * -------------------------------
- * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
  */
 public class InstanceMethodInterV2WithOverrideArgsTemplate {
@@ -70,10 +62,9 @@ public class InstanceMethodInterV2WithOverrideArgsTemplate {
         prepare();
 
         MethodInvocationContext context = new MethodInvocationContext();
-        MethodInterceptResult result = new MethodInterceptResult();
         try {
             if (INTERCEPTOR != null) {
-                INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result, context);
+                INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), context);
             }
         } catch (Throwable t) {
             if (LOGGER != null) {
@@ -83,8 +74,8 @@ public class InstanceMethodInterV2WithOverrideArgsTemplate {
 
         Object ret = null;
         try {
-            if (!result.isContinue()) {
-                ret = result._ret();
+            if (!context.isContinue()) {
+                ret = context._ret();
             } else {
                 ret = zuper.call(allArguments);
             }

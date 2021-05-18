@@ -17,17 +17,18 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
-public class MethodInvocationContext {
-    private Map<String, Object> context = new HashMap<>(1);
+public class MethodInvocationContext extends MethodInterceptResult {
 
-    public Object get(String key) {
-        return context.get(key);
+    private Object context;
+
+    public Object getContext() {
+        return context;
     }
 
-    public void put(String key, Object value) {
-        context.put(key, value);
+    public void setContext(Object context) {
+        this.context = context;
     }
+
 }

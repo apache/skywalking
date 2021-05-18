@@ -19,20 +19,19 @@
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2;
 
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * The static method's interceptor interface. Any plugin, which wants to intercept static methods, must implement this
+ * The static method's interceptor v2 interface. Any plugin, which wants to intercept static methods, must implement this
  * interface.
  */
 public interface StaticMethodsAroundInterceptorV2 {
     /**
      * called before target method invocation.
      *
-     * @param result change this result, if you want to truncate the method.
+     * @param context the method invocation context including result context.
      */
     void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        MethodInterceptResult result, MethodInvocationContext context);
+                      MethodInvocationContext context);
 
     /**
      * called after target method invocation. Even method's invocation triggers an exception.

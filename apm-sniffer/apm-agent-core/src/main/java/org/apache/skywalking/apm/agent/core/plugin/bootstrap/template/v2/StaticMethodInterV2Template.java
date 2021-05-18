@@ -26,18 +26,10 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.StaticMethodsAroundInterceptorV2;
 
 /**
- * --------CLASS TEMPLATE---------
- * <p>Author, Wu Sheng </p>
- * <p>Comment, don't change this unless you are 100% sure the agent core mechanism for bootstrap class
- * instrumentation.</p>
- * <p>Date, 24th July 2019</p>
- * -------------------------------
- * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
  */
 public class StaticMethodInterV2Template {
@@ -66,10 +58,9 @@ public class StaticMethodInterV2Template {
         prepare();
 
         MethodInvocationContext context = new MethodInvocationContext();
-        MethodInterceptResult result = new MethodInterceptResult();
         try {
             if (INTERCEPTOR != null) {
-                INTERCEPTOR.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result, context);
+                INTERCEPTOR.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), context);
             }
         } catch (Throwable t) {
             LOGGER.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
@@ -77,8 +68,8 @@ public class StaticMethodInterV2Template {
 
         Object ret = null;
         try {
-            if (!result.isContinue()) {
-                ret = result._ret();
+            if (!context.isContinue()) {
+                ret = context._ret();
             } else {
                 ret = zuper.call();
             }
