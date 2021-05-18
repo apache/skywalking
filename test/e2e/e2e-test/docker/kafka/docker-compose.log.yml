@@ -65,7 +65,7 @@ services:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - /tmp/skywalking-logs/:/tmp/skywalking-logs/
     healthcheck:
-      test: ["CMD", "curl -sS 127.0.0.1:5066 || exit 1"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5066"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -85,7 +85,7 @@ services:
       - ./fluentd.conf:/opt/bitnami/fluentd/conf/fluentd.conf
       - /tmp/skywalking-logs/:/tmp/skywalking-logs/
     healthcheck:
-      test: ["CMD", "curl -sS 127.0.0.1:24220 || exit 1"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/24220"]
       interval: 5s
       timeout: 60s
       retries: 120
