@@ -33,6 +33,8 @@ num_of_testcases=
 image_version="jdk8-1.0.0"
 jacoco_version="${JACOCO_VERSION:-0.8.6}"
 
+os="$(uname)"
+
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
@@ -142,10 +144,18 @@ if [[ ! -d ${agent_home} ]]; then
     ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
 # if it fails last time, relevant information will be deleted
-sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+if [ "$os" == 'Darwin' ]; then
+    sed -i '' '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+else
+    sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+fi
 # add scenario_name into plugin/pom.xml
 echo check code with the checkstyle-plugin
-sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
+if [ "$os" == 'Darwin' ]; then
+    sed -i '' '/<\/sourceDirectories>/i\'$'\n''<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>'$'\n' ./pom.xml
+else
+    sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>' ./pom.xml
+fi
 
 if [[ "$force_build" == "on" ]]; then
     profile=
@@ -153,7 +163,11 @@ if [[ "$force_build" == "on" ]]; then
     ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests ${profile}
 fi
 # remove scenario_name into plugin/pom.xml
-sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+if [ "$os" == 'Darwin' ]; then
+    sed -i '' '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+else
+    sed -i '/<sourceDirectory>scenarios\/'"$scenario_name"'<\/sourceDirectory>/d' ./pom.xml
+fi
 
 workspace="${home}/workspace/${scenario_name}"
 [[ -d ${workspace} ]] && rm -rf $workspace
