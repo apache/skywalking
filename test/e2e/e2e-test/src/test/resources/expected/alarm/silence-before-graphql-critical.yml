@@ -24,3 +24,6 @@ matchers:
         value: CRITICAL
       - key: receivers
         value: zhangsan
+    events:
+      - source:
+          service: e2e-service-provider

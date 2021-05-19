@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.core.query.type.event;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Source {
