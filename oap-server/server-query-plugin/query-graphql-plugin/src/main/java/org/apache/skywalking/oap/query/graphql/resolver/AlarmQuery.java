@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 
+import graphql.schema.DataFetchingEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,8 @@ public class AlarmQuery implements GraphQLQueryResolver {
     }
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
-                           final Pagination paging, final List<Tag> tags) throws Exception {
+                           final Pagination paging, final List<Tag> tags,
+                           final DataFetchingEnvironment env) throws Exception {
         Integer scopeId = null;
         if (scope != null) {
             scopeId = scope.getScopeId();
@@ -94,7 +96,14 @@ public class AlarmQuery implements GraphQLQueryResolver {
         }
         Alarms alarms = getQueryService().getAlarm(
             scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
-        return findRelevantEvents(alarms, conditionPrototype);
+
+        final boolean selectEvents = env.getSelectionSet().get().containsKey("items/events");
+
+        if (selectEvents) {
+            return findRelevantEvents(alarms, conditionPrototype);
+        }
+
+        return alarms;
     }
 
     private Alarms findRelevantEvents(
