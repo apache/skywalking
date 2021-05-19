@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 * Add OpenSearch as storage option.
 * Upgrade Kubernetes Java client dependency to 11.0.
+* Fix plugin test script error in macOS.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
