@@ -62,7 +62,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     private String uuid;
     private final Register register = new Register();
 
-    private int lastRegisterWatcherSize;
+    private volatile int lastRegisterWatcherSize;
 
     private volatile ScheduledFuture<?> getDynamicConfigurationFuture;
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
