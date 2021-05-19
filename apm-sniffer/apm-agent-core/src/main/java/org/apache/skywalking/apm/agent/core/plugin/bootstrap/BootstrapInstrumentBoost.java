@@ -25,6 +25,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.type.TypeDescription;
@@ -157,25 +158,36 @@ public class BootstrapInstrumentBoost {
         TypePool typePool = TypePool.Default.of(BootstrapInstrumentBoost.class.getClassLoader());
         List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefines = pluginFinder.getBootstrapClassMatchDefine();
         for (AbstractClassEnhancePluginDefine define : bootstrapClassMatchDefines) {
-            for (InstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
-                if (point.isOverrideArgs()) {
-                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point
-                        .getMethodsInterceptor());
-                } else {
-                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+            if (Objects.nonNull(define.getInstanceMethodsInterceptPoints())) {
+                for (InstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
+                    if (point.isOverrideArgs()) {
+                        generateDelegator(
+                            classesTypeMap, typePool, INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point
+                                .getMethodsInterceptor());
+                    } else {
+                        generateDelegator(
+                            classesTypeMap, typePool, INSTANCE_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                    }
                 }
             }
 
-            for (ConstructorInterceptPoint point : define.getConstructorsInterceptPoints()) {
-                generateDelegator(classesTypeMap, typePool, CONSTRUCTOR_DELEGATE_TEMPLATE, point.getConstructorInterceptor());
+            if (Objects.nonNull(define.getConstructorsInterceptPoints())) {
+                for (ConstructorInterceptPoint point : define.getConstructorsInterceptPoints()) {
+                    generateDelegator(
+                        classesTypeMap, typePool, CONSTRUCTOR_DELEGATE_TEMPLATE, point.getConstructorInterceptor());
+                }
             }
 
-            for (StaticMethodsInterceptPoint point : define.getStaticMethodsInterceptPoints()) {
-                if (point.isOverrideArgs()) {
-                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point
-                        .getMethodsInterceptor());
-                } else {
-                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+            if (Objects.nonNull(define.getStaticMethodsInterceptPoints())) {
+                for (StaticMethodsInterceptPoint point : define.getStaticMethodsInterceptPoints()) {
+                    if (point.isOverrideArgs()) {
+                        generateDelegator(
+                            classesTypeMap, typePool, STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point
+                                .getMethodsInterceptor());
+                    } else {
+                        generateDelegator(
+                            classesTypeMap, typePool, STATIC_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                    }
                 }
             }
         }
@@ -187,21 +199,35 @@ public class BootstrapInstrumentBoost {
         TypePool typePool = TypePool.Default.of(BootstrapInstrumentBoost.class.getClassLoader());
         List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefines = pluginFinder.getBootstrapClassMatchDefine();
         for (AbstractClassEnhancePluginDefine define : bootstrapClassMatchDefines) {
-            for (InstanceMethodsInterceptV2Point point : define.getInstanceMethodsInterceptV2Points()) {
-                if (point.isOverrideArgs()) {
-                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE,
-                                      point.getMethodsInterceptorV2());
-                } else {
-                    generateDelegator(classesTypeMap, typePool, INSTANCE_METHOD_V2_DELEGATE_TEMPLATE, point.getMethodsInterceptorV2());
+            if (Objects.nonNull(define.getInstanceMethodsInterceptV2Points())) {
+                for (InstanceMethodsInterceptV2Point point : define.getInstanceMethodsInterceptV2Points()) {
+                    if (point.isOverrideArgs()) {
+                        generateDelegator(classesTypeMap, typePool,
+                                          INSTANCE_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE,
+                                          point.getMethodsInterceptorV2()
+                        );
+                    } else {
+                        generateDelegator(
+                            classesTypeMap, typePool, INSTANCE_METHOD_V2_DELEGATE_TEMPLATE,
+                            point.getMethodsInterceptorV2()
+                        );
+                    }
                 }
             }
 
-            for (StaticMethodsInterceptV2Point point : define.getStaticMethodsInterceptV2Points()) {
-                if (point.isOverrideArgs()) {
-                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE,
-                                      point.getMethodsInterceptorV2());
-                } else {
-                    generateDelegator(classesTypeMap, typePool, STATIC_METHOD_V2_DELEGATE_TEMPLATE, point.getMethodsInterceptorV2());
+            if (Objects.nonNull(define.getStaticMethodsInterceptV2Points())) {
+                for (StaticMethodsInterceptV2Point point : define.getStaticMethodsInterceptV2Points()) {
+                    if (point.isOverrideArgs()) {
+                        generateDelegator(classesTypeMap, typePool,
+                                          STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE,
+                                          point.getMethodsInterceptorV2()
+                        );
+                    } else {
+                        generateDelegator(
+                            classesTypeMap, typePool, STATIC_METHOD_V2_DELEGATE_TEMPLATE,
+                            point.getMethodsInterceptorV2()
+                        );
+                    }
                 }
             }
         }

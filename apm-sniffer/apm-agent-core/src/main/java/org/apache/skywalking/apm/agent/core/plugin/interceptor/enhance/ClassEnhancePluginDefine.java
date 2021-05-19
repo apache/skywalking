@@ -217,13 +217,20 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
         return newClassBuilder;
     }
 
+    /**
+     * @return null, means enhance no v2 instance methods.
+     */
     @Override
     public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
-        return new InstanceMethodsInterceptV2Point[] {};
+        return null;
     }
 
+    /**
+     * @return null, means enhance no v2 static methods.
+     */
     @Override
     public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
-        return new StaticMethodsInterceptV2Point[] {};
+        return null;
     }
+
 }

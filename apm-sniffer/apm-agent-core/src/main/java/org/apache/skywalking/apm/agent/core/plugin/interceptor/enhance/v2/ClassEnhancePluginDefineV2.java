@@ -169,17 +169,12 @@ public abstract class ClassEnhancePluginDefineV2 extends AbstractClassEnhancePlu
     }
 
     @Override
-    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
-    }
-
-    @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[0];
+        return null;
     }
 
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[0];
+        return null;
     }
 }

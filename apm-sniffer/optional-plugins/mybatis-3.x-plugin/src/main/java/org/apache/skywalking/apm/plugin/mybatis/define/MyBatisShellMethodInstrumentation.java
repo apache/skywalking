@@ -21,15 +21,14 @@ package org.apache.skywalking.apm.plugin.mybatis.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassEnhancePluginDefineV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassInstanceMethodsEnhancePluginDefineV2;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.mybatis.MyBatisMethodMatch;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class MyBatisShellMethodInstrumentation extends ClassEnhancePluginDefineV2 {
+public class MyBatisShellMethodInstrumentation extends ClassInstanceMethodsEnhancePluginDefineV2 {
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -56,11 +55,6 @@ public class MyBatisShellMethodInstrumentation extends ClassEnhancePluginDefineV
                 }
             }
         };
-    }
-
-    @Override
-    public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
-        return new StaticMethodsInterceptV2Point[0];
     }
 
     @Override
