@@ -20,6 +20,7 @@ package org.apache.skywalking.e2e.alarm;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.skywalking.e2e.common.KeyValue;
+import org.apache.skywalking.e2e.event.Event;
 
 import java.util.List;
 
@@ -31,4 +32,5 @@ public class Alarm {
     private String id;
     private String message;
     private List<KeyValue> tags;
+    private List<Event> events;
 }
