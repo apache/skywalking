@@ -18,6 +18,7 @@
 package org.apache.skywalking.e2e.alarm;
 
 import org.apache.skywalking.e2e.AbstractQuery;
+import org.apache.skywalking.e2e.event.Event;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,12 +29,23 @@ import java.util.HashMap;
 public class AlarmQuery extends AbstractQuery<AlarmQuery> {
     private List<Map<String, String>> tags = Collections.emptyList();
 
+    private List<Event> events = Collections.emptyList();
+
     public List<Map<String, String>> tags() {
         return tags;
     }
 
+    public List<Event> events() {
+        return events;
+    }
+
     public AlarmQuery tags(List<Map<String, String>> tags) {
         this.tags = tags;
+        return this;
+    }
+
+    public AlarmQuery events(List<Event> events) {
+        this.events = events;
         return this;
     }
 
@@ -45,6 +57,15 @@ public class AlarmQuery extends AbstractQuery<AlarmQuery> {
         tag.put("key", key);
         tag.put("value", value);
         tags.add(tag);
+        return this;
+    }
+
+    public AlarmQuery addEvents(List<Event> events) {
+        if (Collections.EMPTY_LIST.equals(events)) {
+            events = new ArrayList<>();
+        }
+
+        events.addAll(events);
         return this;
     }
 }

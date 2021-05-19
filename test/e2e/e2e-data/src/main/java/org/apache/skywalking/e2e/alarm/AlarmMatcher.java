@@ -18,15 +18,20 @@
 package org.apache.skywalking.e2e.alarm;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.common.KeyValue;
 import org.apache.skywalking.e2e.common.KeyValueMatcher;
+import org.apache.skywalking.e2e.event.Event;
+import org.apache.skywalking.e2e.event.EventMatcher;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.fail;
 
+@Slf4j
 @Data
 public class AlarmMatcher extends AbstractMatcher<Alarm> {
     private String startTime;
@@ -34,10 +39,10 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
     private String id;
     private String message;
     private List<KeyValueMatcher> tags;
+    private List<EventMatcher> events;
 
     @Override
     public void verify(Alarm alarm) {
-        doVerify(this.startTime, alarm.getStartTime());
         doVerify(this.scope, alarm.getScope());
         doVerify(this.id, alarm.getId());
         doVerify(this.message, alarm.getMessage());
@@ -54,6 +59,23 @@ public class AlarmMatcher extends AbstractMatcher<Alarm> {
                 }
                 if (!matched) {
                     fail("\nExpected: %s\n Actual: %s", getTags(), alarm.getTags());
+                }
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(getEvents())) {
+            for (final EventMatcher matcher : getEvents()) {
+                boolean matched = false;
+                for (final Event event : alarm.getEvents()) {
+                    try {
+                        matcher.verify(event);
+                        matched = true;
+                    } catch (Throwable ignore) {
+                        //ignore.
+                    }
+                }
+                if (!matched) {
+                    fail("\nExpected: %s\n Actual: %s", getEvents(), alarm.getEvents());
                 }
             }
         }
