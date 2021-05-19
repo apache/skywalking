@@ -143,7 +143,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                         RequestUtil.collectHttpHeaders(serverHttpRequest, span);
                     }
                 } else {
-                    throw new IllegalStateException("this line shoudld not be reached");
+                    throw new IllegalStateException("this line should not be reached");
                 }
 
                 stackDepth = new StackDepth();
