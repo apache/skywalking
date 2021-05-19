@@ -23,6 +23,11 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.FilterM
 
 @FilterMatcher
 public class NotEqualMatch {
+
+    public boolean match(int left, int right) {
+        return left != right;
+    }
+
     public boolean match(Object left, Object right) {
         return !Objects.equals(left, right);
     }
