@@ -27,6 +27,7 @@ Release Notes.
 * Add `okhttp-4.x` plugin.
 * Fix NPE when thrift field is nested in plugin `thrift`
 * Fix possible NullPointerException in agent's ES plugin.
+* Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
