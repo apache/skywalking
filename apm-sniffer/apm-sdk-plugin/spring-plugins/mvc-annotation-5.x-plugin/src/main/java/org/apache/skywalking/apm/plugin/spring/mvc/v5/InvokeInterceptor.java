@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveRequestHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveResponseHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
@@ -45,7 +44,7 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
         ContextManager.getRuntimeContext()
                 .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, responseHolder);
         ContextManager.getRuntimeContext()
-                .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new ReactiveRequestHolder(exchange.getRequest()));
+                .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
         objInst.setSkyWalkingDynamicField(responseHolder);
     }
 

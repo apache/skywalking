@@ -19,13 +19,11 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletRequestHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.JavaxServletResponseHolder;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
@@ -38,8 +36,7 @@ public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInte
         if (allArguments[2] instanceof EnhancedInstance) {
             ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, new JavaxServletResponseHolder(
                 (HttpServletResponse) allArguments[1]));
-            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, new JavaxServletRequestHolder(
-                (HttpServletRequest) allArguments[0]));
+            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, allArguments[0]);
         }
     }
 
