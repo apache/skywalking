@@ -21,4 +21,7 @@ package org.apache.skywalking.apm.plugin.mybatis;
 
 public class Constants {
     public static final String MYBATIS_SHELL_METHOD_NAME = "mybatis_shell_method_name";
+
+    public static final Object COLLECTED_FLAG = new Object();
+
 }

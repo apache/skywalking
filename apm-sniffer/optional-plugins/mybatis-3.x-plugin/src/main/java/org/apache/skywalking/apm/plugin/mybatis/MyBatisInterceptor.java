@@ -36,7 +36,6 @@ public class MyBatisInterceptor implements InstanceMethodsAroundInterceptor {
         String operationName;
         if (ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME) != null) {
             operationName = String.valueOf(ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME));
-            ContextManager.getRuntimeContext().remove(Constants.MYBATIS_SHELL_METHOD_NAME);
         } else {
             operationName = MethodUtil.generateOperationName(method);
         }
