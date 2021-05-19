@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.e2e.alarm;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -34,9 +36,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.DockerComposeContainer;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;

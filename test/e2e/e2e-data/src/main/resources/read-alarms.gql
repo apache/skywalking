@@ -29,6 +29,19 @@
             tags {
               key, value
             }
+            events {
+                name
+                source {
+                    service serviceInstance endpoint
+                }
+                startTime
+                endTime
+                message
+                parameters {
+                    key value
+                }
+                uuid
+            }
         }
    }}",
   "variables":{
