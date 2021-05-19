@@ -53,7 +53,7 @@ processors:
             date.setUTCSeconds(parseInt(timeArr[2]));
             date.setUTCMilliseconds(parseInt(mills));
 
-            var timeMillis = date.getTime() - 28800000;
+            var timeMillis = date.getTime();
             event.Put("timestamp", timeMillis);
         }
   - script:
