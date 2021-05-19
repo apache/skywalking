@@ -22,12 +22,13 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassEnhancePluginDefineV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-public class GenericRequestorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class GenericRequestorInstrumentation extends ClassEnhancePluginDefineV2 {
     private static final String ENHANCE_CLASS = "org.apache.avro.ipc.generic.GenericRequestor";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.avro.GenericRequestorInterceptor";
 
@@ -54,16 +55,16 @@ public class GenericRequestorInstrumentation extends ClassInstanceMethodsEnhance
     }
 
     @Override
-    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
+    public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
+        return new InstanceMethodsInterceptV2Point[] {
+            new InstanceMethodsInterceptV2Point() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return ElementMatchers.named("request");
                 }
 
                 @Override
-                public String getMethodsInterceptor() {
+                public String getMethodsInterceptorV2() {
                     return INTERCEPTOR_CLASS;
                 }
 
@@ -73,5 +74,10 @@ public class GenericRequestorInstrumentation extends ClassInstanceMethodsEnhance
                 }
             }
         };
+    }
+
+    @Override
+    public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
+        return new StaticMethodsInterceptV2Point[0];
     }
 }

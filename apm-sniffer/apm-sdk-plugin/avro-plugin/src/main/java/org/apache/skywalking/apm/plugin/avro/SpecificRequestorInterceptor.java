@@ -23,15 +23,14 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-public class SpecificRequestorInterceptor extends AbstractRequestInterceptor implements InstanceMethodsAroundInterceptor {
+public class SpecificRequestorInterceptor extends AbstractRequestInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInvocationContext context) throws Throwable {
         AvroInstance instance = (AvroInstance) objInst.getSkyWalkingDynamicField();
         Method invoke = (Method) allArguments[1];
 
@@ -39,6 +38,8 @@ public class SpecificRequestorInterceptor extends AbstractRequestInterceptor imp
         SpanLayer.asRPCFramework(span);
         span.setPeer(instance.remotePeer);
         span.setComponent(ComponentsDefine.AVRO_CLIENT);
+
+        context.setContext("SpecificRequestorInterceptor");
     }
 
 }

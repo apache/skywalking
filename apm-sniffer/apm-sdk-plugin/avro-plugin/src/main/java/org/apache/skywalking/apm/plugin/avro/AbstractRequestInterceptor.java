@@ -24,13 +24,15 @@ import org.apache.avro.Protocol;
 import org.apache.avro.ipc.Requestor;
 import org.apache.avro.ipc.Transceiver;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 
-public abstract class AbstractRequestInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
+public abstract class AbstractRequestInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptorV2 {
     private static final ILog LOGGER = LogManager.getLogger(GenericRequestorInterceptor.class);
 
     @Override
@@ -42,8 +44,9 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
             Protocol protocol = (Protocol) allArguments[0];
             Transceiver transceiver = (Transceiver) allArguments[1];
             try {
-                objInst.setSkyWalkingDynamicField(new AvroInstance(protocol.getNamespace() + "." + protocol.getName() + ".", transceiver
-                    .getRemoteName()));
+                objInst.setSkyWalkingDynamicField(
+                    new AvroInstance(protocol.getNamespace() + "." + protocol.getName() + ".", transceiver
+                        .getRemoteName()));
             } catch (IOException e) {
                 objInst.setSkyWalkingDynamicField(new AvroInstance("Undefined", "Undefined"));
                 LOGGER.error("Failed to get Avro Remote Client Information.", e);
@@ -53,8 +56,9 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret, MethodInvocationContext context) throws Throwable {
         if (ContextManager.isActive()) {
+            ContextManager.activeSpan().tag(new StringTag("mic"), String.valueOf(context.getContext()));
             ContextManager.stopSpan();
         }
         return ret;
@@ -62,7 +66,7 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().log(t);
         }
