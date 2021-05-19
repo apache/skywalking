@@ -21,14 +21,16 @@ import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.util.CrossThreadRefContainer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveResponseHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
@@ -40,12 +42,15 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
                              final Class<?>[] argumentsTypes,
                              final MethodInterceptResult result) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        final ReactiveResponseHolder responseHolder = new ReactiveResponseHolder(exchange.getResponse());
+        final ServerHttpResponse response = exchange.getResponse();
+        CrossThreadRefContainer container = new CrossThreadRefContainer();
         ContextManager.getRuntimeContext()
-                .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, responseHolder);
+                .put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, container);
+        ContextManager.getRuntimeContext()
+                .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
         ContextManager.getRuntimeContext()
                 .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
-        objInst.setSkyWalkingDynamicField(responseHolder);
+        objInst.setSkyWalkingDynamicField(container);
     }
 
     @Override
@@ -56,11 +61,12 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
                               final Object ret) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         return ((Mono) ret).doFinally(s -> {
-            ReactiveResponseHolder responseHolder = (ReactiveResponseHolder) objInst.getSkyWalkingDynamicField();
-            AbstractSpan span = responseHolder.getSpan();
-            if (span == null) {
+            CrossThreadRefContainer container = (CrossThreadRefContainer) objInst.getSkyWalkingDynamicField();
+            Object ref = container.getRef();
+            if (!(ref instanceof AbstractSpan)) {
                 return;
             }
+            AbstractSpan span = (AbstractSpan) ref;
             HttpStatus httpStatus = exchange.getResponse().getStatusCode();
             if (httpStatus != null && httpStatus.isError()) {
                 span.errorOccurred();

@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.util.CrossThreadRefContainer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -31,17 +33,14 @@ import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.ReactiveResponseHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.RequestUtil;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.ResponseHolder;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
 
-import java.lang.reflect.Method;
-
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
@@ -109,7 +108,6 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
                     Tags.URL.set(span, httpServletRequest.getRequestURL().toString());
                     Tags.HTTP.METHOD.set(span, httpServletRequest.getMethod());
-
                     span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
                     SpanLayer.asHttp(span);
 
@@ -131,7 +129,6 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
                     Tags.URL.set(span, serverHttpRequest.getURI().toString());
                     Tags.HTTP.METHOD.set(span, serverHttpRequest.getMethodValue());
-
                     span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
                     SpanLayer.asHttp(span);
 
@@ -197,21 +194,34 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             AbstractSpan span = ContextManager.activeSpan();
 
             if (stackDepth.depth() == 0) {
-                ResponseHolder response = (ResponseHolder) ContextManager.getRuntimeContext()
-                        .get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                Object response = ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 if (response == null) {
                     throw new ServletResponseNotFoundException();
                 }
 
-                if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.statusCode() >= 400) {
+                Integer statusCode = null;
+
+                if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
+                    if (javax.servlet.http.HttpServletResponse.class.isAssignableFrom(response.getClass())) {
+                        statusCode = ((javax.servlet.http.HttpServletResponse) response).getStatus();
+                    } else if (org.springframework.http.server.reactive.ServerHttpResponse.class.isAssignableFrom(response.getClass())) {
+                        statusCode = ((org.springframework.http.server.reactive.ServerHttpResponse) response).getRawStatusCode();
+
+                        AbstractSpan async = span.prepareForAsync();
+                        Object ref = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
+                        if (ref != null) {
+                            ((CrossThreadRefContainer) ref).setRef(async);
+                        }
+                    }
+                }
+
+                if (statusCode != null && statusCode >= 400) {
                     span.errorOccurred();
-                    Tags.STATUS_CODE.set(span, Integer.toString(response.statusCode()));
+                    Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
                 }
-                if (response instanceof ReactiveResponseHolder) {
-                    ReactiveResponseHolder reactiveResponse = (ReactiveResponseHolder) response;
-                    AbstractSpan async = span.prepareForAsync();
-                    reactiveResponse.setSpan(async);
-                }
+
+                // Although we remove holder here, the reference to the Span can still be reached from the dynamic field
+                ContextManager.getRuntimeContext().remove(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
