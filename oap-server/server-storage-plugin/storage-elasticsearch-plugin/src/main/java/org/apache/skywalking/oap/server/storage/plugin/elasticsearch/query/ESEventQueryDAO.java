@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -53,26 +54,27 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
     @Override
     public Events queryEvents(final EventQueryCondition condition) throws Exception {
         final SearchSourceBuilder sourceBuilder = buildQuery(condition);
+        return getEventsResultByCurrentBuilder(sourceBuilder);
+    }
 
+    @Override
+    public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
+        final SearchSourceBuilder sourceBuilder = buildQuery(conditionList);
+        return getEventsResultByCurrentBuilder(sourceBuilder);
+    }
+
+    private Events getEventsResultByCurrentBuilder(final SearchSourceBuilder sourceBuilder) throws IOException {
         final SearchResponse response = getClient()
-            .search(IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME), sourceBuilder);
-
+                .search(IndexController.LogicIndicesRegister.getPhysicalTableName(Event.INDEX_NAME), sourceBuilder);
         final Events events = new Events();
         events.setTotal((int) response.getHits().totalHits);
         events.setEvents(Stream.of(response.getHits().getHits())
-                               .map(this::parseSearchHit)
-                               .collect(Collectors.toList()));
-
+                .map(this::parseSearchHit)
+                .collect(Collectors.toList()));
         return events;
     }
 
-    protected SearchSourceBuilder buildQuery(final EventQueryCondition condition) {
-        final SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-
-        final List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
-
+    private void buildMustQueryListByCondition(final EventQueryCondition condition, final List<QueryBuilder> mustQueryList) {
         if (!isNullOrEmpty(condition.getUuid())) {
             mustQueryList.add(QueryBuilders.termQuery(Event.UUID, condition.getUuid()));
         }
@@ -87,8 +89,8 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
             }
             if (!isNullOrEmpty(source.getEndpoint())) {
                 mustQueryList.add(QueryBuilders.matchPhraseQuery(
-                    MatchCNameBuilder.INSTANCE.build(Event.ENDPOINT),
-                    source.getEndpoint()
+                        MatchCNameBuilder.INSTANCE.build(Event.ENDPOINT),
+                        source.getEndpoint()
                 ));
             }
         }
@@ -105,13 +107,40 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         if (startTime != null) {
             if (startTime.getStartTimestamp() > 0) {
                 mustQueryList.add(QueryBuilders.rangeQuery(Event.START_TIME)
-                                               .gt(startTime.getStartTimestamp()));
+                        .gt(startTime.getStartTimestamp()));
             }
             if (startTime.getEndTimestamp() > 0) {
                 mustQueryList.add(QueryBuilders.rangeQuery(Event.END_TIME)
-                                               .lt(startTime.getEndTimestamp()));
+                        .lt(startTime.getEndTimestamp()));
             }
         }
+    }
+
+    protected SearchSourceBuilder buildQuery(final List<EventQueryCondition> conditionList) {
+        final SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        BoolQueryBuilder linkShouldBuilder = QueryBuilders.boolQuery();
+        sourceBuilder.query(linkShouldBuilder);
+        conditionList.forEach(condition -> {
+            final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            final List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+            linkShouldBuilder.should(boolQueryBuilder);
+            buildMustQueryListByCondition(condition, mustQueryList);
+        });
+        EventQueryCondition condition = conditionList.get(0);
+        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        sourceBuilder.sort(Event.START_TIME, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
+        sourceBuilder.size(condition.getSize());
+        return sourceBuilder;
+    }
+
+    protected SearchSourceBuilder buildQuery(final EventQueryCondition condition) {
+        final SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        sourceBuilder.query(boolQueryBuilder);
+
+        final List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+
+        buildMustQueryListByCondition(condition, mustQueryList);
 
         final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         sourceBuilder.sort(Event.START_TIME, Order.DES.equals(queryOrder) ? SortOrder.DESC : SortOrder.ASC);
