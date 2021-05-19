@@ -22,13 +22,12 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassEnhancePluginDefineV2;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-public class SpecificRequestorInstrumentation extends ClassEnhancePluginDefineV2 {
+public class SpecificRequestorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.avro.SpecificRequestorInterceptor";
     private static final String ENHANCE_CLASS = "org.apache.avro.ipc.specific.SpecificRequestor";
 
@@ -50,16 +49,16 @@ public class SpecificRequestorInstrumentation extends ClassEnhancePluginDefineV2
     }
 
     @Override
-    public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
-        return new InstanceMethodsInterceptV2Point[] {
-            new InstanceMethodsInterceptV2Point() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return ElementMatchers.named("invoke");
                 }
 
                 @Override
-                public String getMethodsInterceptorV2() {
+                public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
@@ -69,11 +68,6 @@ public class SpecificRequestorInstrumentation extends ClassEnhancePluginDefineV2
                 }
             }
         };
-    }
-
-    @Override
-    public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
-        return new StaticMethodsInterceptV2Point[0];
     }
 
     @Override

@@ -71,7 +71,7 @@ public class SpecificRequestorInterceptorTest {
     @Test
     public void testBefore() throws Throwable {
         interceptor.beforeMethod(instance, null, arguments, null, null);
-        interceptor.afterMethod(instance, null, arguments, null, null, null);
+        interceptor.afterMethod(instance, null, arguments, null, null);
 
         List<TraceSegment> segments = segmentStorage.getTraceSegments();
         Assert.assertEquals(segments.size(), 1);

@@ -219,11 +219,11 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
     @Override
     public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
-        return new InstanceMethodsInterceptV2Point[] {};
+        return null;
     }
 
     @Override
     public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
-        return new StaticMethodsInterceptV2Point[] {};
+        return null;
     }
 }
