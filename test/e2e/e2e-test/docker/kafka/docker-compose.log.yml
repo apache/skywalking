@@ -27,6 +27,7 @@ services:
       SW_KAFKA_FETCHER_PARTITIONS_FACTOR: 1
       SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG: "true"
       SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG: "true"
+      SW_SEARCHABLE_LOGS_TAG_KEYS: level,logger,agent
     depends_on:
       broker-a:
         condition: service_healthy
@@ -101,6 +102,8 @@ services:
       service: provider
     environment:
       SW_GRPC_LOG_SERVER_HOST: sw-satellite
+    volumes:
+      - /tmp/skywalking-logs/:/tmp/skywalking-logs/
     depends_on:
       oap:
         condition: service_healthy

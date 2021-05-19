@@ -47,7 +47,6 @@
         <appender-ref ref="stdout"/>
     </root>
     <logger name="fileLogger" level="INFO">
-        <appender-ref ref="stdout"/>
         <appender-ref ref="fileAppender"/>
     </logger>
 </configuration>

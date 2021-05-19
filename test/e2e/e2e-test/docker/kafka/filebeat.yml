@@ -27,11 +27,13 @@ processors:
       tokenizer: '[SW_CTX:%{SW_CTX}] [%{level}] %{logtime} [%{thread}] %{logger}:%{line} - %{body}'
       field: "message"
       target_prefix: ""
+      trim_values: all
       overwrite_keys: true
   - dissect:
       tokenizer: '[%{service},%{serviceInstance},%{traceContext.traceId},%{traceContext.traceSegmentId},%{traceContext.spanId}]'
       field: "SW_CTX"
       target_prefix: ""
+      trim_values: all
   - script:
       lang: javascript
       id: format_datetime

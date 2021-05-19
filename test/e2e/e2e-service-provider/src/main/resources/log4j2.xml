@@ -37,7 +37,7 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="grpc-log"/>
         </Root>
-        <Logger name="fileLogger" level="info" additivity="true">
+        <Logger name="fileLogger" level="info" additivity="false">
             <AppenderRef ref="fileAppender"/>
         </Logger>
     </Loggers>
