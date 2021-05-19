@@ -28,6 +28,7 @@ Release Notes.
 * Fix NPE when thrift field is nested in plugin `thrift`
 * Fix possible NullPointerException in agent's ES plugin.
 * Fix the conversion problem of float type in ConfigInitializer.
+* Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
