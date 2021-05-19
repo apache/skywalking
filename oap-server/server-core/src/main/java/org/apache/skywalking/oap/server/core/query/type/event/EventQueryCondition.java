@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.type.event;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 
@@ -26,6 +29,9 @@ import static org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO
 import static org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO.MAX_SIZE;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 public class EventQueryCondition {
     private String uuid;
 
