@@ -48,6 +48,7 @@ public class JsonLogHandler extends LogHandler {
     
     @Override
     protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws IOException {
+        log.info("parseConsumerRecord: " + record.value().toString());
         LogData.Builder logDataBuilder = LogData.newBuilder();
         ProtoBufJsonUtils.fromJSON(record.value().toString(), logDataBuilder);
         return logDataBuilder.build();
