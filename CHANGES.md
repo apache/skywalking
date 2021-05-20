@@ -7,6 +7,7 @@ Release Notes.
 #### Project
 * Add OpenSearch as storage option.
 * Upgrade Kubernetes Java client dependency to 11.0.
+* Fix plugin test script error in macOS.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
@@ -45,6 +46,7 @@ Release Notes.
 * Fix: NPE when configmap has no data.
 * Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
 * Fix: `!=` is not supported in oal when parameters are numbers.
+* Include events of the entity(s) in the alarm.
 
 #### UI
 * Add logo for kong plugin.
