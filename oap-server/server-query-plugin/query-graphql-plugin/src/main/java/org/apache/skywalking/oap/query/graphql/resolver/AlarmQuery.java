@@ -97,7 +97,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         Alarms alarms = getQueryService().getAlarm(
             scopeId, keyword, paging, startSecondTB, endSecondTB, tags);
 
-        final boolean selectEvents = env.getSelectionSet().get().containsKey("items/events");
+        final boolean selectEvents = env.getSelectionSet().get().entrySet().stream().anyMatch(it -> it.getKey().contains("/events/"));
 
         if (selectEvents) {
             return findRelevantEvents(alarms, conditionPrototype);
