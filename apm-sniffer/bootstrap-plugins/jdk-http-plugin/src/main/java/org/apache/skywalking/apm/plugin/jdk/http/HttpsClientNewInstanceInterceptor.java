@@ -18,22 +18,23 @@
 
 package org.apache.skywalking.apm.plugin.jdk.http;
 
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.StaticMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
-public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInterceptorV2 {
+import java.lang.reflect.Method;
+
+public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                             MethodInvocationContext context) {
+        MethodInterceptResult result) {
 
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                              Object ret, MethodInvocationContext context) {
+        Object ret) {
         if (ret instanceof EnhancedInstance) {
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[6]);
         }
@@ -42,7 +43,7 @@ public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInt
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                                      Throwable t, MethodInvocationContext context) {
+        Throwable t) {
 
     }
 }

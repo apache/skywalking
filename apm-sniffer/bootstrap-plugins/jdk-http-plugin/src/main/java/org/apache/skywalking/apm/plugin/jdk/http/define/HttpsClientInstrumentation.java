@@ -21,9 +21,9 @@ package org.apache.skywalking.apm.plugin.jdk.http.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassEnhancePluginDefineV2;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
@@ -31,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
-public class HttpsClientInstrumentation extends ClassEnhancePluginDefineV2 {
+public class HttpsClientInstrumentation extends ClassEnhancePluginDefine {
 
     private static final String ENHANCE_HTTPS_CLASS = "sun.net.www.protocol.https.HttpsClient";
 
@@ -45,14 +45,14 @@ public class HttpsClientInstrumentation extends ClassEnhancePluginDefineV2 {
     }
 
     @Override
-    public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
-        return new InstanceMethodsInterceptV2Point[0];
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
     }
 
     @Override
-    public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
-        return new StaticMethodsInterceptV2Point[] {
-            new StaticMethodsInterceptV2Point() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(NEW_INSTANCE_METHOD).and(takesArguments(7).and(takesArgumentWithType(0, "javax.net.ssl.SSLSocketFactory"))
@@ -61,7 +61,7 @@ public class HttpsClientInstrumentation extends ClassEnhancePluginDefineV2 {
                 }
 
                 @Override
-                public String getMethodsInterceptorV2() {
+                public String getMethodsInterceptor() {
                     return INTERCEPT_HTTPS_NEW_INSTANCE_CLASS;
                 }
 

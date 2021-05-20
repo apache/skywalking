@@ -18,32 +18,28 @@
 
 package org.apache.skywalking.apm.plugin.jdk.http;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.util.StringUtil;
 import sun.net.www.MessageHeader;
 
-public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInterceptorV2 {
+import java.lang.reflect.Method;
+
+public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInvocationContext context) throws Throwable {
-        Map<String, Object> map = new HashMap<>();
-        map.put("HttpClientParseHttpInterceptor", "HttpClientParseHttpInterceptor");
-        context.setContext(map);
+        MethodInterceptResult result) throws Throwable {
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret, MethodInvocationContext context) throws Throwable {
+        Object ret) throws Throwable {
         MessageHeader responseHeader = (MessageHeader) allArguments[0];
         String statusLine = responseHeader.getValue(0);
         Integer responseCode = parseResponseCode(statusLine);
@@ -52,20 +48,13 @@ public class HttpClientParseHttpInterceptor implements InstanceMethodsAroundInte
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
         }
-        Map<String, Object> map = (Map<String, Object>) context.getContext();
-        if (Objects.isNull(map)) {
-            ContextManager.activeSpan().errorOccurred().log(new Exception("Method invocation context lost."));
-        }
-        else if (Objects.isNull(map.get("HttpClientParseHttpInterceptor"))) {
-            ContextManager.activeSpan().errorOccurred().log(new Exception("Method invocation context lost."));
-        }
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
     }

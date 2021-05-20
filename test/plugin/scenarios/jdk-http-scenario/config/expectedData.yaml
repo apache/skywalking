@@ -54,7 +54,6 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/jdk-http-scenario/case/receiveContext-0'}
-      - {key: mic, value: HttpClientWriteRequestInterceptor}
       skipAnalysis: 'false'
     - operationName: /jdk-http-scenario/case/jdk-http-scenario
       operationId: 0
