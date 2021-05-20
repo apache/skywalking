@@ -17,18 +17,18 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * MethodInvocationContext holds the reference to propagate it between beforeMethod and afterMethod/handleMethodException
+ */
+@Setter
+@Getter
 public class MethodInvocationContext extends MethodInterceptResult {
-
+    /**
+     * A pointer for the propagating context
+     */
     private Object context;
-
-    public Object getContext() {
-        return context;
-    }
-
-    public void setContext(Object context) {
-        this.context = context;
-    }
-
 }
