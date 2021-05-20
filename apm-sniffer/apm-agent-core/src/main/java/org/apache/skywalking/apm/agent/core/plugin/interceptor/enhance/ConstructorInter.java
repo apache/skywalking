@@ -47,7 +47,7 @@ public class ConstructorInter {
         try {
             interceptor = InterceptorInstanceLoader.load(constructorInterceptorClassName, classLoader);
         } catch (Throwable t) {
-            throw new PluginException("Can't create InstanceConstructorInterceptor.", t);
+            throw new PluginException("Can't create InstanceConstructorInterceptorV2.", t);
         }
     }
 

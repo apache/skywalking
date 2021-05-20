@@ -19,18 +19,20 @@
 package org.apache.skywalking.apm.plugin.mybatis;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 
-public class MyBatisShellMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class MyBatisShellMethodInterceptor implements InstanceMethodsAroundInterceptorV2 {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+                             MethodInvocationContext context) throws Throwable {
         if (ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME) == null) {
+            context.setContext(Constants.COLLECTED_FLAG);
             String operationName = MethodUtil.generateOperationName(method);
             ContextManager.getRuntimeContext().put(Constants.MYBATIS_SHELL_METHOD_NAME, operationName);
         }
@@ -38,13 +40,18 @@ public class MyBatisShellMethodInterceptor implements InstanceMethodsAroundInter
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+                              Object ret, MethodInvocationContext context) throws Throwable {
+        if (Objects.nonNull(context.getContext())) {
+            ContextManager.getRuntimeContext().remove(Constants.MYBATIS_SHELL_METHOD_NAME);
+        }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
-
+                                      Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
+        if (Objects.nonNull(context.getContext())) {
+            ContextManager.getRuntimeContext().remove(Constants.MYBATIS_SHELL_METHOD_NAME);
+        }
     }
 }
