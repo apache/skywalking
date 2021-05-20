@@ -60,6 +60,7 @@ services:
 
   filebeat:
     image: elastic/filebeat:7.12.0
+    command: -e --strict.perms=false
     networks:
       - e2e
     volumes:
