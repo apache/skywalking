@@ -229,10 +229,21 @@ so you simply have to define the intercept point (a.k.a. aspect pointcut in Spri
 
 ### Intercept
 SkyWalking provides two common definitions to intercept constructor, instance method and class method.
+
+#### v1 APIs
 * Extend `ClassInstanceMethodsEnhancePluginDefine` to define `constructor` intercept points and `instance method` intercept points.
 * Extend `ClassStaticMethodsEnhancePluginDefine` to define `class method` intercept points.
 
 Of course, you can extend `ClassEnhancePluginDefine` to set all intercept points, although it is uncommon to do so.
+
+#### v2 APIs
+v2 APIs provide an enhanced interceptor, which could propagate context through MIC(MethodInvocationContext).
+
+* Extend `ClassInstanceMethodsEnhancePluginDefineV2` to define `constructor` intercept points and `instance method` intercept points.
+* Extend `ClassStaticMethodsEnhancePluginDefineV2` to define `class method` intercept points.
+
+Of course, you can extend `ClassEnhancePluginDefineV2` to set all intercept points, although it is uncommon to do so.
+
 
 ### Implement plugin
 See the following demonstration on how to implement a plugin by extending `ClassInstanceMethodsEnhancePluginDefine`.
@@ -359,6 +370,47 @@ public interface InstanceMethodsAroundInterceptor {
 ```
 Use the core APIs before and after calling the method, as well as during exception handling.
 
+
+#### V2 APIs
+The interceptor of V2 API uses `MethodInvocationContext context` to replace the `MethodInterceptResult result` in the `beforeMethod`,
+and be added as a new parameter in `afterMethod` and `handleMethodException`.
+
+`MethodInvocationContext context` is only shared in one time execution, and safe to use when face concurrency execution.
+
+```java
+/**
+ * A v2 interceptor, which intercept method's invocation. The target methods will be defined in {@link
+ * ClassEnhancePluginDefineV2}'s subclass, most likely in {@link ClassInstanceMethodsEnhancePluginDefine}
+ */
+public interface InstanceMethodsAroundInterceptorV2 {
+    /**
+     * called before target method invocation.
+     *
+     * @param context the method invocation context including result context.
+     */
+    void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                      MethodInvocationContext context) throws Throwable;
+
+    /**
+     * called after target method invocation. Even method's invocation triggers an exception.
+     *
+     * @param ret the method's original return value. May be null if the method triggers an exception.
+     * @return the method's actual return value.
+     */
+    Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                       Object ret, MethodInvocationContext context) throws Throwable;
+
+    /**
+     * called when occur exception.
+     *
+     * @param t the exception occur.
+     */
+    void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                               Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context);
+
+}
+```
+
 ### Bootstrap class instrumentation.
 SkyWalking has packaged the bootstrap instrumentation in the agent core. You can easily implement it by declaring it in the instrumentation definition.
 
@@ -398,6 +450,8 @@ public class URLInstrumentation extends ClassEnhancePluginDefine {
     }
 }
 ```
+
+`ClassEnhancePluginDefineV2` is provided in v2 APIs, `#isBootstrapInstrumentation` works too.
 
 **NOTE**: Bootstrap instrumentation should be used only where necessary. During its actual execution, it mostly affects the JRE core(rt.jar). Defining it other than where necessary could lead to unexpected results or side effects.
 
