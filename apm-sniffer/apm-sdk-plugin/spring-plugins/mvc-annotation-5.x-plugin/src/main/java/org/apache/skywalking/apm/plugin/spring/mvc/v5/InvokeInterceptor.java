@@ -63,7 +63,7 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
         return ((Mono) ret).doFinally(s -> {
             CrossThreadRefContainer container = (CrossThreadRefContainer) objInst.getSkyWalkingDynamicField();
             Object ref = container.getRef();
-            if (!(ref instanceof AbstractSpan)) {
+            if (ref == null) {
                 return;
             }
             AbstractSpan span = (AbstractSpan) ref;
