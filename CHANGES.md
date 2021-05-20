@@ -29,6 +29,7 @@ Release Notes.
 * Fix possible NullPointerException in agent's ES plugin.
 * Fix the conversion problem of float type in ConfigInitializer.
 * Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
+* Support `native-json` format log in kafka-fetcher-plugin.
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 
 #### OAP-Backend
