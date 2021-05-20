@@ -95,8 +95,8 @@ kafka-fetcher:
     namespace: ${SW_NAMESPACE:""}
 ```
 
-`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements`, `skywalking-meters`
-and `skywalking-logs` topics are required by `kafka-fetcher`.
+`skywalking-segments`, `skywalking-metrics`, `skywalking-profile`, `skywalking-managements`, `skywalking-meters`, `skywalking-logs`
+and `skywalking-logs-json` topics are required by `kafka-fetcher`.
 If they do not exist, Kafka Fetcher will create them in default. Also, you can create them by yourself before the OAP server started.
 
 When using the OAP server automatic creation mechanism, you could modify the number of partitions and replications of the topics through the following configurations:

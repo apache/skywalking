@@ -68,6 +68,7 @@ public class KafkaLogE2E extends SkyWalkingTestAdapter {
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
         trafficController(serviceHostPort, "/logs/trigger");
+        trafficController(serviceHostPort, "/file/logs/trigger");
     }
 
     @AfterAll
@@ -104,6 +105,36 @@ public class KafkaLogE2E extends SkyWalkingTestAdapter {
         final List<Log> logs = graphql.logs(logsQuery);
         LOGGER.info("logs: {}", logs);
 
+        load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);
+    }
+
+    @RetryableTest
+    public void verifyLogFromFilebeat() throws Exception {
+        final String agent = "filebeat";
+        verifyLogFrom(agent, "log4j fileLogger");
+        verifyLogFrom(agent, "log4j2 fileLogger");
+        verifyLogFrom(agent, "logback fileLogger");
+    }
+    
+    @RetryableTest
+    public void verifyLogFromFluentd() throws Exception {
+        final String agent = "fluentd";
+        verifyLogFrom(agent, "log4j fileLogger");
+        verifyLogFrom(agent, "log4j2 fileLogger");
+        verifyLogFrom(agent, "logback fileLogger");
+    }
+    
+    private void verifyLogFrom(String agent, String keyword) throws Exception {
+        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
+                                            .addTag("agent", agent)
+                                            .start(startTime)
+                                            .end(Times.now());
+        if (graphql.supportQueryLogsByKeywords()) {
+            logsQuery.keywordsOfContent(keyword);
+        }
+        final List<Log> logs = graphql.logs(logsQuery);
+        LOGGER.info("logs: {}", logs);
+    
         load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);
     }
 

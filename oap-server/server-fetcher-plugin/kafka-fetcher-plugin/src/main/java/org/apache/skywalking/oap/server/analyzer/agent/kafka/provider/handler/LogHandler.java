@@ -51,11 +51,11 @@ public class LogHandler implements KafkaHandler {
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
             "log_in_latency", "The process latency of log",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values(getProtocolName())
         );
         errorCounter = metricsCreator.createCounter("log_analysis_error_count", "The error number of log analysis",
                                                     new MetricsTag.Keys("protocol"),
-                                                    new MetricsTag.Values("kafka-fetcher")
+                                                    new MetricsTag.Values(getProtocolName())
         );
     }
 
@@ -73,7 +73,7 @@ public class LogHandler implements KafkaHandler {
     public void handle(final ConsumerRecord<String, Bytes> record) {
         HistogramMetrics.Timer timer = histogram.createTimer();
         try {
-            LogData logData = LogData.parseFrom(record.value().get());
+            LogData logData = parseConsumerRecord(record);
             logAnalyzerService.doAnalysis(logData);
         } catch (Exception e) {
             errorCounter.inc();
@@ -81,5 +81,13 @@ public class LogHandler implements KafkaHandler {
         } finally {
             timer.finish();
         }
+    }
+    
+    protected String getProtocolName() {
+        return "kafka-fetcher-native-proto";
+    }
+
+    protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws Exception {
+        return LogData.parseFrom(record.value().get());
     }
 }
