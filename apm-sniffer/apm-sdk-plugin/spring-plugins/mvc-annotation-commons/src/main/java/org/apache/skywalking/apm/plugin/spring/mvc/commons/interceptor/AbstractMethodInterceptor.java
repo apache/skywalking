@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -38,6 +37,8 @@ import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
 
+import java.lang.reflect.Method;
+
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT;
@@ -53,9 +54,17 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
     private static final String GET_STATUS_METHOD = "getStatus";
 
+    private static boolean IN_SERVLET_CONTAINER;
+
     static {
         IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(
                 AbstractMethodInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
+        try {
+            Class.forName(SERVLET_RESPONSE_CLASS, true, AbstractMethodInterceptor.class.getClassLoader());
+            IN_SERVLET_CONTAINER = true;
+        } catch (Exception ignore) {
+            IN_SERVLET_CONTAINER = false;
+        }
     }
 
     public abstract String getRequestURL(Method method);
@@ -97,7 +106,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             if (stackDepth == null) {
                 final ContextCarrier contextCarrier = new ContextCarrier();
 
-                if (javax.servlet.http.HttpServletRequest.class.isAssignableFrom(request.getClass())) {
+                if (IN_SERVLET_CONTAINER && javax.servlet.http.HttpServletRequest.class.isAssignableFrom(request.getClass())) {
                     final javax.servlet.http.HttpServletRequest httpServletRequest = (javax.servlet.http.HttpServletRequest) request;
                     CarrierItem next = contextCarrier.items();
                     while (next.hasNext()) {
@@ -201,17 +210,16 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 Integer statusCode = null;
 
-                if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
-                    if (javax.servlet.http.HttpServletResponse.class.isAssignableFrom(response.getClass())) {
-                        statusCode = ((javax.servlet.http.HttpServletResponse) response).getStatus();
-                    } else if (org.springframework.http.server.reactive.ServerHttpResponse.class.isAssignableFrom(response.getClass())) {
+                if (IS_SERVLET_GET_STATUS_METHOD_EXIST && javax.servlet.http.HttpServletResponse.class.isAssignableFrom(response.getClass())) {
+                    statusCode = ((javax.servlet.http.HttpServletResponse) response).getStatus();
+                } else if (org.springframework.http.server.reactive.ServerHttpResponse.class.isAssignableFrom(response.getClass())) {
+                    if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
                         statusCode = ((org.springframework.http.server.reactive.ServerHttpResponse) response).getRawStatusCode();
-
-                        AbstractSpan async = span.prepareForAsync();
-                        Object ref = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
-                        if (ref != null) {
-                            ((CrossThreadRefContainer) ref).setRef(async);
-                        }
+                    }
+                    AbstractSpan async = span.prepareForAsync();
+                    Object ref = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
+                    if (ref != null) {
+                        ((CrossThreadRefContainer) ref).setRef(async);
                     }
                 }
 
