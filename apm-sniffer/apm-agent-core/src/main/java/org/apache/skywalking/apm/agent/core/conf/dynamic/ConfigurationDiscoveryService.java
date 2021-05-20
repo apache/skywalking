@@ -62,6 +62,8 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     private String uuid;
     private final Register register = new Register();
 
+    private volatile int lastRegisterWatcherSize;
+
     private volatile ScheduledFuture<?> getDynamicConfigurationFuture;
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ConfigurationDiscoveryServiceGrpc.ConfigurationDiscoveryServiceBlockingStub configurationDiscoveryServiceBlockingStub;
@@ -206,6 +208,15 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
             try {
                 ConfigurationSyncRequest.Builder builder = ConfigurationSyncRequest.newBuilder();
                 builder.setService(Config.Agent.SERVICE_NAME);
+
+                // Some plugin will register watcher later.
+                final int size = register.keys().size();
+                if (lastRegisterWatcherSize != size) {
+                    // reset uuid, avoid the same uuid causing the configuration not to be updated.
+                    uuid = null;
+                    lastRegisterWatcherSize = size;
+                }
+
                 if (null != uuid) {
                     builder.setUuid(uuid);
                 }
