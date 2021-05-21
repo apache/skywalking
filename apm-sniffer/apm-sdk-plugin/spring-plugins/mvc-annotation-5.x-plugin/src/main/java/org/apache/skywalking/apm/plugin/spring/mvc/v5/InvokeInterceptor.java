@@ -17,50 +17,50 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.v5;
 
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.InstanceMethodsAroundInterceptorV2;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.MethodInvocationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Method;
+
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
-public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
+public class InvokeInterceptor implements InstanceMethodsAroundInterceptorV2 {
     @Override
-    public void beforeMethod(final EnhancedInstance objInst,
-                             final Method method,
-                             final Object[] allArguments,
-                             final Class<?>[] argumentsTypes,
-                             final MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInvocationContext context) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         final ServerHttpResponse response = exchange.getResponse();
+        AbstractSpan[] ref = new AbstractSpan[1];
+        ContextManager.getRuntimeContext()
+                .put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, ref);
         ContextManager.getRuntimeContext()
                 .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
         ContextManager.getRuntimeContext()
                 .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
+        context.setContext(ref);
     }
 
     @Override
-    public Object afterMethod(final EnhancedInstance objInst,
-                              final Method method,
-                              final Object[] allArguments,
-                              final Class<?>[] argumentsTypes,
-                              final Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret, MethodInvocationContext context) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        final Object spanRef = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
         return ((Mono) ret).doFinally(s -> {
-            if (spanRef == null) {
+            Object ctx = context.getContext();
+            if (ctx == null) {
                 return;
             }
-            AbstractSpan span = (AbstractSpan) spanRef;
+            AbstractSpan span = ((AbstractSpan[]) ctx)[0];
+            if (span == null) {
+                return;
+            }
             HttpStatus httpStatus = exchange.getResponse().getStatusCode();
             if (httpStatus != null && httpStatus.isError()) {
                 span.errorOccurred();
@@ -71,11 +71,7 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public void handleMethodException(final EnhancedInstance objInst,
-                                      final Method method,
-                                      final Object[] allArguments,
-                                      final Class<?>[] argumentsTypes,
-                                      final Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t, MethodInvocationContext context) {
 
     }
 }

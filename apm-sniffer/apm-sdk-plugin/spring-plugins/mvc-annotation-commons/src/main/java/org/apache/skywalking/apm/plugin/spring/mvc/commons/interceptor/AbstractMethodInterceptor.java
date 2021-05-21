@@ -215,7 +215,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
                         statusCode = ((org.springframework.http.server.reactive.ServerHttpResponse) response).getRawStatusCode();
                     }
-                    ContextManager.getRuntimeContext().put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, span.prepareForAsync());
+                    Object context = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
+                    if (context != null) {
+                        ((AbstractSpan[]) context)[0] = span.prepareForAsync();
+                    }
                 }
 
                 if (statusCode != null && statusCode >= 400) {
@@ -223,6 +226,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
                 }
 
+                ContextManager.getRuntimeContext().remove(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
