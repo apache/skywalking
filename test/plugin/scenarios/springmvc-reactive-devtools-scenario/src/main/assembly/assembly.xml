@@ -29,6 +29,14 @@
             <directory>./bin</directory>
             <fileMode>0775</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/classes</directory>
+            <fileMode>0775</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/3rd-lib</directory>
+            <fileMode>0775</fileMode>
+        </fileSet>
     </fileSets>
 
     <files>

@@ -16,6 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -ex
+
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/springmvc-reactive-devtools-scenario.jar &
+classpath="$(printf %s: $home/../target/3rd-lib/*.jar)${home}/../target/classes"
+java ${agent_opts} -classpath "$classpath" test.apache.skywalking.apm.testcase.sc.springmvcreactive.Application &
