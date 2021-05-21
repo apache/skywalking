@@ -30,6 +30,7 @@ Release Notes.
 * Fix the conversion problem of float type in ConfigInitializer.
 * Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
 * Support `native-json` format log in kafka-fetcher-plugin.
+* Introduce method interceptor API v2
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
