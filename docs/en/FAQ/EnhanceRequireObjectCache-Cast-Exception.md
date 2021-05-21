@@ -16,5 +16,5 @@ java.lang.ClassCastException: org.apache.skywalking.apm.plugin.spring.mvc.common
 This exception may be caused by `hot deployment` tools (`spring-boot-devtool`) or otherwise, which changes the  `classloader` in runtime.
 
 ### Resolution
-1. This error does not occur under the production environment, since developer tools are automatically disabled: See [spring-boot-devtools](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-devtools.html).
+1. This error does not occur under the production environment, since developer tools are automatically disabled: See [spring-boot-devtools](https://docs.spring.io/spring-boot/docs/2.4.x/reference/html/using-spring-boot.html#using-boot-devtools).
 2. If you would like to debug in your development environment as usual, you should temporarily remove such `hot deployment` package in your lib path.
