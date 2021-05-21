@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.context.util.CrossThreadRefContainer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -216,11 +215,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
                         statusCode = ((org.springframework.http.server.reactive.ServerHttpResponse) response).getRawStatusCode();
                     }
-                    AbstractSpan async = span.prepareForAsync();
-                    Object ref = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
-                    if (ref != null) {
-                        ((CrossThreadRefContainer) ref).setRef(async);
-                    }
+                    ContextManager.getRuntimeContext().put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, span.prepareForAsync());
                 }
 
                 if (statusCode != null && statusCode >= 400) {
@@ -228,8 +223,6 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
                 }
 
-                // Although we remove holder here, the reference to the Span can still be reached from the dynamic field
-                ContextManager.getRuntimeContext().remove(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);

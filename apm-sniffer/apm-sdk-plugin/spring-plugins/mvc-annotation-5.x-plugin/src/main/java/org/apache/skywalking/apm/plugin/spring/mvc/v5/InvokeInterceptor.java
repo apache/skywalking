@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.util.CrossThreadRefContainer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -43,14 +42,10 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
                              final MethodInterceptResult result) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         final ServerHttpResponse response = exchange.getResponse();
-        CrossThreadRefContainer container = new CrossThreadRefContainer();
-        ContextManager.getRuntimeContext()
-                .put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, container);
         ContextManager.getRuntimeContext()
                 .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
         ContextManager.getRuntimeContext()
                 .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
-        objInst.setSkyWalkingDynamicField(container);
     }
 
     @Override
@@ -60,13 +55,12 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptor {
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        final Object spanRef = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
         return ((Mono) ret).doFinally(s -> {
-            CrossThreadRefContainer container = (CrossThreadRefContainer) objInst.getSkyWalkingDynamicField();
-            Object ref = container.getRef();
-            if (ref == null) {
+            if (spanRef == null) {
                 return;
             }
-            AbstractSpan span = (AbstractSpan) ref;
+            AbstractSpan span = (AbstractSpan) spanRef;
             HttpStatus httpStatus = exchange.getResponse().getStatusCode();
             if (httpStatus != null && httpStatus.isError()) {
                 span.errorOccurred();
