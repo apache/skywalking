@@ -30,7 +30,6 @@ Release Notes.
 * Fix the conversion problem of float type in ConfigInitializer.
 * Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
 * Introduce method interceptor API v2
-* Support `native-json` format log in kafka-fetcher-plugin.
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 
 #### OAP-Backend
