@@ -29,6 +29,7 @@ Release Notes.
 * Fix possible NullPointerException in agent's ES plugin.
 * Fix the conversion problem of float type in ConfigInitializer.
 * Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
+* Introduce method interceptor API v2
 * Support `native-json` format log in kafka-fetcher-plugin.
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 
@@ -50,6 +51,7 @@ Release Notes.
 * Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
 * Fix: `!=` is not supported in oal when parameters are numbers.
 * Include events of the entity(s) in the alarm.
+* Support `native-json` format log in kafka-fetcher-plugin.
 
 #### UI
 * Add logo for kong plugin.
