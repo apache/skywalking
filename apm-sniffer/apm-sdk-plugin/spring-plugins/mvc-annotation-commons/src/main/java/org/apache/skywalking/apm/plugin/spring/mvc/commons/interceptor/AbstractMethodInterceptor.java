@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.RuntimeContext;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -35,7 +36,11 @@ import org.apache.skywalking.apm.plugin.spring.mvc.commons.RequestUtil;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
@@ -105,8 +110,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             if (stackDepth == null) {
                 final ContextCarrier contextCarrier = new ContextCarrier();
 
-                if (IN_SERVLET_CONTAINER && javax.servlet.http.HttpServletRequest.class.isAssignableFrom(request.getClass())) {
-                    final javax.servlet.http.HttpServletRequest httpServletRequest = (javax.servlet.http.HttpServletRequest) request;
+                if (IN_SERVLET_CONTAINER && HttpServletRequest.class.isAssignableFrom(request.getClass())) {
+                    final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
                     CarrierItem next = contextCarrier.items();
                     while (next.hasNext()) {
                         next = next.next();
@@ -126,8 +131,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     if (!CollectionUtil.isEmpty(SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS)) {
                         RequestUtil.collectHttpHeaders(httpServletRequest, span);
                     }
-                } else if (org.springframework.http.server.reactive.ServerHttpRequest.class.isAssignableFrom(request.getClass())) {
-                    final org.springframework.http.server.reactive.ServerHttpRequest serverHttpRequest = (org.springframework.http.server.reactive.ServerHttpRequest) request;
+                } else if (ServerHttpRequest.class.isAssignableFrom(request.getClass())) {
+                    final ServerHttpRequest serverHttpRequest = (ServerHttpRequest) request;
                     CarrierItem next = contextCarrier.items();
                     while (next.hasNext()) {
                         next = next.next();
@@ -180,7 +185,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Boolean forwardRequestFlag = (Boolean) ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
+        final RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
+        Boolean forwardRequestFlag = (Boolean) runtimeContext.get(FORWARD_REQUEST_FLAG);
         /**
          * Spring MVC plugin do nothing if current request is forward request.
          * Ref: https://github.com/apache/skywalking/pull/1325
@@ -189,10 +195,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             return ret;
         }
 
-        Object request = ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+        Object request = runtimeContext.get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
 
         if (request != null) {
-            StackDepth stackDepth = (StackDepth) ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+            StackDepth stackDepth = (StackDepth) runtimeContext.get(CONTROLLER_METHOD_STACK_DEPTH);
             if (stackDepth == null) {
                 throw new IllegalMethodStackDepthException();
             } else {
@@ -202,20 +208,20 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             AbstractSpan span = ContextManager.activeSpan();
 
             if (stackDepth.depth() == 0) {
-                Object response = ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                Object response = runtimeContext.get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 if (response == null) {
                     throw new ServletResponseNotFoundException();
                 }
 
                 Integer statusCode = null;
 
-                if (IS_SERVLET_GET_STATUS_METHOD_EXIST && javax.servlet.http.HttpServletResponse.class.isAssignableFrom(response.getClass())) {
-                    statusCode = ((javax.servlet.http.HttpServletResponse) response).getStatus();
-                } else if (org.springframework.http.server.reactive.ServerHttpResponse.class.isAssignableFrom(response.getClass())) {
+                if (IS_SERVLET_GET_STATUS_METHOD_EXIST && HttpServletResponse.class.isAssignableFrom(response.getClass())) {
+                    statusCode = ((HttpServletResponse) response).getStatus();
+                } else if (ServerHttpResponse.class.isAssignableFrom(response.getClass())) {
                     if (IS_SERVLET_GET_STATUS_METHOD_EXIST) {
-                        statusCode = ((org.springframework.http.server.reactive.ServerHttpResponse) response).getRawStatusCode();
+                        statusCode = ((ServerHttpResponse) response).getRawStatusCode();
                     }
-                    Object context = ContextManager.getRuntimeContext().get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
+                    Object context = runtimeContext.get(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
                     if (context != null) {
                         ((AbstractSpan[]) context)[0] = span.prepareForAsync();
                     }
@@ -226,18 +232,18 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
                 }
 
-                ContextManager.getRuntimeContext().remove(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
-                ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
-                ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
-                ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
+                runtimeContext.remove(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT);
+                runtimeContext.remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+                runtimeContext.remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                runtimeContext.remove(CONTROLLER_METHOD_STACK_DEPTH);
             }
 
             // Active HTTP parameter collection automatically in the profiling context.
             if (!SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_PARAMS && span.isProfiling()) {
-                if (javax.servlet.http.HttpServletRequest.class.isAssignableFrom(request.getClass())) {
-                    RequestUtil.collectHttpParam((javax.servlet.http.HttpServletRequest) request, span);
-                } else if (org.springframework.http.server.reactive.ServerHttpRequest.class.isAssignableFrom(request.getClass())) {
-                    RequestUtil.collectHttpParam((org.springframework.http.server.reactive.ServerHttpRequest) request, span);
+                if (HttpServletRequest.class.isAssignableFrom(request.getClass())) {
+                    RequestUtil.collectHttpParam((HttpServletRequest) request, span);
+                } else if (ServerHttpRequest.class.isAssignableFrom(request.getClass())) {
+                    RequestUtil.collectHttpParam((ServerHttpRequest) request, span);
                 }
             }
 

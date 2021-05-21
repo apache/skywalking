@@ -18,6 +18,7 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.v5;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.RuntimeContext;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -39,13 +40,21 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptorV2 {
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInvocationContext context) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         final ServerHttpResponse response = exchange.getResponse();
+        /**
+         * First, we put the slot in the RuntimeContext,
+         * as well as the MethodInvocationContext (MIC),
+         * so that we can access it in the {@link org.apache.skywalking.apm.plugin.spring.mvc.v5.InvokeInterceptor#afterMethod}
+         * Then we fetch the slot from {@link org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.AbstractMethodInterceptor#afterMethod}
+         * and fulfill the slot with the real AbstractSpan.
+         * Afterwards, we can safely remove the RuntimeContext.
+         * Finally, when the lambda passed to the {@link reactor.core.publisher.Mono#doFinally} is executed,
+         * we can take it out from the MIC which is lexically captured by the lambda expression.
+         */
         AbstractSpan[] ref = new AbstractSpan[1];
-        ContextManager.getRuntimeContext()
-                .put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, ref);
-        ContextManager.getRuntimeContext()
-                .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
-        ContextManager.getRuntimeContext()
-                .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
+        RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
+        runtimeContext.put(REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT, ref);
+        runtimeContext.put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
+        runtimeContext.put(REQUEST_KEY_IN_RUNTIME_CONTEXT, exchange.getRequest());
         context.setContext(ref);
     }
 
