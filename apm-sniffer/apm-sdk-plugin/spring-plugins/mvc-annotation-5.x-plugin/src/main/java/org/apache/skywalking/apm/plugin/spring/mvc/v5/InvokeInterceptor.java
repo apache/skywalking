@@ -47,8 +47,8 @@ public class InvokeInterceptor implements InstanceMethodsAroundInterceptorV2 {
          * Then we fetch the slot from {@link org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.AbstractMethodInterceptor#afterMethod}
          * and fulfill the slot with the real AbstractSpan.
          * Afterwards, we can safely remove the RuntimeContext.
-         * Finally, when the lambda passed to the {@link reactor.core.publisher.Mono#doFinally} is executed,
-         * we can take it out from the MIC which is lexically captured by the lambda expression.
+         * Finally, when the lambda executes in the {@link reactor.core.publisher.Mono#doFinally},
+         * ref of span could be acquired from MIC.
          */
         AbstractSpan[] ref = new AbstractSpan[1];
         RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
