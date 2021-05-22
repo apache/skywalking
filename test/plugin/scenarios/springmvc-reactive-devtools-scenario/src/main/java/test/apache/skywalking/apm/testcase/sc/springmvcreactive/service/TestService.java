@@ -15,19 +15,28 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.mvc.commons;
+package test.apache.skywalking.apm.testcase.sc.springmvcreactive.service;
 
-import java.util.Enumeration;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.annotation.PostConstruct;
+import org.springframework.stereotype.Service;
 
-public interface RequestHolder {
-    String getHeader(String headerName);
+@Service
+public class TestService {
 
-    Enumeration<String> getHeaders(String headerName);
+    private Connection connection;
 
-    String requestURL();
+    @PostConstruct
+    private void setUp() throws SQLException {
+        connection = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+    }
 
-    String requestMethod();
+    public void executeSQL() throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT 1 = 1");
+        preparedStatement.executeQuery();
+    }
 
-    Map<String, String[]> getParameterMap();
 }

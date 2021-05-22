@@ -15,12 +15,12 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.mvc.v5.define;
+package org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.v2.ClassInstanceMethodsEnhancePluginDefineV2;
 
-public abstract class AbstractSpring5Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    public static final String WITNESS_CLASSES = "org.springframework.web.servlet.resource.HttpResource";
+public abstract class AbstractSpring5ReactiveInstrumentationV2 extends ClassInstanceMethodsEnhancePluginDefineV2 {
+    public static final String WITNESS_CLASSES = "org.springframework.web.reactive.result.method.InvocableHandlerMethod";
 
     @Override
     protected final String[] witnessClasses() {

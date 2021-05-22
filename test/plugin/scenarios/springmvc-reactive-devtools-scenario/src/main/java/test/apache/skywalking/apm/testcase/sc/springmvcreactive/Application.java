@@ -15,21 +15,15 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.mvc.commons;
+package test.apache.skywalking.apm.testcase.sc.springmvcreactive;
 
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class JavaxServletResponseHolder implements ResponseHolder {
+@SpringBootApplication
+public class Application {
 
-    private final HttpServletResponse response;
-
-    public JavaxServletResponseHolder(final HttpServletResponse response) {
-        this.response = response;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
-
-    @Override
-    public int statusCode() {
-        return response.getStatus();
-    }
-
 }

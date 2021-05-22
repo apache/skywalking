@@ -22,11 +22,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>springmvc-reactive-scenario</artifactId>
+    <artifactId>springmvc-reactive-devtools-scenario</artifactId>
     <packaging>jar</packaging>
     <version>5.0.0</version>
 
-    <name>skywalking-springmvc-reactive-scenario</name>
+    <name>skywalking-springmvc-reactive-devtools-scenario</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,6 +41,12 @@
             <version>${test.framework.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+            <version>${test.framework.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>1.4.200</version>
@@ -48,8 +54,29 @@
     </dependencies>
 
     <build>
-        <finalName>springmvc-reactive-scenario</finalName>
+        <finalName>springmvc-reactive-devtools-scenario</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <type>jar</type>
+                            <includeTypes>jar</includeTypes>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>
+                                ${project.build.directory}/3rd-lib/
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
