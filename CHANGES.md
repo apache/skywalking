@@ -64,6 +64,8 @@ Release Notes.
 * Support to configure the maximum number of displayed items.
 * After changing the durationTime, the topology shows the originally selected group or service.
 * remove the no use maxItemNum for labeled-value metric, etc.
+* Add Azure Functions logo.
+* Support search Endpoint use keyword params in trace view.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
