@@ -34,10 +34,11 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
 
+        AbstractSpan span = ContextManager.createLocalSpan(generateOperationName(objInst, method));
+        span.setComponent(ComponentsDefine.JDK_THREADING);
+
         final Object storedField = objInst.getSkyWalkingDynamicField();
         if (storedField != null) {
-            AbstractSpan span = ContextManager.createLocalSpan(generateOperationName(objInst, method));
-            span.setComponent(ComponentsDefine.JDK_THREADING);
             final ContextSnapshot contextSnapshot = (ContextSnapshot) storedField;
             ContextManager.continued(contextSnapshot);
         }
