@@ -22,8 +22,10 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,7 +36,7 @@ public class ServiceNameFormatter {
     private final StringBuffer serviceNamePattern;
 
     public ServiceNameFormatter(String rule) {
-        rule = StringUtils.defaultIfBlank(rule, "${pod.metadata.labels.(service.istio.io/canonical-name)}");
+        rule = StringUtils.defaultIfBlank(rule, "${pod.metadata.labels.(service.istio.io/canonical-name),pod.metadata.labels.(app.kubernetes.io/name),pod.metadata.labels.app)}");
 
         this.properties = new ArrayList<>();
         this.serviceNamePattern = new StringBuffer();
@@ -52,7 +54,18 @@ public class ServiceNameFormatter {
         final Object[] values = new Object[properties.size()];
 
         for (int i = 0; i < properties.size(); i++) {
-            final Object value = PropertyUtils.getProperty(context, properties.get(i));
+            final String property = properties.get(i);
+            final Object value = Stream.of(property.split(","))
+                                       .map(it -> {
+                                           try {
+                                               return PropertyUtils.getProperty(context, it);
+                                           } catch (Exception e) {
+                                               return null;
+                                           }
+                                       })
+                                       .filter(it -> Objects.nonNull(it) && !Strings.isNullOrEmpty(it.toString()))
+                                       .findFirst()
+                                       .orElse("-");
             values[i] = value;
         }
 

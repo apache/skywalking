@@ -54,6 +54,4 @@ public class ServiceMetaInfo {
 
         private final String value;
     }
-
-    public static final ServiceMetaInfo UNKNOWN = new ServiceMetaInfo("UNKNOWN", "UNKNOWN");
 }
