@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,21 +16,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-OAP_NAME=org.apache.skywalking.oap.server.starter.OAPServerStartUp
-WEB_NAME=skywalking-webapp
-oapPID=`ps aux|grep $OAP_NAME|grep -v grep|awk '{print $2}'|xargs`
-webPID=`ps aux|grep $WEB_NAME|grep -v grep|awk '{print $2}'|xargs`
+PRG="$0"
+PRGDIR=$(dirname "$PRG")
+[ -z "$SW_HOME" ] && SW_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
-if [ ! -z $oapPID ]; then
-  kill -9 $oapPID
+OAP_PID_FILE="${SW_HOME}/bin/oap.pid"
+UI_PID_FILE="${SW_HOME}/bin/ui.pid"
+
+if [ -f $OAP_PID_FILE ]; then
+  kill -9 $(cat "$OAP_PID_FILE")
+  rm $OAP_PID_FILE
   echo 'SkyWalking OAP stoped successfully!'
 else
-  echo 'SkyWalking OAP not exist!'
+  echo 'SkyWalking OAP not exist(could not find file $OAP_PID_FILE)!'
 fi
 
-if [ ! -z $webPID ]; then
-  kill -9 $webPID
+if [ -f $UI_PID_FILE ]; then
+  kill -9 $(cat "$UI_PID_FILE")
+  rm $UI_PID_FILE
   echo 'SkyWalking UI stoped successfully!'
 else
-  echo 'SkyWalking UI not exist!'
+  echo 'SkyWalking UI not exist(could not find file $UI_PID_FILE)!'
 fi
