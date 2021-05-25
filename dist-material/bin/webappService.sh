@@ -37,8 +37,11 @@ eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -jar ${JAR_PATH}/skywalking-webapp.jar \
          --logging.file=${LOG_FILE_LOCATION} \
         2>${WEBAPP_LOG_DIR}/webapp-console.log 1> /dev/null &"
 
+UI_PID_FILE="${WEBAPP_HOME}/bin/ui.pid"
+
 if [ $? -eq 0 ]; then
-    sleep 1
+  sleep 1
+  /bin/echo -n $! > "$UI_PID_FILE"
 	echo "SkyWalking Web Application started successfully!"
 else
 	echo "SkyWalking Web Application started failure!"
