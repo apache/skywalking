@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8SServiceRegistry;
@@ -45,6 +46,8 @@ import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2Metri
 public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     protected K8SServiceRegistry serviceRegistry;
 
+    private EnvoyMetricReceiverConfig config;
+
     @Override
     public String name() {
         return "k8s-mesh";
@@ -53,6 +56,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     @Override
     @SneakyThrows
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
+        this.config = config;
         serviceRegistry = new K8SServiceRegistry(config);
         serviceRegistry.start();
     }
@@ -103,7 +107,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
         if (cluster.startsWith("inbound|")) {
             // Server side
             final ServiceMeshMetric.Builder metrics;
-            if (downstreamService.equals(ServiceMetaInfo.UNKNOWN)) {
+            if (downstreamService.equals(config.serviceMetaInfoFactory().unknown())) {
                 // Ingress -> sidecar(server side)
                 // Mesh telemetry without source, the relation would be generated.
                 metrics = newAdapter(entry, null, localService).adaptToDownstreamMetrics();
@@ -171,7 +175,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     }
 
     /**
-     * @return found service info, or {@link ServiceMetaInfo#UNKNOWN} to represent not found.
+     * @return found service info, or {@link ServiceMetaInfoFactory#unknown()} to represent not found.
      */
     protected ServiceMetaInfo find(String ip) {
         return serviceRegistry.findService(ip);
