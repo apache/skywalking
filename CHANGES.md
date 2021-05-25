@@ -45,12 +45,13 @@ Release Notes.
 * Support analyzing Envoy TCP access logs and persist error TCP logs.
 * Fix: Envoy error logs are not persisted when no metrics are generated
 * Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
-* Allow multiple definitions as fallback in metadata-service-mapping.yaml file.
+* Allow multiple definitions as fallback in metadata-service-mapping.yaml file and `k8sServiceNameRule`.
 * Fix: NPE when configmap has no data.
 * Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
 * Fix: `!=` is not supported in oal when parameters are numbers.
 * Include events of the entity(s) in the alarm.
 * Support `native-json` format log in kafka-fetcher-plugin.
+* Fix counter misuse in the alarm core. Alarm can't be triggered in time.
 
 #### UI
 * Add logo for kong plugin.

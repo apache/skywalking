@@ -28,6 +28,8 @@ import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
+import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
+import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactoryImpl;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AccessLogAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
@@ -46,7 +48,12 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
     @Before
     public void setUp() {
         analysis = new MockK8SAnalysis();
-        analysis.init(null, null);
+        analysis.init(null, new EnvoyMetricReceiverConfig() {
+            @Override
+            public ServiceMetaInfoFactory serviceMetaInfoFactory() {
+                return new ServiceMetaInfoFactoryImpl();
+            }
+        });
     }
 
     @Test
@@ -148,8 +155,9 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
 
         @Override
         public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
+            super.init(manager, config);
             serviceRegistry = mock(K8SServiceRegistry.class);
-            when(serviceRegistry.findService(anyString())).thenReturn(ServiceMetaInfo.UNKNOWN);
+            when(serviceRegistry.findService(anyString())).thenReturn(config.serviceMetaInfoFactory().unknown());
             when(serviceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));
             when(serviceRegistry.findService("10.44.2.54")).thenReturn(new ServiceMetaInfo("productpage", "productpage-Inst"));
             when(serviceRegistry.findService("10.44.6.66")).thenReturn(new ServiceMetaInfo("detail", "detail-Inst"));
