@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -17,10 +16,15 @@
 # limitations under the License.
 
 PRG="$0"
-PRGDIR=`dirname "$PRG"`
-OAP_EXE=oapServiceShutdown.sh
-WEBAPP_EXE=webappServiceShutdown.sh
+PRGDIR=$(dirname "$PRG")
+[ -z "$SW_HOME" ] && SW_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
-"$PRGDIR"/"$OAP_EXE"
+UI_PID_FILE="${SW_HOME}/bin/ui.pid"
 
-"$PRGDIR"/"$WEBAPP_EXE"
+if [ -f $UI_PID_FILE ]; then
+  kill -9 $(cat "$UI_PID_FILE")
+  rm $UI_PID_FILE
+  echo 'SkyWalking UI stopped successfully!'
+else
+  echo 'SkyWalking UI not exist(could not find file $UI_PID_FILE)!'
+fi
