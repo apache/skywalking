@@ -37,7 +37,8 @@ templates:
           "metricName": "service_instance_cpm",
           "queryMetricType": "readMetricsValues",
           "chartType": "ChartLine",
-          "unit": "CPM - calls per minute"
+          "unit": "CPM - calls per minute",
+          "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (CPM), for TCP services, this means Packets Per Minute (PPM)"
         },
         {
           "width": "4",
