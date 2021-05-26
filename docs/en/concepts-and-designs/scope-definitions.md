@@ -30,6 +30,8 @@ This calculates the metrics data from each request of the service.
 | type | The type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
+| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
+| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
 ### SCOPE `ServiceInstance`
 
@@ -47,6 +49,8 @@ This calculates the metrics data from each request of the service instance.
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
+| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
+| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
 #### Secondary scopes of `ServiceInstance` 
 
@@ -120,6 +124,8 @@ This calculates the metrics data from each request of the endpoint in the servic
 | type | The type of each request, such as Database, HTTP, RPC, or gRPC. | | enum |
 | tags | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment. | | `List<String>` |
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
+| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
+| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
 ### SCOPE `ServiceRelation`
 
@@ -142,7 +148,8 @@ This calculates the metrics data from each request between services.
 | detectPoint | Where the relation is detected. The value may be client, server, or proxy. | yes | enum|
 | tlsMode | The TLS mode between source and destination services, such as `service_relation_mtls_cpm = from(ServiceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
-
+| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
+| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
 ### SCOPE `ServiceInstanceRelation`
 
@@ -165,6 +172,8 @@ This calculates the metrics data from each request between service instances.
 | detectPoint | Where the relation is detected. The value may be client, server, or proxy. | yes | enum|
 | tlsMode | The TLS mode between source and destination service instances, such as `service_instance_relation_mtls_cpm = from(ServiceInstanceRelation.*).filter(tlsMode == "mTLS").cpm()` || string|
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation. | | string|
+| tcpInfo.receivedBytes | The received bytes of the TCP traffic, if this request is a TCP call. | | long |
+| tcpInfo.sentBytes | The sent bytes of the TCP traffic, if this request is a TCP call. | | long |
 
 ### SCOPE `EndpointRelation`
 

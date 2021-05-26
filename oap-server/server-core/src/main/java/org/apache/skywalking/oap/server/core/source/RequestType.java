@@ -29,5 +29,6 @@ public enum RequestType {
     /**
      * Logic request only.
      */
-    LOGIC
+    LOGIC,
+    TCP
 }

@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * Pulsar message instrumentation.
@@ -39,7 +39,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
  */
 public class MessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.apache.pulsar.client.api.Message";
+    public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.MessageImpl";
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.MessageConstructorInterceptor";
 
     @Override
@@ -66,6 +66,6 @@ public class MessageInstrumentation extends ClassInstanceMethodsEnhancePluginDef
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(ENHANCE_CLASS);
+        return byName(ENHANCE_CLASS);
     }
 }

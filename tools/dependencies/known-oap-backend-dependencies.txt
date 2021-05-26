@@ -10,11 +10,10 @@ apollo-core-1.4.0.jar
 bcpkix-jdk15on-1.66.jar
 bcprov-ext-jdk15on-1.66.jar
 bcprov-jdk15on-1.66.jar
-builder-annotations-0.22.0.jar
 checker-qual-2.8.1.jar
-client-java-10.0.0.jar
-client-java-api-10.0.0.jar
-client-java-proto-10.0.0.jar
+client-java-11.0.0.jar
+client-java-api-11.0.0.jar
+client-java-proto-11.0.0.jar
 commons-codec-1.11.jar
 commons-collections4-4.4.jar
 commons-compress-1.20.jar
@@ -38,7 +37,7 @@ elasticsearch-rest-high-level-client-6.3.2.jar
 elasticsearch-secure-sm-6.3.2.jar
 elasticsearch-x-content-6.3.2.jar
 error_prone_annotations-2.3.2.jar
-etcd4j-2.17.0.jar
+etcd4j-2.18.0.jar
 failureaccess-1.0.1.jar
 flatbuffers-java-1.12.0.jar
 freemarker-2.3.28.jar
@@ -53,7 +52,7 @@ grpc-protobuf-1.32.1.jar
 grpc-protobuf-lite-1.32.1.jar
 grpc-stub-1.32.1.jar
 gson-2.8.6.jar
-gson-fire-1.8.4.jar
+gson-fire-1.8.5.jar
 guava-28.1-jre.jar
 guice-4.1.0.jar
 h2-1.4.196.jar
@@ -92,7 +91,7 @@ jna-4.5.1.jar
 joda-convert-2.2.1.jar
 joda-time-2.10.5.jar
 jopt-simple-4.6.jar
-jose4j-0.7.2.jar
+jose4j-0.7.3.jar
 json-flattener-0.6.0.jar
 jsr305-3.0.2.jar
 kotlin-reflect-1.1.1.jar
@@ -139,8 +138,8 @@ netty-resolver-4.1.42.Final.jar
 netty-resolver-dns-4.1.42.Final.jar
 netty-tcnative-boringssl-static-2.0.26.Final.jar
 netty-transport-4.1.42.Final.jar
-okhttp-3.9.0.jar
-okio-1.13.0.jar
+okhttp-3.14.9.jar
+okio-1.17.2.jar
 parent-join-client-6.3.2.jar
 perfmark-api-0.19.0.jar
 proto-google-common-protos-1.17.0.jar
@@ -149,7 +148,6 @@ protobuf-java-util-3.12.4.jar
 rank-eval-client-6.3.2.jar
 reactive-streams-1.0.2.jar
 reflectasm-1.11.7.jar
-resourcecify-annotations-0.22.0.jar
 retrofit-2.3.0.jar
 simpleclient-0.6.0.jar
 simpleclient_common-0.6.0.jar
@@ -157,8 +155,6 @@ simpleclient_hotspot-0.6.0.jar
 simpleclient_httpserver-0.9.0.jar
 slf4j-api-1.7.25.jar
 snakeyaml-1.18.jar
-sundr-codegen-0.22.0.jar
-sundr-core-0.22.0.jar
 swagger-annotations-1.6.2.jar
 t-digest-3.2.jar
 vavr-0.10.3.jar

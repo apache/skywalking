@@ -50,11 +50,10 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     public List<Service> getAllServices(final String group) throws IOException {
         return getMetadataQueryDAO().getAllServices(group).stream()
-                                    .map(service -> {
+                                    .peek(service -> {
                                         if (service.getGroup() == null) {
                                             service.setGroup(Const.EMPTY_STRING);
                                         }
-                                        return service;
                                     }).collect(Collectors.toList());
     }
 

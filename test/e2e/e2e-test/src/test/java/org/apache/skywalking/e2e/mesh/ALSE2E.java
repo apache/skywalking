@@ -154,9 +154,6 @@ public class ALSE2E extends SkyWalkingTestAdapter {
         LOGGER.info("instances: {}", instances);
 
         String file = "expected/als/instances.yml";
-        if (service.getLabel().equals("e2e::reviews")) {
-            file = "expected/als/instances-reviews.yml";
-        }
         load(file).as(InstancesMatcher.class).verify(instances);
 
         return instances;

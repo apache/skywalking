@@ -23,6 +23,11 @@
         <GRPCLogClientAppender name="grpc-log">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </GRPCLogClientAppender>
+        <RandomAccessFile name="fileAppender" fileName="/tmp/skywalking-logs/log4j2/e2e-service-provider.log" immediateFlush="true" append="true">
+            <PatternLayout>
+                <Pattern>[%sw_ctx] [%p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c:%L - %m%n</Pattern>
+            </PatternLayout>
+        </RandomAccessFile>
     </Appenders>
 
 
@@ -32,5 +37,8 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="grpc-log"/>
         </Root>
+        <Logger name="fileLogger" level="info" additivity="false">
+            <AppenderRef ref="fileAppender"/>
+        </Logger>
     </Loggers>
 </Configuration>

@@ -22,16 +22,25 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 public enum MyBatisMethodMatch {
     INSTANCE;
 
     public ElementMatcher<MethodDescription> getMyBatisMethodMatcher() {
-        return named("selectOne").or(named("selectList"))
-                                 .or(named("selectMap"))
-                                 .or(named("select"))
+        return named("select").and(takesArguments(4))
+                              .or(named("selectList").and(takesArguments(3)))
+                              .or(named("update").and(takesArguments(2)));
+    }
+
+    public ElementMatcher<MethodDescription> getMyBatisShellMethodMatcher() {
+        return named("selectOne").or(named("selectMap"))
                                  .or(named("insert"))
-                                 .or(named("update"))
-                                 .or(named("delete"));
+                                 .or(named("delete"))
+                                 .or(named("select").and(takesArguments(2)))
+                                 .or(named("select").and(takesArguments(3)))
+                                 .or(named("selectList").and(takesArguments(1)))
+                                 .or(named("selectList").and(takesArguments(2)))
+                                 .or(named("update").and(takesArguments(1)));
     }
 }

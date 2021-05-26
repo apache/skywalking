@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
@@ -30,8 +31,11 @@ import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
+import org.apache.skywalking.oap.server.receiver.envoy.als.AccessLogAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
+import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.TCPAccessLogAnalyzer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -43,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
     private final List<ALSHTTPAnalysis> envoyHTTPAnalysisList;
+    private final List<TCPAccessLogAnalyzer> envoyTCPAnalysisList;
 
     private final CounterMetrics counter;
     private final HistogramMetrics histogram;
@@ -51,6 +56,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
     public AccessLogServiceGRPCHandler(ModuleManager manager,
                                        EnvoyMetricReceiverConfig config) throws ModuleStartException {
         ServiceLoader<ALSHTTPAnalysis> alshttpAnalyses = ServiceLoader.load(ALSHTTPAnalysis.class);
+        ServiceLoader<TCPAccessLogAnalyzer> alsTcpAnalyzers = ServiceLoader.load(TCPAccessLogAnalyzer.class);
         envoyHTTPAnalysisList = new ArrayList<>();
         for (String httpAnalysisName : config.getAlsHTTPAnalysis()) {
             for (ALSHTTPAnalysis httpAnalysis : alshttpAnalyses) {
@@ -60,8 +66,17 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                 }
             }
         }
+        envoyTCPAnalysisList = new ArrayList<>();
+        for (String analyzerName : config.getAlsTCPAnalysis()) {
+            for (TCPAccessLogAnalyzer tcpAnalyzer : alsTcpAnalyzers) {
+                if (analyzerName.equals(tcpAnalyzer.name())) {
+                    tcpAnalyzer.init(manager, config);
+                    envoyTCPAnalysisList.add(tcpAnalyzer);
+                }
+            }
+        }
 
-        LOGGER.debug("envoy HTTP analysis: " + envoyHTTPAnalysisList);
+        LOGGER.debug("envoy HTTP analysis: {}, envoy TCP analysis: {}", envoyHTTPAnalysisList, envoyTCPAnalysisList);
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         counter = metricCreator.createCounter(
@@ -110,23 +125,39 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                                 .getId(), role, logCase, message);
                     }
 
+                    List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
                     switch (logCase) {
                         case HTTP_LOGS:
                             StreamAccessLogsMessage.HTTPAccessLogEntries logs = message.getHttpLogs();
 
-                            List<ServiceMeshMetric.Builder> sourceResult = new ArrayList<>();
                             for (final HTTPAccessLogEntry log : logs.getLogEntryList()) {
-                                List<ServiceMeshMetric.Builder> result = new ArrayList<>();
+                                AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
                                 for (ALSHTTPAnalysis analysis : envoyHTTPAnalysisList) {
                                     result = analysis.analysis(result, identifier, log, role);
                                 }
-                                sourceResult.addAll(result);
+                                if (CollectionUtils.isNotEmpty(result.getMetrics())) {
+                                    sourceResult.addAll(result.getMetrics());
+                                }
                             }
 
-                            sourceDispatcherCounter.inc(sourceResult.size());
-                            sourceResult.forEach(TelemetryDataDispatcher::process);
+                            break;
+                        case TCP_LOGS:
+                            StreamAccessLogsMessage.TCPAccessLogEntries tcpLogs = message.getTcpLogs();
+
+                            for (final TCPAccessLogEntry tcpLog : tcpLogs.getLogEntryList()) {
+                                AccessLogAnalyzer.Result result = AccessLogAnalyzer.Result.builder().build();
+                                for (TCPAccessLogAnalyzer analyzer : envoyTCPAnalysisList) {
+                                    result = analyzer.analysis(result, identifier, tcpLog, role);
+                                }
+                                if (CollectionUtils.isNotEmpty(result.getMetrics())) {
+                                    sourceResult.addAll(result.getMetrics());
+                                }
+                            }
+
                             break;
                     }
+                    sourceDispatcherCounter.inc(sourceResult.size());
+                    sourceResult.forEach(TelemetryDataDispatcher::process);
                 } finally {
                     timer.finish();
                 }

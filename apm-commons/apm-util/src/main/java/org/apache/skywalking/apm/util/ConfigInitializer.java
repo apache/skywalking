@@ -112,7 +112,7 @@ public class ConfigInitializer {
         } else if (boolean.class.equals(type) || Boolean.class.equals(type)) {
             result = Boolean.valueOf(value);
         } else if (float.class.equals(type) || Float.class.equals(type)) {
-            result = Boolean.valueOf(value);
+            result = Float.valueOf(value);
         } else if (double.class.equals(type) || Double.class.equals(type)) {
             result = Double.valueOf(value);
         } else if (List.class.equals(type)) {

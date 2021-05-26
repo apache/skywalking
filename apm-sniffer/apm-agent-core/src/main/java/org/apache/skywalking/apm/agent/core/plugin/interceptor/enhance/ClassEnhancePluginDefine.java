@@ -38,6 +38,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.EnhanceException;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethodsInterceptV2Point;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.StaticMethodsInterceptV2Point;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
@@ -55,35 +57,13 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     private static final ILog LOGGER = LogManager.getLogger(ClassEnhancePluginDefine.class);
 
     /**
-     * New field name.
-     */
-    public static final String CONTEXT_ATTR_NAME = "_$EnhancedClassField_ws";
-
-    /**
-     * Begin to define how to enhance class. After invoke this method, only means definition is finished.
-     *
-     * @param typeDescription target class description
-     * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
-     * @return new byte-buddy's builder for further manipulation.
-     */
-    @Override
-    protected DynamicType.Builder<?> enhance(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
-        ClassLoader classLoader, EnhanceContext context) throws PluginException {
-        newClassBuilder = this.enhanceClass(typeDescription, newClassBuilder, classLoader);
-
-        newClassBuilder = this.enhanceInstance(typeDescription, newClassBuilder, classLoader, context);
-
-        return newClassBuilder;
-    }
-
-    /**
      * Enhance a class to intercept constructors and class instance methods.
      *
      * @param typeDescription target class description
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    private DynamicType.Builder<?> enhanceInstance(TypeDescription typeDescription,
+    protected DynamicType.Builder<?> enhanceInstance(TypeDescription typeDescription,
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
         EnhanceContext context) throws PluginException {
         ConstructorInterceptPoint[] constructorInterceptPoints = getConstructorsInterceptPoints();
@@ -194,7 +174,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    private DynamicType.Builder<?> enhanceClass(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
+    protected DynamicType.Builder<?> enhanceClass(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
         ClassLoader classLoader) throws PluginException {
         StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();
         String enhanceOriginClassName = typeDescription.getTypeName();
@@ -236,4 +216,21 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
         return newClassBuilder;
     }
+
+    /**
+     * @return null, means enhance no v2 instance methods.
+     */
+    @Override
+    public InstanceMethodsInterceptV2Point[] getInstanceMethodsInterceptV2Points() {
+        return null;
+    }
+
+    /**
+     * @return null, means enhance no v2 static methods.
+     */
+    @Override
+    public StaticMethodsInterceptV2Point[] getStaticMethodsInterceptV2Points() {
+        return null;
+    }
+
 }

@@ -22,13 +22,12 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class CallbackInstrumentation extends AbstractOkhttpInstrumentation {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -45,7 +44,7 @@ public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.v3.OnFailureInterceptor";
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.OnFailureInterceptor";
                 }
 
                 @Override
@@ -61,7 +60,7 @@ public class CallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.v3.OnResponseInterceptor";
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.OnResponseInterceptor";
                 }
 
                 @Override
