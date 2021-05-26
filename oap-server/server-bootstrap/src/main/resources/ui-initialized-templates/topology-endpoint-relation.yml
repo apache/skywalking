@@ -72,48 +72,7 @@ templates:
             "labelsIndex":"0, 1, 2, 3, 4"
           }
         ],
-        "tcp":[
-          {
-            "width":3,
-            "title":"Response Time",
-            "height":"200",
-            "entityType":"EndpointRelation",
-            "independentSelector":false,
-            "metricType":"REGULAR_VALUE",
-            "metricName":"endpoint_relation_resp_time",
-            "queryMetricType":"readMetricsValues",
-            "chartType":"ChartLine",
-            "unit":"ms"
-          },
-          {
-            "width":3,
-            "title":"Successful Rate",
-            "height":"200",
-            "entityType":"EndpointRelation",
-            "independentSelector":false,
-            "metricType":"REGULAR_VALUE",
-            "metricName":"endpoint_relation_sla",
-            "queryMetricType":"readMetricsValues",
-            "chartType":"ChartLine",
-            "unit":"%",
-            "aggregation":"/",
-            "aggregationNum":"100"
-          },
-          {
-            "width":3,
-            "title":"Service Response Time Percentile",
-            "height":"200",
-            "entityType":"EndpointRelation",
-            "independentSelector":false,
-            "metricType":"LABELED_VALUE",
-            "metricName":"endpoint_relation_percentile",
-            "queryMetricType":"readLabeledMetricsValues",
-            "chartType":"ChartLine",
-            "unit":"ms",
-            "metricLabels":"P50, P75, P90, P95, P99",
-            "labelsIndex":"0, 1, 2, 3, 4"
-          }
-        ]
+        "tcp":[]
       }
     # Activated as the TOPOLOGY_INSTANCE type, makes this templates added into the UI page automatically.
     # False means providing a basic template, user needs to add it manually.
