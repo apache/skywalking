@@ -21,9 +21,11 @@ PRGDIR=$(dirname "$PRG")
 
 OAP_PID_FILE="${SW_HOME}/bin/oap.pid"
 
-if [ -f $OAP_PID_FILE ]; then
-  kill -9 $(cat "$OAP_PID_FILE")
-  rm $OAP_PID_FILE
+if [ -f "$OAP_PID_FILE" ]; then
+  SIGNAL=${SIGNAL:-TERM}
+  PID=$(cat "$OAP_PID_FILE")
+  kill -s "$SIGNAL" "$PID"
+  rm "$OAP_PID_FILE"
   echo 'SkyWalking OAP stopped successfully!'
 else
   echo 'SkyWalking OAP not exist(could not find file $OAP_PID_FILE)!'

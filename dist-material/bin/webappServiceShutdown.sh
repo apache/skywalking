@@ -21,9 +21,11 @@ PRGDIR=$(dirname "$PRG")
 
 UI_PID_FILE="${SW_HOME}/bin/ui.pid"
 
-if [ -f $UI_PID_FILE ]; then
-  kill -9 $(cat "$UI_PID_FILE")
-  rm $UI_PID_FILE
+if [ -f "$UI_PID_FILE" ]; then
+  SIGNAL=${SIGNAL:-TERM}
+  PID=$(cat "$UI_PID_FILE")
+  kill -s "$SIGNAL" "$PID"
+  rm "$UI_PID_FILE"
   echo 'SkyWalking UI stopped successfully!'
 else
   echo 'SkyWalking UI not exist(could not find file $UI_PID_FILE)!'

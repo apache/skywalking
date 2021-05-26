@@ -40,13 +40,14 @@ OAP_OPTIONS=" -Doap.logDir=${OAP_LOG_DIR}"
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp \
         2>${OAP_LOG_DIR}/oap.log 1> /dev/null &"
 
+PID="$!"
 OAP_PID_FILE="${OAP_HOME}/bin/oap.pid"
 
 if [ $? -eq 0 ]; then
   sleep 1
-  /bin/echo -n $! > "$OAP_PID_FILE"
-	echo "SkyWalking OAP started successfully!"
+  /bin/echo -n "$PID" > "$OAP_PID_FILE"
+  echo "SkyWalking OAP started successfully!"
 else
-	echo "SkyWalking OAP started failure!"
-	exit 1
+  echo "SkyWalking OAP started failure!"
+  exit 1
 fi
