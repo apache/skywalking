@@ -58,7 +58,7 @@ public class MeterSystem implements Service {
     private static final String METER_CLASS_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.meter.dynamic.";
     private ModuleManager manager;
     private ClassPool classPool;
-    private Map<String, Class<? extends MeterFunction>> functionRegister = new HashMap<>();
+    private Map<String, Class<? extends AcceptableValue>> functionRegister = new HashMap<>();
     /**
      * Host the dynamic meter prototype classes. These classes could be create dynamically through {@link
      * Object#clone()} in the runtime;
@@ -87,7 +87,7 @@ public class MeterSystem implements Service {
                 }
                 functionRegister.put(
                     metricsFunction.functionName(),
-                    (Class<? extends MeterFunction>) functionClass
+                    (Class<? extends AcceptableValue>) functionClass
                 );
             }
         }
@@ -105,7 +105,7 @@ public class MeterSystem implements Service {
     public synchronized <T> void create(String metricsName,
         String functionName,
         ScopeType type) throws IllegalArgumentException {
-        final Class<? extends MeterFunction> meterFunction = functionRegister.get(functionName);
+        final Class<? extends AcceptableValue> meterFunction = functionRegister.get(functionName);
 
         if (meterFunction == null) {
             throw new IllegalArgumentException("Function " + functionName + " can't be found.");
@@ -144,7 +144,7 @@ public class MeterSystem implements Service {
         /**
          * Create a new meter class dynamically.
          */
-        final Class<? extends MeterFunction> meterFunction = functionRegister.get(functionName);
+        final Class<? extends AcceptableValue> meterFunction = functionRegister.get(functionName);
 
         if (meterFunction == null) {
             throw new IllegalArgumentException("Function " + functionName + " can't be found.");
