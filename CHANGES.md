@@ -32,6 +32,7 @@ Release Notes.
 * Introduce method interceptor API v2
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 * fixed `jdk-threading-plugin` memory leak.
+* Optimize multiple field reflection opeartion in Fiegn plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
