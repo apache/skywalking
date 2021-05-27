@@ -210,6 +210,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | - | 4M(based on Netty) |
 | prometheus-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | active | Activate the Prometheus fetcher. | SW_PROMETHEUS_FETCHER_ACTIVE | false |
+| - | - | enabledRules | Enable rules. | SW_PROMETHEUS_FETCHER_ENABLED_RULES | self |
+| - | - | numConvertWorker | The maximize meter convert worker. | SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER | half the number of CPU core(s) |   
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
 | - | - | namespace | namespace aims to isolate multi OAP cluster when using the same Kafka cluster.if you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. you should also set namespace in `agent.config`, the property named| SW_NAMESPACE | - |
