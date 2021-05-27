@@ -337,7 +337,9 @@ envoy-metric:
 prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:-}
   default:
+    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
     enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
+    maxConvertWorker: ${SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER:-1}
 
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
