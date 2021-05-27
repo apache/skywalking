@@ -8,7 +8,6 @@ Release Notes.
 * Add OpenSearch as storage option.
 * Upgrade Kubernetes Java client dependency to 11.0.
 * Fix plugin test script error in macOS.
-* Make the number of core worker in meter converter thread pool configurable.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
@@ -55,6 +54,7 @@ Release Notes.
 * Include events of the entity(s) in the alarm.
 * Support `native-json` format log in kafka-fetcher-plugin.
 * Fix counter misuse in the alarm core. Alarm can't be triggered in time.
+* Make the number of core worker in meter converter thread pool configurable.
 
 #### UI
 * Add logo for kong plugin.
