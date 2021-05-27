@@ -110,13 +110,13 @@ public class Event extends Metrics implements WithMetadata, LongValueHolder {
     @Column(columnName = END_TIME)
     private long endTime;
 
-    private transient long count = 1;
+    private transient long value = 1;
 
     @Override
     public boolean combine(final Metrics metrics) {
         final Event event = (Event) metrics;
 
-        count++;
+        value++;
 
         // Set time bucket only when it's never set.
         if (getTimeBucket() <= 0) {
@@ -216,11 +216,6 @@ public class Event extends Metrics implements WithMetadata, LongValueHolder {
             id = IDManager.EndpointID.buildId(serviceId, getEndpoint());
         }
         return new MetricsMetaInfo(getName(), scope, id);
-    }
-
-    @Override
-    public long getValue() {
-        return getCount();
     }
 
     public static class Builder implements StorageHashMapBuilder<Event> {

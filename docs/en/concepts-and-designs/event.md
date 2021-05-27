@@ -60,8 +60,8 @@ There are also cases where you would already have both the start time and end ti
 Events are derived from metrics, and can be the source to trigger alarms. For example, if a specific event occurs for a
 certain times in a period, alarms can be triggered and sent.
 
-Every event has a default `count = 1`, when `n` events with the same name are reported, they are aggregated
-into `count = n` as follows.
+Every event has a default `value = 1`, when `n` events with the same name are reported, they are aggregated
+into `value = n` as follows.
 
 ```
 Event{name=Unhealthy, source={service=A,instance=a}, ...}
@@ -75,7 +75,7 @@ Event{name=Unhealthy, source={service=A,instance=a}, ...}
 will be aggregated into
 
 ```
-Event{name=Unhealthy, source={service=A,instance=a}, ...} <count = 6>
+Event{name=Unhealthy, source={service=A,instance=a}, ...} <value = 6>
 ```
 
 so you can configure the following alarm rule to trigger alarm when `Unhealthy` event occurs more than 5 times within 10
@@ -85,6 +85,10 @@ minutes.
 rules:
   unhealthy_event_rule:
     metrics-name: Unhealthy
+    # Healthiness check is usually a scheduled task,
+    # they may be unhealthy for the first few times,
+    # and can be unhealthy occasionally due to network jitter,
+    # please adjust the threshold as per your actual situation.
     threshold: 5
     op: ">"
     period: 10
@@ -93,6 +97,9 @@ rules:
 ```
 
 For more alarm configuration details, please refer to the [alarm doc](../setup/backend/backend-alarm.md).
+
+**Note** that the `Unhealthy` event above is only for demonstration, they are not detected by default in SkyWalking,
+however, you can use the methods in [How to Report Events](#how-to-report-events) to report this kind of events.
 
 ## Known Events
 
