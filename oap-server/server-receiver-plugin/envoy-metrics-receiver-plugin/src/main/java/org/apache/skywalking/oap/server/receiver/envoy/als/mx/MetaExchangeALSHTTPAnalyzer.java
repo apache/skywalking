@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
-import static org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.UNKNOWN;
 
 @Slf4j
 public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
@@ -126,7 +125,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             }
         });
         if (role.equals(Role.PROXY) && !downstreamExists.get()) {
-            final ServiceMeshMetric.Builder metric = newAdapter(entry, UNKNOWN, currSvc).adaptToDownstreamMetrics();
+            final ServiceMeshMetric.Builder metric = newAdapter(entry, config.serviceMetaInfoFactory().unknown(), currSvc).adaptToDownstreamMetrics();
             if (log.isDebugEnabled()) {
                 log.debug("Transformed a {} inbound mesh metric {}", role, TextFormat.shortDebugString(metric));
             }

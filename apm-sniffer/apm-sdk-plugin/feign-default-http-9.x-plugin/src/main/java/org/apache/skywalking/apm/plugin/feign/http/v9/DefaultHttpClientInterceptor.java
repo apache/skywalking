@@ -50,6 +50,17 @@ import static feign.Util.valuesOrEmpty;
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    private static Field FIELD_HEADERS_OF_REQUEST;
+
+    static {
+        try {
+            final Field field = Request.class.getDeclaredField("headers");
+            field.setAccessible(true);
+            FIELD_HEADERS_OF_REQUEST = field;
+        } catch (Exception ignore) {
+            FIELD_HEADERS_OF_REQUEST = null;
+        }
+    }
 
     /**
      * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host, port,
@@ -101,19 +112,19 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
             }
         }
 
-        Field headersField = Request.class.getDeclaredField("headers");
-        headersField.setAccessible(true);
-        Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            List<String> contextCollection = new ArrayList<String>(1);
-            contextCollection.add(next.getHeadValue());
-            headers.put(next.getHeadKey(), contextCollection);
-        }
-        headers.putAll(request.headers());
+        if (FIELD_HEADERS_OF_REQUEST != null) {
+            Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                List<String> contextCollection = new ArrayList<String>(1);
+                contextCollection.add(next.getHeadValue());
+                headers.put(next.getHeadKey(), contextCollection);
+            }
+            headers.putAll(request.headers());
 
-        headersField.set(request, Collections.unmodifiableMap(headers));
+            FIELD_HEADERS_OF_REQUEST.set(request, Collections.unmodifiableMap(headers));
+        }
     }
 
     private void collectHttpBody(final Request request, final AbstractSpan span) {

@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 import org.apache.skywalking.oap.server.library.util.prometheus.Parser;
 import org.apache.skywalking.oap.server.library.util.prometheus.Parsers;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
@@ -93,7 +94,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
-        ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
+        ses = Executors.newScheduledThreadPool(
+            Math.min(rules.size(), config.getMaxConvertWorker()),
+            new CustomThreadFactory("meter-converter")
+        );
     }
 
     @Override

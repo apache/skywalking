@@ -31,6 +31,8 @@ Release Notes.
 * Fixed part of the dynamic configuration of ConfigurationDiscoveryService that does not take effect under certain circumstances.
 * Introduce method interceptor API v2
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
+* fixed `jdk-threading-plugin` memory leak.
+* Optimize multiple field reflection opeartion in Fiegn plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -45,12 +47,15 @@ Release Notes.
 * Support analyzing Envoy TCP access logs and persist error TCP logs.
 * Fix: Envoy error logs are not persisted when no metrics are generated
 * Fix: Memory leakage of low version etcd client. [fix-issue](https://github.com/jurmous/etcd4j/pull/185)
-* Allow multiple definitions as fallback in metadata-service-mapping.yaml file.
+* Allow multiple definitions as fallback in metadata-service-mapping.yaml file and `k8sServiceNameRule`.
 * Fix: NPE when configmap has no data.
 * Fix: Dynamic Configuration key `slowTraceSegmentThreshold` not work
 * Fix: `!=` is not supported in oal when parameters are numbers.
 * Include events of the entity(s) in the alarm.
 * Support `native-json` format log in kafka-fetcher-plugin.
+* Fix counter misuse in the alarm core. Alarm can't be triggered in time.
+* Events can be configured as alarm source.
+* Make the number of core worker in meter converter thread pool configurable.
 
 #### UI
 * Add logo for kong plugin.
