@@ -103,8 +103,25 @@ however, you can use the methods in [How to Report Events](#how-to-report-events
 
 ## Known Events
 
-| Name | Type | When |
-| :----: | :----: | :-----|
-| Start | Normal | When your Java Application starts with SkyWalking Agent installed, the `Start` Event will be created. |
-| Shutdown | Normal | When your Java Application stops with SkyWalking Agent installed, the `Shutdown` Event will be created.  |
-| Alarm | Error | When the Alarm is triggered, the corresponding `Alarm` Event will is created. |
+| Name | Type | When | Where |
+| :----: | :----: | :-----| :---- |
+| Start | Normal | When your Java Application starts with SkyWalking Agent installed, the `Start` Event will be created. | Reported from SkyWalking agent. |
+| Shutdown | Normal | When your Java Application stops with SkyWalking Agent installed, the `Shutdown` Event will be created. | Reported from SkyWalking agent. |
+| Alarm | Error | When the Alarm is triggered, the corresponding `Alarm` Event will is created. | Reported from internal SkyWalking OAP. |
+
+The following events are all reported
+by [Kubernetes Event Exporter](http://github.com/apache/skywalking-kubernetes-event-exporter), in order to see these
+events, please make sure you have deployed the exporter. 
+
+| Name | Type | When | Where |
+| :----: | :----: | :-----| :---- |
+| Killing | Normal | When the Kubernetes Pod is being killing. | Reporter by Kubernetes Event Exporter. |
+| Pulling | Normal | When a docker image is being pulled for deployment. | Reporter by Kubernetes Event Exporter. |
+| Pulled | Normal | When a docker image is pulled for deployment. | Reporter by Kubernetes Event Exporter. |
+| Created | Normal | When a container inside a Pod is created. | Reporter by Kubernetes Event Exporter. |
+| Started | Normal | When a container inside a Pod is started. | Reporter by Kubernetes Event Exporter. |
+| Unhealthy | Error | When the readiness probe failed. | Reporter by Kubernetes Event Exporter. |
+
+The complete event lists can be found
+in [the Kubernetes codebase](https://github.com/kubernetes/kubernetes/blob/v1.21.1/pkg/kubelet/events/event.go), please
+note that not all the events are supported by the exporter for now.
