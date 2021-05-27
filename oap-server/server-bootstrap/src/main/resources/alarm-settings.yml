@@ -40,6 +40,15 @@ rules:
     count: 1
     tags:
       level: WARNING
+#  unhealthy_event_rule:
+#    metrics-name: Unhealthy
+#    threshold: 5
+#    op: ">"
+#    period: 10
+#    count: 1
+#    message: Service instance has been unhealthy for 10 minutes
+#    tags:
+#      level: ERROR
 
 webhooks:
 #  - http://127.0.0.1/notify/

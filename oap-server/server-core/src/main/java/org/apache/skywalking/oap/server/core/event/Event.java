@@ -24,15 +24,21 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.elasticsearch.common.Strings;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
 
@@ -45,7 +51,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EV
     of = "uuid"
 )
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
-public class Event extends Metrics {
+public class Event extends Metrics implements WithMetadata, LongValueHolder {
 
     public static final String INDEX_NAME = "events";
 
@@ -104,9 +110,13 @@ public class Event extends Metrics {
     @Column(columnName = END_TIME)
     private long endTime;
 
+    private transient long count = 1;
+
     @Override
     public boolean combine(final Metrics metrics) {
         final Event event = (Event) metrics;
+
+        count++;
 
         // Set time bucket only when it's never set.
         if (getTimeBucket() <= 0) {
@@ -191,6 +201,26 @@ public class Event extends Metrics {
     @Override
     public int remoteHashCode() {
         return hashCode();
+    }
+
+    @Override
+    public MetricsMetaInfo getMeta() {
+        int scope = DefaultScopeDefine.SERVICE;
+        final String serviceId = IDManager.ServiceID.buildId(getService(), true);
+        String id = serviceId;
+        if (!Strings.isNullOrEmpty(getServiceInstance())) {
+            scope = DefaultScopeDefine.SERVICE_INSTANCE;
+            id = IDManager.ServiceInstanceID.buildId(serviceId, getServiceInstance());
+        } else if (!Strings.isNullOrEmpty(getEndpoint())) {
+            scope = DefaultScopeDefine.ENDPOINT;
+            id = IDManager.EndpointID.buildId(serviceId, getEndpoint());
+        }
+        return new MetricsMetaInfo(getName(), scope, id);
+    }
+
+    @Override
+    public long getValue() {
+        return getCount();
     }
 
     public static class Builder implements StorageHashMapBuilder<Event> {
