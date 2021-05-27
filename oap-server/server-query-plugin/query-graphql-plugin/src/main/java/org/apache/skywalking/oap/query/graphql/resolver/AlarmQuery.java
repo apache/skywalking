@@ -186,15 +186,16 @@ public class AlarmQuery implements GraphQLQueryResolver {
         }
 
         final String service = source.getService();
+        final String serviceId = IDManager.ServiceID.buildId(service, true);
         if (isNullOrEmpty(service)) {
             return "";
         }
 
         final String instance = source.getServiceInstance();
         if (isNullOrEmpty(instance)) {
-            return IDManager.ServiceID.buildId(service, true);
+            return serviceId;
         }
 
-        return IDManager.ServiceInstanceID.buildId(service, instance);
+        return IDManager.ServiceInstanceID.buildId(serviceId, instance);
     }
 }
