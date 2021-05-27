@@ -160,9 +160,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             try {
                 ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
                 if (!consumerRecords.isEmpty()) {
-                    Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
-                    while (iterator.hasNext()) {
-                        ConsumerRecord<String, Bytes> record = iterator.next();
+                    for (final ConsumerRecord<String, Bytes> record : consumerRecords) {
                         executor.submit(() -> handlerMap.get(record.topic()).handle(record));
                     }
                     if (!enableKafkaMessageAutoCommit) {

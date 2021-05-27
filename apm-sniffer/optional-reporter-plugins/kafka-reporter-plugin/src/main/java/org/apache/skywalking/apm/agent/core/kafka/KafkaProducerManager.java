@@ -118,9 +118,10 @@ public class KafkaProducerManager implements BootService, Runnable {
                                          })
                                          .filter(Objects::nonNull)
                                          .collect(Collectors.toSet());
+        adminClient.close();
+
         if (!topics.isEmpty()) {
             LOGGER.warn("kafka topics {} is not exist, connect to kafka cluster abort", topics);
-            closeAdminClient(adminClient);
             return;
         }
 
@@ -128,7 +129,6 @@ public class KafkaProducerManager implements BootService, Runnable {
             producer = new KafkaProducer<>(properties, new StringSerializer(), new BytesSerializer());
         } catch (Exception e) {
             LOGGER.error(e, "connect to kafka cluster '{}' failed", KafkaReporterPluginConfig.Plugin.Kafka.BOOTSTRAP_SERVERS);
-            closeAdminClient(adminClient);
             return;
         }
         //notify listeners to send data if no exception been throw
@@ -139,16 +139,6 @@ public class KafkaProducerManager implements BootService, Runnable {
     private void notifyListeners(KafkaConnectionStatus status) {
         for (KafkaConnectionStatusListener listener : listeners) {
             listener.onStatusChanged(status);
-        }
-    }
-
-    private void closeAdminClient(AdminClient adminClient) {
-        if (adminClient != null) {
-            try {
-                adminClient.close();
-            } catch (Exception e) {
-                LOGGER.error("close kafka admin client failed", e);
-            }
         }
     }
 
