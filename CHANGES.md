@@ -8,6 +8,7 @@ Release Notes.
 * Add OpenSearch as storage option.
 * Upgrade Kubernetes Java client dependency to 11.0.
 * Fix plugin test script error in macOS.
+* Make the number of core worker in meter converter thread pool configurable.
 
 #### Java Agent
 * Add `trace_segment_ref_limit_per_span` configuration mechanism to avoid OOM.
