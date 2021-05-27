@@ -95,7 +95,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         rules = Rules.loadRules(config.getRulePath(), config.getEnabledRules());
         ses = Executors.newScheduledThreadPool(
-            Math.min(rules.size(), config.getMeterConvertWorker()),
+            Math.min(rules.size(), config.getMaxConvertWorker()),
             new CustomThreadFactory("meter-converter")
         );
     }

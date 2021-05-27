@@ -28,8 +28,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
 public class PrometheusFetcherConfig extends ModuleConfig {
-
-    private int meterConvertWorker = Runtime.getRuntime().availableProcessors() / 2;
+    
+    private int maxConvertWorker = Math.max(1, Runtime.getRuntime().availableProcessors() / 2);
 
     private String enabledRules;
 
