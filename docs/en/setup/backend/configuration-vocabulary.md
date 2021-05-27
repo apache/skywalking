@@ -209,7 +209,6 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | - | - |
 | - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | - | 4M(based on Netty) |
 | prometheus-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
-| - | - | active | Activate the Prometheus fetcher. | SW_PROMETHEUS_FETCHER_ACTIVE | false |
 | - | - | enabledRules | Enable rules. | SW_PROMETHEUS_FETCHER_ENABLED_RULES | self |
 | - | - | maxConvertWorker | The maximize meter convert worker. | SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER | -1(by default, half the number of CPU core(s)) |   
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
