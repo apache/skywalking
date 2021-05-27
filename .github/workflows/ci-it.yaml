@@ -27,7 +27,7 @@ env:
 
 jobs:
   CI:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
@@ -65,7 +65,7 @@ jobs:
         run: tools/dependencies/check-LICENSE.sh
 
   CI-on-JDK11:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2

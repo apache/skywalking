@@ -37,7 +37,7 @@ on:
 jobs:
   PluginsJDK14Test:
     name: jdk14
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
