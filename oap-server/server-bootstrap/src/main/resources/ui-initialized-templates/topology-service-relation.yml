@@ -120,130 +120,130 @@ templates:
             }
           ]
         },
-         "tcp":{
-           "server":[
-             {
-               "width":12,
-               "title":"Response Time",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_server_resp_time",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"ms"
-             },
-             {
-               "width":12,
-               "title":"Response Time Percentile",
-               "height":200,
-               "entityType":"ServiceRelation",
-               "metricType":"LABELED_VALUE",
-               "metricName":"service_relation_server_percentile",
-               "queryMetricType":"readLabeledMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"ms",
-               "metricLabels":"P50, P75, P90, P95, P99",
-               "labelsIndex":"0, 1, 2, 3, 4"
-             },
-             {
-               "width":12,
-               "title":"Successful Rate",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_server_call_sla",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"%",
-               "aggregation":"/",
-               "aggregationNum":"100"
-             },
-             {
-               "width":12,
-               "title":"Load",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_server_cpm",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"PPM - Packets Per Minute"
-             },
-             {
-               "width":12,
-               "title":"Throughput",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_server_received,service_relation_server_sent",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"PPM - Packets Per Minutes"
-             }
-           ],
-           "client":[
-             {
-               "width":12,
-               "title":"Response Time",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_client_resp_time",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"ms"
-             },
-             {
-               "width":12,
-               "title":"Response Time Percentile",
-               "height":200,
-               "entityType":"ServiceRelation",
-               "metricType":"LABELED_VALUE",
-               "metricName":"service_relation_client_percentile",
-               "queryMetricType":"readLabeledMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"ms",
-               "metricLabels":"P50, P75, P90, P95, P99",
-               "labelsIndex":"0, 1, 2, 3, 4"
-             },
-             {
-               "width":12,
-               "title":"Successful Rate",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_client_call_sla",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"%",
-               "aggregation":"/",
-               "aggregationNum":"100"
-             },
-             {
-               "width":12,
-               "title":"Load",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_client_cpm",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"CPM - Calls Per Minute"
-             },
-             {
-               "width":12,
-               "title":"Throughput",
-               "height":"200",
-               "entityType":"ServiceRelation",
-               "metricType":"REGULAR_VALUE",
-               "metricName":"service_relation_client_received,service_relation_client_sent",
-               "queryMetricType":"readMetricsValues",
-               "chartType":"ChartLine",
-               "unit":"PPM - Packets Per Minutes"
-             }
-           ]
-         },
+        "tcp":{
+          "server":[
+            {
+              "width":12,
+              "title":"Response Time",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_server_resp_time",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms"
+            },
+            {
+              "width":12,
+              "title":"Response Time Percentile",
+              "height":200,
+              "entityType":"ServiceRelation",
+              "metricType":"LABELED_VALUE",
+              "metricName":"service_relation_server_percentile",
+              "queryMetricType":"readLabeledMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms",
+              "metricLabels":"P50, P75, P90, P95, P99",
+              "labelsIndex":"0, 1, 2, 3, 4"
+            },
+            {
+              "width":12,
+              "title":"Successful Rate",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_server_call_sla",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"%",
+              "aggregation":"/",
+              "aggregationNum":"100"
+            },
+            {
+              "width":12,
+              "title":"Load",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_server_cpm",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"PPM - Packets Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Throughput",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_server_received,service_relation_server_sent",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"PPM - Packets Per Minutes"
+            }
+          ],
+          "client":[
+            {
+              "width":12,
+              "title":"Response Time",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_client_resp_time",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms"
+            },
+            {
+              "width":12,
+              "title":"Response Time Percentile",
+              "height":200,
+              "entityType":"ServiceRelation",
+              "metricType":"LABELED_VALUE",
+              "metricName":"service_relation_client_percentile",
+              "queryMetricType":"readLabeledMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms",
+              "metricLabels":"P50, P75, P90, P95, P99",
+              "labelsIndex":"0, 1, 2, 3, 4"
+            },
+            {
+              "width":12,
+              "title":"Successful Rate",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_client_call_sla",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"%",
+              "aggregation":"/",
+              "aggregationNum":"100"
+            },
+            {
+              "width":12,
+              "title":"Load",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_client_cpm",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"CPM - Calls Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Throughput",
+              "height":"200",
+              "entityType":"ServiceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_relation_client_received,service_relation_client_sent",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"PPM - Packets Per Minutes"
+            }
+          ]
+        },
         "envoy_metrics":{
           "server":[
           ],

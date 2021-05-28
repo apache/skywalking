@@ -32,23 +32,12 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 @ToString
 public class ServiceRelationEntityDescription implements EntityDescription {
     private final ScopeType scopeType = ScopeType.SERVICE_RELATION;
-    private final List<String> serviceKeys;
-    private final List<String> relateServiceKeys;
+    private final List<String> sourceServiceKeys;
+    private final List<String> destServiceKeys;
     private final DetectPoint detectPoint;
 
     @Override
     public List<String> getLabelKeys() {
-        return Stream.concat(this.serviceKeys.stream(), this.relateServiceKeys.stream()).collect(Collectors.toList());
+        return Stream.concat(this.sourceServiceKeys.stream(), this.destServiceKeys.stream()).collect(Collectors.toList());
     }
-
-    @Override
-    public List<String> getInstanceKeys() {
-        throw new UnsupportedOperationException("Unsupported Operation of getInstanceKeys() " + this.toString());
-    }
-
-    @Override
-    public List<String> getEndpointKeys() {
-        throw new UnsupportedOperationException("Unsupported Operation of getEndpointKeys() " + this.toString());
-    }
-
 }

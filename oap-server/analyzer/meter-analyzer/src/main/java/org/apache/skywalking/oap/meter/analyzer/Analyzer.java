@@ -242,11 +242,23 @@ public class Analyzer {
     }
 
     private void generateTraffic(MeterEntity entity) {
-        ServiceTraffic s = new ServiceTraffic();
-        s.setName(requireNonNull(entity.getServiceName()));
-        s.setNodeType(NodeType.Normal);
-        s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        MetricsStreamProcessor.getInstance().in(s);
+        if (entity.getDetectPoint() != null) {
+            switch (entity.getDetectPoint()) {
+                case SERVER:
+                    entity.setServiceName(entity.getDestServiceName());
+                    toService(requireNonNull(entity.getDestServiceName()));
+                    serverSide(entity);
+                    break;
+                case CLIENT:
+                    entity.setServiceName(entity.getSourceServiceName());
+                    toService(requireNonNull(entity.getSourceServiceName()));
+                    clientSide(entity);
+                    break;
+            }
+        } else {
+            toService(requireNonNull(entity.getServiceName()));
+        }
+
         if (!com.google.common.base.Strings.isNullOrEmpty(entity.getInstanceName())) {
             InstanceTraffic instanceTraffic = new InstanceTraffic();
             instanceTraffic.setName(entity.getInstanceName());
@@ -262,23 +274,21 @@ public class Analyzer {
             endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             MetricsStreamProcessor.getInstance().in(endpointTraffic);
         }
-        if (entity.getDetectPoint() != null) {
-            switch (entity.getDetectPoint()) {
-                case SERVER:
-                    serverSide(entity);
-                    break;
-                case CLIENT:
-                    clientSide(entity);
-                    break;
-            }
-        }
+    }
+
+    private void toService(String serviceName) {
+        ServiceTraffic s = new ServiceTraffic();
+        s.setName(requireNonNull(serviceName));
+        s.setNodeType(NodeType.Normal);
+        s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        MetricsStreamProcessor.getInstance().in(s);
     }
 
     private void serverSide(MeterEntity entity) {
         ServiceRelationServerSideMetrics metrics = new ServiceRelationServerSideMetrics();
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        metrics.setSourceServiceId(entity.relateServiceId());
-        metrics.setDestServiceId(entity.serviceId());
+        metrics.setSourceServiceId(entity.sourceServiceId());
+        metrics.setDestServiceId(entity.destServiceId());
         metrics.setComponentId(0);
         metrics.setEntityId(entity.id());
         MetricsStreamProcessor.getInstance().in(metrics);
@@ -287,8 +297,8 @@ public class Analyzer {
     private void clientSide(MeterEntity entity) {
         ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        metrics.setSourceServiceId(entity.serviceId());
-        metrics.setDestServiceId(entity.relateServiceId());
+        metrics.setSourceServiceId(entity.sourceServiceId());
+        metrics.setDestServiceId(entity.destServiceId());
         metrics.setComponentId(0);
         metrics.setEntityId(entity.id());
         MetricsStreamProcessor.getInstance().in(metrics);

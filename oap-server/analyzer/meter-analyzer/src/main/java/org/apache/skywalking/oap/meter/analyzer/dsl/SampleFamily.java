@@ -446,20 +446,18 @@ public class SampleFamily {
         return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys));
     }
 
-    public SampleFamily serviceRelation(DetectPoint detectPoint,
-                                        List<String> serviceKeys,
-                                        List<String> relateServiceKeys) {
-        Preconditions.checkArgument(serviceKeys.size() > 0);
-        Preconditions.checkArgument(relateServiceKeys.size() > 0);
+    public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys) {
+        Preconditions.checkArgument(sourceServiceKeys.size() > 0);
+        Preconditions.checkArgument(destServiceKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
             ctx.scopeType = ScopeType.SERVICE_RELATION;
-            ctx.scopeLabels.addAll(serviceKeys);
-            ctx.scopeLabels.addAll(relateServiceKeys);
+            ctx.scopeLabels.addAll(sourceServiceKeys);
+            ctx.scopeLabels.addAll(destServiceKeys);
         });
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceRelationEntityDescription(serviceKeys, relateServiceKeys, detectPoint));
+        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint));
     }
 
     private SampleFamily createMeterSamples(EntityDescription entityDescription) {
@@ -583,23 +581,26 @@ public class SampleFamily {
                                                     EntityDescription entityDescription) {
             switch (entityDescription.getScopeType()) {
                 case SERVICE:
-                    return MeterEntity.newService(InternalOps.dim(samples, entityDescription.getServiceKeys()));
+                    ServiceEntityDescription serviceEntityDescription = (ServiceEntityDescription) entityDescription;
+                    return MeterEntity.newService(InternalOps.dim(samples, serviceEntityDescription.getServiceKeys()));
                 case SERVICE_INSTANCE:
+                    InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
                     return MeterEntity.newServiceInstance(
-                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, entityDescription.getInstanceKeys())
+                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys())
                     );
                 case ENDPOINT:
+                    EndpointEntityDescription endpointEntityDescription = (EndpointEntityDescription) entityDescription;
                     return MeterEntity.newEndpoint(
-                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, entityDescription.getEndpointKeys())
+                        InternalOps.dim(samples, endpointEntityDescription.getServiceKeys()),
+                        InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys())
                     );
                 case SERVICE_RELATION:
-                    ServiceRelationEntityDescription srEntityDescription = (ServiceRelationEntityDescription) entityDescription;
+                    ServiceRelationEntityDescription serviceRelationEntityDescription = (ServiceRelationEntityDescription) entityDescription;
                     return MeterEntity.newServiceRelation(
-                        InternalOps.dim(samples, entityDescription.getServiceKeys()),
-                        InternalOps.dim(samples, srEntityDescription.getRelateServiceKeys()),
-                        srEntityDescription.getDetectPoint()
+                        InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys()),
+                        InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys()),
+                        serviceRelationEntityDescription.getDetectPoint()
                     );
                 default:
                     throw new UnexpectedException(
