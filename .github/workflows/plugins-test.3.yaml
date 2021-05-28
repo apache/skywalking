@@ -37,7 +37,7 @@ on:
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
@@ -94,7 +94,7 @@ jobs:
 
   Oracle:
     name: Oracle
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2

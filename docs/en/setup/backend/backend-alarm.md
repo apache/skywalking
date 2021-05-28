@@ -21,7 +21,8 @@ Defines the relation between scope and entity name.
 An alarm rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. It must end with `_rule`.
 - **Metrics name**. This is also the metrics name in the OAL script. Only long, double, int types are supported. See the
-[list of all potential metrics name](#list-of-all-potential-metrics-name).
+[list of all potential metrics name](#list-of-all-potential-metrics-name). Events can be also configured as the source
+of alarm, please refer to [the event doc](../../concepts-and-designs/event.md) for more details.
 - **Include names**. Entity names which are included in this rule. Please follow the [entity name definitions](#entity-name).
 - **Exclude names**. Entity names which are excluded from this rule. Please follow the [entity name definitions](#entity-name).
 - **Include names regex**. A regex that includes entity names. If both include-name list and include-name regex are set, both rules will take effect.
@@ -129,7 +130,11 @@ For convenience's sake, we have provided a default `alarm-setting.yml` in our re
 1. Endpoint relation average response time over 1s in the last 2 minutes.
 
 ### List of all potential metrics name
-The metrics names are defined in official the [OAL scripts](../../guides/backend-oal-scripts.md). Currently, metrics from the **Service**, **Service Instance**, **Endpoint**, **Service Relation**, **Service Instance Relation**, **Endpoint Relation** scopes could be used in Alarm, and the **Database access** scope is same as **Service**.
+The metrics names are defined in the official [OAL scripts](../../guides/backend-oal-scripts.md) and
+[MAL scripts](../../concepts-and-designs/mal.md), the [Event](../../concepts-and-designs/event.md) names can also serve
+as the metrics names, all possible event names can be also found in [the Event doc](../../concepts-and-designs/event.md).
+
+Currently, metrics from the **Service**, **Service Instance**, **Endpoint**, **Service Relation**, **Service Instance Relation**, **Endpoint Relation** scopes could be used in Alarm, and the **Database access** scope is same as **Service**.
 
 Submit an issue or a pull request if you want to support any other scopes in alarm.
 

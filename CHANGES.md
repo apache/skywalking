@@ -54,6 +54,8 @@ Release Notes.
 * Include events of the entity(s) in the alarm.
 * Support `native-json` format log in kafka-fetcher-plugin.
 * Fix counter misuse in the alarm core. Alarm can't be triggered in time.
+* Events can be configured as alarm source.
+* Make the number of core worker in meter converter thread pool configurable.
 
 #### UI
 * Add logo for kong plugin.

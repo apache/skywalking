@@ -626,7 +626,7 @@ If a test case required to run in JDK 14 environment, please add you test case i
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       fail-fast: true

@@ -30,7 +30,7 @@ env:
   LOG_DIR: /tmp/skywalking
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       fail-fast: true

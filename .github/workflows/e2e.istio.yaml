@@ -33,7 +33,7 @@ env:
 
 jobs:
   als:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: true
@@ -171,7 +171,7 @@ jobs:
         run: minikube delete
 
   metrics-service:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     name: Istio(${{ matrix.istio_version }})+MetricsService
     strategy:
