@@ -59,7 +59,7 @@ Defined the k8s-service as an `Endpoint` in OAP, the name is `$serviceName.$name
 ## Supported Metrics
 From the different point of view to monitor the K8s, there are 3 kinds of metrics: [Cluster](#cluster) / [Node](#node) / [Service](#service) 
 
-### CLuster 
+### Cluster 
 These metrics are related to the selected cluster(`Current Service in the dashboard`).
 
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
@@ -116,4 +116,4 @@ In these metrics, the pods are related to the selected service (`Current Endpoin
 ## Customizing 
 You can customize your own metrics/expression/dashboard panel.   
 The metrics definition and expression rules are in `/config/otel-oc-rules/k8s-cluster.yaml，/config/otel-oc-rules/k8s-node.yaml, /config/otel-oc-rules/k8s-service.yaml`.  
-The dashboard panel confirmations are in `/config/ui-initialized-templates/k8s.yml`.
+The dashboard panel configurations are in `/config/ui-initialized-templates/k8s.yml`.
