@@ -287,6 +287,20 @@ public class MeterSystem implements Service {
         MetricsStreamProcessor.getInstance().in((Metrics) acceptableValue);
     }
 
+    public void remove(String metricsName) {
+        MeterDefinition definition = meterPrototypes.remove(metricsName);
+        if (Objects.nonNull(definition)) {
+            MetricsStreamProcessor.getInstance()
+                                  .remove(
+                                      manager,
+                                      metricsName,
+                                      (Class<? extends Metrics>) definition.getMeterPrototype().getClass()
+                                  );
+        } else {
+            log.warn("Metrics name [{}] is not found.", metricsName);
+        }
+    }
+
     private static String formatName(String metricsName) {
         return metricsName.toLowerCase();
     }

@@ -261,4 +261,8 @@ public class Analyzer {
             MetricsStreamProcessor.getInstance().in(endpointTraffic);
         }
     }
+
+    public void destroy() {
+        meterSystem.remove(metricName);
+    }
 }

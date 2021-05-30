@@ -36,6 +36,11 @@ public interface MetricRuleConfig {
     String getExpSuffix();
 
     /**
+     * Get meter rules configuration file name.
+     */
+    String getConfigName();
+
+    /**
      * Get all rules
      */
     List<? extends RuleConfig> getMetricsRules();

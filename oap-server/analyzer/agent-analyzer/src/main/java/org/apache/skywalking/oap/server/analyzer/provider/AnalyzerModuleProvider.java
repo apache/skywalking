@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
+import java.io.File;
 import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
@@ -103,7 +104,12 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         meterConfigs = MeterConfigs.loadConfig(
             moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
-        processService = new MeterProcessService(getManager());
+
+        processService = new MeterProcessService(
+            getManager(),
+            new File(moduleConfig.getConfigPath()).toPath(),
+            moduleConfig.meterAnalyzerActiveFileNames()
+        );
         this.registerServiceImplementation(IMeterProcessService.class, processService);
     }
 

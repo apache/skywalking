@@ -20,9 +20,10 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -43,8 +44,11 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceRemover;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * MetricsStreamProcessor represents the entrance and creator of the metrics streaming aggregation work flow.
@@ -62,7 +66,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     /**
      * Worker table hosts all entrance workers.
      */
-    private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new HashMap<>();
+    private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new ConcurrentHashMap<>();
 
     /**
      * Worker table hosts all persistent workers.
@@ -199,4 +203,20 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         return persistentWorker;
     }
+
+    // todo javadoc
+    public void remove(ModuleManager manager, String metricName, Class<? extends Metrics> metricsClass) {
+        entryWorkers.remove(metricsClass);
+
+        IWorkerInstanceRemover service = manager.find(CoreModule.NAME)
+                           .provider()
+                           .getService(IWorkerInstanceRemover.class);
+
+        // remove next worker from WorkerInstanceService.
+        AbstractWorker worker = service.remove(metricName + "_rec");
+        if (Objects.nonNull(worker)) {
+            persistentWorkers.remove(worker);
+        }
+    }
+
 }

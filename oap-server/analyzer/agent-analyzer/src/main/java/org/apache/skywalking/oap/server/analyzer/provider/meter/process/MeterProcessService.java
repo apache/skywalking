@@ -18,30 +18,83 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
+import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor.WatchedFile;
 
 /**
  * Management all of the meter builders.
  */
 public class MeterProcessService implements IMeterProcessService {
 
-    private final ModuleManager manager;
     private List<MetricConvert> metricConverts;
 
-    public MeterProcessService(ModuleManager manager) {
-        this.manager = manager;
+    private final MultipleFilesChangeMonitor monitor;
+
+    private final MeterSystem meterSystem;
+
+    public MeterProcessService(ModuleManager manager, Path configPath, List<String> configSet) {
+        this.meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
+        this.monitor = init(configPath, configSet);
+    }
+
+    private MultipleFilesChangeMonitor init(Path configPath, List<String> configSet) {
+        String[] fileNames = configSet.stream()
+                                      .map(f -> configPath.resolve(f).toFile().getAbsolutePath())
+                                      .collect(Collectors.toList())
+                                      .toArray(new String[] {});
+
+        return new MultipleFilesChangeMonitor(
+            5, // todo make it configurable
+            readableContents -> {
+                Map<String, MetricConvert> converterMap = metricConverts.stream()
+                                                                        .collect(Collectors.toMap(
+                                                                            MetricConvert::getConfigName,
+                                                                            e -> e
+                                                                        ));
+                for (WatchedFile watchedFile : readableContents) {
+                    if (!watchedFile.isChanged()) {
+                        continue;
+                    }
+                    MetricConvert converter = converterMap.remove(watchedFile.getFilePath());
+                    if (Objects.isNull(converter)) {
+                        continue;
+                    }
+                    converter.destroy();
+
+                    // file was deleted
+                    if (Objects.isNull(watchedFile.getFileContent())) {
+                        continue;
+                    }
+
+                    MeterConfig config = MeterConfigs.parse(watchedFile.getFilePath(), watchedFile.getFileContent());
+                    MetricConvert convert = new MetricConvert(config, meterSystem);
+                    converterMap.put(watchedFile.getFilePath(), convert);
+                }
+
+                // update metrics converters
+                this.metricConverts = new ArrayList<>(converterMap.values());
+            },
+            fileNames
+        );
     }
 
     public void start(List<MeterConfig> configs) {
-        final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        this.metricConverts = configs.stream().map(c -> new MetricConvert(c, meterSystem)).collect(Collectors.toList());
+        metricConverts = configs.stream()
+                                .map(e -> new MetricConvert(e, meterSystem))
+                                .collect(Collectors.toList());
+        monitor.start();
     }
 
     /**

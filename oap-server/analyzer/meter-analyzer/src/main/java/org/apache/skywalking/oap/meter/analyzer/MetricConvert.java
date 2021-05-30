@@ -24,6 +24,7 @@ import io.vavr.control.Try;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -44,18 +45,23 @@ public class MetricConvert {
             .toJavaStream();
     }
 
+    @Getter
+    private final String configName;
+
     private final List<Analyzer> analyzers;
 
-    public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
-        Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
-        this.analyzers = rule.getMetricsRules().stream().map(
-            r -> Analyzer.build(
-                formatMetricName(rule, r.getName()),
-                Strings.isEmpty(rule.getExpSuffix()) ?
-                    r.getExp() : String.format("(%s).%s", r.getExp(), rule.getExpSuffix()),
-                service
-            )
-        ).collect(toList());
+    public MetricConvert(MetricRuleConfig meterRulesConfig, MeterSystem service) { // MeterConfig? Rules? RulesConfig?
+        Preconditions.checkState(!Strings.isNullOrEmpty(meterRulesConfig.getMetricPrefix()));
+        this.configName = meterRulesConfig.getConfigName();
+        this.analyzers = meterRulesConfig.getMetricsRules()
+                             .stream()
+                             .map(rule -> Analyzer.build(
+                                     formatMetricName(meterRulesConfig, rule.getName()),
+                                     Strings.isEmpty(meterRulesConfig.getExpSuffix()) ?
+                                         rule.getExp() : String.format("(%s).%s", rule.getExp(), meterRulesConfig.getExpSuffix()),
+                                     service
+                                 )
+                             ).collect(toList());
     }
 
     /**
@@ -74,6 +80,12 @@ public class MetricConvert {
             } catch (Throwable t) {
                 log.error("Analyze {} error", each, t);
             }
+        }
+    }
+
+    public void destroy() {
+        for (Analyzer e : analyzers) {
+            e.destroy();
         }
     }
 

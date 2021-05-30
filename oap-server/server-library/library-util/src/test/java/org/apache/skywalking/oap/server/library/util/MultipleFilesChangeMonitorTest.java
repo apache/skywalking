@@ -22,9 +22,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -37,26 +35,21 @@ public class MultipleFilesChangeMonitorTest {
     public void test() throws InterruptedException, IOException {
         StringBuilder content = new StringBuilder();
         MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
-            1, new MultipleFilesChangeMonitor.FilesChangedNotifier() {
-
-            @Override
-            public void filesChanged(final List<byte[]> readableContents) {
-                Assert.assertEquals(2, readableContents.size());
-                Assert.assertNull(readableContents.get(1));
-                try {
-                    content.delete(0, content.length());
-                    content.append(new String(readableContents.get(0), 0, readableContents.get(0).length, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, FILE_NAME, "XXXX_NOT_EXIST.SW");
+            1,
+            watchedFiles -> {
+                Assert.assertEquals(2, watchedFiles.size());
+                Assert.assertNotNull(watchedFiles.get(1));
+                content.delete(0, content.length());
+                content.append(new String(watchedFiles.get(0).getFileContent(), StandardCharsets.UTF_8));
+            },
+        FILE_NAME,
+            "XXXX_NOT_EXIST.SW");
 
         monitor.start();
 
         File file = new File(FILE_NAME);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-        bos.write("test context".getBytes(Charset.forName("UTF-8")));
+        bos.write("test context".getBytes(StandardCharsets.UTF_8));
         bos.flush();
         bos.close();
 
@@ -67,7 +60,7 @@ public class MultipleFilesChangeMonitorTest {
             if ("test context".equals(content.toString())) {
                 file = new File(FILE_NAME);
                 bos = new BufferedOutputStream(new FileOutputStream(file));
-                bos.write("test context again".getBytes(Charset.forName("UTF-8")));
+                bos.write("test context again".getBytes(StandardCharsets.UTF_8));
                 bos.flush();
                 bos.close();
                 notified = true;

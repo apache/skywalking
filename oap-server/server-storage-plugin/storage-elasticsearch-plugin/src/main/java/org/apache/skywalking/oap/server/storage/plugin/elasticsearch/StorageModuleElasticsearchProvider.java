@@ -133,8 +133,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
             MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
-                10, readableContents -> {
-                final byte[] secretsFileContent = readableContents.get(0);
+                10, watchedFiles -> {
+                final byte[] secretsFileContent = watchedFiles.get(0).getFileContent();
                 if (secretsFileContent == null) {
                     return;
                 }

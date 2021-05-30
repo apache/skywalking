@@ -25,6 +25,7 @@ import java.util.List;
 
 @Data
 public class ZabbixConfig implements MetricRuleConfig {
+    private String configName;
 
     private String metricPrefix;
     private String expSuffix;

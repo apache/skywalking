@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.slf4j.Logger;
@@ -28,13 +29,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Worker Instance Service hosts all remote handler workers with the stream data type.
  */
-public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
+public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter, IWorkerInstanceRemover {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkerInstancesService.class);
 
     private final Map<String, RemoteHandleWorker> instances;
 
     public WorkerInstancesService() {
-        this.instances = new HashMap<>();
+        this.instances = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -50,5 +51,15 @@ public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerIns
         }
         instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, streamDataClass));
         LOGGER.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
+    }
+
+    @Override
+    public AbstractWorker remove(String remoteReceiverWorkName) {
+        RemoteHandleWorker handleWorker = instances.remove(remoteReceiverWorkName);
+        if (Objects.nonNull(handleWorker)) {
+            return handleWorker.getWorker();
+        }
+        LOGGER.warn("Failed to find work instance[{}].", remoteReceiverWorkName);
+        return null;
     }
 }

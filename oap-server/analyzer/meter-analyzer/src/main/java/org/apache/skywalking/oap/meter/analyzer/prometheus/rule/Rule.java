@@ -38,4 +38,6 @@ public class Rule implements MetricRuleConfig {
     private String metricPrefix;
     private String expSuffix;
     private List<MetricsRule> metricsRules;
+
+    private String configName;
 }

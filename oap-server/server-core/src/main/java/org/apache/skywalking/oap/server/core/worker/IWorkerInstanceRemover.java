@@ -13,30 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
+package org.apache.skywalking.oap.server.core.worker;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-import java.util.List;
+/**
+ * Worker instance remover instance. Find work instance and remove from all registered work instance based on worker name.
+ */
+public interface IWorkerInstanceRemover extends Service {
 
-@Data
-@NoArgsConstructor
-public class MeterConfig implements MetricRuleConfig {
-    private String metricPrefix;
-    private String expSuffix;
-    private List<Rule> metricsRules;
-
-    private String configName;
-
-    @Data
-    @NoArgsConstructor
-    public static class Rule implements RuleConfig {
-        private String name;
-        private String exp;
-    }
+    /**
+     * Remove the remote worker by name.
+     *
+     * @param nextWorkerName remote worker name.
+     * @return persistent worker.
+     */
+    AbstractWorker remove(String nextWorkerName);
 }

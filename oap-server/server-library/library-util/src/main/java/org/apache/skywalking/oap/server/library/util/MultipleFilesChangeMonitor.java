@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -75,7 +76,7 @@ public class MultipleFilesChangeMonitor {
     public MultipleFilesChangeMonitor(long watchingPeriodInSec,
                                       FilesChangedNotifier notifier,
                                       String... files) {
-        watchedFiles = new ArrayList<>();
+        watchedFiles = new ArrayList<>(files.length);
         this.watchingPeriodInSec = watchingPeriodInSec;
         this.notifier = notifier;
         for (final String file : files) {
@@ -103,12 +104,8 @@ public class MultipleFilesChangeMonitor {
             isChanged = isChanged || watchedFile.detectContentChanged();
         }
         if (isChanged) {
-            List<byte[]> contents = new ArrayList<>(watchedFiles.size());
-            watchedFiles.forEach(file -> {
-                contents.add(file.fileContent);
-            });
             try {
-                notifier.filesChanged(contents);
+                notifier.filesChanged(watchedFiles);
             } catch (Exception e) {
                 log.error("Files=" + this + " notification process failure.", e);
             }
@@ -179,9 +176,10 @@ public class MultipleFilesChangeMonitor {
         /**
          * Notify the new content by providing the file input stream for all files in this group.
          *
+         * // todo
          * @param readableContents include the new contents. NULL if the file doesn't exist.
          */
-        void filesChanged(List<byte[]> readableContents) throws Exception;
+        void filesChanged(List<WatchedFile> readableContents) throws Exception;
     }
 
     /**
@@ -189,8 +187,9 @@ public class MultipleFilesChangeMonitor {
      * content at the binary level. It load the file content into the memory as cache to do the comparison.
      */
     @RequiredArgsConstructor
+    @Getter
     @Slf4j
-    private static class WatchedFile {
+    public static class WatchedFile {
         /**
          * The absolute path of the monitored file.
          */
@@ -204,12 +203,15 @@ public class MultipleFilesChangeMonitor {
          */
         private byte[] fileContent;
 
+        private boolean changed = false;
+
         /**
          * Detect the file content change, if yes, reload the file content into the memory as cached data.
          *
          * @return true if file content changed.
          */
         boolean detectContentChanged() {
+            changed = false;
             File targetFile = new File(filePath);
             if (!targetFile.exists()) {
                 if (lastModifiedTimestamp == 0) {
@@ -218,6 +220,7 @@ public class MultipleFilesChangeMonitor {
                 } else {
                     // File has been deleted. Reset the modified timestamp.
                     lastModifiedTimestamp = 0;
+                    changed = true;
                     return true;
                 }
             } else {
@@ -234,6 +237,7 @@ public class MultipleFilesChangeMonitor {
                         byte[] newContent = os.toByteArray();
                         if (!Arrays.equals(newContent, fileContent)) {
                             fileContent = newContent;
+                            changed = true;
                             return true;
                         } else {
                             return false;
