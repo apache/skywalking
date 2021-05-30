@@ -56,6 +56,7 @@ Release Notes.
 * Fix counter misuse in the alarm core. Alarm can't be triggered in time.
 * Events can be configured as alarm source.
 * Make the number of core worker in meter converter thread pool configurable.
+* Add HTTP implementation of logs reporting protocol.
 
 #### UI
 * Add logo for kong plugin.
