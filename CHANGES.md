@@ -32,7 +32,7 @@ Release Notes.
 * Introduce method interceptor API v2
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 * fixed `jdk-threading-plugin` memory leak.
-* Optimize multiple field reflection opeartion in Fiegn plugin.
+* Optimize multiple field reflection operation in Feign plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -57,6 +57,7 @@ Release Notes.
 * Events can be configured as alarm source.
 * Make the number of core worker in meter converter thread pool configurable.
 * Add HTTP implementation of logs reporting protocol.
+* Make metrics exporter still work even when storage layer failed.
 
 #### UI
 * Add logo for kong plugin.
