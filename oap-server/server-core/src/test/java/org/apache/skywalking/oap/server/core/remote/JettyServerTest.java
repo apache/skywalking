@@ -32,7 +32,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServerConfig;
@@ -40,6 +39,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 public class JettyServerTest {
     static JettyServer SERVER;
@@ -61,8 +61,8 @@ public class JettyServerTest {
     }
 
     @AfterClass
-    public static void afterTest() throws ServerException {
-        SERVER.stop();
+    public static void afterTest() throws Exception {
+        ((org.eclipse.jetty.server.Server) Whitebox.getInternalState(SERVER, "server")).stop();
     }
 
     @Test

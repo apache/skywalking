@@ -140,11 +140,4 @@ public class JettyServer implements Server {
         return Objects.hash(jettyServerConfig.getHost(), jettyServerConfig.getPort());
     }
 
-    public void  stop() throws ServerException {
-        try {
-            server.stop();
-        } catch (Exception e) {
-            throw new JettyServerException(e.getMessage(), e);
-        }
-    }
 }
