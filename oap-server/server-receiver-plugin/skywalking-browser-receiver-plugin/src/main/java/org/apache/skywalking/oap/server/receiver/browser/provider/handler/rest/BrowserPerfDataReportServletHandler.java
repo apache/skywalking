@@ -69,12 +69,6 @@ public class BrowserPerfDataReportServletHandler extends JettyHandler {
     }
 
     @Override
-    protected void doGet(final HttpServletRequest req,
-                         final HttpServletResponse resp) throws ServletException, IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected void doPost(final HttpServletRequest req,
                           final HttpServletResponse resp) throws ServletException, IOException {
         if (log.isDebugEnabled()) {

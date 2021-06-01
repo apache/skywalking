@@ -58,6 +58,7 @@ Release Notes.
 * Make the number of core worker in meter converter thread pool configurable.
 * Add HTTP implementation of logs reporting protocol.
 * Make metrics exporter still work even when storage layer failed.
+* Fix Jetty HTTP `TRACE` issue, disable HTTP methods except `POST`.
 
 #### UI
 * Add logo for kong plugin.
