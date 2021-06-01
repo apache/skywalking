@@ -16,18 +16,21 @@
  *
  */
 
-package org.apache.skywalking.e2e.dashboard;
+package org.apache.skywalking.oap.server.library.server.jetty;
 
-public enum TemplateType {
-    DASHBOARD,
-    TOPOLOGY_SERVICE,
-    TOPOLOGY_INSTANCE,
-    TOPOLOGY_ENDPOINT,
-    TOPOLOGY_SERVICE_RELATION,
-    TOPOLOGY_SERVICE_INSTANCE_RELATION,
-    TOPOLOGY_ENDPOINT_RELATION;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-    public static TemplateType forName(String name) {
-        return Enum.valueOf(TemplateType.class, name.toUpperCase());
+public class JettyDefaultHandler extends JettyHandler {
+    @Override
+    public String pathSpec() {
+        return "/";
     }
+
+    @Override
+    protected final void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
 }

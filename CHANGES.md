@@ -32,7 +32,7 @@ Release Notes.
 * Introduce method interceptor API v2
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 * fixed `jdk-threading-plugin` memory leak.
-* Optimize multiple field reflection opeartion in Fiegn plugin.
+* Optimize multiple field reflection operation in Feign plugin.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -55,6 +55,10 @@ Release Notes.
 * Support `native-json` format log in kafka-fetcher-plugin.
 * Fix counter misuse in the alarm core. Alarm can't be triggered in time.
 * Events can be configured as alarm source.
+* Make the number of core worker in meter converter thread pool configurable.
+* Add HTTP implementation of logs reporting protocol.
+* Make metrics exporter still work even when storage layer failed.
+* Fix Jetty HTTP `TRACE` issue, disable HTTP methods except `POST`.
 
 #### UI
 * Add logo for kong plugin.
@@ -70,6 +74,9 @@ Release Notes.
 * remove the no use maxItemNum for labeled-value metric, etc.
 * Add Azure Functions logo.
 * Support search Endpoint use keyword params in trace view.
+* Add a function which show the statistics infomation during the trace query.
+* Remove the sort button at the column of Type in the trace statistics page.
+* Optimize the APISIX icon in the topology.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.

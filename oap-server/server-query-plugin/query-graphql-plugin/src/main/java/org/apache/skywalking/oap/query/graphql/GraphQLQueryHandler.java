@@ -65,11 +65,6 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
     }
 
     @Override
-    protected JsonElement doGet(HttpServletRequest req) {
-        throw new UnsupportedOperationException("GraphQL only supports POST method");
-    }
-
-    @Override
     protected JsonElement doPost(HttpServletRequest req) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()));
         String line;
