@@ -24,6 +24,10 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: docker-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   SKIP_TEST: true
   DOCKER_DIR: ./docker

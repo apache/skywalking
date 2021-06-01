@@ -31,6 +31,10 @@ env:
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
   SW_OAP_BASE_IMAGE: openjdk:11-jdk
 
+concurrency:
+  group: e2e-istio-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   als:
     runs-on: ubuntu-latest
