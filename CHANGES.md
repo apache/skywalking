@@ -74,6 +74,9 @@ Release Notes.
 * remove the no use maxItemNum for labeled-value metric, etc.
 * Add Azure Functions logo.
 * Support search Endpoint use keyword params in trace view.
+* Add a function which show the statistics infomation during the trace query.
+* Remove the sort button at the column of Type in the trace statistics page.
+* Optimize the APISIX icon in the topology.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
