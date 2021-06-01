@@ -41,8 +41,8 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
 
     private final ISegmentParserService segmentParserService;
 
-    private HistogramMetrics histogram;
-    private CounterMetrics errorCounter;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
 
     public TraceSegmentHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
         super(moduleManager, config);
@@ -69,7 +69,7 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try {
+        try (HistogramMetrics.Timer ignore = histogram.createTimer()) {
             SegmentObject segment = SegmentObject.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(
@@ -78,17 +78,9 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
                     segment.getServiceInstance()
                 );
             }
-
-            HistogramMetrics.Timer timer = histogram.createTimer();
-            try {
-                segmentParserService.send(segment);
-            } catch (Exception e) {
-                errorCounter.inc();
-                log.error(e.getMessage(), e);
-            } finally {
-                timer.finish();
-            }
+            segmentParserService.send(segment);
         } catch (InvalidProtocolBufferException e) {
+            errorCounter.inc();
             log.error("handle record failed", e);
         }
     }

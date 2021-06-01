@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class MeterServiceHandler extends AbstractKafkaHandler {
-    private IMeterProcessService processService;
+    private final IMeterProcessService processService;
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
 
@@ -46,34 +46,31 @@ public class MeterServiceHandler extends AbstractKafkaHandler {
         super(manager, config);
         this.processService = manager.find(AnalyzerModule.NAME).provider().getService(IMeterProcessService.class);
         MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                               .provider()
+                                               .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-                "meter_in_latency", "The process latency of meter",
-                new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka-fetcher")
+            "meter_in_latency",
+            "The process latency of meter",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka-fetcher")
         );
-        errorCounter = metricsCreator.createCounter("meter_analysis_error_count", "The error number of meter analysis",
-                new MetricsTag.Keys("protocol"),
-                new MetricsTag.Values("kafka-fetcher")
+        errorCounter = metricsCreator.createCounter(
+            "meter_analysis_error_count",
+            "The error number of meter analysis",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka-fetcher")
         );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try {
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
             MeterDataCollection meterDataCollection = MeterDataCollection.parseFrom(record.value().get());
             MeterProcessor processor = processService.createProcessor();
-            meterDataCollection.getMeterDataList().forEach(meterData -> {
-                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-                    processor.read(meterData);
-                } catch (Exception e) {
-                    errorCounter.inc();
-                    log.error(e.getMessage(), e);
-                }
-            });
+            meterDataCollection.getMeterDataList().forEach(processor::read);
             processor.process();
-
         } catch (Exception e) {
+            errorCounter.inc();
             log.error("handle record failed", e);
         }
     }
