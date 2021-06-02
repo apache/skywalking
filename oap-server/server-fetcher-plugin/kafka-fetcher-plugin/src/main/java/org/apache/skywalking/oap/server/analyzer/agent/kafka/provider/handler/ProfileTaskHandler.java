@@ -52,19 +52,19 @@ public class ProfileTaskHandler extends AbstractKafkaHandler {
                 "profile_task_in_latency",
                 "The process latency of profile task",
                 new Keys("protocol"),
-                new Values("kafka-fetcher")
+                new Values("kafka")
         );
         errorCounter = metricsCreator.createCounter(
                 "profile_task_analysis_error_count",
                 "The error number of profile task process",
                 new Keys("protocol"),
-                new Values("kafka-fetcher")
+                new Values("kafka")
         );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try (Timer ignore = histogram.createTimer()) {
+        try (Timer ignored = histogram.createTimer()) {
             ThreadSnapshot snapshot = ThreadSnapshot.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(

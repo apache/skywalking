@@ -57,13 +57,13 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
             "trace_in_latency",
             "The process latency of trace data",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Values("kafka")
         );
         errorCounter = metricsCreator.createCounter(
             "trace_analysis_error_count",
             "The error number of trace analysis",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Values("kafka")
         );
     }
 

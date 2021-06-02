@@ -52,14 +52,14 @@ public class LogHandler implements KafkaHandler {
         histogram = metricsCreator.createHistogramMetric(
             "log_in_latency",
             "The process latency of log",
-            new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values(getProtocolName())
+            new MetricsTag.Keys("protocol", "data_format"),
+            new MetricsTag.Values("kafka", getDataFormat())
         );
         errorCounter = metricsCreator.createCounter(
             "log_analysis_error_count",
             "The error number of log analysis",
-            new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values(getProtocolName())
+            new MetricsTag.Keys("protocol", "data_format"),
+            new MetricsTag.Values("kafka", getDataFormat())
         );
     }
 
@@ -84,8 +84,8 @@ public class LogHandler implements KafkaHandler {
         }
     }
 
-    protected String getProtocolName() {
-        return "kafka-fetcher-native-proto";
+    protected String getDataFormat() {
+        return "protobuf";
     }
 
     protected LogData parseConsumerRecord(ConsumerRecord<String, Bytes> record) throws Exception {

@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics.Timer;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -43,6 +44,7 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
     private final HistogramMetrics histogram;
+    private final HistogramMetrics histogramBatch;
     private final CounterMetrics errorCounter;
 
     public JVMMetricsHandler(ModuleManager manager, KafkaFetcherConfig config) {
@@ -58,19 +60,25 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
             "meter_in_latency",
             "The process latency of meter",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Values("kafka")
+        );
+        histogramBatch = metricsCreator.createHistogramMetric(
+            "meter_in_latency",
+            "The process latency of meter",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka")
         );
         errorCounter = metricsCreator.createCounter(
             "meter_analysis_error_count",
             "The error number of meter analysis",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Values("kafka")
         );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try {
+        try (Timer ignored = histogramBatch.createTimer()) {
             JVMMetricCollection metrics = JVMMetricCollection.parseFrom(record.value().get());
 
             if (log.isDebugEnabled()) {
@@ -85,7 +93,12 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
             builder.setServiceInstance(namingLengthControl.formatInstanceName(builder.getServiceInstance()));
 
             builder.getMetricsList().forEach(jvmMetric -> {
-                jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
+                try (Timer timer = histogram.createTimer()) {
+                    jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
+                }
             });
         } catch (Exception e) {
             log.error("handle record failed", e);

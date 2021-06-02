@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class MeterServiceHandler extends AbstractKafkaHandler {
     private final IMeterProcessService processService;
     private final HistogramMetrics histogram;
+    private final HistogramMetrics histogramBatch;
     private final CounterMetrics errorCounter;
 
     public MeterServiceHandler(ModuleManager manager, KafkaFetcherConfig config) {
@@ -52,25 +53,37 @@ public class MeterServiceHandler extends AbstractKafkaHandler {
             "meter_in_latency",
             "The process latency of meter",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Values("kafka")
+        );
+        histogramBatch = metricsCreator.createHistogramMetric(
+            "meter_batch_in_latency",
+            "The process latency of meter",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka")
         );
         errorCounter = metricsCreator.createCounter(
             "meter_analysis_error_count",
             "The error number of meter analysis",
             new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka-fetcher")
+            new MetricsTag.Values("kafka")
         );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+        try (HistogramMetrics.Timer timer = histogramBatch.createTimer()) {
             MeterDataCollection meterDataCollection = MeterDataCollection.parseFrom(record.value().get());
             MeterProcessor processor = processService.createProcessor();
-            meterDataCollection.getMeterDataList().forEach(processor::read);
+            meterDataCollection.getMeterDataList().forEach(meterData -> {
+                try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    processor.read(meterData);
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
+                }
+            });
             processor.process();
         } catch (Exception e) {
-            errorCounter.inc();
             log.error("handle record failed", e);
         }
     }
