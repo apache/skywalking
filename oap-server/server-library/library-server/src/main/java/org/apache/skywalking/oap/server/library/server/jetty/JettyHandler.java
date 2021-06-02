@@ -18,9 +18,64 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.oap.server.library.server.ServerHandler;
 
 public abstract class JettyHandler extends HttpServlet implements ServerHandler {
     public abstract String pathSpec();
+
+    @Override
+    protected final void service(HttpServletRequest req,
+                                 HttpServletResponse resp) throws ServletException, IOException {
+        String method = req.getMethod();
+        if (method.equals("POST")) {
+            super.service(req, resp);
+        } else {
+            resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        }
+    }
+
+    @Override
+    public final void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        super.service(req, res);
+    }
+
+    @Override
+    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        super.doGet(req, resp);
+    }
+
+    @Override
+    protected final void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doHead(req, resp);
+    }
+
+    @Override
+    protected final void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doPut(req, resp);
+    }
+
+    @Override
+    protected final void doDelete(HttpServletRequest req,
+                                  HttpServletResponse resp) throws ServletException, IOException {
+        super.doDelete(req, resp);
+    }
+
+    @Override
+    protected final void doOptions(HttpServletRequest req,
+                                   HttpServletResponse resp) throws ServletException, IOException {
+        super.doOptions(req, resp);
+    }
+
+    @Override
+    protected final void doTrace(HttpServletRequest req,
+                                 HttpServletResponse resp) throws ServletException, IOException {
+        super.doTrace(req, resp);
+    }
 }
