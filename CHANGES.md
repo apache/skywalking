@@ -33,6 +33,7 @@ Release Notes.
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 * fixed `jdk-threading-plugin` memory leak.
 * Optimize multiple field reflection operation in Feign plugin.
+* Fix `trace-ignore-plugin` TraceIgnorePathPatterns can't set empty value
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
