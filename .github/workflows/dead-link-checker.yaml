@@ -19,6 +19,10 @@ name: Dead Link Checker
 on:
   pull_request:
 
+concurrency:
+  group: dlc-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   CheckDeadLinks:
     runs-on: ubuntu-latest

@@ -60,11 +60,6 @@ public abstract class TraceSegmentReportBaseServletHandler extends JettyJsonHand
     }
 
     @Override
-    protected JsonElement doGet(HttpServletRequest req) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected JsonElement doPost(HttpServletRequest req) {
         if (log.isDebugEnabled()) {
             log.debug("receive stream segment");

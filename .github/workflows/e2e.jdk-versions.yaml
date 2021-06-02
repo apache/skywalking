@@ -21,6 +21,10 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+concurrency:
+  group: e2e-jdk-versions-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   JavaVersions:
     name: Agent Java Versions

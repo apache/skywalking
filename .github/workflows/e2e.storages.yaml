@@ -24,6 +24,10 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-storages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   StoragePlugins:
     name: Storage
