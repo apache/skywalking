@@ -45,7 +45,7 @@ Json log record example:
 
 ## HTTP API
 
-Report `json` format logs via HTTP API, the endpoint is http://<oap-address>:12800/logs.
+Report `json` format logs via HTTP API, the endpoint is http://<oap-address>:12800/v3/logs.
 
 Json log record example:
 
