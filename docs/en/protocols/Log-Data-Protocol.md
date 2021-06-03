@@ -45,39 +45,37 @@ Json log record example:
 
 ## HTTP API
 
-Report `json` format logs via HTTP API, the endpoint is http://<oap-address>:12800/logs.
+Report `json` format logs via HTTP API, the endpoint is http://<oap-address>:12800/v3/logs.
 
 Json log record example:
 
 ```json
-[
-  {
-    "timestamp": 1618161813371,
-    "service": "Your_ApplicationName",
-    "serviceInstance": "3a5b8da5a5ba40c0b192e91b5c80f1a8@192.168.1.8",
-    "traceContext": {
-      "traceId": "ddd92f52207c468e9cd03ddd107cd530.69.16181331190470001",
-      "spanId": "0",
-      "traceSegmentId": "ddd92f52207c468e9cd03ddd107cd530.69.16181331190470000"
-    },
-    "tags": {
-      "data": [
-        {
-          "key": "level",
-          "value": "INFO"
-        },
-        {
-          "key": "logger",
-          "value": "com.example.MyLogger"
-        }
-      ]
-    },
-    "body": {
-      "text": {
-        "text": "log message"
+{
+  "timestamp": 1618161813371,
+  "service": "Your_ApplicationName",
+  "serviceInstance": "3a5b8da5a5ba40c0b192e91b5c80f1a8@192.168.1.8",
+  "traceContext": {
+    "traceId": "ddd92f52207c468e9cd03ddd107cd530.69.16181331190470001",
+    "spanId": "0",
+    "traceSegmentId": "ddd92f52207c468e9cd03ddd107cd530.69.16181331190470000"
+  },
+  "tags": {
+    "data": [
+      {
+        "key": "level",
+        "value": "INFO"
+      },
+      {
+        "key": "logger",
+        "value": "com.example.MyLogger"
       }
+    ]
+  },
+  "body": {
+    "text": {
+      "text": "log message"
     }
   }
-]
+}
 ```
 

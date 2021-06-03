@@ -90,6 +90,6 @@ public class LogReportServiceRestHandler extends JettyHandler {
 
     @Override
     public String pathSpec() {
-        return "/logs";
+        return "/v3/logs";
     }
 }
