@@ -34,6 +34,7 @@ Release Notes.
 * fixed `jdk-threading-plugin` memory leak.
 * Optimize multiple field reflection operation in Feign plugin.
 * Fix `trace-ignore-plugin` TraceIgnorePathPatterns can't set empty value
+* Agent supports the collection of JVM arguments and jar dependency information.
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
