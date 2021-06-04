@@ -50,8 +50,13 @@ public class JVMUtil {
 
     private static Set<String> JAR_FILE_LIST = new HashSet<>();
 
-    public static Set<String> getJarFileList() {
-        return JAR_FILE_LIST;
+    public static List<String> getJarFileNameList() {
+        List<String> jarFileNameList = new ArrayList<>();
+        for (String jarFile : JAR_FILE_LIST) {
+            String jarFileName = jarFile.substring(jarFile.lastIndexOf("/") + 1);
+            jarFileNameList.add(jarFileName);
+        }
+        return jarFileNameList;
     }
 
     public static void loadJvmInfo() {
@@ -178,7 +183,7 @@ public class JVMUtil {
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Start Time").setValue(getVmStartTime()).build());
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(gson.toJson(getVmArgs())).build());
-        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Lib List").setValue(gson.toJson(getJarFileList())).build());
+        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(getJarFileNameList())).build());
         return jvmInfo;
     }
 
