@@ -130,6 +130,7 @@ public class SkyWalkingAgent {
                     .installOn(instrumentation);
 
         try {
+            ServiceManager.INSTRUMENTATION = instrumentation;
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
             LOGGER.error(e, "Skywalking agent boot failure.");
