@@ -50,12 +50,13 @@ public class JVMUtil {
 
     private static Set<String> JAR_FILE_LIST = new HashSet<>();
 
-    public static List<String> getJarFileNameList() {
+    private static List<String> getJarFileNameList() {
         List<String> jarFileNameList = new ArrayList<>();
         for (String jarFile : JAR_FILE_LIST) {
             String jarFileName = jarFile.substring(jarFile.lastIndexOf("/") + 1);
             jarFileNameList.add(jarFileName);
         }
+        Collections.sort(jarFileNameList);
         return jarFileNameList;
     }
 
@@ -93,7 +94,7 @@ public class JVMUtil {
     }
 
     private static void loadJarFileList() {
-        String[] classPathJar = getPathSeparator().split(OSUtil.getPathSeparator());
+        String[] classPathJar = getClasspath().split(OSUtil.getPathSeparator());
         for (String s : classPathJar) {
             if (!s.endsWith(".jar")) {
                 continue;
@@ -155,19 +156,21 @@ public class JVMUtil {
         }
     }
 
-    private static String getPathSeparator() {
+    private static String getClasspath() {
         return System.getProperty("java.class.path");
     }
 
-    public static List<String> getVmArgs() {
-        final List<String> vmArgs = ManagementFactory.getRuntimeMXBean().getInputArguments();
+    private static List<String> getVmArgs() {
+        List<String> vmArgs = ManagementFactory.getRuntimeMXBean().getInputArguments();
         if (vmArgs == null) {
             return Collections.emptyList();
         }
-        return vmArgs;
+        List<String> sortedVmArgs = new ArrayList<>(vmArgs);
+        Collections.sort(sortedVmArgs);
+        return sortedVmArgs;
     }
 
-    public static String getVmStartTime() {
+    private static String getVmStartTime() {
         long startTime;
         try {
             startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
