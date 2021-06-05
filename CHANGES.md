@@ -61,6 +61,7 @@ Release Notes.
 * Make metrics exporter still work even when storage layer failed.
 * Fix Jetty HTTP `TRACE` issue, disable HTTP methods except `POST`.
 * CVE: upgrade snakeyaml to prevent [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs#Variations) in dynamic configuration.
+* polish debug logging avoids null value when the segment ignored.
 
 #### UI
 * Add logo for kong plugin.
