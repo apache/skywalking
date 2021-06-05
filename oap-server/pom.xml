@@ -57,7 +57,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>2.9.0</log4j.version>
         <guava.version>28.1-jre</guava.version>
-        <snakeyaml.version>1.18</snakeyaml.version>
+        <snakeyaml.version>1.28</snakeyaml.version>
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
