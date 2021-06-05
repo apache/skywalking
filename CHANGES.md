@@ -80,7 +80,8 @@ Release Notes.
 * Add a function which show the statistics infomation during the trace query.
 * Remove the sort button at the column of Type in the trace statistics page.
 * Optimize the APISIX icon in the topology.
-* Feat: Implement metrics templates in the topology.
+* Implement metrics templates in the topology.
+* Visualize Events on the alarm page.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
