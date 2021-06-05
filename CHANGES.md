@@ -60,6 +60,7 @@ Release Notes.
 * Add HTTP implementation of logs reporting protocol.
 * Make metrics exporter still work even when storage layer failed.
 * Fix Jetty HTTP `TRACE` issue, disable HTTP methods except `POST`.
+* polish debug logging avoids null value when the segment ignored.
 
 #### UI
 * Add logo for kong plugin.
