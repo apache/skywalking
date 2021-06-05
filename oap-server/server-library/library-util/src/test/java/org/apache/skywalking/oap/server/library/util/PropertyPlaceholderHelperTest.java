@@ -73,7 +73,7 @@ public class PropertyPlaceholderHelperTest {
         Assert.assertEquals("0.0.0.0", yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restHost"), properties)));
 
         //tests that use ${REST_PORT:12800} and set REST_PORT in environmentVariables.
-        Assert.assertEquals(12801, yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
+        Assert.assertEquals((Integer) 12801, yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
     }
 
     @Test

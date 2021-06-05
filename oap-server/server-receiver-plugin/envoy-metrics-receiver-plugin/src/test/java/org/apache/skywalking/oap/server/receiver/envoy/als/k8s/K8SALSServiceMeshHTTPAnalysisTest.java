@@ -155,7 +155,7 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
 
         @Override
         public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
-            super.init(manager, config);
+            this.config = config;
             serviceRegistry = mock(K8SServiceRegistry.class);
             when(serviceRegistry.findService(anyString())).thenReturn(config.serviceMetaInfoFactory().unknown());
             when(serviceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));
