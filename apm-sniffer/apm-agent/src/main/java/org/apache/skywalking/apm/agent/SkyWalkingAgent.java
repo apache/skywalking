@@ -36,6 +36,7 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
+import org.apache.skywalking.apm.agent.core.jvm.JVMUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -62,6 +63,12 @@ public class SkyWalkingAgent {
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
+        try {
+            JVMUtil.loadJvmInfo(instrumentation);
+        } catch (Exception e) {
+            LOGGER.error(e, "SkyWalking agent can't load some jvm info.");
+        }
+
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
@@ -130,7 +137,6 @@ public class SkyWalkingAgent {
                     .installOn(instrumentation);
 
         try {
-            ServiceManager.INSTRUMENTATION = instrumentation;
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
             LOGGER.error(e, "Skywalking agent boot failure.");

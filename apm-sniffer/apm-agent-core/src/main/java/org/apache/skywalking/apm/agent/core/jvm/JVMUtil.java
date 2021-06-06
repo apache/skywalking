@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
@@ -60,14 +59,12 @@ public class JVMUtil {
         return jarFileNameList;
     }
 
-    public static void loadJvmInfo() {
-        loadJarPath();
+    public static void loadJvmInfo(Instrumentation instrumentation) {
+        loadJarPath(instrumentation);
         loadJarFileList();
     }
 
-    private static void loadJarPath() {
-        Instrumentation instrumentation = ServiceManager.INSTRUMENTATION;
-
+    private static void loadJarPath(Instrumentation instrumentation) {
         Class[] clzzs = instrumentation.getAllLoadedClasses();
         Set<ClassLoader> classLoaders = new HashSet<>();
         for (final Class clzz : clzzs) {

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
-import java.lang.instrument.Instrumentation;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -26,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import org.apache.skywalking.apm.agent.core.jvm.JVMUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
@@ -38,13 +36,11 @@ public enum ServiceManager {
     INSTANCE;
 
     private static final ILog LOGGER = LogManager.getLogger(ServiceManager.class);
-    public static Instrumentation INSTRUMENTATION;
     private Map<Class, BootService> bootedServices = Collections.emptyMap();
 
     public void boot() {
         bootedServices = loadAllServices();
 
-        JVMUtil.loadJvmInfo();
         prepare();
         startup();
         onComplete();
