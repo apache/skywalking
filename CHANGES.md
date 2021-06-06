@@ -82,7 +82,7 @@ Release Notes.
 * Optimize the APISIX icon in the topology.
 * Implement metrics templates in the topology.
 * Visualize Events on the alarm page.
-* update duration steps in graphs for Trace and Log
+* Update duration steps in graphs for Trace and Log
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
