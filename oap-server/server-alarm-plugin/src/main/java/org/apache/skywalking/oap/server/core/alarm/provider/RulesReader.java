@@ -18,15 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
@@ -37,6 +28,11 @@ import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSetting
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
@@ -82,6 +78,13 @@ public class RulesReader {
         if (rulesData == null) {
             return;
         }
+        String language = (String) rulesData.get("language");
+        I18nReader i18nReader = new I18nReader(this.getClass()
+                .getClassLoader()
+                .getResourceAsStream(String.format("i18n/%s.yml", language)));
+        i18nReader.setLanguage(language);
+        Map i18nYamlData = i18nReader.getYamlData();
+        rules.setLanguage(language);
         rules.setRules(new ArrayList<>());
         rulesData.forEach((k, v) -> {
             if (((String) k).endsWith("_rule")) {
@@ -111,8 +114,9 @@ public class RulesReader {
                 // How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
                 alarmRule.setOnlyAsCondition((Boolean) settings.getOrDefault("only-as-condition", false));
+                Map settingsI18n = (Map) i18nYamlData.get(k);
                 alarmRule.setMessage(
-                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
+                        (String) settingsI18n.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));
                 alarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>()));
                 rules.getRules().add(alarmRule);
@@ -264,8 +268,8 @@ public class RulesReader {
     @SuppressWarnings("unchecked")
     private void readWeLinkConfig(Rules rules) {
         Map<String, Object> welinkConfig = (Map<String, Object>) yamlData.getOrDefault(
-            "welinkHooks",
-            Collections.EMPTY_MAP
+                "welinkHooks",
+                Collections.EMPTY_MAP
         );
         String textTemplate = (String) welinkConfig.get("textTemplate");
         List<Map<String, String>> welinkWebHooks = (List<Map<String, String>>) welinkConfig.get("webhooks");
@@ -273,7 +277,7 @@ public class RulesReader {
             return;
         }
         List<WeLinkSettings.WebHookUrl> webHookUrls = welinkWebHooks.stream().map(
-            WeLinkSettings.WebHookUrl::generateFromMap
+                WeLinkSettings.WebHookUrl::generateFromMap
         ).collect(Collectors.toList());
 
         WeLinkSettings welinkSettings = new WeLinkSettings();

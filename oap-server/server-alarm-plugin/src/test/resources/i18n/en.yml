@@ -1,0 +1,14 @@
+en:
+  rules:
+    service_resp_time_rule:
+      message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
+    service_sla_rule:
+      message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
+    service_resp_time_percentile_rule:
+      message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
+    service_instance_resp_time_rule:
+      message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
+    database_access_resp_time_rule:
+      message: Response time of database access {name} is more than 1000ms in 2 minutes of last 10 minutes
+    endpoint_relation_resp_time_rule:
+      message: Response time of endpoint relation {name} is more than 1000ms in 2 minutes of last 10 minutes

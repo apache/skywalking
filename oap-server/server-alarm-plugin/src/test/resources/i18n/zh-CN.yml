@@ -1,0 +1,14 @@
+zh-CN:
+  rules:
+    service_resp_time_rule:
+      message: 服务{name}的响应时间在过去10分钟的3分钟内超过1000ms
+    service_sla_rule:
+      message: 服务{name}的成功率在最近10分钟的2分钟内低于80%
+    service_resp_time_percentile_rule:
+      message: 由于p50>1000、p75>1000、p90>1000、p95>1000、p99>1000的多种情况，服务{name}警报在过去10分钟的3分钟内的百分位响应时间
+    service_instance_resp_time_rule:
+      message: 服务实例{name}的响应时间在最近10分钟的2分钟内超过1000ms
+    database_access_resp_time_rule:
+      message: 数据库访问{name}的响应时间在最近10分钟的2分钟内超过1000ms
+    endpoint_relation_resp_time_rule:
+      message: 端点关系{name}的响应时间在最近10分钟的2分钟内超过1000ms

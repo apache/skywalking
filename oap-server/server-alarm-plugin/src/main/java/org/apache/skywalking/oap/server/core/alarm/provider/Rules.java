@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSetting
 @Getter
 @ToString
 public class Rules {
+    private String language;
     private List<AlarmRule> rules;
     private List<String> webhooks;
     private GRPCAlarmSetting grpchookSetting;
@@ -45,6 +47,7 @@ public class Rules {
     private WeLinkSettings welinks;
 
     public Rules() {
+        this.language = "cn";
         this.rules = new ArrayList<>();
         this.webhooks = new ArrayList<>();
         this.compositeRules = new ArrayList<>();
