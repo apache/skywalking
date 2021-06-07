@@ -89,6 +89,8 @@ public class TraceIgnoreExtendService extends SamplingService {
     void handleTraceIgnorePatternsChanged() {
         if (StringUtil.isNotBlank(traceIgnorePatternWatcher.getTraceIgnorePathPatterns())) {
             patterns = traceIgnorePatternWatcher.getTraceIgnorePathPatterns().split(PATTERN_SEPARATOR);
+        } else {
+            patterns = new String[] {};
         }
     }
 }

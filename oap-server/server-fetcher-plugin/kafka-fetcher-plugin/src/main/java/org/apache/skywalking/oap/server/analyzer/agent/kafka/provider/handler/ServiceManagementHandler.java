@@ -78,11 +78,7 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         serviceInstanceUpdate.setName(instanceName);
 
         if (log.isDebugEnabled()) {
-            log.debug(
-                "Service[{}] instance[{}] registered.",
-                serviceName,
-                instanceName
-            );
+            log.debug("Service[{}] instance[{}] registered.", serviceName, instanceName);
         }
 
         JsonObject properties = new JsonObject();
@@ -107,11 +103,7 @@ public class ServiceManagementHandler extends AbstractKafkaHandler {
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
 
         if (log.isDebugEnabled()) {
-            log.debug(
-                "A ping of Service[{}] instance[{}].",
-                serviceName,
-                instanceName
-            );
+            log.debug("A ping of Service[{}] instance[{}].", serviceName, instanceName);
         }
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();

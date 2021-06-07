@@ -33,6 +33,7 @@ Release Notes.
 * Fix ClassCast issue for RequestHolder/ResponseHolder.
 * fixed `jdk-threading-plugin` memory leak.
 * Optimize multiple field reflection operation in Feign plugin.
+* Fix `trace-ignore-plugin` TraceIgnorePathPatterns can't set empty value
 
 #### OAP-Backend
 * BugFix: filter invalid Envoy access logs whose socket address is empty.
@@ -59,6 +60,8 @@ Release Notes.
 * Add HTTP implementation of logs reporting protocol.
 * Make metrics exporter still work even when storage layer failed.
 * Fix Jetty HTTP `TRACE` issue, disable HTTP methods except `POST`.
+* CVE: upgrade snakeyaml to prevent [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs#Variations) in dynamic configuration.
+* polish debug logging avoids null value when the segment ignored.
 
 #### UI
 * Add logo for kong plugin.
@@ -77,6 +80,9 @@ Release Notes.
 * Add a function which show the statistics infomation during the trace query.
 * Remove the sort button at the column of Type in the trace statistics page.
 * Optimize the APISIX icon in the topology.
+* Implement metrics templates in the topology.
+* Visualize Events on the alarm page.
+* Update duration steps in graphs for Trace and Log.
 
 #### Documentation
 * Polish k8s monitoring otel-collector configuration example.
