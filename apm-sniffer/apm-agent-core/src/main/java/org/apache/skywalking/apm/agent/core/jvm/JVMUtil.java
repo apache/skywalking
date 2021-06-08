@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
@@ -106,7 +105,7 @@ public class JVMUtil {
     }
 
     private static List<String> extractLibJarNamesFromURLs(List<URL> urls) {
-        List<String> libJarNames = new ArrayList<>();
+        Set<String> libJarNames = new HashSet<>();
         for (URL url : urls) {
             try {
                 String libJarName = extractLibJarName(url);
@@ -117,10 +116,12 @@ public class JVMUtil {
                 LOGGER.warn("Extracting library name exception: {}", e.getMessage());
             }
         }
+        List<String> sortedLibJarNames = new ArrayList<>(libJarNames.size());
         if (!CollectionUtil.isEmpty(libJarNames)) {
-            Collections.sort(libJarNames.stream().distinct().collect(Collectors.toList()));
+            sortedLibJarNames.addAll(libJarNames);
+            Collections.sort(sortedLibJarNames);
         }
-        return libJarNames;
+        return sortedLibJarNames;
     }
 
     private static String extractLibJarName(URL url) {
