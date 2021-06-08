@@ -20,171 +20,144 @@ package org.apache.skywalking.apm.agent.core.jvm;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.io.File;
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.os.OSUtil;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 public class JVMUtil {
 
     private static final ILog LOGGER = LogManager.getLogger(JVMUtil.class);
+    public static Instrumentation INSTRUMENTATION;
+    private final static String PATH_SEPARATOR = "/";
+    private final static String JAR_SEPARATOR = "!";
+    private static List<String> LAST_LIB_JAR_NAMES = new ArrayList<>();
 
-    private static Map<String, String> JAR_PATH_MAP = new HashMap<>();
-
-    private static Set<String> JAR_FILE_LIST = new HashSet<>();
-
-    private static List<String> getJarFileNameList() {
-        List<String> jarFileNameList = new ArrayList<>();
-        for (String jarFile : JAR_FILE_LIST) {
-            String jarFileName = jarFile.substring(jarFile.lastIndexOf("/") + 1);
-            jarFileNameList.add(jarFileName);
+    /**
+     * Build the required JVM information to add to the instance properties
+     */
+    public static List<KeyStringValuePair> buildJVMInfo() {
+        List<KeyStringValuePair> jvmInfo = new ArrayList<>();
+        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Start Time").setValue(getVmStartTime()).build());
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(gson.toJson(getVmArgs())).build());
+        List<String> libJarNames = getLibJarNames();
+        if (isLibJarNamesUpdated(libJarNames)) {
+            jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(libJarNames)).build());
+            LAST_LIB_JAR_NAMES.clear();
+            LAST_LIB_JAR_NAMES.addAll(libJarNames);
         }
-        Collections.sort(jarFileNameList);
-        return jarFileNameList;
+        return jvmInfo;
     }
 
-    public static void loadJvmInfo(Instrumentation instrumentation) {
-        loadJarPath(instrumentation);
-        loadJarFileList();
-    }
-
-    private static void loadJarPath(Instrumentation instrumentation) {
-        Class[] clzzs = instrumentation.getAllLoadedClasses();
-        Set<ClassLoader> classLoaders = new HashSet<>();
-        for (final Class clzz : clzzs) {
-            ClassLoader classLoader = clzz.getClassLoader();
-            if (classLoader != null) {
-                classLoaders.add(clzz.getClassLoader());
-            }
-        }
-
-        for (ClassLoader classLoader : classLoaders) {
-            classResCalc(classLoader.getClass());
-        }
-    }
-
-    private static void classResCalc(Class c) {
-        try {
-            java.net.URL url = c.getResource("/");
-            if (null != url) {
-                JAR_PATH_MAP.put(url.toString(), "");
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Error msg: {}", e.getMessage());
-        }
-    }
-
-    private static void loadJarFileList() {
-        String[] classPathJar = getClasspath().split(OSUtil.getPathSeparator());
-        for (String s : classPathJar) {
-            if (!s.endsWith(".jar")) {
-                continue;
-            }
-            String path = new File(s).getAbsolutePath();
-            JAR_FILE_LIST.add(path);
-        }
-        for (String s : JAR_PATH_MAP.keySet()) {
-            s = s.replace("file:", "");
-            if (s.endsWith("WEB-INF/classes/")) {
-                s = s.replace("WEB-INF/classes/", "WEB-INF/lib/");
-            }
-            File tempDir = new File(s);
-            if (!tempDir.exists() || !tempDir.isDirectory()) {
-                continue;
-            }
-            for (File file : tempDir.listFiles()) {
-                if (!file.getName().endsWith(".jar")) {
-                    continue;
-                }
-                JAR_FILE_LIST.add(file.getAbsolutePath());
-            }
-        }
-        loadSpringBootLib();
-    }
-
-    private static void loadSpringBootLib() {
-        List<String> springBootJars = new ArrayList<>();
-        for (String s : JAR_FILE_LIST) {
-            JarFile jar = null;
-            try {
-                jar = new JarFile(s);
-                if (jar.getManifest() == null || !"org.springframework.boot.loader.JarLauncher".equals(jar.getManifest().getMainAttributes().getValue("Main-Class"))) {
-                    continue;
-                }
-                Enumeration<JarEntry> jarEntry = jar.entries();
-                String jarPath;
-                while (jarEntry.hasMoreElements()) {
-                    jarPath = jarEntry.nextElement().getName();
-                    if (jarPath.endsWith(".jar")) {
-                        springBootJars.add(s + "!/" + jarPath);
-                    }
-                }
-
-            } catch (Exception e) {
-                LOGGER.warn("Error msg: {}", e.getMessage());
-            } finally {
-                try {
-                    if (jar != null) {
-                        jar.close();
-                    }
-                } catch (IOException e) {
-                    LOGGER.warn("Error msg: {}", e.getMessage());
-                }
-            }
-        }
-        if (springBootJars.size() > 0) {
-            JAR_FILE_LIST.addAll(springBootJars);
-        }
-    }
-
-    private static String getClasspath() {
-        return System.getProperty("java.class.path");
+    private static String getVmStartTime() {
+        long startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startTime));
     }
 
     private static List<String> getVmArgs() {
         List<String> vmArgs = ManagementFactory.getRuntimeMXBean().getInputArguments();
-        if (vmArgs == null) {
-            return Collections.emptyList();
-        }
         List<String> sortedVmArgs = new ArrayList<>(vmArgs);
         Collections.sort(sortedVmArgs);
         return sortedVmArgs;
     }
 
-    private static String getVmStartTime() {
-        long startTime;
-        try {
-            startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-        } catch (UnsupportedOperationException e) {
-            LOGGER.warn("RuntimeMXBean.getStartTime() unsupported. Caused:" + e.getMessage(), e);
-            startTime = System.currentTimeMillis();
-        }
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date(startTime));
+    private static List<String> getLibJarNames() {
+        List<URL> classLoaderUrls = loadClassLoaderUrls();
+        return extractLibJarNamesFromURLs(classLoaderUrls);
     }
 
-    public static List<KeyStringValuePair> buildJvmInfo() {
-        List<KeyStringValuePair> jvmInfo = new ArrayList<>();
-        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Start Time").setValue(getVmStartTime()).build());
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(gson.toJson(getVmArgs())).build());
-        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(getJarFileNameList())).build());
-        return jvmInfo;
+    private static List<URL> loadClassLoaderUrls() {
+        List<URL> classLoaderUrls = new ArrayList<>();
+        Class[] clazzs = INSTRUMENTATION.getAllLoadedClasses();
+        Set<ClassLoader> classLoaders = new HashSet<>();
+        for (Class clazz : clazzs) {
+            ClassLoader classLoader = clazz.getClassLoader();
+            if (classLoader != null) {
+                classLoaders.add(clazz.getClassLoader());
+            }
+        }
+
+        for (ClassLoader classLoader : classLoaders) {
+            try {
+                if (classLoader instanceof URLClassLoader) {
+                    URLClassLoader webappClassLoader = (URLClassLoader) classLoader;
+                    URL[] urls = webappClassLoader.getURLs();
+                    classLoaderUrls.addAll(Arrays.asList(urls));
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Load classloader urls exception: {}", e.getMessage());
+            }
+        }
+        return classLoaderUrls;
+    }
+
+    private static List<String> extractLibJarNamesFromURLs(List<URL> urls) {
+        List<String> libJarNames = new ArrayList<>();
+        for (URL url : urls) {
+            try {
+                String libJarName = extractLibJarName(url);
+                if (libJarName.endsWith(".jar")) {
+                    libJarNames.add(libJarName);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Extracting library name exception: {}", e.getMessage());
+            }
+        }
+        if (!CollectionUtil.isEmpty(libJarNames)) {
+            Collections.sort(libJarNames.stream().distinct().collect(Collectors.toList()));
+        }
+        return libJarNames;
+    }
+
+    private static String extractLibJarName(URL url) {
+        String protocol = url.getProtocol();
+        if (protocol.equals("file")) {
+            return extractNameFromFile(url.toString());
+        } else if (protocol.equals("jar")) {
+            return extractNameFromJar(url.toString());
+        } else {
+            return "";
+        }
+    }
+
+    private static String extractNameFromFile(String fileUri) {
+        int lastIndexOfSeparator = fileUri.lastIndexOf(PATH_SEPARATOR);
+        if (lastIndexOfSeparator < 0) {
+            return fileUri;
+        } else {
+            return fileUri.substring(lastIndexOfSeparator + 1);
+        }
+    }
+
+    private static String extractNameFromJar(String jarUri) {
+        String uri = jarUri.substring(0, jarUri.lastIndexOf(JAR_SEPARATOR));
+        return extractNameFromFile(uri);
+    }
+
+    private static boolean isLibJarNamesUpdated(List<String> libJarNames) {
+        if (CollectionUtil.isEmpty(LAST_LIB_JAR_NAMES) || libJarNames.size() != LAST_LIB_JAR_NAMES.size()) {
+            return true;
+        }
+        for (int i = 0; i < libJarNames.size(); i++) {
+            if (!libJarNames.get(i).equals(LAST_LIB_JAR_NAMES.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

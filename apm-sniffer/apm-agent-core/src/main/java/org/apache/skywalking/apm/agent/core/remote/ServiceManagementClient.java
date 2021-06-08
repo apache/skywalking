@@ -118,7 +118,7 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
                                                                         .addAllProperties(OSUtil.buildOSInfo(
                                                                             Config.OsInfo.IPV4_LIST_SIZE))
                                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
-                                                                        .addAllProperties(JVMUtil.buildJvmInfo())
+                                                                        .addAllProperties(JVMUtil.buildJVMInfo())
                                                                         .build());
                     } else {
                         final Commands commands = managementServiceBlockingStub.withDeadlineAfter(

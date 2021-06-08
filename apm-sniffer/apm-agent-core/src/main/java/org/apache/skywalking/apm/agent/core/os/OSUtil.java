@@ -127,8 +127,4 @@ public class OSUtil {
         osInfo.add(KeyStringValuePair.newBuilder().setKey("language").setValue("java").build());
         return osInfo;
     }
-
-    public static String getPathSeparator() {
-        return System.getProperty("path.separator");
-    }
 }

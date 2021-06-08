@@ -63,12 +63,7 @@ public class SkyWalkingAgent {
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
-        try {
-            JVMUtil.loadJvmInfo(instrumentation);
-        } catch (Exception e) {
-            LOGGER.error(e, "SkyWalking agent can't load some jvm info.");
-        }
-
+        JVMUtil.INSTRUMENTATION = instrumentation;
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
