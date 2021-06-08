@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.agent.core.jvm;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -40,10 +39,14 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 public class JVMUtil {
 
     private static final ILog LOGGER = LogManager.getLogger(JVMUtil.class);
-    public static Instrumentation INSTRUMENTATION;
     private final static String PATH_SEPARATOR = "/";
     private final static String JAR_SEPARATOR = "!";
     private static List<String> LAST_LIB_JAR_NAMES = new ArrayList<>();
+    private static Set<ClassLoader> CURRENT_CLASSLOADER_LIST = new HashSet<>();
+
+    public static Set<ClassLoader> getCurrentClassloaderList() {
+        return CURRENT_CLASSLOADER_LIST;
+    }
 
     /**
      * Build the required JVM information to add to the instance properties
@@ -81,16 +84,7 @@ public class JVMUtil {
 
     private static List<URL> loadClassLoaderUrls() {
         List<URL> classLoaderUrls = new ArrayList<>();
-        Class[] clazzs = INSTRUMENTATION.getAllLoadedClasses();
-        Set<ClassLoader> classLoaders = new HashSet<>();
-        for (Class clazz : clazzs) {
-            ClassLoader classLoader = clazz.getClassLoader();
-            if (classLoader != null) {
-                classLoaders.add(clazz.getClassLoader());
-            }
-        }
-
-        for (ClassLoader classLoader : classLoaders) {
+        for (ClassLoader classLoader : CURRENT_CLASSLOADER_LIST) {
             try {
                 if (classLoader instanceof URLClassLoader) {
                     URLClassLoader webappClassLoader = (URLClassLoader) classLoader;

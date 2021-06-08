@@ -63,7 +63,6 @@ public class SkyWalkingAgent {
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
-        JVMUtil.INSTRUMENTATION = instrumentation;
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
@@ -153,6 +152,7 @@ public class SkyWalkingAgent {
                                                 final TypeDescription typeDescription,
                                                 final ClassLoader classLoader,
                                                 final JavaModule module) {
+            JVMUtil.getCurrentClassloaderList().add(classLoader);
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
