@@ -31,6 +31,6 @@ public class RulesReaderForI18NTest {
         Rules rules = reader.readRules();
         rules.setLanguage("zh-CN");
         List<AlarmRule> ruleList = rules.getRules();
-        ruleList.forEach(alarmRule -> System.out.println(ruleList.get(0).getMessage()));
+        ruleList.forEach(alarmRule -> System.out.println(alarmRule.getMessage()));
     }
 }

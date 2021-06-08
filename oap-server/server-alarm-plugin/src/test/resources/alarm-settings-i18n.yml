@@ -16,7 +16,7 @@
 
 # Sample alarm rules.
 rules:
-  #support i18n
+  #support i18n,default is en
   language: zh-CN
   # Rule unique name, must be ended with `_rule`.
   service_resp_time_rule:

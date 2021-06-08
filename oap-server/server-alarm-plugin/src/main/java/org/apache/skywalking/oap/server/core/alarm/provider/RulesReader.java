@@ -83,7 +83,7 @@ public class RulesReader {
                 .getClassLoader()
                 .getResourceAsStream(String.format("i18n/%s.yml", language)));
         i18nReader.setLanguage(language);
-        Map i18nYamlData = i18nReader.getYamlData();
+        Map i18nYamlData = (Map) ((Map) i18nReader.getYamlData().get(language)).get("rules");
         rules.setLanguage(language);
         rules.setRules(new ArrayList<>());
         rulesData.forEach((k, v) -> {
