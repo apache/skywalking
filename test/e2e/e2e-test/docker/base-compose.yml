@@ -99,7 +99,7 @@ services:
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider,destfile=/jacoco/provider.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE
         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
-        -XX:MaxMetaspaceSize=100m -XX:MaxDirectMemorySize=25m
+#        -XX:MaxMetaspaceSize=100m -XX:MaxDirectMemorySize=25m
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9090"]
       interval: 5s
@@ -125,7 +125,7 @@ services:
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/consumer,destfile=/jacoco/consumer.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
         -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE
         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
-        -XX:MaxMetaspaceSize=100m -XX:MaxDirectMemorySize=25m
+#        -XX:MaxMetaspaceSize=100m -XX:MaxDirectMemorySize=25m
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9092"]
       interval: 5s

@@ -75,7 +75,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        List<Rule> rules = Rules.loadRules("jvm-metrics-rules", Collections.singletonList("jvm"));
+        List<Rule> rules = Rules.loadRules("meter-analyzer-config", Collections.singletonList("jvm"));
         handlerRegister.register(new JVMMetricsHandler(getManager(), config, rules));
         handlerRegister.register(new ServiceManagementHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentHandler(getManager(), config));

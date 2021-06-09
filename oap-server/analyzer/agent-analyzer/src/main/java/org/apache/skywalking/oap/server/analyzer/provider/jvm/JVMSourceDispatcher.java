@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.jvm;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -55,11 +54,11 @@ public class JVMSourceDispatcher {
 
     public void sendMetric(String service, String serviceInstance, JVMMetric jvmMetric) {
         List<Sample> cpuSamples = Collections.singletonList(parseCpuData(service, serviceInstance, jvmMetric));
-        List<Sample> memorySamples = new ArrayList<>(parseMemoryData(service, serviceInstance, jvmMetric));
-        List<Sample> memoryPoolSamples = new ArrayList<>(parseMemoryPollData(service, serviceInstance, jvmMetric));
-        List<Sample> gcCountSamples = new ArrayList<>(parseGcCountData(service, serviceInstance, jvmMetric));
-        List<Sample> gcTimeSamples = new ArrayList<>(parseGcTimeData(service, serviceInstance, jvmMetric));
-        List<Sample> threadSamples = new ArrayList<>(parseThreadData(service, serviceInstance, jvmMetric));
+        List<Sample> memorySamples = parseMemoryData(service, serviceInstance, jvmMetric);
+        List<Sample> memoryPoolSamples = parseMemoryPollData(service, serviceInstance, jvmMetric);
+        List<Sample> gcCountSamples = parseGcCountData(service, serviceInstance, jvmMetric);
+        List<Sample> gcTimeSamples = parseGcTimeData(service, serviceInstance, jvmMetric);
+        List<Sample> threadSamples = parseThreadData(service, serviceInstance, jvmMetric);
 
         ImmutableMap<String, SampleFamily> sampleFamilies = ImmutableMap.<String, SampleFamily>builder()
                 .put("jvm_gc_time", SampleFamilyBuilder.newBuilder(gcTimeSamples.toArray(new Sample[0])).build())
