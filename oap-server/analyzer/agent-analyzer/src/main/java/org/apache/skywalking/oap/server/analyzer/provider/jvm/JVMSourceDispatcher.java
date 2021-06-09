@@ -18,182 +18,168 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.jvm;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Collections;
+
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.common.v3.CPU;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.Memory;
 import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 import org.apache.skywalking.apm.network.language.agent.v3.Thread;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.server.analyzer.provider.meter.process.SampleBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.source.GCPhrase;
-import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMThread;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class JVMSourceDispatcher {
-    private final SourceReceiver sourceReceiver;
 
-    public JVMSourceDispatcher(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+    private final List<MetricConvert> metricConverts;
+
+    public JVMSourceDispatcher(ModuleManager moduleManager, List<Rule> rules) {
+        this.metricConverts = rules.stream()
+                .map(it -> new MetricConvert(it, moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class)))
+                .collect(Collectors.toList());
     }
 
-    public void sendMetric(String service, String serviceInstance, JVMMetric metrics) {
-        long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
+    public void sendMetric(String service, String serviceInstance, JVMMetric jvmMetric) {
+        List<Sample> cpuSamples = Collections.singletonList(parseCpuData(service, serviceInstance, jvmMetric));
+        List<Sample> memorySamples = new ArrayList<>(parseMemoryData(service, serviceInstance, jvmMetric));
+        List<Sample> memoryPoolSamples = new ArrayList<>(parseMemoryPollData(service, serviceInstance, jvmMetric));
+        List<Sample> gcCountSamples = new ArrayList<>(parseGcCountData(service, serviceInstance, jvmMetric));
+        List<Sample> gcTimeSamples = new ArrayList<>(parseGcTimeData(service, serviceInstance, jvmMetric));
+        List<Sample> threadSamples = new ArrayList<>(parseThreadData(service, serviceInstance, jvmMetric));
 
-        final String serviceId = IDManager.ServiceID.buildId(service, NodeType.Normal);
-        final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, serviceInstance);
+        ImmutableMap<String, SampleFamily> sampleFamilies = ImmutableMap.<String, SampleFamily>builder()
+                .put("jvm_gc_time", SampleFamilyBuilder.newBuilder(gcTimeSamples.toArray(new Sample[0])).build())
+                .put("jvm_gc_count", SampleFamilyBuilder.newBuilder(gcCountSamples.toArray(new Sample[0])).build())
+                .put("jvm_cpu", SampleFamilyBuilder.newBuilder(cpuSamples.toArray(new Sample[0])).build())
+                .put("jvm_thread", SampleFamilyBuilder.newBuilder(threadSamples.toArray(new Sample[0])).build())
+                .put("jvm_memory", SampleFamilyBuilder.newBuilder(memorySamples.toArray(new Sample[0])).build())
+                .put("jvm_memory_poll", SampleFamilyBuilder.newBuilder(memoryPoolSamples.toArray(new Sample[0])).build())
+                .build();
 
-        this.sendToCpuMetricProcess(
-            service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getCpu());
-        this.sendToMemoryMetricProcess(
-            service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getMemoryList());
-        this.sendToMemoryPoolMetricProcess(
-            service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getMemoryPoolList());
-        this.sendToGCMetricProcess(
-            service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getGcList());
-        this.sendToThreadMetricProcess(
-                service, serviceId, serviceInstance, serviceInstanceId, minuteTimeBucket, metrics.getThread());
+        metricConverts.forEach(metricConvert -> metricConvert.toMeter(sampleFamilies));
     }
 
-    private void sendToCpuMetricProcess(String service,
-                                        String serviceId,
-                                        String serviceInstance,
-                                        String serviceInstanceId,
-                                        long timeBucket,
-                                        CPU cpu) {
-        ServiceInstanceJVMCPU serviceInstanceJVMCPU = new ServiceInstanceJVMCPU();
-        serviceInstanceJVMCPU.setId(serviceInstanceId);
-        serviceInstanceJVMCPU.setName(serviceInstance);
-        serviceInstanceJVMCPU.setServiceId(serviceId);
-        serviceInstanceJVMCPU.setServiceName(service);
-        // If the cpu usage percent is less than 1, will set to 1
-        double adjustedCpuUsagePercent = Math.max(cpu.getUsagePercent(), 1.0);
-        serviceInstanceJVMCPU.setUsePercent(adjustedCpuUsagePercent);
-        serviceInstanceJVMCPU.setTimeBucket(timeBucket);
-        sourceReceiver.receive(serviceInstanceJVMCPU);
+    private List<Sample> parseThreadData(String service, String serviceInstance, JVMMetric jvmMetric) {
+        Thread thread = jvmMetric.getThread();
+        return Arrays.asList(
+                buildThreadSample(thread.getDaemonCount(), "daemon", service, serviceInstance, jvmMetric.getTime()),
+                buildThreadSample(thread.getLiveCount(), "live", service, serviceInstance, jvmMetric.getTime()),
+                buildThreadSample(thread.getPeakCount(), "peak", service, serviceInstance, jvmMetric.getTime())
+        );
     }
 
-    private void sendToGCMetricProcess(String service,
-                                       String serviceId,
-                                       String serviceInstance,
-                                       String serviceInstanceId,
-                                       long timeBucket,
-                                       List<GC> gcs) {
-        gcs.forEach(gc -> {
-            ServiceInstanceJVMGC serviceInstanceJVMGC = new ServiceInstanceJVMGC();
-            serviceInstanceJVMGC.setId(serviceInstanceId);
-            serviceInstanceJVMGC.setName(serviceInstance);
-            serviceInstanceJVMGC.setServiceId(serviceId);
-            serviceInstanceJVMGC.setServiceName(service);
-
-            switch (gc.getPhrase()) {
-                case NEW:
-                    serviceInstanceJVMGC.setPhrase(GCPhrase.NEW);
-                    break;
-                case OLD:
-                    serviceInstanceJVMGC.setPhrase(GCPhrase.OLD);
-                    break;
-            }
-
-            serviceInstanceJVMGC.setTime(gc.getTime());
-            serviceInstanceJVMGC.setCount(gc.getCount());
-            serviceInstanceJVMGC.setTimeBucket(timeBucket);
-            sourceReceiver.receive(serviceInstanceJVMGC);
-        });
+    private List<Sample> parseGcCountData(String service, String serviceInstance, JVMMetric jvmMetric) {
+        return jvmMetric.getGcList().stream().map(gc ->
+                buildGcSample(gc, gc.getCount(), "jvm_gc_count", service, serviceInstance, jvmMetric.getTime())
+        ).collect(Collectors.toList());
     }
 
-    private void sendToMemoryMetricProcess(String service,
-                                           String serviceId,
-                                           String serviceInstance,
-                                           String serviceInstanceId,
-                                           long timeBucket,
-                                           List<Memory> memories) {
-        memories.forEach(memory -> {
-            ServiceInstanceJVMMemory serviceInstanceJVMMemory = new ServiceInstanceJVMMemory();
-            serviceInstanceJVMMemory.setId(serviceInstanceId);
-            serviceInstanceJVMMemory.setName(serviceInstance);
-            serviceInstanceJVMMemory.setServiceId(serviceId);
-            serviceInstanceJVMMemory.setServiceName(service);
-            serviceInstanceJVMMemory.setHeapStatus(memory.getIsHeap());
-            serviceInstanceJVMMemory.setInit(memory.getInit());
-            serviceInstanceJVMMemory.setMax(memory.getMax());
-            serviceInstanceJVMMemory.setUsed(memory.getUsed());
-            serviceInstanceJVMMemory.setCommitted(memory.getCommitted());
-            serviceInstanceJVMMemory.setTimeBucket(timeBucket);
-            sourceReceiver.receive(serviceInstanceJVMMemory);
-        });
+    private List<Sample> parseGcTimeData(String service, String serviceInstance, JVMMetric jvmMetric) {
+        return jvmMetric.getGcList().stream().map(gc ->
+                buildGcSample(gc, gc.getTime(), "jvm_gc_time", service, serviceInstance, jvmMetric.getTime())
+        ).collect(Collectors.toList());
     }
 
-    private void sendToMemoryPoolMetricProcess(String service,
-                                               String serviceId,
-                                               String serviceInstance,
-                                               String serviceInstanceId,
-                                               long timeBucket,
-                                               List<MemoryPool> memoryPools) {
-
-        memoryPools.forEach(memoryPool -> {
-            ServiceInstanceJVMMemoryPool serviceInstanceJVMMemoryPool = new ServiceInstanceJVMMemoryPool();
-            serviceInstanceJVMMemoryPool.setId(serviceInstanceId);
-            serviceInstanceJVMMemoryPool.setName(serviceInstance);
-            serviceInstanceJVMMemoryPool.setServiceId(serviceId);
-            serviceInstanceJVMMemoryPool.setServiceName(service);
-
-            switch (memoryPool.getType()) {
-                case NEWGEN_USAGE:
-                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.NEWGEN_USAGE);
-                    break;
-                case OLDGEN_USAGE:
-                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.OLDGEN_USAGE);
-                    break;
-                case PERMGEN_USAGE:
-                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.PERMGEN_USAGE);
-                    break;
-                case SURVIVOR_USAGE:
-                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.SURVIVOR_USAGE);
-                    break;
-                case METASPACE_USAGE:
-                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.METASPACE_USAGE);
-                    break;
-                case CODE_CACHE_USAGE:
-                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.CODE_CACHE_USAGE);
-                    break;
-            }
-
-            serviceInstanceJVMMemoryPool.setInit(memoryPool.getInit());
-            serviceInstanceJVMMemoryPool.setMax(memoryPool.getMax());
-            serviceInstanceJVMMemoryPool.setUsed(memoryPool.getUsed());
-            serviceInstanceJVMMemoryPool.setCommitted(memoryPool.getCommitted());
-            serviceInstanceJVMMemoryPool.setTimeBucket(timeBucket);
-            sourceReceiver.receive(serviceInstanceJVMMemoryPool);
-        });
+    private Sample parseCpuData(String service, String serviceInstance, JVMMetric jvmMetric) {
+        SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
+        double adjustedCpuUsagePercent = Math.max(jvmMetric.getCpu().getUsagePercent(), 1.0);
+        sampleBuilderBuilder.name("jvm_cpu");
+        sampleBuilderBuilder.value(adjustedCpuUsagePercent);
+        sampleBuilderBuilder.labels(ImmutableMap.<String, String>builder().build());
+        return sampleBuilderBuilder.build().build(service, serviceInstance, jvmMetric.getTime());
     }
 
-    private void sendToThreadMetricProcess(String service,
-            String serviceId,
-            String serviceInstance,
-            String serviceInstanceId,
-            long timeBucket,
-            Thread thread) {
-        ServiceInstanceJVMThread serviceInstanceJVMThread = new ServiceInstanceJVMThread();
-        serviceInstanceJVMThread.setId(serviceInstanceId);
-        serviceInstanceJVMThread.setName(serviceInstance);
-        serviceInstanceJVMThread.setServiceId(serviceId);
-        serviceInstanceJVMThread.setServiceName(service);
-        serviceInstanceJVMThread.setLiveCount(thread.getLiveCount());
-        serviceInstanceJVMThread.setDaemonCount(thread.getDaemonCount());
-        serviceInstanceJVMThread.setPeakCount(thread.getPeakCount());
-        serviceInstanceJVMThread.setTimeBucket(timeBucket);
-        sourceReceiver.receive(serviceInstanceJVMThread);
+    private List<Sample> parseMemoryData(String service, String serviceInstance, JVMMetric jvmMetric) {
+        return jvmMetric.getMemoryList().stream().map(memory -> Arrays.asList(
+                buildMemorySample(memory, memory.getInit(), "init", service, serviceInstance, jvmMetric.getTime()),
+                buildMemorySample(memory, memory.getMax(), "max", service, serviceInstance, jvmMetric.getTime()),
+                buildMemorySample(memory, memory.getCommitted(), "committed", service, serviceInstance, jvmMetric.getTime()),
+                buildMemorySample(memory, memory.getUsed(), "used", service, serviceInstance, jvmMetric.getTime())
+        )).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    private List<Sample> parseMemoryPollData(String service, String serviceInstance, JVMMetric jvmMetric) {
+        return jvmMetric.getMemoryPoolList().stream().map(memoryPool -> Arrays.asList(
+                buildMemoryPoolSample(memoryPool, memoryPool.getInit(), "init", service, serviceInstance, jvmMetric.getTime()),
+                buildMemoryPoolSample(memoryPool, memoryPool.getMax(), "max", service, serviceInstance, jvmMetric.getTime()),
+                buildMemoryPoolSample(memoryPool, memoryPool.getCommitted(), "committed", service, serviceInstance, jvmMetric.getTime()),
+                buildMemoryPoolSample(memoryPool, memoryPool.getUsed(), "used", service, serviceInstance, jvmMetric.getTime())
+        )).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    private Sample buildGcSample(GC gc, long value, String name, String service, String serviceInstance, long time) {
+        SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
+        sampleBuilderBuilder.name(name);
+        sampleBuilderBuilder.value(value);
+        switch (gc.getPhrase()) {
+            case NEW:
+                sampleBuilderBuilder.labels(ImmutableMap.of("gc_phrase", "new"));
+                break;
+            case OLD:
+                sampleBuilderBuilder.labels(ImmutableMap.of("gc_phrase", "old"));
+                break;
+            default:
+        }
+        return sampleBuilderBuilder.build().build(service, serviceInstance, time);
+    }
+
+    private Sample buildThreadSample(long value, String threadType, String service, String serviceInstance, long time) {
+        SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
+        sampleBuilderBuilder.name("jvm_thread");
+        sampleBuilderBuilder.value(value);
+        sampleBuilderBuilder.labels(ImmutableMap.of("thread_type", threadType));
+        return sampleBuilderBuilder.build().build(service, serviceInstance, time);
+    }
+
+    private Sample buildMemorySample(Memory memory, long value, String memoryType, String service, String serviceInstance, long time) {
+        SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
+        sampleBuilderBuilder.name("jvm_memory");
+        sampleBuilderBuilder.labels(ImmutableMap.of("heap_status", String.valueOf(memory.getIsHeap()), "memory_type", memoryType));
+        sampleBuilderBuilder.value(value);
+        return sampleBuilderBuilder.build().build(service, serviceInstance, time);
+    }
+
+    private Sample buildMemoryPoolSample(MemoryPool memoryPool, long value, String memoryType, String service, String serviceInstance, long time) {
+        SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
+        sampleBuilderBuilder.name("jvm_memory_poll");
+        sampleBuilderBuilder.value(value);
+        String pollType = "poll_type";
+        String memoryTypeKey = "memory_type";
+        switch (memoryPool.getType()) {
+            case NEWGEN_USAGE:
+                sampleBuilderBuilder.labels(ImmutableMap.of(pollType, "memoryTypeKey", memoryTypeKey, memoryType));
+                break;
+            case OLDGEN_USAGE:
+                sampleBuilderBuilder.labels(ImmutableMap.of(pollType, "oldgenUsage", memoryTypeKey, memoryType));
+                break;
+            case PERMGEN_USAGE:
+                sampleBuilderBuilder.labels(ImmutableMap.of(pollType, "permgenUsage", memoryTypeKey, memoryType));
+                break;
+            case SURVIVOR_USAGE:
+                sampleBuilderBuilder.labels(ImmutableMap.of(pollType, "survivorUsage", memoryTypeKey, memoryType));
+                break;
+            case METASPACE_USAGE:
+                sampleBuilderBuilder.labels(ImmutableMap.of(pollType, "metaspaceUsage", memoryTypeKey, memoryType));
+                break;
+            case CODE_CACHE_USAGE:
+                sampleBuilderBuilder.labels(ImmutableMap.of(pollType, "codeCacheUsage", memoryTypeKey, memoryType));
+                break;
+            default:
+        }
+        return sampleBuilderBuilder.build().build(service, serviceInstance, time);
     }
 }

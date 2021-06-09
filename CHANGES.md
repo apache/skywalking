@@ -11,7 +11,7 @@ Release Notes.
 
 
 #### OAP-Backend
-
+* Use MAL to calculate JVM metrics, remove OAL dependency.
 
 #### UI
 

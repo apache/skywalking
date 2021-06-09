@@ -23,31 +23,35 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricReportServiceGrpc;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.analyzer.provider.jvm.JVMSourceDispatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 
+import java.util.List;
+
 @Slf4j
 public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JVMMetricReportServiceImplBase implements GRPCHandler {
-    private final JVMSourceDispatcher jvmSourceDispatcher;
     private final NamingControl namingControl;
 
-    public JVMMetricReportServiceHandler(ModuleManager moduleManager) {
-        this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
+    private final JVMSourceDispatcher jvmSourceDispatcher;
+
+    public JVMMetricReportServiceHandler(ModuleManager moduleManager, List<Rule> rules) {
+        this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager, rules);
         this.namingControl = moduleManager.find(CoreModule.NAME)
-                                          .provider()
-                                          .getService(NamingControl.class);
+                .provider()
+                .getService(NamingControl.class);
     }
 
     @Override
     public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
         if (log.isDebugEnabled()) {
             log.debug(
-                "receive the jvm metrics from service instance, name: {}, instance: {}",
-                request.getService(),
-                request.getServiceInstance()
+                    "receive the jvm metrics from service instance, name: {}, instance: {}",
+                    request.getService(),
+                    request.getServiceInstance()
             );
         }
         final JVMMetricCollection.Builder builder = request.toBuilder();
@@ -61,5 +65,4 @@ public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JV
         responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();
     }
-
 }
