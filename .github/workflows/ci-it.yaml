@@ -111,7 +111,8 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: |
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:

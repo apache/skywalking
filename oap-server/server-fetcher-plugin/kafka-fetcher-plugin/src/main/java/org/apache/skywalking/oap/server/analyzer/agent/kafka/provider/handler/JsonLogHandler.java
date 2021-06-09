@@ -42,8 +42,8 @@ public class JsonLogHandler extends LogHandler {
     }
     
     @Override
-    protected String getProtocolName() {
-        return "kafka-fetcher-native-json";
+    protected String getDataFormat() {
+        return "json";
     }
     
     @Override

@@ -51,11 +51,6 @@ public class ManagementServiceKeepAliveHandler extends JettyJsonHandler {
     }
 
     @Override
-    protected JsonElement doGet(final HttpServletRequest req) throws ArgumentsParseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected JsonElement doPost(final HttpServletRequest req) throws ArgumentsParseException, IOException {
         final InstanceProperties.Builder request = InstanceProperties.newBuilder();
         ProtoBufJsonUtils.fromJSON(getJsonBody(req), request);

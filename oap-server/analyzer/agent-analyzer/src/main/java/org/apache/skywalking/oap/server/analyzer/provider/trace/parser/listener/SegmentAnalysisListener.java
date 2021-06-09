@@ -170,12 +170,15 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
     @Override
     public void build() {
-        if (log.isDebugEnabled()) {
-            log.debug("segment listener build, segment id: {}", segment.getSegmentId());
+        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            if (log.isDebugEnabled()) {
+                log.debug("segment ignored, trace id: {}", segment.getTraceId());
+            }
+            return;
         }
 
-        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
-            return;
+        if (log.isDebugEnabled()) {
+            log.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
 
         segment.setEndpointId(endpointId);
