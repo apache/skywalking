@@ -136,7 +136,7 @@ netty-handler-4.1.65.Final.jar
 netty-handler-proxy-4.1.51.Final.jar
 netty-resolver-4.1.65.Final.jar
 netty-resolver-dns-4.1.65.Final.jar
-netty-tcnative-boringssl-static-2.0.26.Final.jar
+netty-tcnative-boringssl-static-2.0.39.Final.jar
 netty-transport-4.1.65.Final.jar
 netty-transport-native-epoll-4.1.45.Final.jar
 netty-transport-native-unix-common-4.1.45.Final.jar
