@@ -41,17 +41,17 @@ public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JV
     public JVMMetricReportServiceHandler(ModuleManager moduleManager, List<Rule> rules) {
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager, rules);
         this.namingControl = moduleManager.find(CoreModule.NAME)
-                .provider()
-                .getService(NamingControl.class);
+                                          .provider()
+                                          .getService(NamingControl.class);
     }
 
     @Override
     public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
         if (log.isDebugEnabled()) {
             log.debug(
-                    "receive the jvm metrics from service instance, name: {}, instance: {}",
-                    request.getService(),
-                    request.getServiceInstance()
+                "receive the jvm metrics from service instance, name: {}, instance: {}",
+                request.getService(),
+                request.getServiceInstance()
             );
         }
         final JVMMetricCollection.Builder builder = request.toBuilder();
