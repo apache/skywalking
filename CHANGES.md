@@ -8,7 +8,7 @@ Release Notes.
 
 
 #### Java Agent
-
+* Supports modifying span attributes in async mode.
 
 #### OAP-Backend
 * Use MAL to calculate JVM metrics, remove OAL dependency.
