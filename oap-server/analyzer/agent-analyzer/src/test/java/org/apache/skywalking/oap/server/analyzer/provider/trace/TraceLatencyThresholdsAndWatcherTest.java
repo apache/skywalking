@@ -57,7 +57,7 @@ public class TraceLatencyThresholdsAndWatcherTest {
         register.registerConfigChangeWatcher(watcher);
         register.start();
 
-        while (watcher.getSlowTraceSegmentThreshold() == 10000) {
+        while (watcher.getSlowTraceSegmentThreshold() < 0) {
             Thread.sleep(2000);
         }
         assertThat(watcher.getSlowTraceSegmentThreshold(), is(3000));
