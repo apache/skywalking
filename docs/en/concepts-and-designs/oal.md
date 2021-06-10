@@ -58,8 +58,8 @@ In this case, all input represents requests of each endpoint, and the condition 
 In this case, all input represents requests of each browser app traffic, the `numerator` condition is `trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR` and `denominator` condition is `trafficCategory == BrowserAppTrafficCategory.NORMAL`.
 Parameter (1) is the `numerator` condition.
 Parameter (2) is the `denominator` condition.
-- `sum`. The sum of calls per scope entity.
-> service_calls_sum = from(Service.*).sum();
+- `count`. The sum of calls per scope entity.
+> service_calls_sum = from(Service.*).count();
 
 In this case, the number of calls of each service. 
 
@@ -121,13 +121,13 @@ endpoint_percentile = from(Endpoint.latency).percentile(10)
 endpoint_success = from(Endpoint.*).filter(status == true).percent()
 
 // Calculate the sum of response code in [404, 500, 503], for each service.
-endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).sum()
+endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).count()
 
 // Calculate the sum of request type in [RequestType.RPC, RequestType.gRPC], for each service.
-endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.RPC, RequestType.gRPC]).sum()
+endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.RPC, RequestType.gRPC]).count()
 
 // Calculate the sum of endpoint name in ["/v1", "/v2"], for each service.
-endpoint_url_sum = from(Endpoint.*).filter(endpointName in ["/v1", "/v2"]).sum()
+endpoint_url_sum = from(Endpoint.*).filter(name in ["/v1", "/v2"]).count()
 
 // Calculate the sum of calls for each service.
 endpoint_calls = from(Endpoint.*).count()
