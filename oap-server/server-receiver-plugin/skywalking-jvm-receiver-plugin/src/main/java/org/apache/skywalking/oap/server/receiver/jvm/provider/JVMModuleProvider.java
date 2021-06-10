@@ -57,7 +57,7 @@ public class JVMModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
-        List<Rule> rules = Rules.loadRules("meter-analyzer-config", Collections.singletonList("jvm"));
+        List<Rule> rules = Rules.loadRules("jvm-metrics-rules", Collections.singletonList("jvm"));
         JVMMetricReportServiceHandler jvmMetricReportServiceHandler = new JVMMetricReportServiceHandler(getManager(), rules);
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
