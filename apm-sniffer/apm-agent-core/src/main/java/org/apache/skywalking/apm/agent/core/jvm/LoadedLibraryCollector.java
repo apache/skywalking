@@ -36,16 +36,21 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
-public class JVMUtil {
+public class LoadedLibraryCollector {
 
-    private static final ILog LOGGER = LogManager.getLogger(JVMUtil.class);
+    private static final ILog LOGGER = LogManager.getLogger(LoadedLibraryCollector.class);
     private final static String PATH_SEPARATOR = "/";
     private final static String JAR_SEPARATOR = "!";
-    private static List<String> LAST_LIB_JAR_NAMES = new ArrayList<>();
-    private static Set<ClassLoader> CURRENT_CLASSLOADER_LIST = new HashSet<>();
+    private static Set<ClassLoader> CURRENT_URL_CLASSLOADER_SET = new HashSet<>();
+    /**
+     * Prevent OOM in special scenes
+     */
+    private static int CURRENT_URL_CLASSLOADER_SET_MAX_SIZE = 50;
 
-    public static Set<ClassLoader> getCurrentClassloaderList() {
-        return CURRENT_CLASSLOADER_LIST;
+    public static void registerURLClassLoader(ClassLoader classLoader) {
+        if (CURRENT_URL_CLASSLOADER_SET.size() <= CURRENT_URL_CLASSLOADER_SET_MAX_SIZE && classLoader instanceof URLClassLoader) {
+            CURRENT_URL_CLASSLOADER_SET.add(classLoader);
+        }
     }
 
     /**
@@ -57,11 +62,7 @@ public class JVMUtil {
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(gson.toJson(getVmArgs())).build());
         List<String> libJarNames = getLibJarNames();
-        if (isLibJarNamesUpdated(libJarNames)) {
-            jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(libJarNames)).build());
-            LAST_LIB_JAR_NAMES.clear();
-            LAST_LIB_JAR_NAMES.addAll(libJarNames);
-        }
+        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(libJarNames)).build());
         return jvmInfo;
     }
 
@@ -84,13 +85,11 @@ public class JVMUtil {
 
     private static List<URL> loadClassLoaderUrls() {
         List<URL> classLoaderUrls = new ArrayList<>();
-        for (ClassLoader classLoader : CURRENT_CLASSLOADER_LIST) {
+        for (ClassLoader classLoader : CURRENT_URL_CLASSLOADER_SET) {
             try {
-                if (classLoader instanceof URLClassLoader) {
-                    URLClassLoader webappClassLoader = (URLClassLoader) classLoader;
-                    URL[] urls = webappClassLoader.getURLs();
-                    classLoaderUrls.addAll(Arrays.asList(urls));
-                }
+                URLClassLoader webappClassLoader = (URLClassLoader) classLoader;
+                URL[] urls = webappClassLoader.getURLs();
+                classLoaderUrls.addAll(Arrays.asList(urls));
             } catch (Exception e) {
                 LOGGER.warn("Load classloader urls exception: {}", e.getMessage());
             }
@@ -141,18 +140,6 @@ public class JVMUtil {
     private static String extractNameFromJar(String jarUri) {
         String uri = jarUri.substring(0, jarUri.lastIndexOf(JAR_SEPARATOR));
         return extractNameFromFile(uri);
-    }
-
-    private static boolean isLibJarNamesUpdated(List<String> libJarNames) {
-        if (CollectionUtil.isEmpty(LAST_LIB_JAR_NAMES) || libJarNames.size() != LAST_LIB_JAR_NAMES.size()) {
-            return true;
-        }
-        for (int i = 0; i < libJarNames.size(); i++) {
-            if (!libJarNames.get(i).equals(LAST_LIB_JAR_NAMES.get(i))) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

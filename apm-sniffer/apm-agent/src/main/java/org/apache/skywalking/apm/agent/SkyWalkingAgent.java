@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
-import org.apache.skywalking.apm.agent.core.jvm.JVMUtil;
+import org.apache.skywalking.apm.agent.core.jvm.LoadedLibraryCollector;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -152,7 +152,7 @@ public class SkyWalkingAgent {
                                                 final TypeDescription typeDescription,
                                                 final ClassLoader classLoader,
                                                 final JavaModule module) {
-            JVMUtil.getCurrentClassloaderList().add(classLoader);
+            LoadedLibraryCollector.registerURLClassLoader(classLoader);
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
