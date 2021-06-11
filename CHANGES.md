@@ -11,7 +11,7 @@ Release Notes.
 * Supports modifying span attributes in async mode.
 
 #### OAP-Backend
-
+* Disable Spring sleuth meter analyzer by default.
 
 #### UI
 
