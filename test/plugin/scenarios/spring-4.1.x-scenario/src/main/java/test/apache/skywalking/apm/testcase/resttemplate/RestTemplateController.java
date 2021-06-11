@@ -19,6 +19,7 @@
 package test.apache.skywalking.apm.testcase.resttemplate;
 
 import java.io.IOException;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -60,6 +61,14 @@ public class RestTemplateController {
 
         //Delete user
         new RestTemplate().delete(URL + "/delete/{id}", 1);
+
+        Request implRequestMappingRequest = new Request.Builder().url(URL + "/impl/requestmapping").build();
+        response = new OkHttpClient().newCall(implRequestMappingRequest).execute();
+        LOGGER.info(response.toString());
+
+        Request implRestMappingRequest = new Request.Builder().url(URL + "/impl/restmapping").build();
+        response = new OkHttpClient().newCall(implRestMappingRequest).execute();
+        LOGGER.info(response.toString());
 
         return SUCCESS;
     }

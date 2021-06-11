@@ -47,7 +47,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * A service management data(Instance registering properties and Instance pinging) reporter.
  */
 @OverrideImplementor(ServiceManagementClient.class)
-public class KafkaServiceManagementServiceClient implements BootService, Runnable {
+public class KafkaServiceManagementServiceClient implements BootService, Runnable, KafkaConnectionStatusListener {
     private static final ILog LOGGER = LogManager.getLogger(KafkaServiceManagementServiceClient.class);
 
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
@@ -62,7 +62,9 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void prepare() {
-        topic = KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT;
+        KafkaProducerManager producerManager = ServiceManager.INSTANCE.findService(KafkaProducerManager.class);
+        producerManager.addListener(this);
+        topic = producerManager.formatTopicNameThenRegister(KafkaReporterPluginConfig.Plugin.Kafka.TOPIC_MANAGEMENT);
 
         SERVICE_INSTANCE_PROPERTIES = new ArrayList<>();
         for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
@@ -79,8 +81,6 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
-
         heartbeatFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("ServiceManagementClientKafkaProducer")
         ).scheduleAtFixedRate(new RunnableWithExceptionProtection(
@@ -91,6 +91,9 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
 
     @Override
     public void run() {
+        if (producer == null) {
+            return;
+        }
         if (Math.abs(sendPropertiesCounter.getAndAdd(1)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == 0) {
             InstanceProperties instance = InstanceProperties.newBuilder()
                                                             .setService(Config.Agent.SERVICE_NAME)
@@ -118,6 +121,13 @@ public class KafkaServiceManagementServiceClient implements BootService, Runnabl
     @Override
     public void onComplete() {
 
+    }
+
+    @Override
+    public void onStatusChanged(KafkaConnectionStatus status) {
+        if (status == KafkaConnectionStatus.CONNECTED) {
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
+        }
     }
 
     @Override

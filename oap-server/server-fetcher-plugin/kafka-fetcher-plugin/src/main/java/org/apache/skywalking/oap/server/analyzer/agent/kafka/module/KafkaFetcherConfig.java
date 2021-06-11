@@ -69,7 +69,9 @@ public class KafkaFetcherConfig extends ModuleConfig {
 
     private boolean enableMeterSystem = false;
 
-    private boolean enableLog = false;
+    private boolean enableNativeProtoLog = false;
+
+    private boolean enableNativeJsonLog = false;
 
     private String configPath = "meter-analyzer-config";
 
@@ -85,9 +87,13 @@ public class KafkaFetcherConfig extends ModuleConfig {
 
     private String topicNameOfLogs = "skywalking-logs";
 
+    private String topicNameOfJsonLogs = "skywalking-logs-json";
+
     private int kafkaHandlerThreadPoolSize;
 
     private int kafkaHandlerThreadPoolQueueSize;
+
+    private String namespace = "";
     
     private String mm2SourceAlias = "";
 

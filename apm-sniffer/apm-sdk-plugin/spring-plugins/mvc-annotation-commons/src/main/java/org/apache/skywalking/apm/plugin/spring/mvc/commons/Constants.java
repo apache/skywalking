@@ -34,6 +34,8 @@ public class Constants {
 
     public static final String RESPONSE_KEY_IN_RUNTIME_CONTEXT = "SW_RESPONSE";
 
+    public static final String REACTIVE_ASYNC_SPAN_IN_RUNTIME_CONTEXT = "SW_REACTIVE_RESPONSE_ASYNC_SPAN";
+
     public static final String FORWARD_REQUEST_FLAG = "SW_FORWARD_REQUEST_FLAG";
 
     public static final String WEBFLUX_REQUEST_KEY = "SW_WEBFLUX_REQUEST_KEY";

@@ -35,6 +35,7 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  * the httpcomponent span's info.
  */
 public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
+
     public ExitSpan(int spanId, int parentSpanId, String operationName, String peer, TracingContext owner) {
         super(spanId, parentSpanId, operationName, peer, owner);
     }
@@ -56,7 +57,7 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
 
     @Override
     public ExitSpan tag(String key, String value) {
-        if (stackDepth == 1) {
+        if (stackDepth == 1 || isInAsyncMode) {
             super.tag(key, value);
         }
         return this;
@@ -64,7 +65,7 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
 
     @Override
     public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
-        if (stackDepth == 1 || tag.isCanOverwrite()) {
+        if (stackDepth == 1 || tag.isCanOverwrite() || isInAsyncMode) {
             super.tag(tag, value);
         }
         return this;
@@ -72,7 +73,7 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
 
     @Override
     public AbstractTracingSpan setLayer(SpanLayer layer) {
-        if (stackDepth == 1) {
+        if (stackDepth == 1 || isInAsyncMode) {
             return super.setLayer(layer);
         } else {
             return this;
@@ -81,7 +82,7 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
 
     @Override
     public AbstractTracingSpan setComponent(Component component) {
-        if (stackDepth == 1) {
+        if (stackDepth == 1 || isInAsyncMode) {
             return super.setComponent(component);
         } else {
             return this;
@@ -90,9 +91,7 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
 
     @Override
     public ExitSpan log(Throwable t) {
-        if (stackDepth == 1) {
-            super.log(t);
-        }
+        super.log(t);
         return this;
     }
 

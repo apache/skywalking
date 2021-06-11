@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -32,7 +33,7 @@ public class ControllerConstructorInterceptor implements InstanceConstructorInte
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         String basePath = "";
-        RequestMapping basePathRequestMapping = objInst.getClass().getAnnotation(RequestMapping.class);
+        RequestMapping basePathRequestMapping = AnnotationUtils.findAnnotation(objInst.getClass(), RequestMapping.class);
         if (basePathRequestMapping != null) {
             if (basePathRequestMapping.value().length > 0) {
                 basePath = basePathRequestMapping.value()[0];

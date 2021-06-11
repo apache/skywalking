@@ -34,10 +34,14 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-jdk14-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsJDK14Test:
     name: jdk14
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:

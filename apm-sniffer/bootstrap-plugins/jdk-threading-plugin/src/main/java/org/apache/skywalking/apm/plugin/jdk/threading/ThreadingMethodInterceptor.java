@@ -48,12 +48,7 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final Object ret) {
-
-        final Object storedField = objInst.getSkyWalkingDynamicField();
-        if (storedField != null) {
-            ContextManager.stopSpan();
-        }
-
+        ContextManager.stopSpan();
         return ret;
     }
 

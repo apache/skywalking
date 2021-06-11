@@ -18,11 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import com.google.common.base.Charsets;
+import com.google.gson.Gson;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -31,6 +40,12 @@ import java.util.List;
 public class AlarmStandardPersistence implements AlarmCallback {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlarmStandardPersistence.class);
+    private final Gson gson = new Gson();
+    private final ModuleManager manager;
+
+    public AlarmStandardPersistence(ModuleManager manager) {
+        this.manager = manager;
+    }
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
@@ -48,8 +63,25 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setStartTime(message.getStartTime());
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
-
+            Collection<Tag> tags = appendSearchableTags(message.getTags());
+            record.setTags(new ArrayList<>(tags));
+            record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
+            record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
             RecordStreamProcessor.getInstance().in(record);
         });
+    }
+
+    private Collection<Tag> appendSearchableTags(List<Tag> tags) {
+        final ConfigService configService = manager.find(CoreModule.NAME)
+                .provider()
+                .getService(ConfigService.class);
+        HashSet<Tag> alarmTags = new HashSet<>();
+        tags.forEach(tag -> {
+            if (configService.getSearchableAlarmTags().contains(tag.getKey())) {
+                final Tag alarmTag = new Tag(tag.getKey(), tag.getValue());
+                alarmTags.add(alarmTag);
+            }
+        });
+        return alarmTags;
     }
 }

@@ -38,6 +38,21 @@ rules:
     op: ">"
     period: 10
     count: 1
+    tags:
+      level: WARNING
+#  unhealthy_event_rule:
+#    metrics-name: Unhealthy
+     # Healthiness check is usually a scheduled task,
+     # they may be unhealthy for the first few times,
+     # and can be unhealthy occasionally due to network jitter,
+     # please adjust the threshold as per your actual situation.
+#    threshold: 5
+#    op: ">"
+#    period: 10
+#    count: 1
+#    message: Service instance has been unhealthy for 10 minutes
+#    tags:
+#      level: ERROR
 
 webhooks:
 #  - http://127.0.0.1/notify/
@@ -95,3 +110,16 @@ feishuHooks:
   webhooks:
 #    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
 #      secret: dummysecret
+
+welinkHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  webhooks:
+#    # you may find your own client_id and client_secret in your app, below are dummy, need to change.
+#    - client_id: "dummy_client_id"
+#      client_secret: dummy_secret_key
+#      access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+#      message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+#      # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
+#      group_ids: "dummy_group_id"
+#      # make a name you like for the robot, it will display in group
+#      robot_name: robot

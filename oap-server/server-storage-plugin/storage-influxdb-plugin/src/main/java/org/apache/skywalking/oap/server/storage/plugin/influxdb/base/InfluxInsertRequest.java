@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
@@ -42,7 +43,7 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
 
     public <T extends StorageData> InfluxInsertRequest(Model model, T storageData, StorageHashMapBuilder<T> storageBuilder) {
         final Map<String, Object> objectMap = storageBuilder.entity2Storage(storageData);
-        if (SegmentRecord.INDEX_NAME.equals(model.getName()) || LogRecord.INDEX_NAME.equals(model.getName())) {
+        if (SegmentRecord.INDEX_NAME.equals(model.getName()) || LogRecord.INDEX_NAME.equals(model.getName()) || AlarmRecord.INDEX_NAME.equals(model.getName())) {
             objectMap.remove(SegmentRecord.TAGS);
         }
 

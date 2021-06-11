@@ -64,7 +64,11 @@ public class K8SServiceRegistry {
 
     protected final ServiceNameFormatter serviceNameFormatter;
 
+    private final EnvoyMetricReceiverConfig config;
+
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
+        this.config = config;
+
         serviceNameFormatter = new ServiceNameFormatter(config.getK8sServiceNameRule());
         ipServiceMetaInfoMap = new ConcurrentHashMap<>();
         idServiceMap = new ConcurrentHashMap<>();
@@ -107,7 +111,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -141,7 +146,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -175,7 +181,8 @@ public class K8SServiceRegistry {
                 null,
                 null,
                 params.resourceVersion,
-                300,
+                null,
+                params.timeoutSeconds,
                 params.watch,
                 null
             ),
@@ -214,17 +221,13 @@ public class K8SServiceRegistry {
     }
 
     protected void addPod(final V1Pod pod) {
-        ofNullable(pod.getStatus()).ifPresent(
-            status -> ipPodMap.put(status.getPodIP(), pod)
-        );
+        ofNullable(pod.getStatus()).flatMap(status -> ofNullable(status.getPodIP())).ifPresent(podIP -> ipPodMap.put(podIP, pod));
 
         recompose();
     }
 
     protected void removePod(final V1Pod pod) {
-        ofNullable(pod.getStatus()).ifPresent(
-            status -> ipPodMap.remove(status.getPodIP())
-        );
+        ofNullable(pod.getStatus()).flatMap(status -> ofNullable(status.getPodIP())).ifPresent(ipPodMap::remove);
     }
 
     protected void addEndpoints(final V1Endpoints endpoints) {
@@ -239,7 +242,7 @@ public class K8SServiceRegistry {
 
         ofNullable(endpoints.getSubsets()).ifPresent(subsets -> subsets.forEach(
             subset -> ofNullable(subset.getAddresses()).ifPresent(addresses -> addresses.forEach(
-                address -> ipServiceMap.put(address.getIp(), namespace + ":" + name)
+                address -> ofNullable(address.getIp()).ifPresent(ip -> ipServiceMap.put(ip, namespace + ":" + name))
             ))
         ));
 
@@ -249,7 +252,7 @@ public class K8SServiceRegistry {
     protected void removeEndpoints(final V1Endpoints endpoints) {
         ofNullable(endpoints.getSubsets()).ifPresent(subsets -> subsets.forEach(
             subset -> ofNullable(subset.getAddresses()).ifPresent(addresses -> addresses.forEach(
-                address -> ipServiceMap.remove(address.getIp())
+                address -> ofNullable(address.getIp()).ifPresent(ipServiceMap::remove)
             ))
         ));
     }
@@ -264,11 +267,11 @@ public class K8SServiceRegistry {
                      .collect(Collectors.toList());
     }
 
-    protected ServiceMetaInfo findService(final String ip) {
+    public ServiceMetaInfo findService(final String ip) {
         final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
         if (isNull(service)) {
             log.debug("Unknown ip {}, ip -> service is null", ip);
-            return ServiceMetaInfo.UNKNOWN;
+            return config.serviceMetaInfoFactory().unknown();
         }
         return service;
     }
@@ -298,7 +301,7 @@ public class K8SServiceRegistry {
                     final V1ObjectMeta serviceMetadata = service.getMetadata();
                     if (isNull(serviceMetadata)) {
                         log.warn("Service metadata is null, {}", service);
-                        return ServiceMetaInfo.UNKNOWN;
+                        return config.serviceMetaInfoFactory().unknown();
                     }
                     serviceMetaInfo.setServiceName(serviceMetadata.getName());
                 }
@@ -311,7 +314,7 @@ public class K8SServiceRegistry {
         });
     }
 
-    protected boolean isEmpty() {
+    public boolean isEmpty() {
         return ipServiceMetaInfoMap.isEmpty();
     }
 }

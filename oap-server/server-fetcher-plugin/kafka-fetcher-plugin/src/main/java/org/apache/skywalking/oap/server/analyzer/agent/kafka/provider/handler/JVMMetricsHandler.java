@@ -27,29 +27,58 @@ import org.apache.skywalking.oap.server.analyzer.provider.jvm.JVMSourceDispatche
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics.Timer;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * A handler deserializes the message of JVM Metrics and pushes it to downstream.
  */
 @Slf4j
-public class JVMMetricsHandler implements KafkaHandler {
+public class JVMMetricsHandler extends AbstractKafkaHandler {
 
     private final NamingControl namingLengthControl;
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
-    private final KafkaFetcherConfig config;
+    private final HistogramMetrics histogram;
+    private final HistogramMetrics histogramBatch;
+    private final CounterMetrics errorCounter;
 
-    public JVMMetricsHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
-        this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
-        this.namingLengthControl = moduleManager.find(CoreModule.NAME)
+    public JVMMetricsHandler(ModuleManager manager, KafkaFetcherConfig config) {
+        super(manager, config);
+        this.jvmSourceDispatcher = new JVMSourceDispatcher(manager);
+        this.namingLengthControl = manager.find(CoreModule.NAME)
                                                 .provider()
                                                 .getService(NamingControl.class);
-        this.config = config;
+        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+                                               .provider()
+                                               .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+            "meter_in_latency",
+            "The process latency of meter",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka")
+        );
+        histogramBatch = metricsCreator.createHistogramMetric(
+            "meter_in_latency",
+            "The process latency of meter",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka")
+        );
+        errorCounter = metricsCreator.createCounter(
+            "meter_analysis_error_count",
+            "The error number of meter analysis",
+            new MetricsTag.Keys("protocol"),
+            new MetricsTag.Values("kafka")
+        );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try {
+        try (Timer ignored = histogramBatch.createTimer()) {
             JVMMetricCollection metrics = JVMMetricCollection.parseFrom(record.value().get());
 
             if (log.isDebugEnabled()) {
@@ -64,7 +93,12 @@ public class JVMMetricsHandler implements KafkaHandler {
             builder.setServiceInstance(namingLengthControl.formatInstanceName(builder.getServiceInstance()));
 
             builder.getMetricsList().forEach(jvmMetric -> {
-                jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
+                try (Timer timer = histogram.createTimer()) {
+                    jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
+                } catch (Exception e) {
+                    errorCounter.inc();
+                    log.error(e.getMessage(), e);
+                }
             });
         } catch (Exception e) {
             log.error("handle record failed", e);
@@ -72,12 +106,7 @@ public class JVMMetricsHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfMetrics();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfMetrics();
     }
 }

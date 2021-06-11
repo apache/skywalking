@@ -34,10 +34,14 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-3-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
@@ -72,6 +76,7 @@ jobs:
           - thrift-scenario
           - dbcp-2.x-scenario
           - jsonrpc4j-1.x-scenario
+          - gateway-3.x-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -93,7 +98,7 @@ jobs:
 
   Oracle:
     name: Oracle
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2

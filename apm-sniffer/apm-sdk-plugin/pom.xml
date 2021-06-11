@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.6.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -39,6 +39,8 @@
         <module>mongodb-4.x-plugin</module>
         <module>feign-default-http-9.x-plugin</module>
         <module>okhttp-3.x-plugin</module>
+        <module>okhttp-4.x-plugin</module>
+        <module>okhttp-common</module>
         <module>spring-plugins</module>
         <module>struts2-2.x-plugin</module>
         <module>nutz-plugins</module>

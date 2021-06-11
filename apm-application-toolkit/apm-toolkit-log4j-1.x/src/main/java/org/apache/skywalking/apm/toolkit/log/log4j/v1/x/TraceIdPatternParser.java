@@ -21,10 +21,12 @@ package org.apache.skywalking.apm.toolkit.log.log4j.v1.x;
 import org.apache.log4j.helpers.PatternParser;
 
 /**
- * Base on '%T', use {@link TraceIdPatternConverter} to convert the '%t' to traceId.
+ * Base on '%T', use {@link TraceIdPatternConverter} to convert the '%T' to traceId or '%T{SW_CTX}' to SkyWalking context.
  * <p>
  */
 public class TraceIdPatternParser extends PatternParser {
+    private static final String SKYWALKING_CONTEXT_OPTION = "SW_CTX";
+
     public TraceIdPatternParser(String pattern) {
         super(pattern);
     }
@@ -32,7 +34,12 @@ public class TraceIdPatternParser extends PatternParser {
     @Override
     protected void finalizeConverter(char c) {
         if ('T' == c) {
-            addConverter(new TraceIdPatternConverter());
+            String option = super.extractOption();
+            if (option != null && option.equals(SKYWALKING_CONTEXT_OPTION)) {
+                addConverter(new SkyWalkingContextPatternConverter());
+            } else {
+                addConverter(new TraceIdPatternConverter());
+            }
         } else {
             super.finalizeConverter(c);
         }

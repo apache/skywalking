@@ -41,7 +41,8 @@ import java.lang.reflect.Method;
  *  1. Get the @{@link ConsumerEnhanceRequiredInfo} and record the service url, topic name and subscription name
  *  2. Create the entry span when call <code>messageProcessed</code> method
  *  3. Extract all the <code>Trace Context</code> when call <code>messageProcessed</code> method
- *  4. Stop the entry span when <code>messageProcessed</code> method finished.
+ *  4. Capture trace context and set into SkyWalkingDynamic field if consumer has a message listener when <code>messageProcessed</code> method finished
+ *  5. Stop the entry span.
  * </pre>
  */
 public class PulsarConsumerInterceptor implements InstanceMethodsAroundInterceptor {
@@ -74,6 +75,17 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         if (allArguments[0] != null) {
+            final ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst
+                    .getSkyWalkingDynamicField();
+            EnhancedInstance msg = (EnhancedInstance) allArguments[0];
+            MessageEnhanceRequiredInfo messageEnhanceRequiredInfo = (MessageEnhanceRequiredInfo) msg
+                    .getSkyWalkingDynamicField();
+            if (messageEnhanceRequiredInfo == null) {
+                messageEnhanceRequiredInfo = new MessageEnhanceRequiredInfo();
+                msg.setSkyWalkingDynamicField(messageEnhanceRequiredInfo);
+            }
+            messageEnhanceRequiredInfo.setTopic(requiredInfo.getTopic());
+            messageEnhanceRequiredInfo.setContextSnapshot(ContextManager.capture());
             ContextManager.stopSpan();
         }
         return ret;

@@ -1,22 +1,21 @@
-# Source and Scope extension for new metrics
-From [OAL scope introduction](../concepts-and-designs/oal.md#scope), you should already have understood what the scope is.
-At here, as you want to do more extension, you need understand deeper, which is the **Source**. 
+# Source and scope extension for new metrics
+From the [OAL scope introduction](../concepts-and-designs/oal.md#scope), you should already have understood what a scope is.
+If you would like to create more extensions, you need to have a deeper understanding of what a **source** is. 
 
-**Source** and **Scope** are binding concepts. **Scope** declare the id(int) and name, **Source** declare the attributes.
-Please follow these steps to create a new Source and Scope.
+**Source** and **scope** are interrelated concepts. **Scope** declares the ID (int) and name, while **source** declares the attributes.
+Follow these steps to create a new source and sccope.
 
-1. In the OAP core module, it provide **SourceReceiver** internal service.
+1. In the OAP core module, it provides **SourceReceiver** internal services.
 ```java
 public interface SourceReceiver extends Service {
     void receive(Source source);
 }
 ```
 
-2. All analysis data must be a **org.apache.skywalking.oap.server.core.source.Source** sub class,
-tagged by `@SourceType` annotation, and in `org.apache.skywalking` package.
-Then it could be supported by OAL script and OAP core.
+2. All data of the analysis must be a **org.apache.skywalking.oap.server.core.source.Source** sub class that is
+tagged by `@SourceType` annotation, and included in the `org.apache.skywalking` package. Then, it can be supported by the OAL script and OAP core.
 
-Such as existed source, **Service**.
+Take the existing source **service** as an example.
 ```java
 @ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
@@ -41,27 +40,23 @@ public class ServiceInstance extends Source {
 }
 ```
 
-3. The `scope()` method in Source, returns an ID, which is not a random number. This ID need to be declared through 
-`@ScopeDeclaration` annotation too. The ID in `@ScopeDeclaration` and ID in `scope()` method should be same for this Source.
+3. The `scope()` method in source returns an ID, which is not a random value. This ID must be declared through the `@ScopeDeclaration` annotation too. The ID in `@ScopeDeclaration` and ID in `scope()` method must be the same for this source.
 
-4. The `String getEntityId()` method in Source, requests the return value representing unique entity which the scope related. 
-Such as,
-in this Service scope, the id is service id, representing a particular service, like `Order` service.
-This value is used in [OAL group mechanism](../concepts-and-designs/oal.md#group).
+4. The `String getEntityId()` method in source requests the return value representing the unique entity to which the scope relates. For example, in this service scope, the ID is the service ID, which represents a particular service, like the `Order` service.
+This value is used in the [OAL group mechanism](../concepts-and-designs/oal.md#group).
 
-5. `@ScopeDefaultColumn.VirtualColumnDefinition` and `@ScopeDefaultColumn.DefinedByField` are required, all declared fields(virtual/byField)
-are going to be pushed into persistent entity, mapping to such as ElasticSearch index and Database table column.
-Such as, include entity id mostly, and service id for endpoint and service instance level scope. Take a reference to all existing scopes.
-All these fields are detected by OAL Runtime, and required in query stage.
+5. `@ScopeDefaultColumn.VirtualColumnDefinition` and `@ScopeDefaultColumn.DefinedByField` are required. All declared fields (virtual/byField) will be pushed into a persistent entity, and maps to lists such as the ElasticSearch index and Database table column.
+For example, the entity ID and service ID for endpoint and service instance level scope are usually included. Take a reference from all existing scopes.
+All these fields are detected by OAL Runtime, and are required during query.
 
-6. Add scope name as keyword to oal grammar definition file, `OALLexer.g4`, which is at `antlr4` folder of `generate-tool-grammar` module.
+6. Add scope name as keyword to OAL grammar definition file, `OALLexer.g4`, which is at the `antlr4` folder of the `generate-tool-grammar` module.
 
-7. Add scope name keyword as source in parser definition file, `OALParser.g4`, which is at same fold of `OALLexer.g4`.
+7. Add scope name as keyword to the parser definition file, `OALParser.g4`, which is located in the same folder as `OALLexer.g4`.
 
 
 ___
-After you done all of these, you could build a receiver, which do
-1. Get the original data of the metrics,
-1. Build the source, send into `SourceReceiver`.
-1. Write your whole OAL scripts.
+After finishing these steps, you could build a receiver, which do
+1. Obtain the original data of the metrics.
+1. Build the source, and send to `SourceReceiver`.
+1. Complete your OAL scripts.
 1. Repackage the project.

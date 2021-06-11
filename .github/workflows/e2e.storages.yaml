@@ -24,6 +24,10 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-storages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   StoragePlugins:
     name: Storage
@@ -31,7 +35,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'influxdb', 'tidb', 'postgresql']
+        storage: ['mysql', 'es6', 'es7.0', 'es7.10', 'opensearch', 'influxdb', 'tidb', 'postgresql']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
@@ -48,6 +52,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test

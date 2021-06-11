@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.time.Duration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -81,7 +80,9 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             config.getTopicNameOfMetrics(),
             config.getTopicNameOfProfiling(),
             config.getTopicNameOfTracingSegments(),
-            config.getTopicNameOfMeters()
+            config.getTopicNameOfMeters(),
+            config.getTopicNameOfLogs(),
+            config.getTopicNameOfJsonLogs()
         ))
                                               .values()
                                               .entrySet()
@@ -90,7 +91,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                                                   try {
                                                       entry.getValue().get();
                                                       return null;
-                                                  } catch (InterruptedException | ExecutionException e) {
+                                                  } catch (InterruptedException | ExecutionException ignore) {
                                                   }
                                                   return entry.getKey();
                                               })
@@ -130,7 +131,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
         consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
         executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
                                           60, TimeUnit.SECONDS,
-                                          new ArrayBlockingQueue(threadPoolQueueSize),
+                                          new ArrayBlockingQueue<>(threadPoolQueueSize),
                                           new CustomThreadFactory("KafkaConsumer"),
                                           new ThreadPoolExecutor.CallerRunsPolicy()
         );
@@ -158,9 +159,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
             try {
                 ConsumerRecords<String, Bytes> consumerRecords = consumer.poll(Duration.ofMillis(500L));
                 if (!consumerRecords.isEmpty()) {
-                    Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
-                    while (iterator.hasNext()) {
-                        ConsumerRecord<String, Bytes> record = iterator.next();
+                    for (final ConsumerRecord<String, Bytes> record : consumerRecords) {
                         executor.submit(() -> handlerMap.get(record.topic()).handle(record));
                     }
                     if (!enableKafkaMessageAutoCommit) {

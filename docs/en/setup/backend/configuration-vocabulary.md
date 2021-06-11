@@ -31,6 +31,7 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | endpointNameMaxLength| Max length limitation of endpoint name. The max length of service + endpoint names should be less than 240.|SW_ENDPOINT_NAME_MAX_LENGTH|150|
 | - | - | searchableTracesTags | Define the set of span tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_TAG_KEYS | http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker|
 | - | - | searchableLogsTags | Define the set of log tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_LOGS_TAG_KEYS | level |
+| - | - | searchableAlarmTags | Define the set of alarm tag keys, which should be searchable through the GraphQL. Multiple values should be separated through the comma. | SW_SEARCHABLE_ALARM_TAG_KEYS | level |
 | - | - | gRPCThreadPoolSize|Pool size of gRPC server| SW_CORE_GRPC_THREAD_POOL_SIZE | CPU core * 4|
 | - | - | gRPCThreadPoolQueueSize| The queue size of gRPC server| SW_CORE_GRPC_POOL_QUEUE_SIZE | 10000|
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | SW_CORE_GRPC_MAX_CONCURRENT_CALL | - |
@@ -190,7 +191,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | service-mesh| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | envoy-metric| default| Read [receiver doc](backend-receivers.md) for more details | - | - |
 | - | - | acceptMetricsService | Open Envoy Metrics Service analysis | SW_ENVOY_METRIC_SERVICE | true|
-| - | - | alsHTTPAnalysis | Open Envoy Access Log Service analysis. Value = `k8s-mesh` means open the analysis | SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS | - |
+| - | - | alsHTTPAnalysis | Open Envoy HTTP Access Log Service analysis. Value = `k8s-mesh` means open the analysis | SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS | - |
+| - | - | alsTCPAnalysis | Open Envoy TCP Access Log Service analysis. Value = `k8s-mesh` means open the analysis | SW_ENVOY_METRIC_ALS_TCP_ANALYSIS | - |
 | - | - | k8sServiceNameRule | `k8sServiceNameRule` allows you to customize the service name in ALS via Kubernetes metadata, the available variables are `pod`, `service`, e.g., you can use `${service.metadata.name}-${pod.metadata.labels.version}` to append the version number to the service name. Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell. | - |
 | receiver-otel | default | Read [receiver doc](backend-receivers.md) for more details | - | - |
 | - | - | enabledHandlers|Enabled handlers for otel| SW_OTEL_RECEIVER_ENABLED_HANDLERS | - |
@@ -207,16 +209,19 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | maxConcurrentCallsPerConnection | The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit. | - | - |
 | - | - | maxMessageSize | Sets the maximum message size allowed to be received on the server. Empty means 4 MiB | - | 4M(based on Netty) |
 | prometheus-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
-| - | - | active | Activate the Prometheus fetcher. | SW_PROMETHEUS_FETCHER_ACTIVE | false |
+| - | - | enabledRules | Enable rules. | SW_PROMETHEUS_FETCHER_ENABLED_RULES | self |
+| - | - | maxConvertWorker | The maximize meter convert worker. | SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER | -1(by default, half the number of CPU core(s)) |   
 | kafka-fetcher | default | Read [fetcher doc](backend-fetcher.md) for more details | - | - |
 | - | - | bootstrapServers | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | SW_KAFKA_FETCHER_SERVERS | localhost:9092 |
+| - | - | namespace | namespace aims to isolate multi OAP cluster when using the same Kafka cluster.if you set a namespace for Kafka fetcher, OAP will add a prefix to topic name. you should also set namespace in `agent.config`, the property named| SW_NAMESPACE | - |
 | - | - | groupId | A unique string that identifies the consumer group this consumer belongs to.| - | skywalking-consumer |
 | - | - | consumePartitions | Which PartitionId(s) of the topics assign to the OAP server. If more than one, is separated by commas. | SW_KAFKA_FETCHER_CONSUME_PARTITIONS | - |
 | - | - | isSharding | it was true when OAP Server in cluster. | SW_KAFKA_FETCHER_IS_SHARDING | false |
 | - | - | createTopicIfNotExist | If true, create the Kafka topic when it does not exist. | - | true |
 | - | - | partitions | The number of partitions for the topic being created. | SW_KAFKA_FETCHER_PARTITIONS | 3 |
 | - | - | enableMeterSystem | To enable to fetch and handle [Meter System](backend-meter.md) data. | SW_KAFKA_FETCHER_ENABLE_METER_SYSTEM | false |
-| - | - | enableLog | To enable to fetch and handle log data. | SW_KAFKA_FETCHER_ENABLE_LOG | false |
+| - | - | enableNativeProtoLog | To enable to fetch and handle native proto log data. | SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG | false |
+| - | - | enableNativeJsonLog | To enable to fetch and handle native json log data. | SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG | false |
 | - | - | replicationFactor | The replication factor for each partition in the topic being created. | SW_KAFKA_FETCHER_PARTITIONS_FACTOR | 2 |
 | - | - | kafkaHandlerThreadPoolSize | Pool size of kafka message handler executor. | SW_KAFKA_HANDLER_THREAD_POOL_SIZE | CPU core * 2 |
 | - | - | kafkaHandlerThreadPoolQueueSize | The queue size of kafka message handler executor. | SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE | 10000 |
@@ -225,7 +230,8 @@ core|default|role|Option values, `Mixed/Receiver/Aggregator`. **Receiver** mode 
 | - | - | topicNameOfProfiling | Specifying Kafka topic name for Profiling data. | - | skywalking-profilings |
 | - | - | topicNameOfTracingSegments | Specifying Kafka topic name for Tracing data. | - | skywalking-segments |
 | - | - | topicNameOfManagements | Specifying Kafka topic name for service instance reporting and registering. | - | skywalking-managements |
-| - | - | topicNameOfLogs | Specifying Kafka topic name for log data. | - | skywalking-logs |
+| - | - | topicNameOfLogs | Specifying Kafka topic name for native proto log data. | - | skywalking-logs |
+| - | - | topicNameOfJsonLogs | Specifying Kafka topic name for native json log data. | - | skywalking-logs-json |
 | receiver-browser | default | Read [receiver doc](backend-receivers.md) for more details | - | - | - |
 | - | - | sampleRate | Sampling rate for receiving trace. The precision is 1/10000. 10000 means 100% sample in default. | SW_RECEIVER_BROWSER_SAMPLE_RATE | 10000 |
 | query | graphql | - | GraphQL query implementation | - |

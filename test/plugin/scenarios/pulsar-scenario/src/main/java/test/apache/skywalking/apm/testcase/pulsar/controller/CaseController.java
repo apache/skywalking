@@ -18,8 +18,6 @@
 
 package test.apache.skywalking.apm.testcase.pulsar.controller;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pulsar.client.api.Consumer;
@@ -32,6 +30,14 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/case")
@@ -47,9 +53,25 @@ public class CaseController {
 
     @RequestMapping("/pulsar-case")
     @ResponseBody
-    public String pulsarCase() throws PulsarClientException, InterruptedException {
+    public String pulsarCase() {
 
-        String topic = "test";
+        String topicOnePartition = "test";
+        String topicMultiPartition = "testMultiPartition";
+
+        try {
+            doSendAndReceiveMessage(topicOnePartition);
+
+            createTopic(topicMultiPartition, 2);
+            doSendAndReceiveMessage(topicMultiPartition);
+        } catch (IOException e) {
+            LOGGER.error("test error", e);
+        }
+
+        return "Success";
+    }
+
+    private void doSendAndReceiveMessage(String topic) throws PulsarClientException {
+        CountDownLatch latch = new CountDownLatch(2);
 
         PulsarClient pulsarClient = PulsarClient.builder().serviceUrl(PULSAR_DOMAIN + serviceUrl).build();
 
@@ -57,9 +79,31 @@ public class CaseController {
 
         Consumer<byte[]> consumer = pulsarClient.newConsumer().topic(topic).subscriptionName("test").subscribe();
 
-        producer.newMessage().key("testKey").value(Integer.toString(1).getBytes()).property("TEST", "TEST").send();
+        final Consumer<byte[]> consumerWithListener = pulsarClient.newConsumer().topic(topic)
+                .subscriptionName("testWithListener")
+                .messageListener((c, msg) -> {
+                    try {
+                        if (msg != null) {
+                            String propertiesFormat = "key = %s, value = %s";
+                            StringBuilder builder = new StringBuilder();
+                            msg.getProperties()
+                                    .forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v))
+                                            .append(", "));
+                            LOGGER.info(
+                                    "Received message with messageId = {}, key = {}, value = {}, properties = {}",
+                                    msg.getMessageId(), msg
+                                            .getKey(), new String(msg.getValue()), builder.toString());
 
-        CountDownLatch latch = new CountDownLatch(1);
+                        }
+                        c.acknowledge(msg);
+                    } catch (Exception e) {
+                        LOGGER.error("Receive message error", e);
+                    } finally {
+                        latch.countDown();
+                    }
+                }).subscribe();
+
+        producer.newMessage().key("testKey").value(Integer.toString(1).getBytes()).property("TEST", "TEST").send();
 
         Thread t = new Thread(() -> {
             try {
@@ -68,9 +112,10 @@ public class CaseController {
                     String propertiesFormat = "key = %s, value = %s";
                     StringBuilder builder = new StringBuilder();
                     msg.getProperties()
-                       .forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v)).append(", "));
-                    LOGGER.info("Received message with messageId = {}, key = {}, value = {}, properties = {}", msg.getMessageId(), msg
-                        .getKey(), new String(msg.getValue()), builder.toString());
+                            .forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v)).append(", "));
+                    LOGGER.info("Received message with messageId = {}, key = {}, value = {}, properties = {}",
+                            msg.getMessageId(), msg
+                                    .getKey(), new String(msg.getValue()), builder.toString());
 
                 }
                 consumer.acknowledge(msg);
@@ -88,23 +133,34 @@ public class CaseController {
         } catch (InterruptedException e) {
             LOGGER.error("Can get message from consumer", e);
             t.interrupt();
-            throw e;
         }
 
         producer.close();
         consumer.close();
+        consumerWithListener.close();
+    }
 
-        return "Success";
+    private void createTopic(String topic, int numOfPartitions) throws IOException {
+        final URL url = new URL("http://pulsar-standalone:8080/admin/v2/persistent/public/default/" + topic + "/partitions");
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.setDoOutput(true);
+
+        final OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(String.valueOf(numOfPartitions).getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
+
+        LOGGER.info("Create topic result:{}", connection.getResponseCode());
     }
 
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() throws InterruptedException {
         try (PulsarClient pulsarClient = PulsarClient.builder()
-                                                     .serviceUrl(PULSAR_DOMAIN + serviceUrl)
-                                                     .build(); Producer<byte[]> producer = pulsarClient.newProducer()
-                                                                                                       .topic("healthCheck")
-                                                                                                       .create()) {
+                .serviceUrl(PULSAR_DOMAIN + serviceUrl)
+                .build(); Producer<byte[]> producer = pulsarClient.newProducer()
+                .topic("healthCheck")
+                .create()) {
             if (producer.isConnected()) {
                 return "Success";
             } else {

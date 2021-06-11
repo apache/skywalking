@@ -85,25 +85,29 @@ public class ServerInProtocolWrapper extends AbstractProtocolWrapper {
             }
             return readFieldBegin();
         }
-        if (field.type == TType.STOP) {
-            Boolean haveCreatedSpan =
-                    (Boolean) ContextManager.getRuntimeContext().get(HAVE_CREATED_SPAN);
-            if (haveCreatedSpan != null && !haveCreatedSpan) {
-                try {
-                    AbstractSpan span = ContextManager.createEntrySpan(
-                            context.getOperatorName(), createContextCarrier(null));
-                    span.start(context.startTime);
-                    span.tag(TAG_ARGS, context.getArguments());
-                    span.setComponent(ComponentsDefine.THRIFT_SERVER);
-                    SpanLayer.asRPCFramework(span);
-                } catch (Throwable throwable) {
-                    LOGGER.error("Failed to create EntrySpan.", throwable);
-                } finally {
-                    context = null;
-                }
+
+        return field;
+    }
+
+    @Override
+    public void readMessageEnd() throws TException {
+        super.readMessageEnd();
+        Boolean haveCreatedSpan =
+                (Boolean) ContextManager.getRuntimeContext().get(HAVE_CREATED_SPAN);
+        if (haveCreatedSpan != null && !haveCreatedSpan) {
+            try {
+                AbstractSpan span = ContextManager.createEntrySpan(
+                        context.getOperatorName(), createContextCarrier(null));
+                span.start(context.startTime);
+                span.tag(TAG_ARGS, context.getArguments());
+                span.setComponent(ComponentsDefine.THRIFT_SERVER);
+                SpanLayer.asRPCFramework(span);
+            } catch (Throwable throwable) {
+                LOGGER.error("Failed to create EntrySpan.", throwable);
+            } finally {
+                context = null;
             }
         }
-        return field;
     }
 
     private ContextCarrier createContextCarrier(Map<String, String> header) {

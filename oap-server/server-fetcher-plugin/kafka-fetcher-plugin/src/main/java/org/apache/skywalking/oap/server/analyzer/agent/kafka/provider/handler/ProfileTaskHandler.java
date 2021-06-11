@@ -27,22 +27,44 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics.Timer;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag.Keys;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag.Values;
 
 /**
  * A handler deserializes the message of profiling snapshot and pushes it to downstream.
  */
 @Slf4j
-public class ProfileTaskHandler implements KafkaHandler {
-
-    private final KafkaFetcherConfig config;
+public class ProfileTaskHandler extends AbstractKafkaHandler {
+    private final HistogramMetrics histogram;
+    private final CounterMetrics errorCounter;
 
     public ProfileTaskHandler(ModuleManager manager, KafkaFetcherConfig config) {
-        this.config = config;
+        super(manager, config);
+        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric(
+                "profile_task_in_latency",
+                "The process latency of profile task",
+                new Keys("protocol"),
+                new Values("kafka")
+        );
+        errorCounter = metricsCreator.createCounter(
+                "profile_task_analysis_error_count",
+                "The error number of profile task process",
+                new Keys("protocol"),
+                new Values("kafka")
+        );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try {
+        try (Timer ignored = histogram.createTimer()) {
             ThreadSnapshot snapshot = ThreadSnapshot.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(
@@ -62,17 +84,13 @@ public class ProfileTaskHandler implements KafkaHandler {
 
             RecordStreamProcessor.getInstance().in(snapshotRecord);
         } catch (Exception e) {
+            errorCounter.inc();
             log.error("handle record failed", e);
         }
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfProfiling();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfProfiling();
     }
 }

@@ -27,6 +27,10 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-profiling-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Profiling:
     name: Profiling

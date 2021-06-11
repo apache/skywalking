@@ -36,6 +36,7 @@ public class CaseController {
     @ResponseBody
     public String updateUser() {
         testServiceBean.doSomeBusiness("test");
+        testServiceBean.doInvokeImplCase();
         return SUCCESS;
     }
 

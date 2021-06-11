@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao;
 
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLAlarmQueryDAO;
 
 public class PostgreSQLAlarmQueryDAO extends MySQLAlarmQueryDAO {
-    
-    public PostgreSQLAlarmQueryDAO(JDBCHikariCPClient client) {
-        super(client);
+
+    public PostgreSQLAlarmQueryDAO(final JDBCHikariCPClient client,
+                              final ModuleManager manager,
+                              final int maxSizeOfArrayColumn, final int numOfSearchValuesPerTag) {
+        super(client, manager, maxSizeOfArrayColumn, numOfSearchValuesPerTag);
     }
     
     @Override

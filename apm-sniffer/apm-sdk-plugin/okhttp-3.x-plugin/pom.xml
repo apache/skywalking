@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>8.6.0-SNAPSHOT</version>
+        <version>8.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,6 +38,12 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-okhttp-common</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -1,11 +1,11 @@
 # Plugin automatic test framework
 
-Plugin test framework is designed for verifying the plugins' function and compatible status. As there are dozens of plugins and
-hundreds of versions need to be verified, it is impossible to do manually.
-The test framework uses container based tech stack, requires a set of real services with agent installed, then the test mock
-OAP backend is running to check the segments data sent from agents.
+The plugin test framework is designed to verify the function and compatibility of plugins. As there are dozens of plugins and
+hundreds of versions that need to be verified, it is impossible to do it manually.
+The test framework uses container-based tech stack and requires a set of real services with the agents installed. Then, the test mock
+OAP backend runs to check the segments data sent from agents.
 
-Every plugin maintained in the main repo requires corresponding test cases, also matching the versions in the supported list doc.
+Every plugin maintained in the main repo requires corresponding test cases as well as matching versions in the supported list doc.
 
 ## Environment Requirements
 
@@ -16,33 +16,31 @@ Every plugin maintained in the main repo requires corresponding test cases, also
 
 ## Case Base Image Introduction
 
-The test framework provides `JVM-container` and `Tomcat-container` base images including JDK8, JDK14. You could choose the suitable one for your test case, if both are suitable, **`JVM-container` is preferred**.
+The test framework provides `JVM-container` and `Tomcat-container` base images including JDK8 and JDK14. You can choose the best one for your test case. If both are suitable for your case, **`JVM-container` is preferred**.
 
 ### JVM-container Image Introduction
 
-[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image. `JVM-container` has supported JDK14, which inherits `openjdk:14`.
-The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
+[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image. `JVM-container` supports JDK14, which inherits `openjdk:14`.
+The test case project must be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
-Take the following test projects as good examples
-* [sofarpc-scenario](../../../test/plugin/scenarios/sofarpc-scenario) as a single project case.
-* [webflux-scenario](../../../test/plugin/scenarios/webflux-scenario) as a case including multiple projects.
-* [jdk14-with-gson-scenario](../../../test/plugin/scenarios/jdk14-with-gson-scenario) as a single project case with JDK14.
+Take the following test projects as examples:
+* [sofarpc-scenario](../../../test/plugin/scenarios/sofarpc-scenario) is a single project case.
+* [webflux-scenario](../../../test/plugin/scenarios/webflux-scenario) is a case including multiple projects.
+* [jdk14-with-gson-scenario](../../../test/plugin/scenarios/jdk14-with-gson-scenario) is a single project case with JDK14.
 
 ### Tomcat-container Image Introduction
 
 [Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.57-jdk8-openjdk` or `tomcat:8.5.57-jdk14-openjdk` as the base image.
-The test case project is required to be packaged as `project-name.war` by using `mvn package`.
+The test case project must be packaged as `project-name.war` by using `mvn package`.
 
-Take the following test project as a good example
+Take the following test project as an example
 * [spring-4.3.x-scenario](https://github.com/apache/skywalking/tree/master/test/plugin/scenarios/spring-4.3.x-scenario)
 
 
 ## Test project hierarchical structure
-The test case is an independent maven project, and it is required to be packaged as a war tar ball or zip file, depends 
-on the chosen base image. Also, two external accessible endpoints, mostly two URLs, are required.
+The test case is an independent maven project, and it must be packaged as a war tar ball or zip file, depending on the chosen base image. Also, two external accessible endpoints usually two URLs) are required.
 
-All test case codes should be in `org.apache.skywalking.apm.testcase.*` package, unless there are some codes expected being instrumented,
-then the classes could be in `test.org.apache.skywalking.apm.testcase.*` package.
+All test case codes should be in the `org.apache.skywalking.apm.testcase.*` package. If there are some codes expected to be instrumented, then the classes could be in the `test.org.apache.skywalking.apm.testcase.*` package.
 
 **JVM-container test project hierarchical structure**
 
@@ -90,36 +88,36 @@ The following files are required in every test case.
 
 File Name | Descriptions
 ---|---
-`configuration.yml` | Declare the basic case inform, including, case name, entrance endpoints, mode, dependencies.
+`configuration.yml` | Declare the basic case information, including case name, entrance endpoints, mode, and dependencies.
 `expectedData.yaml` | Describe the expected segmentItems.
-`support-version.list` | List the target versions for this case
-`startup.sh` |`JVM-container` only, don't need this when use`Tomcat-container`
+`support-version.list` | List the target versions for this case.
+`startup.sh` |`JVM-container` only. This is not required when using `Tomcat-container`.
 
-`*` support-version.list format requires every line for a single version(Contains only the last version number of each minor version). Could use `#` to comment out this version.
+`*` support-version.list format requires every line for a single version (contains only the last version number of each minor version). You may use `#` to comment out this version.
 
 ### configuration.yml
 
 | Field | description
 | --- | ---
-| type | Image type, options, `jvm` or `tomcat`. Required.
-| entryService | The entrance endpoint(URL) for test case access. Required. (HTTP Method: GET)
-| healthCheck | The health check endpoint(URL) for test case access. Required. (HTTP Method: HEAD)
-| startScript | Path of start up script. Required in `type: jvm` only.
-| runningMode | Running mode whether with the optional plugin, options, `default`(default), `with_optional`, `with_bootstrap`
-| withPlugins | Plugin selector rule. eg:`apm-spring-annotation-plugin-*.jar`. Required when `runningMode=with_optional` or `runningMode=with_bootstrap`.
+| type | Image type, options, `jvm`, or `tomcat`. Required.
+| entryService | The entrance endpoint (URL) for test case access. Required. (HTTP Method: GET)
+| healthCheck | The health check endpoint (URL) for test case access. Required. (HTTP Method: HEAD)
+| startScript | Path of the start up script. Required in `type: jvm` only.
+| runningMode | Running mode with the optional plugin, options, `default`(default), `with_optional`, or `with_bootstrap`.
+| withPlugins | Plugin selector rule, e.g.:`apm-spring-annotation-plugin-*.jar`. Required for `runningMode=with_optional` or `runningMode=with_bootstrap`.
 | environment | Same as `docker-compose#environment`.
 | depends_on | Same as `docker-compose#depends_on`.
-| dependencies | Same as `docker-compose#services`, `image、links、hostname、environment、depends_on` are supported.
+| dependencies | Same as `docker-compose#services`, `image`, `links`, `hostname`, `environment` and `depends_on` are supported.
 
-**Notice:, `docker-compose` active only when `dependencies` is only blank.**
+**Note:, `docker-compose` activates only when `dependencies` is blank.**
 
 **runningMode** option description.
 
 | Option | description
 | --- | ---
-| default | Active all plugins in `plugin` folder like the official distribution agent. 
-| with_optional | Active `default` and plugins in `optional-plugin` by the give selector.
-| with_bootstrap | Active `default` and plugins in `bootstrap-plugin` by the give selector.
+| default | Activate all plugins in `plugin` folder like the official distribution agent. 
+| with_optional | Activate `default` and plugins in `optional-plugin` by the give selector.
+| with_bootstrap | Activate `default` and plugins in `bootstrap-plugin` by the give selector.
 
 with_optional/with_bootstrap supports multiple selectors, separated by `;`.
 
@@ -154,10 +152,10 @@ dependencies:
       ...
 ```
 
-* dependencies supports docker compose `healthcheck`. But the format is a little difference. We need `-` as the start of every config item,
+* dependencies support docker compose `healthcheck`. But the format is a little different. We need to have `-` as the start of every config item,
 and describe it as a string line.
 
-Such as in official doc, the health check is
+For example, in the official document, the health check is:
 ```yaml
 healthcheck:
   test: ["CMD", "curl", "-f", "http://localhost"]
@@ -167,7 +165,7 @@ healthcheck:
   start_period: 40s
 ```
 
-The here, you should write as
+Here you should write:
 ```yaml
 healthcheck:
   - 'test: ["CMD", "curl", "-f", "http://localhost"]'
@@ -177,14 +175,13 @@ healthcheck:
   - "start_period: 40s"
 ```
 
-In some cases, the dependency service, mostly 3rd party server like SolrJ server, is required to keep the same version
-as client lib version, which defined as `${test.framework.version}` in pom. Could use `${CASE_SERVER_IMAGE_VERSION}`
-as the version number, it will be changed in the test for every version.
+In some cases, the dependency service (usually a third-party server like the SolrJ server) is required to keep the same version
+as the client lib version, which is defined as `${test.framework.version}` in pom. You may use `${CASE_SERVER_IMAGE_VERSION}`
+as the version number, which will be changed in the test for each version.
 
-> Don't support resource related configurations, such as volumes, ports and ulimits. Because in test scenarios, 
-> don't need mapping any port to the host VM, or mount any folder.
+> It does not support resource related configurations, such as volumes, ports, and ulimits. The reason for this is that in test scenarios, no mapping is required for any port to the host VM, or to mount any folder.
 
-**Take following test cases as examples**
+**Take the following test cases as examples:**
 * [dubbo-2.7.x with JVM-container](../../../test/plugin/scenarios/dubbo-2.7.x-scenario/configuration.yml)
 * [jetty with JVM-container](../../../test/plugin/scenarios/jetty-scenario/configuration.yml)
 * [gateway with runningMode](../../../test/plugin/scenarios/gateway-2.1.x-scenario/configuration.yml)
@@ -226,12 +223,12 @@ segmentItems:
 | --- | ---  
 | serviceName | Service Name.
 | segmentSize | The number of segments is expected.
-| segmentId | trace ID.
-| spans | segment span list. Follow the next section to see how to describe every span.
+| segmentId | Trace ID.
+| spans | Segment span list. In the next section, you will learn how to describe each span.
 
 **Expected Data Format Of The Span**
 
-**Notice**: The order of span list should follow the order of the span finish time.
+**Note**: The order of span list should follow the order of the span finish time.
 
 ```yml
     operationName: OPERATION_NAME(string)
@@ -267,8 +264,8 @@ segmentItems:
 | Field | Description 
 |--- |--- 
 | operationName | Span Operation Name.
-| parentSpanId | Parent span id. **Notice**: The parent span id of the first span should be -1. 
-| spanId | Span Id. **Notice**, start from 0. 
+| parentSpanId | Parent span ID. **Note**: The parent span ID of the first span should be -1. 
+| spanId | Span ID. **Note**: Start from 0. 
 | startTime | Span start time. It is impossible to get the accurate time, not 0 should be enough.
 | endTime | Span finish time. It is impossible to get the accurate time, not 0 should be enough.
 | isError | Span status, true or false. 
@@ -629,7 +626,7 @@ If a test case required to run in JDK 14 environment, please add you test case i
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       fail-fast: true

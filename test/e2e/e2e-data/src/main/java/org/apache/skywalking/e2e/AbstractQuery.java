@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.e2e;
 
+import org.springframework.util.StringUtils;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +34,7 @@ public abstract class AbstractQuery<T extends AbstractQuery<T>> {
     private String start;
     private String end;
     private String step = "SECOND";
+    private String name;
 
     public String start() {
         if (start != null) {
@@ -133,6 +136,18 @@ public abstract class AbstractQuery<T extends AbstractQuery<T>> {
 
     public T stepBySecond() {
         this.step = "SECOND";
+        return (T) this;
+    }
+
+    public String name() {
+        if (!StringUtils.isEmpty(name)) {
+            return name;
+        }
+        return null;
+    }
+
+    public T name(String name) {
+        this.name = name;
         return (T) this;
     }
 }

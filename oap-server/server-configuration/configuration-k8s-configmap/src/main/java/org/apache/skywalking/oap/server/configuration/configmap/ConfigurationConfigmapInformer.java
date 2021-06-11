@@ -75,7 +75,7 @@ public class ConfigurationConfigmapInformer {
         SharedIndexInformer<V1ConfigMap> configMapSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedConfigMapCall(
                 settings.getNamespace(), null, null, null, null, settings.getLabelSelector()
-                , 1, params.resourceVersion, 300, params.watch, null
+                , 1, params.resourceVersion, null, params.timeoutSeconds, params.watch, null
             ),
             V1ConfigMap.class, V1ConfigMapList.class
         );

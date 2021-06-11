@@ -28,6 +28,10 @@ env:
   SW_AGENT_JDK_VERSION: 8
   SW_STORAGE: influxdb
 
+concurrency:
+  group: e2e-kafka-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Kafka:
     name: Kafka (${{ matrix.case.name }})

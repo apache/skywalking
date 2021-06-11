@@ -1,0 +1,252 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+templates:
+  - name: "Topology Service Instance Relation"
+    type: "TOPOLOGY_SERVICE_INSTANCE_RELATION"
+    configuration: |-
+      {
+        "default":{
+          "server":[
+            {
+              "width":12,
+              "title":"Response Time",
+              "height":"200",
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_resp_time",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms"
+            },
+            {
+              "width":12,
+              "title":"Load",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_cpm",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"CPM - Calls Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Successful Rate",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_call_sla",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"%",
+              "aggregation":"/",
+              "aggregationNum":"100"
+            },
+            {
+              "width":12,
+              "title":"Response Time Percentile",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"LABELED_VALUE",
+              "metricName":"service_instance_relation_server_percentile",
+              "queryMetricType":"readLabeledMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms",
+              "metricLabels":"P50, P75, P90, P95, P99",
+              "labelsIndex":"0, 1, 2, 3, 4"
+            }
+          ],
+          "client":[
+            {
+              "width":12,
+              "title":"Response Time",
+              "height":"200",
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_resp_time",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms"
+            },
+            {
+              "width":12,
+              "title":"Load",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_cpm",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"CPM - Calls Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Successful Rate",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_call_sla",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"%",
+              "aggregation":"/",
+              "aggregationNum":"100"
+            },
+            {
+              "width":12,
+              "title":"Response Time Percentile",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"LABELED_VALUE",
+              "metricName":"service_instance_relation_client_percentile",
+              "queryMetricType":"readLabeledMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms",
+              "metricLabels":"P50, P75, P90, P95, P99",
+              "labelsIndex":"0, 1, 2, 3, 4"
+            }
+          ]
+        },
+        "tcp":{
+          "server":[
+            {
+              "width":12,
+              "title":"Response Time",
+              "height":"200",
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_resp_time",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms"
+            },
+            {
+              "width":12,
+              "title":"Load",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_cpm",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"CPM - Calls Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Successful Rate",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_call_sla",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"%",
+              "aggregation":"/",
+              "aggregationNum":"100"
+            },
+            {
+              "width":12,
+              "title":"Throughput",
+              "height":"200",
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_server_received,service_instance_relation_server_sent",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"bytes"
+            },
+            {
+              "width":12,
+              "title":"Response Time Percentile",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"LABELED_VALUE",
+              "metricName":"service_instance_relation_server_percentile",
+              "queryMetricType":"readLabeledMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms",
+              "metricLabels":"P50, P75, P90, P95, P99",
+              "labelsIndex":"0, 1, 2, 3, 4"
+            }
+          ],
+          "client":[
+            {
+              "width":12,
+              "title":"Response Time",
+              "height":"200",
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_resp_time",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms"
+            },
+            {
+              "width":12,
+              "title":"Load",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_cpm",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"CPM - Calls Per Minute"
+            },
+            {
+              "width":12,
+              "title":"Successful Rate",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_call_sla",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"%",
+              "aggregation":"/",
+              "aggregationNum":"100"
+            },
+            {
+              "width":12,
+              "title":"Throughput",
+              "height":"200",
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"REGULAR_VALUE",
+              "metricName":"service_instance_relation_client_received,service_instance_relation_client_sent",
+              "queryMetricType":"readMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"bytes"
+            },
+            {
+              "width":12,
+              "title":"Response Time Percentile",
+              "height":200,
+              "entityType":"ServiceInstanceRelation",
+              "metricType":"LABELED_VALUE",
+              "metricName":"service_instance_relation_client_percentile",
+              "queryMetricType":"readLabeledMetricsValues",
+              "chartType":"ChartLine",
+              "unit":"ms",
+              "metricLabels":"P50, P75, P90, P95, P99",
+              "labelsIndex":"0, 1, 2, 3, 4"
+            }
+          ]
+        }
+      }
+    # Activated as the TOPOLOGY_INSTANCE type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

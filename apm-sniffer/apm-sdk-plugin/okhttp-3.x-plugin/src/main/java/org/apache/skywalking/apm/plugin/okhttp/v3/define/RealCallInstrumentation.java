@@ -22,7 +22,6 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
@@ -30,7 +29,7 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
 
     /**
      * Enhance class.
@@ -40,7 +39,7 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     /**
      * Intercept class.
      */
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.okhttp.common.RealCallInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -91,7 +90,7 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.okhttp.v3.EnqueueInterceptor";
+                    return "org.apache.skywalking.apm.plugin.okhttp.common.EnqueueInterceptor";
                 }
 
                 @Override

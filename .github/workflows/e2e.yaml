@@ -28,6 +28,10 @@ on:
 env:
   SW_AGENT_JDK_VERSION: 8
 
+concurrency:
+  group: e2e-features-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   FeatureGroup01:
     name: Feature
@@ -71,8 +75,6 @@ jobs:
             class: org.apache.skywalking.e2e.GatewayE2E
           - name: Meter
             class: org.apache.skywalking.e2e.meter.MeterE2E
-          - name: Alarm
-            class: org.apache.skywalking.e2e.alarm.AlarmE2E
           - name: Zabbix
             class: org.apache.skywalking.e2e.zabbix.ZabbixE2E
     steps:

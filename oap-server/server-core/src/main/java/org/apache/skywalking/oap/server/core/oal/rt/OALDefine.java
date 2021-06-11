@@ -33,11 +33,17 @@ import static java.util.Objects.requireNonNull;
 public abstract class OALDefine {
     protected OALDefine(final String configFile,
               final String sourcePackage) {
+        this(configFile, sourcePackage, sourcePackage);
+    }
+
+    protected OALDefine(final String configFile,
+                        final String sourcePackage,
+                        final String dispatcherPackage) {
         this.configFile = requireNonNull(configFile);
         this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
         this.dynamicMetricsClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics");
         this.dynamicMetricsBuilderClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics.builder");
-        this.dynamicDispatcherClassPackage = appendPoint(sourcePackage + ".oal.rt.dispatcher");
+        this.dynamicDispatcherClassPackage = appendPoint(dispatcherPackage + ".oal.rt.dispatcher");
     }
 
     private final String configFile;

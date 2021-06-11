@@ -59,6 +59,8 @@ public class PulsarConsumerInterceptorTest {
 
     private ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo;
 
+    private MessageEnhanceRequiredInfo messageEnhanceRequiredInfo;
+
     private PulsarConsumerInterceptor consumerInterceptor;
 
     private MockMessage msg;
@@ -85,9 +87,11 @@ public class PulsarConsumerInterceptorTest {
         consumerEnhanceRequiredInfo.setSubscriptionName("my-sub");
         msg = new MockMessage();
         msg.getMessageBuilder()
-           .addProperties(PulsarApi.KeyValue.newBuilder()
-                                            .setKey(SW8CarrierItem.HEADER_NAME)
-                                            .setValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="));
+                .addProperties(PulsarApi.KeyValue.newBuilder()
+                        .setKey(SW8CarrierItem.HEADER_NAME)
+                        .setValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="));
+        messageEnhanceRequiredInfo = new MessageEnhanceRequiredInfo();
+        msg.setSkyWalkingDynamicField(messageEnhanceRequiredInfo);
     }
 
     @Test
@@ -114,6 +118,28 @@ public class PulsarConsumerInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
         assertConsumerSpan(spans.get(0));
+    }
+
+    @Test
+    public void testConsumerWithMessageListener() throws Throwable {
+        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
+        consumerInterceptor.afterMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
+
+        List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
+        assertThat(traceSegments.size(), is(1));
+
+        TraceSegment traceSegment = traceSegments.get(0);
+        assertNotNull(traceSegment.getRef());
+        assertTraceSegmentRef(traceSegment.getRef());
+
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        assertConsumerSpan(spans.get(0));
+
+        final MessageEnhanceRequiredInfo requiredInfo = (MessageEnhanceRequiredInfo) msg.getSkyWalkingDynamicField();
+        assertThat(requiredInfo.getTopic(), is(
+                ((ConsumerEnhanceRequiredInfo) consumerInstance.getSkyWalkingDynamicField()).getTopic()));
+        assertNotNull(requiredInfo.getContextSnapshot());
     }
 
     private void assertConsumerSpan(AbstractTracingSpan span) {

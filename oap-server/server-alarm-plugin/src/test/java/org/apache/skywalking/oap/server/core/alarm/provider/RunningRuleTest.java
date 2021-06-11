@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.common.collect.Lists;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,9 @@ public class RunningRuleTest {
         alarmRule.setThreshold("75");
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301434");
         long timeInPeriod1 = 201808301434L;
@@ -88,7 +91,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
@@ -98,21 +103,16 @@ public class RunningRuleTest {
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
-        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
 
         // check at 201808301440
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assert.assertEquals(0, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
-        alarmMessages = runningRule.check();
-        Assert.assertEquals(0, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
-        // check at 201808301442
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+
+        // check at 201808301440
         alarmMessages = runningRule.check();
         Assert.assertEquals(1, alarmMessages.size());
-        Assert.assertEquals("Successful rate of endpoint Service_123 is lower than 75%", alarmMessages.get(0)
-                                                                                                      .getAlarmMessage());
     }
 
     @Test
@@ -125,7 +125,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setMessage("response percentile of endpoint {name} is lower than expected values");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
@@ -135,22 +137,18 @@ public class RunningRuleTest {
 
         runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod1, 70, 60, 40, 40, 40));
         runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod2, 60, 60, 40, 40, 40));
-        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
 
         // check at 201808301440
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assert.assertEquals(0, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
-        alarmMessages = runningRule.check();
-        Assert.assertEquals(0, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
-        // check at 201808301442
+
+        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
+
+        // check at 201808301440
         alarmMessages = runningRule.check();
         Assert.assertEquals(1, alarmMessages.size());
-        Assert.assertEquals(
-            "response percentile of endpoint Service_123 is lower than expected values", alarmMessages.get(0)
-                                                                                                      .getAlarmMessage());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
     }
 
     @Test
@@ -179,7 +177,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         //alarmRule.setSilencePeriod(0);
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441");
 
@@ -224,7 +224,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setSilencePeriod(2);
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -232,16 +234,18 @@ public class RunningRuleTest {
         long timeInPeriod3 = 201808301438L;
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
-        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
 
         // check at 201808301440
         Assert.assertEquals(0, runningRule.check().size()); //check matches, no alarm
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
-        Assert.assertEquals(0, runningRule.check().size()); //check matches, no alarm
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+
+        // check at 201808301440
+        Assert.assertEquals(1, runningRule.check().size()); //alarm
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
+
         // check at 201808301442
-        Assert.assertNotEquals(0, runningRule.check().size()); //alarm
         Assert.assertEquals(0, runningRule.check().size()); //silence, no alarm
         Assert.assertEquals(0, runningRule.check().size()); //silence, no alarm
         Assert.assertNotEquals(0, runningRule.check().size()); //alarm
@@ -261,7 +265,9 @@ public class RunningRuleTest {
         alarmRule.setPeriod(15);
         alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
         alarmRule.setExcludeNames(Lists.newArrayList("Service_123"));
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -291,9 +297,12 @@ public class RunningRuleTest {
         alarmRule.setThreshold("1000");
         alarmRule.setCount(1);
         alarmRule.setPeriod(10);
-        alarmRule.setMessage("Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
+        alarmRule.setMessage(
+            "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
         alarmRule.setIncludeNamesRegex("Service\\_1(\\d)+");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -323,9 +332,12 @@ public class RunningRuleTest {
         alarmRule.setThreshold("1000");
         alarmRule.setCount(1);
         alarmRule.setPeriod(10);
-        alarmRule.setMessage("Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
+        alarmRule.setMessage(
+            "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
         alarmRule.setExcludeNamesRegex("Service\\_2(\\d)+");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
         long timeInPeriod1 = 201808301434L;
@@ -574,7 +586,9 @@ public class RunningRuleTest {
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
         alarmRule.setMessage("response percentile of endpoint {name} is lower than expected value");
-
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
@@ -584,22 +598,16 @@ public class RunningRuleTest {
 
         runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod1, "50,17|99,11"));
         runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod2, "75,15|95,12"));
-        runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod3, "90,1|99,20"));
 
-        // check at 201808301440
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assert.assertEquals(0, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
-        alarmMessages = runningRule.check();
-        Assert.assertEquals(0, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
-        // check at 201808301442
+
+        runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod3, "90,1|99,20"));
+
+        // check at 201808301440
         alarmMessages = runningRule.check();
         Assert.assertEquals(1, alarmMessages.size());
-        Assert.assertEquals(
-            "response percentile of endpoint Service_123 is lower than expected value", alarmMessages.get(0)
-                .getAlarmMessage());
-
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
     }
 }

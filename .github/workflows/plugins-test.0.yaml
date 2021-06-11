@@ -34,10 +34,14 @@ on:
       - '!oap-server/**'
       - '!**.md'
 
+concurrency:
+  group: plugins-0-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   PluginsTest:
     name: Plugin
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
       matrix:
@@ -69,6 +73,7 @@ jobs:
           - gson-scenario
           - elasticjob-3.x-scenario
           - springmvc-reactive-scenario
+          - springmvc-reactive-devtools-scenario
     steps:
       - uses: actions/checkout@v2
         with:

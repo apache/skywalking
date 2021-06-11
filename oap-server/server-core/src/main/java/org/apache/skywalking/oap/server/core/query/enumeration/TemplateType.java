@@ -24,7 +24,9 @@ public enum TemplateType {
     TOPOLOGY_INSTANCE,
     TOPOLOGY_ENDPOINT,
     TOPOLOGY_SERVICE_RELATION,
-    TOPOLOGY_SERVICE_INSTANCE_RELATION;
+    TOPOLOGY_SERVICE_INSTANCE_RELATION,
+    TOPOLOGY_ENDPOINT_RELATION,
+    ;
 
     public static TemplateType forName(String name) {
         return Enum.valueOf(TemplateType.class, name.toUpperCase());

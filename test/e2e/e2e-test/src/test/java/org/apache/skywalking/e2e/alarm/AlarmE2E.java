@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.e2e.alarm;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -35,9 +37,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.DockerComposeContainer;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
@@ -47,7 +46,7 @@ import static org.apache.skywalking.e2e.utils.Yamls.load;
 public class AlarmE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
-    @DockerCompose("docker/alarm/docker-compose.yml")
+    @DockerCompose("docker/alarm/docker-compose.${SW_STORAGE}.yml")
     protected DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
@@ -81,9 +80,10 @@ public class AlarmE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     @Order(2)
-    void basicAlarm() throws Exception {
+    void
+    basicAlarm() throws Exception {
         // Wait all alarm notified(single and compose)
-        validate("expected/alarm/silence-before-graphql.yml", "expected/alarm/silence-before-webhook.yml");
+        validate("expected/alarm/silence-before-graphql-warn.yml", "expected/alarm/silence-before-graphql-critical.yml", "expected/alarm/silence-before-webhook.yml");
 
         // Wait silence period finished
         TimeUnit.SECONDS.sleep(90);
@@ -93,19 +93,22 @@ public class AlarmE2E extends SkyWalkingTestAdapter {
     @Order(3)
     void afterSilenceAlarm() throws Exception {
         // Retry to send request and check silence config
-        validate("expected/alarm/silence-after-graphql.yml", "expected/alarm/silence-after-webhook.yml");
+        validate("expected/alarm/silence-after-graphql-warn.yml", "expected/alarm/silence-after-graphql-critical.yml", "expected/alarm/silence-after-webhook.yml");
     }
 
-    private void validate(String alarmFile, String hookFile) throws Exception {
+    private void validate(String alarmFileWarn, String alarmFileCritical, String hookFile) throws Exception {
         // validate graphql
-        GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()));
+        GetAlarm alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "WARNING").addTag("receivers", "lisi"));
         LOGGER.info("alarms query: {}", alarms);
-        load(alarmFile).as(AlarmsMatcher.class).verify(alarms);
+        load(alarmFileWarn).as(AlarmsMatcher.class).verify(alarms);
+        alarms = graphql.readAlarms(new AlarmQuery().start(startTime).end(now()).addTag("level", "CRITICAL").addTag("receivers", "zhangsan"));
+        LOGGER.info("alarms query: {}", alarms);
+        load(alarmFileCritical).as(AlarmsMatcher.class).verify(alarms);
 
         // validate web hook receiver
         ResponseEntity<HookAlarms> responseEntity = restTemplate.postForEntity("http://" + serviceHostPort.host() + ":" + serviceHostPort.port() + "/alarm/read", null, HookAlarms.class);
         LOGGER.info("alarms hook: {}", responseEntity.getBody());
-        load(hookFile).as(HookAlarms.class).verify(responseEntity.getBody());
+        load(hookFile).as(HookAlarmsMatcher.class).verify(responseEntity.getBody());
     }
 
 }

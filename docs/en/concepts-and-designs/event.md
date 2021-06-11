@@ -54,3 +54,74 @@ The end time of the event. This field may be empty if the event has not ended ye
 
 **NOTE:** When reporting an event, you typically call the report function twice, the first time for starting of the event and the second time for ending of the event, both with the same UUID.
 There are also cases where you would already have both the start time and end time. For example, when exporting events from a third-party system, the start time and end time are already known so you may simply call the report function once.
+
+## How to Configure Alarms for Events
+
+Events are derived from metrics, and can be the source to trigger alarms. For example, if a specific event occurs for a
+certain times in a period, alarms can be triggered and sent.
+
+Every event has a default `value = 1`, when `n` events with the same name are reported, they are aggregated
+into `value = n` as follows.
+
+```
+Event{name=Unhealthy, source={service=A,instance=a}, ...}
+Event{name=Unhealthy, source={service=A,instance=a}, ...}
+Event{name=Unhealthy, source={service=A,instance=a}, ...}
+Event{name=Unhealthy, source={service=A,instance=a}, ...}
+Event{name=Unhealthy, source={service=A,instance=a}, ...}
+Event{name=Unhealthy, source={service=A,instance=a}, ...}
+```
+
+will be aggregated into
+
+```
+Event{name=Unhealthy, source={service=A,instance=a}, ...} <value = 6>
+```
+
+so you can configure the following alarm rule to trigger alarm when `Unhealthy` event occurs more than 5 times within 10
+minutes.
+
+```yaml
+rules:
+  unhealthy_event_rule:
+    metrics-name: Unhealthy
+    # Healthiness check is usually a scheduled task,
+    # they may be unhealthy for the first few times,
+    # and can be unhealthy occasionally due to network jitter,
+    # please adjust the threshold as per your actual situation.
+    threshold: 5
+    op: ">"
+    period: 10
+    count: 1
+    message: Service instance has been unhealthy for 10 minutes
+```
+
+For more alarm configuration details, please refer to the [alarm doc](../setup/backend/backend-alarm.md).
+
+**Note** that the `Unhealthy` event above is only for demonstration, they are not detected by default in SkyWalking,
+however, you can use the methods in [How to Report Events](#how-to-report-events) to report this kind of events.
+
+## Known Events
+
+| Name | Type | When | Where |
+| :----: | :----: | :-----| :---- |
+| Start | Normal | When your Java Application starts with SkyWalking Agent installed, the `Start` Event will be created. | Reported from SkyWalking agent. |
+| Shutdown | Normal | When your Java Application stops with SkyWalking Agent installed, the `Shutdown` Event will be created. | Reported from SkyWalking agent. |
+| Alarm | Error | When the Alarm is triggered, the corresponding `Alarm` Event will is created. | Reported from internal SkyWalking OAP. |
+
+The following events are all reported
+by [Kubernetes Event Exporter](http://github.com/apache/skywalking-kubernetes-event-exporter), in order to see these
+events, please make sure you have deployed the exporter. 
+
+| Name | Type | When | Where |
+| :----: | :----: | :-----| :---- |
+| Killing | Normal | When the Kubernetes Pod is being killing. | Reporter by Kubernetes Event Exporter. |
+| Pulling | Normal | When a docker image is being pulled for deployment. | Reporter by Kubernetes Event Exporter. |
+| Pulled | Normal | When a docker image is pulled for deployment. | Reporter by Kubernetes Event Exporter. |
+| Created | Normal | When a container inside a Pod is created. | Reporter by Kubernetes Event Exporter. |
+| Started | Normal | When a container inside a Pod is started. | Reporter by Kubernetes Event Exporter. |
+| Unhealthy | Error | When the readiness probe failed. | Reporter by Kubernetes Event Exporter. |
+
+The complete event lists can be found
+in [the Kubernetes codebase](https://github.com/kubernetes/kubernetes/blob/v1.21.1/pkg/kubelet/events/event.go), please
+note that not all the events are supported by the exporter for now.

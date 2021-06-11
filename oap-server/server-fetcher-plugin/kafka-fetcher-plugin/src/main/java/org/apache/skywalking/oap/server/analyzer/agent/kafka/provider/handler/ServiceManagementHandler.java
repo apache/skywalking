@@ -43,14 +43,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * A handler deserializes the message of Service Management and pushes it to downstream.
  */
 @Slf4j
-public class ServiceManagementHandler implements KafkaHandler {
+public class ServiceManagementHandler extends AbstractKafkaHandler {
 
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingLengthControl;
 
-    private final KafkaFetcherConfig config;
-
     public ServiceManagementHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
+        super(moduleManager, config);
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()
@@ -79,11 +78,7 @@ public class ServiceManagementHandler implements KafkaHandler {
         serviceInstanceUpdate.setName(instanceName);
 
         if (log.isDebugEnabled()) {
-            log.debug(
-                "Service[{}] instance[{}] registered.",
-                serviceName,
-                instanceName
-            );
+            log.debug("Service[{}] instance[{}] registered.", serviceName, instanceName);
         }
 
         JsonObject properties = new JsonObject();
@@ -108,11 +103,7 @@ public class ServiceManagementHandler implements KafkaHandler {
         final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
 
         if (log.isDebugEnabled()) {
-            log.debug(
-                "A ping of Service[{}] instance[{}].",
-                serviceName,
-                instanceName
-            );
+            log.debug("A ping of Service[{}] instance[{}].", serviceName, instanceName);
         }
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
@@ -123,12 +114,7 @@ public class ServiceManagementHandler implements KafkaHandler {
     }
 
     @Override
-    public String getTopic() {
-        return config.getMm2SourceAlias() + config.getMm2SourceSeparator() + config.getTopicNameOfManagements();
-    }
-
-    @Override
-    public String getConsumePartitions() {
-        return config.getConsumePartitions();
+    protected String getPlainTopic() {
+        return config.getTopicNameOfManagements();
     }
 }

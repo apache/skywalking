@@ -31,9 +31,13 @@ env:
   SCRIPTS_DIR: test/e2e-mesh/e2e-istio/scripts
   SW_OAP_BASE_IMAGE: openjdk:11-jdk
 
+concurrency:
+  group: e2e-istio-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   als:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: true
@@ -100,6 +104,7 @@ jobs:
                --set elasticsearch.minimumMasterNodes=1 \
                --set elasticsearch.imageTag=7.5.1 \
                --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=${{ matrix.analyzer }} \
+               --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=${{ matrix.analyzer }} \
                --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
                --set oap.envoy.als.enabled=true \
                --set oap.replicas=1 \
@@ -117,7 +122,13 @@ jobs:
 
       - name: Deploy demo services
         if: env.SKIP_CI != 'true'
-        run: bash ${SCRIPTS_DIR}/demo.sh
+        run: |
+          bash ${SCRIPTS_DIR}/demo.sh
+          # Enable TCP services
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-ratings-v2.yaml
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-db.yaml
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-ratings-db.yaml
 
       - name: Cluster Info
         if: ${{ failure() }}
@@ -164,7 +175,7 @@ jobs:
         run: minikube delete
 
   metrics-service:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     name: Istio(${{ matrix.istio_version }})+MetricsService
     strategy:
