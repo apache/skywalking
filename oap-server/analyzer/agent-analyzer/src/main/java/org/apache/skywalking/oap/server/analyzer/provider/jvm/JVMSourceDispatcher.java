@@ -61,12 +61,12 @@ public class JVMSourceDispatcher {
         List<Sample> threadSamples = parseThreadData(service, serviceInstance, jvmMetric);
 
         ImmutableMap<String, SampleFamily> sampleFamilies = ImmutableMap.<String, SampleFamily>builder()
-                .put("jvm_gc_time", SampleFamilyBuilder.newBuilder(gcTimeSamples.toArray(new Sample[0])).build())
-                .put("jvm_gc_count", SampleFamilyBuilder.newBuilder(gcCountSamples.toArray(new Sample[0])).build())
-                .put("jvm_cpu", SampleFamilyBuilder.newBuilder(cpuSamples.toArray(new Sample[0])).build())
-                .put("jvm_thread", SampleFamilyBuilder.newBuilder(threadSamples.toArray(new Sample[0])).build())
-                .put("jvm_memory", SampleFamilyBuilder.newBuilder(memorySamples.toArray(new Sample[0])).build())
-                .put("jvm_memory_poll", SampleFamilyBuilder.newBuilder(memoryPoolSamples.toArray(new Sample[0])).build())
+                .put("sw_jvm_gc_time", SampleFamilyBuilder.newBuilder(gcTimeSamples.toArray(new Sample[0])).build())
+                .put("sw_jvm_gc_count", SampleFamilyBuilder.newBuilder(gcCountSamples.toArray(new Sample[0])).build())
+                .put("sw_jvm_cpu", SampleFamilyBuilder.newBuilder(cpuSamples.toArray(new Sample[0])).build())
+                .put("sw_jvm_thread", SampleFamilyBuilder.newBuilder(threadSamples.toArray(new Sample[0])).build())
+                .put("sw_jvm_memory", SampleFamilyBuilder.newBuilder(memorySamples.toArray(new Sample[0])).build())
+                .put("sw_jvm_memory_poll", SampleFamilyBuilder.newBuilder(memoryPoolSamples.toArray(new Sample[0])).build())
                 .build();
 
         metricConverts.forEach(metricConvert -> metricConvert.toMeter(sampleFamilies));
@@ -83,20 +83,20 @@ public class JVMSourceDispatcher {
 
     private List<Sample> parseGcCountData(String service, String serviceInstance, JVMMetric jvmMetric) {
         return jvmMetric.getGcList().stream().map(gc ->
-                buildGcSample(gc, gc.getCount(), "jvm_gc_count", service, serviceInstance, jvmMetric.getTime())
+                buildGcSample(gc, gc.getCount(), "sw_jvm_gc_count", service, serviceInstance, jvmMetric.getTime())
         ).collect(Collectors.toList());
     }
 
     private List<Sample> parseGcTimeData(String service, String serviceInstance, JVMMetric jvmMetric) {
         return jvmMetric.getGcList().stream().map(gc ->
-                buildGcSample(gc, gc.getTime(), "jvm_gc_time", service, serviceInstance, jvmMetric.getTime())
+                buildGcSample(gc, gc.getTime(), "sw_jvm_gc_time", service, serviceInstance, jvmMetric.getTime())
         ).collect(Collectors.toList());
     }
 
     private Sample parseCpuData(String service, String serviceInstance, JVMMetric jvmMetric) {
         SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
         double adjustedCpuUsagePercent = Math.max(jvmMetric.getCpu().getUsagePercent(), 1.0);
-        sampleBuilderBuilder.name("jvm_cpu");
+        sampleBuilderBuilder.name("sw_jvm_cpu");
         sampleBuilderBuilder.value(adjustedCpuUsagePercent);
         sampleBuilderBuilder.labels(ImmutableMap.<String, String>builder().build());
         return sampleBuilderBuilder.build().build(service, serviceInstance, jvmMetric.getTime());
@@ -138,7 +138,7 @@ public class JVMSourceDispatcher {
 
     private Sample buildThreadSample(long value, String threadType, String service, String serviceInstance, long time) {
         SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
-        sampleBuilderBuilder.name("jvm_thread");
+        sampleBuilderBuilder.name("sw_jvm_thread");
         sampleBuilderBuilder.value(value);
         sampleBuilderBuilder.labels(ImmutableMap.of("thread_type", threadType));
         return sampleBuilderBuilder.build().build(service, serviceInstance, time);
@@ -146,7 +146,7 @@ public class JVMSourceDispatcher {
 
     private Sample buildMemorySample(Memory memory, long value, String memoryType, String service, String serviceInstance, long time) {
         SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
-        sampleBuilderBuilder.name("jvm_memory");
+        sampleBuilderBuilder.name("sw_jvm_memory");
         sampleBuilderBuilder.labels(ImmutableMap.of("heap_status", String.valueOf(memory.getIsHeap()), "memory_type", memoryType));
         sampleBuilderBuilder.value(value);
         return sampleBuilderBuilder.build().build(service, serviceInstance, time);
@@ -154,7 +154,7 @@ public class JVMSourceDispatcher {
 
     private Sample buildMemoryPoolSample(MemoryPool memoryPool, long value, String memoryType, String service, String serviceInstance, long time) {
         SampleBuilder.SampleBuilderBuilder sampleBuilderBuilder = SampleBuilder.builder();
-        sampleBuilderBuilder.name("jvm_memory_poll");
+        sampleBuilderBuilder.name("sw_jvm_memory_poll");
         sampleBuilderBuilder.value(value);
         String pollType = "poll_type";
         String memoryTypeKey = "memory_type";

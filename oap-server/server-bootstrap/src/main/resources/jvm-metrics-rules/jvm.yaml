@@ -32,30 +32,30 @@ expSuffix: instance(['service'], ['instance'])
 metricPrefix: instance_jvm
 metricsRules:
   - name: cpu
-    exp: jvm_cpu
+    exp: sw_jvm_cpu
 
   - name: memory_heap
-    exp: jvm_memory.tagEqual('memory_type', 'used', 'heap_status', 'true')
+    exp: sw_jvm_memory.tagEqual('memory_type', 'used', 'heap_status', 'true').avg(['service', 'instance'])
   - name: memory_noheap
-    exp: jvm_memory.tagEqual('memory_type', 'used', 'heap_status', 'false')
+    exp: sw_jvm_memory.tagEqual('memory_type', 'used', 'heap_status', 'false').avg(['service', 'instance'])
   - name: memory_heap_max
-    exp: jvm_memory.tagEqual('memory_type', 'max', 'heap_status', 'true')
+    exp: sw_jvm_memory.tagEqual('memory_type', 'max', 'heap_status', 'true').avg(['service', 'instance'])
   - name: memory_noheap_max
-    exp: jvm_memory.tagEqual('memory_type', 'max', 'heap_status', 'false')
+    exp: sw_jvm_memory.tagEqual('memory_type', 'max', 'heap_status', 'false').avg(['service', 'instance'])
 
   - name: young_gc_time
-    exp: jvm_gc_time.tagEqual('gc_phrase', 'new').sum(['service', 'instance'])
+    exp: sw_jvm_gc_time.tagEqual('gc_phrase', 'new').sum(['service', 'instance'])
   - name: old_gc_time
-    exp: jvm_gc_time.tagEqual('gc_phrase', 'old').sum(['service', 'instance'])
+    exp: sw_jvm_gc_time.tagEqual('gc_phrase', 'old').sum(['service', 'instance'])
 
   - name: young_gc_count
-    exp: jvm_gc_count.tagEqual('gc_phrase', 'new').sum(['service', 'instance'])
+    exp: sw_jvm_gc_count.tagEqual('gc_phrase', 'new').sum(['service', 'instance'])
   - name: old_gc_count
-    exp: jvm_gc_count.tagEqual('gc_phrase', 'old').sum(['service', 'instance'])
+    exp: sw_jvm_gc_count.tagEqual('gc_phrase', 'old').sum(['service', 'instance'])
 
   - name: thread_live_count
-    exp: jvm_thread.tagEqual('thread_type', 'live')
+    exp: sw_jvm_thread.tagEqual('thread_type', 'live').avg(['service', 'instance'])
   - name: thread_daemon_count
-    exp: jvm_thread.tagEqual('thread_type', 'daemon')
+    exp: sw_jvm_thread.tagEqual('thread_type', 'daemon').avg(['service', 'instance'])
   - name: thread_peak_count
-    exp: jvm_thread.tagEqual('thread_type', 'peak')
+    exp: sw_jvm_thread.tagEqual('thread_type', 'peak').avg(['service', 'instance'])
