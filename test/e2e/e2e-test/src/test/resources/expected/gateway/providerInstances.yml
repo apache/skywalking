@@ -16,5 +16,35 @@
 instances:
   - key: not null
     label: not null
+    attributes:
+      - name: OS Name
+        value: not null
+      - name: hostname
+        value: not null
+      - name: Process No.
+        value: gt 0
+      - name: Start Time
+        value: not null
+      - name: JVM Arguments
+        value: not null
+      - name: Jar Dependencies
+        value: not null
+      - name: ipv4s
+        value: not null
   - key: not null
     label: not null
+    attributes:
+      - name: OS Name
+        value: not null
+      - name: hostname
+        value: not null
+      - name: Process No.
+        value: gt 0
+      - name: Start Time
+        value: not null
+      - name: JVM Arguments
+        value: not null
+      - name: Jar Dependencies
+        value: not null
+      - name: ipv4s
+        value: not null
