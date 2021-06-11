@@ -160,10 +160,6 @@ The receiver adds labels with `key = service` and `key = instance` to the collec
 and values from service and service instance name defined in SkyWalking Agent,
 for identification of the metric data.
 
-| Rule Name | Description | Configuration File | Data Source |
-|-----|-----|-----|-----|
-|spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
-
 ## Zipkin receiver
 The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through HTTP service.
 Make sure you use this with `SW_STORAGE=zipkin-elasticsearch7` option to activate Zipkin storage implementation.
