@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
+* Only count 5xx as error in Envoy ALS receiver.
 
 #### UI
 
