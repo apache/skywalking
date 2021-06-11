@@ -12,6 +12,7 @@ Release Notes.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
+* Use MAL to calculate JVM metrics, remove OAL dependency.
 
 #### UI
 
