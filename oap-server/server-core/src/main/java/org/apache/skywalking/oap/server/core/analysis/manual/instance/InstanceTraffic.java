@@ -69,7 +69,7 @@ public class InstanceTraffic extends Metrics {
     private long lastPingTimestamp;
     @Setter
     @Getter
-    @Column(columnName = PROPERTIES, storageOnly = true, length = 60000)
+    @Column(columnName = PROPERTIES, storageOnly = true, length = 16000)
     private JsonObject properties;
 
     @Override
