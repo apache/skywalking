@@ -25,3 +25,9 @@ instances:
         value: gt 0
       - name: ipv4s
         value: not null
+      - name: Start Time
+        value: not null
+      - name: JVM Arguments
+        value: not null
+      - name: Jar Dependencies
+        value: not null
