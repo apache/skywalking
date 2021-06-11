@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.jvm.JVMSourceDispatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -33,6 +34,8 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics.Timer;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+
+import java.util.List;
 
 /**
  * A handler deserializes the message of JVM Metrics and pushes it to downstream.
@@ -47,9 +50,9 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
     private final HistogramMetrics histogramBatch;
     private final CounterMetrics errorCounter;
 
-    public JVMMetricsHandler(ModuleManager manager, KafkaFetcherConfig config) {
+    public JVMMetricsHandler(ModuleManager manager, KafkaFetcherConfig config, List<Rule> rules) {
         super(manager, config);
-        this.jvmSourceDispatcher = new JVMSourceDispatcher(manager);
+        this.jvmSourceDispatcher = new JVMSourceDispatcher(manager, rules);
         this.namingLengthControl = manager.find(CoreModule.NAME)
                                                 .provider()
                                                 .getService(NamingControl.class);

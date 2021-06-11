@@ -69,13 +69,19 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_SLA
     };
 
+    public static String INSTANCE_JVM_MEMORY_HEAP = "instance_jvm_memory_heap";
+    public static String INSTANCE_JVM_MEMORY_HEAP_MAX = "instance_jvm_memory_heap_max";
+    public static String INSTANCE_JVM_MEMORY_NOHEAP = "instance_jvm_memory_noheap";
     public static String INSTANCE_JVM_THREAD_LIVE_COUNT = "instance_jvm_thread_live_count";
     public static String INSTANCE_JVM_THREAD_DAEMON_COUNT = "instance_jvm_thread_daemon_count";
     public static String INSTANCE_JVM_THREAD_PEAK_COUNT = "instance_jvm_thread_peak_count";
     public static String [] ALL_INSTANCE_JVM_METRICS = {
+        INSTANCE_JVM_THREAD_LIVE_COUNT,
         INSTANCE_JVM_THREAD_DAEMON_COUNT,
-        INSTANCE_JVM_THREAD_DAEMON_COUNT,
-        INSTANCE_JVM_THREAD_PEAK_COUNT
+        INSTANCE_JVM_THREAD_PEAK_COUNT,
+        INSTANCE_JVM_MEMORY_NOHEAP,
+        INSTANCE_JVM_MEMORY_HEAP_MAX,
+        INSTANCE_JVM_MEMORY_HEAP,
     };
 
     public static String SERVICE_RELATION_CLIENT_CPM = "service_relation_client_cpm";
