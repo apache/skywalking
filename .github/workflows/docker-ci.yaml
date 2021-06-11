@@ -60,7 +60,7 @@ jobs:
       - name: Build docker image
         run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && (make docker || make docker)
       - name: Scan OAP image
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.0.18
         with:
           image-ref: 'skywalking/oap:${{ matrix.es }}'
           format: 'table'
@@ -69,7 +69,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
       - name: Scan UI image
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.0.18
         with:
           image-ref: 'skywalking/ui:${{ matrix.es }}'
           format: 'table'
