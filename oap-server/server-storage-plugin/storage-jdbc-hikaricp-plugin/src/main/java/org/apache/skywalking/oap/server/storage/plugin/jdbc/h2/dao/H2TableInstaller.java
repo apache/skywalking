@@ -114,7 +114,7 @@ public class H2TableInstaller extends ModelInstaller {
         } else if (byte[].class.equals(type)) {
             return storageName + " MEDIUMTEXT";
         } else if (JsonObject.class.equals(type)) {
-            return storageName + " MEDIUMTEXT";
+            return storageName + " VARCHAR(" + column.getLength() + ")";
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
             String oneColumnType = transform(column, (Class<?>) elementType, elementType);
