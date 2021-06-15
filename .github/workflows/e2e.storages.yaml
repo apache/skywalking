@@ -30,6 +30,7 @@ concurrency:
 
 jobs:
   StoragePlugins:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Storage
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -60,6 +61,7 @@ jobs:
           test_class: org.apache.skywalking.e2e.storage.StorageE2E
 
   Storage:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     needs: [StoragePlugins]
