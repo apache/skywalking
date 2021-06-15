@@ -67,6 +67,7 @@
                 <include>ui-initialized-templates/*</include>
                 <include>lal/*</include>
                 <include>log-mal-rules/*</include>
+                <include>jvm-metrics-rules/*.yaml</include>
             </includes>
             <outputDirectory>config</outputDirectory>
         </fileSet>

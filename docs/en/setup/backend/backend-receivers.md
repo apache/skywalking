@@ -148,6 +148,18 @@ receiver-meter:
   default:
 ```
 
+To activate the meter rule files:
+```yaml
+agent-analyzer:
+  selector: ${SW_AGENT_ANALYZER:default}
+  default:
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:} # Which files could be meter analyzed, files split by ","
+```
+
+The receiver adds labels with `key = service` and `key = instance` to the collected data samples,
+and values from service and service instance name defined in SkyWalking Agent,
+for identification of the metric data.
+
 ## Zipkin receiver
 The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation. It supports Zipkin v1/v2 formats through HTTP service.
 Make sure you use this with `SW_STORAGE=zipkin-elasticsearch7` option to activate Zipkin storage implementation.
