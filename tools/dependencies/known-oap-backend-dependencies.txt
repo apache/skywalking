@@ -96,7 +96,6 @@ kafka-clients-2.4.1.jar
 kotlin-reflect-1.1.1.jar
 kotlin-stdlib-1.1.60.jar
 listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
-log4j-1.2.17.jar
 log4j-api-2.14.1.jar
 log4j-core-2.14.1.jar
 log4j-over-slf4j-1.7.30.jar
