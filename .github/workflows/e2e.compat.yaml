@@ -27,6 +27,7 @@ concurrency:
 
 jobs:
   Compatibility:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Compatibility
     runs-on: ubuntu-latest
     timeout-minutes: 60

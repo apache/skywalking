@@ -30,6 +30,7 @@ concurrency:
 
 jobs:
   analyze:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Analyze
     runs-on: ubuntu-latest
 

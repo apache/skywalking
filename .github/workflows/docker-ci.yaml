@@ -34,6 +34,7 @@ env:
   LOG_DIR: /tmp/skywalking
 jobs:
   build:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:

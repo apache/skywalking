@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   Log:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Log
     runs-on: ubuntu-latest
     strategy:
