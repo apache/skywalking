@@ -30,6 +30,10 @@ The file is written in YAML format, defined by the scheme described below. Brack
 An example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
 If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
 
+| Rule Name | Description | Configuration File | Data Source |
+|-----|-----|-----|-----|
+|spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
+
 ### Meters configuration
 
 ```yaml
