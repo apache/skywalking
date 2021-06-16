@@ -37,6 +37,7 @@ concurrency:
 
 jobs:
   als:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -175,6 +176,7 @@ jobs:
         run: minikube delete
 
   metrics-service:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     name: Istio(${{ matrix.istio_version }})+MetricsService

@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   GOAgent:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: GO2SKY
     runs-on: ubuntu-latest
     timeout-minutes: 90

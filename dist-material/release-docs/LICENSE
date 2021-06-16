@@ -251,7 +251,7 @@ The text of each license is the standard Apache 2.0 license.
     Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
     Joda-Convert 2.2.1: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
-    Spring Boot 1.5.10: https://spring.io/, Apache 2.0
+    Spring Boot 1.5.22.RELEASE: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
     Spring Cloud Netflix Zuul 1.3.0: https://github.com/spring-cloud/spring-cloud-netflix, Apache 2.0
     Apache: commons-logging 1.1.3: https://github.com/apache/commons-logging, Apache 2.0
