@@ -85,6 +85,12 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
             } else {
                 return storageName + " VARCHAR(" + column.getLength() + ")";
             }
+        } else if (JsonObject.class.equals(type)) {
+            if (column.getLength() > 16383) {
+                return storageName + " TEXT";
+            } else {
+                return storageName + " VARCHAR(" + column.getLength() + ")";
+            }
         }
         return super.getColumn(column);
     }
