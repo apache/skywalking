@@ -31,6 +31,8 @@ Release Notes.
    and CVE-2021-21409.
 * Upgrade consul client caused by CVE-2018-1000844, CVE-2018-1000850.
 * Upgrade zookeeper caused by CVE-2019-0201. 
+* Upgrade snake yaml caused by CVE-2017-18640.
+* Upgrade embed tomcat caused by CVE-2020-13935.
 
 
 #### UI
