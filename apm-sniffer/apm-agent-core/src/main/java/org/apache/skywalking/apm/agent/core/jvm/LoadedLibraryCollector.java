@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.jvm;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,16 +40,16 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 public class LoadedLibraryCollector {
 
     private static final ILog LOGGER = LogManager.getLogger(LoadedLibraryCollector.class);
-    private final static String PATH_SEPARATOR = "/";
-    private final static String JAR_SEPARATOR = "!";
+    private static final  String JAR_SEPARATOR = "!";
     private static Set<ClassLoader> CURRENT_URL_CLASSLOADER_SET = new HashSet<>();
+    private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
     /**
      * Prevent OOM in special scenes
      */
     private static int CURRENT_URL_CLASSLOADER_SET_MAX_SIZE = 50;
 
     public static void registerURLClassLoader(ClassLoader classLoader) {
-        if (CURRENT_URL_CLASSLOADER_SET.size() <= CURRENT_URL_CLASSLOADER_SET_MAX_SIZE && classLoader instanceof URLClassLoader) {
+        if (CURRENT_URL_CLASSLOADER_SET.size() < CURRENT_URL_CLASSLOADER_SET_MAX_SIZE && classLoader instanceof URLClassLoader) {
             CURRENT_URL_CLASSLOADER_SET.add(classLoader);
         }
     }
@@ -59,7 +60,6 @@ public class LoadedLibraryCollector {
     public static List<KeyStringValuePair> buildJVMInfo() {
         List<KeyStringValuePair> jvmInfo = new ArrayList<>();
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Start Time").setValue(getVmStartTime()).build());
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(gson.toJson(getVmArgs())).build());
         List<String> libJarNames = getLibJarNames();
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(libJarNames)).build());
@@ -129,7 +129,7 @@ public class LoadedLibraryCollector {
     }
 
     private static String extractNameFromFile(String fileUri) {
-        int lastIndexOfSeparator = fileUri.lastIndexOf(PATH_SEPARATOR);
+        int lastIndexOfSeparator = fileUri.lastIndexOf(File.separator);
         if (lastIndexOfSeparator < 0) {
             return fileUri;
         } else {
