@@ -42,7 +42,7 @@ public class LoadedLibraryCollector {
     private static final ILog LOGGER = LogManager.getLogger(LoadedLibraryCollector.class);
     private static final  String JAR_SEPARATOR = "!";
     private static Set<ClassLoader> CURRENT_URL_CLASSLOADER_SET = new HashSet<>();
-    private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     /**
      * Prevent OOM in special scenes
      */
@@ -60,9 +60,9 @@ public class LoadedLibraryCollector {
     public static List<KeyStringValuePair> buildJVMInfo() {
         List<KeyStringValuePair> jvmInfo = new ArrayList<>();
         jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Start Time").setValue(getVmStartTime()).build());
-        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(gson.toJson(getVmArgs())).build());
+        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("JVM Arguments").setValue(GSON.toJson(getVmArgs())).build());
         List<String> libJarNames = getLibJarNames();
-        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(gson.toJson(libJarNames)).build());
+        jvmInfo.add(KeyStringValuePair.newBuilder().setKey("Jar Dependencies").setValue(GSON.toJson(libJarNames)).build());
         return jvmInfo;
     }
 
