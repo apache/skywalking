@@ -52,7 +52,11 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
         } else if (byte[].class.equals(type)) {
             return storageName + " TEXT";
         } else if (JsonObject.class.equals(type)) {
-            return storageName + " VARCHAR(" + column.getLength() + ")";
+            if (column.getLength() > 16383) {
+                return storageName + " TEXT";
+            } else {
+                return storageName + " VARCHAR(" + column.getLength() + ")";
+            }
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
             String oneColumnType = transform(column, (Class<?>) elementType, elementType);
@@ -76,6 +80,12 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {
             return storageName + " TEXT";
         } else if (String.class.equals(type)) {
+            if (column.getLength() > 16383) {
+                return storageName + " TEXT";
+            } else {
+                return storageName + " VARCHAR(" + column.getLength() + ")";
+            }
+        } else if (JsonObject.class.equals(type)) {
             if (column.getLength() > 16383) {
                 return storageName + " TEXT";
             } else {

@@ -111,7 +111,7 @@ public class KafkaMeterE2E extends SkyWalkingTestAdapter {
 
         LOGGER.info("instances: {}", instances);
 
-        load("expected/simple/instances.yml").as(InstancesMatcher.class).verify(instances);
+        load("expected/meter/instances.yml").as(InstancesMatcher.class).verify(instances);
 
         return instances;
     }
