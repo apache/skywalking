@@ -21,6 +21,6 @@ PRGDIR=`dirname "$PRG"`
 OAP_EXE=oapService.sh
 WEBAPP_EXE=webappService.sh
 
-"$PRGDIR"/"$OAP_EXE"
+"$PRGDIR"/"$OAP_EXE" start-daemon
 
-"$PRGDIR"/"$WEBAPP_EXE"
+"$PRGDIR"/"$WEBAPP_EXE" start-daemon

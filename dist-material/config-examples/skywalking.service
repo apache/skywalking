@@ -1,0 +1,16 @@
+[Unit]
+Description=Skywalking OAP service
+Documentation=http://skywalking.apache.org/docs/main/v8.5.0/en/setup/backend/backend-cluster/
+After=network.target
+
+[Service]
+Type=forking
+EnvironmentFile=-/var/skywalking/skywalking.env
+ExecStart=/opt/skywalking/bin/oapService.sh start-deamon
+KillMode=process
+Restart=on-failure
+SuccessExitStatus=143
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target

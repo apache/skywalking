@@ -37,8 +37,23 @@ done
 
 OAP_OPTIONS=" -Doap.logDir=${OAP_LOG_DIR}"
 
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp \
-        2>${OAP_LOG_DIR}/oap.log 1> /dev/null &"
+_help(){
+    echo "USAGE: $0 [help|start-foreground|start-daemon]"
+    exit 1
+}
+COMMAND=$1
+case $COMMAND in
+    start-foreground)
+        eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp"
+    ;;
+    start-daemon)
+        eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp \
+            2>${OAP_LOG_DIR}/oap.log 1> /dev/null &"
+    ;;
+    *)
+        _help
+    ;;
+esac
 
 if [ $? -eq 0 ]; then
     sleep 1
