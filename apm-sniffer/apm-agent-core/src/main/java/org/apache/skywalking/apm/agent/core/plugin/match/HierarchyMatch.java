@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.description.method.MethodList;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.description.type.TypeList;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -36,12 +38,13 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  */
 public class HierarchyMatch implements IndirectMatch {
     private String[] parentTypes;
-
-    private HierarchyMatch(String[] parentTypes) {
+    private List<String> methods;
+    private HierarchyMatch(List<String> methods, String[] parentTypes) {
         if (parentTypes == null || parentTypes.length == 0) {
             throw new IllegalArgumentException("parentTypes is null");
         }
         this.parentTypes = parentTypes;
+        this.methods=methods;
     }
 
     @Override
@@ -75,7 +78,19 @@ public class HierarchyMatch implements IndirectMatch {
             matchHierarchyClass(typeDescription.getSuperClass(), parentTypes);
         }
 
-        return parentTypes.size() == 0;
+        boolean flag = parentTypes.size() == 0;
+        if (flag&&methods!=null&&methods.size()>0) {
+            flag = false;
+            MethodList<MethodDescription.InDefinedShape> data = typeDescription.getDeclaredMethods();
+            for (MethodDescription.InDefinedShape t : data) {
+                if (t.getActualName()!=null&& methods.contains(t.getActualName())) {
+                    flag = true;
+                    break;
+                }
+            }
+            return flag;
+        }
+        return flag;
 
     }
 
@@ -97,6 +112,9 @@ public class HierarchyMatch implements IndirectMatch {
     }
 
     public static IndirectMatch byHierarchyMatch(String... parentTypes) {
-        return new HierarchyMatch(parentTypes);
+        return new HierarchyMatch(null,parentTypes);
+    }
+    public static IndirectMatch byHierarchyMatch(List<String> methods, String... parentTypes) {
+        return new HierarchyMatch(methods,parentTypes);
     }
 }

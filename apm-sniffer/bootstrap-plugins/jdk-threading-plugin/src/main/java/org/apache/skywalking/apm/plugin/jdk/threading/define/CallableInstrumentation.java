@@ -29,6 +29,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalMatchOperation;
 import org.apache.skywalking.apm.plugin.jdk.threading.ThreadingConfig;
 
+import java.util.Arrays;
+
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
@@ -49,7 +51,7 @@ public class CallableInstrumentation extends ClassEnhancePluginDefine {
             return null;
         }
 
-        return LogicalMatchOperation.and(prefixMatches, byHierarchyMatch(CALLABLE_CLASS));
+        return LogicalMatchOperation.and(prefixMatches, byHierarchyMatch(Arrays.asList(CALLABLE_CALL_METHOD),CALLABLE_CLASS));
     }
 
     @Override
