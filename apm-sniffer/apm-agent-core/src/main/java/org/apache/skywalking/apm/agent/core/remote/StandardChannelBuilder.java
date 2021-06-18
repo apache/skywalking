@@ -26,8 +26,7 @@ public class StandardChannelBuilder implements ChannelBuilder {
 
     @Override
     public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) {
-        return managedChannelBuilder.nameResolverFactory(new DnsNameResolverProvider())
-                                    .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
+        return managedChannelBuilder.maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
                                     .usePlaintext();
     }
 }
