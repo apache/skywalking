@@ -121,10 +121,10 @@ public class EndpointGroupingRuleReader4Openapi {
         String endPointNameFormat = (String) openapiData.get("x-sw-endpoint-name-format");
 
         if (!StringUtil.isEmpty(endPointNameFormat)) {
-            return replaceTemplateVars(endPointNameFormat, pathString, requstMathod);
+            return replaceTemplateVars(endPointNameFormat, pathString, requstMethod);
         }
 
-        return replaceTemplateVars(DEFAULT_ENDPOINT_NAME_FORMAT, pathString, requstMathod);
+        return replaceTemplateVars(DEFAULT_ENDPOINT_NAME_FORMAT, pathString, requstMethod);
     }
 
     private String replaceTemplateVars(String template, String pathString, String requstMathod) {
