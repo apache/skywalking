@@ -10,6 +10,7 @@ Release Notes.
 #### Java Agent
 * Supports modifying span attributes in async mode.
 * Agent supports the collection of JVM arguments and jar dependency information.
+* [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after Satellite 0.2.0 release.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
