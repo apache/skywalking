@@ -33,7 +33,7 @@ SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and buil
    We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
    We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
-1. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it，so you can organize these documents by yourself. For example:
+2. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it, so you can organize these documents by yourself. For example:
   ```
 ├── openapi-definitions
 │   ├── serviceA-api-v1
@@ -304,7 +304,7 @@ info:
    | GET:/products/123 | serviceC | default | default | false | GET:/products/123 |
    | \<GET\>:/products/123 | serviceB | \<\${METHOD}\>:\${PATH} | \<\${METHOD}>:\${PATH} | true | \<GET\>:/products/{id} |
    | GET:/products/123 | serviceB | default | ${PATH}:\<\${METHOD}\> | true | /products/{id}:\<GET\> |
-   | /products/123:<GET> | serviceB | ${PATH}:\<\${METHOD}\> | default | true | \<GET\>:/products/{id} |
+   | /products/123:\<GET\> | serviceB | ${PATH}:\<\${METHOD}\> | default | true | GET:/products/{id} |
 <br />
 
 
