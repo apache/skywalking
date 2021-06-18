@@ -102,11 +102,7 @@ public class EndpointGroupingRule4Openapi {
 
             int length1 = getPatternLength(pattern1);
             int length2 = getPatternLength(pattern2);
-            if (length1 != length2) {
-                return length2 - length1;
-            }
-
-            return 0;
+            return length2 - length1;
         }
 
         private int getPatternVarsCount(String pattern) {

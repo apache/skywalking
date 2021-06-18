@@ -117,7 +117,7 @@ public class EndpointGroupingRuleReader4Openapi {
         return endPointNameMatchRule;
     }
 
-    private String formatEndPointName(String pathString, String requstMathod, Map openapiData) {
+    private String formatEndPointName(String pathString, String requstMethod, Map openapiData) {
         String endPointNameFormat = (String) openapiData.get("x-sw-endpoint-name-format");
 
         if (!StringUtil.isEmpty(endPointNameFormat)) {

@@ -20,13 +20,13 @@ SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and buil
 
 ### How to use
 1. Add some `Specification Extensions` for SkyWalking in the OpenAPI definition documents:<br />
-   \${METHOD} is a reserved placeholder which represent HTTP method eg. `POST/GET...` <br />
-   \${PATH} is a reserved placeholder which represent the path eg. `/products/{id}`.
+   \${METHOD} is a reserved placeholder which represents the HTTP method eg. `POST/GET...` <br />
+   \${PATH} is a reserved placeholder which represents the path eg. `/products/{id}`.
 
    | Extension Name | Required | Description | Default Value |
       |-----|-----|-----|-----|
-   | x-sw-service-name | true | The service name which these endpoints belong | |
-   | x-sw-endpoint-name-match-rule | false | The rule use to match the endpoint.| \${METHOD}:\${PATH} |
+   | x-sw-service-name | true | The service name to which these endpoints belong | |
+   | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| \${METHOD}:\${PATH} |
    | x-sw-endpoint-name-format | false | The endpoint name after grouping.| \${METHOD}:\${PATH} |
 
    These extensions are under `OpenAPI Object`.
@@ -42,19 +42,18 @@ SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and buil
 │   └── serviceB-api-v2
 │       └── productAPI-v2.yaml
 ```
-3. Turn the feature on by set the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}`
-<br />
+3. Turn the feature on by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}`
 
 ### Rules match priority 
-We recommend designing the API path as clear as possible. If the API path is fuzzy and a endpoint name might match multiple paths, SkyWalking would follow the match priority to select one as below orders:
+We recommend designing the API path as clear as possible. If the API path is fuzzy and an endpoint name might match multiple paths, SkyWalking would follow the match priority to select one as below orders:
 1. The exact path matched first. 
    Eg. `/products or /products/inventory`
-2. The the path which has the less variables. 
+2. The path which has the less variables.
    Eg. `/products/{var1}/{var2} and /products/{var1}/abc`, endpoint name `/products/123/abc` will match the second one.
 3. If the paths have the same number of variables, match the longest path, and the vars are considered to be `1`.
-   Eg. `/products/abc/{var1} and products/{var12345}/ef`, endpoint name `/products/abc/ef` will match the first one.
+   Eg. `/products/abc/{var1} and products/{var12345}/ef`, endpoint name `/products/abc/ef` will match the first one, because `length("abc") = 3` is larger than `length("ef") = 2`.
 ### Examples
-If we have a OpenAPI definition doc `productAPI-v2.yaml` like this:
+If we have an OpenAPI definition doc `productAPI-v2.yaml` like this:
 ```yaml
 
 openapi: 3.0.0

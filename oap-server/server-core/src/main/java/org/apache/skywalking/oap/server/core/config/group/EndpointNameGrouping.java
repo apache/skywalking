@@ -33,11 +33,11 @@ public class EndpointNameGrouping {
     public String format(String serviceName, String endpointName) {
         String formattedName = endpointName;
         if (endpointGroupingRule4Openapi != null) {
-            formattedName = formatByOpenapi(serviceName, formattedName.toString());
+            formattedName = formatByOpenapi(serviceName, formattedName);
         }
 
         if (endpointGroupingRule != null) {
-            formattedName = formatByCustom(serviceName, formattedName.toString());
+            formattedName = formatByCustom(serviceName, formattedName);
         }
 
         return formattedName;
