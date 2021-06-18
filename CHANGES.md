@@ -11,6 +11,7 @@ Release Notes.
 * Supports modifying span attributes in async mode.
 * Agent supports the collection of JVM arguments and jar dependency information.
 * [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after Satellite 0.2.0 release.
+* Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
@@ -35,8 +36,8 @@ Release Notes.
 * Upgrade zookeeper caused by CVE-2019-0201. 
 * Upgrade snake yaml caused by CVE-2017-18640.
 * Upgrade embed tomcat caused by CVE-2020-13935.
+* Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
 * Support endpoint name grouping by OpenAPI definitions.
-
 
 #### UI
 
