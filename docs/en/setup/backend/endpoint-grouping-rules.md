@@ -30,8 +30,10 @@ SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and buil
    | x-sw-endpoint-name-format | false | The endpoint name after grouping.| \${METHOD}:\${PATH} |
 
    These extensions are under `OpenAPI Object`.
+   We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
+   We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
-2. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it，so you can organize these documents by yourself. For example:
+1. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it，so you can organize these documents by yourself. For example:
   ```
 ├── openapi-definitions
 │   ├── serviceA-api-v1

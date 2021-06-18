@@ -12,7 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# ${METHOD} is a reserved placeholder which represent HTTP method eg. `POST/GET...`
+# ${PATH} is a reserved placeholder which represent the path eg. `/products/{id}`.
+#
+# | Extension Name | Required | Description | Default Value |
+# |-----|-----|-----|-----|
+# | x-sw-service-name | true | The service name which these endpoints belong | |
+# | x-sw-endpoint-name-match-rule | false | The rule use to match the endpoint.| ${METHOD}:${PATH} |
+# | x-sw-endpoint-name-format | false | The endpoint name after grouping.| ${METHOD}:${PATH} |
+#
+# These extensions are under `OpenAPI Object`.
+# We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
 openapi: 3.0.0
 x-sw-service-name: serviceA
 x-sw-endpoint-name-match-rule: "<${METHOD}>:${PATH}"
