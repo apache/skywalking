@@ -20,16 +20,17 @@ SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and buil
 
 ### How to use
 1. Add some `Specification Extensions` for SkyWalking in the OpenAPI definition documents:<br />
-   \${METHOD} is a reserved placeholder which represents the HTTP method eg. `POST/GET...` <br />
-   \${PATH} is a reserved placeholder which represents the path eg. `/products/{id}`.
+   `${METHOD}` is a reserved placeholder which represents the HTTP method eg. `POST/GET...` <br />
+   `${PATH}` is a reserved placeholder which represents the path eg. `/products/{id}`.
 
    | Extension Name | Required | Description | Default Value |
    |-----|-----|-----|-----|
    | x-sw-service-name | true | The service name to which these endpoints belong | |
-   | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| \${METHOD}:\${PATH} |
-   | x-sw-endpoint-name-format | false | The endpoint name after grouping.| \${METHOD}:\${PATH} |
+   | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| `${METHOD}:${PATH}` |
+   | x-sw-endpoint-name-format | false | The endpoint name after grouping.| `${METHOD}:${PATH}` |
 
-   These extensions are under `OpenAPI Object`. For example, the document below has a full custom config.
+   These extensions are under `OpenAPI Object`. For example, the document below has a full custom config:
+
 ``` yaml
 openapi: 3.0.0
 x-sw-service-name: serviceB
@@ -42,6 +43,7 @@ info:
   title: Product API
   ...
 ```
+
    We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
    We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
@@ -270,15 +272,15 @@ Here are some cases:
 
    | Incoming Endpiont | Incoming Service | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
    |-----|-----|-----|-----|-----|-----|
-   | GET:/products | serviceB | default | default | true | GET:/products |
-   | GET:/products/123 | serviceB | default |default |  true | GET:/products{id} |
-   | GET:/products/asia/cn | serviceB | default | default | true | GET:/products/{region}/{country} |
-   | GET:/products/123/abc/efg | serviceB | default |default |  false | GET:/products/123/abc/efg | 
-   | \<GET\>:/products/123 | serviceB | default | default | false | \<GET\>:/products/123|
-   | GET:/products/123 | serviceC | default | default | false | GET:/products/123 |
-   | \<GET\>:/products/123 | serviceB | \<\${METHOD}\>:\${PATH} | \<\${METHOD}>:\${PATH} | true | \<GET\>:/products/{id} |
-   | GET:/products/123 | serviceB | default | ${PATH}:\<\${METHOD}\> | true | /products/{id}:\<GET\> |
-   | /products/123:\<GET\> | serviceB | ${PATH}:\<\${METHOD}\> | default | true | GET:/products/{id} |
+   | `GET:/products` | serviceB | default | default | true | `GET:/products` |
+   | `GET:/products/123` | serviceB | default |default |  true | `GET:/products{id}` |
+   | `GET:/products/asia/cn` | serviceB | default | default | true | `GET:/products/{region}/{country}` |
+   | `GET:/products/123/abc/efg` | serviceB | default |default |  false | `GET:/products/123/abc/efg` | 
+   | `<GET>:/products/123` | serviceB | default | default | false | `<GET>:/products/123`|
+   | `GET:/products/123` | serviceC | default | default | false | `GET:/products/123` |
+   | `<GET>:/products/123` | serviceB | `<${METHOD}>:${PATH}` | `<${METHOD}>:${PATH}` | true | <`GET>:/products/{id}` |
+   | `GET:/products/123` | serviceB | default | `${PATH}:<${METHOD}>` | true | `/products/{id}:<GET>` |
+   | `/products/123:<GET>` | serviceB | `${PATH}:<${METHOD}>` | default | true | `GET:/products/{id}` |
 
 
 ## Endpoint name grouping by custom configuration
