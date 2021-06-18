@@ -24,8 +24,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -58,12 +60,39 @@ public class ResourceUtils {
             throw new FileNotFoundException("path not found: " + parentPath);
         }
         final Set<String> nameSet = new HashSet<>(Arrays.asList(fileNames));
-        final File[] listFiles = Objects.requireNonNull(new File(url.getPath())
-            .listFiles((dir, name) -> nameSet.contains(name)), "No files in " + parentPath);
+        final File[] listFiles = Objects.requireNonNull(
+            new File(url.getPath())
+                .listFiles((dir, name) -> nameSet.contains(name)), "No files in " + parentPath);
 
         if (listFiles.length == 0) {
             throw new FileNotFoundException("files not found:" + nameSet);
         }
         return listFiles;
+    }
+
+    public static List<File> getPathFilesRecursive(String path) throws FileNotFoundException {
+        URL url = ResourceUtils.class.getClassLoader().getResource(path);
+        if (url == null) {
+            throw new FileNotFoundException("path not found: " + path);
+        }
+        List<File> fileList = new ArrayList<>();
+        return getPathFilesRecursive(url.getPath(), fileList);
+    }
+
+    private static List<File> getPathFilesRecursive(String filepath, List<File> fileList) {
+        File file = new File(filepath);
+        if (file.isDirectory()) {
+            File[] subFiles = file.listFiles();
+            if (subFiles != null) {
+                for (File subFile : subFiles) {
+                    if (subFile.isDirectory()) {
+                        getPathFilesRecursive(subFile.getPath(), fileList);
+                    } else {
+                        fileList.add(subFile);
+                    }
+                }
+            }
+        }
+        return fileList;
     }
 }

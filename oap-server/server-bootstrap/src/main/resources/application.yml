@@ -108,6 +108,8 @@ core:
     syncThreads: ${SW_CORE_SYNC_THREADS:2}
     # The maximum number of processes supported for each synchronous storage operation. When the number of the flush data is greater than this value, it will be assigned to multiple cores for execution.
     maxSyncOperationNum: ${SW_CORE_MAX_SYNC_OPERATION_NUM:50000}
+    # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
+    enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:

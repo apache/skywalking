@@ -158,6 +158,10 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     private int maxSyncOperationNum = 50000;
 
+    @Getter
+    @Setter
+    private boolean enableEndpointNameGroupingByOpenapi = false;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
