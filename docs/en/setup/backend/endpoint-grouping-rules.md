@@ -24,16 +24,28 @@ SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and buil
    \${PATH} is a reserved placeholder which represents the path eg. `/products/{id}`.
 
    | Extension Name | Required | Description | Default Value |
-      |-----|-----|-----|-----|
+   |-----|-----|-----|-----|
    | x-sw-service-name | true | The service name to which these endpoints belong | |
    | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| \${METHOD}:\${PATH} |
    | x-sw-endpoint-name-format | false | The endpoint name after grouping.| \${METHOD}:\${PATH} |
 
-   These extensions are under `OpenAPI Object`.
+   These extensions are under `OpenAPI Object`. For example, the document below has a full custom config.
+``` yaml
+openapi: 3.0.0
+x-sw-service-name: serviceB
+x-sw-endpoint-name-match-rule: "<${METHOD}>:${PATH}"
+x-sw-endpoint-name-format: "<${METHOD}>:${PATH}"
+
+info:
+  description: OpenAPI definition for SkyWalking test.
+  version: v2
+  title: Product API
+  ...
+```
    We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
    We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
-2. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it, so you can organize these documents by yourself. For example:
+1. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it, so you can organize these documents by yourself. For example:
   ```
 ├── openapi-definitions
 │   ├── serviceA-api-v1
@@ -254,44 +266,7 @@ components:
 
 ```
 
-Here give some scenario we might use:
-1. Only set the `x-sw-service-name`, `x-sw-endpoint-name-match-rule` and `x-sw-endpoint-name-format` are default:
-``` yaml
-openapi: 3.0.0
-x-sw-service-name: serviceB
-
-info:
-  description: OpenAPI definition for SkyWalking test.
-  version: v2
-  title: Product API
-  ...
-```
-2. Set the `x-sw-service-name` , `x-sw-endpoint-name-match-rule` and `x-sw-endpoint-name-format` :
-``` yaml
-openapi: 3.0.0
-x-sw-service-name: serviceB
-x-sw-endpoint-name-match-rule: "<${METHOD}>:${PATH}"
-x-sw-endpoint-name-format: "<${METHOD}>:${PATH}"
-
-info:
-  description: OpenAPI definition for SkyWalking test.
-  version: v2
-  title: Product API
-  ...
-```
-3. Set the `x-sw-service-name` , `x-sw-endpoint-name-match-rule` and `x-sw-endpoint-name-format` :
-``` yaml
-openapi: 3.0.0
-x-sw-service-name: serviceB
-x-sw-endpoint-name-match-rule: "<${METHOD}>:${PATH}"
-x-sw-endpoint-name-format: "<${METHOD}>:${PATH}"
-
-info:
-  description: OpenAPI definition for SkyWalking test.
-  version: v2
-  title: Product API
-  ...
-```
+Here are some cases:
 
    | Incoming Endpiont | Incoming Service | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
    |-----|-----|-----|-----|-----|-----|
@@ -304,9 +279,6 @@ info:
    | \<GET\>:/products/123 | serviceB | \<\${METHOD}\>:\${PATH} | \<\${METHOD}>:\${PATH} | true | \<GET\>:/products/{id} |
    | GET:/products/123 | serviceB | default | ${PATH}:\<\${METHOD}\> | true | /products/{id}:\<GET\> |
    | /products/123:\<GET\> | serviceB | ${PATH}:\<\${METHOD}\> | default | true | GET:/products/{id} |
-<br />
-
-
 
 
 ## Endpoint name grouping by custom configuration
