@@ -58,8 +58,6 @@ If we have a OpenAPI definition doc `productAPI-v2.yaml` like this:
 ```yaml
 
 openapi: 3.0.0
-x-sw-service-name: serviceB
-x-sw-endpoint-name-format: "${PATH}:<${METHOD}>"
 
 info:
   description: OpenAPI definition for SkyWalking test.
