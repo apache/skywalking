@@ -181,7 +181,7 @@ This calculates the metrics data from each request of the page in the browser ap
 
 ### SCOPE `BrowserAppPagePerf`
 
-This calculates the metrics data form each request of the page in the browser application (browser only).
+This calculates the metrics data from each request of the page in the browser application (browser only).
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -201,3 +201,17 @@ This calculates the metrics data form each request of the page in the browser ap
 | ttlTime | Time to interact. | | int(in ms) |
 | firstPackTime | First pack time. | | int(in ms) |
 | fmpTime | First Meaningful Paint. | | int(in ms) |
+
+### SCOPE `Event`
+
+This calculates the metrics data from [events](event.md).
+
+| Name | Remarks | Group Key | Type | 
+|---|---|---|---|
+| name | The name of the event. |  | string |
+| service | The service name to which the event belongs to. | | string |
+| serviceInstance | The service instance to which the event belongs to, if any. | | string|
+| endpoint | The service endpoint to which the event belongs to, if any. | | string|
+| type | The type of the event, `Normal` or `Error`. | | string|
+| message | The message of the event. | | string |
+| parameters | The parameters in the `message`, see [parameters](event.md#parameters). | | string |

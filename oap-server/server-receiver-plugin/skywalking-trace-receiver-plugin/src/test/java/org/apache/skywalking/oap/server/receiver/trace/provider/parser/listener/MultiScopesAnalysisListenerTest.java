@@ -43,12 +43,12 @@ import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
-import org.apache.skywalking.oap.server.core.source.Source;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -147,7 +147,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseEntry(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(7, receivedSources.size());
         final All all = (All) receivedSources.get(0);
         final Service service = (Service) receivedSources.get(1);
@@ -212,7 +212,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseEntry(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(7, receivedSources.size());
         final All all = (All) receivedSources.get(0);
         final Service service = (Service) receivedSources.get(1);
@@ -276,7 +276,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseEntry(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(7, receivedSources.size());
         final All all = (All) receivedSources.get(0);
         final Service service = (Service) receivedSources.get(1);
@@ -332,7 +332,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseLocal(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(1, receivedSources.size());
         final Endpoint source = (Endpoint) receivedSources.get(0);
         Assert.assertEquals("/logic-call", source.getName());
@@ -377,7 +377,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseLocal(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(1, receivedSources.size());
         final Endpoint source = (Endpoint) receivedSources.get(0);
         Assert.assertEquals("/GraphQL-service", source.getName());
@@ -416,7 +416,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseExit(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(4, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);
@@ -462,7 +462,7 @@ public class MultiScopesAnalysisListenerTest {
         listener.parseExit(spanObject, segment);
         listener.build();
 
-        final List<Source> receivedSources = mockReceiver.getReceivedSources();
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         Assert.assertEquals(2, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);

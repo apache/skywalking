@@ -35,7 +35,7 @@ Release Notes.
 * Upgrade zookeeper caused by CVE-2019-0201. 
 * Upgrade snake yaml caused by CVE-2017-18640.
 * Upgrade embed tomcat caused by CVE-2020-13935.
-
+* OAL supports generating metrics from events.
 
 #### UI
 

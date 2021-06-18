@@ -16,14 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.event;
+package org.apache.skywalking.oap.server.core.source;
 
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -34,12 +33,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageHashMapBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.elasticsearch.common.Strings;
 
+import static org.apache.skywalking.apm.util.StringUtil.isNotBlank;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
 
 @Getter
@@ -51,7 +48,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EV
     of = "uuid"
 )
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
-public class Event extends Metrics implements WithMetadata, LongValueHolder {
+public class Event extends Metrics implements ISource, WithMetadata, LongValueHolder {
 
     public static final String INDEX_NAME = "events";
 
@@ -136,13 +133,13 @@ public class Event extends Metrics implements WithMetadata, LongValueHolder {
             setEndTime(event.getEndTime());
         }
 
-        if (StringUtil.isNotBlank(event.getType())) {
+        if (isNotBlank(event.getType())) {
             setType(event.getType());
         }
-        if (StringUtil.isNotBlank(event.getMessage())) {
+        if (isNotBlank(event.getMessage())) {
             setType(event.getMessage());
         }
-        if (StringUtil.isNotBlank(event.getParameters())) {
+        if (isNotBlank(event.getParameters())) {
             setParameters(event.getParameters());
         }
         return true;
@@ -206,16 +203,31 @@ public class Event extends Metrics implements WithMetadata, LongValueHolder {
     @Override
     public MetricsMetaInfo getMeta() {
         int scope = DefaultScopeDefine.SERVICE;
+        if (isNotBlank(getServiceInstance())) {
+            scope = DefaultScopeDefine.SERVICE_INSTANCE;
+        } else if (isNotBlank(getEndpoint())) {
+            scope = DefaultScopeDefine.ENDPOINT;
+        }
+
+        String id = getEntityId();
+        return new MetricsMetaInfo(getName(), scope, id);
+    }
+
+    @Override
+    public int scope() {
+        return EVENT;
+    }
+
+    @Override
+    public String getEntityId() {
         final String serviceId = IDManager.ServiceID.buildId(getService(), true);
         String id = serviceId;
-        if (!Strings.isNullOrEmpty(getServiceInstance())) {
-            scope = DefaultScopeDefine.SERVICE_INSTANCE;
+        if (isNotBlank(getServiceInstance())) {
             id = IDManager.ServiceInstanceID.buildId(serviceId, getServiceInstance());
-        } else if (!Strings.isNullOrEmpty(getEndpoint())) {
-            scope = DefaultScopeDefine.ENDPOINT;
+        } else if (isNotBlank(getEndpoint())) {
             id = IDManager.EndpointID.buildId(serviceId, getEndpoint());
         }
-        return new MetricsMetaInfo(getName(), scope, id);
+        return id;
     }
 
     public static class Builder implements StorageHashMapBuilder<Event> {

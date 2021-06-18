@@ -21,19 +21,9 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class Source {
-    public abstract int scope();
+public abstract class Source implements ISource {
 
     @Getter
     @Setter
     private long timeBucket;
-
-    public abstract String getEntityId();
-
-    /**
-     * Internal data field preparation before {@link org.apache.skywalking.oap.server.core.analysis.SourceDispatcher#dispatch(Source)}
-     */
-    public void prepare() {
-
-    }
 }
