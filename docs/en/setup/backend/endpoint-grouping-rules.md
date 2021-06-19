@@ -14,7 +14,7 @@ SkyWalking provides 2 ways to support endpoint grouping:
 
 The 2 grouping features can work together in sequence.
 ## Endpoint name grouping by OpenAPI definitions
-The OpenAPI definitions are the documents based on The [OpenAPI Specification (OAS)](https://github.com/OAI/OpenAPI-Specification) which used to define a standard, language-agnostic interface for HTTP APIs.
+The OpenAPI definitions are the documents based on The [OpenAPI Specification (OAS)](https://www.openapis.org/) which used to define a standard, language-agnostic interface for HTTP APIs.
 SkyWalking now support `OAS v2.0+`, could parse the documents `(yaml)` and build the grouping rules from them automatically.
 
 
