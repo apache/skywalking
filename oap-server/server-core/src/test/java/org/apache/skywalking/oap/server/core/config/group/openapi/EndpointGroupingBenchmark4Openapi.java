@@ -44,11 +44,11 @@ public class EndpointGroupingBenchmark4Openapi {
         public FormatClassPaths20() {
             rule = new EndpointGroupingRule4Openapi();
             for (int i = 0; i <= 3; i++) {
-                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + +i, "GET:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + +i, "POST:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + +i, "GET:/products2/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + +i, "POST:/products3/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + +i, "GET:/products3/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + i, "GET:/products1/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + i, "POST:/products1/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + i, "GET:/products2/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + i, "POST:/products3/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + i, "GET:/products3/([^/]+)/" + i);
             }
         }
 
@@ -65,11 +65,11 @@ public class EndpointGroupingBenchmark4Openapi {
         public FormatClassPaths50() {
             rule = new EndpointGroupingRule4Openapi();
             for (int i = 0; i <= 9; i++) {
-                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + +i, "GET:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + +i, "POST:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + +i, "GET:/products2/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + +i, "POST:/products3/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + +i, "GET:/products3/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + i, "GET:/products1/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + i, "POST:/products1/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + i, "GET:/products2/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + i, "POST:/products3/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + i, "GET:/products3/([^/]+)/" + i);
             }
         }
 
@@ -86,11 +86,11 @@ public class EndpointGroupingBenchmark4Openapi {
         public FormatClassPaths200() {
             rule = new EndpointGroupingRule4Openapi();
             for (int i = 0; i <= 39; i++) {
-                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + +i, "GET:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + +i, "POST:/products1/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + +i, "GET:/products2/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + +i, "POST:/products3/([^/]+)/" + i);
-                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + +i, "GET:/products3/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products1/{id}/" + i, "GET:/products1/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "POST:/products1/{id}/" + i, "POST:/products1/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products2/{id}/" + i, "GET:/products2/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "POST:/products3/{id}/" + i, "POST:/products3/([^/]+)/" + i);
+                rule.addGroupedRule("serviceA", "GET:/products3/{id}/" + i, "GET:/products3/([^/]+)/" + i);
             }
         }
 
@@ -141,32 +141,32 @@ public class EndpointGroupingBenchmark4Openapi {
 # Threads: 4 threads, will synchronize iterations
 # Benchmark mode: Throughput, ops/time
 
-Benchmark                                                                                               Mode  Cnt        Score        Error   Units
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20                                    thrpt    5  4052121.622 ± 427561.892   ops/s
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.alloc.rate                     thrpt    5     4386.461 ±    465.129  MB/sec
+Benchmark                                                                                              Mode  Cnt        Score        Error   Units
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20                                    thrpt    5  4180207.544 ± 833644.395   ops/s
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.alloc.rate                     thrpt    5     4524.954 ±    903.291  MB/sec
 EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.alloc.rate.norm                thrpt    5     1192.000 ±      0.001    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Eden_Space            thrpt    5     4411.321 ±    445.136  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Eden_Space.norm       thrpt    5     1198.792 ±      6.537    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Survivor_Space        thrpt    5        0.475 ±      0.164  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Survivor_Space.norm   thrpt    5        0.129 ±      0.036    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.count                          thrpt    5     1367.000               counts
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.time                           thrpt    5      777.000                   ms
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200                                   thrpt    5   494580.800 ±  13430.644   ops/s
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.alloc.rate                    thrpt    5     3510.759 ±     95.418  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Eden_Space            thrpt    5     4550.511 ±    916.117  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Eden_Space.norm       thrpt    5     1198.713 ±     10.572    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Survivor_Space        thrpt    5        0.493 ±      0.118  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.churn.PS_Survivor_Space.norm   thrpt    5        0.130 ±      0.039    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.count                          thrpt    5     1410.000               counts
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths20:·gc.time                           thrpt    5      783.000                   ms
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200                                   thrpt    5   600313.461 ±  58702.201   ops/s
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.alloc.rate                    thrpt    5     4260.484 ±    415.215  MB/sec
 EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.alloc.rate.norm               thrpt    5     7816.000 ±      0.001    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Eden_Space           thrpt    5     3531.052 ±    101.381  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Eden_Space.norm      thrpt    5     7861.170 ±     52.430    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Survivor_Space       thrpt    5        0.289 ±      0.092  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Survivor_Space.norm  thrpt    5        0.644 ±      0.217    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.count                         thrpt    5     1094.000               counts
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.time                          thrpt    5      604.000                   ms
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50                                    thrpt    5  1834653.371 ± 128456.874   ops/s
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.alloc.rate                     thrpt    5     3784.855 ±    263.420  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.alloc.rate.norm                thrpt    5     2272.000 ±      0.001    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Eden_Space            thrpt    5     3807.122 ±    288.032  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Eden_Space.norm       thrpt    5     2285.315 ±     16.947    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Survivor_Space        thrpt    5        0.365 ±      0.080  MB/sec
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Survivor_Space.norm   thrpt    5        0.219 ±      0.047    B/op
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.count                          thrpt    5     1180.000               counts
-EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.time                           thrpt    5      690.000                   ms
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Eden_Space           thrpt    5     4285.685 ±    407.822  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Eden_Space.norm      thrpt    5     7862.339 ±     46.737    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Survivor_Space       thrpt    5        0.444 ±      0.061  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.churn.PS_Survivor_Space.norm  thrpt    5        0.815 ±      0.062    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.count                         thrpt    5     1328.000               counts
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths200:·gc.time                          thrpt    5      729.000                   ms
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50                                    thrpt    5  2001647.224 ± 139386.146   ops/s
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.alloc.rate                     thrpt    5     4173.062 ±    291.166  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.alloc.rate.norm                thrpt    5     2296.000 ±      0.001    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Eden_Space            thrpt    5     4198.202 ±    271.551  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Eden_Space.norm       thrpt    5     2309.878 ±     14.994    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Survivor_Space        thrpt    5        0.393 ±      0.171  MB/sec
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.churn.PS_Survivor_Space.norm   thrpt    5        0.216 ±      0.086    B/op
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.count                          thrpt    5     1301.000               counts
+EndpointGroupingBenchmark4Openapi.formatEndpointNameMatchedPaths50:·gc.time                           thrpt    5      715.000                   ms
  */
