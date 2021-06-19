@@ -57,7 +57,7 @@ There are also cases where you would already have both the start time and end ti
 
 ## How to Configure Alarms for Events
 
-Events are derived from metrics, and can be the source to trigger alarms. For example, if a specific event occurs for a
+Events derive from metrics, and can be the source to trigger alarms. For example, if a specific event occurs for a
 certain times in a period, alarms can be triggered and sent.
 
 Every event has a default `value = 1`, when `n` events with the same name are reported, they are aggregated
@@ -100,6 +100,16 @@ For more alarm configuration details, please refer to the [alarm doc](../setup/b
 
 **Note** that the `Unhealthy` event above is only for demonstration, they are not detected by default in SkyWalking,
 however, you can use the methods in [How to Report Events](#how-to-report-events) to report this kind of events.
+
+## Correlation between events and metrics
+
+SkyWalking UI visualizes the events in the dashboard when the event service / instance / endpoint matches the displayed
+service / instance / endpoint.
+
+By default, SkyWalking also generates some metrics for events by using [OAL](oal.md). The default metrics list of event
+may change over time, you can find the complete list
+in [event.oal](../../../oap-server/server-bootstrap/src/main/resources/oal/event.oal). If you want to generate you
+custom metrics from events, please refer to [OAL](oal.md) about how to write OAL rules.
 
 ## Known Events
 

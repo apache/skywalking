@@ -16,22 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.tool.profile.core.mock;
+event_total = from(Event.*).count();
 
-import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
-import org.apache.skywalking.oap.server.core.source.ISource;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+event_normal_count = from(Event.*).filter(type == "Normal").count();
+event_error_count = from(Event.*).filter(type == "Error").count();
 
-/**
- * Mock from {@link SourceReceiver}
- */
-public class MockSourceReceiver implements SourceReceiver {
-    @Override
-    public void receive(ISource source) {
-    }
-
-    @Override
-    public DispatcherDetectorListener getDispatcherDetectorListener() {
-        return null;
-    }
-}
+event_start_count = from(Event.*).filter(name == "Start").count();
+event_shutdown_count = from(Event.*).filter(name == "Shutdown").count();
