@@ -6,32 +6,29 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.tool.profile.core.mock;
+package org.apache.skywalking.oap.server.analyzer.event;
 
-import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
-import org.apache.skywalking.oap.server.core.source.ISource;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
 /**
- * Mock from {@link SourceReceiver}
+ * OAL rules to calculate Event-specific metrics.
  */
-public class MockSourceReceiver implements SourceReceiver {
-    @Override
-    public void receive(ISource source) {
-    }
+public class EventOALDefine extends OALDefine {
+    public static final EventOALDefine INSTANCE = new EventOALDefine();
 
-    @Override
-    public DispatcherDetectorListener getDispatcherDetectorListener() {
-        return null;
+    private EventOALDefine() {
+        super(
+            "oal/event.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
     }
 }

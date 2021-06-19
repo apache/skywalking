@@ -18,30 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.io.IOException;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
-import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
+public interface ISource {
+    int scope();
 
-public class SourceReceiverImpl implements SourceReceiver {
-    @Getter
-    private final DispatcherManager dispatcherManager;
+    long getTimeBucket();
 
-    public SourceReceiverImpl() {
-        this.dispatcherManager = new DispatcherManager();
-    }
+    void setTimeBucket(long timeBucket);
 
-    @Override
-    public void receive(ISource source) {
-        dispatcherManager.forward(source);
-    }
+    String getEntityId();
 
-    @Override
-    public DispatcherDetectorListener getDispatcherDetectorListener() {
-        return getDispatcherManager();
-    }
-
-    public void scan() throws IOException, InstantiationException, IllegalAccessException {
-        dispatcherManager.scan();
+    /**
+     * Internal data field preparation before {@link org.apache.skywalking.oap.server.core.analysis.SourceDispatcher#dispatch(ISource)}
+     */
+    default void prepare() {
     }
 }

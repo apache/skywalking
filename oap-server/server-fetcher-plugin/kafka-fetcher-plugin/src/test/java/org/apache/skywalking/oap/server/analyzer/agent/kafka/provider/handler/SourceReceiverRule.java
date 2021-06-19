@@ -21,15 +21,15 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.junit.rules.Verifier;
 
 public abstract class SourceReceiverRule extends Verifier implements SourceReceiver {
-    private final List<Source> sourceList = Lists.newArrayList();
+    private final List<ISource> sourceList = Lists.newArrayList();
 
     @Override
-    public void receive(final Source source) {
+    public void receive(final ISource source) {
         sourceList.add(source);
     }
 
@@ -38,10 +38,11 @@ public abstract class SourceReceiverRule extends Verifier implements SourceRecei
         return null;
     }
 
+    @Override
     protected void verify() throws Throwable {
         verify(sourceList);
     }
 
-    protected abstract void verify(List<Source> sourceList) throws Throwable;
+    protected abstract void verify(List<ISource> sourceList) throws Throwable;
 
 }
