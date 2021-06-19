@@ -93,9 +93,14 @@ public class EndpointGroupingRuleReader4Openapi {
     }
 
     private String getServiceName(Map openapiData, File file) {
+
         String serviceName = (String) openapiData.get("x-sw-service-name");
         if (StringUtil.isEmpty(serviceName)) {
             File directory = new File(file.getParent());
+            if (openapiDefPath.equals(directory.getName())) {
+                throw new IllegalArgumentException(
+                    "OpenAPI definition file: " + file.getAbsolutePath() + " found in root directory, but doesn't include x-sw-service-name extensive definition in the file.");
+            }
             serviceName = directory.getName();
         }
 

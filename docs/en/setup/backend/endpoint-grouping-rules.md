@@ -25,7 +25,7 @@ SkyWalking now support `OAS v2.0+`, could parse the documents `(yaml)` and build
 
    | Extension Name | Required | Description | Default Value |
    |-----|-----|-----|-----|
-   | x-sw-service-name | false | The service name to which these endpoints belong | The directory name which the definition documents belong to|
+   | x-sw-service-name | false | The service name which these endpoints belong to | The directory name which the OpenAPI definition documents belong to |
    | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| `${METHOD}:${PATH}` |
    | x-sw-endpoint-name-format | false | The endpoint name after grouping.| `${METHOD}:${PATH}` |
 
@@ -47,7 +47,7 @@ info:
    We highly recommend using the default config, the custom config (`x-sw-endpoint-name-match-rule/x-sw-endpoint-name-format`) would be considered as part of the match rules (regex pattern).
    We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
-1. Put the OpenAPI definition documents into directory `openapi-definitions`, SkyWalking could read all documents or documents in this subDirectorys from it, you can organize these documents by yourself. Recommend using the service name as the subDirectory name then you are not necessary to set `x-sw-service-name`. For example:
+2. All OpenAPI definition documents should be located in the `openapi-definitions` directory, with at most two levels directories. Recommend using the service name as the subDirectory name then you are not required to set `x-sw-service-name`. For example:
   ```
 ├── openapi-definitions
 │   ├── serviceA
@@ -56,7 +56,7 @@ info:
 │   └── serviceB
 │       └── productAPI-v2.yaml
 ```
-3. Turn the feature on by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}`
+3. The feature is enabled by default, you can disable it by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:false}`
 
 ### Rules match priority 
 We recommend designing the API path as clear as possible. If the API path is fuzzy and an endpoint name might match multiple paths, SkyWalking would follow the match priority to select one as below orders:
