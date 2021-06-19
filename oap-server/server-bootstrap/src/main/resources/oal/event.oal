@@ -18,8 +18,8 @@
 
 event_total = from(Event.*).count();
 
-event_error_count = from(Event.*).filter(type == "Error").count();
 event_normal_count = from(Event.*).filter(type == "Normal").count();
+event_error_count = from(Event.*).filter(type == "Error").count();
 
 event_start_count = from(Event.*).filter(name == "Start").count();
 event_shutdown_count = from(Event.*).filter(name == "Shutdown").count();
