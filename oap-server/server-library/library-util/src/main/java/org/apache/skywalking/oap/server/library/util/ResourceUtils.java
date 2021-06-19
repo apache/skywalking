@@ -70,23 +70,35 @@ public class ResourceUtils {
         return listFiles;
     }
 
-    public static List<File> getPathFilesRecursive(String path) throws FileNotFoundException {
-        URL url = ResourceUtils.class.getClassLoader().getResource(path);
+    /**
+     * @param directoryPath the directory path
+     * @param maxDepth      the max directory depth to get the files, the given directory is 0 as the tree root
+     * @return all normal files which in this directory and subDirectory according to the maxDepth
+     * @throws FileNotFoundException the directory not exist in the given path
+     */
+    public static List<File> getDirectoryFilesRecursive(String directoryPath,
+                                                        int maxDepth) throws FileNotFoundException {
+
+        URL url = ResourceUtils.class.getClassLoader().getResource(directoryPath);
         if (url == null) {
-            throw new FileNotFoundException("path not found: " + path);
+            throw new FileNotFoundException("path not found: " + directoryPath);
         }
         List<File> fileList = new ArrayList<>();
-        return getPathFilesRecursive(url.getPath(), fileList);
+        return getDirectoryFilesRecursive(url.getPath(), fileList, maxDepth);
     }
 
-    private static List<File> getPathFilesRecursive(String filepath, List<File> fileList) {
-        File file = new File(filepath);
+    private static List<File> getDirectoryFilesRecursive(String directoryPath, List<File> fileList, int maxDepth) {
+        if (maxDepth < 0) {
+            return fileList;
+        }
+        maxDepth--;
+        File file = new File(directoryPath);
         if (file.isDirectory()) {
             File[] subFiles = file.listFiles();
             if (subFiles != null) {
                 for (File subFile : subFiles) {
                     if (subFile.isDirectory()) {
-                        getPathFilesRecursive(subFile.getPath(), fileList);
+                        getDirectoryFilesRecursive(subFile.getPath(), fileList, maxDepth);
                     } else {
                         fileList.add(subFile);
                     }

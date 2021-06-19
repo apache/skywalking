@@ -57,8 +57,11 @@ public class EndpointGroupingRuleReader4Openapi {
     public EndpointGroupingRule4Openapi read() throws FileNotFoundException {
         EndpointGroupingRule4Openapi endpointGroupingRule = new EndpointGroupingRule4Openapi();
 
-        List<File> fileList = ResourceUtils.getPathFilesRecursive(openapiDefPath);
+        List<File> fileList = ResourceUtils.getDirectoryFilesRecursive(openapiDefPath, 1);
         for (File file : fileList) {
+            if (!file.getName().endsWith(".yaml")) {
+                continue;
+            }
             Reader reader = new FileReader(file);
             Yaml yaml = new Yaml(new SafeConstructor());
             Map openapiData = yaml.load(reader);
@@ -92,8 +95,8 @@ public class EndpointGroupingRuleReader4Openapi {
     private String getServiceName(Map openapiData, File file) {
         String serviceName = (String) openapiData.get("x-sw-service-name");
         if (StringUtil.isEmpty(serviceName)) {
-            throw new IllegalArgumentException(
-                "OpenAPI definition: " + file.getAbsolutePath() + " x-sw-service-name can't be empty");
+            File directory = new File(file.getParent());
+            serviceName = directory.getName();
         }
 
         return serviceName;

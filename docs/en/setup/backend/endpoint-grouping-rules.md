@@ -15,17 +15,17 @@ SkyWalking provides 2 ways to support endpoint grouping:
 The 2 grouping features can work together in sequence.
 ## Endpoint name grouping by OpenAPI definitions
 The OpenAPI definitions are the documents based on The [OpenAPI Specification (OAS)](https://github.com/OAI/OpenAPI-Specification) which used to define a standard, language-agnostic interface for HTTP APIs.
-SkyWalking now support `OAS v2.0+)`, could parse the documents `(yaml)` and build the grouping rules from them automatically.
+SkyWalking now support `OAS v2.0+`, could parse the documents `(yaml)` and build the grouping rules from them automatically.
 
 
 ### How to use
-1. Add some `Specification Extensions` for SkyWalking in the OpenAPI definition documents:<br />
+1. Add some `Specification Extensions` for SkyWalking config in the OpenAPI definition documents, otherwise, all configs are default:<br />
    `${METHOD}` is a reserved placeholder which represents the HTTP method eg. `POST/GET...` <br />
    `${PATH}` is a reserved placeholder which represents the path eg. `/products/{id}`.
 
    | Extension Name | Required | Description | Default Value |
    |-----|-----|-----|-----|
-   | x-sw-service-name | true | The service name to which these endpoints belong | |
+   | x-sw-service-name | false | The service name to which these endpoints belong | The directory name which the definition documents belong to|
    | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| `${METHOD}:${PATH}` |
    | x-sw-endpoint-name-format | false | The endpoint name after grouping.| `${METHOD}:${PATH}` |
 
@@ -44,16 +44,16 @@ info:
   ...
 ```
 
-   We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
+   We highly recommend using the default config, the custom config (`x-sw-endpoint-name-match-rule/x-sw-endpoint-name-format`) would be considered as part of the match rules (regex pattern).
    We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
-1. Put the OpenAPI definition documents into folder `openapi-definitions`, SkyWalking could read all documents or documents in subfolders from it, so you can organize these documents by yourself. For example:
+1. Put the OpenAPI definition documents into directory `openapi-definitions`, SkyWalking could read all documents or documents in this subDirectorys from it, you can organize these documents by yourself. Recommend using the service name as the subDirectory name then you are not necessary to set `x-sw-service-name`. For example:
   ```
 ├── openapi-definitions
-│   ├── serviceA-api-v1
+│   ├── serviceA
 │   │   ├── customerAPI-v1.yaml
 │   │   └── productAPI-v1.yaml
-│   └── serviceB-api-v2
+│   └── serviceB
 │       └── productAPI-v2.yaml
 ```
 3. Turn the feature on by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}`
@@ -67,7 +67,7 @@ We recommend designing the API path as clear as possible. If the API path is fuz
 3. If the paths have the same number of variables, match the longest path, and the vars are considered to be `1`.
    Eg. `/products/abc/{var1} and products/{var12345}/ef`, endpoint name `/products/abc/ef` will match the first one, because `length("abc") = 3` is larger than `length("ef") = 2`.
 ### Examples
-If we have an OpenAPI definition doc `productAPI-v2.yaml` like this:
+If we have an OpenAPI definition doc `productAPI-v2.yaml` in directory `serviceB` like this:
 ```yaml
 
 openapi: 3.0.0
@@ -270,17 +270,18 @@ components:
 
 Here are some cases:
 
-   | Incoming Endpiont | Incoming Service | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
-   |-----|-----|-----|-----|-----|-----|
-   | `GET:/products` | serviceB | default | default | true | `GET:/products` |
-   | `GET:/products/123` | serviceB | default |default |  true | `GET:/products{id}` |
-   | `GET:/products/asia/cn` | serviceB | default | default | true | `GET:/products/{region}/{country}` |
-   | `GET:/products/123/abc/efg` | serviceB | default |default |  false | `GET:/products/123/abc/efg` | 
-   | `<GET>:/products/123` | serviceB | default | default | false | `<GET>:/products/123`|
-   | `GET:/products/123` | serviceC | default | default | false | `GET:/products/123` |
-   | `<GET>:/products/123` | serviceB | `<${METHOD}>:${PATH}` | `<${METHOD}>:${PATH}` | true | <`GET>:/products/{id}` |
-   | `GET:/products/123` | serviceB | default | `${PATH}:<${METHOD}>` | true | `/products/{id}:<GET>` |
-   | `/products/123:<GET>` | serviceB | `${PATH}:<${METHOD}>` | default | true | `GET:/products/{id}` |
+   | Incoming Endpiont | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
+   |-----|-----|-----|-----|-----|-----|-----|
+   | `GET:/products` | serviceB | default | default | default | true | `GET:/products` |
+   | `GET:/products/123` | serviceB | default | default | default |  true | `GET:/products{id}` |
+   | `GET:/products/asia/cn` | serviceB | default | default | default | true | `GET:/products/{region}/{country}` |
+   | `GET:/products/123/abc/efg` | serviceB | default | default | default |  false | `GET:/products/123/abc/efg` | 
+   | `<GET>:/products/123` | serviceB | default | default | default | false | `<GET>:/products/123`|
+   | `GET:/products/123` | serviceC | default | default | default | false | `GET:/products/123` |
+   | `GET:/products/123` | serviceC | serviceC | default | default | true | `GET:/products/123` |
+   | `<GET>:/products/123` | serviceB | default | `<${METHOD}>:${PATH}` | `<${METHOD}>:${PATH}` | true | `<GET>:/products/{id}` |
+   | `GET:/products/123` | serviceB | default | default | `${PATH}:<${METHOD}>` | true | `/products/{id}:<GET>` |
+   | `/products/123:<GET>` | serviceB | default | `${PATH}:<${METHOD}>` | default | true | `GET:/products/{id}` |
 
 
 ## Endpoint name grouping by custom configuration

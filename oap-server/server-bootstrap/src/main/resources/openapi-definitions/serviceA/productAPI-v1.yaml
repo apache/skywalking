@@ -14,19 +14,33 @@
 # limitations under the License.
 #
 #
-# ${METHOD} is a reserved placeholder which represent HTTP method eg. `POST/GET...`
-# ${PATH} is a reserved placeholder which represent the path eg. `/products/{id}`.
+# Add some `Specification Extensions` for SkyWalking config in the OpenAPI definition documents, otherwise, all configs are default:
+#   `${METHOD}` is a reserved placeholder which represents the HTTP method eg. `POST/GET...`
+#   `${PATH}` is a reserved placeholder which represents the path eg. `/products/{id}`.
 #
-# | Extension Name | Required | Description | Default Value |
-# |-----|-----|-----|-----|
-# | x-sw-service-name | true | The service name which these endpoints belong | |
-# | x-sw-endpoint-name-match-rule | false | The rule use to match the endpoint.| ${METHOD}:${PATH} |
-# | x-sw-endpoint-name-format | false | The endpoint name after grouping.| ${METHOD}:${PATH} |
+#   | Extension Name | Required | Description | Default Value |
+#   |-----|-----|-----|-----|
+#   | x-sw-service-name | false | The service name to which these endpoints belong | The directory name which the definition documents belong to|
+#   | x-sw-endpoint-name-match-rule | false | The rule used to match the endpoint.| `${METHOD}:${PATH}` |
+#   | x-sw-endpoint-name-format | false | The endpoint name after grouping.| `${METHOD}:${PATH}` |
 #
-# These extensions are under `OpenAPI Object`.
-# We highly recommend using the default config, the custom config would be considered as part of the match rules (regex pattern).
-# We provide some cases in org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest,
-# you could validate your custom config as well.
+#   These extensions are under `OpenAPI Object`. For example, the document below has a full custom config:
+#
+#``` yaml
+#openapi: 3.0.0
+#x-sw-service-name: serviceB
+#x-sw-endpoint-name-match-rule: "<${METHOD}>:${PATH}"
+#x-sw-endpoint-name-format: "<${METHOD}>:${PATH}"
+#
+#info:
+#  description: OpenAPI definition for SkyWalking test.
+#  version: v2
+#  title: Product API
+#  ...
+#```
+#
+#   We highly recommend using the default config, the custom config (`x-sw-endpoint-name-match-rule/x-sw-endpoint-name-format`) would be considered as part of the match rules (regex pattern).
+#   We provide some cases in `org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRuleReader4OpenapiTest`, you could validate your custom config as well.
 
 
 ###################################################
@@ -35,7 +49,6 @@
 
 
 #openapi: 3.0.0
-#x-sw-service-name: serviceA
 #
 #info:
 #  description: OpenAPI definition for SkyWalking test.

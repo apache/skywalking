@@ -33,7 +33,7 @@ public class EndpointGroupingRuleReader4OpenapiTest {
         EndpointNameGrouping nameGrouping = new EndpointNameGrouping();
         nameGrouping.setEndpointGroupingRule4Openapi(rule);
 
-        //default x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
+        //default x-sw-service-name x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
         // test direct lookup
         String endpointName = nameGrouping.format("serviceA", "GET:/products");
         Assert.assertEquals("GET:/products", endpointName);
@@ -50,11 +50,11 @@ public class EndpointGroupingRuleReader4OpenapiTest {
         endpointName = nameGrouping.format("serviceA", "GET:/products/1/relatedProducts");
         Assert.assertEquals("GET:/products/{id}/relatedProducts", endpointName);
 
-        //test same x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
-        endpointName = nameGrouping.format("serviceA", "POST:/customer");
+        //test custom x-sw-service-name same x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
+        endpointName = nameGrouping.format("serviceA-1", "POST:/customer");
         Assert.assertEquals("POST:/customer", endpointName);
 
-        endpointName = nameGrouping.format("serviceA", "<GET>:/customers/1");
+        endpointName = nameGrouping.format("serviceA-1", "<GET>:/customers/1");
         Assert.assertEquals("<GET>:/customers/{id}", endpointName);
 
         //test different x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
@@ -81,7 +81,7 @@ public class EndpointGroupingRuleReader4OpenapiTest {
         endpointName = nameGrouping.format("serviceA", "GET:/products/1/ratings/123");
         Assert.assertEquals("GET:/products/1/ratings/123", endpointName);
 
-        endpointName = nameGrouping.format("serviceA", "<GET>:/customers/1/123");
+        endpointName = nameGrouping.format("serviceA-1", "<GET>:/customers/1/123");
         Assert.assertEquals("<GET>:/customers/1/123", endpointName);
 
         endpointName = nameGrouping.format("serviceB", "/products/:<GET>");
