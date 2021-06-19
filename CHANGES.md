@@ -9,6 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
+* Add agent plugin to support Sentinel.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.

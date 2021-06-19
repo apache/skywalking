@@ -1,0 +1,74 @@
+segmentItems:
+- serviceName: sentinel-scenario
+  segmentSize: nq 0
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /case/healthCheck
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 14
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/sentinel-scenario/case/healthCheck'}
+      - {key: http.method, value: HEAD}
+  - segmentId: not null
+    spans:
+    - operationName: Sentinel/test_SphO_entry
+      operationId: 0
+      parentSpanId: 1
+      spanId: 2
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 112
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      logs:
+      - logEvent:
+        - {key: block_type, value: flow}
+        - {key: blocked, value: 'true'}
+    - {operationName: Sentinel/test_SphU_entry, operationId: 0, parentSpanId: 0, spanId: 1,
+      spanLayer: Unknown, startTime: not null, endTime: not null, componentId: 112,
+      isError: false, spanType: Local, peer: '', skipAnalysis: false}
+    - operationName: Sentinel/test_SphU_asyncEntry
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Unknown
+      startTime: not null
+      endTime: not null
+      componentId: 112
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      logs:
+      - logEvent:
+        - {key: block_type, value: flow}
+        - {key: blocked, value: 'true'}
+    - operationName: /case/sentinel-scenario
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 14
+      isError: false
+      spanType: Entry
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: url, value: 'http://localhost:8080/sentinel-scenario/case/sentinel-scenario'}
+      - {key: http.method, value: GET}
+meterItems: []
