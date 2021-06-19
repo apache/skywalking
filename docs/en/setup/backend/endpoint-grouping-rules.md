@@ -34,8 +34,8 @@ SkyWalking now support `OAS v2.0+`, could parse the documents `(yaml)` and build
 ``` yaml
 openapi: 3.0.0
 x-sw-service-name: serviceB
-x-sw-endpoint-name-match-rule: "<${METHOD}>:${PATH}"
-x-sw-endpoint-name-format: "<${METHOD}>:${PATH}"
+x-sw-endpoint-name-match-rule: "${METHOD}:${PATH}"
+x-sw-endpoint-name-format: "${METHOD}:${PATH}"
 
 info:
   description: OpenAPI definition for SkyWalking test.
