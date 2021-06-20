@@ -51,11 +51,11 @@ public class LogE2E extends SkyWalkingTestAdapter {
     @DockerCompose({
         "docker/log/docker-compose.${SW_STORAGE}.yml"
     })
-    private DockerComposeContainer<?> justForSideEffects;
+    protected DockerComposeContainer<?> justForSideEffects;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "oap", port = 12800)
-    private HostAndPort swWebappHostPort;
+    protected HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "provider", port = 9090)
@@ -92,42 +92,26 @@ public class LogE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     public void verifyLog4jLog() throws Exception {
-        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
-                                             .start(startTime)
-                                             .end(Times.now())
-                                             .addTag("level", "INFO");
-        if (graphql.supportQueryLogsByKeywords()) {
-            logsQuery.keywordsOfContent("log4j message");
-        }
-        final List<Log> logs = graphql.logs(logsQuery);
-        LOGGER.info("logs: {}", logs);
-
-        load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);
+        verify("log4j message");
     }
 
     @RetryableTest
     public void verifyLog4j2Log() throws Exception {
-        LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
-                                             .start(startTime)
-                                             .end(Times.now())
-                                             .addTag("level", "INFO");
-        if (graphql.supportQueryLogsByKeywords()) {
-            logsQuery.keywordsOfContent("log4j2 message");
-        }
-        final List<Log> logs = graphql.logs(logsQuery);
-        LOGGER.info("logs: {}", logs);
-
-        load("expected/log/logs.yml").as(LogsMatcher.class).verifyLoosely(logs);
+        verify("log4j2 message");
     }
 
     @RetryableTest
     public void verifyLogbackLog() throws Exception {
+        verify("logback message");
+    }
+
+    protected void verify(String keyword) throws Exception {
         LogsQuery logsQuery = new LogsQuery().serviceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1")
                                              .start(startTime)
                                              .end(Times.now())
                                              .addTag("level", "INFO");
         if (graphql.supportQueryLogsByKeywords()) {
-            logsQuery.keywordsOfContent("logback message");
+            logsQuery.keywordsOfContent(keyword);
         }
         final List<Log> logs = graphql.logs(logsQuery);
         LOGGER.info("logs: {}", logs);
