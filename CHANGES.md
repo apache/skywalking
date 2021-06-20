@@ -6,6 +6,7 @@ Release Notes.
 ------------------
 #### Project
 * Extract dependency management to a bom.
+* Add JDK 16 to test matrix.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
