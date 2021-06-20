@@ -5,7 +5,7 @@ Release Notes.
 8.7.0
 ------------------
 #### Project
-
+* Extract dependency management to a bom.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
