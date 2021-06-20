@@ -62,7 +62,6 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
-            <version>${protobuf-java-util.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency> <!-- necessary for Java 9+ -->

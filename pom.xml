@@ -34,6 +34,8 @@
     <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
+        <module>oap-server-bom</module>
+        <module>oap-server-bom-es7</module>
     </modules>
     <packaging>pom</packaging>
 
