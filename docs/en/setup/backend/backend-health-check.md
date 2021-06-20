@@ -3,6 +3,9 @@
 Health check intends to provide a unique approach to check the health status of the OAP server. It includes the health status
 of modules, GraphQL, and gRPC services readiness.
 
+> 0 means healthy, and more than 0 means unhealthy.
+> less than 0 means that the OAP doesn't start up.
+
 ## Health Checker Module.
 
 The Health Checker module helps observe the health status of modules. You may activate it as follows:
