@@ -34,7 +34,7 @@
         <compiler.version>1.8</compiler.version>
         <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
         <test.framework.version>9.0</test.framework.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <test.framework>graphql</test.framework>
     </properties>
 

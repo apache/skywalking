@@ -21,20 +21,48 @@ package org.apache.skywalking.oap.server.core.config.group;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringFormatGroup;
+import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
 
 @Slf4j
 public class EndpointNameGrouping {
     @Setter
     private volatile EndpointGroupingRule endpointGroupingRule;
+    @Setter
+    private volatile EndpointGroupingRule4Openapi endpointGroupingRule4Openapi;
 
     public String format(String serviceName, String endpointName) {
-        if (endpointGroupingRule == null) {
-            return endpointName;
+        String formattedName = endpointName;
+        if (endpointGroupingRule4Openapi != null) {
+            formattedName = formatByOpenapi(serviceName, formattedName);
         }
+
+        if (endpointGroupingRule != null) {
+            formattedName = formatByCustom(serviceName, formattedName);
+        }
+
+        return formattedName;
+    }
+
+    private String formatByCustom(String serviceName, String endpointName) {
         final StringFormatGroup.FormatResult formatResult = endpointGroupingRule.format(serviceName, endpointName);
         if (log.isDebugEnabled() || log.isTraceEnabled()) {
             if (formatResult.isMatch()) {
-                log.debug("Endpoint {} of Service {} has been renamed in group {}",
+                log.debug("Endpoint {} of Service {} has been renamed in group {} by endpointGroupingRule",
+                          endpointName, serviceName, formatResult.getName()
+                );
+            } else {
+                log.trace("Endpoint {} of Service {} keeps unchanged.", endpointName, serviceName);
+            }
+        }
+        return formatResult.getName();
+    }
+
+    private String formatByOpenapi(String serviceName, String endpointName) {
+        final StringFormatGroup.FormatResult formatResult = endpointGroupingRule4Openapi.format(
+            serviceName, endpointName);
+        if (log.isDebugEnabled() || log.isTraceEnabled()) {
+            if (formatResult.isMatch()) {
+                log.debug("Endpoint {} of Service {} has been renamed in group {} by endpointGroupingRule4Openapi",
                           endpointName, serviceName, formatResult.getName()
                 );
             } else {

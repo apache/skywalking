@@ -16,20 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.jvm.provider;
+event_total = from(Event.*).count();
 
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+event_normal_count = from(Event.*).filter(type == "Normal").count();
+event_error_count = from(Event.*).filter(type == "Error").count();
 
-/**
- * JVM OAl script includes the metrics related to JVM only.
- */
-public class JVMOALDefine extends OALDefine {
-    public static final JVMOALDefine INSTANCE = new JVMOALDefine();
-
-    private JVMOALDefine() {
-        super(
-            "oal/java-agent.oal",
-            "org.apache.skywalking.oap.server.core.source"
-        );
-    }
-}
+event_start_count = from(Event.*).filter(name == "Start").count();
+event_shutdown_count = from(Event.*).filter(name == "Shutdown").count();

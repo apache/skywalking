@@ -514,6 +514,9 @@ AioHttp:
 Pyramid:
   id: 7009
   languages: Python
+Psychopg:
+  id: 7010
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
@@ -595,3 +598,4 @@ Component-Server-Mappings:
   PyMysql: Mysql
   spring-kafka-consumer: kafka-consumer
   mssql-jdbc-driver: SqlServer
+  Psychopg: PostgreSQL

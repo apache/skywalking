@@ -33,6 +33,7 @@ env:
 
 jobs:
   Event:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Event
     runs-on: ubuntu-latest
     strategy:

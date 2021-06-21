@@ -31,6 +31,7 @@ concurrency:
 
 jobs:
   CI:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -69,6 +70,7 @@ jobs:
         run: tools/dependencies/check-LICENSE.sh
 
   CI-on-JDK11:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -97,6 +99,7 @@ jobs:
         run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
   CI-on-Windows:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: windows-latest
     timeout-minutes: 90
     steps:
@@ -116,6 +119,7 @@ jobs:
 
 
   CI-on-MacOS:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: macos-latest
     timeout-minutes: 90
     steps:

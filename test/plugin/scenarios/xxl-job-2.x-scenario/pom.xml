@@ -33,7 +33,7 @@
         <!-- Cannot be auto testing xxl-job (2.0.0 ~ 2.1.2) because the xxl-job server incompatible -->
         <test.framework.version>2.2.0</test.framework.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
     </properties>
 
     <name>skywalking-xxl-job-2.x-scenario</name>

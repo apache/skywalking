@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   TTL:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Storage TTL
     runs-on: ubuntu-latest
     timeout-minutes: 90
