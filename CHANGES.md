@@ -9,6 +9,7 @@ Release Notes.
 
 #### Java Agent
 * Supports modifying span attributes in async mode.
+* Add `Neo4j-4.x` plugin.
 
 #### OAP-Backend
 
