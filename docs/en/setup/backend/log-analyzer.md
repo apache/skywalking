@@ -21,14 +21,14 @@ Take the following filebeat config yaml as an example to set up Filebeat
 Fluentd supports using Kafka to transport logs, you need to
 open [kafka-fetcher](backend-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.
 
-Take the following filebeat config yaml as an example to set up Fluentd
+Take the following fluentd config file as an example to set up Fluentd
 - [fluentd.conf](../../../../test/e2e/e2e-test/docker/kafka/fluentd.conf)
 
 #### Fluent-bit
 Fluent-bit sends logs to OAP through HTTP(rest port) directly. 
 Point the output address to `restHost`:`restPort` of `receiver-sharing-server` or `core`(if `receiver-sharing-server` inactivated)
 
-Take the following filebeat config yaml as an example to set up Fluent-bit
+Take the following fluent-bit config files as an example to set up Fluent-bit
 - [fluent-bit.conf](../../../../test/e2e/e2e-test/docker/log/fluent-bit)
 
 ### Java agent's toolkits
