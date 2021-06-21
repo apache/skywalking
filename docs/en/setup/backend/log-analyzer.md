@@ -8,12 +8,27 @@ There are various ways to collect logs from application.
 You can use [Filebeat](https://www.elastic.co/cn/beats/filebeat), [Fluentd](https://fluentd.org)
 and [FluentBit](http://fluentbit.io) to collect logs, and then transport the logs to SkyWalking OAP through Kafka or
 HTTP protocol, with the formats [Kafka JSON](../../protocols/Log-Data-Protocol.md#native-kafka-protocol)
-or [HTTP JSON array](../../protocols/Log-Data-Protocol.md#http-api). When using Kafka protocol, you need to
+or [HTTP JSON array](../../protocols/Log-Data-Protocol.md#http-api).
+
+#### Filebeat
+Filebeat supports using Kafka to transport logs, you need to
 open [kafka-fetcher](backend-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.
 
-Collector config examples:
+Take the following filebeat config yaml as an example to set up Filebeat
 - [filebeat.yml](../../../../test/e2e/e2e-test/docker/kafka/filebeat.yml)
+
+#### Fluentd
+Fluentd supports using Kafka to transport logs, you need to
+open [kafka-fetcher](backend-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.
+
+Take the following filebeat config yaml as an example to set up Fluentd
 - [fluentd.conf](../../../../test/e2e/e2e-test/docker/kafka/fluentd.conf)
+
+#### Fluent-bit
+Fluent-bit sends logs to OAP through HTTP(rest port) directly. 
+Point the output address to `restHost`:`restPort` of `receiver-sharing-server` or `core`(if `receiver-sharing-server` inactivated)
+
+Take the following filebeat config yaml as an example to set up Fluent-bit
 - [fluent-bit.conf](../../../../test/e2e/e2e-test/docker/log/fluent-bit)
 
 ### Java agent's toolkits
