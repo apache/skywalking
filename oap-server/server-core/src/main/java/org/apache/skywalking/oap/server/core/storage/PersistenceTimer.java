@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -44,7 +45,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public enum PersistenceTimer {
     INSTANCE;
-    private Boolean isStarted = false;
+    @VisibleForTesting
+    Boolean isStarted = false;
     private final Boolean debug;
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
@@ -104,7 +106,8 @@ public enum PersistenceTimer {
         }
     }
 
-    private void extractDataAndSave(IBatchDAO batchDAO) {
+    @VisibleForTesting
+    void extractDataAndSave(IBatchDAO batchDAO) {
         if (log.isDebugEnabled()) {
             log.debug("Extract data and save");
         }

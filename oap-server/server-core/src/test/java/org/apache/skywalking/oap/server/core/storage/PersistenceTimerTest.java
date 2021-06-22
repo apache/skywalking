@@ -30,6 +30,8 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,7 @@ import static org.mockito.Mockito.mock;
 public class PersistenceTimerTest {
 
     @Test
-    public void testExtractDataAndSave() throws InterruptedException {
+    public void testExtractDataAndSave() {
         List<PrepareRequest> result = new ArrayList<>();
         int count = 101;
         int workCount = 10;
@@ -72,9 +74,10 @@ public class PersistenceTimerTest {
         doReturn((ModuleProviderHolder) () -> moduleServiceHolder).when(moduleManager).find(anyString());
         doReturn(new MetricsCreatorNoop()).when(moduleServiceHolder).getService(MetricsCreator.class);
         doReturn(iBatchDAO).when(moduleServiceHolder).getService(IBatchDAO.class);
+        PersistenceTimer.INSTANCE.isStarted = true;
 
         PersistenceTimer.INSTANCE.start(moduleManager, moduleConfig);
-        Thread.sleep(7000);
+        PersistenceTimer.INSTANCE.extractDataAndSave(iBatchDAO);
 
         Assert.assertEquals(count * workCount, result.size());
     }
