@@ -13,6 +13,7 @@ Release Notes.
 * Agent supports the collection of JVM arguments and jar dependency information.
 * [Temporary] Support authentication for log report channel. This feature and grpc channel is going to be removed after Satellite 0.2.0 release.
 * Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
+* Add `Neo4j-4.x` plugin.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
