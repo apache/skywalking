@@ -118,3 +118,4 @@
 - apache-cxf-3.x
 - jsonrpc4j
 - spring-cloud-gateway-3.x
+- neo4j-4.x
