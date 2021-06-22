@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -103,6 +102,7 @@ public class PersistenceTimerTest {
         public String id() {
             return id;
         }
+
     }
 
 }
