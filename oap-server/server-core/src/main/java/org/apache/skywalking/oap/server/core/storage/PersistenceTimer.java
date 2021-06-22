@@ -91,7 +91,7 @@ public enum PersistenceTimer {
         maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
         batchExecutorService = Executors.newSingleThreadExecutor();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
-        prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getSyncThreads());
+        prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
                     .scheduleWithFixedDelay(
