@@ -147,13 +147,16 @@ public enum PersistenceTimer {
             Future<?> batchFuture = batchExecutorService.submit(() -> {
                 List<Future<?>> results = new ArrayList<>();
                 while (true) {
+                    List<PrepareRequest> partition = null;
+                    synchronized (prepareRequests) {
+
+                    }
+
                     synchronized (prepareRequests) {
                         if (prepareDone && CollectionUtils.isEmpty(prepareRequests)) {
                             break;
                         }
-                    }
 
-                    synchronized (prepareRequests) {
                         while (this.prepareRequests.size() < maxSyncoperationNum && !prepareDone) {
                             try {
                                 this.prepareRequests.wait(1000);
@@ -164,14 +167,12 @@ public enum PersistenceTimer {
                         if (CollectionUtils.isEmpty(prepareRequests)) {
                             continue;
                         }
-                    }
 
-                    List<PrepareRequest> partition = null;
-                    synchronized (prepareRequests) {
                         List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
                         partition = new ArrayList<>(prepareRequestList);
                         prepareRequestList.clear();
                     }
+
                     List<PrepareRequest> finalPartition = partition;
                     Future<?> submit = executorService.submit(() -> {
                         HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
