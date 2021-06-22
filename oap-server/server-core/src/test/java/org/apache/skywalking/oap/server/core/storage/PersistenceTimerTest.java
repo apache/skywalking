@@ -30,9 +30,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
