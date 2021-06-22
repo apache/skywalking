@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.neo4j.v4x;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -65,12 +64,6 @@ public class SessionConstructorInterceptorTest {
         when(databaseName.databaseName()).thenReturn(Optional.of("neo4j"));
         mockStatic(ContextManager.class);
         when(ContextManager.capture()).thenReturn(MockContextSnapshot.INSTANCE.mockContextSnapshot());
-    }
-
-    @Test
-    public void testWithNullDatabaseName() throws Throwable {
-        interceptor.onConstruct(enhancedInstance, new Object[3]);
-        assertNull(enhancedInstance.getSkyWalkingDynamicField());
     }
 
     @Test

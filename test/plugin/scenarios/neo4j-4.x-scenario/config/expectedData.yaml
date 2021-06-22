@@ -35,6 +35,7 @@ segmentItems:
               - { key: db.type, value: Neo4j }
               - { key: db.instance, value: neo4j }
               - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
             refs:
               - { parentEndpoint: /neo4j-scenario/case/neo4j-scenario, networkAddress: '',
                   refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
@@ -58,6 +59,7 @@ segmentItems:
               - { key: db.type, value: Neo4j }
               - { key: db.instance, value: neo4j }
               - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
           - operationName: Neo4j/Session/runAsync
             operationId: 0
             parentSpanId: 0
@@ -74,6 +76,7 @@ segmentItems:
               - { key: db.type, value: Neo4j }
               - { key: db.instance, value: neo4j }
               - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
           - operationName: Neo4j/Session/runRx
             operationId: 0
             parentSpanId: 0
@@ -90,6 +93,7 @@ segmentItems:
               - { key: db.type, value: Neo4j }
               - { key: db.instance, value: neo4j }
               - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
           - operationName: Neo4j/Transaction/runAsync
             operationId: 0
             parentSpanId: 0
@@ -106,6 +110,7 @@ segmentItems:
               - { key: db.type, value: Neo4j }
               - { key: db.instance, value: neo4j }
               - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
           - operationName: Neo4j/Transaction/runRx
             operationId: 0
             parentSpanId: 0
@@ -122,6 +127,7 @@ segmentItems:
               - { key: db.type, value: Neo4j }
               - { key: db.instance, value: neo4j }
               - { key: db.statement, value: 'CREATE (a:Person {name: $name}) RETURN a.name' }
+              - { key: db.cypher.parameters, value: not null }
           - operationName: /neo4j-scenario/case/neo4j-scenario
             operationId: 0
             parentSpanId: -1

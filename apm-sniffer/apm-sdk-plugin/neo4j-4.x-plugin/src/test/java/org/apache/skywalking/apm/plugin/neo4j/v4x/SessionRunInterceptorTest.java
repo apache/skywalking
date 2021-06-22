@@ -69,6 +69,11 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 @SuppressWarnings("unchecked")
 public class SessionRunInterceptorTest {
 
+    private final static String CYPHER = "Match (m:Movie)-[a:ACTED_IN]-(p:Person) RETURN m,a,p";
+    private final static String PARAMETERS_STR = "{name: \"John\"}";
+    private final static int MAX_LENGTH = 5;
+    private final static String PARAMETERS_STR_TOO_LONG = "{name...";
+    private final static String BODY_TOO_LONG = "Match...";
     private final Method method = MockMethod.class.getMethod("runAsync");
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
@@ -91,7 +96,7 @@ public class SessionRunInterceptorTest {
     @Before
     public void setUp() throws Exception {
         sessionRunInterceptor = new SessionRunInterceptor();
-        when(query.text()).thenReturn("Match (m:Movie)-[a:ACTED_IN]-(p:Person) RETURN m,a,p");
+        when(query.text()).thenReturn(CYPHER);
         when(connection.databaseName()).thenReturn(databaseName);
         when(connection.serverAddress()).thenReturn(boltServerAddress);
         when(databaseName.databaseName()).thenReturn(Optional.of("neo4j"));
@@ -151,6 +156,14 @@ public class SessionRunInterceptorTest {
         doInvokeInterceptorAndAssert();
     }
 
+    @Test
+    public void testTraceCypherMaxSize() throws Throwable {
+        Neo4j.TRACE_CYPHER_PARAMETERS = true;
+        Neo4j.CYPHER_PARAMETERS_MAX_LENGTH = MAX_LENGTH;
+        Neo4j.CYPHER_BODY_MAX_LENGTH = MAX_LENGTH;
+        doInvokeInterceptorAndAssert();
+    }
+
     private void doInvokeInterceptorAndAssert() throws Throwable {
         final CompletionStage<String> result = (CompletionStage<String>) sessionRunInterceptor
                 .afterMethod(enhancedInstance, method, new Object[]{query}, new Class[]{Query.class},
@@ -170,13 +183,21 @@ public class SessionRunInterceptorTest {
         SpanAssert.assertComponent(span, ComponentsDefine.NEO4J);
         if (Neo4j.TRACE_CYPHER_PARAMETERS) {
             SpanAssert.assertTagSize(span, 4);
-            SpanAssert.assertTag(span, 3, "{name: \"John\"}");
+            if (PARAMETERS_STR.length() > Neo4j.CYPHER_PARAMETERS_MAX_LENGTH) {
+                SpanAssert.assertTag(span, 3, PARAMETERS_STR_TOO_LONG);
+            } else {
+                SpanAssert.assertTag(span, 3, PARAMETERS_STR);
+            }
         } else {
             SpanAssert.assertTagSize(span, 3);
         }
         SpanAssert.assertTag(span, 0, DB_TYPE);
         SpanAssert.assertTag(span, 1, "neo4j");
-        SpanAssert.assertTag(span, 2, "Match (m:Movie)-[a:ACTED_IN]-(p:Person) RETURN m,a,p");
+        if (CYPHER.length() > Neo4j.CYPHER_BODY_MAX_LENGTH) {
+            SpanAssert.assertTag(span, 2, BODY_TOO_LONG);
+        } else {
+            SpanAssert.assertTag(span, 2, CYPHER);
+        }
         assertTrue(span.isExit());
         assertThat(span.getOperationName(), is("Neo4j/Session/runAsync"));
     }
