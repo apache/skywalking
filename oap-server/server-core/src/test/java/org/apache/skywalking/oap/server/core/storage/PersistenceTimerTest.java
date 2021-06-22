@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import lombok.Data;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsPersistentWorker;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -30,8 +31,11 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyList;
@@ -44,7 +48,7 @@ public class PersistenceTimerTest {
 
     @Test
     public void testExtractDataAndSave() {
-        List<PrepareRequest> result = new ArrayList<>();
+        Set<PrepareRequest> result = new HashSet();
         int count = 101;
         int workCount = 10;
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
@@ -84,11 +88,21 @@ public class PersistenceTimerTest {
         doAnswer(invocation -> {
             List argument = invocation.getArgument(0, List.class);
             for (int i = 0; i < count; i++) {
-                argument.add((StorageData) () -> num + " " + UUID.randomUUID());
+                argument.add(new MockStorageData(num + " " + UUID.randomUUID()));
             }
             return Void.class;
         }).when(persistenceWorker).buildBatchRequests(anyList());
         return persistenceWorker;
+    }
+
+    @Data
+    static class MockStorageData implements StorageData {
+        private final String id;
+
+        @Override
+        public String id() {
+            return id;
+        }
     }
 
 }
