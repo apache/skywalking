@@ -53,13 +53,20 @@ public class CounterWindow {
         Queue<Tuple2<Long, Double>> window = windows.get(id);
         window.offer(Tuple.of(now, value));
 
-        long waterLevel = now - windowSize + 60;
+        long waterLevel = now - windowSize;
         Tuple2<Long, Double> peek = window.peek();
+        if (peek._1 > waterLevel) {
+            return peek;
+        }
         Tuple2<Long, Double> result = peek;
-        while (peek._1 < waterLevel) {
+        while (peek._1 <= waterLevel) {
             result = window.poll();
             peek = window.element();
         }
+        if (waterLevel - result._1 > peek._1 - waterLevel) {
+            return peek;
+        }
+
         return result;
     }
 

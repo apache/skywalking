@@ -65,7 +65,7 @@ public class CounterWindowTest {
             return e._2 - increase._2;
         }).toArray();
 
-        Assert.assertArrayEquals(new double[] {0, 1d, 2d, 3d, 3d, 0d, 4d, 4d}, actuals, 0.d);
+        Assert.assertArrayEquals(new double[] {0, 1d, 2d, 2d, 2d, 0d, 3d, 3d}, actuals, 0.d);
     }
 
     @Test
