@@ -118,8 +118,7 @@ public enum PersistenceTimer {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
             persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
-            CountDownLatch countDownLatch = new CountDownLatch(
-                MetricsStreamProcessor.getInstance().getPersistentWorkers().size());
+            CountDownLatch countDownLatch = new CountDownLatch(persistenceWorkers.size());
 
             persistenceWorkers.forEach(worker -> {
                 prepareExecutorService.submit(() -> {
