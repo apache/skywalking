@@ -18,13 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -40,6 +33,14 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 public enum PersistenceTimer {
     INSTANCE;
@@ -48,11 +49,15 @@ public enum PersistenceTimer {
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
     private HistogramMetrics executeLatency;
+    private HistogramMetrics allLatency;
     private long lastTime = System.currentTimeMillis();
     private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
     private int syncOperationThreadsNum;
     private int maxSyncoperationNum;
     private ExecutorService executorService;
+    private ExecutorService prepareExecutorService;
+    private ExecutorService batchExecutorService;
+    volatile boolean prepareDone = false;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -63,30 +68,37 @@ public enum PersistenceTimer {
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
-                                                     .provider()
-                                                     .getService(MetricsCreator.class);
+                .provider()
+                .getService(MetricsCreator.class);
         errorCounter = metricsCreator.createCounter(
-            "persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                "persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
         prepareLatency = metricsCreator.createHistogramMetric(
-            "persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                "persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
         executeLatency = metricsCreator.createHistogramMetric(
-            "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
+        allLatency = metricsCreator.createHistogramMetric(
+                "persistence_timer_bulk_all_latency", "Latency of the all stage in persistence timer",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+
         syncOperationThreadsNum = moduleConfig.getSyncThreads();
         maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
+        batchExecutorService = Executors.newSingleThreadExecutor();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
+        prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getSyncThreads());
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
-                     .scheduleWithFixedDelay(
-                         new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> log
-                             .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
-                         TimeUnit.SECONDS
-                     );
+                    .scheduleWithFixedDelay(
+                            new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> log
+                                    .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
+                            TimeUnit.SECONDS
+                    );
 
             this.isStarted = true;
         }
@@ -98,53 +110,94 @@ public enum PersistenceTimer {
         }
 
         long startTime = System.currentTimeMillis();
+        HistogramMetrics.Timer allTimer = allLatency.createTimer();
 
         try {
-            HistogramMetrics.Timer timer = prepareLatency.createTimer();
+            List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
+            persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
+            persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
+            CountDownLatch countDownLatch = new CountDownLatch(MetricsStreamProcessor.getInstance().getPersistentWorkers().size());
 
-            try {
-                List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
-                persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
-                persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
+            persistenceWorkers.forEach(worker -> {
+                prepareExecutorService.submit(() -> {
+                    HistogramMetrics.Timer timer = prepareLatency.createTimer();
+                    try {
+                        if (log.isDebugEnabled()) {
+                            log.debug("extract {} worker data and save", worker.getClass().getName());
+                        }
+                        List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
+                        worker.buildBatchRequests(innerPrepareRequests);
+                        synchronized (prepareRequests) {
+                            prepareRequests.addAll(innerPrepareRequests);
+                            if (prepareRequests.size() >= maxSyncoperationNum) {
+                                prepareRequests.notify();
+                            }
+                        }
+                        worker.endOfRound(System.currentTimeMillis() - lastTime);
+                    } finally {
+                        timer.finish();
+                        countDownLatch.countDown();
+                    }
+                });
+            });
 
-                persistenceWorkers.forEach(worker -> {
-                    if (log.isDebugEnabled()) {
-                        log.debug("extract {} worker data and save", worker.getClass().getName());
+            Future<?> batchFuture = batchExecutorService.submit(() -> {
+                List<Future<?>> results = new ArrayList<>();
+                while (true) {
+                    synchronized (prepareRequests) {
+                        if (prepareDone && CollectionUtils.isEmpty(prepareRequests)) {
+                            break;
+                        }
                     }
 
-                    worker.buildBatchRequests(prepareRequests);
+                    synchronized (prepareRequests) {
+                        while (this.prepareRequests.size() < maxSyncoperationNum && !prepareDone) {
+                            try {
+                                this.prepareRequests.wait(1000);
+                            } catch (InterruptedException e) {
+                            }
+                        }
 
-                    worker.endOfRound(System.currentTimeMillis() - lastTime);
-                });
+                        if (CollectionUtils.isEmpty(prepareRequests)) {
+                            continue;
+                        }
+                    }
 
-                if (debug) {
-                    log.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
-                }
-            } finally {
-                timer.finish();
-            }
-
-            HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
-            try {
-                List<List<PrepareRequest>> partitions = Lists.partition(prepareRequests, maxSyncoperationNum);
-                CountDownLatch countDownLatch = new CountDownLatch(partitions.size());
-                for (final List<PrepareRequest> partition : partitions) {
-                    executorService.submit(() -> {
+                    List<PrepareRequest> partition = null;
+                    synchronized (prepareRequests) {
+                        List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
+                        partition = new ArrayList<>(prepareRequestList);
+                        prepareRequestList.clear();
+                    }
+                    List<PrepareRequest> finalPartition = partition;
+                    Future<?> submit = executorService.submit(() -> {
+                        HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
-                            if (CollectionUtils.isNotEmpty(partition)) {
-                                batchDAO.synchronous(partition);
+                            if (CollectionUtils.isNotEmpty(finalPartition)) {
+                                batchDAO.synchronous(finalPartition);
                             }
                         } catch (Throwable e) {
                             log.error(e.getMessage(), e);
                         } finally {
-                            countDownLatch.countDown();
+                            executeLatencyTimer.finish();
                         }
+
                     });
+                    results.add(submit);
                 }
-                countDownLatch.await();
-            } finally {
-                executeLatencyTimer.finish();
+
+                for (Future<?> result : results) {
+                    result.get();
+                }
+                return null;
+            });
+            countDownLatch.await();
+            prepareDone = true;
+            synchronized (prepareRequests) {
+                prepareRequests.notify();
             }
+            batchFuture.get();
+
         } catch (Throwable e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
@@ -152,9 +205,11 @@ public enum PersistenceTimer {
             if (log.isDebugEnabled()) {
                 log.debug("Persistence data save finish");
             }
-
+            allTimer.finish();
             prepareRequests.clear();
+
             lastTime = System.currentTimeMillis();
+            prepareDone = false;
         }
 
         if (debug) {
