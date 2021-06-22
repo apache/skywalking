@@ -116,7 +116,7 @@ public enum PersistenceTimer {
         HistogramMetrics.Timer allTimer = allLatency.createTimer();
 
         try {
-            List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
+            List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
             persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
             CountDownLatch countDownLatch = new CountDownLatch(MetricsStreamProcessor.getInstance().getPersistentWorkers().size());
