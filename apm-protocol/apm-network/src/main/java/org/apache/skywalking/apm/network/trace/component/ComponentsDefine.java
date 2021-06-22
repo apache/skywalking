@@ -200,4 +200,6 @@ public class ComponentsDefine {
     public static final OfficialComponent SEATA = new OfficialComponent(108, "Seata");
 
     public static final OfficialComponent MYBATIS = new OfficialComponent(109, "MyBatis");
+
+    public static final OfficialComponent NEO4J = new OfficialComponent(112, "Neo4j");
 }
