@@ -149,10 +149,6 @@ public enum PersistenceTimer {
                 while (true) {
                     List<PrepareRequest> partition = null;
                     synchronized (prepareRequests) {
-
-                    }
-
-                    synchronized (prepareRequests) {
                         if (prepareDone && CollectionUtils.isEmpty(prepareRequests)) {
                             break;
                         }
