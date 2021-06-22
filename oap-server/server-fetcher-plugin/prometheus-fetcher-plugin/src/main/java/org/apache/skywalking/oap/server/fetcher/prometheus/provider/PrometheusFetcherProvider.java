@@ -121,22 +121,17 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         }
         final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
         rules.forEach(r -> {
-            final long period = Duration.parse(r.getFetcherInterval()).getSeconds() * 1000;
-
             ses.scheduleAtFixedRate(new Runnable() {
 
                 private final PrometheusMetricConverter converter = new PrometheusMetricConverter(r, service);
-                private long nextCycleTime = System.currentTimeMillis();
 
-                @Override
-                public void run() {
-                    final long now = nextCycleTime;
-                    nextCycleTime += period;
+                @Override public void run() {
                     try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
                         if (Objects.isNull(r.getStaticConfig())) {
                             return;
                         }
                         StaticConfig sc = r.getStaticConfig();
+                        long now = System.currentTimeMillis();
                         converter.toMeter(sc.getTargets().stream()
                                 .map(CheckedFunction1.liftTry(target -> {
                                     URI url = new URI(target.getUrl());
@@ -175,7 +170,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                         log.error(e.getMessage(), e);
                     }
                 }
-            }, 0L, period, TimeUnit.MILLISECONDS);
+            }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
         });
     }
 

@@ -22,8 +22,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -47,15 +47,20 @@ public class CounterWindow {
     public Tuple2<Long, Double> increase(String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
         ID id = new ID(name, labels);
         if (!windows.containsKey(id)) {
-            windows.put(id, new LinkedList<>());
+            windows.put(id, new PriorityQueue<>());
         }
+
         Queue<Tuple2<Long, Double>> window = windows.get(id);
         window.offer(Tuple.of(now, value));
-        Tuple2<Long, Double> ps = window.element();
-        if ((now - ps._1) >= windowSize) {
-            window.remove();
+
+        long waterLevel = now - windowSize + 60;
+        Tuple2<Long, Double> peek = window.peek();
+        Tuple2<Long, Double> result = peek;
+        while (peek._1 < waterLevel) {
+            result = window.poll();
+            peek = window.element();
         }
-        return ps;
+        return result;
     }
 
     public void reset() {

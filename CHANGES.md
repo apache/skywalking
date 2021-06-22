@@ -40,6 +40,7 @@ Release Notes.
 * Upgrade commons-lang3 to avoid potential NPE in some JDK versions.
 * OAL supports generating metrics from events.
 * Support endpoint name grouping by OpenAPI definitions.
+* Fix CounterWindow increase computing issue.
 
 #### UI
 
