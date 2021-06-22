@@ -19,6 +19,13 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -33,14 +40,6 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public enum PersistenceTimer {
@@ -70,23 +69,23 @@ public enum PersistenceTimer {
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
-                .provider()
-                .getService(MetricsCreator.class);
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
         errorCounter = metricsCreator.createCounter(
-                "persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+            "persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
         prepareLatency = metricsCreator.createHistogramMetric(
-                "persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+            "persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
         executeLatency = metricsCreator.createHistogramMetric(
-                "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+            "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
         allLatency = metricsCreator.createHistogramMetric(
-                "persistence_timer_bulk_all_latency", "Latency of the all stage in persistence timer",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+            "persistence_timer_bulk_all_latency", "Latency of the all stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
 
         syncOperationThreadsNum = moduleConfig.getSyncThreads();
@@ -96,11 +95,11 @@ public enum PersistenceTimer {
         prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
-                    .scheduleWithFixedDelay(
-                            new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> log
-                                    .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
-                            TimeUnit.SECONDS
-                    );
+                     .scheduleWithFixedDelay(
+                         new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> log
+                             .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
+                         TimeUnit.SECONDS
+                     );
 
             this.isStarted = true;
         }
@@ -119,7 +118,8 @@ public enum PersistenceTimer {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
             persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
-            CountDownLatch countDownLatch = new CountDownLatch(MetricsStreamProcessor.getInstance().getPersistentWorkers().size());
+            CountDownLatch countDownLatch = new CountDownLatch(
+                MetricsStreamProcessor.getInstance().getPersistentWorkers().size());
 
             persistenceWorkers.forEach(worker -> {
                 prepareExecutorService.submit(() -> {
@@ -164,12 +164,13 @@ public enum PersistenceTimer {
                             continue;
                         }
 
-                        List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
+                        List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(
+                            0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
                         partition = new ArrayList<>(prepareRequestList);
                         prepareRequestList.clear();
                     }
 
-                    List<PrepareRequest> finalPartition = partition;
+                    final List<PrepareRequest> finalPartition = partition;
                     Future<?> submit = executorService.submit(() -> {
                         HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
