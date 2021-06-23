@@ -43,7 +43,10 @@ Release Notes.
 * Support endpoint name grouping by OpenAPI definitions.
 
 #### UI
-
+Fix the date component for log conditions.
+Fix selector keys for duplicate options.
+Add Python celery plugin.
+Fix default config for metrics.
 
 #### Documentation
 
