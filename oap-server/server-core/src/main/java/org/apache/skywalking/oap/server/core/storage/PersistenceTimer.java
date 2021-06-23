@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -53,7 +54,6 @@ public enum PersistenceTimer {
     private HistogramMetrics executeLatency;
     private HistogramMetrics allLatency;
     private long lastTime = System.currentTimeMillis();
-    private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
     private int syncOperationThreadsNum;
     private int maxSyncoperationNum;
     private ExecutorService executorService;
@@ -119,6 +119,7 @@ public enum PersistenceTimer {
         // Use flag prepare stage is done. Mainly used to tell consumer not wait for maxSyncoperationNum.
         AtomicBoolean prepareDone = new AtomicBoolean(false);
 
+        SyncRangeQueue prepareQueue = new SyncRangeQueue(this.maxSyncoperationNum);
         try {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
@@ -150,12 +151,7 @@ public enum PersistenceTimer {
                         }
                         List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
                         worker.buildBatchRequests(innerPrepareRequests);
-                        synchronized (prepareRequests) {
-                            prepareRequests.addAll(innerPrepareRequests);
-                            if (prepareRequests.size() >= maxSyncoperationNum) {
-                                prepareRequests.notify();
-                            }
-                        }
+                        prepareQueue.putMany(innerPrepareRequests);
                         worker.endOfRound(System.currentTimeMillis() - lastTime);
                     } finally {
                         timer.finish();
@@ -169,31 +165,23 @@ public enum PersistenceTimer {
                 // consume the metrics
                 while (!stop.get()) {
                     List<PrepareRequest> partition = null;
-                    synchronized (prepareRequests) {
-                        if (prepareDone.get() && CollectionUtils.isEmpty(prepareRequests)) {
+                    if (prepareDone.get()) {
+                        partition = prepareQueue.popMany(false);
+                        if (CollectionUtils.isEmpty(partition)) {
                             break;
                         }
-
-                        if (this.prepareRequests.size() < maxSyncoperationNum && !prepareDone.get()) {
-                            try {
-                                this.prepareRequests.wait(1000);
-                                continue;
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                            }
-                        }
-
-                        if (CollectionUtils.isEmpty(prepareRequests)) {
+                    } else {
+                        partition = prepareQueue.popMany(true);
+                        if (CollectionUtils.isEmpty(partition)) {
+                            Thread.sleep(1000);
                             continue;
                         }
-
-                        List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(
-                            0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
-                        partition = new ArrayList<>(prepareRequestList);
-                        prepareRequestList.clear();
                     }
 
                     final List<PrepareRequest> finalPartition = partition;
+                    if (partition.isEmpty()) {
+                        break;
+                    }
                     Future<?> submit = executorService.submit(() -> {
                         HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
@@ -221,9 +209,6 @@ public enum PersistenceTimer {
             // Wait for prepare stage is done.
             prepareStageCountDownLatch.await();
             prepareDone.set(true);
-            synchronized (prepareRequests) {
-                prepareRequests.notify();
-            }
             // Wait for batch stage is done.
             batchFuture.get();
 
@@ -238,12 +223,56 @@ public enum PersistenceTimer {
 
             stop.set(true);
             allTimer.finish();
-            prepareRequests.clear();
             lastTime = System.currentTimeMillis();
         }
 
         if (debug) {
             log.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    private static class SyncRangeQueue {
+
+        private int maxSyncoperationNum;
+
+        public SyncRangeQueue(int maxSyncoperationNum) {
+            this.maxSyncoperationNum = maxSyncoperationNum;
+        }
+
+        private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
+
+        public void putMany(List<PrepareRequest> innerPrepareRequests) {
+            synchronized (prepareRequests) {
+                prepareRequests.addAll(innerPrepareRequests);
+                if (prepareRequests.size() >= maxSyncoperationNum) {
+                    prepareRequests.notify();
+                }
+            }
+        }
+
+        /**
+         * @param needFillFully Need fill fully unit maxSyncoperationNum.
+         * @return
+         */
+        public List<PrepareRequest> popMany(boolean needFillFully) {
+            List<PrepareRequest> partition = null;
+            synchronized (prepareRequests) {
+                if (CollectionUtils.isEmpty(prepareRequests)) {
+                    return Collections.EMPTY_LIST;
+                }
+
+                if (needFillFully) {
+                    if (this.prepareRequests.size() < maxSyncoperationNum) {
+                        return Collections.EMPTY_LIST;
+                    }
+                }
+
+                List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(
+                    0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
+                partition = new ArrayList<>(prepareRequestList);
+                prepareRequestList.clear();
+                return partition;
+            }
         }
     }
 }
