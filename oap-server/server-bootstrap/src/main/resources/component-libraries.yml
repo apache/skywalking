@@ -517,6 +517,9 @@ Pyramid:
 Psychopg:
   id: 7010
   languages: Python
+Celery:
+  id: 7011
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
