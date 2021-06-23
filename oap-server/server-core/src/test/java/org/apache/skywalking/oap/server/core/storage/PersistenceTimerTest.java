@@ -22,6 +22,8 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsPersistentWorker;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNWorker;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -68,6 +70,7 @@ public class PersistenceTimerTest {
         };
         for (int i = 0; i < workCount; i++) {
             MetricsStreamProcessor.getInstance().getPersistentWorkers().add(genWorkers(i, count));
+            TopNStreamProcessor.getInstance().getPersistentWorkers().add(genTopNWorkers(i, count));
         }
         ModuleManager moduleManager = mock(ModuleManager.class);
         ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
@@ -79,11 +82,23 @@ public class PersistenceTimerTest {
         PersistenceTimer.INSTANCE.start(moduleManager, moduleConfig);
         PersistenceTimer.INSTANCE.extractDataAndSave(iBatchDAO);
 
-        Assert.assertEquals(count * workCount, result.size());
+        Assert.assertEquals(count * workCount * 2, result.size());
     }
 
     private MetricsPersistentWorker genWorkers(int num, int count) {
         MetricsPersistentWorker persistenceWorker = mock(MetricsPersistentWorker.class);
+        doAnswer(invocation -> {
+            List argument = invocation.getArgument(0, List.class);
+            for (int i = 0; i < count; i++) {
+                argument.add(new MockStorageData(num + " " + UUID.randomUUID()));
+            }
+            return Void.class;
+        }).when(persistenceWorker).buildBatchRequests(anyList());
+        return persistenceWorker;
+    }
+
+    private TopNWorker genTopNWorkers(int num, int count) {
+        TopNWorker persistenceWorker = mock(TopNWorker.class);
         doAnswer(invocation -> {
             List argument = invocation.getArgument(0, List.class);
             for (int i = 0; i < count; i++) {

@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -58,7 +59,6 @@ public enum PersistenceTimer {
     private ExecutorService executorService;
     private ExecutorService prepareExecutorService;
     private ExecutorService batchExecutorService;
-    volatile boolean prepareDone = false;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -107,21 +107,42 @@ public enum PersistenceTimer {
 
     @VisibleForTesting
     void extractDataAndSave(IBatchDAO batchDAO) {
+
         if (log.isDebugEnabled()) {
             log.debug("Extract data and save");
         }
 
         long startTime = System.currentTimeMillis();
         HistogramMetrics.Timer allTimer = allLatency.createTimer();
+        // Use flag entire method is done or exception exit. Mainly used to handle exceptions to let the thread exit.
+        AtomicBoolean stop = new AtomicBoolean(false);
+        // Use flag prepare stage is done. Mainly used to tell consumer not wait for maxSyncoperationNum.
+        AtomicBoolean prepareDone = new AtomicBoolean(false);
 
         try {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
             persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
-            CountDownLatch countDownLatch = new CountDownLatch(persistenceWorkers.size());
+
+            // Use to wait all prepare thread done.
+            CountDownLatch prepareStageCountDownLatch = new CountDownLatch(persistenceWorkers.size());
+
+            /*
+                Here we use `this.prepareRequests` as a FIFO queue, using the Producer-consumer model.
+                The prepareExecutorService is used to process production, and batchExecutorService is used to consume.
+                If the number of metrics produced reaches maxSyncoperationNum or prepare stage is done,
+                then we can consume and save those metrics to storage.
+
+                When the consumer ends or an exception occurs in the middle, the entire process is completed.
+             */
 
             persistenceWorkers.forEach(worker -> {
                 prepareExecutorService.submit(() -> {
+                    if (stop.get()) {
+                        prepareStageCountDownLatch.countDown();
+                        return;
+                    }
+
                     HistogramMetrics.Timer timer = prepareLatency.createTimer();
                     try {
                         if (log.isDebugEnabled()) {
@@ -138,24 +159,27 @@ public enum PersistenceTimer {
                         worker.endOfRound(System.currentTimeMillis() - lastTime);
                     } finally {
                         timer.finish();
-                        countDownLatch.countDown();
+                        prepareStageCountDownLatch.countDown();
                     }
                 });
             });
 
             Future<?> batchFuture = batchExecutorService.submit(() -> {
                 List<Future<?>> results = new ArrayList<>();
-                while (true) {
+                // consume the metrics
+                while (!stop.get()) {
                     List<PrepareRequest> partition = null;
                     synchronized (prepareRequests) {
-                        if (prepareDone && CollectionUtils.isEmpty(prepareRequests)) {
+                        if (prepareDone.get() && CollectionUtils.isEmpty(prepareRequests)) {
                             break;
                         }
 
-                        while (this.prepareRequests.size() < maxSyncoperationNum && !prepareDone) {
+                        if (this.prepareRequests.size() < maxSyncoperationNum && !prepareDone.get()) {
                             try {
                                 this.prepareRequests.wait(1000);
+                                continue;
                             } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
                             }
                         }
 
@@ -186,30 +210,36 @@ public enum PersistenceTimer {
                     results.add(submit);
                 }
 
-                for (Future<?> result : results) {
-                    result.get();
+                if (!stop.get()) {
+                    for (Future<?> result : results) {
+                        result.get();
+                    }
                 }
                 return null;
             });
-            countDownLatch.await();
-            prepareDone = true;
+
+            // Wait for prepare stage is done.
+            prepareStageCountDownLatch.await();
+            prepareDone.set(true);
             synchronized (prepareRequests) {
                 prepareRequests.notify();
             }
+            // Wait for batch stage is done.
             batchFuture.get();
 
         } catch (Throwable e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
         } finally {
+
             if (log.isDebugEnabled()) {
                 log.debug("Persistence data save finish");
             }
+
+            stop.set(true);
             allTimer.finish();
             prepareRequests.clear();
-
             lastTime = System.currentTimeMillis();
-            prepareDone = false;
         }
 
         if (debug) {
