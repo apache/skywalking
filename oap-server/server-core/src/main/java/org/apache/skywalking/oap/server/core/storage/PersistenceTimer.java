@@ -116,10 +116,8 @@ public enum PersistenceTimer {
         HistogramMetrics.Timer allTimer = allLatency.createTimer();
         // Use flag entire method is done or exception exit. Mainly used to handle exceptions to let the thread exit.
         AtomicBoolean stop = new AtomicBoolean(false);
-        // Use flag prepare stage is done. Mainly used to tell consumer not wait for maxSyncoperationNum.
-        AtomicBoolean prepareDone = new AtomicBoolean(false);
 
-        SyncRangeQueue prepareQueue = new SyncRangeQueue(this.maxSyncoperationNum);
+        BlockingBatchQueue<PrepareRequest> prepareQueue = new BlockingBatchQueue(this.maxSyncoperationNum);
         try {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
@@ -164,29 +162,15 @@ public enum PersistenceTimer {
                 List<Future<?>> results = new ArrayList<>();
                 // consume the metrics
                 while (!stop.get()) {
-                    List<PrepareRequest> partition = null;
-                    if (prepareDone.get()) {
-                        partition = prepareQueue.popMany(false);
-                        if (CollectionUtils.isEmpty(partition)) {
-                            break;
-                        }
-                    } else {
-                        partition = prepareQueue.popMany(true);
-                        if (CollectionUtils.isEmpty(partition)) {
-                            Thread.sleep(1000);
-                            continue;
-                        }
-                    }
-
-                    final List<PrepareRequest> finalPartition = partition;
+                    List<PrepareRequest> partition = prepareQueue.popMany();
                     if (partition.isEmpty()) {
                         break;
                     }
                     Future<?> submit = executorService.submit(() -> {
                         HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
-                            if (CollectionUtils.isNotEmpty(finalPartition)) {
-                                batchDAO.synchronous(finalPartition);
+                            if (CollectionUtils.isNotEmpty(partition)) {
+                                batchDAO.synchronous(partition);
                             }
                         } catch (Throwable e) {
                             log.error(e.getMessage(), e);
@@ -208,7 +192,7 @@ public enum PersistenceTimer {
 
             // Wait for prepare stage is done.
             prepareStageCountDownLatch.await();
-            prepareDone.set(true);
+            prepareQueue.disableNeedFillFully();
             // Wait for batch stage is done.
             batchFuture.get();
 
@@ -231,48 +215,55 @@ public enum PersistenceTimer {
         }
     }
 
-    private static class SyncRangeQueue {
+    private static class BlockingBatchQueue<E> {
 
-        private int maxSyncoperationNum;
+        private int maxBatchSize;
+        private boolean needFillFully = true;
 
-        public SyncRangeQueue(int maxSyncoperationNum) {
-            this.maxSyncoperationNum = maxSyncoperationNum;
+        public BlockingBatchQueue(int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
         }
 
-        private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
+        private final List<E> elementData = new ArrayList<>(50000);
 
-        public void putMany(List<PrepareRequest> innerPrepareRequests) {
-            synchronized (prepareRequests) {
-                prepareRequests.addAll(innerPrepareRequests);
-                if (prepareRequests.size() >= maxSyncoperationNum) {
-                    prepareRequests.notify();
+        public void putMany(List<E> elements) {
+            synchronized (elementData) {
+                elementData.addAll(elements);
+                if (elementData.size() >= maxBatchSize) {
+                    elementData.notify();
                 }
             }
         }
 
-        /**
-         * @param needFillFully Need fill fully unit maxSyncoperationNum.
-         * @return
-         */
-        public List<PrepareRequest> popMany(boolean needFillFully) {
-            List<PrepareRequest> partition = null;
-            synchronized (prepareRequests) {
-                if (CollectionUtils.isEmpty(prepareRequests)) {
+        public List<E> popMany() throws InterruptedException {
+            synchronized (elementData) {
+                while (this.elementData.size() < maxBatchSize && needFillFully) {
+                    elementData.wait(1000);
+                }
+                if (CollectionUtils.isEmpty(elementData)) {
                     return Collections.EMPTY_LIST;
                 }
-
-                if (needFillFully) {
-                    if (this.prepareRequests.size() < maxSyncoperationNum) {
-                        return Collections.EMPTY_LIST;
-                    }
-                }
-
-                List<PrepareRequest> prepareRequestList = this.prepareRequests.subList(
-                    0, Math.min(maxSyncoperationNum, this.prepareRequests.size()));
-                partition = new ArrayList<>(prepareRequestList);
-                prepareRequestList.clear();
+                List<E> sublist = this.elementData.subList(
+                    0, Math.min(maxBatchSize, this.elementData.size()));
+                List<E> partition = new ArrayList<>(sublist);
+                sublist.clear();
                 return partition;
             }
         }
+
+        public void disableNeedFillFully() {
+            synchronized (elementData) {
+                needFillFully = false;
+                elementData.notify();
+            }
+        }
+
+        public void enabledNeedFillFully() {
+            synchronized (elementData) {
+                needFillFully = true;
+                elementData.notify();
+            }
+        }
     }
+
 }
