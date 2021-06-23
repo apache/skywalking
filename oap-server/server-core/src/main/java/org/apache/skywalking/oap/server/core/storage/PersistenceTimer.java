@@ -125,14 +125,14 @@ public enum PersistenceTimer {
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
             persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
-            // Use to wait all prepare thread done.
+            // CountDownLatch makes sure all prepare threads done eventually.
             CountDownLatch prepareStageCountDownLatch = new CountDownLatch(persistenceWorkers.size());
 
             /*
-                Here we use `this.prepareRequests` as a FIFO queue, using the Producer-consumer model.
-                The prepareExecutorService is used to process production, and batchExecutorService is used to consume.
-                If the number of metrics produced reaches maxSyncoperationNum or prepare stage is done,
-                then we can consume and save those metrics to storage.
+                Here we use `this.prepareRequests` as a FIFO queue, for a producer-consumer model.
+                The prepareExecutorService is for making the executable requests ready, and batchExecutorService consumes from the queue to flush.
+                When the number of metrics produced reaches maxSyncoperationNum or the prepare stage is done,
+                the data would flush into the storage.
 
                 When the consumer ends or an exception occurs in the middle, the entire process is completed.
              */
