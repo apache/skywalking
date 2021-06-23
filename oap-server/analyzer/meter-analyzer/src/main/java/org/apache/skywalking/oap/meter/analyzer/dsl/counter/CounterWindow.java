@@ -42,6 +42,7 @@ public class CounterWindow {
 
     public static final CounterWindow INSTANCE = new CounterWindow();
 
+    private final Map<ID, Tuple2<Long, Double>> lastElementMap = Maps.newHashMap();
     private final Map<ID, Queue<Tuple2<Long, Double>>> windows = Maps.newHashMap();
 
     public Tuple2<Long, Double> increase(String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
@@ -64,11 +65,23 @@ public class CounterWindow {
             peek = window.element();
         }
 
-        if (window.size() < 2 || waterLevel - result._1 <= peek._1 - waterLevel) {
+        if (waterLevel - result._1 <= peek._1 - waterLevel) {
             return result;
         }
 
         return peek;
+    }
+
+    public Tuple2<Long, Double> pop(String name, ImmutableMap<String, String> labels, Double value, long now) {
+        ID id = new ID(name, labels);
+
+        Tuple2<Long, Double> element = Tuple.of(now, value);
+        Tuple2<Long, Double> result = lastElementMap.get(id);
+        lastElementMap.put(id, element);
+        if (result == null) {
+            return element;
+        }
+        return result;
     }
 
     public void reset() {
