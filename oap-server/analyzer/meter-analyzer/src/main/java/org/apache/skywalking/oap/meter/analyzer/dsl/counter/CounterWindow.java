@@ -65,6 +65,7 @@ public class CounterWindow {
             peek = window.element();
         }
 
+        // Choose the closed slot to the expected timestamp
         if (waterLevel - result._1 <= peek._1 - waterLevel) {
             return result;
         }
