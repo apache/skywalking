@@ -28,10 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
@@ -152,7 +149,7 @@ public enum PersistenceTimer {
                         }
                         List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
                         worker.buildBatchRequests(innerPrepareRequests);
-                        prepareQueue.putMany(innerPrepareRequests);
+                        prepareQueue.push(innerPrepareRequests);
                         worker.endOfRound(System.currentTimeMillis() - lastTime);
                     } finally {
                         timer.finish();
@@ -166,7 +163,7 @@ public enum PersistenceTimer {
                 Future<?> batchFuture = executorService.submit(() -> {
                     // consume the metrics
                     while (!stop.get()) {
-                        List<PrepareRequest> partition = prepareQueue.popMany();
+                        List<PrepareRequest> partition = prepareQueue.pop();
                         if (partition.isEmpty()) {
                             break;
                         }
