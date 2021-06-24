@@ -28,6 +28,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -58,7 +63,6 @@ public enum PersistenceTimer {
     private int maxSyncoperationNum;
     private ExecutorService executorService;
     private ExecutorService prepareExecutorService;
-    private ExecutorService batchExecutorService;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -90,7 +94,6 @@ public enum PersistenceTimer {
 
         syncOperationThreadsNum = moduleConfig.getSyncThreads();
         maxSyncoperationNum = moduleConfig.getMaxSyncOperationNum();
-        batchExecutorService = Executors.newSingleThreadExecutor();
         executorService = Executors.newFixedThreadPool(syncOperationThreadsNum);
         prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
         if (!isStarted) {
@@ -158,15 +161,15 @@ public enum PersistenceTimer {
                 });
             });
 
-            Future<?> batchFuture = batchExecutorService.submit(() -> {
-                List<Future<?>> results = new ArrayList<>();
-                // consume the metrics
-                while (!stop.get()) {
-                    List<PrepareRequest> partition = prepareQueue.popMany();
-                    if (partition.isEmpty()) {
-                        break;
-                    }
-                    Future<?> submit = executorService.submit(() -> {
+            List<Future<?>> batchFutures = new ArrayList<>();
+            for (int i = 0; i < syncOperationThreadsNum; i++) {
+                Future<?> batchFuture = executorService.submit(() -> {
+                    // consume the metrics
+                    while (!stop.get()) {
+                        List<PrepareRequest> partition = prepareQueue.popMany();
+                        if (partition.isEmpty()) {
+                            break;
+                        }
                         HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
                         try {
                             if (CollectionUtils.isNotEmpty(partition)) {
@@ -177,24 +180,19 @@ public enum PersistenceTimer {
                         } finally {
                             executeLatencyTimer.finish();
                         }
-
-                    });
-                    results.add(submit);
-                }
-
-                if (!stop.get()) {
-                    for (Future<?> result : results) {
-                        result.get();
                     }
-                }
-                return null;
-            });
+                    return null;
+                });
+                batchFutures.add(batchFuture);
+            }
 
             // Wait for prepare stage is done.
             prepareStageCountDownLatch.await();
-            prepareQueue.disableNeedFillFully();
+            prepareQueue.noFurtherAppending();
             // Wait for batch stage is done.
-            batchFuture.get();
+            for (Future<?> result : batchFutures) {
+                result.get();
+            }
 
         } catch (Throwable e) {
             errorCounter.inc();
@@ -215,14 +213,14 @@ public enum PersistenceTimer {
         }
     }
 
+    @RequiredArgsConstructor
     private static class BlockingBatchQueue<E> {
 
-        private int maxBatchSize;
-        private boolean inAppendingMode = true;
+        @Getter
+        private final int maxBatchSize;
 
-        public BlockingBatchQueue(int maxBatchSize) {
-            this.maxBatchSize = maxBatchSize;
-        }
+        @Getter
+        private boolean inAppendingMode = true;
 
         private final List<E> elementData = new ArrayList<>(50000);
 
@@ -237,7 +235,7 @@ public enum PersistenceTimer {
 
         public List<E> popMany() throws InterruptedException {
             synchronized (elementData) {
-                while (this.elementData.size() < maxBatchSize && needFillFully) {
+                while (this.elementData.size() < maxBatchSize && inAppendingMode) {
                     elementData.wait(1000);
                 }
                 if (CollectionUtils.isEmpty(elementData)) {
@@ -253,14 +251,7 @@ public enum PersistenceTimer {
 
         public void noFurtherAppending() {
             synchronized (elementData) {
-                needFillFully = false;
-                elementData.notify();
-            }
-        }
-
-        public void enabledNeedFillFully() {
-            synchronized (elementData) {
-                needFillFully = true;
+                inAppendingMode = false;
                 elementData.notify();
             }
         }
