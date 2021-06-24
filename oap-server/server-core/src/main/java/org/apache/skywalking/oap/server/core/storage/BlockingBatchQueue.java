@@ -22,9 +22,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 
 /**
- A blocking batch queue.
-
- Use offer a list to the Queue or blocking poll a list from Queue.
+ * A blocking queue implementation for persistent process.
+ * Poll method only returns when it matches the threshold or no further appending declared.
  */
 interface BlockingBatchQueue<E> {
     List<E> poll() throws InterruptedException;
