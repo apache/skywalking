@@ -251,7 +251,7 @@ public enum PersistenceTimer {
             }
         }
 
-        public void disableNeedFillFully() {
+        public void noFurtherAppending() {
             synchronized (elementData) {
                 needFillFully = false;
                 elementData.notify();
