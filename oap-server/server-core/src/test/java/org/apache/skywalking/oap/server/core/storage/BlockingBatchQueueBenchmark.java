@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.jmh;
+package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class BlockingBatchQueueBenchmark {
     public static class MyState {
 
         int count = 10_000_000;
-        BlockingBatchQueueWithSynchronized blockingBatchQueueWithSynchronized = new BlockingBatchQueueWithSynchronized(
+        PersistenceTimer.DefaultBlockingBatchQueue blockingBatchQueueWithSynchronized = new PersistenceTimer.DefaultBlockingBatchQueue(
             50000);
         BlockingBatchQueueWithLinkedBlockingQueue blockingBatchQueueWithLinkedBlockingQueue = new BlockingBatchQueueWithLinkedBlockingQueue(
             50000);
@@ -96,7 +96,7 @@ public class BlockingBatchQueueBenchmark {
         for (int i = 0; i < myState.producerCount; i++) {
             myState.producer.submit(() -> {
                 for (int j = 0; j < myState.producerLength; j++) {
-                    queue.putMany(myState.willAdd);
+                    queue.offer(myState.willAdd);
                 }
                 latch.countDown();
                 return null;
@@ -106,7 +106,7 @@ public class BlockingBatchQueueBenchmark {
         List<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < myState.consumerCount; i++) {
             Future<?> submit = myState.consumer.submit(() -> {
-                while (!queue.popMany().isEmpty()) {
+                while (!queue.poll().isEmpty()) {
                 }
                 return null;
             });

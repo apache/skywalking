@@ -117,7 +117,8 @@ public enum PersistenceTimer {
         // Use `stop` as a control signal to make fail-fast in the persistence process.
         AtomicBoolean stop = new AtomicBoolean(false);
 
-        BlockingBatchQueue<PrepareRequest> prepareQueue = new BlockingBatchQueue(this.maxSyncoperationNum);
+        DefaultBlockingBatchQueue<PrepareRequest> prepareQueue = new DefaultBlockingBatchQueue(
+            this.maxSyncoperationNum);
         try {
             List<PersistenceWorker<? extends StorageData>> persistenceWorkers = new ArrayList<>();
             persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
@@ -210,8 +211,26 @@ public enum PersistenceTimer {
         }
     }
 
+
+    /**
+     A blocking batch queue. Use for batch request to the stoage.
+     */
+    interface BlockingBatchQueue<E> {
+        public List<E> poll() throws InterruptedException;
+
+        public void offer(List<E> elements);
+
+        public void noFurtherAppending();
+
+        public void furtherAppending();
+
+        int size();
+    }
+
+
+
     @RequiredArgsConstructor
-    private static class BlockingBatchQueue<E> {
+    static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
 
         @Getter
         private final int maxBatchSize;
@@ -221,15 +240,17 @@ public enum PersistenceTimer {
 
         private final List<E> elementData = new ArrayList<>(50000);
 
+        @Override
         public void offer(List<E> elements) {
             synchronized (elementData) {
                 elementData.addAll(elements);
                 if (elementData.size() >= maxBatchSize) {
-                    elementData.notify();
+                    elementData.notifyAll();
                 }
             }
         }
 
+        @Override
         public List<E> poll() throws InterruptedException {
             synchronized (elementData) {
                 while (this.elementData.size() < maxBatchSize && inAppendingMode) {
@@ -246,10 +267,26 @@ public enum PersistenceTimer {
             }
         }
 
+        @Override
         public void noFurtherAppending() {
             synchronized (elementData) {
                 inAppendingMode = false;
-                elementData.notify();
+                elementData.notifyAll();
+            }
+        }
+
+        @Override
+        public void furtherAppending() {
+            synchronized (elementData) {
+                inAppendingMode = true;
+                elementData.notifyAll();
+            }
+        }
+
+        @Override
+        public int size() {
+            synchronized (elementData) {
+                return elementData.size();
             }
         }
     }

@@ -16,39 +16,49 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.jmh;
+package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @RequiredArgsConstructor
-public class BlockingBatchQueueWithSynchronized<E> implements BlockingBatchQueue<E> {
+public class BlockingBatchQueueWithReentrantLock<E> implements BlockingBatchQueue<E> {
 
     @Getter
     private final int maxBatchSize;
 
     @Getter
-    private boolean inAppendingMode = true;
+    private volatile boolean inAppendingMode = true;
 
     private final List<E> elementData = new ArrayList<>(50000);
 
-    public void putMany(List<E> elements) {
-        synchronized (elementData) {
+    private ReentrantLock reentrantLock = new ReentrantLock();
+    private Condition condition = this.reentrantLock.newCondition();
+
+    public void offer(List<E> elements) {
+        reentrantLock.lock();
+        try {
             elementData.addAll(elements);
             if (elementData.size() >= maxBatchSize) {
-                elementData.notifyAll();
+                condition.signalAll();
             }
+        } finally {
+            reentrantLock.unlock();
         }
     }
 
-    public List<E> popMany() throws InterruptedException {
-        synchronized (elementData) {
+    public List<E> poll() throws InterruptedException {
+        reentrantLock.lock();
+        try {
             while (this.elementData.size() < maxBatchSize && inAppendingMode) {
-                elementData.wait(1000);
+                condition.await(1000, TimeUnit.MILLISECONDS);
             }
             if (CollectionUtils.isEmpty(elementData)) {
                 return Collections.EMPTY_LIST;
@@ -58,20 +68,28 @@ public class BlockingBatchQueueWithSynchronized<E> implements BlockingBatchQueue
             List<E> partition = new ArrayList<>(sublist);
             sublist.clear();
             return partition;
+        } finally {
+            reentrantLock.unlock();
         }
     }
 
     public void noFurtherAppending() {
-        synchronized (elementData) {
+        reentrantLock.lock();
+        try {
             inAppendingMode = false;
-            elementData.notifyAll();
+            condition.signalAll();
+        } finally {
+            reentrantLock.unlock();
         }
     }
 
     public void furtherAppending() {
-        synchronized (elementData) {
+        reentrantLock.lock();
+        try {
             inAppendingMode = true;
-            elementData.notifyAll();
+            condition.signalAll();
+        } finally {
+            reentrantLock.unlock();
         }
     }
 

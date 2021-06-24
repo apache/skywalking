@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.jmh;
+package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +36,11 @@ public class BlockingBatchQueueWithLinkedBlockingQueue<E> implements BlockingBat
 
     private final LinkedBlockingQueue<E> elementData = new LinkedBlockingQueue<>();
 
-    public void putMany(List<E> elements) {
+    public void offer(List<E> elements) {
         elementData.addAll(elements);
     }
 
-    public List<E> popMany() throws InterruptedException {
+    public List<E> poll() throws InterruptedException {
         List<E> result = new ArrayList<>();
         do {
             E take = elementData.poll(1000, TimeUnit.MILLISECONDS);
