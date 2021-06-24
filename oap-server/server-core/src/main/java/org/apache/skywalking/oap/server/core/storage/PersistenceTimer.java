@@ -235,7 +235,7 @@ public enum PersistenceTimer {
             }
         }
 
-        public List<E> popMany() throws InterruptedException {
+        public List<E> pop() throws InterruptedException {
             synchronized (elementData) {
                 while (this.elementData.size() < maxBatchSize && needFillFully) {
                     elementData.wait(1000);
