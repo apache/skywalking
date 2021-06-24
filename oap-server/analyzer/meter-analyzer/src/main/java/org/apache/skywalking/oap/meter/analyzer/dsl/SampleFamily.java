@@ -288,7 +288,20 @@ public class SampleFamily {
     }
 
     public SampleFamily irate() {
-        return rate("PT1S");
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(sample -> sample.increase(
+                      (lowerBoundValue, lowerBoundTime) -> {
+                          final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
+                          return timeDiff < 1L ? 0.0 : (sample.value - lowerBoundValue) / timeDiff;
+                      }
+                  ))
+                  .toArray(Sample[]::new)
+        );
     }
 
     @SuppressWarnings(value = "unchecked")

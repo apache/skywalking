@@ -51,4 +51,10 @@ public class Sample {
         double nv = transform.apply(i._2, i._1);
         return newValue(ignored -> nv);
     }
+
+    Sample increase(Function2<Double, Long, Double> transform) {
+        Tuple2<Long, Double> i = CounterWindow.INSTANCE.pop(name, labels, value, timestamp);
+        double nv = transform.apply(i._2, i._1);
+        return newValue(ignored -> nv);
+    }
 }

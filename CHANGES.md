@@ -43,6 +43,7 @@ Release Notes.
 * OAL supports generating metrics from events.
 * Support endpoint name grouping by OpenAPI definitions.
 * Concurrent create PrepareRequest when persist Metrics
+* Fix CounterWindow increase computing issue.
 
 #### UI
 * Fix the date component for log conditions.
