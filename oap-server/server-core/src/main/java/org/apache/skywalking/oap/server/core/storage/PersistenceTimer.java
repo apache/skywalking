@@ -224,7 +224,7 @@ public enum PersistenceTimer {
 
         private final List<E> elementData = new ArrayList<>(50000);
 
-        public void putMany(List<E> elements) {
+        public void push(List<E> elements) {
             synchronized (elementData) {
                 elementData.addAll(elements);
                 if (elementData.size() >= maxBatchSize) {
