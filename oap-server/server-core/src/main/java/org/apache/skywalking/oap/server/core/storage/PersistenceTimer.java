@@ -114,7 +114,7 @@ public enum PersistenceTimer {
 
         long startTime = System.currentTimeMillis();
         HistogramMetrics.Timer allTimer = allLatency.createTimer();
-        // Use flag entire method is done or exception exit. Mainly used to handle exceptions to let the thread exit.
+        // Use `stop` as a control signal to make fail-fast in the persistence process.
         AtomicBoolean stop = new AtomicBoolean(false);
 
         BlockingBatchQueue<PrepareRequest> prepareQueue = new BlockingBatchQueue(this.maxSyncoperationNum);
