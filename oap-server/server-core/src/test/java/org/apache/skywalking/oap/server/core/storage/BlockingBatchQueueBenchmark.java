@@ -128,4 +128,22 @@ public class BlockingBatchQueueBenchmark {
         new Runner(opt).run();
     }
 
+    /**
+     * # JMH version: 1.21
+     * # VM version: JDK 1.8.0_172, Java HotSpot(TM) 64-Bit Server VM, 25.172-b11
+     * # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home/jre/bin/java
+     * # VM options: -javaagent:/Users/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/211.7442.40/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50386:/Users/alvin/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/211.7442.40/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8
+     * # Warmup: 5 iterations, 10 s each
+     * # Measurement: 5 iterations, 10 s each
+     * # Timeout: 10 min per iteration
+     * # Threads: 1 thread, will synchronize iterations
+     * # Benchmark mode: Throughput, ops/time
+     *
+     *  Benchmark                                             Mode  Cnt   Score   Error  Units
+     *  BlockingBatchQueueBenchmark.testLinkedBlockingQueue  thrpt   10   0.317 ± 0.032  ops/s
+     *  BlockingBatchQueueBenchmark.testReentrantLock        thrpt   10  16.018 ± 1.553  ops/s
+     *  BlockingBatchQueueBenchmark.testSynchronized         thrpt   10  16.769 ± 0.533  ops/s
+     *
+     */
+
 }
