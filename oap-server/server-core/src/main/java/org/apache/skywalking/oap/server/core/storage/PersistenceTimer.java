@@ -49,7 +49,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public enum PersistenceTimer {
     INSTANCE;
     @VisibleForTesting
-    Boolean isStarted = false;
+    private boolean isStarted = false;
     private final Boolean debug;
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
@@ -127,15 +127,6 @@ public enum PersistenceTimer {
             // CountDownLatch makes sure all prepare threads done eventually.
             CountDownLatch prepareStageCountDownLatch = new CountDownLatch(persistenceWorkers.size());
 
-            /*
-                Here we use `this.prepareRequests` as a FIFO queue, for a producer-consumer model.
-                The prepareExecutorService is for making the executable requests ready, and batchExecutorService consumes from the queue to flush.
-                When the number of metrics produced reaches maxSyncoperationNum or the prepare stage is done,
-                the data would flush into the storage.
-
-                When the consumer ends or an exception occurs in the middle, the entire process is completed.
-             */
-
             persistenceWorkers.forEach(worker -> {
                 prepareExecutorService.submit(() -> {
                     if (stop.get()) {
@@ -150,6 +141,8 @@ public enum PersistenceTimer {
                         }
                         List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
                         worker.buildBatchRequests(innerPrepareRequests);
+                        // Push the prepared requests into DefaultBlockingBatchQueue,
+                        // the executorService consumes from it when it reaches the size of batch.
                         prepareQueue.offer(innerPrepareRequests);
                         worker.endOfRound(System.currentTimeMillis() - lastTime);
                     } finally {
