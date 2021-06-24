@@ -218,7 +218,7 @@ public enum PersistenceTimer {
     private static class BlockingBatchQueue<E> {
 
         private int maxBatchSize;
-        private boolean needFillFully = true;
+        private boolean inAppendingMode = true;
 
         public BlockingBatchQueue(int maxBatchSize) {
             this.maxBatchSize = maxBatchSize;
