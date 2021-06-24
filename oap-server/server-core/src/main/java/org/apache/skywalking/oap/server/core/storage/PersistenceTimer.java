@@ -211,24 +211,6 @@ public enum PersistenceTimer {
         }
     }
 
-
-    /**
-     A blocking batch queue. Use for batch request to the stoage.
-     */
-    interface BlockingBatchQueue<E> {
-        public List<E> poll() throws InterruptedException;
-
-        public void offer(List<E> elements);
-
-        public void noFurtherAppending();
-
-        public void furtherAppending();
-
-        int size();
-    }
-
-
-
     @RequiredArgsConstructor
     static class DefaultBlockingBatchQueue<E> implements BlockingBatchQueue<E> {
 
