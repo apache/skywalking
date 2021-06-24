@@ -149,7 +149,7 @@ public enum PersistenceTimer {
                         }
                         List<PrepareRequest> innerPrepareRequests = new ArrayList<>(5000);
                         worker.buildBatchRequests(innerPrepareRequests);
-                        prepareQueue.push(innerPrepareRequests);
+                        prepareQueue.offer(innerPrepareRequests);
                         worker.endOfRound(System.currentTimeMillis() - lastTime);
                     } finally {
                         timer.finish();
@@ -163,7 +163,7 @@ public enum PersistenceTimer {
                 Future<?> batchFuture = executorService.submit(() -> {
                     // consume the metrics
                     while (!stop.get()) {
-                        List<PrepareRequest> partition = prepareQueue.pop();
+                        List<PrepareRequest> partition = prepareQueue.poll();
                         if (partition.isEmpty()) {
                             break;
                         }
@@ -221,7 +221,7 @@ public enum PersistenceTimer {
 
         private final List<E> elementData = new ArrayList<>(50000);
 
-        public void push(List<E> elements) {
+        public void offer(List<E> elements) {
             synchronized (elementData) {
                 elementData.addAll(elements);
                 if (elementData.size() >= maxBatchSize) {
@@ -230,7 +230,7 @@ public enum PersistenceTimer {
             }
         }
 
-        public List<E> pop() throws InterruptedException {
+        public List<E> poll() throws InterruptedException {
             synchronized (elementData) {
                 while (this.elementData.size() < maxBatchSize && inAppendingMode) {
                     elementData.wait(1000);
