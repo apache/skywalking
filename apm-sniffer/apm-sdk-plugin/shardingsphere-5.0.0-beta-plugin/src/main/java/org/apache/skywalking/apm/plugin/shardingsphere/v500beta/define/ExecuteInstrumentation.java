@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutorCallback;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -30,7 +29,8 @@ import static net.bytebuddy.matcher.ElementMatchers.isPrivate;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link JDBCExecutorCallback}.
+ * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link
+ * org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutorCallback}.
  */
 public class ExecuteInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 

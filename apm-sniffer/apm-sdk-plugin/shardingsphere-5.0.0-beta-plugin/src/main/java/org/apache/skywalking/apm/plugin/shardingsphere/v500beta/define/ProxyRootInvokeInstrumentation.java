@@ -28,11 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * ProxyRootInvokeInstrumentation presents that skywalking intercepts org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask.
+ * ProxyRootInvokeInstrumentation presents that skywalking intercepts org.apache.shardingsphere.proxy.frontend.command.CommandExecutorTask.
  */
 public class ProxyRootInvokeInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask";
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.proxy.frontend.command.CommandExecutorTask";
 
     private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.ProxyRootInvokeInterceptor";
 

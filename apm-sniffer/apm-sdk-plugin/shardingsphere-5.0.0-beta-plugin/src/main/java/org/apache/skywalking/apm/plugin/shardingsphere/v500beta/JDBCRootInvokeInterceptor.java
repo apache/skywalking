@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * {@link JDBCRootInvokeInterceptor} enhances {@link org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor},
+ * {@link JDBCRootInvokeInterceptor} enhances {@link org.apache.shardingsphere.driver.executor.JDBCLockEngine},
  * creating a local span that records the overall execution of sql.
  */
 public class JDBCRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {

@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.shardingsphere.v500beta.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.shardingsphere.sql.parser.api.parser.SQLParser;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -29,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ParseInstrumentation} presents that skywalking intercepts {@link SQLParser}.
+ * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.sql.parser.api.parser.SQLParser}.
  */
 public class ParseInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 

@@ -29,11 +29,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link
- * org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}.
+ * org.apache.shardingsphere.driver.executor.JDBCLockEngine}.
  */
 public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500BetaInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor";
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.driver.executor.JDBCLockEngine";
 
     private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v500beta.JDBCRootInvokeInterceptor";
 
@@ -43,7 +43,7 @@ public class JDBCRootInvokeInstrumentation extends AbstractShardingSphereV500Bet
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("executeCallback");
+                    return named("execute");
                 }
 
                 @Override

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.shardingsphere.v500beta;
 
-import org.apache.shardingsphere.sql.parser.api.parser.SQLParser;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -30,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * {@link ParseInterceptor} enhances {@link SQLParser},
+ * {@link ParseInterceptor} enhances {@link org.apache.shardingsphere.sql.parser.api.parser.SQLParser},
  * creating a local span that records the parse of sql.
  */
 public class ParseInterceptor implements InstanceMethodsAroundInterceptor {
