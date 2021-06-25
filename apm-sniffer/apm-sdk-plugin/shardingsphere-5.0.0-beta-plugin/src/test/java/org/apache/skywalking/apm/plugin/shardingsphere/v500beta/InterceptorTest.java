@@ -116,7 +116,7 @@ public class InterceptorTest {
         Object[] allArguments = new Object[] {
             null,
             null,
-            new HashMap<Object, Object>()
+            new HashMap<>()
         };
         executeInterceptor.beforeMethod(null, null, allArguments, null, null);
         executeInterceptor.afterMethod(null, null, allArguments, null, null);
