@@ -169,7 +169,7 @@ public class CoreModuleConfig extends ModuleConfig {
 
     @Getter
     @Setter
-    private boolean enableEndpointNameGroupingByOpenapi = false;
+    private boolean enableEndpointNameGroupingByOpenapi = true;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
