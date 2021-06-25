@@ -213,11 +213,14 @@ public enum PersistenceTimer {
         @Getter
         private boolean inAppendingMode = true;
 
-        private final List<E> elementData = new ArrayList<>(50000);
+        private final List<E> elementData = new ArrayList<>(50000 * 3);
 
         @Override
         public void offer(List<E> elements) {
             synchronized (elementData) {
+                if (!inAppendingMode) {
+                    throw new IllegalStateException();
+                }
                 elementData.addAll(elements);
                 if (elementData.size() >= maxBatchSize) {
                     elementData.notifyAll();
