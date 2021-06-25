@@ -15,6 +15,7 @@ Release Notes.
 * Remove deprecated gRPC method, `io.grpc.ManagedChannelBuilder#nameResolverFactory`. See [gRPC-java 7133](https://github.com/grpc/grpc-java/issues/7133) for more details.
 * Add `Neo4j-4.x` plugin.
 * Correct `profile.duration` to `profile.max_duration` in the default `agent.config` file.
+* Add `ShardingSphere-5.0.0-beta` plugin.
 
 #### OAP-Backend
 * Disable Spring sleuth meter analyzer by default.
