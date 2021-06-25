@@ -82,6 +82,12 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             throw t;
         } finally {
             ContextManager.stopSpan();
+            try {
+                AbstractSpan abstractSpan = ContextManager.activeSpan();
+                ContextManager.stopSpan(abstractSpan);
+            } catch (Exception e) {
+                throw e;
+            }
         }
     }
 
@@ -99,6 +105,12 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             throw t;
         } finally {
             ContextManager.stopSpan();
+            try {
+                AbstractSpan abstractSpan = ContextManager.activeSpan();
+                ContextManager.stopSpan(abstractSpan);
+            } catch (Exception e) {
+                throw e;
+            }
         }
     }
 }

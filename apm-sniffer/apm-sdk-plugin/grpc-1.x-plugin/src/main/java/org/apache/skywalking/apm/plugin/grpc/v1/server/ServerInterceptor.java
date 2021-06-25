@@ -47,11 +47,8 @@ public class ServerInterceptor implements io.grpc.ServerInterceptor {
         final AbstractSpan span = ContextManager.createEntrySpan(OperationNameFormatUtil.formatOperationName(call.getMethodDescriptor()), contextCarrier);
         span.setComponent(ComponentsDefine.GRPC);
         span.setLayer(SpanLayer.RPC_FRAMEWORK);
-        try {
-            return new TracingServerCallListener<>(handler.startCall(new TracingServerCall<>(call, ContextManager.capture()), headers), call
-                .getMethodDescriptor(), ContextManager.capture());
-        } finally {
-            ContextManager.stopSpan();
-        }
+        return new TracingServerCallListener<>(handler.startCall(new TracingServerCall<>(call, ContextManager.capture()), headers), call
+            .getMethodDescriptor(), ContextManager.capture());
+
     }
 }
